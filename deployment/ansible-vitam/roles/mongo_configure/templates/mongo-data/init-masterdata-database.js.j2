@@ -1,4 +1,3 @@
-
 // Switch to masterdata database
 db = db.getSiblingDB('masterdata')
 
@@ -18,9 +17,6 @@ db.FileFormat.createIndex( { "PUID" : 1 } , { unique: true } )
 db.AccessionRegisterSummary.createIndex( { "_tenant" : 1 , "OriginatingAgency" : 1 } , { unique: true } )
 db.AccessionRegisterSummary.createIndex( { "_tenant" : 1 } )
 
-// [Migration R7 -> R8] Drop R6 and R7 AccessionRegisterDetail indexes
-db.AccessionRegisterDetail.dropIndex( { "OriginatingAgency" : 1, "Identifier" : 1, "_tenant" : 1} )
-
 // Create AccessionRegisterDetail indexes
 db.AccessionRegisterDetail.createIndex( { "_tenant" : 1 } )
 db.AccessionRegisterDetail.createIndex( { "OriginatingAgency" : 1 } )
@@ -28,6 +24,9 @@ db.AccessionRegisterDetail.createIndex( { "SubmissionAgency" : 1 } )
 db.AccessionRegisterDetail.createIndex( { "Opc" : 1 } )
 db.AccessionRegisterDetail.createIndex( { "Opi" : 1 } )
 db.AccessionRegisterDetail.createIndex( { "OriginatingAgency" : 1, "Opi" : 1, "_tenant" : 1} , { unique: true } )
+
+// [Migration R7 -> R8] Drop R6 and R7 AccessionRegisterDetail indexes
+db.AccessionRegisterDetail.dropIndex( { "OriginatingAgency" : 1, "Identifier" : 1, "_tenant" : 1} )
 
 db.IngestContract.createIndex( { "_tenant" : 1 , "Identifier" : 1 } , { unique: true } )
 

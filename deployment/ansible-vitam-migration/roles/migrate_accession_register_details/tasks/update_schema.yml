@@ -9,7 +9,7 @@
     mode: "{{ vitam_defaults.folder.conf_permission }}"
 
 - name: update in mongo Accession Register Detail schema.
-  shell: "mongo {{ hostvars[groups['hosts_mongos_data'][0]]['ip_service'] }}:{{ mongodb.mongos_port }}/admin -u {{ mongodb['mongo-data'].admin.user }} -p {{ mongodb['mongo-data'].admin.password }} --quiet {{ vitam_defaults.folder.root_path }}/tmp/mongos/migrate_accession_register_details.js"
+  command: "mongosh --host mongo-data-mongos.service.{{ consul_domain }} --port {{ mongodb.mongos_port }} -u {{ mongodb['mongo-data'].admin.user }} -p {{ mongodb['mongo-data'].admin.password }} --quiet --file {{ vitam_defaults.folder.root_path }}/tmp/mongos/migrate_accession_register_details.js"
   register: results # used in update_accession_register_details.yml
   no_log: "{{ hide_passwords_during_deploy }}"
 

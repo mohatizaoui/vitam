@@ -7,3 +7,8 @@ if (!sh.getBalancerState()) {
     print("Failed to start the balancer");
     quit(1);
 }
+// Wait until the balancer is started
+// The timeout is managed by ansible, not by the script
+while (sh.isBalancerRunning().mode === 'off') {
+    sleep(1000);
+}

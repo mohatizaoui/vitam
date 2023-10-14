@@ -15,6 +15,7 @@
       tags: always
 
 - hosts: hosts_mongos_data
+  run_once: true
   roles:
     - upgrade_R10_contracts
 

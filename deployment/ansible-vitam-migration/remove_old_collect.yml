@@ -20,5 +20,6 @@
 
 - hosts: hosts_mongos_data
   gather_facts: no
+  run_once: true
   roles:
     - update_collect_referential_data

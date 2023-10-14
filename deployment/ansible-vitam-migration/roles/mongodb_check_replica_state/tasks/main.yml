@@ -9,7 +9,7 @@
     mode: "{{ vitam_defaults.folder.conf_permission }}"
 
 - name: Check replica state
-  shell: "mongo {{ ip_service }}:{{ mongo_port }}/admin -u {{ mongodb[mongo_cluster_name].localadmin.user }} -p {{ mongodb[mongo_cluster_name].localadmin.password }} --quiet < {{ vitam_defaults.folder.root_path }}/script/{{ mongo_type }}/check_replica_state.js"
+  command: "mongosh --host {{ ip_service }} --port {{ mongo_port }} -u {{ mongodb[mongo_cluster_name].localadmin.user }} -p {{ mongodb[mongo_cluster_name].localadmin.password }} --quiet --file {{ vitam_defaults.folder.root_path }}/script/{{ mongo_type }}/check_replica_state.js"
   no_log: "{{ hide_passwords_during_deploy }}"
   ignore_errors: true # To properly catch output on the next task
   register: output_replica_state

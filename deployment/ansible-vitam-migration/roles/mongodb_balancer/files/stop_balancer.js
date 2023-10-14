@@ -9,6 +9,6 @@ if (sh.getBalancerState()) {
 }
 // Wait until the balancer is stopped
 // The timeout is managed by ansible, not by the script
-while (sh.isBalancerRunning()) {
+while (sh.isBalancerRunning().mode === 'full') {
     sleep(1000);
 }

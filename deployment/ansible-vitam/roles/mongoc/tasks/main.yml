@@ -194,7 +194,7 @@
         - update_mongodb_configuration
 
     - name: Initiate the replica set
-      command: "mongo --host {{ ip_service }} --port {{ mongodb.mongoc_port }} {{ vitam_defaults.folder.root_path }}/app/mongoc/init-replica-config.js"
+      command: "mongosh --host {{ ip_service }} --port {{ mongodb.mongoc_port }} --quiet --file {{ vitam_defaults.folder.root_path }}/app/mongoc/init-replica-config.js"
       tags:
         - update_mongodb_configuration
 
@@ -211,7 +211,7 @@
         - update_mongodb_configuration
 
     - name: Create the local shard user
-      command: "mongo --host configsvr/{{ ip_service }}:{{ mongodb.mongoc_port }} {{ vitam_defaults.folder.root_path }}/app/mongoc/local-user.js"
+      command: "mongosh --host configsvr/{{ ip_service }} --port {{ mongodb.mongoc_port }} --quiet --file {{ vitam_defaults.folder.root_path }}/app/mongoc/local-user.js"
       tags:
         - update_mongodb_configuration
 
