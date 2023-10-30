@@ -6,14 +6,14 @@ db = db.getSiblingDB('identity')
 db.Certificate.find({}).forEach(function(item)
 {
    item.SerialNumber="" + item.SerialNumber;
-   db.Certificate.update({_id: item._id}, item);
+   db.Certificate.updateOne({_id: item._id}, item);
 });
 
 // Update PersonalCertificate  SerialNumber as a string
 db.PersonalCertificate.find({}).forEach(function(item)
 {
    item.SerialNumber="" + item.SerialNumber;
-   db.PersonalCertificate.update({_id: item._id}, item);
+   db.PersonalCertificate.updateOne({_id: item._id}, item);
 });
 
 // Below is the int version
@@ -21,13 +21,13 @@ db.PersonalCertificate.find({}).forEach(function(item)
 /*db.Certificate.find({}).forEach(function(item)
 {
    item.SerialNumber=NumberInt(item.SerialNumber);
-   db.Certificate.update({_id: item._id}, item);
+   db.Certificate.updateOne({_id: item._id}, item);
 });
 
 // Update PersonalCertificate  SerialNumber as a string
 db.PersonalCertificate.find({}).forEach(function(item)
 {
    item.SerialNumber=NumberInt(item.SerialNumber);
-   db.PersonalCertificate.update({_id: item._id}, item);
+   db.PersonalCertificate.updateOne({_id: item._id}, item);
 });
 */

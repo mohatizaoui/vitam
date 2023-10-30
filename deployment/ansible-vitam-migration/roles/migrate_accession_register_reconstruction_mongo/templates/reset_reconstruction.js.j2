@@ -3,9 +3,9 @@
 db = db.getSiblingDB('masterdata');
 
 // Reset accession register collections
-db.AccessionRegisterDetail.remove({});
-db.AccessionRegisterSymbolic.remove({});
-db.AccessionRegisterSummary.remove({});
+db.AccessionRegisterDetail.deleteMany({});
+db.AccessionRegisterSymbolic.deleteMany({});
+db.AccessionRegisterSummary.deleteMany({});
 
 // Reset reconstruction offsets
 db.Offset.updateMany(
