@@ -6,7 +6,29 @@ Notes et procédures spécifiques V7.1
 Adaptation des sources de déploiement ansible
 =============================================
 
-N/A
+Modification de la personnalisation des rôles des clusters Elasticsearch
+------------------------------------------------------------------------
+
+Elasticsearch ayant fait évoluer la définition des paramètres des rôles pour chacun des noeuds, si vous avez personnalisés les rôles associés à vos serveurs pour chacun de vos clusters Elasticsearch (log ou data), les paramètres de configuration au niveau de l'ansiblerie doivent être adaptés.
+
+Les paramètres suivants permettant la personnalisation des rôles ont étés retirés:
+
+.. code-block:: ini
+
+    is_master=true is_data=true is_ingest=false
+
+..
+
+Vous devrez les remplacer par la nouvelle convention sous forme de tableau pour chacun des hosts personnalisés:
+
+.. code-block:: ini
+
+    elasticsearch_roles=[master, data]
+
+..
+
+Cette nouvelle convention offre plus de souplesse dans la définition de l'ensemble des rôles possible pour un cluster Elasticsearch (cf. `Documentation officielle - Node Roles <https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-node.html#node-roles>`_).
+Attention une mauvaise configuration de ces paramètres avancés pourrait mener à une incohérence de la configuration rendant vos clusters non fonctionnels.
 
 Procédures à exécuter AVANT la montée de version
 ================================================
