@@ -35,6 +35,6 @@ sudo yum clean all
 echo "Creating cache"
 sudo yum --disablerepo="*" --enablerepo="local" makecache
 echo "Done ! Available rpm packages in local vitam-product repository :"
-yum --disablerepo="*" --enablerepo="local" list available
+sudo yum --disablerepo="*" --enablerepo="local" list available
 echo "Build done ! Now you can deploy VITAM: vitam-deploy [local|fulllocal]"
 popd
