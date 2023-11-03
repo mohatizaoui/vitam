@@ -33,8 +33,8 @@ RUN (cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i == system
 RUN yum remove -y java-1.8*
 
 RUN yum install -y \
-    	java-11-openjdk-devel \
-    	rpm-build \
+        java-11-openjdk-devel \
+        rpm-build \
         rpmdevtools \
         initscripts.x86_64 \
         golang \
@@ -74,18 +74,10 @@ COPY rpm/devlocal.repo /etc/yum.repos.d/devlocal.repo
 
 ################################## Add dev helpers #################################
 
-COPY rpm/vitam-build-repo /usr/bin
-COPY vitam-deploy /usr/bin
-COPY vitam-deploy-extra /usr/bin
-COPY rpm/vitam-maven-build-only /usr/bin
-COPY vitam-redeploy /usr/bin
-COPY vitam-redeploy-extra /usr/bin
-COPY vitam-command /usr/bin
-COPY rpm/vitam-deploy-cots /usr/bin
-RUN chmod a+x /usr/bin/vitam-*
-
-COPY rpm/profile-build-repo.sh /etc/profile.d
-COPY profile-prompt-usage.sh /etc/profile.d
+RUN ln -s \
+    /code/dev-deployment/dev-base/rpm/profile-build-repo.sh \
+    /code/dev-deployment/dev-base/profile-prompt-usage.sh \
+    /etc/profile.d/
 COPY .bashrc /devhome
 COPY vitam-usage.txt /etc
 COPY rpm/wheel-nopwd /etc/sudoers.d
@@ -102,25 +94,31 @@ VOLUME [ "/sys/fs/cgroup" ]
 VOLUME [ "/code" ]
 VOLUME [ "/devhome/.m2" ]
 
-WORKDIR /code
-
-# Entry Point to systemd init
-CMD ["/usr/sbin/init"]
-
-COPY vitam-stop /usr/bin
-COPY vitam-start /usr/bin
-COPY vitam-restart /usr/bin
-COPY vitam-bench-ingest /usr/bin
-COPY vitam-mongo-cli /usr/bin
-COPY vitam-mongo-cli-rs /usr/bin
-COPY rpm/vitam-recreate-repo /usr/bin
-
-RUN chmod a+x /usr/bin/vitam-*
-RUN chmod 644 /etc/sudoers.d/wheel-nopwd
+RUN yum install -y --disablerepo=local selinux-policy selinux-policy-devel
 
 # System tuning for elasticsearch
 RUN echo "vm.max_map_count = 262144" >> /etc/sysctl.conf
 
-COPY rpm/vitam-build-griffins /usr/bin
+RUN ln -s \
+    /code/dev-deployment/dev-base/rpm/vitam-build-griffins \
+    /code/dev-deployment/dev-base/rpm/vitam-build-repo \
+    /code/dev-deployment/dev-base/rpm/vitam-deploy-cots \
+    /code/dev-deployment/dev-base/rpm/vitam-maven-build-only \
+    /code/dev-deployment/dev-base/rpm/vitam-recreate-repo \
+    /code/dev-deployment/dev-base/vitam-bench-ingest \
+    /code/dev-deployment/dev-base/vitam-command \
+    /code/dev-deployment/dev-base/vitam-deploy \
+    /code/dev-deployment/dev-base/vitam-deploy-extra \
+    /code/dev-deployment/dev-base/vitam-mongo-cli \
+    /code/dev-deployment/dev-base/vitam-mongo-cli-rs \
+    /code/dev-deployment/dev-base/vitam-redeploy \
+    /code/dev-deployment/dev-base/vitam-redeploy-extra \
+    /code/dev-deployment/dev-base/vitam-restart \
+    /code/dev-deployment/dev-base/vitam-start \
+    /code/dev-deployment/dev-base/vitam-stop \
+    /usr/bin/
 
-RUN yum install -y --disablerepo=local selinux-policy selinux-policy-devel
+WORKDIR /code
+
+# Entry Point to systemd init
+CMD ["/usr/sbin/init"]
