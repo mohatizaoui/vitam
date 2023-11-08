@@ -17,6 +17,7 @@
 - import_playbook: ../ansible-vitam-exploitation/stop_external.yml
 
 - hosts: hosts_mongos_data
+  run_once: true
   roles:
     - upgrade_R10_serial_number
 

@@ -1,0 +1,13 @@
+---
+
+- name: Copy refresh_routing_table database script
+  copy:
+    src: refresh_routing_table.js
+    dest: "{{ vitam_defaults.folder.root_path }}/script/mongos"
+    owner: "{{ vitam_defaults.users.vitamdb }}"
+    group: "{{ vitam_defaults.users.group }}"
+    mode: "{{ vitam_defaults.folder.conf_permission }}"
+
+- name: "Refresh the cached routing table for each mongos"
+  command: "mongosh --host {{ ip_service }} --port {{ mongodb.mongos_port | default(27017) }} -u {{ mongodb[mongo_cluster_name].localadmin.user }} -p {{ mongodb[mongo_cluster_name].localadmin.password }} --quiet --file {{ vitam_defaults.folder.root_path }}/script/mongos/refresh_routing_table.js"
+  no_log: "{{ hide_passwords_during_deploy }}"

@@ -69,16 +69,16 @@ Effectuer une purge des datas :
 
 ::
    use logbook
-   db.getCollectionNames().forEach(function(x) {db[x].remove({})});
+   db.getCollectionNames().forEach(function(x) {db[x].deleteMany({})});
 
    use masterdata
-   db.getCollectionNames().forEach(function(x) {db[x].remove({})});
+   db.getCollectionNames().forEach(function(x) {db[x].deleteMany({})});
 
    use metadata
-   db.getCollectionNames().forEach(function(x) {db[x].remove({})});
+   db.getCollectionNames().forEach(function(x) {db[x].deleteMany({})});
 
    use report
-   db.getCollectionNames().forEach(function(x) {db[x].remove({})});
+   db.getCollectionNames().forEach(function(x) {db[x].deleteMany({})});
 
 Arrêtez mongodb data :
 

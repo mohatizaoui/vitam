@@ -8,5 +8,5 @@ db.IngestContract.find({}).forEach(function(item) {
         item.checkParentId = new Array(item.LinkParentId);
     }
     item.CheckParentLink = "AUTHORIZED";
-    db.IngestContract.update({_id: item._id}, item);
+    db.IngestContract.updateOne({_id: item._id}, item);
 });

@@ -1,19 +1,17 @@
-https://repo.mongodb.org/apt/debian/dists/buster/mongodb-org/5.0/main/binary-amd64/mongodb-org-mongos_5.0.14_amd64.deb
-https://repo.mongodb.org/apt/debian/dists/buster/mongodb-org/5.0/main/binary-amd64/mongodb-org-server_5.0.14_amd64.deb
-https://repo.mongodb.org/apt/debian/dists/buster/mongodb-org/5.0/main/binary-amd64/mongodb-org-shell_5.0.14_amd64.deb
-https://repo.mongodb.org/apt/debian/dists/buster/mongodb-org/5.0/main/binary-amd64/mongodb-org-tools_5.0.14_amd64.deb
-https://repo.mongodb.org/apt/debian/dists/buster/mongodb-org/5.0/main/binary-amd64/mongodb-org_5.0.14_amd64.deb
-https://repo.mongodb.org/apt/debian/dists/buster/mongodb-org/5.0/main/binary-amd64/mongodb-mongosh_1.6.2_amd64.deb
-https://repo.mongodb.org/apt/debian/dists/buster/mongodb-org/5.0/main/binary-amd64/mongodb-database-tools_100.6.1_amd64.deb
-https://repo.mongodb.org/apt/debian/dists/buster/mongodb-org/5.0/main/binary-amd64/mongodb-org-database-tools-extra_5.0.14_amd64.deb
-https://repo.mongodb.org/apt/debian/dists/buster/mongodb-org/5.0/main/binary-amd64/mongodb-org-database_5.0.14_amd64.deb
+https://repo.mongodb.org/apt/debian/dists/bullseye/mongodb-org/7.0/main/binary-amd64/mongodb-mongosh_2.0.2_amd64.deb
+https://repo.mongodb.org/apt/debian/dists/bullseye/mongodb-org/7.0/main/binary-amd64/mongodb-database-tools_100.9.0_amd64.deb
 
-https://repo.mongodb.org/apt/debian/dists/buster/mongodb-org/4.4/main/binary-amd64/mongodb-org_4.4.17_amd64.deb
+https://repo.mongodb.org/apt/debian/dists/bullseye/mongodb-org/7.0/main/binary-amd64/mongodb-org-mongos_7.0.2_amd64.deb
+https://repo.mongodb.org/apt/debian/dists/bullseye/mongodb-org/7.0/main/binary-amd64/mongodb-org-server_7.0.2_amd64.deb
+
+https://repo.mongodb.org/apt/debian/dists/bullseye/mongodb-org/6.0/main/binary-amd64/mongodb-org-mongos_6.0.11_amd64.deb
+https://repo.mongodb.org/apt/debian/dists/bullseye/mongodb-org/6.0/main/binary-amd64/mongodb-org-server_6.0.11_amd64.deb
+
+https://repo.mongodb.org/apt/debian/dists/bullseye/mongodb-org/5.0/main/binary-amd64/mongodb-org-mongos_5.0.14_amd64.deb
+https://repo.mongodb.org/apt/debian/dists/bullseye/mongodb-org/5.0/main/binary-amd64/mongodb-org-server_5.0.14_amd64.deb
+
 https://repo.mongodb.org/apt/debian/dists/buster/mongodb-org/4.4/main/binary-amd64/mongodb-org-mongos_4.4.17_amd64.deb
 https://repo.mongodb.org/apt/debian/dists/buster/mongodb-org/4.4/main/binary-amd64/mongodb-org-server_4.4.17_amd64.deb
-https://repo.mongodb.org/apt/debian/dists/buster/mongodb-org/4.4/main/binary-amd64/mongodb-org-shell_4.4.17_amd64.deb
-https://repo.mongodb.org/apt/debian/dists/buster/mongodb-org/4.4/main/binary-amd64/mongodb-org-tools_4.4.17_amd64.deb
-https://repo.mongodb.org/apt/debian/dists/buster/mongodb-org/4.4/main/binary-amd64/mongodb-org-database-tools-extra_4.4.17_amd64.deb
 
 https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.17.8-amd64.deb
 https://artifacts.elastic.co/downloads/logstash/logstash-7.17.8-amd64.deb
