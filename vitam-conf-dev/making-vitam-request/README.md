@@ -6,16 +6,13 @@
 4. Having GIT
 
 ## Installation
-1. Put in your Rest Client extension file (File > Preferences > Settings > Extensions > Rest Client > Edit in settings.json) the `settings.json` file and change the `pfx`, `cert` and `key` path.
-2. Specify the `INT` environment (click on the `No Environnment` on the bottom right of VSCode).
-3. Try the search request (located in `vitam-conf-dev/making-vitam-request/requests-workspace/Search/search.http`).
-3. Add the requests-workspace directory in VSCode workspace (File > Add Folder to Workspace).
+1. Put VITAM certificate in `/vitam/external_key.pem` and `/vitam/external_pub.pem`
+2. Create a symbolic link (or copy) the `settings.json` file in `requests-workspace/.vscode/`.
+3. Open the `requests-workspace` directory in VSCode
 
-## Synchronize and download
-Download and synchronize the workspace with:
-```shell script
-git init
-git remote add origin vitam.git 
-git fetch origin develop --depth 1
-git checkout origin/develop -- vitam-conf-dev/making-vitam-request/requests-workspace
-```
+## Usage
+1. In VSCode, specify the `INT` environment (click on the `No Environnment` on the bottom right of VSCode).
+2. Try the search request (located in `vitam-conf-dev/making-vitam-request/requests-workspace/unit/search.http`).
+
+## Update settings.json
+Change environments in `update-settings.js` and run it with Node. It'll update the `settings.json` file. Copy it in `requests-workspace/.vscode/` if you didn't create a symbolic link.
