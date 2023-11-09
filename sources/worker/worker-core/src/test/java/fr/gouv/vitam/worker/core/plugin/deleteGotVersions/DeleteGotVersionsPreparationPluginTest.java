@@ -33,8 +33,10 @@ import fr.gouv.vitam.common.model.DeleteGotVersionsRequest;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.objectgroup.ObjectGroupResponse;
+import fr.gouv.vitam.common.model.objectgroup.PersistentIdentifierModel;
 import fr.gouv.vitam.common.model.objectgroup.QualifiersModel;
 import fr.gouv.vitam.common.model.objectgroup.VersionsModel;
+import fr.gouv.vitam.common.model.objectgroup.VersionsModelCustomized;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -275,6 +277,56 @@ public class DeleteGotVersionsPreparationPluginTest {
         ObjectGroupToDeleteReportEntry reportEntry = reportEntries.get(0);
         assertEquals(OK, reportEntry.getStatus());
     }
+
+
+    @Test
+    @RunWithCustomExecutor
+    public void testGenerateGotWithPersistentIdentifiers_FirstPhysicalUsageShouldBeDeleted() {
+        List<QualifiersModel> qualifiersModelList = new ArrayList<>();
+        ObjectGroupResponse objectGroupResponse = new ObjectGroupResponse();
+        objectGroupResponse.setOpi("aedqaaaaaceevqfthhidqamhwlhxneaaaaaq");
+        QualifiersModel qualifiersModel = new QualifiersModel();
+        qualifiersModel.setQualifier(PHYSICAL_MASTER.getName());
+        VersionsModel versionsModel = new VersionsModel();
+        versionsModel.setDataObjectVersion(PHYSICAL_MASTER.getName() + "_1");
+
+        List<PersistentIdentifierModel> persistentIdentifiers= new ArrayList<>();
+        final PersistentIdentifierModel persistentIdentifierModel = new PersistentIdentifierModel();
+        persistentIdentifierModel.setPersistentIdentifierType("ark");
+        persistentIdentifierModel.setPersistentIdentifierContent("ark:/666567/001a957db5eadaac");
+        persistentIdentifierModel.setPersistentIdentifierOrigin("OriginatingAgency");
+        persistentIdentifierModel.setPersistentIdentifierReference("Agency-00221");
+        persistentIdentifiers.add(persistentIdentifierModel);
+        versionsModel.setPersistentIdentifier(persistentIdentifiers);
+
+        qualifiersModel.setVersions(Collections.singletonList(versionsModel));
+        qualifiersModelList.add(qualifiersModel);
+
+        QualifiersModel qualifiersModel1 = new QualifiersModel();
+        qualifiersModel1.setQualifier(BINARY_MASTER.getName());
+        VersionsModel versionsModel1 = new VersionsModel();
+        versionsModel1.setDataObjectVersion(BINARY_MASTER.getName() + "_1");
+        qualifiersModel1.setVersions(Collections.singletonList(versionsModel1));
+        qualifiersModelList.add(qualifiersModel1);
+        objectGroupResponse.setQualifiers(qualifiersModelList);
+
+        DeleteGotVersionsRequest deleteGotVersionsRequest = new DeleteGotVersionsRequest();
+        deleteGotVersionsRequest.setUsageName(PHYSICAL_MASTER.getName());
+        deleteGotVersionsRequest.setSpecificVersions(Collections.singletonList(1));
+
+        List<ObjectGroupToDeleteReportEntry> reportEntries =
+            deleteGotVersionsPreparationPlugin.generateGotWithDetails(objectGroupResponse, deleteGotVersionsRequest);
+        assertEquals(1, reportEntries.size());
+
+        ObjectGroupToDeleteReportEntry reportEntry = reportEntries.get(0);
+        VersionsModelCustomized versionsModelCustomized = reportEntry.getDeletedVersions().get(0);
+        PersistentIdentifierModel persistentIdentifier = versionsModelCustomized.getPersistentIdentifier().get(0);
+        assertEquals(persistentIdentifier.getPersistentIdentifierType(), "ark");
+        assertEquals(persistentIdentifier.getPersistentIdentifierContent(), "ark:/666567/001a957db5eadaac");
+        assertEquals(persistentIdentifier.getPersistentIdentifierOrigin(), "OriginatingAgency");
+        assertEquals(persistentIdentifier.getPersistentIdentifierReference(), "Agency-00221");
+    }
+
 
     @RunWithCustomExecutor
     public void testGenerateGotWithDetails_LastUsageVersionCannotBeDeleted() {
