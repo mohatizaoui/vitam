@@ -17,6 +17,7 @@ services:
       - xpack.security.enabled=false
       - cluster.name=docker-cluster
       - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ulimits:
       memlock:
         soft: -1
