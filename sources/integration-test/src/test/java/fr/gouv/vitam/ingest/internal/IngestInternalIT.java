@@ -28,6 +28,7 @@ package fr.gouv.vitam.ingest.internal;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
@@ -107,6 +108,7 @@ import fr.gouv.vitam.common.model.rules.UnitInheritedRulesResponseModel;
 import fr.gouv.vitam.common.model.unit.CustodialHistoryModel;
 import fr.gouv.vitam.common.model.unit.DataObjectReference;
 import fr.gouv.vitam.common.model.unit.EventTypeModel;
+import fr.gouv.vitam.common.model.unit.PersistentIdentifierModel;
 import fr.gouv.vitam.common.model.unit.RuleModel;
 import fr.gouv.vitam.common.stream.SizedInputStream;
 import fr.gouv.vitam.common.stream.StreamUtils;
@@ -193,6 +195,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -2691,43 +2694,110 @@ public class IngestInternalIT extends VitamRuleRunner {
     @RunWithCustomExecutor
     @Test
     public void testIngestWithArkManagementContract() throws Exception {
-            prepareVitamSession(tenantId, "aName3", "Context_IT");
+        prepareVitamSession(tenantId, "aName3", "Context_IT");
 
-            String operationId = VitamTestHelper.doIngest(tenantId, SIP_FILE_OK_ARK);
-            verifyOperation(operationId, WARNING);
-            // Try to check AU
+        String operationId = VitamTestHelper.doIngest(tenantId, SIP_FILE_OK_ARK);
+        verifyOperation(operationId, WARNING);
+        // Try to check AU
 
-            final MetaDataClient metadataClient = MetaDataClientFactory.getInstance().getClient();
-            final JsonNode node = getArchiveUnitWithOpi(metadataClient, operationId);
-            SelectMultiQuery select;
-            LOGGER.debug(JsonHandler.prettyPrint(node));
-            final JsonNode result = node.get(RESULTS);
-            assertNotNull(result);
-            assertEquals(2, node.get("$hits").get("total").asInt());
-            final JsonNode unit = result.get(1);
-            assertNotNull(unit);
-            assertTrue(unit.has("#managementContractId"));
-            assertTrue(unit.get("#managementContractId").asText().startsWith("MC-"));
-            final String og = unit.get("#object").asText();
-            // Try to check OG
-            select = new SelectMultiQuery();
-            select.addRoots(og);
-            final JsonNode jsonResponse = metadataClient.selectObjectGrouptbyId(select.getFinalSelect(), og);
-            LOGGER.warn("Result: " + jsonResponse);
-            final JsonNode ogResults = jsonResponse.get(RESULTS);
-            assertNotNull(ogResults);
-            final JsonNode objectGroup = ogResults.get(0);
-            assertNotNull(objectGroup);
-            assertEquals(2, objectGroup.get("#nbobjects").asInt());
+        final MetaDataClient metadataClient = MetaDataClientFactory.getInstance().getClient();
+        final JsonNode node = getArchiveUnitWithOpi(metadataClient, operationId);
+        SelectMultiQuery select;
+        LOGGER.debug(JsonHandler.prettyPrint(node));
+        final JsonNode result = node.get(RESULTS);
+        assertNotNull(result);
+        assertEquals(2, node.get("$hits").get("total").asInt());
+        final JsonNode unit = result.get(1);
+        assertNotNull(unit);
+        assertTrue(unit.has("#managementContractId"));
+        assertTrue(unit.get("#managementContractId").asText().startsWith("MC-"));
+        final String og = unit.get("#object").asText();
+        // Try to check OG
+        select = new SelectMultiQuery();
+        select.addRoots(og);
+        final JsonNode jsonResponse = metadataClient.selectObjectGrouptbyId(select.getFinalSelect(), og);
+        LOGGER.warn("Result: " + jsonResponse);
+        final JsonNode ogResults = jsonResponse.get(RESULTS);
+        assertNotNull(ogResults);
+        final JsonNode objectGroup = ogResults.get(0);
+        assertNotNull(objectGroup);
+        assertEquals(2, objectGroup.get("#nbobjects").asInt());
 
-            List<VersionsModel> binaryMasterVersions =
-                getFromJsonNode((objectGroup.get("#qualifiers").get(0).get("versions")), new TypeReference<>() {
-                });
+        List<VersionsModel> binaryMasterVersions =
+            getFromJsonNode((objectGroup.get("#qualifiers").get(0).get("versions")), new TypeReference<>() {
+            });
 
-            assertEquals(2, binaryMasterVersions.size());
+        assertEquals(2, binaryMasterVersions.size());
 
-            assertTrue(binaryMasterVersions.get(0).getManagementContractId().startsWith("MC-"));
-            assertTrue(binaryMasterVersions.get(1).getManagementContractId().startsWith("MC-"));
+        assertTrue(binaryMasterVersions.get(0).getManagementContractId().startsWith("MC-"));
+        assertTrue(binaryMasterVersions.get(1).getManagementContractId().startsWith("MC-"));
     }
 
+    @RunWithCustomExecutor
+    @Test
+    public void testIngestWithArkManagementContractAllowGenerateArk() throws Exception {
+        prepareVitamSession(tenantId, "aName3", "Context_IT");
+
+        String operationId = VitamTestHelper.doIngest(tenantId, SIP_FILE_OK_ARK);
+        verifyOperation(operationId, WARNING);
+        // Try to check AU
+
+        final MetaDataClient metadataClient = MetaDataClientFactory.getInstance().getClient();
+        final JsonNode node = getArchiveUnitWithOpi(metadataClient, operationId);
+        SelectMultiQuery select;
+        LOGGER.debug(JsonHandler.prettyPrint(node));
+        final JsonNode result = node.get(RESULTS);
+        assertNotNull(result);
+        assertEquals(2, node.get("$hits").get("total").asInt());
+        final JsonNode unit = result.get(1);
+        assertNotNull(unit);
+        assertTrue(unit.has("#managementContractId"));
+        String unitGuId = unit.get("#id").asText();
+        List<PersistentIdentifierModel> persistentIdentifiers = new ArrayList<>();
+        ArrayNode persistentIdentifierNode = (ArrayNode) unit.get("PersistentIdentifier");
+        if (persistentIdentifierNode != null) {
+            for (JsonNode element : persistentIdentifierNode) {
+                persistentIdentifiers.add(JsonHandler.getFromJsonNode(element, PersistentIdentifierModel.class));
+            }
+        }
+        assertFalse(persistentIdentifiers.isEmpty());
+        Map<String, List<PersistentIdentifierModel>> persistentIdentifiersById = persistentIdentifiers.stream().collect(
+            Collectors.groupingBy(PersistentIdentifierModel::getPersistentIdentifierContent));
+        String generatedId = "ark:/12354/" + unitGuId;
+        assertTrue(persistentIdentifiersById.containsKey(generatedId));
+        assertTrue(unit.get("#managementContractId").asText().startsWith("MC-"));
+        final String og = unit.get("#object").asText();
+        // Try to check OG
+        select = new SelectMultiQuery();
+        select.addRoots(og);
+        final JsonNode jsonResponse = metadataClient.selectObjectGrouptbyId(select.getFinalSelect(), og);
+        LOGGER.warn("Result: " + jsonResponse);
+        final JsonNode ogResults = jsonResponse.get(RESULTS);
+        assertNotNull(ogResults);
+        final JsonNode objectGroup = ogResults.get(0);
+        assertNotNull(objectGroup);
+        assertEquals(2, objectGroup.get("#nbobjects").asInt());
+
+        List<VersionsModel> binaryMasterVersions =
+            getFromJsonNode((objectGroup.get("#qualifiers").get(0).get("versions")), new TypeReference<>() {
+            });
+
+        assertEquals(2, binaryMasterVersions.size());
+
+        IntStream.range(1, 2)
+            .forEach(binaryVersion -> {
+                assertTrue(binaryMasterVersions.get(binaryVersion).getManagementContractId().startsWith("MC-"));
+                List<fr.gouv.vitam.common.model.objectgroup.PersistentIdentifierModel> persistentIdentifierModelList =
+                    binaryMasterVersions.get(binaryVersion).getPersistentIdentifier();
+                String persistentIdentifierObj = "ark:/12354/" + binaryMasterVersions.get(binaryVersion).getId();
+                assertFalse(persistentIdentifierModelList.isEmpty());
+                Map<String, List<fr.gouv.vitam.common.model.objectgroup.PersistentIdentifierModel>>
+                    persistentIdentifiersObjById = persistentIdentifierModelList.stream().collect(
+                    Collectors.groupingBy(
+                        fr.gouv.vitam.common.model.objectgroup.PersistentIdentifierModel::getPersistentIdentifierContent));
+                assertTrue(persistentIdentifiersObjById.containsKey(persistentIdentifierObj));
+            });
+
+
+    }
 }

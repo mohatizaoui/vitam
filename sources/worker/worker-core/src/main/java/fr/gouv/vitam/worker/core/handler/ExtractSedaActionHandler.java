@@ -77,6 +77,7 @@ import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.UnitType;
+import fr.gouv.vitam.common.model.administration.ActivationStatus;
 import fr.gouv.vitam.common.model.administration.ContractsDetailsModel;
 import fr.gouv.vitam.common.model.administration.DataObjectVersionType;
 import fr.gouv.vitam.common.model.administration.IngestContractCheckState;
@@ -90,6 +91,7 @@ import fr.gouv.vitam.common.model.administration.RuleType;
 import fr.gouv.vitam.common.model.administration.VersionUsageModel;
 import fr.gouv.vitam.common.model.logbook.LogbookEvent;
 import fr.gouv.vitam.common.model.unit.ManagementModel;
+import fr.gouv.vitam.common.model.unit.PersistentIdentifierModel;
 import fr.gouv.vitam.common.model.unit.RuleCategoryModel;
 import fr.gouv.vitam.common.model.unit.RuleModel;
 import fr.gouv.vitam.common.parameter.ParameterHelper;
@@ -225,10 +227,8 @@ import static fr.gouv.vitam.logbook.common.parameters.LogbookParameterName.outco
 import static fr.gouv.vitam.logbook.common.parameters.LogbookParameterName.outcomeDetailMessage;
 import static fr.gouv.vitam.logbook.common.parameters.LogbookParameterName.parentEventIdentifier;
 import static java.util.Objects.isNull;
-import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
-import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 
 /**
  * Handler class used to extract metaData. </br>
@@ -332,6 +332,8 @@ public class ExtractSedaActionHandler extends ActionHandler {
 
     private final static String namespaceURI = UNIFIED_NAMESPACE;
     private final static boolean asyncIO = true;
+    public static final String MANAGEMENT_CONTRACT_ID_FIELD = "_managementContractId";
+    public static final String PERSISTENT_IDENTIFIER_FIELD = "PersistentIdentifier";
     private static JAXBContext jaxbContext;
 
     static {
@@ -2326,8 +2328,7 @@ public class ExtractSedaActionHandler extends ActionHandler {
                     checkFirstMasterVersion(DataObjectVersionType.BINARY_MASTER, categoryMap.keySet());
                     checkFirstMasterVersion(DataObjectVersionType.PHYSICAL_MASTER, categoryMap.keySet());
                 }
-
-                updateGotWithManagementContract(categoryMap, ingestContext);
+                handleManagementContractForGot(ingestSession, categoryMap, ingestContext.getManagementContractModel());
 
                 final ArrayNode qualifiersNode =
                     getObjectGroupQualifiers(ingestSession, categoryMap, ingestContext.getOperationId());
@@ -2427,6 +2428,7 @@ public class ExtractSedaActionHandler extends ActionHandler {
         }
     }
 
+
     private void checkFirstMasterVersion(DataObjectVersionType qualifier, Set<String> qualifiers)
         throws MissingMandatoryVersionException {
 
@@ -2438,48 +2440,105 @@ public class ExtractSedaActionHandler extends ActionHandler {
         }
     }
 
-    private void updateGotWithManagementContract(Map<String, List<JsonNode>> map, IngestContext ingestContext) {
-        final ManagementContractModel managementContractModel = ingestContext.getManagementContractModel();
+    private void handleManagementContractForGot(IngestSession ingestSession, Map<String, List<JsonNode>> map,
+        ManagementContractModel managementContractModel) throws InvalidParseOperationException {
+
         if (isNull(managementContractModel)) {
             return;
         }
-
-        final List<PersistentIdentifierPolicy> persistentIdentifierPolicies =
-            managementContractModel.getPersistentIdentifierPolicyList();
-        if (isEmpty(persistentIdentifierPolicies)) {
+        if (ActivationStatus.INACTIVE.equals(managementContractModel.getStatus())) {
             return;
         }
 
-        final Optional<PersistentIdentifierPolicy> arkPolicy = persistentIdentifierPolicies.stream()
-            .filter(policy -> policy.getPersistentIdentifierPolicyType().equals(PersistentIdentifierPolicyTypeEnum.ARK))
-            .findFirst();
-        arkPolicy.ifPresent(policy -> {
-            for (PersistentIdentifierUsage usageNode : policy.getPersistentIdentifierUsages()) {
+        if (isNull(managementContractModel.getPersistentIdentifierPolicyList())) {
+            return;
+        }
+
+        final Optional<PersistentIdentifierPolicy> arkPolicyOpt =
+            managementContractModel.getPersistentIdentifierPolicyList().stream()
+                .filter(
+                    policy -> policy.getPersistentIdentifierPolicyType().equals(PersistentIdentifierPolicyTypeEnum.ARK))
+                .findFirst();
+        if (arkPolicyOpt.isPresent()) {
+            PersistentIdentifierPolicy arkPolicy = arkPolicyOpt.get();
+            for (PersistentIdentifierUsage usageNode : arkPolicy.getPersistentIdentifierUsages()) {
                 // Filtrage des clés de la map basé sur la valeur de usageName
                 final List<String> usageVersionList =
                     map.keySet().stream().filter(key -> key.startsWith(usageNode.getUsageName().getName())).sorted(
-                            Comparator.comparingInt(key -> Integer.parseInt(key.substring(key.lastIndexOf("_") + 1))))
+                            Comparator.comparingInt(key -> Integer.parseInt(StringUtils.substringAfterLast(key, "_"))))
                         .collect(toList());
                 if (usageVersionList.isEmpty()) {
                     continue;
                 }
+
                 if (usageNode.isInitialVersion()) {
-                    ObjectNode qualifierToUpdate = (ObjectNode) map.get(usageVersionList.get(0)).get(0);
-                    qualifierToUpdate.put("_managementContractId", managementContractModel.getIdentifier());
+                    List<ObjectNode> qualifiersToUpdate = (ArrayList) map.get(usageVersionList.get(0));
+                    for (ObjectNode qualifierToUpdate : qualifiersToUpdate) {
+                        fillPersistentIdentifiersData(ingestSession, arkPolicy, qualifierToUpdate,
+                            managementContractModel.getIdentifier());
+                    }
                 }
-                if (usageNode.getIntermediaryVersion().equals(VersionUsageModel.IntermediaryVersionEnum.LAST)) {
-                    ObjectNode qualifierToUpdate =
-                        (ObjectNode) map.get(usageVersionList.get(usageVersionList.size() - 1)).get(0);
-                    qualifierToUpdate.put("_managementContractId", managementContractModel.getIdentifier());
+                if (usageNode.getIntermediaryVersion().equals(VersionUsageModel.IntermediaryVersionEnum.LAST)
+                    && usageVersionList.size() != 1) {
+
+                    List<ObjectNode> qualifiersToUpdate =
+                        (ArrayList) map.get(usageVersionList.get(usageVersionList.size() - 1));
+                    for (ObjectNode qualifierToUpdate : qualifiersToUpdate) {
+                        fillPersistentIdentifiersData(ingestSession, arkPolicy, qualifierToUpdate,
+                            managementContractModel.getIdentifier());
+                    }
                 }
                 if (usageNode.getIntermediaryVersion().equals(VersionUsageModel.IntermediaryVersionEnum.ALL)) {
-                    usageVersionList.stream().skip(1) // Ignorer le premier élément
-                        .map(key -> (ObjectNode) map.get(key).get(0)).forEach(qualifierToUpdate -> {
-                            qualifierToUpdate.put("_managementContractId", managementContractModel.getIdentifier());
-                        });
+                    // Ignorer le premier élément
+                    boolean first = true;
+                    for (String key : usageVersionList) {
+                        if (first) {
+                            first = false;
+                            continue;
+                        }
+
+                        List<ObjectNode> qualifiersToUpdate = (ArrayList) map.get(key);
+                        for (ObjectNode qualifierToUpdate : qualifiersToUpdate) {
+                            fillPersistentIdentifiersData(ingestSession, arkPolicy, qualifierToUpdate,
+                                managementContractModel.getIdentifier());
+                        }
+
+                    }
                 }
             }
-        });
+        }
+    }
+
+    /**
+     * Fill generated persistent identifier on objects according to management contract settings
+     *
+     * @param ingestSession
+     * @param policy
+     * @param qualifierToUpdate
+     * @throws InvalidParseOperationException
+     */
+    private void fillPersistentIdentifiersData(IngestSession ingestSession,
+        PersistentIdentifierPolicy policy, ObjectNode qualifierToUpdate, String managementContractModelIdentifier)
+        throws InvalidParseOperationException {
+        PersistentIdentifierModel vitamPersistentIdentifierModel = new PersistentIdentifierModel();
+        vitamPersistentIdentifierModel.setPersistentIdentifierType(
+            policy.getPersistentIdentifierPolicyType().name().toLowerCase());
+
+        String qualifierId = qualifierToUpdate.get(SedaConstants.PREFIX_ID).asText();
+        final String guid = ingestSession.getDataObjectIdToGuid().get(qualifierId);
+
+        if (!qualifierToUpdate.has(PERSISTENT_IDENTIFIER_FIELD)) {
+            qualifierToUpdate.set(PERSISTENT_IDENTIFIER_FIELD, JsonHandler.createArrayNode());
+        }
+
+        vitamPersistentIdentifierModel.setPersistentIdentifierReference(policy.getPersistentIdentifierAuthority());
+        vitamPersistentIdentifierModel.setPersistentIdentifierContent(
+            policy.getPersistentIdentifierPolicyType().name().toLowerCase() + ":/" +
+                policy.getPersistentIdentifierAuthority() + "/" + guid);
+
+        ArrayNode persistentIdentifierNode = (ArrayNode) qualifierToUpdate.get(PERSISTENT_IDENTIFIER_FIELD);
+        persistentIdentifierNode.add(JsonHandler.toJsonNode(vitamPersistentIdentifierModel));
+        qualifierToUpdate.put(MANAGEMENT_CONTRACT_ID_FIELD, managementContractModelIdentifier);
     }
 
     private void checkOriginatingAgencyAttachementConformity(String originatingAgency,
