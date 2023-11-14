@@ -189,7 +189,9 @@ public enum SecurityProfilePermissions {
     PROJECT_ID_TRANSACTIONS("project:id:transactions"),
     TRANSACTION_ID_DELETE("transaction:id:delete"),
     TRANSACTION_ID_READ("transaction:id:read"),
-    JOB_READ("job:read");
+    JOB_READ("job:read"),
+    UNIT_SCHEMA_READ("schema:unit:read"),
+    OBJECTGROUP_SCHEMA_READ("schema:objectgroup:read");
 
 
     private final String permission;

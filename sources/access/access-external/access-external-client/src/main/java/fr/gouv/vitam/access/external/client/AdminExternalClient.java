@@ -54,6 +54,7 @@ import fr.gouv.vitam.common.model.administration.IngestContractModel;
 import fr.gouv.vitam.common.model.administration.ManagementContractModel;
 import fr.gouv.vitam.common.model.administration.OntologyModel;
 import fr.gouv.vitam.common.model.administration.ProfileModel;
+import fr.gouv.vitam.common.model.administration.SchemaModel;
 import fr.gouv.vitam.common.model.administration.SecurityProfileModel;
 import fr.gouv.vitam.common.model.administration.preservation.GriffinModel;
 import fr.gouv.vitam.common.model.administration.preservation.PreservationScenarioModel;
@@ -977,4 +978,19 @@ public interface AdminExternalClient extends BasicClient, OperationStatusClient 
         LogbookOperationParameters logbookOperationparams)
         throws LogbookExternalClientException;
 
+    /**
+     * get unit schema
+     *
+     * @param vitamContext
+     * @return
+     */
+    RequestResponse<SchemaModel> getUnitSchema(VitamContext vitamContext) throws VitamClientException;
+
+    /**
+     * get Object group schema
+     *
+     * @param vitamContext
+     * @return
+     */
+    RequestResponse<SchemaModel> getObjectGroupSchema(VitamContext vitamContext) throws VitamClientException;
 }

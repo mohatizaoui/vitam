@@ -61,6 +61,7 @@ import fr.gouv.vitam.common.model.administration.IngestContractModel;
 import fr.gouv.vitam.common.model.administration.ManagementContractModel;
 import fr.gouv.vitam.common.model.administration.OntologyModel;
 import fr.gouv.vitam.common.model.administration.ProfileModel;
+import fr.gouv.vitam.common.model.administration.SchemaModel;
 import fr.gouv.vitam.common.model.administration.SecurityProfileModel;
 import fr.gouv.vitam.common.model.administration.preservation.GriffinModel;
 import fr.gouv.vitam.common.model.administration.preservation.PreservationScenarioModel;
@@ -622,6 +623,13 @@ public class AdminExternalClientMock extends AbstractMockClient implements Admin
         return new RequestResponseOK().setHttpCode(Status.CREATED.getStatusCode());
     }
 
+    @Override
+    public RequestResponse<SchemaModel> getUnitSchema(VitamContext vitamContext) throws VitamClientException {
+        return new RequestResponseOK().setHttpCode(Status.NOT_IMPLEMENTED.getStatusCode());
+    }
 
-
+    @Override
+    public RequestResponse<SchemaModel> getObjectGroupSchema(VitamContext vitamContext) throws VitamClientException {
+        return new RequestResponseOK().setHttpCode(Status.NOT_IMPLEMENTED.getStatusCode());
+    }
 }

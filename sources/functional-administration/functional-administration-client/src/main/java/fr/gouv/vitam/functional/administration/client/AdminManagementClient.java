@@ -49,6 +49,7 @@ import fr.gouv.vitam.common.model.administration.IngestContractModel;
 import fr.gouv.vitam.common.model.administration.ManagementContractModel;
 import fr.gouv.vitam.common.model.administration.OntologyModel;
 import fr.gouv.vitam.common.model.administration.ProfileModel;
+import fr.gouv.vitam.common.model.administration.SchemaModel;
 import fr.gouv.vitam.common.model.administration.SecurityProfileModel;
 import fr.gouv.vitam.common.model.administration.preservation.GriffinModel;
 import fr.gouv.vitam.common.model.administration.preservation.PreservationScenarioModel;
@@ -873,5 +874,10 @@ public interface AdminManagementClient extends MockOrRestClient {
 
     void reconstructAccessionRegister(List<ReconstructionRequestItem> reconstructionItems) throws
         AdminManagementClientServerException;
+
+
+    RequestResponse<SchemaModel> getUnitSchema() throws AdminManagementClientServerException;
+
+    RequestResponse<SchemaModel> getObjectGroupSchema() throws AdminManagementClientServerException;
 }
 
