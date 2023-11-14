@@ -82,6 +82,7 @@ import fr.gouv.vitam.common.model.administration.IngestContractModel;
 import fr.gouv.vitam.common.model.administration.ManagementContractModel;
 import fr.gouv.vitam.common.model.administration.OntologyModel;
 import fr.gouv.vitam.common.model.administration.ProfileModel;
+import fr.gouv.vitam.common.model.administration.SchemaModel;
 import fr.gouv.vitam.common.model.administration.SecurityProfileModel;
 import fr.gouv.vitam.common.model.administration.preservation.GriffinModel;
 import fr.gouv.vitam.common.model.administration.preservation.PreservationScenarioModel;
@@ -194,6 +195,7 @@ import static fr.gouv.vitam.utils.SecurityProfilePermissions.MANAGEMENTCONTRACTS
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.MANAGEMENTCONTRACTS_ID_READ;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.MANAGEMENTCONTRACTS_ID_UPDATE;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.MANAGEMENTCONTRACTS_READ;
+import static fr.gouv.vitam.utils.SecurityProfilePermissions.OBJECTGROUP_SCHEMA_READ;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.ONTOLOGIES_CREATE_JSON;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.ONTOLOGIES_ID_READ_JSON;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.ONTOLOGIES_READ;
@@ -229,6 +231,7 @@ import static fr.gouv.vitam.utils.SecurityProfilePermissions.SECURITYPROFILES_RE
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.TRACEABILITYCHECKS_CREATE;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.TRACEABILITYLINKEDCHECKS_CREATE;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.TRACEABILITY_ID_READ;
+import static fr.gouv.vitam.utils.SecurityProfilePermissions.UNIT_SCHEMA_READ;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.WORKFLOWS_READ;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
@@ -1856,7 +1859,8 @@ public class AdminManagementExternalResource extends ApplicationStatusResource {
             return VitamCodeHelper.toVitamError(VitamCode.ACCESS_EXTERNAL_CONTEXT_NOT_FOUND, e.getMessage())
                 .setHttpCode(NOT_FOUND.getStatusCode())
                 .toResponse();
-        } catch (InvalidCreateOperationException | InvalidParseOperationException | AdminManagementClientServerException e) {
+        } catch (InvalidCreateOperationException | InvalidParseOperationException |
+                 AdminManagementClientServerException e) {
             LOGGER.error(e);
             return VitamCodeHelper.toVitamError(VitamCode.ADMIN_EXTERNAL_UPDATE_CONTEXT_ERROR, e.getMessage())
                 .toResponse();
@@ -1892,7 +1896,8 @@ public class AdminManagementExternalResource extends ApplicationStatusResource {
             update.setQuery(QueryHelper.eq(IDENTIFIER, identifier));
             RequestResponse<ProfileModel> response = client.updateProfile(identifier, update.getFinalUpdate());
             return getResponse(response);
-        } catch (AdminManagementClientBadRequestException | InvalidCreateOperationException | InvalidParseOperationException e) {
+        } catch (AdminManagementClientBadRequestException | InvalidCreateOperationException |
+                 InvalidParseOperationException e) {
             LOGGER.error(e);
             return VitamCodeHelper.toVitamError(VitamCode.ADMIN_EXTERNAL_UPDATE_PROFILE_ERROR, e.getMessage())
                 .toResponse();
@@ -1976,7 +1981,8 @@ public class AdminManagementExternalResource extends ApplicationStatusResource {
             RequestResponse<AccessContractModel> response =
                 client.updateAccessContract(identifier, update.getFinalUpdate());
             return getResponse(response);
-        } catch (AdminManagementClientBadRequestException | InvalidCreateOperationException | InvalidParseOperationException e) {
+        } catch (AdminManagementClientBadRequestException | InvalidCreateOperationException |
+                 InvalidParseOperationException e) {
             LOGGER.error(e);
             return VitamCodeHelper.toVitamError(VitamCode.ADMIN_EXTERNAL_UPDATE_ACCESS_CONTRACT_ERROR, e.getMessage())
                 .toResponse();
@@ -2019,7 +2025,8 @@ public class AdminManagementExternalResource extends ApplicationStatusResource {
             RequestResponse<IngestContractModel> response =
                 client.updateIngestContract(identifier, update.getFinalUpdate());
             return getResponse(response);
-        } catch (AdminManagementClientBadRequestException | InvalidCreateOperationException | InvalidParseOperationException e) {
+        } catch (AdminManagementClientBadRequestException | InvalidCreateOperationException |
+                 InvalidParseOperationException e) {
             LOGGER.error(e);
             return VitamCodeHelper.toVitamError(VitamCode.ADMIN_EXTERNAL_UPDATE_INGEST_CONTRACT_ERROR, e.getMessage())
                 .toResponse();
@@ -2064,7 +2071,8 @@ public class AdminManagementExternalResource extends ApplicationStatusResource {
             return VitamCodeHelper.toVitamError(VitamCode.CONTRACT_NOT_FOUND_ERROR, e.getMessage())
                 .setHttpCode(NOT_FOUND.getStatusCode())
                 .toResponse();
-        } catch (InvalidCreateOperationException | InvalidParseOperationException | AdminManagementClientServerException e) {
+        } catch (InvalidCreateOperationException | InvalidParseOperationException |
+                 AdminManagementClientServerException e) {
             LOGGER.error(e);
             return VitamCodeHelper
                 .toVitamError(VitamCode.ADMIN_EXTERNAL_UPDATE_MANAGEMENT_CONTRACT_ERROR, e.getMessage())
@@ -2375,7 +2383,8 @@ public class AdminManagementExternalResource extends ApplicationStatusResource {
             RequestResponse<SecurityProfileModel> response =
                 client.updateSecurityProfile(identifier, update.getFinalUpdateById());
             return getResponse(response);
-        } catch (AdminManagementClientBadRequestException | InvalidCreateOperationException | InvalidParseOperationException e) {
+        } catch (AdminManagementClientBadRequestException | InvalidCreateOperationException |
+                 InvalidParseOperationException e) {
             LOGGER.error(e);
             return VitamCodeHelper.toVitamError(VitamCode.ADMIN_EXTERNAL_UPDATE_SECURITY_PROFILE_ERROR, e.getMessage())
                 .toResponse();
@@ -3129,7 +3138,7 @@ public class AdminManagementExternalResource extends ApplicationStatusResource {
     @GET
     @Path("jobs")
     @Produces(MediaType.APPLICATION_JSON)
-    @Secured(permission = JOB_READ, description = "récuperer la liste des jobs") 
+    @Secured(permission = JOB_READ, description = "récuperer la liste des jobs")
     public Response findJobs() {
         try (AdminManagementClient client = adminManagementClientFactory.getClient()) {
             final RequestResponse<JsonNode> jobs = client.findJobs();
@@ -3140,6 +3149,37 @@ public class AdminManagementExternalResource extends ApplicationStatusResource {
                 .toVitamError(VitamCode.LOGBOOK_EXTERNAL_INTERNAL_SERVER_ERROR,
                     e.getLocalizedMessage())
                 .setHttpCode(Status.INTERNAL_SERVER_ERROR.getStatusCode()).toResponse();
+        }
+    }
+
+    @Path("/schema/unit")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Secured(permission = UNIT_SCHEMA_READ, description = "récuperer le schéma des unités archivestiques")
+    public Response unitSchema() {
+        try (AdminManagementClient adminManagementClient = adminManagementClientFactory.getClient()) {
+            RequestResponse<SchemaModel> schema = adminManagementClient.getUnitSchema();
+            return Response.ok(schema).build();
+        } catch (AdminManagementClientServerException e) {
+            LOGGER.error("Cannot retrieve unit schema ", e);
+            return VitamCodeHelper.toVitamError(VitamCode.ADMIN_EXTERNAL_INTERNAL_SERVER_ERROR,
+                e.getLocalizedMessage()).setHttpCode(Status.INTERNAL_SERVER_ERROR.getStatusCode()).toResponse();
+        }
+    }
+
+
+    @Path("/schema/objectgroup")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Secured(permission = OBJECTGROUP_SCHEMA_READ, description = "récuperer le schéma des groupes d'objets")
+    public Response objectGroupSchema() {
+        try (AdminManagementClient adminManagementClient = adminManagementClientFactory.getClient()) {
+            RequestResponse<SchemaModel> objectGroupSchema = adminManagementClient.getObjectGroupSchema();
+            return Response.ok(objectGroupSchema).build();
+        } catch (AdminManagementClientServerException e) {
+            LOGGER.error("Cannot retrieve objectgroup schema ", e);
+            return VitamCodeHelper.toVitamError(VitamCode.LOGBOOK_EXTERNAL_INTERNAL_SERVER_ERROR,
+                e.getLocalizedMessage()).setHttpCode(Status.INTERNAL_SERVER_ERROR.getStatusCode()).toResponse();
         }
     }
 

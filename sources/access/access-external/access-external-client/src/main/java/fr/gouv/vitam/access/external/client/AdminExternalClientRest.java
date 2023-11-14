@@ -67,6 +67,7 @@ import fr.gouv.vitam.common.model.administration.IngestContractModel;
 import fr.gouv.vitam.common.model.administration.ManagementContractModel;
 import fr.gouv.vitam.common.model.administration.OntologyModel;
 import fr.gouv.vitam.common.model.administration.ProfileModel;
+import fr.gouv.vitam.common.model.administration.SchemaModel;
 import fr.gouv.vitam.common.model.administration.SecurityProfileModel;
 import fr.gouv.vitam.common.model.administration.preservation.GriffinModel;
 import fr.gouv.vitam.common.model.administration.preservation.PreservationScenarioModel;
@@ -1227,6 +1228,30 @@ public class AdminExternalClientRest extends DefaultClient implements AdminExter
         } catch (AdminExternalClientException e) {
             LOGGER.error(e);
             return e.getVitamError();
+        }
+    }
+
+    @Override
+    public RequestResponse<SchemaModel> getUnitSchema(VitamContext vitamContext) throws VitamClientException {
+        VitamRequestBuilder request = get()
+            .withPath(AccessExtAPI.UNIT_SCHEMA)
+            .withHeaders(vitamContext.getHeaders())
+            .withJson();
+        try (Response response = make(request)) {
+            check(response);
+            return RequestResponse.parseFromResponse(response, SchemaModel.class);
+        }
+    }
+
+    @Override
+    public RequestResponse<SchemaModel> getObjectGroupSchema(VitamContext vitamContext) throws VitamClientException {
+        VitamRequestBuilder request = get()
+            .withPath(AccessExtAPI.OBJECTGROUP_SCHEMA)
+            .withHeaders(vitamContext.getHeaders())
+            .withJson();
+        try (Response response = make(request)) {
+            check(response);
+            return RequestResponse.parseFromResponse(response, SchemaModel.class);
         }
     }
 

@@ -56,6 +56,7 @@ import fr.gouv.vitam.common.model.administration.ManagementContractModel;
 import fr.gouv.vitam.common.model.administration.OntologyModel;
 import fr.gouv.vitam.common.model.administration.ProfileModel;
 import fr.gouv.vitam.common.model.administration.RegisterValueDetailModel;
+import fr.gouv.vitam.common.model.administration.SchemaModel;
 import fr.gouv.vitam.common.model.administration.SecurityProfileModel;
 import fr.gouv.vitam.common.model.administration.preservation.GriffinModel;
 import fr.gouv.vitam.common.model.administration.preservation.PreservationScenarioModel;
@@ -664,6 +665,16 @@ public class AdminManagementClientMock extends AbstractMockClient implements Adm
     @Override
     public void reconstructAccessionRegister(List<ReconstructionRequestItem> reconstructionItems)
         throws AdminManagementClientServerException {
+        throw new IllegalStateException(CANNOT_BE_USED);
+    }
+
+    @Override
+    public RequestResponse<SchemaModel> getUnitSchema() throws AdminManagementClientServerException {
+        throw new IllegalStateException(CANNOT_BE_USED);
+    }
+
+    @Override
+    public RequestResponse<SchemaModel> getObjectGroupSchema() throws AdminManagementClientServerException {
         throw new IllegalStateException(CANNOT_BE_USED);
     }
 
