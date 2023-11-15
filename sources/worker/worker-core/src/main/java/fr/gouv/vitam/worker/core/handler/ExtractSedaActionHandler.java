@@ -147,12 +147,14 @@ import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.worker.common.HandlerIO;
 import fr.gouv.vitam.worker.common.utils.SedaUtils;
 import fr.gouv.vitam.worker.common.utils.SedaUtilsFactory;
+import fr.gouv.vitam.worker.core.exception.InvalidDataObjectException;
 import fr.gouv.vitam.worker.core.exception.ProcessingStatusException;
 import fr.gouv.vitam.worker.core.exception.WorkerspaceQueueException;
 import fr.gouv.vitam.worker.core.extractseda.ExtractMetadataListener;
 import fr.gouv.vitam.worker.core.extractseda.IngestContext;
 import fr.gouv.vitam.worker.core.extractseda.IngestSession;
 import fr.gouv.vitam.worker.core.impl.HandlerIOImpl;
+import fr.gouv.vitam.worker.core.utils.DataObjectValidator;
 import fr.gouv.vitam.worker.core.utils.JsonLineDataBase;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageException;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageNotFoundException;
@@ -503,7 +505,12 @@ public class ExtractSedaActionHandler extends ActionHandler {
                     rightsStatementIdentifier.toString());
             }
 
-        } catch (final ProcessingDuplicatedVersionException e) {
+        } catch (final InvalidDataObjectException e) {
+            LOGGER.error(e.getMessage());
+            updateDetailItemStatus(globalCompositeItemStatus, e.getMessage(), null);
+            globalCompositeItemStatus.increment(StatusCode.KO);
+        }
+        catch (final ProcessingDuplicatedVersionException e) {
             LOGGER.debug("ProcessingException: duplicated version", e);
             globalCompositeItemStatus.increment(StatusCode.KO);
         } catch (final ProcessingNotFoundException e) {
@@ -734,7 +741,8 @@ public class ExtractSedaActionHandler extends ActionHandler {
      */
     private ObjectNode extractSEDA(HandlerIO handlerIO, Unmarshaller unmarshaller, IngestContext ingestContext,
         IngestSession ingestSession, JsonLineDataBase unitsDatabase, JsonLineDataBase objectsDatabase,
-        ItemStatus globalCompositeItemStatus) throws ProcessingException, CycleFoundException {
+        ItemStatus globalCompositeItemStatus) throws ProcessingException, CycleFoundException,
+        InvalidDataObjectException {
         ParametersChecker.checkParameter("ContainerId is a mandatory parameter", ingestContext);
         ParametersChecker.checkParameter("itemStatus is a mandatory parameter", globalCompositeItemStatus);
 
@@ -2183,7 +2191,7 @@ public class ExtractSedaActionHandler extends ActionHandler {
 
     private void saveObjectGroupsToWorkspace(HandlerIO handlerIO, IngestContext ingestContext,
         IngestSession ingestSession, JsonLineDataBase objectsDatabase, JsonNode storageObjectGroupInfo,
-        JsonNode storageObjectInfo) throws ProcessingException {
+        JsonNode storageObjectInfo) throws ProcessingException, InvalidDataObjectException {
         boolean existingGot = false;
         Map<String, ObjectNode> listObjectToValidate = new HashMap<>();
 
@@ -2306,6 +2314,7 @@ public class ExtractSedaActionHandler extends ActionHandler {
                         nodeCategoryArray.add(dataObjectNodePosition, dataObjectNode);
                     }
                     categoryMap.put(nodeCategoryNumbered, nodeCategoryArray);
+                    DataObjectValidator.validateDataObject((ObjectNode) dataObjectNode);
                 }
 
                 File newLocalFile =

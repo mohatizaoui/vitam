@@ -81,6 +81,7 @@ import fr.gouv.vitam.common.exception.BadRequestException;
 import fr.gouv.vitam.common.exception.DatabaseException;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.exception.VitamClientException;
+import fr.gouv.vitam.common.exception.VitamException;
 import fr.gouv.vitam.common.guid.GUID;
 import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.guid.GUIDReader;
@@ -157,6 +158,7 @@ import fr.gouv.vitam.worker.server.rest.WorkerMain;
 import fr.gouv.vitam.workspace.rest.WorkspaceMain;
 import io.restassured.RestAssured;
 import org.apache.commons.io.FileUtils;
+import org.assertj.core.api.Assertions;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.elasticsearch.action.search.SearchResponse;
@@ -2797,7 +2799,123 @@ public class IngestInternalIT extends VitamRuleRunner {
                         fr.gouv.vitam.common.model.objectgroup.PersistentIdentifierModel::getPersistentIdentifierContent));
                 assertTrue(persistentIdentifiersObjById.containsKey(persistentIdentifierObj));
             });
+    }
 
+    @Test
+    @RunWithCustomExecutor
+    public void shouldIngestWithDefaultDataObjectVersion() throws VitamException {
+        final String contractId = "aName3";
+        final String contextId = "Context_IT";
+        final String sip = "integration-ingest-internal/data-object-formats/default.zip";
 
+        prepareVitamSession(tenantId, contractId, contextId);
+
+        final String operationId = VitamTestHelper.doIngest(tenantId, sip);
+        verifyOperation(operationId, WARNING);
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void shouldIngestWithFirstDataObjectVersion() throws VitamException {
+        final String contractId = "aName3";
+        final String contextId = "Context_IT";
+        final String sip = "integration-ingest-internal/data-object-formats/first-version.zip";
+
+        prepareVitamSession(tenantId, contractId, contextId);
+
+        final String operationId = VitamTestHelper.doIngest(tenantId, sip);
+        verifyOperation(operationId, WARNING);
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void shouldIngestWithFloatDataObjectVersion() throws VitamException {
+        final String contractId = "aName3";
+        final String contextId = "Context_IT";
+        final String sip = "integration-ingest-internal/data-object-formats/with-float.zip";
+
+        prepareVitamSession(tenantId, contractId, contextId);
+
+        final String operationId = VitamTestHelper.doIngest(tenantId, sip);
+        verifyOperation(operationId, KO);
+
+        final String field = "evDetData";
+        final String content = "BinaryMaster_1.0 - ID5";
+        assertLogbookContains(operationId, field, content);
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void shouldIngestWithNegativeDataObjectVersion() throws VitamException {
+        final String contractId = "aName3";
+        final String contextId = "Context_IT";
+        final String sip = "integration-ingest-internal/data-object-formats/with-negative.zip";
+
+        prepareVitamSession(tenantId, contractId, contextId);
+
+        final String operationId = VitamTestHelper.doIngest(tenantId, sip);
+        verifyOperation(operationId, KO);
+
+        final String field = "evDetData";
+        final String content = "BinaryMaster_-1 - ID5";
+        assertLogbookContains(operationId, field, content);
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void shouldIngestWithSignDataObjectVersion() throws VitamException {
+        final String contractId = "aName3";
+        final String contextId = "Context_IT";
+        final String sip = "integration-ingest-internal/data-object-formats/with-sign.zip";
+
+        prepareVitamSession(tenantId, contractId, contextId);
+
+        final String operationId = VitamTestHelper.doIngest(tenantId, sip);
+        verifyOperation(operationId, KO);
+
+        final String field = "evDetData";
+        final String content = "Data object version pattern 'BinaryMaster_+1' is not allowed";
+        assertLogbookContains(operationId, field, content);
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void shouldIngestWithStringDataObjectVersion() throws VitamException {
+        final String contractId = "aName3";
+        final String contextId = "Context_IT";
+        final String sip = "integration-ingest-internal/data-object-formats/with-string.zip";
+
+        prepareVitamSession(tenantId, contractId, contextId);
+
+        final String operationId = VitamTestHelper.doIngest(tenantId, sip);
+        verifyOperation(operationId, KO);
+
+        final String field = "evDetData";
+        final String content = "BinaryMaster_Toto - ID5";
+        assertLogbookContains(operationId, field, content);
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void shouldIngestWithUnoptimizedDataObjectVersion() throws VitamException {
+        final String contractId = "aName3";
+        final String contextId = "Context_IT";
+        final String sip = "integration-ingest-internal/data-object-formats/with-unoptimized-version.zip";
+
+        prepareVitamSession(tenantId, contractId, contextId);
+
+        final String operationId = VitamTestHelper.doIngest(tenantId, sip);
+        verifyOperation(operationId, KO);
+
+        final String field = "evDetData";
+        final String content = "Data object version pattern 'BinaryMaster_000001' is not allowed";
+        assertLogbookContains(operationId, field, content);
+    }
+
+    private void assertLogbookContains(final String operationId, final String field, final String content) {
+        final JsonNode logbook = VitamTestHelper.findLogbook(operationId);
+        final String json = logbook.toString();
+        System.out.println(json);
+        Assertions.assertThat(json.contains(content)).isTrue();
     }
 }
