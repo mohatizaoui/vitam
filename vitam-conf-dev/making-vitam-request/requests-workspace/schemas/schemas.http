@@ -1,0 +1,18 @@
+# Configuration
+@tenant = 1
+@access-contract = ContratTNR
+
+### Api-Schema unit : Récupération de tous les paths de la collection unit
+GET {{url-access}}/admin-external/v1/schema/unit
+Accept: application/json
+Content-Type: application/json
+X-Tenant-Id: {{tenant}}
+X-Access-Contract-Id: {{access-contract}}
+
+
+### Api-Schema objectgroup : Récupération de tous les paths de la collection objectgroup
+GET {{url-access}}/admin-external/v1/schema/objectgroup
+Accept: application/json
+Content-Type: application/json
+X-Tenant-Id: {{tenant}}
+X-Access-Contract-Id: {{access-contract}}

@@ -1564,8 +1564,14 @@ documentation:
     description: |
       Permet de retourner le schéma d'ontologie de la collection 'UNIT'
 
-      Permissions requises:
+    Permissions requises:
       - schema:unit:read
+    responses:
+      200:
+        description: "retourner le schéma d'ontologie de la collection 'UNIT'."
+        body:
+          application/json:
+          example: !include libraries/examples/schema-unit.json
 
 /schema/objectgroup:
   displayName:
@@ -1575,5 +1581,11 @@ documentation:
     description: |
       Permet de retourner le schéma d'ontologie de la collection 'OBJECT_GROUP'
 
-      Permissions requises:
+    Permissions requises:
       - schema:objectgroup:read
+    responses:
+      200:
+        description: "retourner le schéma d'ontologie de la collection 'OBJECT_GROUP'."
+        body:
+          application/json:
+          example: !include libraries/examples/schema-objects-group.json

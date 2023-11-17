@@ -44,7 +44,7 @@ public class SchemaModel {
     /**
      * Identifier Tag
      */
-    public static final String TAG_IDENTIFIER = "Identifier";
+    public static final String TAG_FIELD_NAME = "FieldName";
 
     /**
      * Seda field Tag
@@ -55,6 +55,8 @@ public class SchemaModel {
      * Seda field Tag
      */
     public static final String TAG_APIFIELD = "ApiField";
+    public static final String TAG_CATEGORY = "Category";
+    public static final String TAG_API_PATH = "ApiPath";
     /**
      * Description Tag
      */
@@ -92,10 +94,10 @@ public class SchemaModel {
     public static final String TAG_PATH_CARDINALITY = "Cardinality";
 
     /**
-     * The ontology identifier
+     * The ontology fieldName
      */
-    @JsonProperty(TAG_IDENTIFIER)
-    private String identifier;
+    @JsonProperty(TAG_FIELD_NAME)
+    private String fieldName;
     /**
      * The ontology seda field
      */
@@ -108,8 +110,14 @@ public class SchemaModel {
     @JsonProperty(TAG_COLLECTIONS)
     private List<String> collections;
 
+    @JsonProperty(TAG_API_PATH)
+    private String apiPath;
+
     @JsonProperty(TAG_APIFIELD)
     private String apiField;
+
+    @JsonProperty(TAG_CATEGORY)
+    private SchemaCategory category;
 
     /**
      * The ontology description
@@ -150,12 +158,12 @@ public class SchemaModel {
     }
 
 
-    public String getIdentifier() {
-        return identifier;
+    public String getFieldName() {
+        return fieldName;
     }
 
-    public SchemaModel setIdentifier(String identifier) {
-        this.identifier = identifier;
+    public SchemaModel setFieldName(String fieldName) {
+        this.fieldName = fieldName;
         return this;
     }
 
@@ -176,6 +184,25 @@ public class SchemaModel {
         this.apiField = apiField;
         return this;
     }
+
+    public SchemaCategory getCategory() {
+        return category;
+    }
+
+    public SchemaModel setCategory(SchemaCategory category) {
+        this.category = category;
+        return this;
+    }
+
+    public String getApiPath() {
+        return apiPath;
+    }
+
+    public SchemaModel setApiPath(String apiPath) {
+        this.apiPath = apiPath;
+        return this;
+    }
+
 
     public String getDescription() {
         return description;
