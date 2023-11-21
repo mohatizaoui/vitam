@@ -28,6 +28,7 @@ package fr.gouv.vitam.common.model.objectgroup;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
 
 /**
  * Object mapping VersionsResponse
@@ -55,6 +56,13 @@ public class VersionsModelCustomized {
 
     @JsonProperty("opc")
     private String opCurrent;
+
+    @JsonProperty("persistentIdentifier")
+    List<PersistentIdentifierModel> persistentIdentifier;
+
+    public List<PersistentIdentifierModel> getPersistentIdentifier() {
+        return persistentIdentifier;
+    }
 
     public String getId() {
         return id;
@@ -110,6 +118,10 @@ public class VersionsModelCustomized {
 
     public void setOpCurrent(String opCurrent) {
         this.opCurrent = opCurrent;
+    }
+
+    public void setPersistentIdentifier(List<PersistentIdentifierModel> persistentIdentifier) {
+        this.persistentIdentifier = persistentIdentifier;
     }
 
     @Override

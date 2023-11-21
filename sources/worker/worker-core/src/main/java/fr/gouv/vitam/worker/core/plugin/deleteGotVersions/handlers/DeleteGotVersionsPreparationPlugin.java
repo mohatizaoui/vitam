@@ -304,6 +304,7 @@ public class DeleteGotVersionsPreparationPlugin extends ActionHandler {
         if (versionModelToDelete.getStorage() != null) {
             versionsModelCustomized.setStrategyId(versionModelToDelete.getStorage().getStrategyId());
         }
+        versionsModelCustomized.setPersistentIdentifier(versionModelToDelete.getPersistentIdentifier());
         return versionsModelCustomized;
     }
 
