@@ -99,6 +99,7 @@ public class TransferReplyUnitPreparationHandler extends ActionHandler {
     public static final TypeReference<JsonLineModel>
         JSON_NODE_TYPE_REFERENCE = new TypeReference<>() {
     };
+    public static final String PERSISTENT_IDENTIFIER_FIELD = "PersistentIdentifier";
 
     private final MetaDataClientFactory metaDataClientFactory;
     private final StorageClientFactory storageClientFactory;
@@ -167,9 +168,8 @@ public class TransferReplyUnitPreparationHandler extends ActionHandler {
                 Set<String> notFoundUnitIds = SetUtils.difference(unitIds, foundUnitIds);
                 for (String notFoundUnitId : notFoundUnitIds) {
                     reportAppender.appendEntry(new TransferReplyUnitReportEntry(notFoundUnitId,
-                        TransferReplyUnitStatus.ALREADY_DELETED.name()));
+                        TransferReplyUnitStatus.ALREADY_DELETED.name(), null));
                 }
-
                 // Append units to delete sorted by #max (
                 for (JsonNode unit : jsonUnits) {
                     String unitId = unit.get(VitamFieldsHelper.id()).asText();
@@ -208,7 +208,8 @@ public class TransferReplyUnitPreparationHandler extends ActionHandler {
             RequestResponseOK<JsonNode> requestResponseOK = RequestResponseOK.getFromJsonNode(selectUnits);
             return requestResponseOK.getResults();
 
-        } catch (InvalidParseOperationException | InvalidCreateOperationException | MetaDataExecutionException | MetaDataDocumentSizeException | MetaDataClientServerException e) {
+        } catch (InvalidParseOperationException | InvalidCreateOperationException | MetaDataExecutionException |
+                 MetaDataDocumentSizeException | MetaDataClientServerException e) {
             throw new ProcessingStatusException(StatusCode.FATAL, "Could not select units", e);
         }
     }
@@ -224,7 +225,8 @@ public class TransferReplyUnitPreparationHandler extends ActionHandler {
             VitamFieldsHelper.initialOperation(),
             VitamFieldsHelper.originatingAgency(),
             VitamFieldsHelper.max(),
-            VitamFieldsHelper.storage());
+            VitamFieldsHelper.storage(),
+            PERSISTENT_IDENTIFIER_FIELD);
 
         return selectQuery;
     }
@@ -251,7 +253,8 @@ public class TransferReplyUnitPreparationHandler extends ActionHandler {
             // map iterator (line -> id)
             return CloseableIteratorUtils.map(lineGenericIterator, JsonLineModel::getId);
 
-        } catch (StorageServerClientException | StorageNotFoundException | UncheckedIOException | InvalidParseOperationException | StorageUnavailableDataFromAsyncOfferClientException e) {
+        } catch (StorageServerClientException | StorageNotFoundException | UncheckedIOException |
+                 InvalidParseOperationException | StorageUnavailableDataFromAsyncOfferClientException e) {
             StreamUtils.closeSilently(inputStream);
             throw new ProcessingStatusException(StatusCode.FATAL, "Could not load transfer report", e);
         }

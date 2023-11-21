@@ -91,6 +91,7 @@ import fr.gouv.vitam.common.model.export.ExportType;
 import fr.gouv.vitam.common.model.logbook.LogbookEvent;
 import fr.gouv.vitam.common.model.logbook.LogbookOperation;
 import fr.gouv.vitam.common.model.objectgroup.ObjectGroupResponse;
+import fr.gouv.vitam.common.model.objectgroup.PersistentIdentifierModel;
 import fr.gouv.vitam.common.model.objectgroup.QualifiersModel;
 import fr.gouv.vitam.common.model.objectgroup.VersionsModel;
 import fr.gouv.vitam.common.model.processing.WorkFlow;
@@ -211,6 +212,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -313,6 +315,8 @@ public class EndToEndEliminationAndTransferReplyIT extends VitamRuleRunner {
         "elimination/SIP_TREE.zip";
     private static final String TEST_ELIMINATION_V2_SIP =
         "elimination/TEST_ELIMINATION_V2.zip";
+    private static final String TEST_TRANSFERT_WITH_PERSISTENT_ID_SIP =
+        "elimination/TEST_TRANSFERT_WITH_PERSITENT_ID.zip";
     private static final String ELIMINATION_ACCESSION_REGISTER_DETAIL =
         "elimination/accession_regoister_detail.json";
     private static final String ELIMINATION_ACCESSION_REGISTER_SUMMARY =
@@ -1950,7 +1954,8 @@ public class EndToEndEliminationAndTransferReplyIT extends VitamRuleRunner {
         String evDetData =
             logbookOperation.getEvents().stream().filter(event -> "CREATE_MANIFEST.KO".equals(event.getOutDetail()))
                 .map(LogbookEvent::getEvDetData).findFirst().orElseThrow();
-        assertThat(evDetData).contains("Cannot export SigningInformation tag in SEDA 2.1 with Signature, Gps, OriginatingSystemIdReplyTo or OriginatingSystemIdReplyTo fields");
+        assertThat(evDetData).contains(
+            "Cannot export SigningInformation tag in SEDA 2.1 with Signature, Gps, OriginatingSystemIdReplyTo or OriginatingSystemIdReplyTo fields");
     }
 
     @RunWithCustomExecutor
@@ -1986,6 +1991,104 @@ public class EndToEndEliminationAndTransferReplyIT extends VitamRuleRunner {
         transfer(ingestedUnitIds, KO, SupportedSedaVersions.SEDA_2_2);
     }
 
+
+
+    @RunWithCustomExecutor
+    @Test
+    public void should_test_transfer_reply_with_ark_ids() throws Exception {
+        // GIVEN
+        prepareVitamSession();
+        final String ingestOperationGuid = VitamTestHelper.doIngest(tenantId, TEST_TRANSFERT_WITH_PERSISTENT_ID_SIP);
+        verifyOperation(ingestOperationGuid, OK);
+
+        // Check ingested units
+        final AccessInternalClient accessInternalClient = AccessInternalClientFactory.getInstance().getClient();
+        final RequestResponseOK<JsonNode> ingestedUnits = selectUnitsByOpi(ingestOperationGuid, accessInternalClient);
+        final RequestResponseOK<JsonNode> ingestedObjectGroups =
+            selectGotsByOpi(ingestOperationGuid, accessInternalClient);
+        Set<String> ingestedUnitIds = getIds(ingestedUnits);
+        Set<String> ingestedObjectGroupIds = getIds(ingestedObjectGroups);
+
+        assertThat(ingestedUnits.getResults()).hasSize(8);
+        assertThat(ingestedObjectGroups.getResults()).hasSize(3);
+
+        Set<String> ingestedObjectIds = getBinaryObjectIds(ingestedObjectGroups);
+        assertThat(ingestedObjectIds).hasSize(3);
+
+        // Export transfer archive
+        String transferOperation = transfer(ingestedUnitIds, OK, SupportedSedaVersions.SEDA_2_3);
+
+        // Check "opts" field update
+        checkTransferOperationsInExportedUnits(accessInternalClient, transferOperation, ingestedUnitIds);
+
+        //  Check transfer export report
+        checkTransferRequestReport(transferOperation, ingestedUnitIds, Collections.emptyList());
+
+        // Get exported SIP from transfer request and ingest it
+        String transferredSipIngestOperationId;
+        try (InputStream sipInputStream = getTransferSip(transferOperation)) {
+            transferredSipIngestOperationId = doIngest(sipInputStream, OK);
+        }
+
+        // Check ingested transferred metadata match initial exported ones
+        RequestResponseOK<JsonNode> ingestedTransferredUnits =
+            selectUnitsByOpi(transferredSipIngestOperationId, accessInternalClient);
+
+        // Send ATR back for transfer reply workflow
+        String transferReplyOperationId;
+        try (InputStream atrInputStream = readStoredReport(transferredSipIngestOperationId + XML)) {
+            transferReplyOperationId = startTransferReplyWorkflow(atrInputStream, OK);
+            checkPersistentIdentifierInTransferReport(transferReplyOperationId);
+        }
+    }
+
+    private void checkPersistentIdentifierInTransferReport(String transferReplyOperationId)
+        throws StorageServerClientException, StorageUnavailableDataFromAsyncOfferClientException,
+        StorageNotFoundException, IOException {
+        try (InputStream reportInputStream = readStoredReport(transferReplyOperationId + JSONL);
+            JsonLineGenericIterator<JsonNode> reportIterator = new JsonLineGenericIterator<>(reportInputStream,
+                JSON_NODE_TYPE_REFERENCE)) {
+
+            IntStream.rangeClosed(1, 3).forEach(index -> reportIterator.skip());
+            Set<String> persistentIdentifiersUnits = new HashSet<>();
+            Set<String> persistentIdentifiersObjects = new HashSet<>();
+            while (reportIterator.hasNext()) {
+                JsonNode element = reportIterator.next();
+                ObjectNode paramsNode = (ObjectNode) element.get("params");
+                if ("Unit".equals(paramsNode.get("type").asText())) {
+                    UnitReportEntry unitReportEntry = asTypeReference(element, UNIT_REPORT_TYPE_REFERENCE);
+                    if (unitReportEntry.params.persistentIdentifier != null) {
+                        persistentIdentifiersUnits.addAll(unitReportEntry.params.persistentIdentifier.stream()
+                            .map(
+                                persistentIdentifierModel -> persistentIdentifierModel.getPersistentIdentifierContent())
+                            .collect(
+                                Collectors.toList()));
+                    }
+                } else if ("ObjectGroup".equals(paramsNode.get("type").asText())) {
+                    ObjectGroupReportEntry ogReportEntry = asTypeReference(element, OG_REPORT_TYPE_REFERENCE);
+                    if (ogReportEntry.params.objectVersions != null) {
+                        for (ObjectVersion version : ogReportEntry.params.objectVersions) {
+                            if (version.persistentIdentifier != null) {
+                                persistentIdentifiersObjects.addAll(version.persistentIdentifier.stream()
+                                    .map(
+                                        persistentIdentifierModel -> persistentIdentifierModel.getPersistentIdentifierContent())
+                                    .collect(
+                                        Collectors.toList()));
+                            }
+                        }
+                    }
+                }
+            }
+
+            assertThat(persistentIdentifiersUnits).isNotEmpty();
+            assertThat(persistentIdentifiersUnits).contains("ark:/55555/001a957db5eadaac",
+                "ark:/225867/001a9d7db5eaxxac");
+            assertThat(persistentIdentifiersObjects).isNotEmpty();
+            assertThat(persistentIdentifiersObjects).contains("ark:/88888/object-ark_id2",
+                "ark:/9999/object-ark_id");
+        }
+    }
+
     private static LogbookOperation getLogbookOperation(String transferOperationId)
         throws LogbookClientException, InvalidParseOperationException {
         try (LogbookOperationsClient logbookClient = LogbookOperationsClientFactory.getInstance().getClient()) {
@@ -2000,7 +2103,7 @@ public class EndToEndEliminationAndTransferReplyIT extends VitamRuleRunner {
         }
         return null;
     }
-    
+
     private void checkFirstReportItem(String eliminationActionOperationGuid, String expectedStatus)
         throws IOException, InvalidParseOperationException {
         // Check report
@@ -2986,6 +3089,8 @@ public class EndToEndEliminationAndTransferReplyIT extends VitamRuleRunner {
         Map<String, Object> extraInfo;
         @JsonProperty("type")
         String type;
+        @JsonProperty("persistentIdentifier")
+        List<PersistentIdentifierModel> persistentIdentifier;
     }
 
 
@@ -2994,6 +3099,12 @@ public class EndToEndEliminationAndTransferReplyIT extends VitamRuleRunner {
         String id;
         @JsonProperty("params")
         ObjectGroupReportParams params;
+    }
+
+
+    private static class ObjectVersion {
+        @JsonProperty("persistentIdentifier")
+        List<PersistentIdentifierModel> persistentIdentifier;
     }
 
 
@@ -3012,6 +3123,8 @@ public class EndToEndEliminationAndTransferReplyIT extends VitamRuleRunner {
         List<String> deletedParentUnitIds;
         @JsonProperty("type")
         String type;
+        @JsonProperty("objectVersions")
+        List<ObjectVersion> objectVersions;
     }
 
 

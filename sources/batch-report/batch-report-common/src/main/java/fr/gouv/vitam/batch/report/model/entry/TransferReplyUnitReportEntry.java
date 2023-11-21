@@ -28,20 +28,28 @@ package fr.gouv.vitam.batch.report.model.entry;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import fr.gouv.vitam.common.model.objectgroup.PersistentIdentifierModel;
+
+import java.util.List;
 
 public class TransferReplyUnitReportEntry {
     private final static String ID = "id";
     private final static String STATUS = "status";
+    public final static String PERSISTENT_IDENTIFIER = "persistentIdentifier";
 
     private final String id;
     private final String status;
 
+    private final List<PersistentIdentifierModel> persistentIdentifier;
+
+
     @JsonCreator
-    public TransferReplyUnitReportEntry(
-        @JsonProperty(ID) String id,
-        @JsonProperty(STATUS) String status) {
+    public TransferReplyUnitReportEntry(@JsonProperty(ID) String id,
+        @JsonProperty(STATUS) String status,
+        @JsonProperty(PERSISTENT_IDENTIFIER) List<PersistentIdentifierModel> persistentIdentifier) {
         this.id = id;
         this.status = status;
+        this.persistentIdentifier = persistentIdentifier;
     }
 
     @JsonProperty(ID)
@@ -52,5 +60,10 @@ public class TransferReplyUnitReportEntry {
     @JsonProperty(STATUS)
     public String getStatus() {
         return status;
+    }
+
+    @JsonProperty(PERSISTENT_IDENTIFIER)
+    public List<PersistentIdentifierModel> getPersistentIdentifiers() {
+        return persistentIdentifier;
     }
 }

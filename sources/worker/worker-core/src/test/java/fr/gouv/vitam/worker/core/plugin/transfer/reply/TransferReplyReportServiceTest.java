@@ -33,6 +33,7 @@ import fr.gouv.vitam.batch.report.model.ReportBody;
 import fr.gouv.vitam.batch.report.model.ReportType;
 import fr.gouv.vitam.batch.report.model.entry.TransferReplyUnitReportEntry;
 import fr.gouv.vitam.common.VitamConfiguration;
+import fr.gouv.vitam.common.model.objectgroup.PersistentIdentifierModel;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -53,6 +54,7 @@ import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static fr.gouv.vitam.worker.core.plugin.transfer.reply.TransferReplyReportService.JSONL_EXTENSION;
@@ -110,10 +112,15 @@ public class TransferReplyReportServiceTest {
     @RunWithCustomExecutor
     public void appendUnitEntries() throws Exception {
 
+        PersistentIdentifierModel persistentIdentifierEntry = new PersistentIdentifierModel();
+        persistentIdentifierEntry.setPersistentIdentifierContent("ark:/11111/123456axd");
+        persistentIdentifierEntry.setPersistentIdentifierType("ark");
         // Given
         List<TransferReplyUnitReportEntry> entries = Arrays.asList(
-            new TransferReplyUnitReportEntry("unit1", TransferReplyUnitStatus.ALREADY_DELETED.name()),
-            new TransferReplyUnitReportEntry("unit2", TransferReplyUnitStatus.ALREADY_DELETED.name())
+            new TransferReplyUnitReportEntry("unit1", TransferReplyUnitStatus.ALREADY_DELETED.name(),
+                List.of(persistentIdentifierEntry)),
+            new TransferReplyUnitReportEntry("unit2", TransferReplyUnitStatus.ALREADY_DELETED.name(),
+                Collections.emptyList())
         );
 
         // When
@@ -130,6 +137,10 @@ public class TransferReplyReportServiceTest {
         TransferReplyUnitReportEntry unitEntry = reportBody.getEntries().get(0);
         assertThat(unitEntry.getId()).isEqualTo("unit1");
         assertThat(unitEntry.getStatus()).isEqualTo(TransferReplyUnitStatus.ALREADY_DELETED.name());
+        assertThat(unitEntry.getPersistentIdentifiers()).isNotEmpty();
+        assertThat(unitEntry.getPersistentIdentifiers().get(0).getPersistentIdentifierContent()).isEqualTo(
+            "ark:/11111/123456axd");
+        assertThat(unitEntry.getPersistentIdentifiers().get(0).getPersistentIdentifierType()).isEqualTo("ark");
     }
 
     @Test
