@@ -1,0 +1,13 @@
+{
+  "dataObjectVersionToExport": {
+    "dataObjectVersionsPatterns": {
+      "BinaryMaster": [
+        "ALL"
+      ],
+      "PhysicalMaster": [
+        "FIRST",
+        "LAST"
+      ]
+    }
+  }
+}

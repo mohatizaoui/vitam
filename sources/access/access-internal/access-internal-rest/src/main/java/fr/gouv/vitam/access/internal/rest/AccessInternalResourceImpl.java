@@ -80,6 +80,7 @@ import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.VitamSession;
 import fr.gouv.vitam.common.model.administration.AccessContractModel;
 import fr.gouv.vitam.common.model.administration.ActivationStatus;
+import fr.gouv.vitam.common.model.dip.DataObjectVersions;
 import fr.gouv.vitam.common.model.elimination.EliminationRequestBody;
 import fr.gouv.vitam.common.model.export.ExportRequest;
 import fr.gouv.vitam.common.model.export.ExportType;
@@ -408,6 +409,7 @@ public class AccessInternalResourceImpl extends ApplicationStatusResource implem
     @Produces(MediaType.APPLICATION_JSON)
     public Response exportDIP(JsonNode dslRequest) {
         ExportRequest exportRequest = new ExportRequest();
+        exportRequest.setDataObjectVersionToExport(new DataObjectVersions(Set.of()));
         exportRequest.setDslRequest(dslRequest);
         exportRequest.setExportWithLogBookLFC(false);
         exportRequest.setExportType(ExportType.MinimalArchiveDeliveryRequestReply);
@@ -482,12 +484,12 @@ public class AccessInternalResourceImpl extends ApplicationStatusResource implem
                 .putObject(operationId, OperationContextMonitor.OperationContextFileName, writeToInpustream(
                     OperationContextModel.get(exportRequest)));
 
-            JsonNode filteredQueryQsl = applyAccessContractRestrictionForUnitForSelect(exportRequest.getDslRequest(),
+            JsonNode filteredQueryDsl = applyAccessContractRestrictionForUnitForSelect(exportRequest.getDslRequest(),
                 getVitamSession().getContract());
-            exportRequest.setDslRequest(filteredQueryQsl);
+            exportRequest.setDslRequest(filteredQueryDsl);
             // QUERY_FILE is required for the first step that check Threshold
             // EXPORT_QUERY_FILE_NAME is required for step
-            workspaceClient.putObject(operationId, QUERY_FILE, writeToInpustream(filteredQueryQsl));
+            workspaceClient.putObject(operationId, QUERY_FILE, writeToInpustream(filteredQueryDsl));
             workspaceClient.putObject(operationId, EXPORT_QUERY_FILE_NAME, writeToInpustream(exportRequest));
 
             // compress file to backup

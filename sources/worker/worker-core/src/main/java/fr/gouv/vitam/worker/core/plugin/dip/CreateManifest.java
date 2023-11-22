@@ -57,8 +57,10 @@ import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.administration.AccessContractModel;
+import fr.gouv.vitam.common.model.administration.DataObjectVersionType;
 import fr.gouv.vitam.common.model.dip.BinarySizePlatformThreshold;
 import fr.gouv.vitam.common.model.dip.BinarySizeTenantThreshold;
+import fr.gouv.vitam.common.model.dip.QualifierVersion;
 import fr.gouv.vitam.common.model.export.ExportRequest;
 import fr.gouv.vitam.common.model.objectgroup.ObjectGroupResponse;
 import fr.gouv.vitam.common.model.objectgroup.QualifiersModel;
@@ -90,6 +92,7 @@ import fr.gouv.vitam.worker.core.plugin.ScrollSpliteratorHelper;
 import fr.gouv.vitam.worker.core.plugin.transfer.TransferReportHeader;
 import fr.gouv.vitam.worker.core.plugin.transfer.TransferReportLine;
 import fr.gouv.vitam.worker.core.plugin.transfer.TransferStatus;
+import fr.gouv.vitam.worker.core.utils.DataObjectVersionToPatternsConvertor;
 import org.apache.commons.collections4.ListUtils;
 
 import javax.xml.bind.JAXBException;
@@ -103,6 +106,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -110,7 +114,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -132,6 +135,7 @@ import static fr.gouv.vitam.common.model.RequestResponseOK.TAG_RESULTS;
 import static fr.gouv.vitam.common.model.export.ExportRequest.EXPORT_QUERY_FILE_NAME;
 import static fr.gouv.vitam.common.model.export.ExportType.ArchiveTransfer;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Comparator.comparing;
 
 /**
  * create manifest and put in on workspace
@@ -266,15 +270,17 @@ public class CreateManifest extends ActionHandler {
 
             Map<String, JsonNode> idBinaryWithFileName = new HashMap<>();
             boolean exportWithLogBookLFC = exportRequest.isExportWithLogBookLFC();
-            Set<String> dataObjectVersions = Objects.nonNull(exportRequest.getDataObjectVersionToExport())
-                ? exportRequest.getDataObjectVersionToExport().getDataObjectVersions()
-                : Collections.emptySet();
+
+            final Map<DataObjectVersionType, Set<QualifierVersion>> dataObjectVersions =
+                DataObjectVersionToPatternsConvertor.computeDataObjectVersionsPatterns(
+                    exportRequest.getDataObjectVersionToExport());
 
             long exportSize = 0;
 
+            final AccessContractModel accessContractModel = getAccessContractModel(adminManagementClient);
+
             Iterable<List<Entry<String, String>>> partitions = partition(ogs.entrySet(), MAX_ELEMENT_IN_QUERY);
             for (List<Entry<String, String>> partition : partitions) {
-
                 ListMultimap<String, String> unitsForObjectGroupId = partition.stream()
                     .collect(
                         ArrayListMultimap::create,
@@ -283,39 +289,19 @@ public class CreateManifest extends ActionHandler {
                     );
 
                 InQuery in = QueryHelper.in(id(), partition.stream().map(Entry::getValue).toArray(String[]::new));
-
                 select.setQuery(in);
                 JsonNode response = client.selectObjectGroups(select.getFinalSelect());
                 ArrayNode objects = (ArrayNode) response.get(TAG_RESULTS);
-
                 for (JsonNode object : objects) {
                     String id = object.get(id()).textValue();
                     List<String> linkedUnits = unitsForObjectGroupId.get(id);
                     JsonNode selectObjectGroupLifeCycleById =
                         logbookLifeCyclesClient.selectObjectGroupLifeCycleById(id, new Select().getFinalSelect());
 
-                    AccessContractModel accessContract = getAccessContractModel(adminManagementClient);
-
                     ObjectGroupResponse objectGroup = objectMapper.treeToValue(object, ObjectGroupResponse.class);
-
-                    List<QualifiersModel> qualifiersToRemove;
-                    if (Boolean.FALSE.equals(accessContract.isEveryDataObjectVersion())) {
-                        qualifiersToRemove = objectGroup.getQualifiers().stream()
-                            .filter(
-                                qualifier -> !accessContract.getDataObjectVersion().contains(qualifier.getQualifier()))
-                            .collect(Collectors.toList());
-                        objectGroup.getQualifiers().removeAll(qualifiersToRemove);
-                    }
-
-                    if (!dataObjectVersions.isEmpty()) {
-                        qualifiersToRemove = objectGroup.getQualifiers().stream()
-                            .filter(qualifier -> !dataObjectVersions.contains(qualifier.getQualifier()))
-                            .collect(Collectors.toList());
-                        objectGroup.getQualifiers().removeAll(qualifiersToRemove);
-                    }
+                    keepOnlySelectedQualifiers(objectGroup, dataObjectVersions, accessContractModel);
 
                     JsonNode currentObject = JsonHandler.toJsonNode(objectGroup);
-
                     Stream<LogbookLifeCycleObjectGroup> logbookLifeCycleObjectGroupStream =
                         (exportRequest.isExportWithLogBookLFC()) ?
                             RequestResponseOK.getFromJsonNode(selectObjectGroupLifeCycleById)
@@ -323,11 +309,15 @@ public class CreateManifest extends ActionHandler {
                                 .stream()
                                 .map(LogbookLifeCycleObjectGroup::new) :
                             Stream.empty();
-
                     idBinaryWithFileName.putAll(manifestBuilder
                         .writeGOT(currentObject, linkedUnits.get(linkedUnits.size() - 1),
                             logbookLifeCycleObjectGroupStream));
-                    exportSize += computeSize(currentObject, dataObjectVersions);
+
+                    exportSize += objectGroup.getQualifiers().stream()
+                        .map(QualifiersModel::getVersions)
+                        .flatMap(Collection::stream)
+                        .mapToLong(VersionsModel::getSize)
+                        .sum();
                 }
             }
 
@@ -357,7 +347,7 @@ public class CreateManifest extends ActionHandler {
                     JsonNode response =
                         logbookLifeCyclesClient.selectUnitLifeCycleById(archiveUnitModel.getId(),
                             select.getFinalSelect());
-                    if (response != null && response.has(TAG_RESULTS) && response.get(TAG_RESULTS).size() > 0) {
+                    if (response != null && response.has(TAG_RESULTS) && !response.get(TAG_RESULTS).isEmpty()) {
                         JsonNode rootEvent = response.get(TAG_RESULTS).get(0);
                         LogbookLifeCycleUnit logbookLFC = new LogbookLifeCycleUnit(rootEvent);
 
@@ -463,6 +453,47 @@ public class CreateManifest extends ActionHandler {
         return new ItemStatus(PLUGIN_NAME).setItemsStatus(PLUGIN_NAME, itemStatus);
     }
 
+    private void keepOnlySelectedQualifiers(ObjectGroupResponse objectGroup,
+        Map<DataObjectVersionType, Set<QualifierVersion>> dataObjectVersions, AccessContractModel accessContract) {
+        final List<QualifiersModel> qualifiers = objectGroup.getQualifiers();
+
+        if (Boolean.FALSE.equals(accessContract.isEveryDataObjectVersion())) {
+            qualifiers.removeIf(qualifier -> !accessContract.getDataObjectVersion().contains(qualifier.getQualifier()));
+        }
+
+        if (dataObjectVersions.isEmpty()) {
+            qualifiers.clear();
+        } else {
+            qualifiers.removeIf(
+                qualifier -> !dataObjectVersions.containsKey(DataObjectVersionType.fromName(qualifier.getQualifier())));
+
+            qualifiers.forEach(qualifier -> {
+                final List<VersionsModel> versionsToExport =
+                    dataObjectVersions.getOrDefault(DataObjectVersionType.fromName(qualifier.getQualifier()),
+                            Collections.emptySet())
+                        .stream()
+                        .flatMap(version -> getVersions(qualifier, version).stream())
+                        .distinct()
+                        .sorted(comparing(VersionsModel::getDataVersion))
+                        .collect(Collectors.toList());
+                qualifier.setVersions(versionsToExport);
+            });
+        }
+    }
+
+    private List<VersionsModel> getVersions(QualifiersModel qualifier, QualifierVersion wantedVersion) {
+        switch (wantedVersion) {
+            case FIRST:
+                return getFirstVersion(qualifier).map(List::of).orElse(Collections.emptyList());
+            case LAST:
+                return getLastVersion(qualifier).map(List::of).orElse(Collections.emptyList());
+            case ALL:
+                return qualifier.getVersions();
+            default:
+                return Collections.emptyList();
+        }
+    }
+
     private AccessContractModel getAccessContractModel(AdminManagementClient adminManagementClient)
         throws ProcessingException {
         AccessContractModel accessContractModel = VitamThreadUtils.getVitamSession().getContract();
@@ -531,48 +562,12 @@ public class CreateManifest extends ActionHandler {
             .orElseGet(() -> VitamConfiguration.getBinarySizePlatformThreshold().getThreshold());
     }
 
-    private AccessContractModel findAccessContract() throws ProcessingException {
-        AccessContractModel accessContractModel = VitamThreadUtils.getVitamSession().getContract();
-        if (accessContractModel != null) {
-            return accessContractModel;
-        }
-
-        final AdminManagementClient client = AdminManagementClientFactory.getInstance().getClient();
-        Select select = new Select();
-        try {
-            Query query =
-                QueryHelper.eq(AccessContract.IDENTIFIER, VitamThreadUtils.getVitamSession().getContractId());
-            select.setQuery(query);
-            return
-                ((RequestResponseOK<AccessContractModel>) client.findAccessContracts(select.getFinalSelect()))
-                    .getResults().get(0);
-        } catch (InvalidCreateOperationException | AdminManagementClientServerException |
-                 InvalidParseOperationException e) {
-            throw new ProcessingException(e);
-        }
+    private Optional<VersionsModel> getLastVersion(QualifiersModel qualifier) {
+        return qualifier.getVersions().stream().max(comparing(VersionsModel::getDataVersion));
     }
 
-    private long computeSize(JsonNode og, Set<String> dataObjectVersionFilter)
-        throws InvalidParseOperationException, ProcessingException {
-        AccessContractModel accessContract = findAccessContract();
-        ObjectGroupResponse objectGroup = JsonHandler.getFromJsonNode(og, ObjectGroupResponse.class);
-
-        Stream<QualifiersModel> stream = objectGroup.getQualifiers().stream();
-        if (!accessContract.isEveryDataObjectVersion()) {
-            stream =
-                stream.filter(qualifier -> accessContract.getDataObjectVersion().contains(qualifier.getQualifier()));
-        }
-
-        if (!dataObjectVersionFilter.isEmpty()) {
-            stream = stream.filter(qualifier -> dataObjectVersionFilter.contains(qualifier.getQualifier()));
-        }
-
-        return stream.map(this::getLastVersion)
-            .map(VersionsModel::getSize).reduce(0L, Long::sum);
-    }
-
-    private VersionsModel getLastVersion(QualifiersModel qualifier) {
-        return Iterables.getLast(qualifier.getVersions());
+    private Optional<VersionsModel> getFirstVersion(QualifiersModel qualifier) {
+        return qualifier.getVersions().stream().min(comparing(VersionsModel::getDataVersion));
     }
 
     private boolean checkEmptinessSelectedUnits(ItemStatus itemStatus, long total) {

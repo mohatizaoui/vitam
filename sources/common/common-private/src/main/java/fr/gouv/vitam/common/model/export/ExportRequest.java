@@ -56,12 +56,11 @@ public class ExportRequest {
     private JsonNode dslRequest;
 
     @JsonProperty("sedaVersion")
-    private String sedaVersion =  SupportedSedaVersions.SEDA_2_2.getVersion();
+    private String sedaVersion = SupportedSedaVersions.SEDA_2_2.getVersion();
 
 
     public ExportRequest() {
     }
-
 
     public ExportRequest(JsonNode dslRequest) {
         this.dslRequest = dslRequest;
@@ -78,6 +77,7 @@ public class ExportRequest {
 
     /**
      * Seda version to export is setted to default value "2.2"
+     *
      * @param dataObjectVersionToExport
      * @param dslRequest
      * @param withLogBookLFC

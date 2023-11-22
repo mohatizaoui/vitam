@@ -1,0 +1,8 @@
+{
+  "dataObjectVersionToExport": {
+    "dataObjectVersions": [
+      "BinaryMaster",
+      "PhysicalMaster"
+    ]
+  }
+}

@@ -26,49 +26,8 @@
  */
 package fr.gouv.vitam.common.model.dip;
 
-import fr.gouv.vitam.common.model.administration.DataObjectVersionType;
-import org.apache.commons.collections4.CollectionUtils;
-
-import javax.annotation.Nullable;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
-
-public class DataObjectVersions {
-    private Set<String> dataObjectVersions;
-    private Map<DataObjectVersionType, Set<QualifierVersion>> dataObjectVersionsPatterns;
-
-    public DataObjectVersions() {
-    }
-
-    public DataObjectVersions(Set<String> dataObjectVersionToExport) {
-        this.dataObjectVersions = dataObjectVersionToExport;
-    }
-
-    public DataObjectVersions(Map<DataObjectVersionType, Set<QualifierVersion>> dataObjectVersionsPatterns) {
-        this.dataObjectVersionsPatterns = dataObjectVersionsPatterns;
-    }
-
-    public Set<String> getDataObjectVersions() {
-        if (dataObjectVersions == null) {
-            dataObjectVersions = Collections.emptySet();
-        }
-        return dataObjectVersions;
-    }
-
-    public void setDataObjectVersions(Set<String> dataObjectVersions) {
-        this.dataObjectVersions = dataObjectVersions;
-    }
-
-    public @Nullable Map<DataObjectVersionType, Set<QualifierVersion>> getDataObjectVersionsPatterns() {
-        return dataObjectVersionsPatterns;
-    }
-
-    public void setDataObjectVersionsPatterns(Map<DataObjectVersionType, Set<QualifierVersion>> dataObjectVersionsPatterns) {
-        this.dataObjectVersionsPatterns = dataObjectVersionsPatterns;
-    }
-
-    public boolean dataHasBeenSetTwice() {
-        return CollectionUtils.isNotEmpty(this.dataObjectVersions) && this.dataObjectVersionsPatterns == null;
-    }
+public enum QualifierVersion {
+    LAST,
+    ALL,
+    FIRST;
 }

@@ -33,9 +33,11 @@ import fr.gouv.vitam.access.internal.client.AccessInternalClientFactory;
 import fr.gouv.vitam.access.internal.common.exception.AccessInternalClientServerException;
 import fr.gouv.vitam.common.dsl.schema.validator.SelectMultipleSchemaValidator;
 import fr.gouv.vitam.common.error.VitamError;
+import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.common.model.RequestResponse;
+import fr.gouv.vitam.common.model.dip.DataObjectVersions;
 import fr.gouv.vitam.common.model.export.ExportRequest;
 import fr.gouv.vitam.common.model.export.dip.DipRequest;
 import fr.gouv.vitam.common.security.SanityChecker;
@@ -123,10 +125,18 @@ public class AccessExternalResourceV2 extends ApplicationStatusResource {
     public Response exportDIP(DipRequest dipRequest) {
         try (AccessInternalClient client = accessInternalClientFactory.getClient()) {
             SanityChecker.checkJsonAll(dipRequest.getDslRequest());
+
+            final DataObjectVersions exportDipGotParams = dipRequest.getDataObjectVersionToExport();
+            if (exportDipGotParams != null && exportDipGotParams.dataHasBeenSetTwice()) {
+                throw new InvalidParseOperationException(
+                    "Malformed request, DIP export handles only one of dataObjectVersions or dataObjectVersionsPatterns");
+            }
+
             // Validate DSL query & seda Version
             SelectMultipleSchemaValidator validator = new SelectMultipleSchemaValidator();
             validator.validate(dipRequest.getDslRequest());
-            if (dipRequest.getSedaVersion() != null && !SupportedSedaVersions.isSedaVersionValid(dipRequest.getSedaVersion())) {
+            if (dipRequest.getSedaVersion() != null &&
+                !SupportedSedaVersions.isSedaVersionValid(dipRequest.getSedaVersion())) {
                 return Response.status(Status.PRECONDITION_FAILED)
                     .entity(getErrorEntity(Status.PRECONDITION_FAILED, "The Seda version is invalid!")).build();
             }

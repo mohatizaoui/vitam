@@ -56,9 +56,11 @@ import fr.gouv.vitam.common.guid.GUID;
 import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.RequestResponseOK;
+import fr.gouv.vitam.common.model.administration.DataObjectVersionType;
 import fr.gouv.vitam.common.model.dip.BinarySizePlatformThreshold;
 import fr.gouv.vitam.common.model.dip.BinarySizeTenantThreshold;
 import fr.gouv.vitam.common.model.dip.DataObjectVersions;
+import fr.gouv.vitam.common.model.dip.QualifierVersion;
 import fr.gouv.vitam.common.model.export.ExportRequest;
 import fr.gouv.vitam.common.model.export.ExportRequestParameters;
 import fr.gouv.vitam.common.model.export.ExportType;
@@ -87,6 +89,7 @@ import fr.gouv.vitam.worker.core.plugin.transfer.reply.SaveAtrPlugin;
 import fr.gouv.vitam.worker.core.plugin.transfer.reply.VerifyAtrPlugin;
 import fr.gouv.vitam.worker.server.rest.WorkerMain;
 import fr.gouv.vitam.workspace.rest.WorkspaceMain;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.apache.commons.io.IOUtils;
@@ -119,6 +122,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Stream;
 
 import static fr.gouv.vitam.common.VitamTestHelper.verifyOperation;
 import static fr.gouv.vitam.common.guid.GUIDFactory.newOperationLogbookGUID;
@@ -128,8 +134,14 @@ import static fr.gouv.vitam.common.model.StatusCode.KO;
 import static fr.gouv.vitam.common.model.StatusCode.OK;
 import static fr.gouv.vitam.common.model.StatusCode.STARTED;
 import static fr.gouv.vitam.common.model.StatusCode.WARNING;
+import static fr.gouv.vitam.common.model.administration.DataObjectVersionType.BINARY_MASTER;
+import static fr.gouv.vitam.common.model.administration.DataObjectVersionType.DISSEMINATION;
+import static fr.gouv.vitam.common.model.administration.DataObjectVersionType.PHYSICAL_MASTER;
 import static fr.gouv.vitam.common.model.dip.BinarySizePlatformThreshold.SizeUnit.BYTE;
 import static fr.gouv.vitam.common.model.dip.BinarySizePlatformThreshold.SizeUnit.KILOBYTE;
+import static fr.gouv.vitam.common.model.dip.QualifierVersion.ALL;
+import static fr.gouv.vitam.common.model.dip.QualifierVersion.FIRST;
+import static fr.gouv.vitam.common.model.dip.QualifierVersion.LAST;
 import static fr.gouv.vitam.common.model.logbook.LogbookEvent.EV_ID_PROC;
 import static fr.gouv.vitam.common.model.logbook.LogbookEvent.EV_TYPE;
 import static fr.gouv.vitam.common.model.logbook.LogbookEvent.OUTCOME;
@@ -154,6 +166,8 @@ public class TransferAndDipIT extends VitamRuleRunner {
         "integration-ingest-internal/unit_without_object_transfer.zip";
     private static final String SIP_EXTENDED =
         "integration-ingest-internal/SIP_EXTENDED.zip";
+    private static final String SIP_FILE_OK_MULTI_USAGE =
+        "integration-ingest-internal/OK_SIP_plusieurs_usages_dans_GOT.zip";
 
     private static final String WARNING_SIP_mail_Seda2_2 = "sip/WARNING_SIP_mail_Seda2.2.zip";
     private static final String WARNING_SIP_mail_Seda2_3 = "sip/WARNING_SIP_mail_Seda2.3.zip";
@@ -231,7 +245,7 @@ public class TransferAndDipIT extends VitamRuleRunner {
         select.setQuery(QueryHelper.in(VitamFieldsHelper.operations(), ingestOpId));
 
         ExportRequest exportRequest = new ExportRequest(
-            new DataObjectVersions(Collections.singleton("BinaryMaster")),
+            new DataObjectVersions(Collections.singleton(BINARY_MASTER.getName())),
             select.getFinalSelect(),
             true
         );
@@ -280,7 +294,7 @@ public class TransferAndDipIT extends VitamRuleRunner {
         select.setQuery(QueryHelper.in(VitamFieldsHelper.operations(), ingestOpId));
 
         ExportRequest exportRequest = new ExportRequest(
-            new DataObjectVersions(Collections.singleton("BinaryMaster")),
+            new DataObjectVersions(Collections.singleton(BINARY_MASTER.getName())),
             select.getFinalSelect(),
             true
         );
@@ -332,7 +346,7 @@ public class TransferAndDipIT extends VitamRuleRunner {
         select.setQuery(QueryHelper.in(VitamFieldsHelper.operations(), ingestOpId));
 
         ExportRequest exportRequest = new ExportRequest(
-            new DataObjectVersions(Collections.singleton("BinaryMaster")),
+            new DataObjectVersions(Collections.singleton(BINARY_MASTER.getName())),
             select.getFinalSelect(),
             true
             // <- here with logbook
@@ -392,7 +406,7 @@ public class TransferAndDipIT extends VitamRuleRunner {
         select.setQuery(QueryHelper.in(VitamFieldsHelper.operations(), ingestOpId));
 
         ExportRequest exportRequest = new ExportRequest(
-            new DataObjectVersions(Collections.singleton("BinaryMaster")),
+            new DataObjectVersions(Collections.singleton(BINARY_MASTER.getName())),
             select.getFinalSelect(),
             true,
             null,
@@ -452,7 +466,7 @@ public class TransferAndDipIT extends VitamRuleRunner {
         select.setQuery(QueryHelper.in(VitamFieldsHelper.operations(), ingestOpId));
 
         ExportRequest exportRequest = new ExportRequest(
-            new DataObjectVersions(Collections.singleton("BinaryMaster")),
+            new DataObjectVersions(Collections.singleton(BINARY_MASTER.getName())),
             select.getFinalSelect(),
             true
         );
@@ -510,7 +524,7 @@ public class TransferAndDipIT extends VitamRuleRunner {
         select.setQuery(QueryHelper.in(VitamFieldsHelper.operations(), ingestOpId));
 
         ExportRequest exportRequest = new ExportRequest(
-            new DataObjectVersions(Collections.singleton("BinaryMaster")),
+            new DataObjectVersions(Collections.singleton(BINARY_MASTER.getName())),
             select.getFinalSelect(),
             true,
             null,
@@ -552,7 +566,7 @@ public class TransferAndDipIT extends VitamRuleRunner {
         select.setQuery(QueryHelper.in(VitamFieldsHelper.operations(), ingestOpId));
 
         ExportRequest exportRequest = new ExportRequest(
-            new DataObjectVersions(Collections.singleton("BinaryMaster")),
+            new DataObjectVersions(Collections.singleton(BINARY_MASTER.getName())),
             select.getFinalSelect(),
             false
         );
@@ -598,7 +612,7 @@ public class TransferAndDipIT extends VitamRuleRunner {
 
 
         ExportRequest exportRequest = new ExportRequest(
-            new DataObjectVersions(Collections.singleton("BinaryMaster")),
+            new DataObjectVersions(Collections.singleton(BINARY_MASTER.getName())),
             select.getFinalSelect(),
             true
             // <- here with logbook
@@ -657,7 +671,7 @@ public class TransferAndDipIT extends VitamRuleRunner {
 
 
         ExportRequest exportRequest = new ExportRequest(
-            new DataObjectVersions(Collections.singleton("BinaryMaster")),
+            new DataObjectVersions(Collections.singleton(BINARY_MASTER.getName())),
             select.getFinalSelect(),
             false
             // <- here without logbook
@@ -698,7 +712,7 @@ public class TransferAndDipIT extends VitamRuleRunner {
         select.setQuery(QueryHelper.in(VitamFieldsHelper.operations(), ingestOpId));
 
         ExportRequest exportRequest = new ExportRequest(
-            new DataObjectVersions(Collections.singleton("BinaryMaster")),
+            new DataObjectVersions(Collections.singleton(BINARY_MASTER.getName())),
             select.getFinalSelect(),
             false
             // <- here without logbook
@@ -760,7 +774,7 @@ public class TransferAndDipIT extends VitamRuleRunner {
         select.setQuery(QueryHelper.in(VitamFieldsHelper.operations(), ingestOpId));
 
         ExportRequest exportRequest = new ExportRequest(
-            new DataObjectVersions(Collections.singleton("BinaryMaster")),
+            new DataObjectVersions(Collections.singleton(BINARY_MASTER.getName())),
             select.getFinalSelect(),
             true
             // <- here without logbook
@@ -827,7 +841,7 @@ public class TransferAndDipIT extends VitamRuleRunner {
         select.setQuery(QueryHelper.in(VitamFieldsHelper.operations(), ingestOpId));
 
         ExportRequest exportRequest = new ExportRequest(
-            new DataObjectVersions(Collections.singleton("BinaryMaster")),
+            new DataObjectVersions(Collections.singleton(BINARY_MASTER.getName())),
             select.getFinalSelect(),
             false
         );
@@ -880,7 +894,7 @@ public class TransferAndDipIT extends VitamRuleRunner {
         select.setQuery(QueryHelper.in(VitamFieldsHelper.operations(), ingestOpId));
 
         ExportRequest exportRequest = new ExportRequest(
-            new DataObjectVersions(Collections.singleton("BinaryMaster")),
+            new DataObjectVersions(Collections.singleton(BINARY_MASTER.getName())),
             select.getFinalSelect(),
             false
         );
@@ -933,7 +947,7 @@ public class TransferAndDipIT extends VitamRuleRunner {
             select.setQuery(QueryHelper.in(VitamFieldsHelper.id(), archiveGuid));
 
             ExportRequest exportRequest = new ExportRequest(
-                new DataObjectVersions(Collections.singleton("BinaryMaster")),
+                new DataObjectVersions(Collections.singleton(BINARY_MASTER.getName())),
                 select.getFinalSelect(),
                 false
             );
@@ -961,7 +975,7 @@ public class TransferAndDipIT extends VitamRuleRunner {
         select.setQuery(QueryHelper.in(VitamFieldsHelper.operations(), ingestOpId));
 
         ExportRequest exportRequest = new ExportRequest(
-            new DataObjectVersions(Collections.singleton("BinaryMaster")),
+            new DataObjectVersions(Collections.singleton(BINARY_MASTER.getName())),
             select.getFinalSelect(),
             true
             // <- here with logbook
@@ -992,7 +1006,7 @@ public class TransferAndDipIT extends VitamRuleRunner {
         select.setQuery(QueryHelper.in(VitamFieldsHelper.operations(), ingestOpId));
 
         ExportRequest exportRequest = new ExportRequest(
-            new DataObjectVersions(Collections.singleton("BinaryMaster")),
+            new DataObjectVersions(Collections.singleton(BINARY_MASTER.getName())),
             select.getFinalSelect(),
             false
         );
@@ -1024,7 +1038,7 @@ public class TransferAndDipIT extends VitamRuleRunner {
         select.setQuery(QueryHelper.in(VitamFieldsHelper.operations(), ingestOpId));
 
         ExportRequest exportRequest = new ExportRequest(
-            new DataObjectVersions(Collections.singleton("BinaryMaster")),
+            new DataObjectVersions(Collections.singleton(BINARY_MASTER.getName())),
             select.getFinalSelect(),
             true
             // <- here with logbook
@@ -1056,7 +1070,7 @@ public class TransferAndDipIT extends VitamRuleRunner {
         select.setQuery(QueryHelper.in(VitamFieldsHelper.operations(), ingestOpId));
 
         ExportRequest exportRequest = new ExportRequest(
-            new DataObjectVersions(Collections.singleton("BinaryMaster")),
+            new DataObjectVersions(Collections.singleton(BINARY_MASTER.getName())),
             select.getFinalSelect(),
             true
             // <- here with logbook
@@ -1088,7 +1102,7 @@ public class TransferAndDipIT extends VitamRuleRunner {
         select.setQuery(QueryHelper.in(VitamFieldsHelper.operations(), ingestOpId));
 
         ExportRequest exportRequest = new ExportRequest(
-            new DataObjectVersions(Collections.singleton("BinaryMaster")),
+            new DataObjectVersions(Collections.singleton(BINARY_MASTER.getName())),
             select.getFinalSelect(),
             true
         );
@@ -1119,7 +1133,7 @@ public class TransferAndDipIT extends VitamRuleRunner {
         select.setQuery(QueryHelper.in(VitamFieldsHelper.operations(), ingestOpId));
 
         ExportRequest exportRequest = new ExportRequest(
-            new DataObjectVersions(Collections.singleton("BinaryMaster")),
+            new DataObjectVersions(Collections.singleton(BINARY_MASTER.getName())),
             select.getFinalSelect(),
             true
             // <- here with logbook
@@ -1133,6 +1147,164 @@ public class TransferAndDipIT extends VitamRuleRunner {
         // When ArchiveDeliveryRequestReply
         String exportOperationId = exportDIP(exportRequest);
         VitamTestHelper.verifyOperation(exportOperationId, KO);
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void should_only_include_selected_usages_and_versions_in_DIP() throws Exception {
+        // Given
+        final String ingestOpId = VitamTestHelper.doIngest(TENANT_ID, SIP_FILE_OK_MULTI_USAGE);
+        verifyOperation(ingestOpId, OK);
+
+        should_only_include_selected_usages_and_versions_in_DIP(
+            ingestOpId,
+            Map.of(),
+            Map.of()
+        );
+
+        should_only_include_selected_usages_and_versions_in_DIP(
+            ingestOpId,
+            Map.of(BINARY_MASTER, Set.of(FIRST)),
+            Map.of(BINARY_MASTER, Set.of(1))
+        );
+        should_only_include_selected_usages_and_versions_in_DIP(
+            ingestOpId,
+            Map.of(BINARY_MASTER, Set.of(LAST)),
+            Map.of(BINARY_MASTER, Set.of(11))
+        );
+        should_only_include_selected_usages_and_versions_in_DIP(
+            ingestOpId,
+            Map.of(BINARY_MASTER, Set.of(FIRST, LAST)),
+            Map.of(BINARY_MASTER, Set.of(1, 11))
+        );
+        should_only_include_selected_usages_and_versions_in_DIP(
+            ingestOpId,
+            Map.of(BINARY_MASTER, Set.of(ALL)),
+            Map.of(BINARY_MASTER, Set.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11))
+        );
+        should_only_include_selected_usages_and_versions_in_DIP(
+            ingestOpId,
+            Map.of(BINARY_MASTER, Set.of(FIRST, LAST, ALL)),
+            Map.of(BINARY_MASTER, Set.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11))
+        );
+
+        should_only_include_selected_usages_and_versions_in_DIP(
+            ingestOpId,
+            Map.of(
+                BINARY_MASTER, Set.of(FIRST),
+                PHYSICAL_MASTER, Set.of(FIRST)
+            ),
+            Map.of(
+                BINARY_MASTER, Set.of(1),
+                PHYSICAL_MASTER, Set.of(1)
+            )
+        );
+        should_only_include_selected_usages_and_versions_in_DIP(
+            ingestOpId,
+            Map.of(
+                BINARY_MASTER, Set.of(FIRST),
+                PHYSICAL_MASTER, Set.of(LAST)
+            ),
+            Map.of(
+                BINARY_MASTER, Set.of(1),
+                PHYSICAL_MASTER, Set.of(11)
+            )
+        );
+        should_only_include_selected_usages_and_versions_in_DIP(
+            ingestOpId,
+            Map.of(
+                BINARY_MASTER, Set.of(FIRST),
+                PHYSICAL_MASTER, Set.of(ALL)
+            ),
+            Map.of(
+                BINARY_MASTER, Set.of(1),
+                PHYSICAL_MASTER, Set.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11)
+            )
+        );
+
+        should_only_include_selected_usages_and_versions_in_DIP(
+            ingestOpId,
+            Map.of(
+                BINARY_MASTER, Set.of(FIRST),
+                PHYSICAL_MASTER, Set.of(FIRST),
+                DISSEMINATION, Set.of(FIRST)
+            ),
+            Map.of(
+                BINARY_MASTER, Set.of(1),
+                PHYSICAL_MASTER, Set.of(1),
+                DISSEMINATION, Set.of(1)
+            )
+        );
+        should_only_include_selected_usages_and_versions_in_DIP(
+            ingestOpId,
+            Map.of(
+                BINARY_MASTER, Set.of(FIRST),
+                PHYSICAL_MASTER, Set.of(FIRST),
+                DISSEMINATION, Set.of(LAST)
+            ),
+            Map.of(
+                BINARY_MASTER, Set.of(1),
+                PHYSICAL_MASTER, Set.of(1),
+                DISSEMINATION, Set.of(11)
+            )
+        );
+        should_only_include_selected_usages_and_versions_in_DIP(
+            ingestOpId,
+            Map.of(
+                BINARY_MASTER, Set.of(FIRST),
+                PHYSICAL_MASTER, Set.of(FIRST),
+                DISSEMINATION, Set.of(ALL)
+            ),
+            Map.of(
+                BINARY_MASTER, Set.of(1),
+                PHYSICAL_MASTER, Set.of(1),
+                DISSEMINATION, Set.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11)
+            )
+        );
+    }
+
+    private void should_only_include_selected_usages_and_versions_in_DIP(String ingestOpId,
+        Map<DataObjectVersionType, Set<QualifierVersion>> dataObjectVersions,
+        Map<DataObjectVersionType, Set<Integer>> expected)
+        throws Exception {
+        SelectMultiQuery select = new SelectMultiQuery();
+        select.setQuery(QueryHelper.in(VitamFieldsHelper.operations(), ingestOpId));
+
+        ExportRequest exportRequest = new ExportRequest(
+            // No usage selected
+            new DataObjectVersions(dataObjectVersions),
+            select.getFinalSelect(),
+            true,
+            null,
+            SupportedSedaVersions.SEDA_2_3.getVersion()
+        );
+
+        exportRequest.setExportType(ExportType.ArchiveDeliveryRequestReply);
+        ExportRequestParameters exportRequestParameters = getExportRequestParameters();
+        exportRequest.setExportRequestParameters(exportRequestParameters);
+
+        // When ArchiveDeliveryRequestReply
+        String exportOperationId = exportDIP(exportRequest);
+
+        // Then
+        VitamTestHelper.verifyOperation(exportOperationId, MapUtils.isEmpty(dataObjectVersions) ? WARNING : OK);
+
+        String manifest = getManifestString(getDip(exportOperationId));
+
+        expected.forEach((versionTypeEnum, versions) -> {
+            final String versionType = versionTypeEnum.getName();
+            assertThat(manifest).doesNotContain(
+                "<DataObjectVersion>" + versionType + "_" + (Collections.min(versions) - 1) + "</DataObjectVersion>");
+            versions.forEach(version -> assertThat(manifest).containsOnlyOnce(
+                "<DataObjectVersion>" + versionType + "_" + version + "</DataObjectVersion>"));
+            assertThat(manifest).doesNotContain(
+                "<DataObjectVersion>" + versionType + "_" + (Collections.max(versions) + 1) + "</DataObjectVersion>");
+        });
+        final Stream<DataObjectVersionType> usagesNotSelected =
+            Arrays.stream(DataObjectVersionType.values())
+                .filter(u -> !expected.containsKey(u));
+        usagesNotSelected.forEach(
+            selectedUsage -> assertThat(manifest).doesNotContain("<DataObjectVersion>" + selectedUsage.getName()));
     }
 
     private String retrieveArchiveUnitGuidById(String manifest) {
