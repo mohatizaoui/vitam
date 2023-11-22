@@ -1,10 +1,10 @@
 # Configuration
 @access-contract = ContratTNR
-@tenant = 0
-@operation-id = aeeaaaaaachemhquabfyqaln3wpwptqaaaaq
+@tenant = 1
+@operation-id = aeeaaaaaaghaaaaaa2b62aml6lkc6pqaaaaq
 @dip-id = aeeaaaaaachemhquabfyqaln3wpwptqaaaaq
 
-### Lancement du workflow de création de DIP sur une unité archivistique dont l'identifiant est 'aeaqaaaaaahnh5o2aal76aln3teqq3qaaaba'
+### Lancement du workflow de création de DIP (v1) sur une unité archivistique dont l'identifiant est 'aeaqaaaaaahnh5o2aal76aln3teqq3qaaaba'
 POST {{url-access}}/access-external/v1/dipexport
 Accept: application/json
 Content-Type: application/json
@@ -21,6 +21,62 @@ X-Access-Contract-Id: {{access-contract}}
     }
   ],
   "$projection": {}
+}
+
+### Lancement du workflow de création de DIP (v2) (contenant les derniers object versions BinaryMaster et PhysicalMaster) sur une unité archivistique dont l'opi est 'aeeaaaaaaghaaaaaau6u2aml5w5zinqaaaaq'
+POST {{url-access}}/access-external/v2/dipexport
+Accept: application/json
+Content-Type: application/json
+X-Tenant-Id: {{tenant}}
+X-Access-Contract-Id: {{access-contract}}
+
+{
+  "dslRequest": {
+    "$roots": [],
+    "$query": [
+      {
+        "$eq": {
+          "#opi": "aeeaaaaaaghaaaaaau6u2aml5w5zinqaaaaq"
+        }
+      }
+    ],
+    "$projection": {}
+  },
+  "dataObjectVersionToExport": {
+    "dataObjectVersions": [
+      "BinaryMaster",
+      "PhysicalMaster"
+    ]
+  },
+  "sedaVersion": "2.3"
+}
+
+### Lancement du workflow de création de DIP (v2) (contenant tous les object versions BinaryMaster et le premier et dernier PhysicalMaster) sur une unité archivistique dont l'opi est 'aeeaaaaaaghaaaaaau6u2aml5w5zinqaaaaq'
+POST {{url-access}}/access-external/v2/dipexport
+Accept: application/json
+Content-Type: application/json
+X-Tenant-Id: {{tenant}}
+X-Access-Contract-Id: {{access-contract}}
+
+{
+  "dslRequest": {
+    "$roots": [],
+    "$query": [
+      {
+        "$eq": {
+          "#opi": "aeeaaaaaaghaaaaaau6u2aml5w5zinqaaaaq"
+        }
+      }
+    ],
+    "$projection": {}
+  },
+  "dataObjectVersionToExport": {
+    "dataObjectVersionsPatterns": {
+      "BinaryMaster": ["ALL"],
+      "PhysicalMaster": ["FIRST", "LAST"]
+    }
+  },
+  "sedaVersion": "2.3"
 }
 
 ### Vérification de l'opération de création de DIP en cours grâce au 'X-Request-Id' de la réponse
@@ -75,7 +131,7 @@ X-Access-Contract-Id: {{access-contract}}
             "Thumbnail",
             "TextContent"
         ]
-    },  
+    },
   "exportWithLogBookLFC": true,
   "dslRequest": {
         "$query": [

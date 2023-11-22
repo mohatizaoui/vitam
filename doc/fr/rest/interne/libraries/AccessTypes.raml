@@ -109,6 +109,44 @@ types:
       - TextContent
       - All
 
+  QualifierVersions:
+    type: string[]
+    description: "Valeurs possibles : FIRST, LAST, ALL. Il est possible de combiner FIRST et LAST. La combinaison avec ALL est autorisée mais sans impact. Une liste vide n'inclus aucune version."
+
+  DataObjectVersionToExport:
+    description: Permet de filtrer les objets à retourner. Seule l'une des propriétés (dataObjectVersions ou dataObjectVersionsPatterns) peut être renseignée. Si aucune des deux n'est renseignée, tous les types d'objet sont exportés dans leur dernière version
+    type: object
+    examples:
+     Export des dernières versions des BinaryMaster et PhysicalMaster: !include examples/dataObjectVersions_BinaryMaster_PhysicalMaster.json
+     Export des dernières versions de tous les types d'objets: !include examples/dataObjectVersions_empty.json
+     Export de toutes les versions de BinaryMaster et des première et dernière version des PhysicalMaster: !include examples/dataObjectVersionsPatterns.json
+     Export sans objet: !include examples/dataObjectVersionsPatterns_empty.json
+    properties:
+      dataObjectVersions:
+        description: "Liste des types d'objet à inclure dans l'export (exporte uniquement la dernière version). Valeurs possibles : BinaryMaster, Dissemination, Thumbnail, TextContent, PhysicalMaster. Si la liste est vide, tous les types d'objet sont inclus."
+        type: string[]
+        required: false
+      dataObjectVersionsPatterns:
+        description: "Types d'objet à inclure dans l'export avec choix des versions (parmi les première, dernière et toutes). Si l'objet est vide, aucun type d'objet n'est inclus."
+        type: object
+        required: false
+        properties:
+          BinaryMaster:
+            type: QualifierVersions
+            required: false
+          Dissemination:
+            type: QualifierVersions
+            required: false
+          Thumbnail:
+            type: QualifierVersions
+            required: false
+          TextContent:
+            type: QualifierVersions
+            required: false
+          PhysicalMaster:
+            type: QualifierVersions
+            required: false
+
   TransferRequest:
       displayName: Requête pour faire un transfert
       description: Requête pour faire un transfert d'unités archivistiques
@@ -127,15 +165,8 @@ types:
           type: DslTypes.DslMultipleQuery
           required: true
         dataObjectVersionToExport:
-          description: L'identifiant du scénario de préservation
-          type: object
+          type: DataObjectVersionToExport
           required: false
-          properties:
-            dataObjectVersions:
-              description: Liste des versions d'objets à inclure dans l'export
-              type: array
-              items:
-                type: string
         transferRequestParameters:
           description: Les paramètres nécessaires pour faire un transfert d'unités archivistiques
           type: object

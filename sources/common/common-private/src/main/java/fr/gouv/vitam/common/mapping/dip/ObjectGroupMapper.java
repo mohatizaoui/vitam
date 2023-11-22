@@ -48,6 +48,7 @@ import org.apache.commons.lang3.StringUtils;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import java.math.BigInteger;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -81,25 +82,26 @@ public class ObjectGroupMapper {
 
             for (QualifiersModel qualifiersModel : objectGroupResponse.getQualifiers()) {
 
-                final int lastIndexVersion = qualifiersModel.getVersions().size() - 1;
-                final VersionsModel version = qualifiersModel.getVersions().get(lastIndexVersion);
-                MinimalDataObjectType minimalDataObjectType;
+                final List<VersionsModel> versions = qualifiersModel.getVersions();
 
-                if (version != null && version.getPhysicalId() != null && !version.getPhysicalId().isEmpty()) {
-                    minimalDataObjectType = mapPhysicalDataObject(version);
-                } else {
-                    minimalDataObjectType = mapBinaryDataObject(version);
+                for (VersionsModel version : versions) {
+                    MinimalDataObjectType minimalDataObjectType;
+                    if (version != null && version.getPhysicalId() != null && !version.getPhysicalId().isEmpty()) {
+                        minimalDataObjectType = mapPhysicalDataObject(version);
+                    } else {
+                        minimalDataObjectType = mapBinaryDataObject(version);
+                    }
+                    minimalDataObjectType.setDataObjectUse(version.getDataObjectUse());
+                    minimalDataObjectType.setDataObjectNumber(version.getDataObjectNumber());
+                    if (version.getPersistentIdentifier() != null) {
+                        minimalDataObjectType.getPersistentIdentifier()
+                            .addAll(version.getPersistentIdentifier().stream().map(
+                                this::mapPersistentIdentifiers
+                            ).collect(Collectors.toList()));
+                    }
+                    dataObjectGroup.getBinaryDataObjectOrPhysicalDataObject()
+                        .add(minimalDataObjectType);
                 }
-                minimalDataObjectType.setDataObjectUse(version.getDataObjectUse());
-                minimalDataObjectType.setDataObjectNumber(version.getDataObjectNumber());
-                if (version.getPersistentIdentifier() != null) {
-                    minimalDataObjectType.getPersistentIdentifier()
-                        .addAll(version.getPersistentIdentifier().stream().map(
-                            persistentIdentifierModel -> mapPersistentIdentifiers(persistentIdentifierModel)
-                        ).collect(Collectors.toList()));
-                }
-                dataObjectGroup.getBinaryDataObjectOrPhysicalDataObject()
-                    .add(minimalDataObjectType);
             }
 
             dataObjectPackageType.getDataObjectGroupOrBinaryDataObjectOrPhysicalDataObject()
