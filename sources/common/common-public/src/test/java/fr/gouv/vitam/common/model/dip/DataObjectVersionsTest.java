@@ -26,49 +26,30 @@
  */
 package fr.gouv.vitam.common.model.dip;
 
-import fr.gouv.vitam.common.model.administration.DataObjectVersionType;
-import org.apache.commons.collections4.CollectionUtils;
+import org.junit.Test;
 
-import javax.annotation.Nullable;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-public class DataObjectVersions {
-    private Set<String> dataObjectVersions;
-    private Map<DataObjectVersionType, Set<QualifierVersion>> dataObjectVersionsPatterns;
+import static fr.gouv.vitam.common.model.administration.DataObjectVersionType.BINARY_MASTER;
+import static fr.gouv.vitam.common.model.dip.QualifierVersion.LAST;
+import static org.assertj.core.api.Assertions.assertThat;
 
-    public DataObjectVersions() {
+public class DataObjectVersionsTest {
+    @Test
+    public void shouldGetBinaryMasterVersion1Model() {
+        assertThat(new DataObjectVersions().dataHasBeenSetTwice()).isFalse();
+
+        assertThat(new DataObjectVersions(Set.of()).dataHasBeenSetTwice()).isFalse();
+        assertThat(new DataObjectVersions(Set.of(BINARY_MASTER.name())).dataHasBeenSetTwice()).isFalse();
+
+        assertThat(new DataObjectVersions(Map.of()).dataHasBeenSetTwice()).isFalse();
+        assertThat(new DataObjectVersions(Map.of(BINARY_MASTER, Set.of(LAST))).dataHasBeenSetTwice()).isFalse();
+
+        final DataObjectVersions dataObjectVersions = new DataObjectVersions();
+        dataObjectVersions.setDataObjectVersions(Set.of(BINARY_MASTER.name()));
+        dataObjectVersions.setDataObjectVersionsPatterns(Map.of(BINARY_MASTER, Set.of(LAST)));
+        assertThat(dataObjectVersions.dataHasBeenSetTwice()).isTrue();
     }
 
-    public DataObjectVersions(Set<String> dataObjectVersionToExport) {
-        this.dataObjectVersions = dataObjectVersionToExport;
-    }
-
-    public DataObjectVersions(Map<DataObjectVersionType, Set<QualifierVersion>> dataObjectVersionsPatterns) {
-        this.dataObjectVersionsPatterns = dataObjectVersionsPatterns;
-    }
-
-    public Set<String> getDataObjectVersions() {
-        if (dataObjectVersions == null) {
-            dataObjectVersions = Collections.emptySet();
-        }
-        return dataObjectVersions;
-    }
-
-    public void setDataObjectVersions(Set<String> dataObjectVersions) {
-        this.dataObjectVersions = dataObjectVersions;
-    }
-
-    public @Nullable Map<DataObjectVersionType, Set<QualifierVersion>> getDataObjectVersionsPatterns() {
-        return dataObjectVersionsPatterns;
-    }
-
-    public void setDataObjectVersionsPatterns(Map<DataObjectVersionType, Set<QualifierVersion>> dataObjectVersionsPatterns) {
-        this.dataObjectVersionsPatterns = dataObjectVersionsPatterns;
-    }
-
-    public boolean dataHasBeenSetTwice() {
-        return CollectionUtils.isNotEmpty(this.dataObjectVersions) && this.dataObjectVersionsPatterns != null;
-    }
 }
