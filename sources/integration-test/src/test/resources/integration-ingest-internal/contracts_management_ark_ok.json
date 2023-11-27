@@ -19,8 +19,18 @@
         "PersistentIdentifierUsages": [
           {
             "UsageName": "BinaryMaster",
-            "InitialVersion": true,
+            "InitialVersion": false,
             "IntermediaryVersion": "LAST"
+          },
+          {
+            "UsageName": "PhysicalMaster",
+            "InitialVersion": false,
+            "IntermediaryVersion": "ALL"
+          },
+          {
+            "UsageName": "Dissemination",
+            "InitialVersion": true,
+            "IntermediaryVersion": "NONE"
           }
         ]
       }

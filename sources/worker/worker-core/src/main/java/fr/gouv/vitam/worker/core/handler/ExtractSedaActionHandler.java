@@ -84,14 +84,10 @@ import fr.gouv.vitam.common.model.administration.IngestContractCheckState;
 import fr.gouv.vitam.common.model.administration.IngestContractModel;
 import fr.gouv.vitam.common.model.administration.ManagementContractModel;
 import fr.gouv.vitam.common.model.administration.OntologyModel;
-import fr.gouv.vitam.common.model.administration.PersistentIdentifierPolicy;
 import fr.gouv.vitam.common.model.administration.PersistentIdentifierPolicyTypeEnum;
-import fr.gouv.vitam.common.model.administration.PersistentIdentifierUsage;
 import fr.gouv.vitam.common.model.administration.RuleType;
-import fr.gouv.vitam.common.model.administration.VersionUsageModel;
 import fr.gouv.vitam.common.model.logbook.LogbookEvent;
 import fr.gouv.vitam.common.model.unit.ManagementModel;
-import fr.gouv.vitam.common.model.unit.PersistentIdentifierModel;
 import fr.gouv.vitam.common.model.unit.RuleCategoryModel;
 import fr.gouv.vitam.common.model.unit.RuleModel;
 import fr.gouv.vitam.common.parameter.ParameterHelper;
@@ -195,7 +191,6 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -203,7 +198,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -228,7 +222,6 @@ import static fr.gouv.vitam.logbook.common.parameters.LogbookParameterName.outco
 import static fr.gouv.vitam.logbook.common.parameters.LogbookParameterName.outcomeDetail;
 import static fr.gouv.vitam.logbook.common.parameters.LogbookParameterName.outcomeDetailMessage;
 import static fr.gouv.vitam.logbook.common.parameters.LogbookParameterName.parentEventIdentifier;
-import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
@@ -253,6 +246,7 @@ public class ExtractSedaActionHandler extends ActionHandler {
     public static final String SUBTASK_INVALID_GUID_ATTACHMENT = "INVALID_GUID_ATTACHMENT";
     public static final String SUBTASK_MODIFY_PARENT_EXISTING_UNIT_UNAUTHORIZED =
         "MODIFY_PARENT_EXISTING_UNIT_UNAUTHORIZED";
+    public static final String MANAGEMENT_CONTRACT_ID_FIELD = "_managementContractId";
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(ExtractSedaActionHandler.class);
     private static final TypeReference<List<LogbookEvent>> LIST_TYPE_REFERENCE = new TypeReference<>() {
     };
@@ -334,8 +328,7 @@ public class ExtractSedaActionHandler extends ActionHandler {
 
     private final static String namespaceURI = UNIFIED_NAMESPACE;
     private final static boolean asyncIO = true;
-    public static final String MANAGEMENT_CONTRACT_ID_FIELD = "_managementContractId";
-    public static final String PERSISTENT_IDENTIFIER_FIELD = "PersistentIdentifier";
+
     private static JAXBContext jaxbContext;
 
     static {
@@ -352,6 +345,8 @@ public class ExtractSedaActionHandler extends ActionHandler {
     private final TransformerFactory transformerFactory;
     private final SedaUtilsFactory sedaUtilsFactory;
     private final LogbookLifeCyclesClientFactory logbookLifeCyclesClientFactory;
+
+    private final PersistentIdentifierGenerationService persistentIdentifierGenerationService;
 
 
     /**
@@ -371,6 +366,7 @@ public class ExtractSedaActionHandler extends ActionHandler {
         this.logbookLifeCyclesClientFactory = logbookLifeCyclesClientFactory;
         this.transformerFactory = TransformerFactory.newInstance();
         this.sedaUtilsFactory = SedaUtilsFactory.getInstance();
+        this.persistentIdentifierGenerationService = PersistentIdentifierGenerationService.getInstance();
     }
 
     /**
@@ -509,8 +505,7 @@ public class ExtractSedaActionHandler extends ActionHandler {
             LOGGER.error(e.getMessage());
             updateDetailItemStatus(globalCompositeItemStatus, e.getMessage(), null);
             globalCompositeItemStatus.increment(StatusCode.KO);
-        }
-        catch (final ProcessingDuplicatedVersionException e) {
+        } catch (final ProcessingDuplicatedVersionException e) {
             LOGGER.debug("ProcessingException: duplicated version", e);
             globalCompositeItemStatus.increment(StatusCode.KO);
         } catch (final ProcessingNotFoundException e) {
@@ -2337,10 +2332,12 @@ public class ExtractSedaActionHandler extends ActionHandler {
                     checkFirstMasterVersion(DataObjectVersionType.BINARY_MASTER, categoryMap.keySet());
                     checkFirstMasterVersion(DataObjectVersionType.PHYSICAL_MASTER, categoryMap.keySet());
                 }
-                handleManagementContractForGot(ingestSession, categoryMap, ingestContext.getManagementContractModel());
 
                 final ArrayNode qualifiersNode =
                     getObjectGroupQualifiers(ingestSession, categoryMap, ingestContext.getOperationId());
+                fillManagementContractForObjects(categoryMap, ingestContext.getManagementContractModel());
+                persistentIdentifierGenerationService.handlePersistentIdentifierForGot(categoryMap,
+                    ingestContext.getManagementContractModel(), PersistentIdentifierPolicyTypeEnum.ARK);
                 objectGroup.set(SedaConstants.PREFIX_QUALIFIERS, qualifiersNode);
                 final ObjectNode workNode =
                     getObjectGroupWork(ingestSession, categoryMap, ingestContext.getOperationId(), storageObjectInfo);
@@ -2437,6 +2434,22 @@ public class ExtractSedaActionHandler extends ActionHandler {
         }
     }
 
+    private void fillManagementContractForObjects(Map<String, List<JsonNode>> categoryMap,
+        ManagementContractModel managementContractModel) {
+        if (Objects.isNull(managementContractModel)) {
+            return;
+        }
+        if (ActivationStatus.INACTIVE.equals(managementContractModel.getStatus())) {
+            return;
+        }
+        for (final Entry<String, List<JsonNode>> entry : categoryMap.entrySet()) {
+            for (JsonNode nodeQualifier : entry.getValue()) {
+                ObjectNode nodeQualifierOb = (ObjectNode) nodeQualifier;
+                nodeQualifierOb.put(MANAGEMENT_CONTRACT_ID_FIELD, managementContractModel.getIdentifier());
+            }
+        }
+    }
+
 
     private void checkFirstMasterVersion(DataObjectVersionType qualifier, Set<String> qualifiers)
         throws MissingMandatoryVersionException {
@@ -2447,107 +2460,6 @@ public class ExtractSedaActionHandler extends ActionHandler {
             throw new MissingMandatoryVersionException(
                 "The object group (" + qualifier.getName() + ") requires Mandatory version 1 to be present");
         }
-    }
-
-    private void handleManagementContractForGot(IngestSession ingestSession, Map<String, List<JsonNode>> map,
-        ManagementContractModel managementContractModel) throws InvalidParseOperationException {
-
-        if (isNull(managementContractModel)) {
-            return;
-        }
-        if (ActivationStatus.INACTIVE.equals(managementContractModel.getStatus())) {
-            return;
-        }
-
-        if (isNull(managementContractModel.getPersistentIdentifierPolicyList())) {
-            return;
-        }
-
-        final Optional<PersistentIdentifierPolicy> arkPolicyOpt =
-            managementContractModel.getPersistentIdentifierPolicyList().stream()
-                .filter(
-                    policy -> policy.getPersistentIdentifierPolicyType().equals(PersistentIdentifierPolicyTypeEnum.ARK))
-                .findFirst();
-        if (arkPolicyOpt.isPresent()) {
-            PersistentIdentifierPolicy arkPolicy = arkPolicyOpt.get();
-            for (PersistentIdentifierUsage usageNode : arkPolicy.getPersistentIdentifierUsages()) {
-                // Filtrage des clés de la map basé sur la valeur de usageName
-                final List<String> usageVersionList =
-                    map.keySet().stream().filter(key -> key.startsWith(usageNode.getUsageName().getName())).sorted(
-                            Comparator.comparingInt(key -> Integer.parseInt(StringUtils.substringAfterLast(key, "_"))))
-                        .collect(toList());
-                if (usageVersionList.isEmpty()) {
-                    continue;
-                }
-
-                if (usageNode.isInitialVersion()) {
-                    List<ObjectNode> qualifiersToUpdate = (ArrayList) map.get(usageVersionList.get(0));
-                    for (ObjectNode qualifierToUpdate : qualifiersToUpdate) {
-                        fillPersistentIdentifiersData(ingestSession, arkPolicy, qualifierToUpdate,
-                            managementContractModel.getIdentifier());
-                    }
-                }
-                if (usageNode.getIntermediaryVersion().equals(VersionUsageModel.IntermediaryVersionEnum.LAST)
-                    && usageVersionList.size() != 1) {
-
-                    List<ObjectNode> qualifiersToUpdate =
-                        (ArrayList) map.get(usageVersionList.get(usageVersionList.size() - 1));
-                    for (ObjectNode qualifierToUpdate : qualifiersToUpdate) {
-                        fillPersistentIdentifiersData(ingestSession, arkPolicy, qualifierToUpdate,
-                            managementContractModel.getIdentifier());
-                    }
-                }
-                if (usageNode.getIntermediaryVersion().equals(VersionUsageModel.IntermediaryVersionEnum.ALL)) {
-                    // Ignorer le premier élément
-                    boolean first = true;
-                    for (String key : usageVersionList) {
-                        if (first) {
-                            first = false;
-                            continue;
-                        }
-
-                        List<ObjectNode> qualifiersToUpdate = (ArrayList) map.get(key);
-                        for (ObjectNode qualifierToUpdate : qualifiersToUpdate) {
-                            fillPersistentIdentifiersData(ingestSession, arkPolicy, qualifierToUpdate,
-                                managementContractModel.getIdentifier());
-                        }
-
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Fill generated persistent identifier on objects according to management contract settings
-     *
-     * @param ingestSession
-     * @param policy
-     * @param qualifierToUpdate
-     * @throws InvalidParseOperationException
-     */
-    private void fillPersistentIdentifiersData(IngestSession ingestSession,
-        PersistentIdentifierPolicy policy, ObjectNode qualifierToUpdate, String managementContractModelIdentifier)
-        throws InvalidParseOperationException {
-        PersistentIdentifierModel vitamPersistentIdentifierModel = new PersistentIdentifierModel();
-        vitamPersistentIdentifierModel.setPersistentIdentifierType(
-            policy.getPersistentIdentifierPolicyType().name().toLowerCase());
-
-        String qualifierId = qualifierToUpdate.get(SedaConstants.PREFIX_ID).asText();
-        final String guid = ingestSession.getDataObjectIdToGuid().get(qualifierId);
-
-        if (!qualifierToUpdate.has(PERSISTENT_IDENTIFIER_FIELD)) {
-            qualifierToUpdate.set(PERSISTENT_IDENTIFIER_FIELD, JsonHandler.createArrayNode());
-        }
-
-        vitamPersistentIdentifierModel.setPersistentIdentifierReference(policy.getPersistentIdentifierAuthority());
-        vitamPersistentIdentifierModel.setPersistentIdentifierContent(
-            policy.getPersistentIdentifierPolicyType().name().toLowerCase() + ":/" +
-                policy.getPersistentIdentifierAuthority() + "/" + guid);
-
-        ArrayNode persistentIdentifierNode = (ArrayNode) qualifierToUpdate.get(PERSISTENT_IDENTIFIER_FIELD);
-        persistentIdentifierNode.add(JsonHandler.toJsonNode(vitamPersistentIdentifierModel));
-        qualifierToUpdate.put(MANAGEMENT_CONTRACT_ID_FIELD, managementContractModelIdentifier);
     }
 
     private void checkOriginatingAgencyAttachementConformity(String originatingAgency,
@@ -2570,7 +2482,8 @@ public class ExtractSedaActionHandler extends ActionHandler {
 
         try (MetaDataClient client = metaDataClientFactory.getClient()) {
 
-            for (List<String> ids : ListUtils.partition(new ArrayList<>(objectGroupIds), MAX_ELASTIC_REQUEST_SIZE)) {
+            for (List<String> ids : ListUtils.partition(new ArrayList<>(objectGroupIds),
+                MAX_ELASTIC_REQUEST_SIZE)) {
 
                 SelectMultiQuery selectMultiQuery = new SelectMultiQuery();
                 selectMultiQuery.addRoots(ids.toArray(new String[0]));
@@ -2608,7 +2521,8 @@ public class ExtractSedaActionHandler extends ActionHandler {
         Set<String> toIgnore = new HashSet<>();
         if (!ingestSession.getExistingGOTs().isEmpty()) {
             try (LogbookLifeCyclesClient logbookLifeCyclesClient = logbookLifeCyclesClientFactory.getClient()) {
-                for (List<String> partition : Lists.partition(new ArrayList<>(ingestSession.getExistingGOTs().keySet()),
+                for (List<String> partition : Lists.partition(
+                    new ArrayList<>(ingestSession.getExistingGOTs().keySet()),
                     VitamConfiguration.getBatchSize())) {
                     Select select = new Select();
                     InQuery evId = QueryHelper.in(VitamFieldsHelper.id(), partition.toArray(String[]::new));
@@ -2619,7 +2533,8 @@ public class ExtractSedaActionHandler extends ActionHandler {
                     RequestResponseOK<JsonNode> requestResponseOK = RequestResponseOK.getFromJsonNode(request);
                     for (JsonNode json : requestResponseOK.getResults()) {
                         if (!json.get(LogbookEvent.EV_ID_PROC).asText().equals(handlerIO.getContainerName())) {
-                            throw new ProcessingObjectGroupLifeCycleException(LOGBOOK_LF_OBJECT_EXISTS_EXCEPTION_MSG,
+                            throw new ProcessingObjectGroupLifeCycleException(
+                                LOGBOOK_LF_OBJECT_EXISTS_EXCEPTION_MSG,
                                 json.get(LogbookEvent.OB_ID).asText());
                         } else {
                             toIgnore.add(json.get(VitamFieldsHelper.id()).asText());
@@ -2691,7 +2606,8 @@ public class ExtractSedaActionHandler extends ActionHandler {
         }
     }
 
-    private ArrayNode getObjectGroupQualifiers(IngestSession ingestSession, Map<String, List<JsonNode>> categoryMap,
+    private ArrayNode getObjectGroupQualifiers(IngestSession
+        ingestSession, Map<String, List<JsonNode>> categoryMap,
         String containerId) {
         final ArrayNode qualifiersArray = JsonHandler.createArrayNode();
         for (final Entry<String, List<JsonNode>> entry : categoryMap.entrySet()) {
@@ -2737,7 +2653,8 @@ public class ExtractSedaActionHandler extends ActionHandler {
         return null;
     }
 
-    private ObjectNode getObjectGroupWork(IngestSession ingestSession, Map<String, List<JsonNode>> categoryMap,
+    private ObjectNode getObjectGroupWork(IngestSession
+        ingestSession, Map<String, List<JsonNode>> categoryMap,
         String containerId, JsonNode storageObjectInfo) {
         final ObjectNode workObject = JsonHandler.createObjectNode();
         final ObjectNode qualifierObject = JsonHandler.createObjectNode();
@@ -2782,7 +2699,8 @@ public class ExtractSedaActionHandler extends ActionHandler {
         objectNode.put(SedaConstants.PREFIX_OPI, containerId);
         if (!isPhysical) {
             if (ingestSession.getObjectGuidToDataObject().get(guid).getSize() != null) {
-                objectNode.put(SedaConstants.TAG_SIZE, ingestSession.getObjectGuidToDataObject().get(guid).getSize());
+                objectNode.put(SedaConstants.TAG_SIZE,
+                    ingestSession.getObjectGuidToDataObject().get(guid).getSize());
                 ObjectNode diffSizeJson = ingestSession.getObjectGuidToDataObject().get(guid).getDiffSizeJson();
                 if (!JsonHandler.isNullOrEmpty(diffSizeJson)) {
                     ObjectNode work = JsonHandler.createObjectNode();
@@ -2874,7 +2792,8 @@ public class ExtractSedaActionHandler extends ActionHandler {
         }
     }
 
-    private void extractMetadataUsingMarshellar(XMLEventReader reader, Unmarshaller unmarshaller, HandlerIO handlerIO,
+    private void extractMetadataUsingMarshellar(XMLEventReader reader, Unmarshaller unmarshaller, HandlerIO
+        handlerIO,
         IngestContext ingestContext, IngestSession ingestSession, Class<?> clasz)
         throws InvalidParseOperationException, LogbookClientAlreadyExistsException, LogbookClientNotFoundException,
         IOException, LogbookClientBadRequestException, LogbookClientServerException, ProcessingException {
