@@ -28,7 +28,7 @@ package fr.gouv.vitam.metadata.core.reconstruction.model;
 
 import fr.gouv.vitam.common.database.server.mongodb.VitamDocument;
 import fr.gouv.vitam.common.model.unit.PersistentIdentifierModel;
-import fr.gouv.vitam.metadata.core.database.collections.PurgedPersistentIdentifierDocument;
+import org.bson.Document;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -42,10 +42,14 @@ public class PurgedPersistentIdentifierTest {
     @Test
     public void fromPurgedPersistentIdentifier_CreatesDocumentCorrectly() {
 
+        PersistentIdentifierModel persistentIdentifierModel = new PersistentIdentifierModel();
+        persistentIdentifierModel.setPersistentIdentifierType("ark");
+        persistentIdentifierModel.setPersistentIdentifierContent("ark/2345/679934346673");
+        persistentIdentifierModel.setPersistentIdentifierReference("reference");
         PurgedPersistentIdentifier purgedIdentifier = new PurgedPersistentIdentifier.Builder()
             .setId("1")
             .setTenant(0)
-            .setPersistentIdentifier(Collections.singletonList(new PersistentIdentifierModel()))
+            .setPersistentIdentifier(Collections.singletonList(persistentIdentifierModel))
             .setVersion(0)
             .setType("sampleType")
             .setObjectGroupId("sampleObjectGroupId")
@@ -54,8 +58,8 @@ public class PurgedPersistentIdentifierTest {
             .setOperationLastPersistentDate("2023-01-01")
             .build();
 
-        PurgedPersistentIdentifierDocument result =
-            PurgedPersistentIdentifier.fromPurgedPersistentIdentifier(purgedIdentifier);
+        Document result =
+            PurgedPersistentIdentifier.toDocument(purgedIdentifier);
 
         assertThat(result).isNotNull();
         assertThat("1").isEqualTo(result.getString(VitamDocument.ID));
@@ -97,10 +101,33 @@ public class PurgedPersistentIdentifierTest {
 
         List<PurgedPersistentIdentifier> purgedIdentifierList = Arrays.asList(purgedIdentifier1, purgedIdentifier2);
 
-        List<PurgedPersistentIdentifierDocument> result =
+        List<Document> result =
             PurgedPersistentIdentifier.convertListToDocumentList(purgedIdentifierList);
 
         assertThat(result).isNotNull();
         assertThat(2).isEqualTo(result.size());
+    }
+
+    @Test
+    public void test_fromDocument() throws Exception {
+
+        Document persistentIdentifierModel = new Document();
+        persistentIdentifierModel.put("PersistentIdentifierType", "ark");
+        persistentIdentifierModel.put("PersistentIdentifierContent", "ark/2345/679934346673");
+        persistentIdentifierModel.put("PersistentIdentifierReference", "reference");
+        Document document = new Document();
+        document.put("_id", "123");
+        document.put("_tenant", 1);
+        document.put("_v", 0);
+        document.put("idObjectGroup", "778");
+        document.put("persistentIdentifier", Arrays.asList(persistentIdentifierModel));
+        document.put("type", "Unit");
+        document.put("opId", "345");
+        document.put("opType", "ELIMINATION_ACTION");
+        document.put("opEndDate", "2023-11-28T21:21:11.485");
+
+        final PurgedPersistentIdentifier purgedPersistentIdentifier = PurgedPersistentIdentifier.fromDocument(document);
+
+        assertThat(purgedPersistentIdentifier).isNotNull();
     }
 }

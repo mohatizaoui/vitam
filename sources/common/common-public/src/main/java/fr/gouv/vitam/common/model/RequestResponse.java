@@ -283,6 +283,17 @@ public abstract class RequestResponse<T> {
     }
 
     /**
+     * Check if the JsonNode is a RequestResponse and result is Empty
+     *
+     * @param requestResponseAsJsonNode as request response as a JsonNode
+     * @return true if JsonNode contains hits and total = 0
+     */
+    @JsonIgnore
+    public static boolean isRequestResponseEmpty(JsonNode requestResponseAsJsonNode) {
+       return requestResponseAsJsonNode != null && requestResponseAsJsonNode.has("$hits") && requestResponseAsJsonNode.get("$hits").has("total") && requestResponseAsJsonNode.get("$hits").get("total").toString().equals("0");
+    }
+
+    /**
      * transform a RequestResponse to a standard response
      *
      * @return Response

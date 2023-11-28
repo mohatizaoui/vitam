@@ -32,9 +32,9 @@ X-Tenant-Id: {{tenant}}
 X-Access-Contract-Id: {{access-contract}}
 
 {
-"UsageName" : "Dissemination",
-"SpecificVersions":  [3,14],
+"UsageName" : "BinaryMaster",
+"SpecificVersions":  [2],
 "DslQuery": {
-  "$query":[{"$in":{"#id":["aeaqaaaaaafzhvpkabpjaalwkjvgeyqaaaaq"]}}]
+  "$query":[{"$in":{"#id":["aeaqaaaaaeecg2hnaak42ammhpl2y2qaaaaq"]}}]
  }
 }

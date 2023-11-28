@@ -62,6 +62,21 @@ import java.util.Optional;
 public interface AccessInternalClient extends MockOrRestClient {
 
     /**
+     * Select Units by persistent identifier
+     *
+     * @param selectQuery the query used to select units
+     * @return a response containing a json node object including DSL queries and results
+     * @throws InvalidParseOperationException if the query is not well formatted
+     * @throws AccessInternalClientServerException if the server encountered an exception
+     * @throws AccessInternalClientNotFoundException if the requested unit does not exist
+     * @throws AccessUnauthorizedException
+     * @throws BadRequestException if empty query is found
+     */
+    Response selectUnitsByUnitPersistentIdentifier(String persistentIdentifier, JsonNode selectQuery)
+        throws InvalidParseOperationException, AccessInternalClientServerException,
+        AccessInternalClientNotFoundException, AccessUnauthorizedException, BadRequestException;
+
+    /**
      * Select Units
      *
      * @param selectQuery the query used to select units

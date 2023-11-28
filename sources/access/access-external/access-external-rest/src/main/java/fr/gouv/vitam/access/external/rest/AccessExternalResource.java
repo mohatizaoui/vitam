@@ -360,19 +360,8 @@ public class AccessExternalResource extends ApplicationStatusResource {
 
             Status status;
             try (AccessInternalClient client = accessInternalClientFactory.getClient()) {
-                // Create a DSL query to retrieve the unit by ARK identifier
-                SanityChecker.checkParameter(persistentIdentifier);
-                SelectParserMultiple query = new SelectParserMultiple();
-                query.parse(queryJson);
-                SelectMultiQuery selectMultiQuery = query.getRequest();
-                selectMultiQuery.addQueries(
-                    QueryHelper.eq(PERSISTENT_IDENTIFIERS + "." + PERSISTENT_IDENTIFIER_CONTENT, persistentIdentifier));
-
-                RequestResponse<JsonNode> result = client.selectUnits(selectMultiQuery.getFinalSelect());
-                int st = result.isOk() ? Status.OK.getStatusCode() : result.getHttpCode();
-
-                return Response.status(st).entity(result).build();
-            } catch (InvalidCreateOperationException | InvalidParseOperationException e) {
+                return client.selectUnitsByUnitPersistentIdentifier(persistentIdentifier, queryJson);
+            } catch (InvalidParseOperationException e) {
                 LOGGER.error(PREDICATES_FAILED_EXCEPTION, e);
                 status = Status.PRECONDITION_FAILED;
                 return Response.status(status)

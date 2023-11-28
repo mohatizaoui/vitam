@@ -250,6 +250,11 @@ public class MetaDataClientMock extends AbstractMockClient implements MetaDataCl
     }
 
     @Override
+    public JsonNode getPurgedPersistentIdentifiers(String persistentIdentifier){
+        throw new IllegalStateException("Should never be called");
+    }
+
+    @Override
     public RequestResponse<JsonNode> updateUnitBulk(JsonNode updateQuery)
         throws InvalidParseOperationException, MetaDataExecutionException, MetaDataNotFoundException,
         MetaDataDocumentSizeException, MetaDataClientServerException {

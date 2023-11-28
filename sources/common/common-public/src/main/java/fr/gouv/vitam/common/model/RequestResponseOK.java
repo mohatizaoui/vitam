@@ -27,6 +27,7 @@
 package fr.gouv.vitam.common.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.gouv.vitam.common.ParametersChecker;
@@ -68,6 +69,11 @@ public final class RequestResponseOK<T> extends RequestResponse<T> {
      */
     public static final String TAG_CONTEXT = "$context";
 
+    /**
+     * history in response
+     */
+    public static final String TAG_HISTORY = "$history";
+
     @JsonProperty(TAG_HITS)
     private DatabaseCursor hits;
     @JsonProperty(TAG_RESULTS)
@@ -75,7 +81,11 @@ public final class RequestResponseOK<T> extends RequestResponse<T> {
     @JsonProperty(TAG_FACET_RESULTS)
     private final List<FacetResult> facetResults;
     @JsonProperty(TAG_CONTEXT)
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private JsonNode query;
+    @JsonProperty(TAG_HISTORY)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private JsonNode history;
 
     /**
      * Empty RequestResponseOK constructor
@@ -287,6 +297,14 @@ public final class RequestResponseOK<T> extends RequestResponse<T> {
      */
     public JsonNode getQuery() {
         return query;
+    }
+
+
+    /**
+     * @return the history as JsonNode of Response
+     */
+    public JsonNode getHistory() {
+        return history;
     }
 
     /**

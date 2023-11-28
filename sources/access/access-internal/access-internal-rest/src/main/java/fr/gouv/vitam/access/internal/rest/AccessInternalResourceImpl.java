@@ -47,7 +47,9 @@ import fr.gouv.vitam.access.internal.core.AccessInternalModuleImpl;
 import fr.gouv.vitam.common.GlobalDataRest;
 import fr.gouv.vitam.common.ParametersChecker;
 import fr.gouv.vitam.common.client.CustomVitamHttpStatusCode;
+import fr.gouv.vitam.common.database.builder.query.QueryHelper;
 import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
+import fr.gouv.vitam.common.database.builder.request.multiple.SelectMultiQuery;
 import fr.gouv.vitam.common.database.parser.request.multiple.RequestParserHelper;
 import fr.gouv.vitam.common.database.parser.request.multiple.RequestParserMultiple;
 import fr.gouv.vitam.common.database.parser.request.multiple.SelectParserMultiple;
@@ -179,6 +181,8 @@ public class AccessInternalResourceImpl extends ApplicationStatusResource implem
     private static final String UNITS_URI = "/units";
     private static final String UNITS_ATOMIC_BULK_URI = "/units/atomicbulk";
     private static final String UNITS_RULES_URI = "/units/rules";
+    private static final String PERSISTENT_IDENTIFIERS = "PersistentIdentifier";
+    private static final String PERSISTENT_IDENTIFIER_CONTENT = "PersistentIdentifierContent";
 
     private static final String ACCESS_CONTRACT = "AccessContract";
     private static final String REQUEST_IS_NOT_AN_UPDATE_OPERATION = "Request is not an update operation";
@@ -274,6 +278,69 @@ public class AccessInternalResourceImpl extends ApplicationStatusResource implem
             LOGGER.debug(DEBUG, result);
             resetQuery(result, queryDsl);
             LOGGER.debug(END_OF_EXECUTION_OF_DSL_VITAM_FROM_ACCESS);
+        } catch (final InvalidParseOperationException | InvalidCreateOperationException e) {
+            LOGGER.error(BAD_REQUEST_EXCEPTION, e);
+            status = Status.BAD_REQUEST;
+            return Response.status(status).entity(getErrorEntity(status, e.getMessage())).build();
+        } catch (BadRequestException e) {
+            LOGGER.error(EMPTY_QUERY_IS_IMPOSSIBLE, e);
+            return buildErrorResponse(VitamCode.GLOBAL_EMPTY_QUERY, null);
+        } catch (final Exception ve) {
+            LOGGER.error(ve);
+            status = Status.INTERNAL_SERVER_ERROR;
+            return Response.status(status)
+                .entity(new VitamError(status.name()).setHttpCode(status.getStatusCode())
+                    .setContext(UNITS)
+                    .setState(CODE_VITAM)
+                    .setMessage(ve.getMessage())
+                    .setDescription(status.getReasonPhrase()))
+                .build();
+        }
+        return Response.status(Status.OK).entity(result).build();
+    }
+
+    /**
+     * get Archive Unit list by query based on identifier
+     *
+     * @param persistentIdentifier persistent Identifier
+     * @param selectQuery as JsonNode
+     * @return an archive unit result list
+     */
+    @Override
+    @GET
+    @Path("/units/persistentIdentifier/{persistentIdentifier:.+}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getUnitsByUnitPersistentIdentifier(@PathParam("persistentIdentifier") String persistentIdentifier,
+        JsonNode selectQuery) {
+        LOGGER.debug(EXECUTION_OF_DSL_VITAM_FROM_ACCESS_ONGOING);
+        Status status;
+        JsonNode result = null;
+        LOGGER.debug(START_SELECT_UNITS_DEBUG_MSG, selectQuery);
+        try {
+            // Create a DSL query to retrieve the unit by ARK identifier
+            SanityChecker.checkParameter(persistentIdentifier);
+            SelectParserMultiple query = new SelectParserMultiple();
+            query.parse(selectQuery);
+            SelectMultiQuery selectMultiQuery = query.getRequest();
+            selectMultiQuery.addQueries(
+                QueryHelper.eq(PERSISTENT_IDENTIFIERS + "." + PERSISTENT_IDENTIFIER_CONTENT, persistentIdentifier));
+
+            JsonNode dslQuery = selectMultiQuery.getFinalSelect();
+
+            SanityChecker.checkJsonAll(dslQuery);
+            checkEmptyQuery(dslQuery);
+            result =
+                accessModule
+                    .selectUnit(applyAccessContractRestrictionForUnitForSelect(dslQuery,
+                        getVitamSession().getContract()));
+            LOGGER.debug(DEBUG, result);
+            LOGGER.debug(END_OF_EXECUTION_OF_DSL_VITAM_FROM_ACCESS);
+            if (RequestResponse.isRequestResponseEmpty(result)) {
+                JsonNode jsonNode = accessModule.selectPurgedPersistentIdentifier(persistentIdentifier);
+                ((ObjectNode) result).set(RequestResponseOK.TAG_HISTORY, jsonNode);
+                ((ObjectNode) result).remove(RequestResponseOK.TAG_CONTEXT);
+            }
         } catch (final InvalidParseOperationException | InvalidCreateOperationException e) {
             LOGGER.error(BAD_REQUEST_EXCEPTION, e);
             status = Status.BAD_REQUEST;

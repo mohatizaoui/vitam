@@ -99,6 +99,7 @@ public class MetaDataClientRest extends DefaultClient implements MetaDataClient 
     private static final String PURGE_EXPIRED_DIP_FILES_URI = "/purgeDIP";
     private static final String PURGE_EXPIRED_TRANSFER_SIP_FILES_URI = "/purgeTransfersSIP";
     private static final String AUDIT_DATA_CONSISTENCY_URI = "/auditDataConsistency";
+    private static final String PERSISTENT_IDENTIFIER_URI = "/purgedPersistentIdentifier";
 
     public MetaDataClientRest(VitamClientFactoryInterface<MetaDataClient> factory) {
         super(factory);
@@ -539,6 +540,17 @@ public class MetaDataClientRest extends DefaultClient implements MetaDataClient 
         try (Response response = make(post().withJson().withPath(PERSISTENT_IDENTIFIER_RECONSTRUCTION_URI).withBody(requestItem))) {
             check(response);
             return RequestResponse.parseFromResponse(response);
+        } catch (MetaDataExecutionException | MetaDataDocumentSizeException | VitamClientInternalException e) {
+            throw new MetaDataClientServerException(e);
+        }
+    }
+
+    @Override
+    public JsonNode getPurgedPersistentIdentifiers(String persistentIdentifier)
+        throws MetaDataNotFoundException, InvalidParseOperationException, MetaDataClientServerException {
+        try (Response response = make(get().withJson().withPath(PERSISTENT_IDENTIFIER_URI + "/" + persistentIdentifier))) {
+            check(response);
+            return response.readEntity(JsonNode.class);
         } catch (MetaDataExecutionException | MetaDataDocumentSizeException | VitamClientInternalException e) {
             throw new MetaDataClientServerException(e);
         }

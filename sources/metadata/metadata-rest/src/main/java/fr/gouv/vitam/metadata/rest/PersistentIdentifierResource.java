@@ -27,23 +27,30 @@
 package fr.gouv.vitam.metadata.rest;
 
 import fr.gouv.vitam.common.ParametersChecker;
+import fr.gouv.vitam.common.exception.DatabaseException;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.common.model.RequestResponseOK;
+import fr.gouv.vitam.common.parameter.ParameterHelper;
 import fr.gouv.vitam.metadata.api.model.PersistentIdentifierReconstructionRequest;
 import fr.gouv.vitam.metadata.core.config.MetaDataConfiguration;
 import fr.gouv.vitam.metadata.core.reconstruction.domain.OffsetManager;
 import fr.gouv.vitam.metadata.core.reconstruction.domain.PersistentIdentifierReconstructionManager;
+import fr.gouv.vitam.metadata.core.reconstruction.model.PurgedPersistentIdentifier;
+import fr.gouv.vitam.metadata.core.reconstruction.repository.PersistentIdentifierRepository;
 import fr.gouv.vitam.metadata.core.reconstruction.repository.ReconstructionResponse;
 import fr.gouv.vitam.metadata.core.reconstruction.service.PersistentIdentifierReconstructionService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
 
 import static fr.gouv.vitam.metadata.core.reconstruction.repository.ReconstructionResponse.ReconstructionStatus.FAILURE;
 
@@ -54,15 +61,18 @@ public class PersistentIdentifierResource {
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(PersistentIdentifierResource.class);
 
     private static final String PERSISTENT_IDENTIFIER_RECONSTRUCTION_URI = "/reconstruction-persistent-identifier";
+    private static final String PERSISTENT_IDENTIFIER_URI = "/persistentIdentifier";
     private static final String PERSISTENT_IDENTIFIER_RECONSTRUCTION_JSON_MANDATORY_PARAMETERS_MSG =
         "the Json input of persistent identifier reconstruction's parameters is mandatory.";
 
     private final PersistentIdentifierReconstructionService persistentIdentifierReconstructionService;
+    private final PersistentIdentifierRepository persistentIdentifierRepository;
 
     PersistentIdentifierResource(PersistentIdentifierReconstructionManager persistentIdentifierReconstructionManager,
-        OffsetManager offsetManager, MetaDataConfiguration metaDataConfiguration) {
-
-        persistentIdentifierReconstructionService =
+        OffsetManager offsetManager, MetaDataConfiguration metaDataConfiguration,
+        PersistentIdentifierRepository persistentIdentifierRepository) {
+        this.persistentIdentifierRepository = persistentIdentifierRepository;
+        this.persistentIdentifierReconstructionService =
             new PersistentIdentifierReconstructionService(offsetManager, persistentIdentifierReconstructionManager,
                 metaDataConfiguration);
     }
@@ -94,9 +104,38 @@ public class PersistentIdentifierResource {
 
         switch (reconstructionResponse.status) {
             case SUCCESS:
-                return Response.ok(new RequestResponseOK<ReconstructionResponse>().addResult(reconstructionResponse)).build();
+                return Response.ok(new RequestResponseOK<ReconstructionResponse>().addResult(reconstructionResponse))
+                    .build();
             default:
-                return Response.serverError().entity(new RequestResponseOK<ReconstructionResponse>().addResult(reconstructionResponse)).build();
+                return Response.serverError()
+                    .entity(new RequestResponseOK<ReconstructionResponse>().addResult(reconstructionResponse)).build();
+        }
+    }
+
+    /**
+     * API to get purged persistent identifiers<br/>
+     *
+     * @param persistentIdentifier persistent identifier
+     * @return the response
+     */
+    @Path("/purgedPersistentIdentifier/{persistentIdentifier:.+}")
+    @GET
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getPersistentIdentifiers(@PathParam("persistentIdentifier") String persistentIdentifier) {
+        ParametersChecker
+            .checkParameter(PERSISTENT_IDENTIFIER_RECONSTRUCTION_JSON_MANDATORY_PARAMETERS_MSG, persistentIdentifier);
+        final Integer tenant = ParameterHelper.getTenantParameter();
+        try {
+            final List<PurgedPersistentIdentifier> purgedPersistentIdentifiers =
+                persistentIdentifierRepository.findByPersistentIdentifierAndTenant(persistentIdentifier, tenant);
+
+            return Response.ok().entity(purgedPersistentIdentifiers).build();
+        } catch (DatabaseException e) {
+            LOGGER.error(
+                "Internal Server error : cannot retrieve persistent identifiers > persistent identifier : {}, tenant {} ",
+                persistentIdentifier, tenant);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
 }
