@@ -28,3 +28,6 @@ db.ObjectGroup.dropIndex( { "_id" : 1 , "_tenant" : 1 } )
 db.ObjectGroup.dropIndex( { "_id" : 1 , "_tenant" : 1 , "_us" : 1 } )
 db.ObjectGroup.dropIndex( { "_id" : 1 , "_tenant" : 1 , "_up" : 1 } )
 db.ObjectGroup.dropIndex( { "_id" : 1 , "_tenant" : 1 , "_v" : 1 } )
+
+// create index
+db.PurgedPersistentIdentifier.createIndex( { "_tenant" : 1, "persistentIdentifier.PersistentIdentifierContent" : 1 } , { unique: false } )

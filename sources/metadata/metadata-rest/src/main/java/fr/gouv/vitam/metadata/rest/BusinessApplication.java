@@ -26,6 +26,8 @@
  */
 package fr.gouv.vitam.metadata.rest;
 
+import static fr.gouv.vitam.common.serverv2.application.ApplicationParameter.CONFIGURATION_FILE_APPLICATION;
+
 import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.database.api.VitamRepositoryFactory;
@@ -39,18 +41,25 @@ import fr.gouv.vitam.metadata.core.config.ElasticsearchMetadataIndexManager;
 import fr.gouv.vitam.metadata.core.config.MetaDataConfiguration;
 import fr.gouv.vitam.metadata.core.config.MetaDataConfigurationValidator;
 import fr.gouv.vitam.metadata.core.database.collections.MongoDbAccessMetadataImpl;
+import fr.gouv.vitam.metadata.core.database.collections.PersistentIdentifierRepositoryImpl;
 import fr.gouv.vitam.metadata.core.mapping.MappingLoader;
+import fr.gouv.vitam.metadata.core.reconstruction.domain.OffsetManager;
+import fr.gouv.vitam.metadata.core.reconstruction.domain.OperationReportParser;
+import fr.gouv.vitam.metadata.core.reconstruction.domain.PersistentIdentifierReconstructionManager;
+import fr.gouv.vitam.metadata.core.reconstruction.domain.PurgedPersistentIdentifierBulkInserter;
+import fr.gouv.vitam.metadata.core.reconstruction.repository.OperationReportRepository;
+import fr.gouv.vitam.metadata.core.reconstruction.repository.PersistentIdentifierRepository;
+import fr.gouv.vitam.metadata.core.reconstruction.repository.ReconstructionOperationRepository;
+import fr.gouv.vitam.metadata.core.reconstruction.repository.impl.OperationReportRepositoryImpl;
+import fr.gouv.vitam.metadata.core.reconstruction.repository.impl.ReconstructionOperationRepositoryImpl;
 import fr.gouv.vitam.metadata.core.rules.MetadataRuleService;
-
-import javax.servlet.ServletConfig;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.Context;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
-
-import static fr.gouv.vitam.common.serverv2.application.ApplicationParameter.CONFIGURATION_FILE_APPLICATION;
+import javax.servlet.ServletConfig;
+import javax.ws.rs.core.Application;
+import javax.ws.rs.core.Context;
 
 /**
  * Metadata resources and filter
@@ -113,6 +122,13 @@ public class BusinessApplication extends Application {
                 vitamRepositoryProvider, offsetRepository, metaDataConfiguration, indexManager);
             final MetadataAuditResource metadataAuditResource = new MetadataAuditResource(metaDataConfiguration);
 
+            final PersistentIdentifierRepository persistentIdentifierRepository = new PersistentIdentifierRepositoryImpl(mongoAccessMetadata);
+            final OperationReportRepository operationReportRepository = new OperationReportRepositoryImpl();
+            final ReconstructionOperationRepository reconstructionOperationRepository = new ReconstructionOperationRepositoryImpl();
+            final PersistentIdentifierReconstructionManager persistentIdentifierReconstructionManager = new PersistentIdentifierReconstructionManager(operationReportRepository, reconstructionOperationRepository, metaDataConfiguration, persistentIdentifierRepository);
+            final OffsetManager offsetManager = new OffsetManager(offsetRepository);
+            final PersistentIdentifierResource persistentIdentifierResource = new PersistentIdentifierResource(persistentIdentifierReconstructionManager, offsetManager, metaDataConfiguration);
+
             singletons = new HashSet<>();
             singletons.addAll(commonBusinessApplication.getResources());
             singletons.add(metaDataResource);
@@ -120,6 +136,7 @@ public class BusinessApplication extends Application {
             singletons.add(metadataManagementResource);
             singletons.add(metadataReconstructionResource);
             singletons.add(metadataAuditResource);
+            singletons.add(persistentIdentifierResource);
             singletons.add(new SanityDynamicFeature());
         } catch (IOException e) {
             throw new VitamRuntimeException(e);

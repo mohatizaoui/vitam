@@ -54,7 +54,7 @@
 
   <logger name="org.eclipse.jetty" level="WARN"/>
   <logger name="fr.gouv.vitam.storage.engine.server.logbook.StorageLogbookMock" level="INFO"/>
-  <logger name="fr.gouv.vitam.metadata.core.reconstruction.ReconstructionService" level="INFO"/>
+  <logger name="fr.gouv.vitam.metadata.core.reconstruction.service.MetadataReconstructionService" level="INFO"/>
   <logger name="fr.gouv.vitam.metadata.core.graph.StoreGraphService" level="INFO"/>
   <logger name="fr.gouv.vitam.metadata.core.graph.GraphComputeServiceImpl" level="INFO"/>
   <logger name="fr.gouv.vitam.common" level="WARN" />

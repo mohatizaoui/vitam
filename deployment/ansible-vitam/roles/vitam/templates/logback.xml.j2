@@ -145,8 +145,8 @@
   <logger name="fr.gouv.vitam.metadata.core.graph.GraphComputeServiceImpl" level="INFO"/>
   <logger name="fr.gouv.vitam.common" level="WARN" />
 {% if vitam_defaults.reconstruction.log_level is defined or reconstruction.log_level is defined %}
-  <logger name="fr.gouv.vitam.metadata.core.reconstruction.ReconstructionService" level="{{ vitam_struct.reconstruction.log_level | default(reconstruction.log_level) }}"/>
-  <logger name="fr.gouv.vitam.metadata.core.reconstruction.RestoreBackupService" level="{{ vitam_struct.reconstruction.log_level | default(reconstruction.log_level) }}"/>
+  <logger name="fr.gouv.vitam.metadata.core.reconstruction.service.MetadataReconstructionService" level="{{ vitam_struct.reconstruction.log_level | default(reconstruction.log_level) }}"/>
+  <logger name="fr.gouv.vitam.metadata.core.reconstruction.service.RestoreBackupService" level="{{ vitam_struct.reconstruction.log_level | default(reconstruction.log_level) }}"/>
   <logger name="fr.gouv.vitam.logbook.common.server.reconstruction.ReconstructionService" level="{{ vitam_struct.reconstruction.log_level | default(reconstruction.log_level) }}"/>
   <logger name="fr.gouv.vitam.logbook.common.server.reconstruction.RestoreBackupService" level="{{ vitam_struct.reconstruction.log_level | default(reconstruction.log_level) }}"/>
   <logger name="fr.gouv.vitam.functional.administration.common.impl.ReconstructionServiceImpl" level="{{ vitam_struct.reconstruction.log_level | default(reconstruction.log_level) }}"/>

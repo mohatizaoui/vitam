@@ -24,70 +24,14 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.metadata.core.reconstruction;
+package fr.gouv.vitam.metadata.core.reconstruction.repository;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import fr.gouv.vitam.common.json.JsonHandler;
-import fr.gouv.vitam.metadata.core.database.collections.MetadataDocument;
-import fr.gouv.vitam.metadata.core.database.collections.Unit;
-import org.bson.Document;
+import fr.gouv.vitam.metadata.core.reconstruction.exception.ReconstructionException;
 
-import java.util.List;
-import java.util.Map;
+import java.io.InputStream;
 
-/**
- * Description of metadata collection Backup model. <br/>
- */
-public class MetadataBackupModel {
+public interface OperationReportRepository {
 
-    /**
-     * Metadatas.
-     */
-    @JsonProperty("metadata")
-    private Document metadatas;
-
-    /**
-     * Lifecycle.
-     */
-    @JsonProperty("lfc")
-    private Document lifecycle;
-
-    /**
-     * Offset.
-     */
-    @JsonProperty("offset")
-    private Long offset;
-
-    public Document getMetadatas() {
-        return metadatas;
-    }
-
-    @JsonProperty("unit")
-    public void setUnit(Document unit) {
-        this.metadatas = unit;
-    }
-
-    @JsonProperty("got")
-    public void setGot(Document got) {
-        this.metadatas = got;
-    }
-
-    public Document getLifecycle() {
-        return lifecycle;
-    }
-
-    public void setLifecycle(Document lifecycle) {
-        this.lifecycle = lifecycle;
-    }
-
-    public Long getOffset() {
-        return offset;
-    }
-
-    public void setOffset(Long offset) {
-        this.offset = offset;
-    }
+    InputStream retrieveJsonReportForOperation(String operationId) throws ReconstructionException;
 
 }

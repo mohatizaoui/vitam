@@ -24,7 +24,7 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.metadata.core.reconstruction;
+package fr.gouv.vitam.metadata.core.reconstruction.service;
 
 import com.google.common.annotations.VisibleForTesting;
 import fr.gouv.vitam.common.accesslog.AccessLogUtils;
@@ -35,6 +35,7 @@ import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.common.stream.VitamAsyncInputStream;
 import fr.gouv.vitam.metadata.core.database.collections.MetadataCollections;
+import fr.gouv.vitam.metadata.core.reconstruction.model.MetadataBackupModel;
 import fr.gouv.vitam.storage.engine.client.OfferLogHelper;
 import fr.gouv.vitam.storage.engine.client.StorageClient;
 import fr.gouv.vitam.storage.engine.client.StorageClientFactory;
@@ -117,7 +118,7 @@ public class RestoreBackupService {
      * @throws IllegalArgumentException input error
      */
     public MetadataBackupModel loadData(String strategy, String referentOffer, MetadataCollections collection,
-        String filename, long offset) throws StorageNotFoundException {
+                                        String filename, long offset) throws StorageNotFoundException {
         LOGGER
             .info(String.format(
                 "[Reconstruction]: Retrieve file {%s} from storage of {%s} Collection on {%s} Vitam strategy",

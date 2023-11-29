@@ -27,7 +27,6 @@
 package fr.gouv.vitam.metadata.rest;
 
 import fr.gouv.vitam.common.VitamConfiguration;
-import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
@@ -39,7 +38,7 @@ import fr.gouv.vitam.metadata.core.config.MetaDataConfiguration;
 import fr.gouv.vitam.metadata.core.database.collections.MetadataCollections;
 import fr.gouv.vitam.metadata.core.graph.StoreGraphException;
 import fr.gouv.vitam.metadata.core.graph.StoreGraphService;
-import fr.gouv.vitam.metadata.core.reconstruction.ReconstructionService;
+import fr.gouv.vitam.metadata.core.reconstruction.service.MetadataReconstructionService;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -69,7 +68,7 @@ public class MetadataReconstructionResourceTest {
     public RunWithCustomExecutorRule runInThread =
         new RunWithCustomExecutorRule(VitamThreadPoolExecutor.getDefaultExecutor());
 
-    private ReconstructionService reconstructionService;
+    private MetadataReconstructionService reconstructionService;
     private StoreGraphService storeGraphService;
     private ReconstructionRequestItem requestItem;
     private MetadataReconstructionResource reconstructionResource;
@@ -79,7 +78,7 @@ public class MetadataReconstructionResourceTest {
 
     @Before
     public void setup() {
-        reconstructionService = mock(ReconstructionService.class);
+        reconstructionService = mock(MetadataReconstructionService.class);
         storeGraphService = mock(StoreGraphService.class);
         requestItem = new ReconstructionRequestItem();
         requestItem.setCollection("unit").setTenant(10).setLimit(100);

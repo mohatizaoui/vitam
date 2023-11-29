@@ -29,6 +29,11 @@ unitsStreamExecutionLimit: {{ vitam.metadata.unitsStreamExecutionLimit | default
 objectsStreamThreshold: {{ vitam.metadata.objectsStreamThreshold | default(1000000) }}
 objectsStreamExecutionLimit: {{ vitam.metadata.objectsStreamExecutionLimit | default(3) }}
 
+# Persistent Identifier Reconstruction configuration
+persistentIdentifierReconstructionDelayInMinutes: {{ vitam.metadata.persistentIdentifierReconstructionDelayInMinutes | default(1440) }}
+persistentIdentifierReconstructionThreadPoolSize: {{ vitam.metadata.persistentIdentifierReconstructionThreadPoolSize | default(10) }}
+persistentIdentifierReconstructionBulkSize: {{ vitam.metadata.persistentIdentifierReconstructionBulkSize | default(1000) }}
+
 # Configuration MongoDB
 mongoDbNodes:
 {% for server in groups['hosts_mongos_data'] %}

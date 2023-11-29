@@ -76,14 +76,12 @@ import java.util.Map.Entry;
  * JSON handler using Json format
  */
 public final class JsonHandler {
+    public static final String JSON_SET_FOR_ACTION_DSL_REGEX = "[.]";
+    public final static TypeReference<JsonNode> JSON_NODE_TYPE_REFERENCE = new TypeReference<>() {
+    };
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(JsonHandler.class);
     private static final String OBJECT = "object";
     private static final String REG_EXP_JSONPATH_SEPARATOR = "\\.";
-    public static final String JSON_SET_FOR_ACTION_DSL_REGEX = "[.]";
-
-    public final static TypeReference<JsonNode> JSON_NODE_TYPE_REFERENCE = new TypeReference<>() {
-    };
-
     /**
      * Default JsonFactory
      */
@@ -1125,5 +1123,15 @@ public final class JsonHandler {
                 ((ObjectNode) sourceNode.findParent(fieldToExclude)).remove(fieldToExclude);
             }
         }
+    }
+
+    /**
+     * Tests if a jsonNode asText is Null or empty
+     *
+     * @param jsonNode
+     * @return true if jsonNode asText is null or empty
+     */
+    public static boolean isTextNodeNullOrEmpty(JsonNode jsonNode) {
+        return jsonNode != null && jsonNode.isTextual() && !jsonNode.asText().trim().isEmpty();
     }
 }

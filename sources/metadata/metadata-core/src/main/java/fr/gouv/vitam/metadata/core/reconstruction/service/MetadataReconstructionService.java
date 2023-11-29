@@ -24,7 +24,7 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.metadata.core.reconstruction;
+package fr.gouv.vitam.metadata.core.reconstruction.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -76,6 +76,8 @@ import fr.gouv.vitam.metadata.api.model.ReconstructionResponseItem;
 import fr.gouv.vitam.metadata.core.graph.StoreGraphService;
 import fr.gouv.vitam.metadata.core.metrics.MetadataReconstructionMetrics;
 import fr.gouv.vitam.metadata.core.metrics.MetadataReconstructionMetricsCache;
+import fr.gouv.vitam.metadata.core.reconstruction.model.MetadataBackupModel;
+import fr.gouv.vitam.metadata.core.reconstruction.exception.ReconstructionException;
 import fr.gouv.vitam.storage.engine.client.StorageClient;
 import fr.gouv.vitam.storage.engine.client.StorageClientFactory;
 import fr.gouv.vitam.storage.engine.client.exception.StorageClientException;
@@ -129,12 +131,12 @@ import static fr.gouv.vitam.common.database.utils.MetadataDocumentHelper.getComp
 /**
  * Reconstruction of Vitam Metadata Collections.<br>
  */
-public class ReconstructionService {
+public class MetadataReconstructionService {
 
     /**
      * Vitam Logger.
      */
-    private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(ReconstructionService.class);
+    private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(MetadataReconstructionService.class);
     private static final String RECONSTRUCTION_ITEM_MANDATORY_MSG = "the item defining reconstruction is mandatory.";
     private static final String RECONSTRUCTION_COLLECTION_MANDATORY_MSG = "the collection to reconstruct is mandatory.";
     private static final String RECONSTRUCTION_TENANT_MANDATORY_MSG = "the tenant to reconstruct is mandatory.";
@@ -161,8 +163,8 @@ public class ReconstructionService {
      * @param offsetRepository offsetRepository
      * @param indexManager
      */
-    public ReconstructionService(VitamRepositoryProvider vitamRepositoryProvider, OffsetRepository offsetRepository,
-        ElasticsearchMetadataIndexManager indexManager, MetadataReconstructionMetricsCache reconstructionMetricsCache) {
+    public MetadataReconstructionService(VitamRepositoryProvider vitamRepositoryProvider, OffsetRepository offsetRepository,
+                                         ElasticsearchMetadataIndexManager indexManager, MetadataReconstructionMetricsCache reconstructionMetricsCache) {
         this(vitamRepositoryProvider, new RestoreBackupService(), LogbookLifeCyclesClientFactory.getInstance(),
             StorageClientFactory.getInstance(), offsetRepository, indexManager, reconstructionMetricsCache);
     }
@@ -178,10 +180,10 @@ public class ReconstructionService {
      * @param reconstructionMetricsCache
      */
     @VisibleForTesting
-    public ReconstructionService(VitamRepositoryProvider vitamRepositoryProvider,
-        RestoreBackupService recoverBackupService, LogbookLifeCyclesClientFactory logbookLifecycleClientFactory,
-        StorageClientFactory storageClientFactory, OffsetRepository offsetRepository,
-        ElasticsearchMetadataIndexManager indexManager, MetadataReconstructionMetricsCache reconstructionMetricsCache) {
+    public MetadataReconstructionService(VitamRepositoryProvider vitamRepositoryProvider,
+                                         RestoreBackupService recoverBackupService, LogbookLifeCyclesClientFactory logbookLifecycleClientFactory,
+                                         StorageClientFactory storageClientFactory, OffsetRepository offsetRepository,
+                                         ElasticsearchMetadataIndexManager indexManager, MetadataReconstructionMetricsCache reconstructionMetricsCache) {
         this.vitamRepositoryProvider = vitamRepositoryProvider;
         this.restoreBackupService = recoverBackupService;
         this.logbookLifeCyclesClientFactory = logbookLifecycleClientFactory;
@@ -305,7 +307,7 @@ public class ReconstructionService {
 
                     } catch (StorageNotFoundException ex) {
                         throw new ReconstructionException("Could not find graph zip file " + offerLog.getFileName(),
-                            ex);
+                                                          ex);
                     }
 
                     // Handle a reconstruction from a copied zip file
