@@ -56,6 +56,11 @@ public class LogbookOperation extends LogbookEventOperation {
     public static final String TAG_TENANT = "tenant";
 
     /**
+     * Last Persistent Date
+     */
+    public static final String TAG_LP_DATE = "lastPersistedDate";
+
+    /**
      * Hash Tag
      */
     public static final String HASH = "#";
@@ -86,6 +91,11 @@ public class LogbookOperation extends LogbookEventOperation {
 
     @JsonProperty("events")
     private List<LogbookEventOperation> events;
+
+    @JsonProperty(HASH + TAG_LP_DATE)
+    @JsonAlias(UNDERSCORE + TAG_LP_DATE)
+    private String lastPersistentDate;
+
 
     /**
      * @return the id
@@ -158,6 +168,15 @@ public class LogbookOperation extends LogbookEventOperation {
         this.evIdAppSession = evIdAppSession;
     }
 
+
+    public String getLastPersistentDate() {
+        return lastPersistentDate;
+    }
+
+    public void setLastPersistentDate(String lastPersistentDate) {
+        this.lastPersistentDate = lastPersistentDate;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o)
@@ -176,4 +195,5 @@ public class LogbookOperation extends LogbookEventOperation {
     public int hashCode() {
         return Objects.hash(id, tenant, agIdApp, evIdAppSession, events);
     }
+
 }

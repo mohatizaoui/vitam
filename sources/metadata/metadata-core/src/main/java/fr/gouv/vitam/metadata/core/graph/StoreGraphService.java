@@ -47,7 +47,7 @@ import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.metadata.core.database.collections.MetadataCollections;
 import fr.gouv.vitam.metadata.core.database.collections.Unit;
 import fr.gouv.vitam.metadata.core.metrics.CommonMetadataMetrics;
-import fr.gouv.vitam.metadata.core.reconstruction.RestoreBackupService;
+import fr.gouv.vitam.metadata.core.reconstruction.service.RestoreBackupService;
 import fr.gouv.vitam.storage.engine.client.StorageClient;
 import fr.gouv.vitam.storage.engine.client.StorageClientFactory;
 import fr.gouv.vitam.storage.engine.client.exception.StorageAlreadyExistsClientException;

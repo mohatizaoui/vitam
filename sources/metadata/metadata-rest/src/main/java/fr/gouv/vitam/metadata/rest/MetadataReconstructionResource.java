@@ -44,7 +44,7 @@ import fr.gouv.vitam.metadata.core.config.MetaDataConfiguration;
 import fr.gouv.vitam.metadata.core.database.collections.MetadataCollections;
 import fr.gouv.vitam.metadata.core.graph.StoreGraphService;
 import fr.gouv.vitam.metadata.core.metrics.MetadataReconstructionMetricsCache;
-import fr.gouv.vitam.metadata.core.reconstruction.ReconstructionService;
+import fr.gouv.vitam.metadata.core.reconstruction.service.MetadataReconstructionService;
 import fr.gouv.vitam.processing.management.client.ProcessingManagementClientFactory;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -87,20 +87,21 @@ public class MetadataReconstructionResource {
      */
     private static final String RECONSTRUCTION_JSON_MANDATORY_PARAMETERS_MSG =
         "the Json input of reconstruction's parameters is mandatory.";
+
     private static final String RECONSTRUCTION_EXCEPTION_MSG =
         "ERROR: Exception has been thrown when reconstructing Vitam collections: ";
     private static final String STORE_GRAPH_EXCEPTION_MSG = "ERROR: Exception has been thrown when sotre graph: ";
     private static final String ERROR_MSG = "{\"ErrorMsg\":\"";
 
-    private final ReconstructionService reconstructionService;
+    private final MetadataReconstructionService reconstructionService;
     private final StoreGraphService storeGraphService;
 
     MetadataReconstructionResource(VitamRepositoryProvider vitamRepositoryProvider,
         OffsetRepository offsetRepository, MetaDataConfiguration configuration,
         ElasticsearchMetadataIndexManager indexManager) {
         this(
-            new ReconstructionService(vitamRepositoryProvider, offsetRepository, indexManager,
-                new MetadataReconstructionMetricsCache(
+            new MetadataReconstructionService(vitamRepositoryProvider, offsetRepository, indexManager,
+                                              new MetadataReconstructionMetricsCache(
                     configuration.getReconstructionMetricsCacheDurationInMinutes(), TimeUnit.MINUTES)),
             new StoreGraphService(vitamRepositoryProvider),
             configuration);
@@ -108,7 +109,7 @@ public class MetadataReconstructionResource {
 
     @VisibleForTesting
     MetadataReconstructionResource(
-        ReconstructionService reconstructionService,
+        MetadataReconstructionService reconstructionService,
         StoreGraphService storeGraphService,
         MetaDataConfiguration configuration) {
         this.reconstructionService = reconstructionService;

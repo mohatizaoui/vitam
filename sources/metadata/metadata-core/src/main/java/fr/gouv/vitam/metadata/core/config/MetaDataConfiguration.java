@@ -74,6 +74,15 @@ public class MetaDataConfiguration extends DbConfigurationImpl {
     @JsonProperty("objectsStreamExecutionLimit")
     private short objectsStreamExecutionLimit = 3;
 
+    @JsonProperty("persistentIdentifierReconstructionDelayInMinutes")
+    private long persistentIdentifierReconstructionDelayInMinutes = 1440;
+
+    @JsonProperty("persistentIdentifierReconstructionThreadPoolSize")
+    private int persistentIdentifierReconstructionThreadPoolSize = 10;
+
+    @JsonProperty("persistentIdentifierReconstructionBulkSize")
+    private int persistentIdentifierReconstructionBulkSize = 1000;
+
     @JsonProperty("elasticsearchTenantIndexation")
     private MetadataIndexationConfiguration indexationConfiguration;
 
@@ -355,9 +364,34 @@ public class MetaDataConfiguration extends DbConfigurationImpl {
         this.reconstructionMetricsCacheDurationInMinutes = reconstructionMetricsCacheDurationInMinutes;
     }
 
+
+    public long getPersistentIdentifierReconstructionDelayInMinutes() {
+        return persistentIdentifierReconstructionDelayInMinutes;
+    }
+
+    public void setPersistentIdentifierReconstructionDelayInMinutes(long persistentIdentifierReconstructionDelayInMinutes) {
+        this.persistentIdentifierReconstructionDelayInMinutes = persistentIdentifierReconstructionDelayInMinutes;
+    }
+
     @JsonIgnore
     @Override
     public String getBaseUrl() {
         return contextPath;
+    }
+
+    public int getPersistentIdentifierReconstructionThreadPoolSize() {
+        return persistentIdentifierReconstructionThreadPoolSize;
+    }
+
+    public void setPersistentIdentifierReconstructionThreadPoolSize(int persistentIdentifierReconstructionThreadPoolSize) {
+        this.persistentIdentifierReconstructionThreadPoolSize = persistentIdentifierReconstructionThreadPoolSize;
+    }
+
+    public int getPersistentIdentifierReconstructionBulkSize() {
+        return persistentIdentifierReconstructionBulkSize;
+    }
+
+    public void setPersistentIdentifierReconstructionBulkSize(int persistentIdentifierReconstructionBulkSize) {
+        this.persistentIdentifierReconstructionBulkSize = persistentIdentifierReconstructionBulkSize;
     }
 }

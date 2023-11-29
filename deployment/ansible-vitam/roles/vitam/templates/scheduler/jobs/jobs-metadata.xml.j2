@@ -120,4 +120,22 @@
         </job>
     </schedule>
 {% endif %}
+    <schedule>
+        <job>
+            <name>PersistentIdentifierReconstructionJob</name>
+            <group>Metadata</group>
+            <description>Job for persistent identifiers reconstruction</description>
+            <job-class>fr.gouv.vitam.scheduler.server.job.PersistentIdentifierReconstructionJob</job-class>
+        </job>
+
+        <trigger>
+            <cron>
+                <name>PersistentIdentifierReconstructionTrigger</name>
+                <group>Metadata</group>
+                <job-name>PersistentIdentifierReconstructionJob</job-name>
+                <job-group>Metadata</job-group>
+                <cron-expression>{{ vitam_timers.metadata.frequency_persistent_identifier_reconstruction | default('0 0 0 1 1 ? 2020') }}</cron-expression>
+            </cron>
+        </trigger>
+    </schedule>
 </job-scheduling-data>

@@ -54,6 +54,7 @@ import fr.gouv.vitam.metadata.api.exception.MetaDataNotFoundException;
 import fr.gouv.vitam.metadata.api.exception.MetadataInvalidSelectException;
 import fr.gouv.vitam.metadata.api.model.BulkUnitInsertRequest;
 import fr.gouv.vitam.metadata.api.model.ObjectGroupPerOriginatingAgency;
+import fr.gouv.vitam.metadata.api.model.PersistentIdentifierReconstructionRequest;
 import fr.gouv.vitam.metadata.api.model.ReconstructionRequestItem;
 import fr.gouv.vitam.metadata.api.model.ReconstructionResponseItem;
 import fr.gouv.vitam.metadata.api.model.UnitPerOriginatingAgency;
@@ -241,6 +242,11 @@ public class MetaDataClientMock extends AbstractMockClient implements MetaDataCl
     public GraphComputeResponse computeGraph(GraphComputeResponse.GraphComputeAction action, Set<String> ids)
         throws VitamClientException {
         return new GraphComputeResponse(3, 3);
+    }
+
+    @Override
+    public RequestResponse<JsonNode> reconstructPersistentIdentifiers(PersistentIdentifierReconstructionRequest requestItem) {
+        throw new IllegalStateException("Should never be called");
     }
 
     @Override

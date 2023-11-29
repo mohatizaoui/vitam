@@ -24,23 +24,48 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.metadata.core.reconstruction;
+package fr.gouv.vitam.metadata.api.model;
 
-import fr.gouv.vitam.common.exception.VitamException;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.List;
 
 /**
- * Exception used for Reconstruction service
+ * Description of persistent identifier reconstruction request item model. <br/>
  */
-public class ReconstructionException extends VitamException {
-    public ReconstructionException(Throwable cause) {
-        super(cause);
+public class PersistentIdentifierReconstructionRequest {
+
+    /**
+     * Tenants.
+     */
+    @JsonProperty("tenants")
+    private List<Integer> tenants;
+
+    /**
+     * Constructor.
+     */
+    public PersistentIdentifierReconstructionRequest() {
+        super();
     }
 
-    public ReconstructionException(String s) {
-        super(s);
+
+    /**
+     * Get tenants
+     *
+     * @return tenants
+     */
+    public List<Integer> getTenants() {
+        return tenants;
     }
 
-    public ReconstructionException(String message, Throwable cause) {
-        super(message, cause);
+    /**
+     * Set or change tenants
+     *
+     * @param tenants
+     * @return this
+     */
+    public void setTenants(List<Integer> tenants) {
+        this.tenants = tenants;
     }
+
 }

@@ -32,6 +32,7 @@
       ],
       "objectVersions": [
         {
+          "id" : "1234",
           "opi": "opi1",
           "size": 3,
           "version" : "BinaryMaster_1",

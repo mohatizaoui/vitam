@@ -48,6 +48,7 @@ import fr.gouv.vitam.metadata.api.exception.MetadataScrollLimitExceededException
 import fr.gouv.vitam.metadata.api.exception.MetadataScrollThresholdExceededException;
 import fr.gouv.vitam.metadata.api.model.BulkUnitInsertRequest;
 import fr.gouv.vitam.metadata.api.model.ObjectGroupPerOriginatingAgency;
+import fr.gouv.vitam.metadata.api.model.PersistentIdentifierReconstructionRequest;
 import fr.gouv.vitam.metadata.api.model.ReconstructionRequestItem;
 import fr.gouv.vitam.metadata.api.model.ReconstructionResponseItem;
 import fr.gouv.vitam.metadata.api.model.UnitPerOriginatingAgency;
@@ -313,7 +314,17 @@ public interface MetaDataClient extends BasicClient {
      */
     GraphComputeResponse computeGraph(GraphComputeAction action, Set<String> ids) throws VitamClientException;
 
-    /**
+  /** Reconstruct Persistent Identifiers
+   * @param requestItem
+   * @return
+   * @throws MetaDataNotFoundException
+   * @throws InvalidParseOperationException
+   * @throws MetaDataClientServerException
+   */
+  RequestResponse<JsonNode> reconstructPersistentIdentifiers(PersistentIdentifierReconstructionRequest requestItem)
+      throws MetaDataNotFoundException, InvalidParseOperationException, MetaDataClientServerException;
+
+  /**
      * Update units Bulk.
      *
      * @param updateQuery

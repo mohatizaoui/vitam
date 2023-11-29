@@ -54,6 +54,7 @@ import fr.gouv.vitam.metadata.api.exception.MetadataScrollLimitExceededException
 import fr.gouv.vitam.metadata.api.exception.MetadataScrollThresholdExceededException;
 import fr.gouv.vitam.metadata.api.model.BulkUnitInsertRequest;
 import fr.gouv.vitam.metadata.api.model.ObjectGroupPerOriginatingAgency;
+import fr.gouv.vitam.metadata.api.model.PersistentIdentifierReconstructionRequest;
 import fr.gouv.vitam.metadata.api.model.ReclassificationChildNodeExportRequest;
 import fr.gouv.vitam.metadata.api.model.ReconstructionRequestItem;
 import fr.gouv.vitam.metadata.api.model.ReconstructionResponseItem;
@@ -91,6 +92,7 @@ public class MetaDataClientRest extends DefaultClient implements MetaDataClient 
     private static final String REINDEX_URI = "/reindex";
     private static final String ALIASES_URI = "/alias";
     private static final String RECONSTRUCTION_URI = "/reconstruction";
+    private static final String PERSISTENT_IDENTIFIER_RECONSTRUCTION_URI = "/reconstruction-persistent-identifier";
     private static final String STORE_GRAPH_URI = "/storegraph";
     private static final String COMPUTED_INHERITED_RULES_OBSOLETE_URI =
         "/units/computedInheritedRules/processObsoletes";
@@ -530,6 +532,19 @@ public class MetaDataClientRest extends DefaultClient implements MetaDataClient 
             throw new MetaDataClientServerException(e);
         }
     }
+
+    @Override
+    public RequestResponse<JsonNode> reconstructPersistentIdentifiers(PersistentIdentifierReconstructionRequest requestItem)
+        throws MetaDataNotFoundException, InvalidParseOperationException, MetaDataClientServerException {
+        try (Response response = make(post().withJson().withPath(PERSISTENT_IDENTIFIER_RECONSTRUCTION_URI).withBody(requestItem))) {
+            check(response);
+            return RequestResponse.parseFromResponse(response);
+        } catch (MetaDataExecutionException | MetaDataDocumentSizeException | VitamClientInternalException e) {
+            throw new MetaDataClientServerException(e);
+        }
+    }
+
+
 
     public RequestResponse<JsonNode> updateUnitBulk(JsonNode updateQuery)
         throws InvalidParseOperationException, MetaDataExecutionException, MetaDataNotFoundException,

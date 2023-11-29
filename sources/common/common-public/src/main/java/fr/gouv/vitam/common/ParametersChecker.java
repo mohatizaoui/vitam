@@ -31,7 +31,10 @@ import fr.gouv.vitam.common.parameter.VitamParameter;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -239,4 +242,17 @@ public final class ParametersChecker {
             checkNullOrEmptyParameters(parameter.getMapParameters(), parameter.getMandatoriesParameters());
         }
     }
+
+    /**
+     * Check List parameters emptiness or nullity
+     * @param parameters list of parameters
+     * @throws IllegalArgumentException if list is null or empty
+     * @return list of parameters
+     */
+    public static <T> List<T> checkNullOrEmptyParameters(String errorMessage, List<T> parameters) {
+        return Optional.ofNullable(parameters)
+            .filter(list -> !list.isEmpty() && list.stream().noneMatch(Objects::isNull))
+            .orElseThrow(() -> new IllegalArgumentException(errorMessage));
+    }
+
 }

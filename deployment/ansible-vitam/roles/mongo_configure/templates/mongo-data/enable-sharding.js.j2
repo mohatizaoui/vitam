@@ -17,6 +17,7 @@ sh.enableSharding("logbook")
 
 sh.shardCollection("metadata.Unit"                                 ,{ _id: "hashed" })
 sh.shardCollection("metadata.ObjectGroup"                          ,{ _id: "hashed" })
+sh.shardCollection("metadata.PurgedPersistentIdentifier"           ,{ _id: "hashed" })
 
 sh.shardCollection("logbook.LogbookOperation"                      ,{ _id: "hashed" })
 sh.shardCollection("logbook.LogbookLifeCycleUnit"                  ,{ _id: "hashed" })
