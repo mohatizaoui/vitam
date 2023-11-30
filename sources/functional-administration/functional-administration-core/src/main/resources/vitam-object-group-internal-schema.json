@@ -1,514 +1,500 @@
 [
   {
-    "Identifier": "Signature.ReferencedObject.SignedObjectDigest.Algorithm",
-    "SedaField": "Algorithm",
+    "FieldName": "FileInfo",
+    "Type": "OBJECT",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "FileInfo",
+    "ApiPath": "FileInfo",
+    "ApiField": "FileInfo",
     "Collections": [
       "ObjectGroup"
     ],
-    "Description": "Mapping : unit-es-mapping.json. Attribut SEDA.",
-    "Type": "KEYWORD",
-    "Origin": "INTERNAL",
-    "Indexed": "true",
-    "ShortName": "Algorithme",
-    "Path": "Signature.ReferencedObject.SignedObjectDigest.Algorithm",
     "SedaVersions": [
       "2.1",
       "2.2",
       "2.3"
     ],
-    "Cardinality": "ONE",
-    "StringSize": "SHORT"
+    "StringSize": "SHORT",
+    "ShortName": "FileInfo"
   },
   {
-    "Identifier": "_glpd",
+    "FieldName": "CreatingApplicationName",
+    "Type": "TEXT",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "FileInfo.CreatingApplicationName",
+    "ApiPath": "FileInfo.CreatingApplicationName",
+    "ApiField": "CreatingApplicationName",
     "Collections": [
       "ObjectGroup"
     ],
-    "Description": "Mapping : unit-es-mapping.json",
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "CreatingApplicationName",
+    "ShortName": "Nom de l'application"
+  },
+  {
+    "FieldName": "CreatingApplicationVersion",
+    "Type": "TEXT",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "FileInfo.CreatingApplicationVersion",
+    "ApiPath": "FileInfo.CreatingApplicationVersion",
+    "ApiField": "CreatingApplicationVersion",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "CreatingApplicationVersion",
+    "ShortName": "Version de l'application"
+  },
+  {
+    "FieldName": "CreatingOs",
+    "Type": "TEXT",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "FileInfo.CreatingOs",
+    "ApiPath": "FileInfo.CreatingOs",
+    "ApiField": "CreatingOs",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "CreatingOs",
+    "ShortName": "Système d'exploitation"
+  },
+  {
+    "FieldName": "CreatingOsVersion",
+    "Type": "TEXT",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "FileInfo.CreatingOsVersion",
+    "ApiPath": "FileInfo.CreatingOsVersion",
+    "ApiField": "CreatingOsVersion",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "CreatingOsVersion",
+    "ShortName": "Version du système d'exploitation"
+  },
+  {
+    "FieldName": "DateCreatedByApplication",
     "Type": "DATE",
     "Origin": "INTERNAL",
-    "Indexed": "false",
-    "ShortName": "_glpd",
-    "Path": "_glpd",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Cardinality": "ONE",
-    "StringSize": "SHORT"
-  },
-  {
-    "Identifier": "_nbc",
+    "Indexed": true,
+    "Path": "FileInfo.DateCreatedByApplication",
+    "ApiPath": "FileInfo.DateCreatedByApplication",
+    "ApiField": "DateCreatedByApplication",
     "Collections": [
       "ObjectGroup"
     ],
-    "Description": "Mapping : unit-es-mapping.json. Nombre d'objets correspondant à un usage ou à un groupe d'objets.",
-    "Type": "LONG",
-    "Origin": "INTERNAL",
-    "Indexed": "true",
-    "ShortName": "Nombre d'objets",
-    "Path": "_nbc",
     "SedaVersions": [
       "2.1",
       "2.2",
       "2.3"
     ],
-    "Cardinality": "ONE",
-    "StringSize": "SHORT"
-  },
-  {
-    "Identifier": "_storage._nbc",
-    "Collections": [
-      "ObjectGroup"
-    ],
-    "Description": "Mapping : unit-es-mapping.json. Nombre d'objets correspondant à un usage ou à un groupe d'objets.",
-    "Type": "LONG",
-    "Origin": "INTERNAL",
-    "Indexed": "true",
-    "ShortName": "Nombre d'objets",
-    "Path": "_storage._nbc",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
-    "Cardinality": "ONE",
     "StringSize": "SHORT",
-    "ApiField": "_nbc"
+    "SedaField": "DateCreatedByApplication",
+    "ShortName": "Date de création"
   },
   {
-    "Identifier": "_opi",
-    "Collections": [
-      "ObjectGroup"
-    ],
-    "Description": "Mapping : unit-es-mapping.json. Identifiant de l'opération à l'origine de la création de cette unité archivistique.",
-    "Type": "KEYWORD",
+    "FieldName": "Filename",
+    "Type": "TEXT",
     "Origin": "INTERNAL",
-    "Indexed": "true",
-    "ShortName": "Opération initiale",
-    "Path": "_opi",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Cardinality": "ONE",
-    "StringSize": "SHORT"
-  },
-  {
-    "Identifier": "_ops",
+    "Indexed": true,
+    "Path": "FileInfo.Filename",
+    "ApiPath": "FileInfo.Filename",
+    "ApiField": "Filename",
     "Collections": [
       "ObjectGroup"
     ],
-    "Description": "Mapping : unit-es-mapping.json. Identifiants d'opérations auxquelles cette unité archivistique a participé.",
-    "Type": "KEYWORD",
-    "Origin": "INTERNAL",
-    "Indexed": "true",
-    "ShortName": "Opérations",
-    "Path": "_ops",
     "SedaVersions": [
       "2.1",
       "2.2",
       "2.3"
     ],
-    "Cardinality": "MANY",
-    "StringSize": "SHORT"
-  },
-  {
-    "Identifier": "_sp",
-    "SedaField": "OriginatingAgencyIdentifier",
-    "Collections": [
-      "ObjectGroup"
-    ],
-    "Description": "Mapping : unit-es-mapping.json. Service producteur d'origine déclaré lors de la prise en charge de l'unité archivistique par la solution logicielle Vitam.",
-    "Type": "KEYWORD",
-    "Origin": "INTERNAL",
-    "Indexed": "true",
-    "ShortName": "Service producteur",
-    "Path": "_sp",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
-    "Cardinality": "ONE",
-    "StringSize": "SHORT"
-  },
-  {
-    "Identifier": "_sps",
-    "ApiField": "#originating_agencies",
-    "SedaField": "OriginatingAgencyIdentifier",
-    "Collections": [
-      "ObjectGroup"
-    ],
-    "Description": "Mapping : unit-es-mapping.json. Services producteurs liés à l'unité archivistique suite à un rattachement et ayant des droits d'accès sur celle-ci.",
-    "Type": "KEYWORD",
-    "Origin": "INTERNAL",
-    "Indexed": "true",
-    "ShortName": "Services producteurs liés à l'unité archivistique",
-    "Path": "_sps",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
-    "Cardinality": "MANY",
-    "StringSize": "SHORT"
-  },
-  {
-    "Identifier": "_storage.offerIds",
-    "Collections": [
-      "ObjectGroup"
-    ],
-    "Description": "Mapping : unit-es-mapping.json. Deprecated.",
-    "Type": "KEYWORD",
-    "Origin": "INTERNAL",
-    "Indexed": "true",
-    "ShortName": "offerIds",
-    "Path": "_storage.offerIds",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
-    "Cardinality": "MANY",
     "StringSize": "SHORT",
-    "ApiField": "offerIds"
+    "SedaField": "Filename",
+    "ShortName": "Nom du fichier"
   },
   {
-    "Identifier": "_storage.strategyId",
-    "Collections": [
-      "ObjectGroup"
-    ],
-    "Description": "Mapping : unit-es-mapping.json",
-    "Type": "KEYWORD",
-    "Origin": "INTERNAL",
-    "Indexed": "true",
-    "ShortName": "strategyId",
-    "Path": "_storage.strategyId",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
-    "Cardinality": "ONE",
-    "StringSize": "SHORT",
-    "ApiField": "strategyId"
-  },
-  {
-    "Identifier": "_tenant",
-    "Collections": [
-      "ObjectGroup"
-    ],
-    "Description": "Mapping : unit-es-mapping.json. Identifiant du tenant.",
-    "Type": "LONG",
-    "Origin": "INTERNAL",
-    "Indexed": "true",
-    "ShortName": "Tenant",
-    "Path": "_tenant",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
-    "Cardinality": "ONE",
-    "StringSize": "SHORT"
-  },
-  {
-    "Identifier": "_up",
-    "Collections": [
-      "ObjectGroup"
-    ],
-    "Description": "Mapping : unit-es-mapping.json. Pour une unité archivistique, identifiant(s) des unités archivistiques parentes (parents immédiats). Pour un groupe d'objets, identifiant(s) des unités archivistiques représentées par ce groupe d'objets.",
-    "Type": "KEYWORD",
-    "Origin": "INTERNAL",
-    "Indexed": "true",
-    "ShortName": "Identifiant(s) des unités archivistiques parentes (parents immédiats)",
-    "Path": "_up",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
-    "Cardinality": "MANY",
-    "StringSize": "SHORT"
-  },
-  {
-    "Identifier": "_us",
-    "Collections": [
-      "ObjectGroup"
-    ],
-    "Description": "Mapping : unit-es-mapping.json. Tableau contenant la parentalité, c'est à dire l'ensemble des unités archivistiques parentes, indexé de la manière suivante : [ GUID1, GUID2, ... ].",
-    "Type": "KEYWORD",
-    "Origin": "INTERNAL",
-    "Indexed": "true",
-    "ShortName": "Identifiant(s) des unités archivistiques parentes",
-    "Path": "_us",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
-    "Cardinality": "MANY",
-    "StringSize": "SHORT"
-  },
-  {
-    "Identifier": "_history.data._v",
-    "Collections": [
-      "ObjectGroup"
-    ],
-    "Description": "Mapping : unit-es-mapping.json. Version de l'enregistrement décrit.",
-    "Type": "LONG",
-    "Origin": "INTERNAL",
-    "Indexed": "true",
-    "ShortName": "Version",
-    "Path": "_history.data._v",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
-    "Cardinality": "ONE",
-    "StringSize": "SHORT",
-    "ApiField": "#version"
-  },
-  {
-    "Identifier": "_v",
-    "Collections": [
-      "ObjectGroup"
-    ],
-    "Description": "Mapping : unit-es-mapping.json. Version de l'enregistrement décrit.",
-    "Type": "LONG",
-    "Origin": "INTERNAL",
-    "Indexed": "true",
-    "ShortName": "Version",
-    "Path": "_v",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
-    "Cardinality": "ONE",
-    "StringSize": "SHORT"
-  },
-  {
-    "Identifier": "_av",
-    "Collections": [
-      "ObjectGroup"
-    ],
-    "Description": "Version interne de l'enregistrement décrit.",
-    "Type": "LONG",
-    "Origin": "INTERNAL",
-    "Indexed": "true",
-    "ShortName": "Version",
-    "Path": "_av",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
-    "Cardinality": "ONE",
-    "StringSize": "SHORT"
-  },
-  {
-    "Identifier": "Signature.ReferencedObject.SignedObjectDigest.MessageDigest",
-    "SedaField": "MessageDigest",
-    "Collections": [
-      "ObjectGroup"
-    ],
-    "Description": "Mapping : og-es-mapping.json",
-    "Type": "KEYWORD",
-    "Origin": "INTERNAL",
-    "Indexed": "true",
-    "ShortName": "Empreinte",
-    "Path": "Signature.ReferencedObject.SignedObjectDigest.MessageDigest",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
-    "Cardinality": "ONE",
-    "StringSize": "SHORT"
-  },
-  {
-    "Identifier": "_id",
-    "Collections": [
-      "ObjectGroup"
-    ],
-    "Description": "Mapping : og-es-mapping.json. Identifiant du groupe d'objets",
-    "Type": "KEYWORD",
-    "Origin": "INTERNAL",
-    "Indexed": "true",
-    "ShortName": "Identifiant du groupe d'objets",
-    "Path": "_id",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
-    "Cardinality": "ONE",
-    "StringSize": "SHORT"
-  },
-  {
-    "Identifier": "_aud",
-    "Collections": [
-      "ObjectGroup"
-    ],
-    "Description": "Mapping : unit-es-mapping.json",
+    "FieldName": "LastModified",
     "Type": "DATE",
     "Origin": "INTERNAL",
-    "Indexed": "true",
-    "ShortName": "Dernière modification",
-    "Path": "_aud",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "FileInfo.LastModified",
+    "ApiPath": "FileInfo.LastModified",
+    "ApiField": "LastModified",
+    "Collections": [
+      "ObjectGroup"
+    ],
     "SedaVersions": [
       "2.1",
       "2.2",
       "2.3"
     ],
-    "Cardinality": "ONE",
-    "StringSize": "SHORT"
+    "StringSize": "SHORT",
+    "SedaField": "LastModified",
+    "ShortName": "Dernière modification"
   },
   {
-    "Identifier": "_aud",
+    "FieldName": "Metadata",
+    "Type": "OBJECT",
+    "Origin": "INTERNAL",
+    "Cardinality": "MANY",
+    "Indexed": true,
+    "Path": "Metadata",
+    "ApiPath": "Metadata",
+    "ApiField": "Metadata",
     "Collections": [
       "ObjectGroup"
     ],
-    "Description": "Approximative updated date, Mapping : unit-es-mapping.json",
-    "Type": "DATE",
-    "Origin": "INTERNAL",
-    "Indexed": "true",
-    "ShortName": "_aud",
-    "Path": "_aud",
     "SedaVersions": [
       "2.1",
       "2.2",
       "2.3"
     ],
-    "Cardinality": "ONE",
-    "StringSize": "SHORT"
+    "StringSize": "SHORT",
+    "ShortName": "Metadata"
   },
   {
-    "Identifier": "_acd",
+    "FieldName": "Audio",
+    "Type": "OBJECT",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "Metadata.Audio",
+    "ApiPath": "Metadata.Audio",
+    "ApiField": "Audio",
     "Collections": [
       "ObjectGroup"
     ],
-    "Description": "Approximative created date, Mapping : unit-es-mapping.json",
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "ShortName": "Audio"
+  },
+  {
+    "FieldName": "Document",
+    "Type": "OBJECT",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "Metadata.Document",
+    "ApiPath": "Metadata.Document",
+    "ApiField": "Document",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "ShortName": "Document"
+  },
+  {
+    "FieldName": "Image",
+    "Type": "OBJECT",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "Metadata.Image",
+    "ApiPath": "Metadata.Image",
+    "ApiField": "Image",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "ShortName": "Image"
+  },
+  {
+    "FieldName": "Text",
+    "Type": "OBJECT",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "Metadata.Text",
+    "ApiPath": "Metadata.Text",
+    "ApiField": "Text",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "ShortName": "Text"
+  },
+  {
+    "FieldName": "Video",
+    "Type": "OBJECT",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "Metadata.Video",
+    "ApiPath": "Metadata.Video",
+    "ApiField": "Video",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "ShortName": "Video"
+  },
+  {
+    "FieldName": "OtherMetadata",
+    "Type": "OBJECT",
+    "Origin": "INTERNAL",
+    "Cardinality": "MANY",
+    "Indexed": true,
+    "Path": "OtherMetadata",
+    "ApiPath": "OtherMetadata",
+    "ApiField": "OtherMetadata",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "ShortName": "OtherMetadata"
+  },
+  {
+    "FieldName": "RawMetadata",
+    "Type": "TEXT",
+    "Origin": "INTERNAL",
+    "Cardinality": "MANY",
+    "Indexed": true,
+    "Path": "OtherMetadata.RawMetadata",
+    "ApiPath": "OtherMetadata.RawMetadata",
+    "ApiField": "RawMetadata",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "ShortName": "Métadonnées extraites"
+  },
+  {
+    "FieldName": "_acd",
     "Type": "DATE",
     "Origin": "INTERNAL",
-    "Indexed": "true",
-    "ShortName": "_acd",
+    "Cardinality": "ONE",
+    "Indexed": true,
     "Path": "_acd",
+    "ApiPath": "#approximate_creation_date",
+    "ApiField": "#approximate_creation_date",
+    "Collections": [
+      "ObjectGroup"
+    ],
     "SedaVersions": [
       "2.1",
       "2.2",
       "2.3"
     ],
-    "Cardinality": "ONE",
-    "StringSize": "SHORT"
+    "StringSize": "SHORT",
+    "ShortName": "_acd"
   },
   {
-    "Identifier": "PersistentIdentifier.PersistentIdentifierType",
-    "SedaField": "Type",
+    "FieldName": "_aud",
+    "Type": "DATE",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_aud",
+    "ApiPath": "#approximate_update_date",
+    "ApiField": "#approximate_update_date",
     "Collections": [
       "ObjectGroup"
     ],
-    "Description": "Mapping : unit-es-mapping.json",
-    "Type": "KEYWORD",
-    "Origin": "INTERNAL",
-    "Indexed": "true",
-    "ShortName": "Type",
-    "Path": "PersistentIdentifier.PersistentIdentifierType",
     "SedaVersions": [
+      "2.1",
       "2.2",
       "2.3"
     ],
-    "Cardinality": "ONE",
-    "StringSize": "SHORT"
+    "StringSize": "SHORT",
+    "ShortName": "_aud"
   },
   {
-    "Identifier": "PersistentIdentifier.PersistentIdentifierType",
-    "SedaField": "PersistentIdentifierType",
+    "FieldName": "_av",
+    "Type": "LONG",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_av",
+    "ApiPath": "#atomic_version",
+    "ApiField": "#atomic_version",
     "Collections": [
       "ObjectGroup"
     ],
-    "Description": "Persistent Identifier Type",
-    "Type": "KEYWORD",
-    "Origin": "INTERNAL",
-    "Indexed": "true",
-    "ShortName": "PersistentIdentifierType",
-    "Path": "PersistentIdentifier.PersistentIdentifierType",
     "SedaVersions": [
+      "2.1",
       "2.2",
       "2.3"
     ],
-    "Cardinality": "ONE",
-    "StringSize": "SHORT"
+    "StringSize": "SHORT",
+    "ShortName": "Version"
   },
   {
-    "Identifier": "PersistentIdentifier.PersistentIdentifierOrigin",
-    "SedaField": "PersistentIdentifierOrigin",
+    "FieldName": "_glpd",
+    "Type": "DATE",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": false,
+    "Path": "_glpd",
+    "ApiPath": "#graph_last_persisted_date",
+    "ApiField": "#graph_last_persisted_date",
     "Collections": [
       "ObjectGroup"
     ],
-    "Description": "Persistent Identifier Origin",
-    "Type": "KEYWORD",
-    "Origin": "INTERNAL",
-    "Indexed": "true",
-    "ShortName": "PersistentIdentifierOrigin",
-    "Path": "PersistentIdentifier.PersistentIdentifierOrigin",
     "SedaVersions": [
+      "2.1",
       "2.2",
       "2.3"
     ],
-    "Cardinality": "ONE",
-    "StringSize": "SHORT"
+    "StringSize": "SHORT",
+    "ShortName": "_glpd"
   },
   {
-    "Identifier": "PersistentIdentifier.PersistentIdentifierReference",
-    "SedaField": "PersistentIdentifierReference",
+    "FieldName": "_id",
+    "Type": "KEYWORD",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_id",
+    "ApiPath": "#id",
+    "ApiField": "#id",
     "Collections": [
       "ObjectGroup"
     ],
-    "Description": "Persistent Identifier Reference",
-    "Type": "KEYWORD",
-    "Origin": "INTERNAL",
-    "Indexed": "true",
-    "ShortName": "PersistentIdentifierReference",
-    "Path": "PersistentIdentifier.PersistentIdentifierReference",
     "SedaVersions": [
+      "2.1",
       "2.2",
       "2.3"
     ],
-    "Cardinality": "ONE",
-    "StringSize": "SHORT"
+    "StringSize": "SHORT",
+    "ShortName": "Identifiant du groupe d'objets"
   },
   {
-    "Identifier": "PersistentIdentifier.PersistentIdentifierContent",
-    "SedaField": "PersistentIdentifierContent",
+    "FieldName": "_nbc",
+    "Type": "LONG",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_nbc",
+    "ApiPath": "#nbc",
+    "ApiField": "#nbc",
     "Collections": [
       "ObjectGroup"
     ],
-    "Description": "Persistent Identifier Content",
-    "Type": "KEYWORD",
-    "Origin": "INTERNAL",
-    "Indexed": "true",
-    "ShortName": "PersistentIdentifierContent",
-    "Path": "PersistentIdentifier.PersistentIdentifierContent",
     "SedaVersions": [
+      "2.1",
       "2.2",
       "2.3"
     ],
-    "Cardinality": "ONE",
-    "StringSize": "SHORT"
+    "StringSize": "SHORT",
+    "ShortName": "Nombre d’objets"
   },
   {
-    "Identifier": "_qualifiers",
+    "FieldName": "_opi",
+    "Type": "KEYWORD",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_opi",
+    "ApiPath": "#opi",
+    "ApiField": "#opi",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "ShortName": "Opération initiale"
+  },
+  {
+    "FieldName": "_ops",
+    "Type": "KEYWORD",
+    "Origin": "INTERNAL",
+    "Cardinality": "MANY",
+    "Indexed": true,
+    "Path": "_ops",
+    "ApiPath": "#operations",
+    "ApiField": "#operations",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "ShortName": "Opérations"
+  },
+  {
+    "FieldName": "_qualifiers",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
     "Cardinality": "MANY",
     "Indexed": true,
     "Path": "_qualifiers",
+    "ApiPath": "#qualifiers",
+    "ApiField": "#qualifiers",
     "Collections": [
       "ObjectGroup"
     ],
@@ -516,15 +502,268 @@
       "2.1",
       "2.2",
       "2.3"
-    ]
+    ],
+    "StringSize": "SHORT",
+    "ShortName": "_qualifiers"
   },
   {
-    "Identifier": "_qualifiers.versions.FileInfo",
+    "FieldName": "_nbc",
+    "Type": "LONG",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers._nbc",
+    "ApiPath": "#qualifiers.#nbc",
+    "ApiField": "#nbc",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "ShortName": "Nombre d’objets"
+  },
+  {
+    "FieldName": "qualifier",
+    "Type": "KEYWORD",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.qualifier",
+    "ApiPath": "#qualifiers.qualifier",
+    "ApiField": "qualifier",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "ShortName": "Usage"
+  },
+  {
+    "FieldName": "versions",
+    "Type": "OBJECT",
+    "Origin": "INTERNAL",
+    "Cardinality": "MANY",
+    "Indexed": true,
+    "Path": "_qualifiers.versions",
+    "ApiPath": "#qualifiers.versions",
+    "ApiField": "versions",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "ShortName": "versions"
+  },
+  {
+    "FieldName": "Algorithm",
+    "Type": "KEYWORD",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.Algorithm",
+    "ApiPath": "#qualifiers.versions.Algorithm",
+    "ApiField": "Algorithm",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "Algorithm",
+    "ShortName": "Algorithme"
+  },
+  {
+    "FieldName": "Compressed",
+    "Type": "TEXT",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.Compressed",
+    "ApiPath": "#qualifiers.versions.Compressed",
+    "ApiField": "Compressed",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "Compressed",
+    "ShortName": "Objet compressé"
+  },
+  {
+    "FieldName": "DataObjectGroupId",
+    "Type": "KEYWORD",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.DataObjectGroupId",
+    "ApiPath": "#qualifiers.versions.DataObjectGroupId",
+    "ApiField": "DataObjectGroupId",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "DataObjectGroupId",
+    "ShortName": "Identifiant du groupe d'objets techniques"
+  },
+  {
+    "FieldName": "DataObjectGroupSystemId",
+    "Type": "KEYWORD",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.DataObjectGroupSystemId",
+    "ApiPath": "#qualifiers.versions.DataObjectGroupSystemId",
+    "ApiField": "DataObjectGroupSystemId",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "DataObjectGroupSystemId",
+    "ShortName": "Identifiant du groupe d'objet"
+  },
+  {
+    "FieldName": "DataObjectNumber",
+    "Type": "LONG",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.DataObjectNumber",
+    "ApiPath": "#qualifiers.versions.DataObjectNumber",
+    "ApiField": "DataObjectNumber",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "DataObjectNumber",
+    "ShortName": "DataObjectNumber"
+  },
+  {
+    "FieldName": "DataObjectProfile",
+    "Type": "KEYWORD",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.DataObjectProfile",
+    "ApiPath": "#qualifiers.versions.DataObjectProfile",
+    "ApiField": "DataObjectProfile",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "DataObjectProfile",
+    "ShortName": "DataObjectProfile"
+  },
+  {
+    "FieldName": "DataObjectSystemId",
+    "Type": "KEYWORD",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.DataObjectSystemId",
+    "ApiPath": "#qualifiers.versions.DataObjectSystemId",
+    "ApiField": "DataObjectSystemId",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "DataObjectSystemId",
+    "ShortName": "Identifiant de l'objet"
+  },
+  {
+    "FieldName": "DataObjectUse",
+    "Type": "KEYWORD",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.DataObjectUse",
+    "ApiPath": "#qualifiers.versions.DataObjectUse",
+    "ApiField": "DataObjectUse",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "DataObjectUse",
+    "ShortName": "DataObjectUse"
+  },
+  {
+    "FieldName": "DataObjectVersion",
+    "Type": "KEYWORD",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.DataObjectVersion",
+    "ApiPath": "#qualifiers.versions.DataObjectVersion",
+    "ApiField": "DataObjectVersion",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "DataObjectVersion",
+    "ShortName": "Usage"
+  },
+  {
+    "FieldName": "FileInfo",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
     "Cardinality": "ONE",
     "Indexed": true,
     "Path": "_qualifiers.versions.FileInfo",
+    "ApiPath": "#qualifiers.versions.FileInfo",
+    "ApiField": "FileInfo",
     "Collections": [
       "ObjectGroup"
     ],
@@ -532,15 +771,166 @@
       "2.1",
       "2.2",
       "2.3"
-    ]
+    ],
+    "StringSize": "SHORT",
+    "ShortName": "FileInfo"
   },
   {
-    "Identifier": "_qualifiers.versions.FormatIdentification",
+    "FieldName": "CreatingApplicationName",
+    "Type": "TEXT",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.FileInfo.CreatingApplicationName",
+    "ApiPath": "#qualifiers.versions.FileInfo.CreatingApplicationName",
+    "ApiField": "CreatingApplicationName",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "CreatingApplicationName",
+    "ShortName": "Nom de l'application"
+  },
+  {
+    "FieldName": "CreatingApplicationVersion",
+    "Type": "TEXT",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.FileInfo.CreatingApplicationVersion",
+    "ApiPath": "#qualifiers.versions.FileInfo.CreatingApplicationVersion",
+    "ApiField": "CreatingApplicationVersion",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "CreatingApplicationVersion",
+    "ShortName": "Version de l'application"
+  },
+  {
+    "FieldName": "CreatingOs",
+    "Type": "TEXT",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.FileInfo.CreatingOs",
+    "ApiPath": "#qualifiers.versions.FileInfo.CreatingOs",
+    "ApiField": "CreatingOs",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "CreatingOs",
+    "ShortName": "Système d'exploitation"
+  },
+  {
+    "FieldName": "CreatingOsVersion",
+    "Type": "TEXT",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.FileInfo.CreatingOsVersion",
+    "ApiPath": "#qualifiers.versions.FileInfo.CreatingOsVersion",
+    "ApiField": "CreatingOsVersion",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "CreatingOsVersion",
+    "ShortName": "Version du système d'exploitation"
+  },
+  {
+    "FieldName": "DateCreatedByApplication",
+    "Type": "DATE",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.FileInfo.DateCreatedByApplication",
+    "ApiPath": "#qualifiers.versions.FileInfo.DateCreatedByApplication",
+    "ApiField": "DateCreatedByApplication",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "DateCreatedByApplication",
+    "ShortName": "Date de création"
+  },
+  {
+    "FieldName": "Filename",
+    "Type": "TEXT",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.FileInfo.Filename",
+    "ApiPath": "#qualifiers.versions.FileInfo.Filename",
+    "ApiField": "Filename",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "Filename",
+    "ShortName": "Nom du fichier"
+  },
+  {
+    "FieldName": "LastModified",
+    "Type": "DATE",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.FileInfo.LastModified",
+    "ApiPath": "#qualifiers.versions.FileInfo.LastModified",
+    "ApiField": "LastModified",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "LastModified",
+    "ShortName": "Dernière modification"
+  },
+  {
+    "FieldName": "FormatIdentification",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
     "Cardinality": "ONE",
     "Indexed": true,
     "Path": "_qualifiers.versions.FormatIdentification",
+    "ApiPath": "#qualifiers.versions.FormatIdentification",
+    "ApiField": "FormatIdentification",
     "Collections": [
       "ObjectGroup"
     ],
@@ -548,15 +938,19 @@
       "2.1",
       "2.2",
       "2.3"
-    ]
+    ],
+    "StringSize": "SHORT",
+    "ShortName": "FormatIdentification"
   },
   {
-    "Identifier": "_qualifiers.versions.PhysicalDimensions",
-    "Type": "OBJECT",
+    "FieldName": "Encoding",
+    "Type": "KEYWORD",
     "Origin": "INTERNAL",
     "Cardinality": "ONE",
     "Indexed": true,
-    "Path": "_qualifiers.versions.PhysicalDimensions",
+    "Path": "_qualifiers.versions.FormatIdentification.Encoding",
+    "ApiPath": "#qualifiers.versions.FormatIdentification.Encoding",
+    "ApiField": "Encoding",
     "Collections": [
       "ObjectGroup"
     ],
@@ -564,15 +958,20 @@
       "2.1",
       "2.2",
       "2.3"
-    ]
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "Encoding",
+    "ShortName": "Encodage"
   },
   {
-    "Identifier": "_qualifiers.versions.PhysicalDimensions.Depth",
-    "Type": "OBJECT",
+    "FieldName": "FormatId",
+    "Type": "KEYWORD",
     "Origin": "INTERNAL",
     "Cardinality": "ONE",
     "Indexed": true,
-    "Path": "_qualifiers.versions.PhysicalDimensions.Depth",
+    "Path": "_qualifiers.versions.FormatIdentification.FormatId",
+    "ApiPath": "#qualifiers.versions.FormatIdentification.FormatId",
+    "ApiField": "FormatId",
     "Collections": [
       "ObjectGroup"
     ],
@@ -580,15 +979,20 @@
       "2.1",
       "2.2",
       "2.3"
-    ]
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "FormatId",
+    "ShortName": "PUID du format"
   },
   {
-    "Identifier": "_qualifiers.versions.PhysicalDimensions.Diameter",
-    "Type": "OBJECT",
+    "FieldName": "FormatLitteral",
+    "Type": "KEYWORD",
     "Origin": "INTERNAL",
     "Cardinality": "ONE",
     "Indexed": true,
-    "Path": "_qualifiers.versions.PhysicalDimensions.Diameter",
+    "Path": "_qualifiers.versions.FormatIdentification.FormatLitteral",
+    "ApiPath": "#qualifiers.versions.FormatIdentification.FormatLitteral",
+    "ApiField": "FormatLitteral",
     "Collections": [
       "ObjectGroup"
     ],
@@ -596,15 +1000,20 @@
       "2.1",
       "2.2",
       "2.3"
-    ]
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "FormatLitteral",
+    "ShortName": "Nom litteral"
   },
   {
-    "Identifier": "_qualifiers.versions.PhysicalDimensions.Height",
-    "Type": "OBJECT",
+    "FieldName": "MimeType",
+    "Type": "KEYWORD",
     "Origin": "INTERNAL",
     "Cardinality": "ONE",
     "Indexed": true,
-    "Path": "_qualifiers.versions.PhysicalDimensions.Height",
+    "Path": "_qualifiers.versions.FormatIdentification.MimeType",
+    "ApiPath": "#qualifiers.versions.FormatIdentification.MimeType",
+    "ApiField": "MimeType",
     "Collections": [
       "ObjectGroup"
     ],
@@ -612,15 +1021,20 @@
       "2.1",
       "2.2",
       "2.3"
-    ]
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "MimeType",
+    "ShortName": "Type Mime"
   },
   {
-    "Identifier": "_qualifiers.versions.PhysicalDimensions.Length",
-    "Type": "OBJECT",
+    "FieldName": "MessageDigest",
+    "Type": "KEYWORD",
     "Origin": "INTERNAL",
     "Cardinality": "ONE",
     "Indexed": true,
-    "Path": "_qualifiers.versions.PhysicalDimensions.Length",
+    "Path": "_qualifiers.versions.MessageDigest",
+    "ApiPath": "#qualifiers.versions.MessageDigest",
+    "ApiField": "MessageDigest",
     "Collections": [
       "ObjectGroup"
     ],
@@ -628,94 +1042,842 @@
       "2.1",
       "2.2",
       "2.3"
-    ]
-  },
-  {
-    "Identifier": "_qualifiers.versions.PhysicalDimensions.Thickness",
-    "Type": "OBJECT",
-    "Origin": "INTERNAL",
-    "Cardinality": "ONE",
-    "Indexed": true,
-    "Path": "_qualifiers.versions.PhysicalDimensions.Thickness",
-    "Collections": [
-      "ObjectGroup"
     ],
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ]
+    "StringSize": "SHORT",
+    "SedaField": "MessageDigest",
+    "ShortName": "Empreinte"
   },
   {
-    "Identifier": "_qualifiers.versions.PhysicalDimensions.Weight",
-    "Type": "OBJECT",
-    "Origin": "INTERNAL",
-    "Cardinality": "ONE",
-    "Indexed": true,
-    "Path": "_qualifiers.versions.PhysicalDimensions.Weight",
-    "Collections": [
-      "ObjectGroup"
-    ],
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ]
-  },
-  {
-    "Identifier": "_qualifiers.versions.PhysicalDimensions.Width",
-    "Type": "OBJECT",
-    "Origin": "INTERNAL",
-    "Cardinality": "ONE",
-    "Indexed": true,
-    "Path": "_qualifiers.versions.PhysicalDimensions.Width",
-    "Collections": [
-      "ObjectGroup"
-    ],
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ]
-  },
-  {
-    "Identifier": "_qualifiers.versions._storage",
-    "Type": "OBJECT",
-    "Origin": "INTERNAL",
-    "Cardinality": "ONE",
-    "Indexed": true,
-    "Path": "_qualifiers.versions._storage",
-    "Collections": [
-      "ObjectGroup"
-    ],
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ]
-  },
-  {
-    "Identifier": "_qualifiers.versions.PersistentIdentifier",
+    "FieldName": "PersistentIdentifier",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
     "Cardinality": "MANY",
     "Indexed": true,
     "Path": "_qualifiers.versions.PersistentIdentifier",
+    "ApiPath": "#qualifiers.versions.PersistentIdentifier",
+    "ApiField": "PersistentIdentifier",
     "Collections": [
       "ObjectGroup"
     ],
     "SedaVersions": [
       "2.2",
       "2.3"
-    ]
+    ],
+    "StringSize": "SHORT",
+    "ShortName": "PersistentIdentifier"
   },
   {
-    "Identifier": "_storage",
+    "FieldName": "PersistentIdentifierContent",
+    "Type": "KEYWORD",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.PersistentIdentifier.PersistentIdentifierContent",
+    "ApiPath": "#qualifiers.versions.PersistentIdentifier.PersistentIdentifierContent",
+    "ApiField": "PersistentIdentifierContent",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "PersistentIdentifierContent",
+    "ShortName": "PersistentIdentifierContent"
+  },
+  {
+    "FieldName": "PersistentIdentifierOrigin",
+    "Type": "KEYWORD",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.PersistentIdentifier.PersistentIdentifierOrigin",
+    "ApiPath": "#qualifiers.versions.PersistentIdentifier.PersistentIdentifierOrigin",
+    "ApiField": "PersistentIdentifierOrigin",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "PersistentIdentifierOrigin",
+    "ShortName": "PersistentIdentifierOrigin"
+  },
+  {
+    "FieldName": "PersistentIdentifierReference",
+    "Type": "KEYWORD",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.PersistentIdentifier.PersistentIdentifierReference",
+    "ApiPath": "#qualifiers.versions.PersistentIdentifier.PersistentIdentifierReference",
+    "ApiField": "PersistentIdentifierReference",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "PersistentIdentifierReference",
+    "ShortName": "PersistentIdentifierReference"
+  },
+  {
+    "FieldName": "PersistentIdentifierType",
+    "Type": "KEYWORD",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.PersistentIdentifier.PersistentIdentifierType",
+    "ApiPath": "#qualifiers.versions.PersistentIdentifier.PersistentIdentifierType",
+    "ApiField": "PersistentIdentifierType",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "PersistentIdentifierType",
+    "ShortName": "PersistentIdentifierType"
+  },
+  {
+    "FieldName": "PhysicalDimensions",
+    "Type": "OBJECT",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.PhysicalDimensions",
+    "ApiPath": "#qualifiers.versions.PhysicalDimensions",
+    "ApiField": "PhysicalDimensions",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "ShortName": "PhysicalDimensions"
+  },
+  {
+    "FieldName": "Depth",
+    "Type": "OBJECT",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.PhysicalDimensions.Depth",
+    "ApiPath": "#qualifiers.versions.PhysicalDimensions.Depth",
+    "ApiField": "Depth",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "ShortName": "Depth"
+  },
+  {
+    "FieldName": "dValue",
+    "Type": "DOUBLE",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.PhysicalDimensions.Depth.dValue",
+    "ApiPath": "#qualifiers.versions.PhysicalDimensions.Depth.dValue",
+    "ApiField": "dValue",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "Value",
+    "ShortName": "Valeur"
+  },
+  {
+    "FieldName": "unit",
+    "Type": "KEYWORD",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.PhysicalDimensions.Depth.unit",
+    "ApiPath": "#qualifiers.versions.PhysicalDimensions.Depth.unit",
+    "ApiField": "unit",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "unit",
+    "ShortName": "Unité"
+  },
+  {
+    "FieldName": "Diameter",
+    "Type": "OBJECT",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.PhysicalDimensions.Diameter",
+    "ApiPath": "#qualifiers.versions.PhysicalDimensions.Diameter",
+    "ApiField": "Diameter",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "ShortName": "Diameter"
+  },
+  {
+    "FieldName": "dValue",
+    "Type": "DOUBLE",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.PhysicalDimensions.Diameter.dValue",
+    "ApiPath": "#qualifiers.versions.PhysicalDimensions.Diameter.dValue",
+    "ApiField": "dValue",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "Value",
+    "ShortName": "Valeur"
+  },
+  {
+    "FieldName": "unit",
+    "Type": "KEYWORD",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.PhysicalDimensions.Diameter.unit",
+    "ApiPath": "#qualifiers.versions.PhysicalDimensions.Diameter.unit",
+    "ApiField": "unit",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "unit",
+    "ShortName": "Unité"
+  },
+  {
+    "FieldName": "Height",
+    "Type": "OBJECT",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.PhysicalDimensions.Height",
+    "ApiPath": "#qualifiers.versions.PhysicalDimensions.Height",
+    "ApiField": "Height",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "ShortName": "Height"
+  },
+  {
+    "FieldName": "dValue",
+    "Type": "DOUBLE",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.PhysicalDimensions.Height.dValue",
+    "ApiPath": "#qualifiers.versions.PhysicalDimensions.Height.dValue",
+    "ApiField": "dValue",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "Value",
+    "ShortName": "Valeur"
+  },
+  {
+    "FieldName": "unit",
+    "Type": "KEYWORD",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.PhysicalDimensions.Height.unit",
+    "ApiPath": "#qualifiers.versions.PhysicalDimensions.Height.unit",
+    "ApiField": "unit",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "unit",
+    "ShortName": "Unité"
+  },
+  {
+    "FieldName": "Length",
+    "Type": "OBJECT",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.PhysicalDimensions.Length",
+    "ApiPath": "#qualifiers.versions.PhysicalDimensions.Length",
+    "ApiField": "Length",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "ShortName": "Length"
+  },
+  {
+    "FieldName": "dValue",
+    "Type": "DOUBLE",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.PhysicalDimensions.Length.dValue",
+    "ApiPath": "#qualifiers.versions.PhysicalDimensions.Length.dValue",
+    "ApiField": "dValue",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "Value",
+    "ShortName": "Valeur"
+  },
+  {
+    "FieldName": "unit",
+    "Type": "KEYWORD",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.PhysicalDimensions.Length.unit",
+    "ApiPath": "#qualifiers.versions.PhysicalDimensions.Length.unit",
+    "ApiField": "unit",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "unit",
+    "ShortName": "Unité"
+  },
+  {
+    "FieldName": "NumberOfPage",
+    "Type": "LONG",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.PhysicalDimensions.NumberOfPage",
+    "ApiPath": "#qualifiers.versions.PhysicalDimensions.NumberOfPage",
+    "ApiField": "NumberOfPage",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "NumberOfPage",
+    "ShortName": "Nombre de pages"
+  },
+  {
+    "FieldName": "Shape",
+    "Type": "KEYWORD",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.PhysicalDimensions.Shape",
+    "ApiPath": "#qualifiers.versions.PhysicalDimensions.Shape",
+    "ApiField": "Shape",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "Shape",
+    "ShortName": "Forme"
+  },
+  {
+    "FieldName": "Thickness",
+    "Type": "OBJECT",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.PhysicalDimensions.Thickness",
+    "ApiPath": "#qualifiers.versions.PhysicalDimensions.Thickness",
+    "ApiField": "Thickness",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "ShortName": "Thickness"
+  },
+  {
+    "FieldName": "dValue",
+    "Type": "DOUBLE",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.PhysicalDimensions.Thickness.dValue",
+    "ApiPath": "#qualifiers.versions.PhysicalDimensions.Thickness.dValue",
+    "ApiField": "dValue",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "Value",
+    "ShortName": "Valeur"
+  },
+  {
+    "FieldName": "unit",
+    "Type": "KEYWORD",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.PhysicalDimensions.Thickness.unit",
+    "ApiPath": "#qualifiers.versions.PhysicalDimensions.Thickness.unit",
+    "ApiField": "unit",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "unit",
+    "ShortName": "Unité"
+  },
+  {
+    "FieldName": "Weight",
+    "Type": "OBJECT",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.PhysicalDimensions.Weight",
+    "ApiPath": "#qualifiers.versions.PhysicalDimensions.Weight",
+    "ApiField": "Weight",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "ShortName": "Weight"
+  },
+  {
+    "FieldName": "dValue",
+    "Type": "DOUBLE",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.PhysicalDimensions.Weight.dValue",
+    "ApiPath": "#qualifiers.versions.PhysicalDimensions.Weight.dValue",
+    "ApiField": "dValue",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "Value",
+    "ShortName": "Valeur"
+  },
+  {
+    "FieldName": "unit",
+    "Type": "KEYWORD",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.PhysicalDimensions.Weight.unit",
+    "ApiPath": "#qualifiers.versions.PhysicalDimensions.Weight.unit",
+    "ApiField": "unit",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "unit",
+    "ShortName": "Unité"
+  },
+  {
+    "FieldName": "Width",
+    "Type": "OBJECT",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.PhysicalDimensions.Width",
+    "ApiPath": "#qualifiers.versions.PhysicalDimensions.Width",
+    "ApiField": "Width",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "ShortName": "Width"
+  },
+  {
+    "FieldName": "dValue",
+    "Type": "DOUBLE",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.PhysicalDimensions.Width.dValue",
+    "ApiPath": "#qualifiers.versions.PhysicalDimensions.Width.dValue",
+    "ApiField": "dValue",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "Value",
+    "ShortName": "Valeur"
+  },
+  {
+    "FieldName": "unit",
+    "Type": "KEYWORD",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.PhysicalDimensions.Width.unit",
+    "ApiPath": "#qualifiers.versions.PhysicalDimensions.Width.unit",
+    "ApiField": "unit",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "unit",
+    "ShortName": "Unité"
+  },
+  {
+    "FieldName": "PhysicalId",
+    "Type": "KEYWORD",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.PhysicalId",
+    "ApiPath": "#qualifiers.versions.PhysicalId",
+    "ApiField": "PhysicalId",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "PhysicalId",
+    "ShortName": "Identifiant d'objet physique"
+  },
+  {
+    "FieldName": "Size",
+    "Type": "LONG",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.Size",
+    "ApiPath": "#qualifiers.versions.Size",
+    "ApiField": "Size",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "Size",
+    "ShortName": "Taille (en octets)"
+  },
+  {
+    "FieldName": "Uri",
+    "Type": "KEYWORD",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions.Uri",
+    "ApiPath": "#qualifiers.versions.Uri",
+    "ApiField": "Uri",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "Uri",
+    "ShortName": "Uri"
+  },
+  {
+    "FieldName": "_id",
+    "Type": "KEYWORD",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions._id",
+    "ApiPath": "#qualifiers.versions.#id",
+    "ApiField": "#id",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "ShortName": "Identifiant du groupe d'objets"
+  },
+  {
+    "FieldName": "_opi",
+    "Type": "KEYWORD",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions._opi",
+    "ApiPath": "#qualifiers.versions.#opi",
+    "ApiField": "#opi",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "ShortName": "Opération initiale"
+  },
+  {
+    "FieldName": "_storage",
+    "Type": "OBJECT",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions._storage",
+    "ApiPath": "#qualifiers.versions.#storage",
+    "ApiField": "#storage",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "ShortName": "_storage"
+  },
+  {
+    "FieldName": "_nbc",
+    "Type": "LONG",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions._storage._nbc",
+    "ApiPath": "#qualifiers.versions.#storage.#nbc",
+    "ApiField": "#nbc",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "ShortName": "Nombre d’objets"
+  },
+  {
+    "FieldName": "offerIds",
+    "Type": "KEYWORD",
+    "Origin": "INTERNAL",
+    "Cardinality": "MANY",
+    "Indexed": true,
+    "Path": "_qualifiers.versions._storage.offerIds",
+    "ApiPath": "#qualifiers.versions.#storage.offerIds",
+    "ApiField": "offerIds",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "ShortName": "offerIds"
+  },
+  {
+    "FieldName": "strategyId",
+    "Type": "KEYWORD",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_qualifiers.versions._storage.strategyId",
+    "ApiPath": "#qualifiers.versions.#storage.strategyId",
+    "ApiField": "strategyId",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "ShortName": "strategyId"
+  },
+  {
+    "FieldName": "_sp",
+    "Type": "KEYWORD",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_sp",
+    "ApiPath": "#originating_agency",
+    "ApiField": "#originating_agency",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "SedaField": "OriginatingAgencyIdentifier",
+    "ShortName": "Service producteur"
+  },
+  {
+    "FieldName": "_sps",
+    "Type": "KEYWORD",
+    "Origin": "INTERNAL",
+    "Cardinality": "MANY",
+    "Indexed": true,
+    "Path": "_sps",
+    "ApiPath": "#originating_agencies",
+    "ApiField": "#originating_agencies",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "ShortName": "Services producteurs liés à l’unité archivistique"
+  },
+  {
+    "FieldName": "_storage",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
     "Cardinality": "ONE",
     "Indexed": true,
     "Path": "_storage",
+    "ApiPath": "#storage",
+    "ApiField": "#storage",
     "Collections": [
       "ObjectGroup"
     ],
@@ -723,15 +1885,99 @@
       "2.1",
       "2.2",
       "2.3"
-    ]
+    ],
+    "StringSize": "SHORT",
+    "ShortName": "_storage"
   },
   {
-    "Identifier": "_uds",
+    "FieldName": "_nbc",
+    "Type": "LONG",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_storage._nbc",
+    "ApiPath": "#storage.#nbc",
+    "ApiField": "#nbc",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "ShortName": "Nombre d’objets"
+  },
+  {
+    "FieldName": "offerIds",
+    "Type": "KEYWORD",
+    "Origin": "INTERNAL",
+    "Cardinality": "MANY",
+    "Indexed": true,
+    "Path": "_storage.offerIds",
+    "ApiPath": "#storage.offerIds",
+    "ApiField": "offerIds",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "ShortName": "offerIds"
+  },
+  {
+    "FieldName": "strategyId",
+    "Type": "KEYWORD",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_storage.strategyId",
+    "ApiPath": "#storage.strategyId",
+    "ApiField": "strategyId",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "ShortName": "strategyId"
+  },
+  {
+    "FieldName": "_tenant",
+    "Type": "LONG",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_tenant",
+    "ApiPath": "#tenant",
+    "ApiField": "#tenant",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "ShortName": "Tenant"
+  },
+  {
+    "FieldName": "_uds",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
     "Cardinality": "ONE",
     "Indexed": true,
     "Path": "_uds",
+    "ApiPath": "#uds",
+    "ApiField": "#uds",
     "Collections": [
       "ObjectGroup"
     ],
@@ -739,6 +1985,68 @@
       "2.1",
       "2.2",
       "2.3"
-    ]
+    ],
+    "StringSize": "SHORT",
+    "ShortName": "_uds"
+  },
+  {
+    "FieldName": "_up",
+    "Type": "KEYWORD",
+    "Origin": "INTERNAL",
+    "Cardinality": "MANY",
+    "Indexed": true,
+    "Path": "_up",
+    "ApiPath": "#unitups",
+    "ApiField": "#unitups",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "ShortName": "Identifiant(s) des unités archivistiques parentes (parents immédiats)"
+  },
+  {
+    "FieldName": "_us",
+    "Type": "KEYWORD",
+    "Origin": "INTERNAL",
+    "Cardinality": "MANY",
+    "Indexed": true,
+    "Path": "_us",
+    "ApiPath": "#allunitups",
+    "ApiField": "#allunitups",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "ShortName": "Identifiant(s) des unités archivistiques parentes"
+  },
+  {
+    "FieldName": "_v",
+    "Type": "LONG",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_v",
+    "ApiPath": "#version",
+    "ApiField": "#version",
+    "Collections": [
+      "ObjectGroup"
+    ],
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "ShortName": "Version"
   }
 ]

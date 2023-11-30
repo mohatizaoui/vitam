@@ -738,13 +738,15 @@ public class AccessExternalIT extends VitamRuleRunner {
         assertThat(schemaModelUnit).isNotEmpty();
         Optional<SchemaModel> algorithSchemaEltOpt =
             schemaModelUnit.stream().filter(
-                    schemaElt -> "Signature.ReferencedObject.SignedObjectDigest.Algorithm".equals(schemaElt.getPath()))
+                    schemaElt -> "_qualifiers.versions.Algorithm".equals(schemaElt.getPath()))
                 .findAny();
         assertThat(algorithSchemaEltOpt).isPresent();
         SchemaModel algorithSchemaElt = algorithSchemaEltOpt.get();
 
         assertEquals(algorithSchemaElt.getType(), SchemaType.KEYWORD);
         assertEquals(algorithSchemaElt.getSedaField(), "Algorithm");
+        assertEquals(algorithSchemaElt.getPath(), "_qualifiers.versions.Algorithm");
+        assertEquals(algorithSchemaElt.getApiPath(), "#qualifiers.versions.Algorithm");
         assertEquals(algorithSchemaElt.getCollections(), List.of("ObjectGroup"));
         assertEquals(algorithSchemaElt.getCardinality(), OntologyCardinality.ONE);
         assertThat(algorithSchemaElt.getSedaVersions().contains("2.1"));
@@ -754,7 +756,8 @@ public class AccessExternalIT extends VitamRuleRunner {
 
         Optional<SchemaModel> persistentIdentifierContentSchemaEltOpt =
             schemaModelUnit.stream()
-                .filter(schemaElt -> "PersistentIdentifier.PersistentIdentifierContent".equals(schemaElt.getPath()))
+                .filter(schemaElt -> "_qualifiers.versions.PersistentIdentifier.PersistentIdentifierContent".equals(
+                    schemaElt.getPath()))
                 .findAny();
         assertThat(persistentIdentifierContentSchemaEltOpt).isPresent();
         SchemaModel persistentIdentifierContentElt = persistentIdentifierContentSchemaEltOpt.get();
@@ -766,7 +769,7 @@ public class AccessExternalIT extends VitamRuleRunner {
         assertThat(persistentIdentifierContentElt.getSedaVersions().contains("2.2"));
         assertThat(persistentIdentifierContentElt.getSedaVersions().contains("2.3"));
         assertThat(!persistentIdentifierContentElt.getSedaVersions().contains("2.1"));
-        
+
     }
 
 }

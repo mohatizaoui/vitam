@@ -1,0 +1,95 @@
+{
+  "httpCode": 200,
+  "$hits": {
+    "total": 696,
+    "offset": 0,
+    "limit": 0,
+    "size": 4
+  },
+  "$results": [
+    {
+      "FieldName": "AcquiredDate",
+      "SedaField": "AcquiredDate",
+      "Collections": [
+        "Unit"
+      ],
+      "Description": "Références : ARKMS.DateAcquired",
+      "Type": "DATE",
+      "Origin": "INTERNAL",
+      "Indexed": "true",
+      "ShortName": "Date de numérisation",
+      "Path": "AcquiredDate",
+      "SedaVersions": [
+        "2.1",
+        "2.2",
+        "2.3"
+      ],
+      "Cardinality": "ONE",
+      "StringSize": "SHORT",
+      "ApiPath": "AcquiredDate",
+      "Category": "OTHER"
+    },
+    {
+      "FieldName": "BirthDate",
+      "SedaField": "BirthDate",
+      "Collections": [
+        "Unit"
+      ],
+      "Description": "Date de naissance ",
+      "Type": "DATE",
+      "Origin": "INTERNAL",
+      "Indexed": "true",
+      "ShortName": "Date de naissance",
+      "Path": "Addressee.BirthDate",
+      "SedaVersions": [
+        "2.1"
+      ],
+      "Cardinality": "ONE",
+      "StringSize": "SHORT",
+      "ApiPath": "Addressee.BirthDate",
+      "Category": "DESCRIPTION"
+    },
+    {
+      "FieldName": "BirthDate",
+      "SedaField": "BirthDate",
+      "Collections": [
+        "Unit"
+      ],
+      "Description": "Date de naissance  JJ/MM/AAAA",
+      "Type": "DATE",
+      "Origin": "INTERNAL",
+      "Indexed": "true",
+      "ShortName": "Date de naissance",
+      "Path": "AuthorizedAgent.BirthDate",
+      "SedaVersions": [
+        "2.1"
+      ],
+      "Cardinality": "ONE",
+      "StringSize": "SHORT",
+      "ApiPath": "AuthorizedAgent.BirthDate",
+      "Category": "DESCRIPTION"
+    },
+    {
+      "FieldName": "BirthDate",
+      "SedaField": "BirthDate",
+      "Collections": [
+        "Unit"
+      ],
+      "Description": "Date de naissance ",
+      "Type": "DATE",
+      "Origin": "INTERNAL",
+      "Indexed": "true",
+      "ShortName": "Date de naissance",
+      "Path": "Agent.BirthDate",
+      "SedaVersions": [
+        "2.1"
+      ],
+      "Cardinality": "ONE",
+      "StringSize": "SHORT",
+      "ApiPath": "Agent.BirthDate",
+      "Category": "DESCRIPTION"
+    }
+  ],
+  "$facetResults": [],
+  "$context": {}
+}

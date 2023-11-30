@@ -1,0 +1,76 @@
+{
+  "httpCode": 200,
+  "$hits": {
+    "total": 696,
+    "offset": 0,
+    "limit": 0,
+    "size": 3
+  },
+  "$results": [
+    {
+      "FieldName": "Algorithm",
+      "Path": "_qualifiers.versions.Algorithm",
+      "Indexed": "true",
+      "Cardinality": "ONE",
+      "ShortName": "Algorithme",
+      "StringSize": "SHORT",
+      "Origin": "INTERNAL",
+      "SedaVersions": [
+        "2.1",
+        "2.2",
+        "2.3"
+      ],
+      "Collections": [
+        "ObjectGroup"
+      ],
+      "Type": "KEYWORD",
+      "SedaField": "Algorithm",
+      "Description": "Algorithme",
+      "ApiPath": "_qualifiers.versions.Algorithm"
+    },
+    {
+      "FieldName": "_glpd",
+      "Collections": [
+        "ObjectGroup"
+      ],
+      "Description": "Mapping : unit-es-mapping.json",
+      "Type": "DATE",
+      "Origin": "INTERNAL",
+      "ApiField": "#graph_last_persisted_date",
+      "Indexed": "false",
+      "ShortName": "_glpd",
+      "Path": "_glpd",
+      "SedaVersions": [
+        "2.1",
+        "2.2",
+        "2.3"
+      ],
+      "Cardinality": "ONE",
+      "StringSize": "SHORT",
+      "ApiPath": "#graph_last_persisted_date"
+    },
+    {
+      "FieldName": "_nbc",
+      "Collections": [
+        "ObjectGroup"
+      ],
+      "Description": "Nombre d'objets correspondant à un usage ou à un groupe d'objets.",
+      "Type": "LONG",
+      "Origin": "INTERNAL",
+      "ApiField": "_nbc",
+      "Indexed": "true",
+      "ShortName": "Nombre d'objets",
+      "Path": "_nbc",
+      "SedaVersions": [
+        "2.1",
+        "2.2",
+        "2.3"
+      ],
+      "Cardinality": "ONE",
+      "StringSize": "SHORT",
+      "ApiPath": "_nbc"
+    }
+  ],
+  "$facetResults": [],
+  "$context": {}
+}
