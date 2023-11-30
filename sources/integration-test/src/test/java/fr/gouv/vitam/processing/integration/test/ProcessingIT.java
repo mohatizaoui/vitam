@@ -320,6 +320,8 @@ public class ProcessingIT extends VitamRuleRunner {
     private static final String SIP_FILE_1791_CA2 = "integration-processing/SIP_FILE_1791_CA2.zip";
 
     private static final String OK_SIP_SIGNATURE = "integration-processing/Signature_OK.zip";
+    private static final String SIP_SIGNATURE_ELECTRONIQUE_KO =
+        "integration-processing/KO_SIP_SIGNATURE_ELECTRONIQUE.zip";
 
     private static final String SIP_ARBRE_3062 = "integration-processing/3062_arbre.zip";
 
@@ -2214,6 +2216,47 @@ public class ProcessingIT extends VitamRuleRunner {
         prepareVitamSession();
 
         ingestSIP(OK_SIP_SIGNATURE, DEFAULT_WORKFLOW.name(), StatusCode.OK);
+    }
+
+    @RunWithCustomExecutor
+    @Test
+    public void testWorkflowKOSIPSignature() throws Exception {
+        // prepareVitamSignatureSession();
+        prepareVitamSession();
+        String ingestContainerName = ingestSIP(SIP_SIGNATURE_ELECTRONIQUE_KO, DEFAULT_WORKFLOW.name(), StatusCode.KO);
+        LogbookOperationsClient logbookClient = LogbookOperationsClientFactory.getInstance().getClient();
+        JsonNode logbookResult = logbookClient.selectOperationById(ingestContainerName);
+        JsonNode events = logbookResult.get(TAG_RESULTS).get(0).get("events");
+
+
+        JsonNode checkUnitSchemaEvent = IteratorUtils.find(events.iterator(),
+            e -> e.get(OUT_DETAIL).asText().equals("CHECK_UNIT_SCHEMA.MISSING_DECLARED_SIGNATURE.KO"));
+        assertThat(checkUnitSchemaEvent).isNotNull();
+
+
+        ArrayList<Document> logbookLifeCycleUnits =
+            Lists.newArrayList(LogbookCollections.LIFECYCLE_UNIT.getCollection().find().iterator());
+        List<Document> currentLogbookLifeCycleUnits =
+            logbookLifeCycleUnits.stream().filter(t -> t.get("evIdProc").equals(ingestContainerName))
+                .collect(Collectors.toList());
+
+        currentLogbookLifeCycleUnits.forEach((lifecycle) -> {
+            List<Document> eventsLfc = lifecycle.getList("events", Document.class);
+            List<Document> lifecycleEvent =
+                eventsLfc.stream()
+                    .filter(t -> t.get("outDetail").equals("CHECK_UNIT_SCHEMA.MISSING_DECLARED_SIGNATURE.KO"))
+                    .collect(Collectors.toList());
+
+            String evDetData = Iterables.getOnlyElement(lifecycleEvent).getString(EVENT_DETAILS);
+            assertThat(evDetData).containsIgnoringCase("diff");
+            assertThat(evDetData).contains(ingestContainerName);
+            assertThat(Iterables.getOnlyElement(lifecycleEvent).getString("outMessg")).isEqualTo(
+                "Contrôle de documents signés électroniquement : signature associée obligatoire manquante");
+
+        });
+
+
+
     }
 
     @RunWithCustomExecutor

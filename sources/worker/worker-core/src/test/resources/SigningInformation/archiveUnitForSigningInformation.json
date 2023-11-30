@@ -1,0 +1,56 @@
+{
+  "ArchiveUnit": {
+    "DescriptionLevel": "Item",
+    "Title": "requete_dsl_gps",
+    "Description": "Pseudo Archive Unit du fichier :/home/pipav/Bureau/relationship/requete_dsl_gps",
+    "TransactedDate": "2017-08-30T11:10:03",
+    "SigningInformation": {
+      "SigningRole": [],
+      "DetachedSigningRole": [],
+      "SignatureDescription": [
+        {
+          "Signer": {
+            "FirstName": "Fulgence Marie Auguste",
+            "BirthName": "Bienvenüe"
+          },
+          "Validator": {
+          },
+          "SigningType": "QualifiedSignature"
+        }
+      ],
+      "TimestampingInformation": [
+        {
+          "TimeStamp": "2017-04-04T08:07:06",
+          "AdditionalTimestampingInformation": "ExtraInfo"
+        }
+      ],
+      "AdditionalProof": [
+        {
+          "AdditionalProofInformation": [
+            "ExtraInfo1",
+            "ExtraInfo2"
+          ]
+        }
+      ],
+      "Extended": {
+        "ExtraField1": [
+          "Val1",
+          "Val2"
+        ],
+        "ExtraField2": [
+          {
+            "SubField2": [
+              "Val3"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "_work": {
+    "_up": [
+      "aeaqaaaaaaeaaaabduftiammcy2fqaqaaabq"
+    ],
+    "RulesToApply": []
+  }
+}

@@ -240,6 +240,10 @@
               {
                 "name": "ontology.file",
                 "uri": "WORKSPACE:Ontology/ontology.json"
+              },
+              {
+                "name": "contracts.json",
+                "uri": "WORKSPACE:referential/contracts.json"
               }
             ],
             "out": [

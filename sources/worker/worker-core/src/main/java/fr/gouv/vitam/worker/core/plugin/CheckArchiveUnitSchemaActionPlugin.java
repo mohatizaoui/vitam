@@ -39,6 +39,8 @@ import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.common.model.IngestWorkflowConstants;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.common.model.administration.ContractsDetailsModel;
+import fr.gouv.vitam.common.model.administration.IngestContractModel;
 import fr.gouv.vitam.common.model.administration.OntologyModel;
 import fr.gouv.vitam.common.performance.PerformanceLogger;
 import fr.gouv.vitam.common.security.SanityChecker;
@@ -48,6 +50,8 @@ import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.worker.common.HandlerIO;
 import fr.gouv.vitam.worker.core.handler.ActionHandler;
+import fr.gouv.vitam.worker.core.plugin.signingInformation.IngestContractChecker;
+import fr.gouv.vitam.worker.core.plugin.signingInformation.exception.SigningInformationException;
 import fr.gouv.vitam.worker.core.validation.MetadataValidationProvider;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageNotFoundException;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
@@ -70,8 +74,7 @@ public class CheckArchiveUnitSchemaActionPlugin extends ActionHandler {
     private static final String CHECK_UNIT_SCHEMA_TASK_ID = "CHECK_UNIT_SCHEMA";
 
     private static final int UNIT_OUT_RANK = 0;
-
-    private static final int ONTOLOGY_IN_RANK = 0;
+    private static final int REFERENTIAL_INGEST_CONTRACT_IN_RANK = 1;
     private static final String UNIT_SANITIZE = "UNIT_SANITIZE";
 
     private static final String ONTOLOGY_VALIDATION = "ONTOLOGY_VALIDATION";
@@ -112,7 +115,19 @@ public class CheckArchiveUnitSchemaActionPlugin extends ActionHandler {
         final ItemStatus itemStatus = new ItemStatus(CHECK_UNIT_SCHEMA_TASK_ID);
 
         try {
-            checkAUJsonAgainstSchema(handler, params, itemStatus);
+
+            ObjectNode archiveUnit = loadArchiveUnit(handler, params, itemStatus);
+            checkAUJsonAgainstSchema(handler, params, archiveUnit);
+
+
+            Stopwatch checkUnitTime = Stopwatch.createStarted();
+            IngestContractModel contractModel = loadIngestContractFromWorkspace(handler);
+            IngestContractChecker checkUnitActionHandler = new IngestContractChecker(archiveUnit, contractModel);
+            checkUnitActionHandler.check();
+            PerformanceLogger.getInstance()
+                .log("STP_UNIT_CHECK_AND_PROCESS", CHECK_UNIT_SCHEMA_TASK_ID, "checkUnit",
+                    checkUnitTime.elapsed(TimeUnit.MILLISECONDS));
+
 
             itemStatus.increment(StatusCode.OK);
             return new ItemStatus(CHECK_UNIT_SCHEMA_TASK_ID).setItemsStatus(CHECK_UNIT_SCHEMA_TASK_ID,
@@ -184,6 +199,15 @@ public class CheckArchiveUnitSchemaActionPlugin extends ActionHandler {
             itemStatus.setEvDetailData(JsonHandler.unprettyPrint(object));
             return new ItemStatus(CHECK_UNIT_SCHEMA_TASK_ID).setItemsStatus(CHECK_UNIT_SCHEMA_TASK_ID,
                 itemStatus);
+        } catch (SigningInformationException e) {
+            LOGGER.error(e.getMessage());
+            itemStatus.setGlobalOutcomeDetailSubcode(e.getErrorCode());
+            itemStatus.increment(StatusCode.KO);
+            final ObjectNode object = JsonHandler.createObjectNode();
+            object.put(SedaConstants.EV_DET_TECH_DATA, e.getMessage());
+            itemStatus.setEvDetailData(JsonHandler.unprettyPrint(object));
+            return new ItemStatus(itemStatus.getItemId()).setItemsStatus(itemStatus.getItemId(),
+                itemStatus);
         } catch (final Exception e) {
             LOGGER.error(e);
             itemStatus.increment(StatusCode.FATAL);
@@ -191,39 +215,16 @@ public class CheckArchiveUnitSchemaActionPlugin extends ActionHandler {
         }
     }
 
-    private void checkAUJsonAgainstSchema(HandlerIO handlerIO, WorkerParameters params,
-        ItemStatus itemStatus)
+    private void checkAUJsonAgainstSchema(HandlerIO handlerIO, WorkerParameters params, ObjectNode archiveUnit)
         throws ProcessingException, MetadataValidationException {
         final String objectName = params.getObjectName();
-
-        // Load data
-        ObjectNode archiveUnit;
-        try (InputStream archiveUnitToJson =
-            handlerIO.getInputStreamFromWorkspace(IngestWorkflowConstants.ARCHIVE_UNIT_FOLDER +
-                File.separator + objectName)) {
-
-            archiveUnit = (ObjectNode) JsonHandler.getFromInputStream(archiveUnitToJson);
-
-        } catch (InvalidParseOperationException |
-            ContentAddressableStorageNotFoundException | ContentAddressableStorageServerException |
-            IOException e) {
-            throw new ProcessingException(WORKSPACE_SERVER_ERROR, e);
-        }
-
-        // sanityChecker
-        try {
-            SanityChecker.checkJsonAll(archiveUnit);
-        } catch (InvalidParseOperationException e) {
-            itemStatus.setGlobalOutcomeDetailSubcode(INVALID_UNIT);
-            final String err = "Sanity Checker failed for Archive Unit: " + e.getMessage();
-            throw new MetaDataContainSpecialCharactersException(err, e);
-        }
 
         // Ontology verification and format conversion in needed
         Stopwatch ontologyTime = Stopwatch.createStarted();
 
         JsonNode archiveUnitJson = archiveUnit.get(SedaConstants.TAG_ARCHIVE_UNIT);
-        ObjectNode updatedArchiveUnitJson = metadataValidationProvider.getUnitOntologyValidator().verifyAndReplaceFields(archiveUnitJson);
+        ObjectNode updatedArchiveUnitJson =
+            metadataValidationProvider.getUnitOntologyValidator().verifyAndReplaceFields(archiveUnitJson);
         archiveUnit.set(SedaConstants.TAG_ARCHIVE_UNIT, updatedArchiveUnitJson);
         boolean isUpdateJsonMandatory = !archiveUnitJson.equals(updatedArchiveUnitJson);
 
@@ -246,5 +247,41 @@ public class CheckArchiveUnitSchemaActionPlugin extends ActionHandler {
 
         PerformanceLogger.getInstance().log("STP_UNIT_CHECK_AND_PROCESS", CHECK_UNIT_SCHEMA_TASK_ID, "validationJson",
             validationJson.elapsed(TimeUnit.MILLISECONDS));
+    }
+
+    private ObjectNode loadArchiveUnit(HandlerIO handlerIO, WorkerParameters params, ItemStatus itemStatus)
+        throws ProcessingException {
+        ObjectNode archiveUnit;
+        final String objectName = params.getObjectName();
+        try (InputStream archiveUnitToJson =
+            handlerIO.getInputStreamFromWorkspace(IngestWorkflowConstants.ARCHIVE_UNIT_FOLDER +
+                File.separator + objectName)) {
+
+            archiveUnit = (ObjectNode) JsonHandler.getFromInputStream(archiveUnitToJson);
+
+        } catch (InvalidParseOperationException |
+            ContentAddressableStorageNotFoundException | ContentAddressableStorageServerException |
+            IOException e) {
+            throw new ProcessingException(WORKSPACE_SERVER_ERROR, e);
+        }
+
+        // sanityChecker
+        try {
+            SanityChecker.checkJsonAll(archiveUnit);
+        } catch (InvalidParseOperationException e) {
+            itemStatus.setGlobalOutcomeDetailSubcode(INVALID_UNIT);
+            final String err = "Sanity Checker failed for Archive Unit: " + e.getMessage();
+            throw new MetaDataContainSpecialCharactersException(err, e);
+        }
+
+        return archiveUnit;
+    }
+
+    private IngestContractModel loadIngestContractFromWorkspace(HandlerIO handlerIO)
+        throws InvalidParseOperationException {
+        ContractsDetailsModel contractsDetailsModel =
+            JsonHandler.getFromFile((File) handlerIO.getInput(REFERENTIAL_INGEST_CONTRACT_IN_RANK),
+                ContractsDetailsModel.class);
+        return contractsDetailsModel.getIngestContractModel();
     }
 }
