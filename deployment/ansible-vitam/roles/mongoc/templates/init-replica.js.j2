@@ -9,7 +9,7 @@
  */
 
 function checkExistingReplicaSet() {
-
+    print("INFO: checkExistingReplicaSet");
     try {
         var rsStatus = rs.status();
 
@@ -33,6 +33,7 @@ function checkExistingReplicaSet() {
 }
 
 function checkExistingReplicaSetMembers() {
+    print("INFO: checkExistingReplicaSetMembers");
     try {
         var rsConfig = rs.config();
 
@@ -60,23 +61,22 @@ function checkExistingReplicaSetMembers() {
 }
 
 function buildTargetReplicaSetMemberConfiguration() {
+    print("INFO: buildTargetReplicaSetMemberConfiguration");
     var idCpt = 0;
-    let members = [ { _id: idCpt++, host: "{{ ip_service }}:{{ mongodb.mongoc_port }}" } ];
+    let members = [];
 {% for host in groups[group_name] %}
     {% if mongo_cluster_name == hostvars[host]['mongo_cluster_name'] %}
-        {% if hostvars[host]['mongo_rs_bootstrap'] is not defined or hostvars[host]['mongo_rs_bootstrap']|lower != "true" %}
     members.push({
         _id: idCpt++,
         host: "{{ hostvars[host]['ip_service'] }}:{{ mongodb.mongoc_port }}"
     });
-        {% endif %}
     {% endif %}
 {% endfor %}
     return members;
 }
 
 function initReplicaSetPrimary() {
-
+    print("INFO: initReplicaSetPrimary");
     let members = buildTargetReplicaSetMemberConfiguration();
 
     let rsInit = rs.initiate(
@@ -94,7 +94,7 @@ function initReplicaSetPrimary() {
 }
 
 function waitForReplicaSetPrimaryElection() {
-
+    print("INFO: waitForReplicaSetPrimaryElection");
     var status;
     for (let i = 0; i < 60; i++) {
 
@@ -105,7 +105,7 @@ function waitForReplicaSetPrimaryElection() {
             throw "ERROR : Cannot get mongoc replica set status";
         }
 
-        if (status.myState === 1) {
+        if (status.members.find(member => member.stateStr === 'PRIMARY')) {
             print("OK : mongoc replica set elected primary node");
             return;
         }
@@ -119,7 +119,7 @@ function waitForReplicaSetPrimaryElection() {
 }
 
 function waitForWritablePrimary() {
-
+    print("INFO: waitForWritablePrimary");
     var instanceStatus;
     for (let i = 0; i < 60; i++) {
 
@@ -131,7 +131,7 @@ function waitForWritablePrimary() {
         }
 
         if (instanceStatus.isWritablePrimary) {
-            print("OK : Primary node is writable");
+            print("OK : Primary node " + instanceStatus.primary + " is writable");
             return;
         }
 
