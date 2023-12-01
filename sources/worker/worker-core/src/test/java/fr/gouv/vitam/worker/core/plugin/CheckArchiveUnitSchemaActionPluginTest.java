@@ -24,6 +24,7 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
+
 package fr.gouv.vitam.worker.core.plugin;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -104,6 +105,7 @@ public class CheckArchiveUnitSchemaActionPluginTest {
         "checkArchiveUnitSchemaActionPlugin/archive-unit_KO_DescriptionLevel.json";
     private static final String ARCHIVE_UNIT_STARTDATE_AFTER_ENDDATE =
         "checkArchiveUnitSchemaActionPlugin/archive-unit_KO_startDate.json";
+    private static final String INGEST_CONTRACT = "CheckDataObjectPackageActionHandler/ingestContractWithDetails.json";
 
     private final InputStream archiveUnit;
     private final InputStream archiveUnitNumber;
@@ -158,6 +160,7 @@ public class CheckArchiveUnitSchemaActionPluginTest {
 
     }
 
+
     @Before
     public void setUp() throws Exception {
         workspaceClient = mock(WorkspaceClient.class);
@@ -178,10 +181,15 @@ public class CheckArchiveUnitSchemaActionPluginTest {
 
         in = new ArrayList<>();
         in.add(new IOParameter().setUri(new ProcessingUri(UriPrefix.WORKSPACE, "Ontology/ontology.json")));
+        in.add(new IOParameter().setUri(new ProcessingUri(UriPrefix.WORKSPACE, "referential/contracts.json")));
 
         when(workspaceClient.getObject(any(), eq("Ontology/ontology.json")))
             .thenReturn(Response.status(Status.OK)
                 .entity(OntologyTestHelper.loadOntologies()).build());
+
+        final InputStream ingestContract = PropertiesUtils.getResourceAsStream(INGEST_CONTRACT);
+        when(workspaceClient.getObject(any(), eq("referential/contracts.json"))).thenReturn(
+            Response.status(Status.OK).entity(ingestContract).build());
         action.addInIOParameters(in);
 
         File tempFolder = temporaryFolder.newFolder();
