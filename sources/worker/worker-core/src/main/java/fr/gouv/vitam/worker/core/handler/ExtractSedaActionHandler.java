@@ -143,14 +143,12 @@ import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.worker.common.HandlerIO;
 import fr.gouv.vitam.worker.common.utils.SedaUtils;
 import fr.gouv.vitam.worker.common.utils.SedaUtilsFactory;
-import fr.gouv.vitam.worker.core.exception.InvalidDataObjectException;
 import fr.gouv.vitam.worker.core.exception.ProcessingStatusException;
 import fr.gouv.vitam.worker.core.exception.WorkerspaceQueueException;
 import fr.gouv.vitam.worker.core.extractseda.ExtractMetadataListener;
 import fr.gouv.vitam.worker.core.extractseda.IngestContext;
 import fr.gouv.vitam.worker.core.extractseda.IngestSession;
 import fr.gouv.vitam.worker.core.impl.HandlerIOImpl;
-import fr.gouv.vitam.worker.core.utils.DataObjectValidator;
 import fr.gouv.vitam.worker.core.utils.JsonLineDataBase;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageException;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageNotFoundException;
@@ -291,7 +289,6 @@ public class ExtractSedaActionHandler extends ActionHandler {
     private static final String ORIGIN_ANGENCY_SUBMISSION = "submissionAgency";
     private static final String ARCHIVAl_AGREEMENT = "ArchivalAgreement";
     private static final String ARCHIVAl_PROFIL = "ArchivalProfile";
-
     private static final String EV_DETAIL_REQ = "EvDetailReq";
     private static final String JSON_EXTENSION = ".json";
     private static final String DATA_OBJECT_GROUP = "DataObjectGroup";
@@ -299,7 +296,6 @@ public class ExtractSedaActionHandler extends ActionHandler {
     private static final String PHYSICAL_DATA_OBJECT = "PhysicalDataObject";
     private static final String ARCHIVE_UNIT = "ArchiveUnit";
     private static final String BINARY_MASTER = "BinaryMaster";
-
     private static final String BINARY_MASTER_1 = "BinaryMaster_1";
     private static final String PHYSICAL_MASTER = "PhysicalMaster";
     private static final String DATAOBJECT_PACKAGE = "DataObjectPackage";
@@ -311,7 +307,6 @@ public class ExtractSedaActionHandler extends ActionHandler {
     private static final String LOGBOOK_SERVER_INTERNAL_EXCEPTION_MSG = "Logbook Server internal error";
     private static final String DATA_OBJECT_VERSION_MUST_BE_UNIQUE = "ERROR: DataObject version must be unique";
     private static final String LEVEL = "level_";
-
     private static final String GRAPH_CYCLE_MSG = "The Archive Unit graph in the SEDA file has a cycle";
     private static final String CYCLE_FOUND_EXCEPTION = "Seda has an archive unit cycle ";
     private static final String SAVE_ARCHIVE_ID_TO_GUID_IOEXCEPTION_MSG =
@@ -322,13 +317,10 @@ public class ExtractSedaActionHandler extends ActionHandler {
     private static final String ARCHIVE_UNIT_TMP_FILE_PREFIX = "AU_TMP_";
     private static final String MISSING_STORAGE_INFO = "Missing one or more storage infos";
     private static final String GLOBAL_MGT_RULE_TAG = "GLOBAL_MGT_RULE";
-
     private final static List<Class<?>> HANDLER_INPUT_IO_LIST =
         Arrays.asList(String.class, String.class, File.class, File.class);
-
     private final static String namespaceURI = UNIFIED_NAMESPACE;
     private final static boolean asyncIO = true;
-
     private static JAXBContext jaxbContext;
 
     static {
@@ -500,11 +492,6 @@ public class ExtractSedaActionHandler extends ActionHandler {
                 globalCompositeItemStatus.setData(LogbookMongoDbName.rightsStatementIdentifier.getDbname(),
                     rightsStatementIdentifier.toString());
             }
-
-        } catch (final InvalidDataObjectException e) {
-            LOGGER.error(e.getMessage());
-            updateDetailItemStatus(globalCompositeItemStatus, e.getMessage(), null);
-            globalCompositeItemStatus.increment(StatusCode.KO);
         } catch (final ProcessingDuplicatedVersionException e) {
             LOGGER.debug("ProcessingException: duplicated version", e);
             globalCompositeItemStatus.increment(StatusCode.KO);
@@ -736,8 +723,7 @@ public class ExtractSedaActionHandler extends ActionHandler {
      */
     private ObjectNode extractSEDA(HandlerIO handlerIO, Unmarshaller unmarshaller, IngestContext ingestContext,
         IngestSession ingestSession, JsonLineDataBase unitsDatabase, JsonLineDataBase objectsDatabase,
-        ItemStatus globalCompositeItemStatus) throws ProcessingException, CycleFoundException,
-        InvalidDataObjectException {
+        ItemStatus globalCompositeItemStatus) throws ProcessingException, CycleFoundException {
         ParametersChecker.checkParameter("ContainerId is a mandatory parameter", ingestContext);
         ParametersChecker.checkParameter("itemStatus is a mandatory parameter", globalCompositeItemStatus);
 
@@ -2186,7 +2172,7 @@ public class ExtractSedaActionHandler extends ActionHandler {
 
     private void saveObjectGroupsToWorkspace(HandlerIO handlerIO, IngestContext ingestContext,
         IngestSession ingestSession, JsonLineDataBase objectsDatabase, JsonNode storageObjectGroupInfo,
-        JsonNode storageObjectInfo) throws ProcessingException, InvalidDataObjectException {
+        JsonNode storageObjectInfo) throws ProcessingException {
         boolean existingGot = false;
         Map<String, ObjectNode> listObjectToValidate = new HashMap<>();
 
@@ -2309,7 +2295,6 @@ public class ExtractSedaActionHandler extends ActionHandler {
                         nodeCategoryArray.add(dataObjectNodePosition, dataObjectNode);
                     }
                     categoryMap.put(nodeCategoryNumbered, nodeCategoryArray);
-                    DataObjectValidator.validateDataObject((ObjectNode) dataObjectNode);
                 }
 
                 File newLocalFile =

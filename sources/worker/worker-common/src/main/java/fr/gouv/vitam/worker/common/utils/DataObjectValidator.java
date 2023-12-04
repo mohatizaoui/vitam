@@ -24,11 +24,37 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.worker.core.exception;
+package fr.gouv.vitam.worker.common.utils;
 
-public class InvalidDataObjectException extends Exception {
-    public InvalidDataObjectException(final String message) {
-        super(message);
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class DataObjectValidator {
+
+    public static final Pattern DATA_OBJECT_VERSION_PATTERN = Pattern.compile("^[a-zA-Z]+(_[1-9]\\d{0,6})?$");
+    public static final String DATA_OBJECT_VERSION_NOT_DEFINED_MESSAGE = "Data object version is not defined";
+    public static final String DATA_OBJECT_VERSION_NOT_ALLOWED_MESSAGE = "Data object version pattern '%s' is not allowed";
+
+    public static void validateVersionDataObject(final String versionDataObject) throws InvalidDataObjectException {
+        checkDataObjectVersionPresence(versionDataObject);
+        validateDataObjectVersionFormat(versionDataObject);
     }
 
+    private static void checkDataObjectVersionPresence(final String dataObjectVersion)
+        throws InvalidDataObjectException {
+        if (StringUtils.isBlank(dataObjectVersion)) {
+            throw new InvalidDataObjectException(DATA_OBJECT_VERSION_NOT_DEFINED_MESSAGE);
+        }
+    }
+
+    private static void validateDataObjectVersionFormat(final String dataObjectVersion)
+        throws InvalidDataObjectException {
+        final Matcher matcher = DATA_OBJECT_VERSION_PATTERN.matcher(dataObjectVersion);
+        if (!matcher.matches()) {
+            final String message = String.format(DATA_OBJECT_VERSION_NOT_ALLOWED_MESSAGE, dataObjectVersion);
+            throw new InvalidDataObjectException(message);
+        }
+    }
 }
