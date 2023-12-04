@@ -60,13 +60,11 @@ import fr.gouv.vitam.common.model.administration.ActivationStatus;
 import fr.gouv.vitam.common.model.administration.IngestContractCheckState;
 import fr.gouv.vitam.common.model.administration.IngestContractModel;
 import fr.gouv.vitam.common.model.administration.ManagementContractModel;
-import fr.gouv.vitam.common.model.administration.PersistentIdentifierPolicy;
 import fr.gouv.vitam.common.model.administration.PersistentIdentifierPolicyTypeEnum;
 import fr.gouv.vitam.common.model.unit.ArchiveUnitRoot;
 import fr.gouv.vitam.common.model.unit.DataObjectReference;
 import fr.gouv.vitam.common.model.unit.DescriptiveMetadataModel;
 import fr.gouv.vitam.common.model.unit.GotObj;
-import fr.gouv.vitam.common.model.unit.PersistentIdentifierModel;
 import fr.gouv.vitam.common.model.unit.RuleCategoryModel;
 import fr.gouv.vitam.common.model.unit.RuleModel;
 import fr.gouv.vitam.common.model.unit.SignatureTypeModel;
@@ -92,6 +90,7 @@ import fr.gouv.vitam.processing.common.exception.ProcessingObjectReferenceExcept
 import fr.gouv.vitam.processing.common.exception.ProcessingTooManyUnitsFoundException;
 import fr.gouv.vitam.processing.common.exception.ProcessingUnitLinkingException;
 import fr.gouv.vitam.worker.common.HandlerIO;
+import fr.gouv.vitam.worker.core.handler.PersistentIdentifierGenerationService;
 import fr.gouv.vitam.worker.core.mapping.ArchiveUnitMapper;
 import fr.gouv.vitam.worker.core.mapping.DescriptiveMetadataMapper;
 import fr.gouv.vitam.worker.core.mapping.RuleMapper;
@@ -105,7 +104,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -145,6 +143,8 @@ public class ArchiveUnitListener {
     private boolean attachByIngestContractChecked = false;
     private final MetaDataClientFactory metaDataClientFactory;
 
+    private final PersistentIdentifierGenerationService persistentIdentifierGenerationService;
+
     /**
      * @param handlerIO
      */
@@ -158,6 +158,7 @@ public class ArchiveUnitListener {
         RuleMapper ruleMapper = new RuleMapper();
         archiveUnitMapper = new ArchiveUnitMapper(descriptiveMetadataMapper, ruleMapper);
         this.metaDataClientFactory = metaDataClientFactory;
+        this.persistentIdentifierGenerationService = PersistentIdentifierGenerationService.getInstance();
     }
 
     /**
@@ -238,8 +239,9 @@ public class ArchiveUnitListener {
                 ingestContext.getWorkflowUnitType().name(), ingestContext.getSedaVersion());
 
             ManagementContractModel managementContractModel = ingestContext.getManagementContractModel();
-
-            managePersistentIdentifierGeneration(archiveUnitRoot, elementGUID, managementContractModel);
+            fillManagementContract(archiveUnitRoot, managementContractModel);
+            persistentIdentifierGenerationService.handlePersistentIdentifierForUnit(archiveUnitRoot, elementGUID,
+                managementContractModel, PersistentIdentifierPolicyTypeEnum.ARK);
         } catch (ProcessingMalformedDataException | ProcessingObjectReferenceException e) {
             throw new VitamRuntimeException(e);
         }
@@ -275,46 +277,18 @@ public class ArchiveUnitListener {
         archiveUnitType.setArchiveUnitRefId(sedaAchiveUnitId);
     }
 
-    private void managePersistentIdentifierGeneration(final ArchiveUnitRoot archiveUnitRoot,
-        final String unitGUID, ManagementContractModel managementContractModel) {
+    private void fillManagementContract(ArchiveUnitRoot archiveUnitRoot,
+        ManagementContractModel managementContractModel) {
         if (Objects.isNull(managementContractModel)) {
             return;
         }
-
         if (ActivationStatus.INACTIVE.equals(managementContractModel.getStatus())) {
             return;
         }
-        if (Objects.isNull(managementContractModel.getPersistentIdentifierPolicyList())) {
-            return;
-        }
-        Optional<PersistentIdentifierPolicy> arkPolicy =
-            managementContractModel.getPersistentIdentifierPolicyList().stream()
-                .filter(policy -> policy.isPersistentIdentifierUnit() &&
-                    policy.getPersistentIdentifierPolicyType().equals(PersistentIdentifierPolicyTypeEnum.ARK))
-                .findFirst();
-        arkPolicy.ifPresent(persistentIdPolicy -> {
-            archiveUnitRoot.getArchiveUnit().setManagementContractId(managementContractModel.getIdentifier());
-
-            String persistentIdAuthority = persistentIdPolicy.getPersistentIdentifierAuthority();
-            PersistentIdentifierPolicyTypeEnum persistentIdPolicyType =
-                persistentIdPolicy.getPersistentIdentifierPolicyType();
-
-            PersistentIdentifierModel vitamPersistentIdentifierModel = new PersistentIdentifierModel();
-
-            vitamPersistentIdentifierModel.setPersistentIdentifierReference(persistentIdAuthority);
-            vitamPersistentIdentifierModel.setPersistentIdentifierType(
-                persistentIdPolicyType.name().toLowerCase());
-            vitamPersistentIdentifierModel.setPersistentIdentifierContent(
-                persistentIdPolicyType.name().toLowerCase() + ":/" + persistentIdAuthority + "/" + unitGUID);
-            if (Objects.isNull(archiveUnitRoot.getArchiveUnit().getDescriptiveMetadataModel()
-                .getPersistentIdentifier())) {
-                archiveUnitRoot.getArchiveUnit().getDescriptiveMetadataModel()
-                    .setPersistentIdentifier(new ArrayList<>());
-            }
-            archiveUnitRoot.getArchiveUnit().getDescriptiveMetadataModel()
-                .getPersistentIdentifier().add(vitamPersistentIdentifierModel);
-        });
+        archiveUnitRoot.getArchiveUnit().setManagementContractId(managementContractModel.getIdentifier());
     }
+
+
 
     private void fillCustodialHistoryReference(ArchiveUnitType archiveUnitType) {
         DescriptiveMetadataContentType content = archiveUnitType.getContent();

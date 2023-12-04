@@ -33,6 +33,7 @@ import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.mongodb.client.MongoIterable;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 import com.mongodb.client.result.UpdateResult;
@@ -158,6 +159,7 @@ import fr.gouv.vitam.worker.server.rest.WorkerMain;
 import fr.gouv.vitam.workspace.rest.WorkspaceMain;
 import io.restassured.RestAssured;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.api.Assertions;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -197,7 +199,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -553,7 +554,7 @@ public class IngestInternalIT extends VitamRuleRunner {
 
             RequestResponse<JsonNode> response = accessClient
                 .updateUnitbyId(updateQuery.getFinalUpdate(), unitId);
-            assertEquals(response.toJsonNode().get("$hits").get("size").asInt(), 1);
+            assertEquals(1, response.toJsonNode().get("$hits").get("size").asInt());
 
 
             VitamThreadUtils.getVitamSession().setRequestId(GUIDFactory.newOperationLogbookGUID(tenantId));
@@ -887,7 +888,7 @@ public class IngestInternalIT extends VitamRuleRunner {
 
             // check evDetData of checkManifest event
             JsonNode checkManifestEvent = lfc.get(LogbookDocument.EVENTS).get(0);
-            assertEquals(checkManifestEvent.get("evType").asText(), "LFC.CHECK_MANIFEST");
+            assertEquals("LFC.CHECK_MANIFEST", checkManifestEvent.get("evType").asText());
             assertNotNull(checkManifestEvent.get("_lastPersistedDate"));
             assertEquals(checkManifestEvent.get("evDetData").asText(),
                 "{\n  \"_up\" : [ \"" + linkParentId + "\" ]\n}");
@@ -1149,7 +1150,7 @@ public class IngestInternalIT extends VitamRuleRunner {
         assertNotNull(unit);
 
         // Check the added management rules
-        assertEquals(unit.get("#management").size(), 1);
+        assertEquals(1, unit.get("#management").size());
 
         // Check that only the rule declared in "ManagementMetaData" was added : StorageRule
         assertTrue(unit.get("#management").has("StorageRule"));
@@ -1175,7 +1176,7 @@ public class IngestInternalIT extends VitamRuleRunner {
         assertNotNull(unit);
 
         // Check the added management rules
-        assertEquals(unit.get("#management").size(), 2);
+        assertEquals(2, unit.get("#management").size());
 
         // Check that both the rules declared in "ManagementMetaData" and in the unit were added : StorageRule +
         // AccessRule
@@ -1203,7 +1204,7 @@ public class IngestInternalIT extends VitamRuleRunner {
         assertNotNull(unit);
 
         // Check the added management rules
-        assertEquals(unit.get("#management").size(), 1);
+        assertEquals(1, unit.get("#management").size());
 
         // Check that the rule declared in the unit was added : AccessRule
         assertTrue(unit.get("#management").has("AccessRule"));
@@ -1687,7 +1688,7 @@ public class IngestInternalIT extends VitamRuleRunner {
             result = accessInternalModule.selectUnit(newJson);
             assertThat(result).isNotNull();
             res = JsonHandler.getFromString(result.toString(), RequestResponseOK.class, JsonNode.class);
-            assertThat(res.getResults()).hasSize(0);
+            assertThat(res.getResults()).isEmpty();
 
 
             // Add Originating Agency Identifier1 then recheck. Should return one result
@@ -1737,7 +1738,7 @@ public class IngestInternalIT extends VitamRuleRunner {
             result = accessInternalModule.selectUnit(newJson);
             assertThat(result).isNotNull();
             res = JsonHandler.getFromString(result.toString(), RequestResponseOK.class, JsonNode.class);
-            assertThat(res.getResults()).hasSize(0);
+            assertThat(res.getResults()).isEmpty();
 
             // check rule filter
             Query query3 = QueryHelper.exists("Title");
@@ -2259,7 +2260,7 @@ public class IngestInternalIT extends VitamRuleRunner {
                 .toJsonNode();
         final JsonNode element = logbookOperation.get(RESULTS).get(0);
 
-        assertEquals(element.get("obIdIn").asText(), "vitam");
+        assertEquals("vitam", element.get("obIdIn").asText());
         assertThat(element.get("evParentId")).isExactlyInstanceOf(NullNode.class);
     }
 
@@ -2392,7 +2393,7 @@ public class IngestInternalIT extends VitamRuleRunner {
         assertNotNull(result);
 
         String identifierType = result.get(0).get("OriginatingAgency").get("Identifier").asText();
-        assertEquals(identifierType, "RATP");
+        assertEquals("RATP", identifierType);
         assertThat(
             result.get(0).get("OriginatingAgency").get("OrganizationDescriptiveMetadata").get("DescriptionOA").get(0)
                 .asText()).isEqualTo("La RATP est un établissement public");
@@ -2504,7 +2505,7 @@ public class IngestInternalIT extends VitamRuleRunner {
         Bson updateAfterTest = Updates.set(ProfileModel.TAG_PATH, profile.getPath());
         UpdateResult updateResultAfter =
             FunctionalAdminCollections.PROFILE.getCollection().updateOne(filterAfterUpdate, updateAfterTest);
-        assertEquals(updateResultAfter.getModifiedCount(), 1);
+        assertEquals(1, updateResultAfter.getModifiedCount());
     }
 
     private void putSystemIdInManifest(String targetFilename, String textToReplace, String replacementText)
@@ -2733,6 +2734,38 @@ public class IngestInternalIT extends VitamRuleRunner {
 
         assertTrue(binaryMasterVersions.get(0).getManagementContractId().startsWith("MC-"));
         assertTrue(binaryMasterVersions.get(1).getManagementContractId().startsWith("MC-"));
+        MongoIterable<Document> resultOGUpdated = MetadataCollections.OBJECTGROUP.getCollection()
+            .find(Filters.and(Filters.eq("_opi", operationId)));
+        Document ogUpdated = resultOGUpdated.first();
+        List<Document> qualifiers = (List<Document>) ogUpdated.get("_qualifiers");
+        for (Document documentQualifier : qualifiers) {
+            if (documentQualifier != null) {
+                if ("BinaryMaster".equals(documentQualifier.get("qualifier"))) {
+                    List<Document> versions = (List<Document>) documentQualifier.get("versions");
+                    for (Document documentVersion : versions) {
+                        String documentQualifierInVersion = (String) documentVersion.get("DataObjectVersion");
+                        String guid = (String) documentVersion.get("_id");
+                        String versionValue = StringUtils.substringAfterLast(documentQualifierInVersion, "_");
+
+                        if ("2".equals(versionValue)) { //Only LAST version
+                            List<Document> documentPersistentIdentifiers =
+                                (List<Document>) documentVersion.get("PersistentIdentifier");
+                            assertThat(documentPersistentIdentifiers).isNotNull();
+                            assertThat(documentPersistentIdentifiers.size() > 0).isTrue();
+                            String arkId =
+                                (String) documentPersistentIdentifiers.get(0).get("PersistentIdentifierContent");
+                            assertThat(arkId).isNotNull();
+                            assertEquals(arkId, "ark:/12354/" + guid);
+                        } else if ("1".equals(versionValue)) { //Initial version should not be generated
+                            List<Document> documentPersistentIdentifiers =
+                                (List<Document>) documentVersion.get("PersistentIdentifier");
+                            assertThat(documentPersistentIdentifiers).isNull();
+                        }
+                    }
+                }
+            }
+        }
+
     }
 
     @RunWithCustomExecutor
@@ -2786,19 +2819,28 @@ public class IngestInternalIT extends VitamRuleRunner {
 
         assertEquals(2, binaryMasterVersions.size());
 
-        IntStream.range(1, 2)
-            .forEach(binaryVersion -> {
-                assertTrue(binaryMasterVersions.get(binaryVersion).getManagementContractId().startsWith("MC-"));
+        for (VersionsModel versionsModel : binaryMasterVersions) {
+            if ("BinaryMaster_2".equals(versionsModel.getDataObjectVersion())) {
+                //Management contract allow Ark generation only for last
+                assertTrue(versionsModel.getManagementContractId().startsWith("MC-"));
                 List<fr.gouv.vitam.common.model.objectgroup.PersistentIdentifierModel> persistentIdentifierModelList =
-                    binaryMasterVersions.get(binaryVersion).getPersistentIdentifier();
-                String persistentIdentifierObj = "ark:/12354/" + binaryMasterVersions.get(binaryVersion).getId();
+                    versionsModel.getPersistentIdentifier();
+                String persistentIdentifierObj = "ark:/12354/" + versionsModel.getId();
                 assertFalse(persistentIdentifierModelList.isEmpty());
                 Map<String, List<fr.gouv.vitam.common.model.objectgroup.PersistentIdentifierModel>>
                     persistentIdentifiersObjById = persistentIdentifierModelList.stream().collect(
                     Collectors.groupingBy(
                         fr.gouv.vitam.common.model.objectgroup.PersistentIdentifierModel::getPersistentIdentifierContent));
                 assertTrue(persistentIdentifiersObjById.containsKey(persistentIdentifierObj));
-            });
+            } else if ("BinaryMaster_1".equals(versionsModel.getDataObjectVersion())) {
+                //Management contract does not allow Ark generation for initial version
+                assertTrue(versionsModel.getManagementContractId().startsWith("MC-"));
+                List<fr.gouv.vitam.common.model.objectgroup.PersistentIdentifierModel> persistentIdentifierModelList =
+                    versionsModel.getPersistentIdentifier();
+                assertNull(persistentIdentifierModelList);
+            }
+        }
+
     }
 
     @Test

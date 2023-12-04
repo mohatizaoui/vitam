@@ -1,0 +1,117 @@
+[
+  {
+    "_id": "PhysicalMaster_3",
+    "DataObjectVersion": "PhysicalMaster_3",
+    "DataObjectGroupId": "aebaaaaaaaeaaaabbvbikammer2npryaaaaq",
+    "Size": 0,
+    "PhysicalId": "1 Num 1/204-4",
+    "_opi": "aecaaaaaaceaaaabbvbikammer2m7pyaaaaq"
+  },
+  {
+    "_id": "PhysicalMaster_2",
+    "DataObjectVersion": "PhysicalMaster_2",
+    "DataObjectGroupId": "aebaaaaaaaeaaaabbvbikammer2npryaaaaq",
+    "Size": 0,
+    "PhysicalId": "1 Num 1/187-1",
+    "_opi": "aecaaaaaaceaaaabbvbikammer2m7pyaaaaq"
+  },
+  {
+    "_id": "PhysicalMaster_1",
+    "DataObjectVersion": "PhysicalMaster_1",
+    "DataObjectGroupId": "aebaaaaaaaeaaaabbvbikammer2npryaaaaq",
+    "Size": 0,
+    "PhysicalId": "1 Num 1/204-3",
+    "_opi": "aecaaaaaaceaaaabbvbikammer2m7pyaaaaq"
+  },
+  {
+    "_id": "BinaryMaster_3",
+    "DataObjectVersion": "BinaryMaster_3",
+    "DataObjectGroupId": "aebaaaaaaaeaaaabbvbikammer2npryaaaaq",
+    "FormatIdentification": {
+      "FormatLitteral": "Plain Text File",
+      "MimeType": "text/plain",
+      "FormatId": "x-fmt/111"
+    },
+    "FileInfo": {
+      "Filename": "1NUM_3.JPG"
+    },
+    "Metadata": {},
+    "Size": 7702,
+    "Uri": "Content/1NUM_3.JPG",
+    "MessageDigest": "0e0cec05a1d72ee5610eaa5afbc904c012d190037cbc827d08272102cdecf0226efcad122b86e7699f767c661c9f3702379b8c2cb01c4f492f69deb200661bb9",
+    "Algorithm": "SHA-512",
+    "_opi": "aecaaaaaaceaaaabbvbikammer2m7pyaaaaq"
+  },
+  {
+    "_id": "BinaryMaster_2",
+    "DataObjectVersion": "BinaryMaster_2",
+    "DataObjectGroupId": "aebaaaaaaaeaaaabbvbikammer2npryaaaaq",
+    "FormatIdentification": {
+      "FormatLitteral": "Plain Text File",
+      "MimeType": "text/plain",
+      "FormatId": "x-fmt/111"
+    },
+    "FileInfo": {
+      "Filename": "1NUM_2.JPG"
+    },
+    "Size": 8067,
+    "Uri": "Content/1NUM_2.JPG",
+    "MessageDigest": "3adb5ccfef14423678c2fb6a437ec104a6ee053f34b1c6a7755abc22eb54fb95133bef03fb142c6182377dbdadc9fa8ae8dd31dc3bb0fb038d93f51cafd90239",
+    "Algorithm": "SHA-512",
+    "_opi": "aecaaaaaaceaaaabbvbikammer2m7pyaaaaq"
+  },
+  {
+    "_id": "BinaryMaster_1",
+    "DataObjectVersion": "BinaryMaster_1",
+    "DataObjectGroupId": "aebaaaaaaaeaaaabbvbikammer2npryaaaaq",
+    "FormatIdentification": {
+      "FormatLitteral": "Plain Text File",
+      "MimeType": "text/plain",
+      "FormatId": "x-fmt/111"
+    },
+    "FileInfo": {
+      "Filename": "1NUM_1.JPG"
+    },
+    "Size": 7702,
+    "Uri": "Content/1NUM_1.JPG",
+    "MessageDigest": "0e0cec05a1d72ee5610eaa5afbc904c012d190037cbc827d08272102cdecf0226efcad122b86e7699f767c661c9f3702379b8c2cb01c4f492f69deb200661bb9",
+    "Algorithm": "SHA-512",
+    "_opi": "aecaaaaaaceaaaabbvbikammer2m7pyaaaaq"
+  },
+  {
+    "_id": "Dissemination_1",
+    "DataObjectVersion": "Dissemination_1",
+    "DataObjectGroupId": "aebaaaaaaaeaaaabbvbikammer2npryaaaaq",
+    "FormatIdentification": {
+      "FormatLitteral": "Plain Text File",
+      "MimeType": "text/plain",
+      "FormatId": "x-fmt/111"
+    },
+    "FileInfo": {
+      "Filename": "1NUM_1.PNG"
+    },
+    "Size": 7702,
+    "Uri": "Content/1NUM_1.PNG",
+    "MessageDigest": "0e0cec05a1d72ee5610eaa5afbc904c012d190037cbc827d08272102cdecf0226efcad122b86e7699f767c661c9f3702379b8c2cb01c4f492f69deb200661bb9",
+    "Algorithm": "SHA-512",
+    "_opi": "aecaaaaaaceaaaabbvbikammer2m7pyaaaaq"
+  },
+  {
+    "_id": "Dissemination_2",
+    "DataObjectVersion": "Dissemination_2",
+    "DataObjectGroupId": "aebaaaaaaaeaaaabbvbikammer2npryaaaaq",
+    "FormatIdentification": {
+      "FormatLitteral": "Plain Text File",
+      "MimeType": "text/plain",
+      "FormatId": "x-fmt/111"
+    },
+    "FileInfo": {
+      "Filename": "1NUM_2.PNG"
+    },
+    "Size": 7702,
+    "Uri": "Content/1NUM_2.PNG",
+    "MessageDigest": "0e0cec05a1d72ee5610eaa5afbc904c012d190037cbc827d08272102cdecf0226efcad122b86e7699f767c661c9f3702379b8c2cb01c4f492f69deb200661bb9",
+    "Algorithm": "SHA-512",
+    "_opi": "aecaaaaaaceaaaabbvbikammer2m7pyaaaaq"
+  }
+]

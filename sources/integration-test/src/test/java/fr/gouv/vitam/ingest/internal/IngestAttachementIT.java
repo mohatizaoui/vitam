@@ -63,6 +63,7 @@ import fr.gouv.vitam.worker.server.rest.WorkerMain;
 import fr.gouv.vitam.workspace.rest.WorkspaceMain;
 import io.restassured.RestAssured;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -85,6 +86,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -125,12 +127,16 @@ public class IngestAttachementIT extends VitamRuleRunner {
 
     private static final String SIP_BASE_INIT = "integration-ingest-internal/base_init.zip";
     private static final String SIP_UPDATE_INIT = "integration-ingest-internal/Photo-Objet-physique.zip";
+    private static final String SIP_MULTI_USAGE_INIT =
+        "integration-ingest-internal/OK_SIP_plusieurs_usages_ark.zip";
 
     private static final String SIP_BASE_WITH_UNIT = "integration-ingest-internal/base_with_unit";
     private static final String SIP_BASE_WITH_GOT = "integration-ingest-internal/base_with_got";
     private static final String LINK_AU_TO_EXISTING_GOT = "integration-ingest-internal/LINK_AU_TO_EXISTING_GOT";
 
     private static final String LINK_AU_TO_SIP_UPDATING = "integration-ingest-internal/LINK_AU_TO_SIP_UPDATING";
+    private static final String LINK_AU_TO_SIP_UPDATING_ARK_GENERATION =
+        "integration-ingest-internal/LINK_AU_TO_SIP_UPDATING_ARK_GENERATION";
 
     @ClassRule public static VitamServerRunner runner =
         new VitamServerRunner(fr.gouv.vitam.ingest.internal.IngestInternalIT.class,
@@ -379,6 +385,107 @@ public class IngestAttachementIT extends VitamRuleRunner {
         JsonNode lfCfromOffer = VitamTestHelper.getUnitLFCfromOffer(idUnit);
 
         assertEquals(lfc, lfCfromOffer);
+    }
+
+
+    @RunWithCustomExecutor
+    @Test
+    public void test_og_attachement_for_another_version_with_generation_ark_ids() throws Exception {
+        prepareVitamSession(TENANT_ID, "aName", "Context_IT");
+
+        // make an ingest
+        String operationId = doIngest(TENANT_ID, SIP_MULTI_USAGE_INIT);
+        verifyOperation(operationId, OK);
+        verifyProcessState(operationId, TENANT_ID, COMPLETED);
+
+        // prepare 2nd zip to ingest
+        MongoIterable<Document> resultUnits = MetadataCollections.UNIT.getCollection()
+            .find(Filters.and(Filters.eq("_opi", operationId), Filters.exists("_og")));
+        Document unit = resultUnits.first();
+        assertNotNull(unit);
+        String idUnit = unit.getString("_id");
+        String idGot = unit.getString("_og");
+        assertThat(idGot).isNotNull();
+        assertThat(idUnit).isNotNull();
+        replaceStringInFile(LINK_AU_TO_SIP_UPDATING_ARK_GENERATION + "/manifest.xml",
+            "(?<=<SystemId>).*?(?=</SystemId>)", idUnit);
+
+        InputStream streamSip = createZipFile(LINK_AU_TO_SIP_UPDATING_ARK_GENERATION);
+
+        String ingestOperationGuid = doIngest(TENANT_ID, streamSip);
+        verifyOperation(ingestOperationGuid, WARNING);
+
+        Document unitUpdated = resultUnits.first();
+        assertNotNull(unitUpdated);
+
+        MongoIterable<Document> resultOGUpdated = MetadataCollections.OBJECTGROUP.getCollection()
+            .find(Filters.and(Filters.eq("_opi", operationId)));
+        Document ogUpdated = resultOGUpdated.first();
+        List<Document> qualifiers = (List<Document>) ogUpdated.get("_qualifiers");
+        for (Document documentQualifier : qualifiers) {
+            if (documentQualifier != null) {
+                String qualifier = (String) documentQualifier.get("qualifier");
+                switch (qualifier) {
+                    case "BinaryMaster":
+                        checkBinaryMaster(documentQualifier);
+                        break;
+                    case "Dissemination":
+                        checkDissemination(documentQualifier);
+                        break;
+                    case "PhysicalMaster":
+                        checkPhysicalMaster(documentQualifier);
+                }
+
+            }
+        }
+    }
+
+    private static void checkPhysicalMaster(Document documentQualifier) {
+        List<Document> versions = (List<Document>) documentQualifier.get("versions");
+        for (Document documentVersion : versions) {
+            String guid = (String) documentVersion.get("_id");
+            List<Document> documentPersistentIdentifiers =
+                (List<Document>) documentVersion.get("PersistentIdentifier");
+            assertThat(documentPersistentIdentifiers).isNotNull();
+            assertThat(documentPersistentIdentifiers.size()).isGreaterThan(0);
+            String arkId =
+                (String) documentPersistentIdentifiers.get(0).get("PersistentIdentifierContent");
+            assertThat(arkId).isNotNull();
+            assertEquals(arkId, "ark:/12354/" + guid);
+
+        }
+    }
+
+    private static void checkDissemination(Document documentQualifier) {
+        List<Document> versions = (List<Document>) documentQualifier.get("versions");
+        for (Document documentVersion : versions) {
+            String documentQualifierInVersion = (String) documentVersion.get("DataObjectVersion");
+            String versionValue = StringUtils.substringAfterLast(documentQualifierInVersion, "_");
+            if ("12".equals(versionValue)) {
+                List<Document> documentPersistentIdentifiers =
+                    (List<Document>) documentVersion.get("PersistentIdentifier");
+                assertThat(documentPersistentIdentifiers).isNull();
+            }
+        }
+    }
+
+    private static void checkBinaryMaster(Document documentQualifier) {
+        List<Document> versions = (List<Document>) documentQualifier.get("versions");
+        for (Document documentVersion : versions) {
+            String documentQualifierInVersion = (String) documentVersion.get("DataObjectVersion");
+            String guid = (String) documentVersion.get("_id");
+            String versionValue = StringUtils.substringAfterLast(documentQualifierInVersion, "_");
+            if ("12".equals(versionValue)) {
+                List<Document> documentPersistentIdentifiers =
+                    (List<Document>) documentVersion.get("PersistentIdentifier");
+                assertThat(documentPersistentIdentifiers).isNotNull();
+                assertThat(documentPersistentIdentifiers.size()).isGreaterThan(0);
+                String arkId =
+                    (String) documentPersistentIdentifiers.get(0).get("PersistentIdentifierContent");
+                assertThat(arkId).isNotNull();
+                assertEquals(arkId, "ark:/12354/" + guid);
+            }
+        }
     }
 
     private String ingest(File file, boolean full) throws Exception {
