@@ -7,7 +7,7 @@ services:
     volumes:
       - ./initdb.d/:/docker-entrypoint-initdb.d/
     healthcheck:
-      test: test $$(echo "rs.status().ok" | mongo --quiet) -eq 1
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
       interval: 10s
       start_period: 30s
     command: [ "mongod", "--bind_ip_all", "--replSet", "rs0" ]
