@@ -734,6 +734,14 @@ public class SedaUtils {
                     validVersionMap.put(doi.getId(), "");
                     final String[] versionParts = doi.getVersion().split("_");
                     String errorCode = manifestVersionEntry.getKey();
+                    try {
+                        DataObjectValidator.validateVersionDataObject(doi.getVersion());
+                    } catch (InvalidDataObjectException e) {
+                        errorCode += INCORRECT_VERSION_FORMAT;
+                        invalidVersionMap.put(doi.getId() + "_" + errorCode, doi.getVersion());
+                        validVersionMap.remove(doi.getId());
+                        continue;
+                    }
                     if (versionParts.length > 2 || !fileVersions.contains(versionParts[USAGE_POSITION])) {
                         List<String> otherFileVersions =
                             sedaVersion.getVersionForOtherType(manifestVersionEntry.getKey());

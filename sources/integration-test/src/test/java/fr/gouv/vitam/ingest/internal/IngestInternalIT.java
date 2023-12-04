@@ -2916,7 +2916,7 @@ public class IngestInternalIT extends VitamRuleRunner {
         verifyOperation(operationId, KO);
 
         final String field = "evDetData";
-        final String content = "Data object version pattern 'BinaryMaster_+1' is not allowed";
+        final String content = "BinaryMaster_+1 - ID5";
         assertLogbookContains(operationId, field, content);
     }
 
@@ -2950,7 +2950,7 @@ public class IngestInternalIT extends VitamRuleRunner {
         verifyOperation(operationId, KO);
 
         final String field = "evDetData";
-        final String content = "Data object version pattern 'BinaryMaster_000001' is not allowed";
+        final String content = "BinaryMaster_000001 - ID5";
         assertLogbookContains(operationId, field, content);
     }
 

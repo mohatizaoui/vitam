@@ -24,39 +24,11 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.worker.core.utils;
+package fr.gouv.vitam.worker.common.utils;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import fr.gouv.vitam.worker.core.exception.InvalidDataObjectException;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static fr.gouv.vitam.common.SedaConstants.TAG_DO_VERSION;
-
-public class DataObjectValidator {
-
-    public static final Pattern DATA_OBJECT_VERSION_PATTERN = Pattern.compile("^[a-zA-Z]+(_[1-9]\\d{0,18})?$");
-    public static final String DATA_OBJECT_VERSION_NOT_DEFINED_MESSAGE = "Data object version is not defined";
-    public static final String DATA_OBJECT_VERSION_NOT_ALLOWED_MESSAGE = "Data object version pattern '%s' is not allowed";
-
-    public static void validateDataObject(final ObjectNode dataObject) throws InvalidDataObjectException {
-        checkDataObjectVersionPresence(dataObject);
-        validateDataObjectVersionFormat(dataObject);
+public class InvalidDataObjectException extends Exception {
+    public InvalidDataObjectException(final String message) {
+        super(message);
     }
 
-    private static void checkDataObjectVersionPresence(final ObjectNode dataObject) throws InvalidDataObjectException {
-        if (!dataObject.has(TAG_DO_VERSION)) {
-            throw new InvalidDataObjectException(DATA_OBJECT_VERSION_NOT_DEFINED_MESSAGE);
-        }
-    }
-
-    private static void validateDataObjectVersionFormat(final ObjectNode dataObject) throws InvalidDataObjectException {
-        final String dataObjectVersion = dataObject.get(TAG_DO_VERSION).asText();
-        final Matcher matcher = DATA_OBJECT_VERSION_PATTERN.matcher(dataObject.get(TAG_DO_VERSION).asText());
-        if (!matcher.matches()) {
-            final String message = String.format(DATA_OBJECT_VERSION_NOT_ALLOWED_MESSAGE, dataObjectVersion);
-            throw new InvalidDataObjectException(message);
-        }
-    }
 }

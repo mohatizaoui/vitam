@@ -24,13 +24,14 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.worker.core.utils;
+package fr.gouv.vitam.worker.common.utils;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import fr.gouv.vitam.common.model.administration.DataObjectVersionType;
-import fr.gouv.vitam.worker.core.exception.InvalidDataObjectException;
+import fr.gouv.vitam.worker.common.utils.DataObjectValidator;
+import fr.gouv.vitam.worker.common.utils.InvalidDataObjectException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -54,7 +55,7 @@ public class DataObjectValidatorTest {
             "BinaryMaster_12",
             "BinaryMaster_4",
             "PhysicalMaster_1",
-            "BinaryMaster_" + Long.MAX_VALUE
+            "BinaryMaster_" + 999999
         );
     }
 
@@ -65,7 +66,7 @@ public class DataObjectValidatorTest {
             "BinaryMaster_+1",
             "BinaryMaster_-1",
             "BinaryMaster_0.0001",
-            "BinaryMaster_" + Long.MAX_VALUE + 1
+            "BinaryMaster_" + 1000000
         );
     }
 
@@ -89,8 +90,7 @@ public class DataObjectValidatorTest {
 
     private void validateDataObjectVersions(String... versions) throws InvalidDataObjectException {
         for (String version : versions) {
-            ObjectNode objectNode = dataObject(version);
-            DataObjectValidator.validateDataObject(objectNode);
+            DataObjectValidator.validateVersionDataObject(version);
         }
     }
 
@@ -98,9 +98,9 @@ public class DataObjectValidatorTest {
         Arrays.stream(invalidVersions)
             .map(this::generateAllQualifierDataObjects)
             .flatMap(List::stream)
-            .forEach(dataObject -> {
+            .forEach(dataObjectVersion -> {
                 Assert.assertThrows(InvalidDataObjectException.class,
-                    () -> DataObjectValidator.validateDataObject(dataObject));
+                    () -> DataObjectValidator.validateVersionDataObject(dataObjectVersion));
             });
     }
 
@@ -108,11 +108,10 @@ public class DataObjectValidatorTest {
         return new ObjectNode(JsonNodeFactory.instance).set(TAG_DO_VERSION, new TextNode(dataObjectVersion));
     }
 
-    private List<ObjectNode> generateAllQualifierDataObjects(final String version) {
+    private List<String> generateAllQualifierDataObjects(final String version) {
         return Arrays.stream(DataObjectVersionType.values())
             .map(DataObjectVersionType::getName)
             .map(qualifier -> String.format("%s_%s", qualifier, version))
-            .map(this::dataObject)
             .collect(Collectors.toList());
     }
 }
