@@ -118,31 +118,6 @@ function waitForReplicaSetPrimaryElection() {
     throw "ERROR : Timeout - NO PRIMARY NODE FOUND";
 }
 
-function waitForWritablePrimary() {
-    print("INFO: waitForWritablePrimary");
-    var instanceStatus;
-    for (let i = 0; i < 60; i++) {
-
-        instanceStatus = db.hello();
-
-        if (!instanceStatus.ok) {
-            printjson(instanceStatus);
-            throw "ERROR : Cannot get db instance status";
-        }
-
-        if (instanceStatus.isWritablePrimary) {
-            print("OK : Primary node " + instanceStatus.primary + " is writable");
-            return;
-        }
-
-        // Retry later
-        sleep(1000);
-    }
-
-    printjson(instanceStatus);
-    throw "ERROR : Timeout - NO PRIMARY NODE FOUND";
-}
-
 if (checkExistingReplicaSet()) {
     checkExistingReplicaSetMembers();
     print("INFO : Mongoc replica set already configured.");
@@ -150,6 +125,5 @@ if (checkExistingReplicaSet()) {
     print("INFO : Initializing mongoc replica set");
     initReplicaSetPrimary();
     waitForReplicaSetPrimaryElection();
-    waitForWritablePrimary();
     print("INFO : Mongoc replica set intitialization OK");
 }
