@@ -14,7 +14,7 @@ Source2: Makefile
 BuildArch: noarch
 BuildRequires: selinux-policy
 BuildRequires: selinux-policy-devel
-Requires: vitam-consul
+Requires: consul
 Requires: policycoreutils-python
 
 %description
@@ -59,10 +59,10 @@ restorecon /usr/lib/systemd/system/vitam-consul.service
 # If it's a real uninstall (not an update), remove everything
 if [ $1 -eq 0 ]; then
     semanage port -D -t vitam_consul_port_t
-    # Seems to fail at uninstall 
-    # libsemanage.semanage_direct_remove_key: Unable to remove module vitam_consul at priority 400. (No such file or directory). 
-    semodule -r vitam_consul  
-    # 
+    # Seems to fail at uninstall
+    # libsemanage.semanage_direct_remove_key: Unable to remove module vitam_consul at priority 400. (No such file or directory).
+    semodule -r vitam_consul
+    #
     restorecon -R /vitam/bin/consul
     restorecon -R /vitam/conf/consul
     restorecon -R /vitam/data/consul

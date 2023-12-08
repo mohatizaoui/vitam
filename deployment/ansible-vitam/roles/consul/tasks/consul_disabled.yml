@@ -1,8 +1,11 @@
 ---
 
-- name: Remove Consul packages
+- name: Remove Consul package
   package:
-    name: "{{ consul_package_list }}"
+    name:
+      - "{{ consul_package }}"
+      - vitam-consul-selinux
+      - "{{ 'resolvconf' if ansible_distribution == 'Debian' else 'vitam-resolvconf' }}"
     state: absent
   register: result
   retries: "{{ packages_install_retries_number }}"

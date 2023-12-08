@@ -38,8 +38,6 @@ for item in $(ls -d ${WORKING_FOLDER}/*/ | grep -v "target" | grep -v "sources" 
 	${WORKING_FOLDER}/build-generic.sh ${item} target
 done
 
-echo "vitam-consul"
-${WORKING_FOLDER}/build-consul.sh
 echo "vitam-gatling"
 ${WORKING_FOLDER}/build-gatling.sh
 echo "vitam-elasticsearch-head"
