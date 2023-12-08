@@ -108,12 +108,13 @@ public class ReconstructionOperationRepositoryImpl implements ReconstructionOper
             final Date to = LocalDateUtil.getDate(endDate);
 
             RangeQuery range = QueryHelper.range(VitamFieldsHelper.lastPersistedDate(), from, true, to, false);
-            final CompareQuery eq = QueryHelper.eq("evType", "ELIMINATION_ACTION");
-            final String[] operationOutDetails = {"ELIMINATION_ACTION.OK", "ELIMINATION_ACTION.WARNING"};
+            final String[] evTypes = {"ELIMINATION_ACTION", "DELETE_GOT_VERSIONS"};
+            final InQuery type = QueryHelper.in("evType", evTypes);
+            final String[] operationOutDetails = {"ELIMINATION_ACTION.OK", "ELIMINATION_ACTION.WARNING", "DELETE_GOT_VERSIONS.OK"};
             final InQuery status = QueryHelper.in("events" + "." + "outDetail", operationOutDetails);
             select.setLimitFilter(0, 10000);
             select.addOrderByAscFilter(VitamFieldsHelper.lastPersistedDate());
-            select.setQuery(and().add(range, eq, status));
+            select.setQuery(and().add(range, type, status));
         } catch (InvalidCreateOperationException | InvalidParseOperationException e) {
             throw new IllegalStateException("Error when generate DSL for get Operations", e);
         }

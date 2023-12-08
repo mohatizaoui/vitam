@@ -24,13 +24,14 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.metadata.core.reconstruction.domain;
+package fr.gouv.vitam.metadata.core.reconstruction.domain.extractor;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.gouv.vitam.common.json.JsonHandler;
+import fr.gouv.vitam.metadata.core.reconstruction.domain.extractor.ObjectPurgedPersistentIdentifierExtractor;
 import fr.gouv.vitam.metadata.core.reconstruction.model.PurgedPersistentIdentifier;
 import fr.gouv.vitam.metadata.core.reconstruction.model.ReconstructionOperation;
 import org.junit.Before;

@@ -24,50 +24,44 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.metadata.core.reconstruction.domain;
+package fr.gouv.vitam.metadata.core.reconstruction.domain.extractor;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.annotations.VisibleForTesting;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
+import fr.gouv.vitam.metadata.core.reconstruction.domain.PurgedPersistentIdentifierValidator;
 import fr.gouv.vitam.metadata.core.reconstruction.model.PurgedPersistentIdentifier;
 import fr.gouv.vitam.metadata.core.reconstruction.model.ReconstructionOperation;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
-public class ObjectPurgedPersistentIdentifierExtractor extends PurgedPersistentIdentifierExtractor {
+public class UnitPurgedPersistentIdentifierExtractor extends PurgedPersistentIdentifierExtractor {
 
-    public static final String OBJECT = "Object";
     private static final VitamLogger LOGGER =
-        VitamLoggerFactory.getInstance(ObjectPurgedPersistentIdentifierExtractor.class);
+        VitamLoggerFactory.getInstance(UnitPurgedPersistentIdentifierExtractor.class);
 
     @Override
     public List<PurgedPersistentIdentifier> extractPurgedPersistentIdentifier(JsonNode node,
         ReconstructionOperation operation) {
-
-        final String objectGroupId = node.get("id").asText();
-
-        return Optional.ofNullable(node.get("objectVersions"))
-            .filter(JsonNode::isArray)
-            .map(objectVersions -> StreamSupport.stream(objectVersions.spliterator(), false)
-                .filter(objectVersion -> objectVersion.has("persistentIdentifier")
-                    && !objectVersion.get("persistentIdentifier").isNull())
-                .map(objectVersion -> buildObjetPurgedPersistentIdentifier(objectGroupId, objectVersion, operation))
-                .filter(p -> p != null)
-                .collect(Collectors.toList()))
-            .orElse(Collections.emptyList());
+        List<PurgedPersistentIdentifier> purgedPersistentIdentifiers = new ArrayList<>();
+        if (node.has("persistentIdentifier") && !node.get("persistentIdentifier").isNull()) {
+            PurgedPersistentIdentifier purgedPersistentIdentifier =
+                buildUnitPurgedPersistentIdentifier(node, operation);
+            if(purgedPersistentIdentifier != null) {
+                purgedPersistentIdentifiers.add(purgedPersistentIdentifier);
+            }
+        }
+        return purgedPersistentIdentifiers;
     }
 
-    protected PurgedPersistentIdentifier buildObjetPurgedPersistentIdentifier(String objectGroupId, JsonNode element,
+    public PurgedPersistentIdentifier buildUnitPurgedPersistentIdentifier(JsonNode element,
         ReconstructionOperation operation) {
 
         if (!PurgedPersistentIdentifierValidator.validateFields(element, "id", "persistentIdentifier")) {
-            LOGGER.warn(
-                "This element {} is ignored in the persistent identifier reconstruction because id or persistent identifier are not provided",
-                element);
+            LOGGER.warn("This element {} is ignored in the persistent identifier reconstruction because id or persistent identifier are not provided", element);
             return null;
         }
 
@@ -76,12 +70,11 @@ public class ObjectPurgedPersistentIdentifierExtractor extends PurgedPersistentI
             .setTenant(operation.getTenant())
             .setPersistentIdentifier(extractPersistentIdentifiers(element.get("persistentIdentifier")))
             .setVersion(0)
-            .setType(OBJECT)
-            .setObjectGroupId(objectGroupId)
+            .setType(UNIT)
+            .setObjectGroupId(Optional.ofNullable(element.get("objectGroupId")).map(JsonNode::asText).orElse(null))
             .setOperationId(operation.getId())
             .setOperationType(operation.getType())
             .setOperationLastPersistentDate(operation.getLastPersistedDate())
             .build();
     }
 }
-

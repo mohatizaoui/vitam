@@ -29,6 +29,7 @@ package fr.gouv.vitam.metadata.core.reconstruction.domain;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.metadata.core.config.MetaDataConfiguration;
+import fr.gouv.vitam.metadata.core.reconstruction.domain.extractor.PurgedPersistentIdentifierExtractorFactory;
 import fr.gouv.vitam.metadata.core.reconstruction.exception.ReconstructionException;
 import fr.gouv.vitam.metadata.core.reconstruction.model.ReconstructionOperation;
 import fr.gouv.vitam.metadata.core.reconstruction.repository.OperationReportRepository;
@@ -46,7 +47,6 @@ public class PersistentIdentifierReconstructionManager {
 
     private static final VitamLogger LOGGER =
         VitamLoggerFactory.getInstance(PersistentIdentifierReconstructionManager.class);
-
 
     final private OperationReportParser operationReportParser;
     final private ReconstructionOperationRepository reconstructionOperationRepository;

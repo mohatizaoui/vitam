@@ -24,18 +24,23 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.metadata.core.reconstruction.domain;
+package fr.gouv.vitam.metadata.core.reconstruction.domain.extractor;
 
 
-import com.fasterxml.jackson.databind.JsonNode;
 import fr.gouv.vitam.metadata.api.exception.MetaDataExecutionException;
+import fr.gouv.vitam.metadata.core.reconstruction.domain.extractor.ObjectPurgedPersistentIdentifierExtractor;
+import fr.gouv.vitam.metadata.core.reconstruction.domain.extractor.PurgedPersistentIdentifierExtractor;
+import fr.gouv.vitam.metadata.core.reconstruction.domain.extractor.PurgedPersistentIdentifierExtractorFactory;
+import fr.gouv.vitam.metadata.core.reconstruction.domain.extractor.UnitPurgedPersistentIdentifierExtractor;
 import org.junit.Before;
 import org.junit.Test;
 
+import static fr.gouv.vitam.metadata.core.reconstruction.model.ReportLine.ReportLineType.DELETED_GOT_VERSION;
+import static fr.gouv.vitam.metadata.core.reconstruction.model.ReportLine.ReportLineType.DELETED_OBJECT_GROUP;
+import static fr.gouv.vitam.metadata.core.reconstruction.model.ReportLine.ReportLineType.DELETED_UNIT;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class PurgedPersistentIdentifierExtractorFactoryTest {
 
@@ -48,13 +53,7 @@ public class PurgedPersistentIdentifierExtractorFactoryTest {
 
     @Test
     public void instance_UnitType_ReturnsUnitInstance() throws Exception {
-        JsonNode mockNode = mock(JsonNode.class);
-        when(mockNode.has("type")).thenReturn(true);
-        JsonNode mockTypeNode = mock(JsonNode.class);
-        when(mockNode.get("type")).thenReturn(mockTypeNode);
-        when(mockTypeNode.asText()).thenReturn("Unit");
-
-        PurgedPersistentIdentifierExtractor result = extractorFactory.instance(mockNode);
+        PurgedPersistentIdentifierExtractor result = extractorFactory.instance(DELETED_UNIT);
 
         assertThat(result instanceof UnitPurgedPersistentIdentifierExtractor).isTrue();
     }
@@ -62,37 +61,10 @@ public class PurgedPersistentIdentifierExtractorFactoryTest {
     @Test
     public void instance_ObjectGroupType_ReturnsObjectGroupInstance() throws Exception {
 
-        JsonNode mockNode = mock(JsonNode.class);
-        when(mockNode.has("type")).thenReturn(true);
-        JsonNode mockTypeNode = mock(JsonNode.class);
-        when(mockNode.get("type")).thenReturn(mockTypeNode);
-        when(mockTypeNode.asText()).thenReturn("ObjectGroup");
-
-        PurgedPersistentIdentifierExtractor result = extractorFactory.instance(mockNode);
+        PurgedPersistentIdentifierExtractor result = extractorFactory.instance(DELETED_OBJECT_GROUP);
 
         assertThat(result instanceof ObjectPurgedPersistentIdentifierExtractor).isTrue();
     }
 
-    @Test
-    public void instance_InvalidType_ThrowsMetaDataExecutionException() {
-
-        JsonNode mockNode = mock(JsonNode.class);
-        when(mockNode.has("type")).thenReturn(true);
-        JsonNode mockTypeNode = mock(JsonNode.class);
-        when(mockNode.get("type")).thenReturn(mockTypeNode);
-        when(mockNode.get("type").asText()).thenReturn("InvalidType");
-
-        assertThrows(MetaDataExecutionException.class, () -> extractorFactory.instance(mockNode));
-
-    }
-
-    @Test
-    public void instance_MissingType_ThrowsMetaDataExecutionException() {
-
-        JsonNode mockNode = mock(JsonNode.class);
-        when(mockNode.has("type")).thenReturn(false);
-
-        assertThrows(MetaDataExecutionException.class, () -> extractorFactory.instance(mockNode));
-    }
 
 }

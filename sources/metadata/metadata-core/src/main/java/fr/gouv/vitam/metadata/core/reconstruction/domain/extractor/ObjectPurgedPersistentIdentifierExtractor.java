@@ -1,0 +1,89 @@
+/*
+ * Copyright French Prime minister Office/SGMAP/DINSIC/Vitam Program (2015-2022)
+ *
+ * contact.vitam@culture.gouv.fr
+ *
+ * This software is a computer program whose purpose is to implement a digital archiving back-office system managing
+ * high volumetry securely and efficiently.
+ *
+ * This software is governed by the CeCILL 2.1 license under French law and abiding by the rules of distribution of free
+ * software. You can use, modify and/ or redistribute the software under the terms of the CeCILL 2.1 license as
+ * circulated by CEA, CNRS and INRIA at the following URL "https://cecill.info".
+ *
+ * As a counterpart to the access to the source code and rights to copy, modify and redistribute granted by the license,
+ * users are provided only with a limited warranty and the software's author, the holder of the economic rights, and the
+ * successive licensors have only limited liability.
+ *
+ * In this respect, the user's attention is drawn to the risks associated with loading, using, modifying and/or
+ * developing or reproducing the software by the user in light of its specific status of free software, that may mean
+ * that it is complicated to manipulate, and that also therefore means that it is reserved for developers and
+ * experienced professionals having in-depth computer knowledge. Users are therefore encouraged to load and test the
+ * software's suitability as regards their requirements in conditions enabling the security of their systems and/or data
+ * to be ensured and, more generally, to use and operate it in the same conditions as regards security.
+ *
+ * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
+ * accept its terms.
+ */
+package fr.gouv.vitam.metadata.core.reconstruction.domain.extractor;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import fr.gouv.vitam.common.logging.VitamLogger;
+import fr.gouv.vitam.common.logging.VitamLoggerFactory;
+import fr.gouv.vitam.metadata.core.reconstruction.domain.PurgedPersistentIdentifierValidator;
+import fr.gouv.vitam.metadata.core.reconstruction.model.PurgedPersistentIdentifier;
+import fr.gouv.vitam.metadata.core.reconstruction.model.ReconstructionOperation;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
+
+public class ObjectPurgedPersistentIdentifierExtractor extends PurgedPersistentIdentifierExtractor {
+
+    public static final String OBJECT = "Object";
+    private static final VitamLogger LOGGER =
+        VitamLoggerFactory.getInstance(ObjectPurgedPersistentIdentifierExtractor.class);
+
+    @Override
+    public List<PurgedPersistentIdentifier> extractPurgedPersistentIdentifier(JsonNode node,
+        ReconstructionOperation operation) {
+
+        final String objectGroupId = node.get("id").asText();
+
+        return Optional.ofNullable(node.get("objectVersions"))
+            .filter(JsonNode::isArray)
+            .map(objectVersions -> StreamSupport.stream(objectVersions.spliterator(), false)
+                .filter(objectVersion -> objectVersion.has("persistentIdentifier")
+                    && !objectVersion.get("persistentIdentifier").isNull())
+                .map(objectVersion -> buildObjetPurgedPersistentIdentifier(objectGroupId, objectVersion, operation))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList()))
+            .orElse(Collections.emptyList());
+    }
+
+    public PurgedPersistentIdentifier buildObjetPurgedPersistentIdentifier(String objectGroupId, JsonNode element,
+        ReconstructionOperation operation) {
+
+        if (!PurgedPersistentIdentifierValidator.validateFields(element, "id", "persistentIdentifier")) {
+            LOGGER.warn(
+                "This element {} is ignored in the persistent identifier reconstruction because id or persistent identifier are not provided",
+                element);
+            return null;
+        }
+
+        return PurgedPersistentIdentifier.builder()
+            .setId(element.get("id").asText())
+            .setTenant(operation.getTenant())
+            .setPersistentIdentifier(extractPersistentIdentifiers(element.get("persistentIdentifier")))
+            .setVersion(0)
+            .setType(OBJECT)
+            .setObjectGroupId(objectGroupId)
+            .setOperationId(operation.getId())
+            .setOperationType(operation.getType())
+            .setOperationLastPersistentDate(operation.getLastPersistedDate())
+            .build();
+    }
+}
+
