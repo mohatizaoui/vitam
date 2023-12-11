@@ -2230,7 +2230,7 @@ public class ProcessingIT extends VitamRuleRunner {
 
 
         JsonNode checkUnitSchemaEvent = IteratorUtils.find(events.iterator(),
-            e -> e.get(OUT_DETAIL).asText().equals("CHECK_UNIT_SCHEMA.MISSING_DECLARED_SIGNATURE.KO"));
+            e -> e.get(OUT_DETAIL).asText().equals("CHECK_UNIT_SCHEMA.MISSING_DECLARED_ADDITIONAL_PROOF.KO"));
         assertThat(checkUnitSchemaEvent).isNotNull();
 
 
@@ -2244,14 +2244,14 @@ public class ProcessingIT extends VitamRuleRunner {
             List<Document> eventsLfc = lifecycle.getList("events", Document.class);
             List<Document> lifecycleEvent =
                 eventsLfc.stream()
-                    .filter(t -> t.get("outDetail").equals("CHECK_UNIT_SCHEMA.MISSING_DECLARED_SIGNATURE.KO"))
+                    .filter(t -> t.get("outDetail").equals("CHECK_UNIT_SCHEMA.MISSING_DECLARED_ADDITIONAL_PROOF.KO"))
                     .collect(Collectors.toList());
 
             String evDetData = Iterables.getOnlyElement(lifecycleEvent).getString(EVENT_DETAILS);
             assertThat(evDetData).containsIgnoringCase("diff");
             assertThat(evDetData).contains(ingestContainerName);
             assertThat(Iterables.getOnlyElement(lifecycleEvent).getString("outMessg")).isEqualTo(
-                "Contrôle de documents signés électroniquement : signature associée obligatoire manquante");
+                "Contrôle des documents signés électroniquement : preuve additionnelle obligatoire manquante");
 
         });
 
