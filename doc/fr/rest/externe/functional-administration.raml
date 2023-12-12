@@ -1171,15 +1171,20 @@ documentation:
         type: object
         properties:
           dslQuery:
-            description: Requête DSL de sélection des éléments à exporter
+            description: Query DSL to select archive units to audit
             type: object
             example: !include libraries/examples/dslQuery.json
           usage:
-            description: Usages cibles
-            type: string[]
-          version:
-            description: version cible (nombre ou "LAST"). Non modifiable ? LAST ?
+            description: Target binary objet qualifier (`BinaryMaster`, `Thumbnail`...)
             type: string
+          version:
+            description: Target binary object version (1, 2, ...)
+            type: string
+          includeDetachedSigningInformation:
+            description: Extend audit scope to include detached SigningInformation (for units with signed documents declaring a `DetachedSigningRole`, direct child units with a `SigningRole` will be included).
+            type: boolean
+            required: false
+            default: false
         example: !include libraries/examples/probative-value-export.json
     responses:
       202:

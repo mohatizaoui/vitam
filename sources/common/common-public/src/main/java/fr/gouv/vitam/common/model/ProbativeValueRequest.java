@@ -27,36 +27,57 @@
 package fr.gouv.vitam.common.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.Objects;
 
 public class ProbativeValueRequest {
+    private static final String DSL_QUERY = "dslQuery";
+    private static final String USAGE = "usage";
+    private static final String VERSION = "version";
+    private static final String INCLUDE_DETACHED_SIGNING_INFORMATION = "includeDetachedSigningInformation";
     private final JsonNode dslQuery;
     private final String usage;
     private final String version;
+    private final Boolean includeDetachedSigningInformation;
 
-    @JsonCreator
-    public ProbativeValueRequest(@JsonProperty("dslQuery") JsonNode dslQuery, @JsonProperty("usage") String usage,
-        @JsonProperty("version") String version) {
+    public ProbativeValueRequest(JsonNode dslQuery, String usage, String version) {
         this.dslQuery = Objects.requireNonNull(dslQuery);
         this.usage = Objects.requireNonNull(usage);
         this.version = Objects.requireNonNull(version);
+        this.includeDetachedSigningInformation = null;
     }
 
-    @JsonProperty("dslQuery")
+    @JsonCreator
+    public ProbativeValueRequest(@JsonProperty(DSL_QUERY) JsonNode dslQuery, @JsonProperty(USAGE) String usage,
+        @JsonProperty(VERSION) String version,
+        @JsonProperty(INCLUDE_DETACHED_SIGNING_INFORMATION) boolean includeDetachedSigningInformation) {
+        this.dslQuery = Objects.requireNonNull(dslQuery);
+        this.usage = Objects.requireNonNull(usage);
+        this.version = Objects.requireNonNull(version);
+        this.includeDetachedSigningInformation = includeDetachedSigningInformation;
+    }
+
+    @JsonProperty(DSL_QUERY)
     public JsonNode getDslQuery() {
         return dslQuery;
     }
 
-    @JsonProperty("usage")
+    @JsonProperty(USAGE)
     public String getUsage() {
         return usage;
     }
 
-    @JsonProperty("version")
+    @JsonProperty(VERSION)
     public String getVersion() {
         return version;
+    }
+
+    @JsonProperty(INCLUDE_DETACHED_SIGNING_INFORMATION)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public Boolean getIncludeDetachedSigningInformation() {
+        return includeDetachedSigningInformation;
     }
 }

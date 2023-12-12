@@ -24,25 +24,42 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.common.model.unit;
+package fr.gouv.vitam.worker.core.plugin.probativevalue.pojo;
 
-import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.JsonNode;
+import fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper;
 
-public enum SigningRoleType {
+import static fr.gouv.vitam.common.model.unit.DescriptiveMetadataModel.SIGNING_INFORMATION;
+import static fr.gouv.vitam.common.model.unit.SigningInformationTypeModel.DETACHED_SIGNING_ROLE;
 
-    SIGNED_DOCUMENT("SignedDocument"),
-    TIMESTAMP("Timestamp"),
-    SIGNATURE("Signature"),
-    ADDITIONAL_PROOF("AdditionalProof");
+public class SelectedUnit {
+    private final String unitId;
+    private final String objectGroupId;
+    private final boolean haveDetachedSigningRoles;
 
-    private final String value;
-
-    SigningRoleType(String value) {
-        this.value = value;
+    private SelectedUnit(String unitId, String objectGroupId, boolean haveDetachedSigningRoles) {
+        this.unitId = unitId;
+        this.objectGroupId = objectGroupId;
+        this.haveDetachedSigningRoles = haveDetachedSigningRoles;
     }
 
-    @JsonValue
-    public String getValue() {
-        return value;
+    public static SelectedUnit fromUnit(JsonNode unit) {
+        return new SelectedUnit(
+            unit.get(VitamFieldsHelper.id()).asText(),
+            unit.path(VitamFieldsHelper.object()).asText(),
+            !unit.path(SIGNING_INFORMATION).path(DETACHED_SIGNING_ROLE).isEmpty()
+        );
+    }
+
+    public String getUnitId() {
+        return unitId;
+    }
+
+    public String getObjectGroupId() {
+        return objectGroupId;
+    }
+
+    public boolean isHaveDetachedSigningRoles() {
+        return haveDetachedSigningRoles;
     }
 }

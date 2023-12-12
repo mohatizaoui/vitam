@@ -172,8 +172,8 @@ public class EvidenceAuditIT extends VitamRuleRunner {
         // Given
         String ingestOperationId = VitamTestHelper.doIngest(TENANT_ID, "preservation/OG_with_3_parents.zip");
         logicalClock.logicalSleep(5, ChronoUnit.MINUTES);
-        doTraceabilityUnits();
-        doTraceabilityGots();
+        VitamTestHelper.doTraceabilityUnits();
+        VitamTestHelper.doTraceabilityGots();
 
         try (AccessInternalClient accessClient = AccessInternalClientFactory.getInstance().getClient()) {
             SelectMultiQuery query = new SelectMultiQuery();
@@ -205,8 +205,8 @@ public class EvidenceAuditIT extends VitamRuleRunner {
         // Given
         String ingestOperationId = VitamTestHelper.doIngest(TENANT_ID, "preservation/OG_with_3_parents.zip");
         logicalClock.logicalSleep(5, ChronoUnit.MINUTES);
-        doTraceabilityUnits();
-        doTraceabilityGots();
+        VitamTestHelper.doTraceabilityUnits();
+        VitamTestHelper.doTraceabilityGots();
         String deletedGotId = deleteObjectInStorage(ingestOperationId);
         String gotIdOfUnitModified = changeMetadataUnitInMongo(ingestOperationId, deletedGotId);
         String gotIdModified = changeMetadataGotInMongo(ingestOperationId, deletedGotId, gotIdOfUnitModified);
@@ -434,28 +434,6 @@ public class EvidenceAuditIT extends VitamRuleRunner {
         select.setQuery(and().add(QueryHelper.in(BuilderToken.PROJECTIONARGS.OPERATIONS.exactToken(), operationGuid)));
         select.addProjection(JsonHandler.createObjectNode());
         return select.getFinalSelect();
-    }
-
-
-    private String doTraceabilityGots() throws VitamException {
-        try (LogbookOperationsClient logbookOperationsClient = LogbookOperationsClientFactory.getInstance()
-            .getClient()) {
-            RequestResponseOK traceabilityObjectGroupResponse = logbookOperationsClient.traceabilityLfcObjectGroup();
-            String traceabilityGotOperationId =
-                traceabilityObjectGroupResponse.getHeaderString(GlobalDataRest.X_REQUEST_ID);
-            waitOperation(traceabilityGotOperationId);
-            return traceabilityGotOperationId;
-        }
-    }
-
-    private String doTraceabilityUnits() throws VitamException {
-        try (LogbookOperationsClient logbookOperationsClient = LogbookOperationsClientFactory.getInstance()
-            .getClient()) {
-            RequestResponseOK traceabilityUnitResponse = logbookOperationsClient.traceabilityLfcUnit();
-            String traceabilityUnitOperationId = traceabilityUnitResponse.getHeaderString(GlobalDataRest.X_REQUEST_ID);
-            waitOperation(traceabilityUnitOperationId);
-            return traceabilityUnitOperationId;
-        }
     }
 
     private String deleteObjectInStorage(String initialOperationId) throws Exception {
