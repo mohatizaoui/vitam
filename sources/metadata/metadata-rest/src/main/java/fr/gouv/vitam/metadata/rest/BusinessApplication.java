@@ -127,7 +127,7 @@ public class BusinessApplication extends Application {
             final ReconstructionOperationRepository reconstructionOperationRepository = new ReconstructionOperationRepositoryImpl();
             final PersistentIdentifierReconstructionManager persistentIdentifierReconstructionManager = new PersistentIdentifierReconstructionManager(operationReportRepository, reconstructionOperationRepository, metaDataConfiguration, persistentIdentifierRepository);
             final OffsetManager offsetManager = new OffsetManager(offsetRepository);
-            final PersistentIdentifierResource persistentIdentifierResource = new PersistentIdentifierResource(persistentIdentifierReconstructionManager, offsetManager, metaDataConfiguration);
+            final PersistentIdentifierResource persistentIdentifierResource = new PersistentIdentifierResource(persistentIdentifierReconstructionManager, offsetManager, metaDataConfiguration, persistentIdentifierRepository);
 
             singletons = new HashSet<>();
             singletons.addAll(commonBusinessApplication.getResources());

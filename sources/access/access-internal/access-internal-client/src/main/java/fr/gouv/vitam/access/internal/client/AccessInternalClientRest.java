@@ -36,7 +36,6 @@ import fr.gouv.vitam.common.client.CustomVitamHttpStatusCode;
 import fr.gouv.vitam.common.client.DefaultClient;
 import fr.gouv.vitam.common.client.VitamRequestBuilder;
 import fr.gouv.vitam.common.database.builder.request.single.Select;
-import fr.gouv.vitam.common.error.VitamError;
 import fr.gouv.vitam.common.exception.AccessUnauthorizedException;
 import fr.gouv.vitam.common.exception.BadRequestException;
 import fr.gouv.vitam.common.exception.ExpectationFailedClientException;
@@ -58,8 +57,6 @@ import fr.gouv.vitam.common.model.storage.StatusByAccessRequest;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.logbook.common.exception.LogbookClientException;
 import fr.gouv.vitam.logbook.common.exception.LogbookClientNotFoundException;
-import fr.gouv.vitam.metadata.api.exception.MetaDataClientServerException;
-import org.apache.commons.lang3.StringUtils;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -108,6 +105,7 @@ class AccessInternalClientRest extends DefaultClient implements AccessInternalCl
     private static final String EXPORT_BY_USAGE_FILTER = "export/usagefilter";
     private static final String TRANSFER_EXPORT = "transferexport/";
     private static final String UNITS = "units/";
+    private static final String PERSISTENT_IDENTIFIER = "persistentIdentifier/";
     private static final String UNITS_ATOMIC_BULK = "units/atomicbulk/";
     private static final String UNITS_RULES = "/units/rules";
     private static final String UNITS_WITH_INHERITED_RULES = "unitsWithInheritedRules";
@@ -139,6 +137,30 @@ class AccessInternalClientRest extends DefaultClient implements AccessInternalCl
             throw new InvalidParseOperationException(e);
         } catch (BadRequestException e) {
             return RequestResponse.parseVitamError(response);
+        }
+    }
+
+    @Override
+    public Response selectUnitsByUnitPersistentIdentifier(String persistentIdentifier, JsonNode selectQuery)
+        throws InvalidParseOperationException,
+        AccessInternalClientServerException, AccessInternalClientNotFoundException, AccessUnauthorizedException,
+        BadRequestException {
+        Response response = null;
+        try {
+            response =
+                make(get().withBefore(CHECK_REQUEST_ID).withPath(UNITS + PERSISTENT_IDENTIFIER + persistentIdentifier)
+                    .withBody(selectQuery, BLANK_DSL).withJson());
+            check(response);
+            return response;
+        } catch (VitamClientInternalException | PreconditionFailedClientException |
+            ExpectationFailedClientException e) {
+            throw new AccessInternalClientServerException(e);
+        } catch (ForbiddenClientException e) {
+            throw new BadRequestException(e);
+        } catch (NoWritingPermissionException e) {
+            throw new InvalidParseOperationException(e);
+        } catch (BadRequestException e) {
+            return RequestResponse.parseVitamError(response).toResponse();
         }
     }
 

@@ -30,18 +30,29 @@ import com.mongodb.ErrorCategory;
 import com.mongodb.MongoBulkWriteException;
 import com.mongodb.MongoException;
 import com.mongodb.bulk.BulkWriteError;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.BulkWriteOptions;
 import com.mongodb.client.model.InsertOneModel;
 import fr.gouv.vitam.common.LocalDateUtil;
+import fr.gouv.vitam.common.ParametersChecker;
+import fr.gouv.vitam.common.database.server.mongodb.VitamDocument;
+import fr.gouv.vitam.common.exception.DatabaseException;
+import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.metadata.api.exception.MetaDataExecutionException;
+import fr.gouv.vitam.metadata.core.reconstruction.model.PurgedPersistentIdentifier;
 import fr.gouv.vitam.metadata.core.reconstruction.repository.PersistentIdentifierRepository;
+import org.bson.Document;
+import org.bson.conversions.Bson;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.mongodb.client.model.Filters.and;
+import static com.mongodb.client.model.Filters.eq;
 import static fr.gouv.vitam.common.database.server.mongodb.VitamDocument.TENANT_ID;
 import static fr.gouv.vitam.common.database.server.mongodb.VitamDocument.VERSION;
 import static fr.gouv.vitam.common.parameter.ParameterHelper.getTenantParameter;
@@ -51,26 +62,50 @@ public class PersistentIdentifierRepositoryImpl implements PersistentIdentifierR
     public static final String PURGED_PERSISTENT_IDENTIFIER_COLLECTION = "PurgedPersistentIdentifier";
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(PersistentIdentifierRepositoryImpl.class);
     private static final String LAST_PERSISTENT_DATE = "lastPersistentDate";
+    private static final String ALL_PARAMS_REQUIRED = "All params are required";
 
-    private final MongoCollection<PurgedPersistentIdentifierDocument> purgedPersistentIdentifierCollection;
+    private final MongoCollection<Document> purgedPersistentIdentifierCollection;
 
     public PersistentIdentifierRepositoryImpl(MongoDbAccessMetadataImpl mongoDbAccess) {
         this.purgedPersistentIdentifierCollection = mongoDbAccess.getMongoDatabase()
-            .getCollection(PURGED_PERSISTENT_IDENTIFIER_COLLECTION, PurgedPersistentIdentifierDocument.class);
+            .getCollection(PURGED_PERSISTENT_IDENTIFIER_COLLECTION);
 
     }
 
     public PersistentIdentifierRepositoryImpl(MongoDbAccessMetadataImpl mongoDbAccess, String prefix) {
         this.purgedPersistentIdentifierCollection = mongoDbAccess.getMongoDatabase()
-            .getCollection(prefix + PURGED_PERSISTENT_IDENTIFIER_COLLECTION, PurgedPersistentIdentifierDocument.class);
+            .getCollection(prefix + PURGED_PERSISTENT_IDENTIFIER_COLLECTION);
+    }
+
+
+    @Override
+    public List<PurgedPersistentIdentifier> findByPersistentIdentifierAndTenant(String persistentIdentifier,
+        Integer tenant) throws DatabaseException {
+        ParametersChecker.checkParameter(ALL_PARAMS_REQUIRED, persistentIdentifier, tenant);
+        Bson query = and(eq("persistentIdentifier.PersistentIdentifierContent", persistentIdentifier),
+            eq(VitamDocument.TENANT_ID, tenant));
+        try {
+            List<PurgedPersistentIdentifier> result = new ArrayList<>();
+            final FindIterable<Document> documents = purgedPersistentIdentifierCollection.find(query);
+            for (Document doc : documents) {
+                result.add(PurgedPersistentIdentifier.fromDocument(doc));
+            }
+            return result;
+        } catch (MongoException | InvalidParseOperationException e) {
+            throw new DatabaseException(
+                String.format(
+                    "Error while findByPersistentIdentifierAndTenant > persistentIdentifier : %s and tenant: %s",
+                    persistentIdentifier,
+                    tenant), e);
+        }
     }
 
     @Override
-    public void insert(List<PurgedPersistentIdentifierDocument> purgedPersistentIdentifiers)
+    public void insert(List<Document> purgedPersistentIdentifiers)
         throws MetaDataExecutionException {
         BulkWriteOptions options = new BulkWriteOptions().ordered(false);
         try {
-            List<InsertOneModel<PurgedPersistentIdentifierDocument>> insertModels = purgedPersistentIdentifiers.stream()
+            List<InsertOneModel<Document>> insertModels = purgedPersistentIdentifiers.stream()
                 .map(document -> {
                     document.append(VERSION, 0);
                     document.append(TENANT_ID, getTenantParameter());
@@ -83,7 +118,7 @@ public class PersistentIdentifierRepositoryImpl implements PersistentIdentifierR
             for (BulkWriteError bulkWriteError : e.getWriteErrors()) {
                 if (bulkWriteError.getCategory() == ErrorCategory.DUPLICATE_KEY) {
                     LOGGER.info("Document already exists " +
-                        purgedPersistentIdentifiers.get(bulkWriteError.getIndex()).getId() +
+                        purgedPersistentIdentifiers.get(bulkWriteError.getIndex()) +
                         ". Ignoring quietly (idempotency)");
                 } else {
                     hasBlockerErrors = true;

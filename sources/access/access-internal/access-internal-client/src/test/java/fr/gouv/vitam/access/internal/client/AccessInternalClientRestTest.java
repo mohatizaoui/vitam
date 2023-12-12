@@ -98,6 +98,7 @@ import static org.mockito.Mockito.when;
 
 public class AccessInternalClientRestTest extends ResteasyTestApplication {
     private static final String DUMMY_REQUEST_ID = "reqId";
+    private static final String DUMMY_PERSISTENT_IDENTIFIER = "ark:/666567/001a157db5eadaac";
     private static AccessInternalClientRest client;
     private final static ExpectedResults mock = mock(ExpectedResults.class);
 
@@ -156,6 +157,15 @@ public class AccessInternalClientRestTest extends ResteasyTestApplication {
         @Consumes(MediaType.APPLICATION_JSON)
         @Produces(MediaType.APPLICATION_JSON)
         public Response getUnits(JsonNode queryDsl) {
+            return expectedResponse.post();
+        }
+
+        @Override
+        @GET
+        @Path("/units/persistentIdentifier/{persistentIdentifier:.+}")
+        @Consumes(MediaType.APPLICATION_JSON)
+        @Produces(MediaType.APPLICATION_JSON)
+        public Response getUnitsByUnitPersistentIdentifier(@PathParam("persistentIdentifier") String persistentIdentifier, JsonNode queryDsl) {
             return expectedResponse.post();
         }
 
@@ -460,11 +470,31 @@ public class AccessInternalClientRestTest extends ResteasyTestApplication {
     @Test
     public void givenBadRequest_whenSelectUnit_ThenRaiseAnException()
         throws Exception {
-        when(mock.post()).thenReturn(Response.status(Status.BAD_REQUEST).build());
+        when(mock.post()).thenReturn(Response.status(Status.NOT_FOUND).build());
         VitamThreadUtils.getVitamSession().setRequestId(DUMMY_REQUEST_ID);
         final JsonNode queryJson = JsonHandler.getFromString(queryDsl);
         assertThatThrownBy(() -> client.selectUnits(queryJson))
-            .isInstanceOf(InvalidParseOperationException.class);
+            .isInstanceOf(AccessInternalClientNotFoundException.class);
+    }
+
+    @RunWithCustomExecutor
+    @Test
+    public void givenBadRequestException_when_SelectUnitsByUnitPersistentIdentifier_ThenRaiseAnException() throws Exception {
+        when(mock.post()).thenReturn(Response.status(Status.FORBIDDEN).build());
+        VitamThreadUtils.getVitamSession().setRequestId(DUMMY_REQUEST_ID);
+        final JsonNode queryJson = JsonHandler.getFromString(queryDsl);
+        assertThatThrownBy(() -> client.selectUnitsByUnitPersistentIdentifier(DUMMY_PERSISTENT_IDENTIFIER, queryJson))
+            .isInstanceOf(BadRequestException.class);
+    }
+
+    @RunWithCustomExecutor
+    @Test
+    public void givenNotFoundException_when_SelectUnitsByUnitPersistentIdentifier_ThenRaiseAnException() throws Exception {
+        when(mock.post()).thenReturn(Response.status(Status.NOT_FOUND).build());
+        VitamThreadUtils.getVitamSession().setRequestId(DUMMY_REQUEST_ID);
+        final JsonNode queryJson = JsonHandler.getFromString(queryDsl);
+        assertThatThrownBy(() -> client.selectUnitsByUnitPersistentIdentifier(DUMMY_PERSISTENT_IDENTIFIER, queryJson))
+            .isInstanceOf(AccessInternalClientNotFoundException.class);
     }
 
     // Select Unit By Id

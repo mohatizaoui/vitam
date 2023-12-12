@@ -324,7 +324,10 @@ public interface MetaDataClient extends BasicClient {
   RequestResponse<JsonNode> reconstructPersistentIdentifiers(PersistentIdentifierReconstructionRequest requestItem)
       throws MetaDataNotFoundException, InvalidParseOperationException, MetaDataClientServerException;
 
-  /**
+    JsonNode getPurgedPersistentIdentifiers(String persistentIdentifier)
+        throws MetaDataNotFoundException, InvalidParseOperationException, MetaDataClientServerException;
+
+    /**
      * Update units Bulk.
      *
      * @param updateQuery

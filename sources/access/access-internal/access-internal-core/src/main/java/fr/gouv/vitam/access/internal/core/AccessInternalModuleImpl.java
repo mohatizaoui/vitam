@@ -302,6 +302,24 @@ public class AccessInternalModuleImpl implements AccessInternalModule {
         return jsonNode;
     }
 
+    /**
+     * select purged persistent identifiers
+     *
+     * @param persistentIdentifier as String persistent identifier
+     */
+    @Override
+    public JsonNode selectPurgedPersistentIdentifier(String persistentIdentifier)
+        throws InvalidParseOperationException, AccessInternalException {
+        LOGGER.debug("DEBUG: purged persistent identifiers {}", persistentIdentifier);
+
+        try (MetaDataClient metaDataClient = metaDataClientFactory.getClient()) {
+            SanityChecker.checkParameter(persistentIdentifier);
+            return metaDataClient.getPurgedPersistentIdentifiers(persistentIdentifier);
+        } catch (MetaDataNotFoundException | MetaDataClientServerException e) {
+            throw new AccessInternalException("metadata error : ", e);
+        }
+    }
+
 
     @Override
     public JsonNode selectUnitbyId(JsonNode jsonQuery, String idUnit)

@@ -27,10 +27,11 @@
 package fr.gouv.vitam.metadata.core.reconstruction.model;
 
 import com.mongodb.BasicDBList;
+import fr.gouv.vitam.common.database.server.mongodb.BsonHelper;
 import fr.gouv.vitam.common.database.server.mongodb.VitamDocument;
+import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.unit.PersistentIdentifierModel;
-import fr.gouv.vitam.metadata.core.database.collections.PurgedPersistentIdentifierDocument;
 import org.bson.Document;
 
 import java.util.ArrayList;
@@ -64,9 +65,8 @@ public class PurgedPersistentIdentifier {
         return new Builder();
     }
 
-    public static PurgedPersistentIdentifierDocument fromPurgedPersistentIdentifier(
-        PurgedPersistentIdentifier purgedIdentifier) {
-        PurgedPersistentIdentifierDocument document = new PurgedPersistentIdentifierDocument();
+    public static Document toDocument(PurgedPersistentIdentifier purgedIdentifier) {
+        Document document = new Document();
 
         document.append(VitamDocument.ID, purgedIdentifier.getId());
         document.append("persistentIdentifier",
@@ -82,11 +82,35 @@ public class PurgedPersistentIdentifier {
         return document;
     }
 
-    public static List<PurgedPersistentIdentifierDocument> convertListToDocumentList(
+    public static PurgedPersistentIdentifier fromDocument(Document document) throws InvalidParseOperationException {
+
+        List<PersistentIdentifierModel> persistentIdentifierModels = new ArrayList<>();
+
+        final List<Document> persistentIdentifiersAsDocuments =
+            document.getList("persistentIdentifier", Document.class);
+        for (Document persistentIdentifier : persistentIdentifiersAsDocuments) {
+            persistentIdentifierModels
+                .add(BsonHelper.fromDocumentToObject(persistentIdentifier, PersistentIdentifierModel.class));
+        }
+
+        return PurgedPersistentIdentifier.builder()
+            .setId(document.getString(VitamDocument.ID))
+            .setTenant(document.getInteger(VitamDocument.TENANT_ID))
+            .setVersion(document.getInteger(VitamDocument.VERSION))
+            .setType(document.getString("type"))
+            .setObjectGroupId(document.getString("idObjectGroup"))
+            .setOperationId(document.getString("opId"))
+            .setOperationType(document.getString("opType"))
+            .setOperationLastPersistentDate(document.getString("opEndDate"))
+            .setPersistentIdentifier(persistentIdentifierModels)
+            .build();
+    }
+
+    public static List<Document> convertListToDocumentList(
         List<PurgedPersistentIdentifier> purgedIdentifierList) {
-        List<PurgedPersistentIdentifierDocument> documentList = new ArrayList<>();
+        List<Document> documentList = new ArrayList<>();
         for (PurgedPersistentIdentifier purgedIdentifier : purgedIdentifierList) {
-            PurgedPersistentIdentifierDocument document = fromPurgedPersistentIdentifier(purgedIdentifier);
+            Document document = toDocument(purgedIdentifier);
             documentList.add(document);
         }
         return documentList;

@@ -77,6 +77,13 @@ class AccessInternalClientMock extends AbstractMockClient implements AccessInter
     }
 
     @Override
+    public Response selectUnitsByUnitPersistentIdentifier(String persistentIdentifier, JsonNode selectQuery)
+        throws InvalidParseOperationException {
+        return new RequestResponseOK().addResult(JsonHandler.getFromString(
+            "{$hint: {'total':'1'},$context:{$query: {$eq: {\"Title\" : \"Archive1\" }}, $projection: {}, $filter: {}}, $result:[{'#id': '1', 'Title': 'Archive 1', 'DescriptionLevel': 'Archive Mock'}]}")).toResponse();
+    }
+
+    @Override
     public Response streamUnits(JsonNode selectQuery)
         throws AccessInternalClientServerException, ExpectationFailedClientException {
         return null;

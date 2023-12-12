@@ -63,15 +63,14 @@ public class MetaDataClientMockTest {
 
     @Test
     public void selectUnitsTest()
-        throws MetaDataExecutionException, MetaDataDocumentSizeException, MetaDataClientServerException,
-        InvalidParseOperationException, VitamDBException {
+        throws Exception {
         assertNotNull(client.selectUnits(JsonHandler.getFromString(VALID_QUERY)));
     }
 
     @Test
     public void selectUnitsBulkTest()
         throws MetaDataExecutionException, MetaDataDocumentSizeException, MetaDataClientServerException,
-        InvalidParseOperationException, VitamDBException {
+        InvalidParseOperationException {
         List<JsonNode> queries = new ArrayList<JsonNode>();
         queries.add(JsonHandler.getFromString(VALID_QUERY));
         assertNotNull(client.selectUnitsBulk(queries));

@@ -27,6 +27,8 @@
 package fr.gouv.vitam.access.internal.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import fr.gouv.vitam.access.internal.common.exception.AccessInternalClientNotFoundException;
+import fr.gouv.vitam.access.internal.common.exception.AccessInternalException;
 import fr.gouv.vitam.access.internal.common.exception.AccessInternalExecutionException;
 import fr.gouv.vitam.access.internal.common.exception.AccessInternalIllegalOperationException;
 import fr.gouv.vitam.access.internal.common.exception.AccessInternalRuleExecutionException;
@@ -62,6 +64,18 @@ public interface AccessInternalModule {
      */
     JsonNode selectUnit(JsonNode queryJson)
         throws InvalidParseOperationException, AccessInternalExecutionException, VitamDBException;
+
+    /**
+     * select purged persistent identifier
+     *
+     * @param persistentIdentifier as String
+     * @return the result of the select on persistent identifier
+     * @throws IllegalArgumentException if json query is null
+     * @throws InvalidParseOperationException Throw if parameter is not correct
+     * @throws AccessInternalExecutionException Throw if error occurs when retrieve data from database
+     */
+    JsonNode selectPurgedPersistentIdentifier(String persistentIdentifier)
+        throws InvalidParseOperationException, AccessInternalException;
 
     /**
      * select Unit by id

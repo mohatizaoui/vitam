@@ -26,12 +26,17 @@
  */
 package fr.gouv.vitam.metadata.core.reconstruction.repository;
 
+import fr.gouv.vitam.common.exception.DatabaseException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataExecutionException;
-import fr.gouv.vitam.metadata.core.database.collections.PurgedPersistentIdentifierDocument;
+import fr.gouv.vitam.metadata.core.reconstruction.model.PurgedPersistentIdentifier;
+import org.bson.Document;
 
 import java.util.List;
 
 public interface PersistentIdentifierRepository {
 
-    void insert(List<PurgedPersistentIdentifierDocument> purgedPersistentIdentifiers) throws MetaDataExecutionException;
+    List<PurgedPersistentIdentifier> findByPersistentIdentifierAndTenant(String persistentIdentifier, Integer tenant)
+        throws DatabaseException;
+
+    void insert(List<Document> purgedPersistentIdentifiers) throws MetaDataExecutionException;
 }
