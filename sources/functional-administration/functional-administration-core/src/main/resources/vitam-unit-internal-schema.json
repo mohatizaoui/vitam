@@ -455,7 +455,7 @@
       "2.3"
     ],
     "StringSize": "SHORT",
-    "Category": "OTHER",
+    "Category": "DESCRIPTION",
     "ApiPath": "Addressee.FullName",
     "SedaField": "FullName",
     "ShortName": "Nom / Nom + Prénom"
@@ -2219,7 +2219,7 @@
       "2.1"
     ],
     "StringSize": "SHORT",
-    "Category": "DESCRIPTION",
+    "Category": "OTHER",
     "ApiPath": "Description_.*",
     "ShortName": "Description [langue]"
   },
@@ -2923,7 +2923,7 @@
       "2.3"
     ],
     "StringSize": "SHORT",
-    "Category": "OTHER",
+    "Category": "DESCRIPTION",
     "ApiPath": "OriginatingAgency.OrganizationDescriptiveMetadata",
     "ShortName": "OrganizationDescriptiveMetadata"
   },
@@ -4124,7 +4124,7 @@
       "2.3"
     ],
     "StringSize": "SHORT",
-    "Category": "OTHER",
+    "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.References",
     "ShortName": "References"
   },
@@ -4145,7 +4145,7 @@
       "2.3"
     ],
     "StringSize": "SHORT",
-    "Category": "OTHER",
+    "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.References.ArchiveUnitRefId",
     "SedaField": "ArchiveUnitRefId",
     "ShortName": "Référence à une ArchiveUnit interne"
@@ -4167,7 +4167,7 @@
       "2.3"
     ],
     "StringSize": "SHORT",
-    "Category": "OTHER",
+    "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.References.DataObjectReference",
     "ShortName": "DataObjectReference"
   },
@@ -4188,7 +4188,7 @@
       "2.3"
     ],
     "StringSize": "SHORT",
-    "Category": "OTHER",
+    "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.References.DataObjectReference.DataObjectGroupReferenceId",
     "SedaField": "DataObjectGroupReferenceId",
     "ShortName": "Référence à un groupe d'objets"
@@ -4210,7 +4210,7 @@
       "2.3"
     ],
     "StringSize": "SHORT",
-    "Category": "OTHER",
+    "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.References.DataObjectReference.DataObjectReferenceId",
     "SedaField": "DataObjectReferenceId",
     "ShortName": "Référence à un objet ou à un groupe d'objets interne(s)"
@@ -4232,7 +4232,7 @@
       "2.3"
     ],
     "StringSize": "SHORT",
-    "Category": "OTHER",
+    "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.References.ExternalReference",
     "SedaField": "ExternalReference",
     "ShortName": "Référence à un objet externe, présent ni dans le message, ni dans le SAE"
@@ -4254,7 +4254,7 @@
       "2.3"
     ],
     "StringSize": "SHORT",
-    "Category": "OTHER",
+    "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.References.RepositoryArchiveUnitPID",
     "SedaField": "RepositoryArchiveUnitPID",
     "ShortName": "Référence à une ArchiveUnit déjà conservée"
@@ -4276,7 +4276,7 @@
       "2.3"
     ],
     "StringSize": "SHORT",
-    "Category": "OTHER",
+    "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.References.RepositoryObjectPID",
     "SedaField": "RepositoryObjectPID",
     "ShortName": "Référence à un objet ou à un groupe d'objets déjà conservé(s)"
@@ -5345,7 +5345,7 @@
       "2.3"
     ],
     "StringSize": "SHORT",
-    "Category": "OTHER",
+    "Category": "DESCRIPTION",
     "ApiPath": "Signature.ReferencedObject.SignedObjectDigest.Algorithm",
     "SedaField": "Algorithm",
     "ShortName": "Algorithme"
@@ -5367,7 +5367,7 @@
       "2.3"
     ],
     "StringSize": "SHORT",
-    "Category": "OTHER",
+    "Category": "DESCRIPTION",
     "ApiPath": "Signature.ReferencedObject.SignedObjectDigest.MessageDigest",
     "SedaField": "MessageDigest",
     "ShortName": "Empreinte"
@@ -5848,7 +5848,7 @@
       "2.3"
     ],
     "StringSize": "SHORT",
-    "Category": "OTHER",
+    "Category": "DESCRIPTION",
     "ApiPath": "Signature.Signer.FullName",
     "SedaField": "FullName",
     "ShortName": "Nom / Nom + Prénom"
@@ -6517,7 +6517,7 @@
       "2.3"
     ],
     "StringSize": "SHORT",
-    "Category": "OTHER",
+    "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.FullName",
     "SedaField": "FullName",
     "ShortName": "Nom / Nom + Prénom"
@@ -6826,7 +6826,7 @@
       "2.3"
     ],
     "StringSize": "SHORT",
-    "Category": "OTHER",
+    "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.Extended",
     "ShortName": "Extended"
   },
@@ -7283,7 +7283,7 @@
       "2.3"
     ],
     "StringSize": "SHORT",
-    "Category": "OTHER",
+    "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Signer.FullName",
     "SedaField": "FullName",
     "ShortName": "Nom / Nom + Prénom"
@@ -7504,7 +7504,7 @@
       "2.3"
     ],
     "StringSize": "SHORT",
-    "Category": "OTHER",
+    "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.SigningType",
     "SedaField": "SigningType",
     "ShortName": "SigningType"
@@ -7962,7 +7962,7 @@
       "2.3"
     ],
     "StringSize": "SHORT",
-    "Category": "OTHER",
+    "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator.FullName",
     "SedaField": "FullName",
     "ShortName": "Nom / Nom + Prénom"
@@ -8391,7 +8391,7 @@
       "2.3"
     ],
     "StringSize": "SHORT",
-    "Category": "OTHER",
+    "Category": "DESCRIPTION",
     "ApiPath": "SubmissionAgency.OrganizationDescriptiveMetadata",
     "ShortName": "OrganizationDescriptiveMetadata"
   },
@@ -8519,7 +8519,7 @@
       "2.3"
     ],
     "StringSize": "SHORT",
-    "Category": "OTHER",
+    "Category": "DESCRIPTION",
     "ApiPath": "Title.keyword",
     "ShortName": "keyword"
   },
