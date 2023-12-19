@@ -1,0 +1,17 @@
+
+// Switch to metadataCollect database
+db = db.getSiblingDB('collect')
+
+// Create indexes
+// A single collection can have no more than 64 indexes.
+
+db.Project.createIndex({
+    "_tenant": 1,
+    "Context.MessageIdentifier": 1,
+    "Context.SubmissionAgencyIdentifier": 1
+});
+
+db.Transaction.createIndex({
+    "_tenant": 1,
+    "ProjectId": 1
+});

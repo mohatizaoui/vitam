@@ -1,0 +1,61 @@
+// Switch to report database
+db = db.getSiblingDB('report')
+
+// Create indexes EliminationActionUnit
+db.EliminationActionUnit.createIndex( { "processId" : 1, "_tenant" : 1 } )
+db.EliminationActionUnit.createIndex( { "processId" : 1, "_tenant" : 1, "_metadata.id" : 1, "_metadata.type": 1 } )
+db.EliminationActionUnit.dropIndex( { "processId" : 1, "_tenant" : 1, "_metadata.status" : 1 } )
+db.EliminationActionUnit.dropIndex( { "processId" : 1, "_tenant" : 1, "_metadata.id" : 1 } )
+
+// Drop obsolete EliminationActionObjectGroup
+db.EliminationActionObjectGroup.drop();
+
+// Create indexes PurgeUnit
+db.PurgeUnit.createIndex( { "processId" : 1, "_tenant" : 1 } )
+db.PurgeUnit.createIndex( { "processId" : 1, "_tenant" : 1, "_metadata.id" : 1 } )
+db.PurgeUnit.createIndex( { "processId" : 1, "_tenant" : 1, "_metadata.status" : 1 } )
+
+// Create indexes PurgeObjectGroup
+db.PurgeObjectGroup.createIndex( { "processId" : 1, "_tenant" : 1 } )
+db.PurgeObjectGroup.createIndex( { "processId" : 1, "_tenant" : 1, "_metadata.id" : 1 } )
+
+// Create indexes TransferReplyUnit
+db.TransferReplyUnit.createIndex( { "processId" : 1, "_tenant" : 1 } )
+db.TransferReplyUnit.createIndex( { "processId" : 1, "_tenant" : 1, "_metadata.id" : 1 } )
+
+// Create indexes PreservationReport
+db.PreservationReport.createIndex({"processId" : 1, "_tenant" : 1})
+db.PreservationReport.createIndex({"processId" : 1, "_tenant" : 1, "status" : 1 })
+db.PreservationReport.dropIndex({"processId" : 1, "_tenant" : 1, "id" : 1 })
+
+// Create indexes AuditObjectGroup
+db.AuditObjectGroup.createIndex( { "processId" : 1, "_tenant" : 1 } )
+db.AuditObjectGroup.createIndex( { "processId" : 1, "_tenant" : 1, "_metadata.id" : 1 } )
+db.AuditObjectGroup.createIndex( { "processId" : 1, "_tenant" : 1, "_metadata.status" : 1 } )
+
+// Create indexes InvalidUnits (Computed inherited rules invalidation)
+db.InvalidUnits.createIndex( { "processId" : 1, "_tenant" : 1 } )
+db.InvalidUnits.createIndex( { "processId" : 1, "_tenant" : 1, "_metadata.id" : 1 } )
+db.InvalidUnits.dropIndex( { "processId" : 1} )
+
+// Create indexes EvidenceAuditReport
+db.EvidenceAuditReport.createIndex( { "processId" : 1, "_tenant" : 1 } )
+db.EvidenceAuditReport.createIndex( { "processId" : 1, "_tenant" : 1, "_metadata.id" : 1 } )
+db.EvidenceAuditReport.createIndex( { "processId" : 1, "_tenant" : 1, "_metadata.status" : 1 } )
+
+// Create indexes ExtractedMetadata
+db.ExtractedMetadata.createIndex( { "processId" : 1, "tenant" : 1 } )
+db.ExtractedMetadata.dropIndex( { "processId" : 1, "tenant" : 1, "id" : 1 } )
+
+// Create indexes BulkUpdateUnitMetadataReport
+db.BulkUpdateUnitMetadataReport.createIndex( { "processId" : 1, "_tenant" : 1, "statusId" : 1 } )
+db.BulkUpdateUnitMetadataReport.dropIndex( { "processId" : 1, "_tenant" : 1, "id" : 1 } )
+
+// Create indexes DeleteGotVersionsReport
+db.DeleteGotVersionsReport.createIndex( { "processId" : 1, "_tenant" : 1 } )
+
+// Create indexes TraceabilityReport
+db.TraceabilityReport.createIndex( { "processId" : 1, "_tenant" : 1 } )
+
+// Create indexes TraceabilityReport
+db.UpdateUnitReport.createIndex( { "processId" : 1, "_tenant" : 1 } )
