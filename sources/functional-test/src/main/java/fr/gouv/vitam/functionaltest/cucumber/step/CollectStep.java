@@ -34,15 +34,21 @@ import fr.gouv.vitam.collect.common.dto.ProjectDto;
 import fr.gouv.vitam.collect.common.dto.TransactionDto;
 import fr.gouv.vitam.common.FileUtil;
 import fr.gouv.vitam.common.client.VitamContext;
+import fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper;
 import fr.gouv.vitam.common.database.builder.request.multiple.SelectMultiQuery;
 import fr.gouv.vitam.common.error.VitamError;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.exception.VitamClientException;
+import fr.gouv.vitam.common.exception.VitamException;
 import fr.gouv.vitam.common.json.JsonHandler;
+import fr.gouv.vitam.common.logging.SysErrLogger;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
+import net.javacrumbs.jsonunit.JsonAssert;
+import net.javacrumbs.jsonunit.core.Option;
+import org.apache.commons.lang3.time.StopWatch;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.Fail;
 import org.junit.Assume;
@@ -52,11 +58,15 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import static javax.ws.rs.core.Response.Status.Family.SUCCESSFUL;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * step defining collect behaviors
@@ -399,6 +409,84 @@ public class CollectStep extends CommonStep {
         }
     }
 
+    public boolean waitTransaction(String status, int nbTry, long timeWait,
+        TimeUnit timeUnit)
+        throws VitamException {
+        StopWatch stopWatch = StopWatch.createStarted();
+        do {
+            RequestResponse<JsonNode> requestResponse =
+                world.getCollectExternalClient().getTransactionById(new VitamContext(
+                    world.getTenantId()), world.getTransactionId());
+            if (requestResponse.isOk()) {
+                RequestResponseOK<JsonNode> requestResponseOK = (RequestResponseOK<JsonNode>) requestResponse;
+                TransactionDto myTransactionDto =
+                    JsonHandler.getFromString(requestResponseOK.getResults().get(0).toString(),
+                        TransactionDto.class);
+
+                if (status.equals(myTransactionDto.getStatus())) {
+                    return true;
+                } else if (stopWatch.getTime(TimeUnit.MINUTES) >= 1) {
+                    return false;
+                }
+
+                if (null != timeUnit) {
+                    timeWait = timeUnit.toMillis(timeWait);
+                }
+                nbTry--;
+
+                if (nbTry > 0) {
+                    try {
+                        Thread.sleep(timeWait);
+                    } catch (InterruptedException e) {
+                        SysErrLogger.FAKE_LOGGER.ignoreLog(e);
+                    }
+                }
+            } else {
+                throw new VitamException((VitamError) requestResponse);
+            }
+
+        } while (nbTry > 0);
+        return false;
+
+    }
+
+    @Given("^je reçois un statut OK depuis l'ingest et je constate son statut (.*)$")
+    public void verifyOkStatus(String status) throws Exception {
+        verifyStatus(status);
+    }
+
+    @Given("^je reçois un statut KO depuis l'ingest et je constate son statut (.*)$")
+    public void verifyKOStatus(String status) throws Exception {
+        verifyStatus(status);
+    }
+
+
+    public void verifyStatus(String status) throws Exception {
+
+        boolean processTimeout = waitTransaction(status, 3, 300_000L,
+            TimeUnit.MILLISECONDS);
+        if (!processTimeout) {
+            fail("Sip processing not finished : operation (" + world.getOperationId() + "). Timeout exceeded.");
+        }
+
+
+        RequestResponse<JsonNode> requestResponse =
+            world.getCollectExternalClient().getTransactionById(new VitamContext(
+                world.getTenantId()), world.getTransactionId());
+        if (requestResponse.isOk()) {
+            RequestResponseOK<JsonNode> requestResponseOK = (RequestResponseOK<JsonNode>) requestResponse;
+            assertThat(requestResponseOK.getResults()).isNotEmpty();
+            TransactionDto myTransactionDto =
+                JsonHandler.getFromString(requestResponseOK.getResults().get(0).toString(),
+                    TransactionDto.class);
+            assertThat(myTransactionDto.getStatus()).isEqualTo(status);
+
+        } else {
+            VitamError vitamError = (VitamError) requestResponse;
+            Fail.fail(TRANSACTION_RETURN_AN_ERROR + vitamError.getCode());
+        }
+    }
+
     @When("^j'envoie l'arborescence bureautique suivante (.*)$")
     public void should_upload_project_zip(String arboFileName) throws Exception {
 
@@ -409,6 +497,55 @@ public class CollectStep extends CommonStep {
             Assertions.assertThat(response.getStatus()).isEqualTo(200);
         }
     }
+
+    @When("^j'envoie un fichier de mise à jour (.*)$")
+    public void should_upload_metadata_csv(String arboFileName) throws Exception {
+
+        try (InputStream inputStream =
+            Files.newInputStream(Paths.get(world.getBaseDirectory(), arboFileName))) {
+            RequestResponse<JsonNode> response = world.getCollectExternalClient()
+                .updateUnits(new VitamContext(world.getTenantId()), world.getTransactionId(), inputStream);
+            Assertions.assertThat(response.getStatus()).isEqualTo(200);
+        }
+    }
+
+
+    @When("^je constate que des métadonnées correspondent au fichier json (.+)$")
+    public void json_metadata_are_for_particular_result(String filename) throws Throwable {
+
+        RequestResponse<JsonNode> requestResponse = world.getCollectExternalClient()
+            .getUnitsByTransaction(new VitamContext(world.getTenantId()), world.getTransactionId(),
+                new SelectMultiQuery().getFinalSelect());
+        Path file = Paths.get(world.getBaseDirectory(), filename);
+        JsonNode expectedJson;
+        try (InputStream inputStream = Files.newInputStream(file, StandardOpenOption.READ)) {
+            expectedJson = JsonHandler.getFromInputStream(inputStream);
+        }
+
+        RequestResponseOK<JsonNode> requestResponseOK = (RequestResponseOK<JsonNode>) requestResponse;
+        assertThat(requestResponseOK.getResults()).isNotEmpty();
+
+
+
+        JsonAssert.assertJsonEquals(JsonHandler.toJsonNode(requestResponseOK.getResults()), expectedJson,
+            JsonAssert.when(Option.IGNORING_ARRAY_ORDER).whenIgnoringPaths(
+                List.of("[*]." + VitamFieldsHelper.initialOperation(),
+                    "[*]." + VitamFieldsHelper.id(),
+                    "[*]." + VitamFieldsHelper.unitups(),
+                    "[*]." + VitamFieldsHelper.object(),
+                    "[*]." + VitamFieldsHelper.allunitups(),
+                    "[*]." + VitamFieldsHelper.initialOperation(),
+                    "[*]." + VitamFieldsHelper.approximateCreationDate(),
+                    "[*]." + VitamFieldsHelper.version(),
+                    "[*]." + VitamFieldsHelper.unitType(),
+                    "[*]." + VitamFieldsHelper.min(),
+                    "[*]." + VitamFieldsHelper.max(),
+                    "[*]." + VitamFieldsHelper.tenant(),
+                    "[*]." + VitamFieldsHelper.originatingAgencies(),
+                    "[*]." + VitamFieldsHelper.approximateUpdateDate())));
+    }
+
+
 
     @When("^je constate qu'une AU ainsi qu'un GOT sont créés")
     public void should_find_au() throws Exception {
