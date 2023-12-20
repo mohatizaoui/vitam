@@ -29,9 +29,12 @@ package fr.gouv.vitam.metadata.core.reconstruction.domain;
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.metadata.core.config.MetaDataConfiguration;
+import fr.gouv.vitam.metadata.core.reconstruction.domain.extractor.PurgedPersistentIdentifierExtractor;
+import fr.gouv.vitam.metadata.core.reconstruction.domain.extractor.PurgedPersistentIdentifierExtractorFactory;
 import fr.gouv.vitam.metadata.core.reconstruction.exception.ReconstructionException;
 import fr.gouv.vitam.metadata.core.reconstruction.model.PurgedPersistentIdentifier;
 import fr.gouv.vitam.metadata.core.reconstruction.model.ReconstructionOperation;
+import fr.gouv.vitam.metadata.core.reconstruction.model.ReportLine.ReportLineType;
 import fr.gouv.vitam.metadata.core.reconstruction.repository.OperationReportRepository;
 import fr.gouv.vitam.metadata.core.reconstruction.repository.PersistentIdentifierRepository;
 import org.junit.Before;
@@ -87,11 +90,40 @@ public class OperationReportParserTest {
     }
 
     @Test
+    public void processReportFromOperation2_Successful() throws Exception {
+        ReconstructionOperation operation = new ReconstructionOperation.Builder()
+            .setId("operationId")
+            .setTenant(0)
+            .setType("ELIMINATION_ACTION")
+            .setLastPersistedDate("2017-10-31T15:11:18")
+            .build();
+
+        final InputStream inputStream = PropertiesUtils.getResourceAsStream("deleting_versions_expectedReport.jsonl");
+
+        when(operationReportRepository.retrieveJsonReportForOperation("operationId"))
+            .thenReturn(inputStream);
+        when(purgedPersistentIdentifierExtractorFactory.instance(any(ReportLineType.class)))
+            .thenReturn(purgedPersistentIdentifierExtractor);
+
+        when(purgedPersistentIdentifierExtractor
+            .extractPurgedPersistentIdentifier(any(JsonNode.class), eq(operation)))
+            .thenReturn(Collections.singletonList(new PurgedPersistentIdentifier.Builder()
+                .setId("purgedId")
+                .setTenant(0)
+                .setType("sampleType")
+                .build()));
+
+        LocalDateTime result = operationReportParser.processReportFromOperation(operation);
+
+        assertThat(result).isNotNull();
+    }
+
+    @Test
     public void processReportFromOperation_Successful() throws Exception {
         ReconstructionOperation operation = new ReconstructionOperation.Builder()
             .setId("operationId")
             .setTenant(0)
-            .setType("sampleType")
+            .setType("ELIMINATION_ACTION")
             .setLastPersistedDate("2017-10-31T15:11:18")
             .build();
 
@@ -99,7 +131,7 @@ public class OperationReportParserTest {
 
         when(operationReportRepository.retrieveJsonReportForOperation("operationId"))
             .thenReturn(inputStream);
-        when(purgedPersistentIdentifierExtractorFactory.instance(any(JsonNode.class)))
+        when(purgedPersistentIdentifierExtractorFactory.instance(any(ReportLineType.class)))
             .thenReturn(purgedPersistentIdentifierExtractor);
 
         when(purgedPersistentIdentifierExtractor
@@ -131,5 +163,34 @@ public class OperationReportParserTest {
         assertThrows(ReconstructionException.class, () -> operationReportParser.processReportFromOperation(operation));
     }
 
+
+    @Test
+    public void processDeletingVersionsReportFromOperation_Successful() throws Exception {
+        ReconstructionOperation operation = new ReconstructionOperation.Builder()
+            .setId("operationId")
+            .setTenant(0)
+            .setType("DELETE_GOT_VERSIONS")
+            .setLastPersistedDate("2017-10-31T15:11:18")
+            .build();
+
+        final InputStream inputStream = PropertiesUtils.getResourceAsStream("deleting_versions_expectedReport.jsonl");
+
+        when(operationReportRepository.retrieveJsonReportForOperation("operationId"))
+            .thenReturn(inputStream);
+        when(purgedPersistentIdentifierExtractorFactory.instance(any(ReportLineType.class)))
+            .thenReturn(purgedPersistentIdentifierExtractor);
+
+        when(purgedPersistentIdentifierExtractor
+            .extractPurgedPersistentIdentifier(any(JsonNode.class), eq(operation)))
+            .thenReturn(Collections.singletonList(new PurgedPersistentIdentifier.Builder()
+                .setId("purgedId")
+                .setTenant(0)
+                .setType("sampleType")
+                .build()));
+
+        LocalDateTime result = operationReportParser.processReportFromOperation(operation);
+
+        assertThat(result).isNotNull();
+    }
 
 }

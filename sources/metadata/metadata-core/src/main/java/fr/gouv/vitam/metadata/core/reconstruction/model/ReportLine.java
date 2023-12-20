@@ -24,38 +24,34 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.metadata.core.reconstruction.domain;
+package fr.gouv.vitam.metadata.core.reconstruction.model;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import fr.gouv.vitam.metadata.api.exception.MetaDataExecutionException;
 
-public class PurgedPersistentIdentifierExtractorFactory {
+public class ReportLine {
 
-    public static final String UNIT = "Unit";
-    public static final String OBJECT_GROUP = "ObjectGroup";
+    final private ReportLineType type;
+    final private JsonNode line;
 
-    private static PurgedPersistentIdentifierExtractor unitInstance;
-    private static PurgedPersistentIdentifierExtractor objectGroupInstance;
+    public ReportLine(JsonNode line, ReportLineType type) {
+        this.line = line;
+        this.type = type;
+    }
 
-    public PurgedPersistentIdentifierExtractor instance(JsonNode node) throws MetaDataExecutionException {
-        if (node.has("type")) {
-            String type = node.get("type").asText();
+    public ReportLineType getType() {
+        return type;
+    }
 
-            switch (type) {
-                case UNIT:
-                    if (unitInstance == null) {
-                        unitInstance = new UnitPurgedPersistentIdentifierExtractor();
-                    }
-                    return unitInstance;
-                case OBJECT_GROUP:
-                    if (objectGroupInstance == null) {
-                        objectGroupInstance = new ObjectPurgedPersistentIdentifierExtractor();
-                    }
-                    return objectGroupInstance;
-                default:
-                    throw new MetaDataExecutionException("Illegal reconstruction type parameter '" + type + "'");
-            }
-        }
-        throw new MetaDataExecutionException("reconstruction type parameter is mandatory");
+    public JsonNode getLine() {
+        return line;
+    }
+
+    public enum ReportLineType {
+        DELETED_UNIT,
+        DELETED_OBJECT_GROUP,
+        DELETED_GOT_VERSION,
+        UNDEFINED
     }
 }
+
+

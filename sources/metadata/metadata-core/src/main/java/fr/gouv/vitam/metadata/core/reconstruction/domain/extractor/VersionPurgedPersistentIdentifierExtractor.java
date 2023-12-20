@@ -24,46 +24,58 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.metadata.core.reconstruction.domain;
+package fr.gouv.vitam.metadata.core.reconstruction.domain.extractor;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.common.annotations.VisibleForTesting;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
+import fr.gouv.vitam.metadata.core.reconstruction.domain.PurgedPersistentIdentifierValidator;
 import fr.gouv.vitam.metadata.core.reconstruction.model.PurgedPersistentIdentifier;
 import fr.gouv.vitam.metadata.core.reconstruction.model.ReconstructionOperation;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
-public class UnitPurgedPersistentIdentifierExtractor extends PurgedPersistentIdentifierExtractor {
+public class VersionPurgedPersistentIdentifierExtractor extends PurgedPersistentIdentifierExtractor {
 
     private static final VitamLogger LOGGER =
-        VitamLoggerFactory.getInstance(UnitPurgedPersistentIdentifierExtractor.class);
-
-    public static final String UNIT = "Unit";
+        VitamLoggerFactory.getInstance(VersionPurgedPersistentIdentifierExtractor.class);
 
     @Override
-    public List<PurgedPersistentIdentifier> extractPurgedPersistentIdentifier(JsonNode node,
+    public List<PurgedPersistentIdentifier> extractPurgedPersistentIdentifier(JsonNode jsonNode,
         ReconstructionOperation operation) {
-        List<PurgedPersistentIdentifier> purgedPersistentIdentifiers = new ArrayList<>();
-        if (node.has("persistentIdentifier") && !node.get("persistentIdentifier").isNull()) {
-            PurgedPersistentIdentifier purgedPersistentIdentifier =
-                buildUnitPurgedPersistentIdentifier(node, operation);
-            if(purgedPersistentIdentifier != null) {
-                purgedPersistentIdentifiers.add(purgedPersistentIdentifier);
-            }
-        }
-        return purgedPersistentIdentifiers;
+
+        final String objectGroupId = jsonNode.get("objectGroupId").asText();
+
+        return Optional.ofNullable(jsonNode)
+            .map(node -> node.path("objectGroupGlobal"))
+            .filter(JsonNode::isArray)
+            .map(objectGroupNodes ->
+                StreamSupport.stream(objectGroupNodes.spliterator(), false)
+                    .map(objectGroupNode ->
+                        StreamSupport.stream(objectGroupNode.path("deletedVersions").spliterator(), false)
+                            .map(deletedVersionNode -> buildObjetPurgedPersistentIdentifier(objectGroupId,
+                                deletedVersionNode, operation))
+                            .filter(Objects::nonNull)
+                            .collect(Collectors.toList()))
+                    .collect(Collectors.toList()))
+            .orElse(Collections.emptyList())
+            .stream()
+            .flatMap(List::stream)
+            .collect(Collectors.toList());
     }
 
-    @VisibleForTesting
-    PurgedPersistentIdentifier buildUnitPurgedPersistentIdentifier(JsonNode element,
+    public PurgedPersistentIdentifier buildObjetPurgedPersistentIdentifier(String objectGroupId, JsonNode element,
         ReconstructionOperation operation) {
 
         if (!PurgedPersistentIdentifierValidator.validateFields(element, "id", "persistentIdentifier")) {
-            LOGGER.warn("This element {} is ignored in the persistent identifier reconstruction because id or persistent identifier are not provided", element);
+            LOGGER.warn(
+                "This element {} is ignored in the persistent identifier reconstruction because id or persistent identifier are not provided",
+                element);
             return null;
         }
 
@@ -72,8 +84,8 @@ public class UnitPurgedPersistentIdentifierExtractor extends PurgedPersistentIde
             .setTenant(operation.getTenant())
             .setPersistentIdentifier(extractPersistentIdentifiers(element.get("persistentIdentifier")))
             .setVersion(0)
-            .setType(UNIT)
-            .setObjectGroupId(Optional.ofNullable(element.get("objectGroupId")).map(JsonNode::asText).orElse(null))
+            .setType(OBJECT)
+            .setObjectGroupId(objectGroupId)
             .setOperationId(operation.getId())
             .setOperationType(operation.getType())
             .setOperationLastPersistentDate(operation.getLastPersistedDate())

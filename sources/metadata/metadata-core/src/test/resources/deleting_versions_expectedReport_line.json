@@ -1,0 +1,41 @@
+{
+  "_id": "aeaaaaaaaaecg2hkab33qammh2dt6taaaaaq",
+  "id": "aebaaaaaaeecg2hmaak7cammh2czumaaaaaq",
+  "processId": "aeeaaaaaagecg2htaaf7cammh2dt2piaaaaq",
+  "_tenant": 1,
+  "creationDateTime": "2023-12-06T09:48:20.166",
+  "detailType": "DELETE_GOT_VERSIONS",
+  "objectGroupGlobal": [
+    {
+      "status": "OK",
+      "deletedVersions": [
+        {
+          "id": "aebqaaaaagecg2hmaak7cammh2czunqaaaba",
+          "DataObjectVersion": "BinaryMaster_2",
+          "Size": 38628,
+          "strategyId": "default",
+          "opi": "aeeaaaaaagecg2heaaet6ammh2czdyiaaaaq",
+          "opc": "aeeaaaaaagecg2heaaet6ammh2czdyiaaaaq",
+          "persistentIdentifier": [
+            {
+              "PersistentIdentifierType": "ark",
+              "PersistentIdentifierOrigin": "OriginatingAgency",
+              "PersistentIdentifierReference": "Agency-00021",
+              "PersistentIdentifierContent": "ark:/23567/001a9d7db5eadabac_binary_master"
+            },
+            {
+              "PersistentIdentifierType": "ark",
+              "PersistentIdentifierOrigin": "OriginatingAgency",
+              "PersistentIdentifierReference": "Agency-00221",
+              "PersistentIdentifierContent": "ark:/225867/001a9d7db5eghxac_binary_master"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "objectGroupId": "aebaaaaaaeecg2hmaak7cammh2czumaaaaaq",
+  "unitIds": [
+    "aeaqaaaaaeecg2hmaak7cammh2czupiaaaaq"
+  ]
+}

@@ -35,7 +35,6 @@ import fr.gouv.vitam.access.internal.common.exception.AccessInternalClientServer
 import fr.gouv.vitam.access.internal.rest.AccessInternalMain;
 import fr.gouv.vitam.batch.report.rest.BatchReportMain;
 import fr.gouv.vitam.common.DataLoader;
-import fr.gouv.vitam.common.LocalDateUtil;
 import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.VitamRuleRunner;
@@ -54,9 +53,12 @@ import fr.gouv.vitam.common.exception.AccessUnauthorizedException;
 import fr.gouv.vitam.common.exception.BadRequestException;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.format.identification.FormatIdentifierFactory;
+import fr.gouv.vitam.common.guid.GUID;
+import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
+import fr.gouv.vitam.common.model.DeleteGotVersionsRequest;
 import fr.gouv.vitam.common.model.ProcessState;
 import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
@@ -105,8 +107,6 @@ import org.junit.Test;
 import javax.ws.rs.core.Response.Status;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -114,10 +114,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import static fr.gouv.vitam.common.VitamTestHelper.doIngest;
 import static fr.gouv.vitam.common.VitamTestHelper.verifyOperation;
 import static fr.gouv.vitam.common.VitamTestHelper.waitOperation;
 import static fr.gouv.vitam.common.guid.GUIDFactory.newOperationLogbookGUID;
+import static fr.gouv.vitam.common.json.JsonHandler.getFromJsonNode;
 import static fr.gouv.vitam.common.model.StatusCode.OK;
+import static fr.gouv.vitam.common.model.administration.DataObjectVersionType.BINARY_MASTER;
+import static fr.gouv.vitam.common.thread.VitamThreadUtils.getVitamSession;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -134,9 +138,10 @@ public class PersistentIdentifierReconstructionIT extends VitamRuleRunner {
         VitamLoggerFactory.getInstance(PersistentIdentifierReconstructionIT.class);
     private static final String XML = ".xml";
     private static final String TEST_ELIMINATION_V3_SIP = "elimination/TEST_ELIMINATION_V3.zip";
+    private static final String TEST_ELIMINATION_V4_SIP = "elimination/TEST_ELIMINATION_V4.zip";
     private static final int TENANT_0 = 0;
     private static final int TENANT_1 = 1;
-    private static final Integer tenantId = 0;
+
     @ClassRule
     public static VitamServerRunner runner =
         new VitamServerRunner(PersistentIdentifierReconstructionIT.class, mongoRule.getMongoDatabase().getName(),
@@ -180,14 +185,9 @@ public class PersistentIdentifierReconstructionIT extends VitamRuleRunner {
     }
 
     public static void prepareVitamSession() {
-        VitamThreadUtils.getVitamSession().setTenantId(tenantId);
+        VitamThreadUtils.getVitamSession().setTenantId(TENANT_0);
         VitamThreadUtils.getVitamSession().setContractId(CONTRACT_ID);
         VitamThreadUtils.getVitamSession().setContextId(CONTEXT_ID);
-    }
-
-    @After
-    public void tearDown() {
-        runAfter();
     }
 
     @Before
@@ -197,10 +197,10 @@ public class PersistentIdentifierReconstructionIT extends VitamRuleRunner {
 
     @Test
     @RunWithCustomExecutor
-    public void testPersistentIdentifierReconstructOk() throws Exception {
+    public void testEliminatedPersistentIdentifierReconstructOk() throws Exception {
 
         prepareVitamSession();
-        final String ingestOperationGuid = VitamTestHelper.doIngest(tenantId, TEST_ELIMINATION_V3_SIP);
+        final String ingestOperationGuid = VitamTestHelper.doIngest(TENANT_0, TEST_ELIMINATION_V3_SIP);
         verifyOperation(ingestOperationGuid, OK);
 
         final AccessInternalClient accessInternalClient = AccessInternalClientFactory.getInstance().getClient();
@@ -213,7 +213,7 @@ public class PersistentIdentifierReconstructionIT extends VitamRuleRunner {
         Set<String> ingestedObjectIds = getBinaryObjectIds(ingestedGots);
         assertThat(ingestedObjectIds).hasSize(3);
 
-        final String eliminationActionOperationGuid = newOperationLogbookGUID(tenantId).toString();
+        final String eliminationActionOperationGuid = newOperationLogbookGUID(TENANT_0).toString();
         VitamThreadUtils.getVitamSession().setRequestId(eliminationActionOperationGuid);
 
         SelectMultiQuery analysisDslRequest = new SelectMultiQuery();
@@ -258,12 +258,55 @@ public class PersistentIdentifierReconstructionIT extends VitamRuleRunner {
 
     }
 
+
+    @Test
+    @RunWithCustomExecutor
+    public void testDeletedGotWithPersistentIdentifierReconstruction_Ok() throws Exception {
+
+        prepareVitamSession();
+        String ingestOperationId = doIngest(TENANT_0, TEST_ELIMINATION_V4_SIP);
+        verifyOperation(ingestOperationId, OK);
+
+        try (AccessInternalClient accessClient = AccessInternalClientFactory.getInstance().getClient()) {
+
+            SelectMultiQuery getGotsRequest = new SelectMultiQuery();
+            getGotsRequest.addQueries(
+                QueryHelper.eq(VitamFieldsHelper.initialOperation(), ingestOperationId));
+
+
+            // Prepare Request for delete got versions
+            SelectMultiQuery searchDslQuery = new SelectMultiQuery();
+            searchDslQuery.addQueries(QueryHelper.eq("Title", "UnitF"));
+
+            DeleteGotVersionsRequest deleteGotVersionsRequest =
+                new DeleteGotVersionsRequest(searchDslQuery.getFinalSelect(),
+                    BINARY_MASTER.getName(), List.of(2));
+
+            GUID operationGuid = GUIDFactory.newOperationLogbookGUID(TENANT_0);
+            getVitamSession().setRequestId(operationGuid);
+            final RequestResponse<JsonNode> actionResult =
+
+                accessClient.deleteGotVersions(deleteGotVersionsRequest);
+            assertThat(actionResult.isOk()).isTrue();
+            VitamTestHelper.awaitForWorkflowTerminationWithStatus(operationGuid, OK);
+
+            PersistentIdentifierReconstructionRequest requestItem = new PersistentIdentifierReconstructionRequest();
+            List<Integer> tenants = Lists.list(TENANT_0, TENANT_1);
+            requestItem.setTenants(tenants);
+            MetaDataClientFactory metaDataClientFactory = MetaDataClientFactory.getInstance();
+            try (MetaDataClient metaDataClient = metaDataClientFactory.getClient()) {
+                RequestResponse<JsonNode> response = metaDataClient.reconstructPersistentIdentifiers(requestItem);
+                assertThat(response.getHttpCode()).isEqualTo(HTTP_OK);
+            }
+        }
+    }
+
     private void awaitForWorkflowTerminationWithStatus(String operationGuid, StatusCode expectedStatusCode) {
 
         waitOperation(operationGuid);
 
         ProcessWorkflow processWorkflow =
-            ProcessMonitoringImpl.getInstance().findOneProcessWorkflow(operationGuid, tenantId);
+            ProcessMonitoringImpl.getInstance().findOneProcessWorkflow(operationGuid, TENANT_0);
 
         try {
             assertNotNull(processWorkflow);
@@ -331,7 +374,7 @@ public class PersistentIdentifierReconstructionIT extends VitamRuleRunner {
         Set<String> objectIds = new HashSet<>();
 
         try {
-            ObjectGroupResponse gotResponse = JsonHandler.getFromJsonNode(gotJson, ObjectGroupResponse.class);
+            ObjectGroupResponse gotResponse = getFromJsonNode(gotJson, ObjectGroupResponse.class);
 
             for (QualifiersModel qualifier : gotResponse.getQualifiers()) {
                 for (VersionsModel version : qualifier.getVersions()) {

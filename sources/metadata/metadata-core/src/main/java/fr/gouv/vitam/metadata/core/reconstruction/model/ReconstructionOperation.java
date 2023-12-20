@@ -35,7 +35,7 @@ public class ReconstructionOperation {
     private String type;
 
     private String lastPersistedDate;
-
+    
     private ReconstructionOperation(Builder builder) {
         this.id = builder.id;
         this.tenant = builder.tenant;

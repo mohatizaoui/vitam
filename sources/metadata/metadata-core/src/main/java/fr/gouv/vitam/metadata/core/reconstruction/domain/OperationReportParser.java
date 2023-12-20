@@ -32,9 +32,11 @@ import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.metadata.api.exception.MetaDataExecutionException;
 import fr.gouv.vitam.metadata.core.config.MetaDataConfiguration;
+import fr.gouv.vitam.metadata.core.reconstruction.domain.extractor.PurgedPersistentIdentifierExtractorFactory;
 import fr.gouv.vitam.metadata.core.reconstruction.exception.ReconstructionException;
 import fr.gouv.vitam.metadata.core.reconstruction.model.PurgedPersistentIdentifier;
 import fr.gouv.vitam.metadata.core.reconstruction.model.ReconstructionOperation;
+import fr.gouv.vitam.metadata.core.reconstruction.model.ReportLine;
 import fr.gouv.vitam.metadata.core.reconstruction.repository.OperationReportRepository;
 import fr.gouv.vitam.metadata.core.reconstruction.repository.PersistentIdentifierRepository;
 
@@ -49,7 +51,21 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
+import static fr.gouv.vitam.metadata.core.reconstruction.model.ReportLine.ReportLineType.DELETED_GOT_VERSION;
+import static fr.gouv.vitam.metadata.core.reconstruction.model.ReportLine.ReportLineType.DELETED_OBJECT_GROUP;
+import static fr.gouv.vitam.metadata.core.reconstruction.model.ReportLine.ReportLineType.DELETED_UNIT;
+import static fr.gouv.vitam.metadata.core.reconstruction.model.ReportLine.ReportLineType.UNDEFINED;
+
 public class OperationReportParser {
+
+    public static final String UNIT = "Unit";
+    public static final String OBJECT_GROUP = "ObjectGroup";
+    public static final String ELIMINATION_ACTION = "ELIMINATION_ACTION";
+    public static final String DELETE_GOT_VERSIONS = "DELETE_GOT_VERSIONS";
+    public static final String DETAIL_TYPE = "detailType";
+    public static final String OBJECT_GROUP_GLOBAL = "objectGroupGlobal";
+    public static final String PARAMS = "params";
+    public static final String TYPE = "type";
 
     final private OperationReportRepository operationReportRepository;
     final private PurgedPersistentIdentifierExtractorFactory purgedPersistentIdentifierExtractorFactory;
@@ -64,7 +80,6 @@ public class OperationReportParser {
         this.purgedPersistentIdentifierExtractorFactory = purgedPersistentIdentifierExtractorFactory;
         this.metaDataConfiguration = metaDataConfiguration;
         this.persistentIdentifierRepository = persistentIdentifierRepository;
-            ;
     }
 
     public LocalDateTime processReportFromOperation(ReconstructionOperation operation) throws ReconstructionException {
@@ -94,12 +109,12 @@ public class OperationReportParser {
     private void processJsonElement(JsonNode element, ReconstructionOperation operation, PurgedPersistentIdentifierBulkInserter purgedPersistentIdentifierBulkInserter)
         throws MetaDataExecutionException {
 
-        if (element.has("params")) {
-            JsonNode params = element.get("params");
+        final ReportLine reportLine = pullOutReportLineFromJsonElement(element, operation);
 
+        if(!UNDEFINED.equals(reportLine.getType())) {
             List<PurgedPersistentIdentifier> purgedPersistentIdentifiers =
-                purgedPersistentIdentifierExtractorFactory.instance(params)
-                    .extractPurgedPersistentIdentifier(params, operation);
+                purgedPersistentIdentifierExtractorFactory.instance(reportLine.getType())
+                    .extractPurgedPersistentIdentifier(reportLine.getLine(), operation);
 
             for (PurgedPersistentIdentifier purgedPersistentIdentifier : purgedPersistentIdentifiers) {
                 purgedPersistentIdentifierBulkInserter.append(purgedPersistentIdentifier);
@@ -107,4 +122,43 @@ public class OperationReportParser {
         }
     }
 
+    private ReportLine pullOutReportLineFromJsonElement(JsonNode element, ReconstructionOperation operation)
+        throws MetaDataExecutionException {
+        final String operationType = operation.getType();
+
+        switch (operationType) {
+            case ELIMINATION_ACTION:
+                return getReportLineFromEliminationReport(element);
+            case DELETE_GOT_VERSIONS:
+                return getReportLineFromDeletingVersionsReport(element);
+            default:
+                throw new MetaDataExecutionException("Illegal reconstruction type parameter");
+        }
+    }
+
+    private ReportLine getReportLineFromDeletingVersionsReport(JsonNode element) {
+        if (element.has(DETAIL_TYPE) && DELETE_GOT_VERSIONS.equals(element.get(DETAIL_TYPE).asText())) {
+            return new ReportLine(element, DELETED_GOT_VERSION);
+        }
+        return new ReportLine(element, UNDEFINED);
+    }
+
+    private ReportLine getReportLineFromEliminationReport(JsonNode element) throws MetaDataExecutionException {
+        if (element.has(PARAMS)) {
+            JsonNode params = element.get(PARAMS);
+            if (params.has(TYPE)) {
+                String type = params.get(TYPE).asText();
+                switch (type) {
+                    case UNIT:
+                        return new ReportLine(params, DELETED_UNIT);
+                    case OBJECT_GROUP:
+                        return new ReportLine(params, DELETED_OBJECT_GROUP);
+                    default:
+                        throw new MetaDataExecutionException(
+                            "Illegal reconstruction type parameter '" + type + "'");
+                }
+            }
+        }
+        return new ReportLine(element, UNDEFINED);
+    }
 }

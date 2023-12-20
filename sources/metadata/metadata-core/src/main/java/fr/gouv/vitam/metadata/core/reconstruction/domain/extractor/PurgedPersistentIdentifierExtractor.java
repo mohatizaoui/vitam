@@ -24,7 +24,7 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.metadata.core.reconstruction.domain;
+package fr.gouv.vitam.metadata.core.reconstruction.domain.extractor;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -44,8 +44,10 @@ public abstract class PurgedPersistentIdentifierExtractor {
 
     private static final VitamLogger LOGGER =
         VitamLoggerFactory.getInstance(PurgedPersistentIdentifierExtractor.class);
+    public static final String OBJECT = "Object";
+    public static final String UNIT = "Unit";
 
-    abstract List<PurgedPersistentIdentifier> extractPurgedPersistentIdentifier(JsonNode node,
+    public abstract List<PurgedPersistentIdentifier> extractPurgedPersistentIdentifier(JsonNode node,
         ReconstructionOperation operation)
         throws MetaDataExecutionException;
 
