@@ -34,13 +34,16 @@ import java.util.Objects;
 public class TransferReplyContext {
     private final String transferMessageRequestIdentifier;
     private final String atrMessageIdentifier;
+    private final String archivalAgencyIdentifier;
 
     @JsonCreator
     public TransferReplyContext(
         @JsonProperty("transferMessageRequestIdentifier") String transferMessageRequestIdentifier,
-        @JsonProperty("atrMessageIdentifier") String atrMessageIdentifier) {
+        @JsonProperty("atrMessageIdentifier") String atrMessageIdentifier,
+        @JsonProperty("archivalAgencyIdentifier") String archivalAgencyIdentifier) {
         this.transferMessageRequestIdentifier = transferMessageRequestIdentifier;
         this.atrMessageIdentifier = atrMessageIdentifier;
+        this.archivalAgencyIdentifier = archivalAgencyIdentifier;
     }
 
     @JsonProperty("transferMessageRequestIdentifier")
@@ -53,6 +56,11 @@ public class TransferReplyContext {
         return atrMessageIdentifier;
     }
 
+    @JsonProperty("archivalAgencyIdentifier")
+    public String getArchivalAgencyIdentifier() {
+        return archivalAgencyIdentifier;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o)
@@ -61,12 +69,12 @@ public class TransferReplyContext {
             return false;
         TransferReplyContext that = (TransferReplyContext) o;
         return transferMessageRequestIdentifier.equals(that.transferMessageRequestIdentifier) &&
-            atrMessageIdentifier.equals(that.atrMessageIdentifier);
+            atrMessageIdentifier.equals(that.atrMessageIdentifier) && (archivalAgencyIdentifier==null || archivalAgencyIdentifier.equals(that.archivalAgencyIdentifier));
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(transferMessageRequestIdentifier, atrMessageIdentifier);
+        return Objects.hash(transferMessageRequestIdentifier, atrMessageIdentifier, archivalAgencyIdentifier);
     }
 
     @Override
@@ -74,6 +82,7 @@ public class TransferReplyContext {
         return "SharedTransferReplyIds{" +
             "transferMessageRequestIdentifier='" + transferMessageRequestIdentifier + '\'' +
             ", atrMessageIdentifier='" + atrMessageIdentifier + '\'' +
+            ", archivalAgencyIdentifier='" + archivalAgencyIdentifier + '\'' +
             '}';
     }
 }

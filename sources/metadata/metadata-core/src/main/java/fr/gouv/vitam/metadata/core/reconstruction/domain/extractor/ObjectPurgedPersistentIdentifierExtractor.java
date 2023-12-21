@@ -80,6 +80,7 @@ public class ObjectPurgedPersistentIdentifierExtractor extends PurgedPersistentI
             .setVersion(0)
             .setType(OBJECT)
             .setObjectGroupId(objectGroupId)
+            .setArchivalAgencyIdentifier(Optional.ofNullable(element.get("archivalAgencyIdentifier")).map(JsonNode::asText).orElse(null))
             .setOperationId(operation.getId())
             .setOperationType(operation.getType())
             .setOperationLastPersistentDate(operation.getLastPersistedDate())

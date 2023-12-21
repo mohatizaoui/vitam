@@ -40,6 +40,7 @@ public class PurgeObjectGroupReportEntry {
     private final Set<String> objectIds;
     private final List<PurgeObjectGroupObjectVersion> objectVersions;
     private final String status;
+    private final String archivalAgencyIdentifier;
 
     @JsonCreator
     public PurgeObjectGroupReportEntry(
@@ -49,6 +50,7 @@ public class PurgeObjectGroupReportEntry {
         @JsonProperty("deletedParentUnitIds") Set<String> deletedParentUnitIds,
         @JsonProperty("objectIds") Set<String> objectIds,
         @JsonProperty("status") String status,
+        @JsonProperty("archivalAgencyIdentifier") String archivalAgencyIdentifier,
         @JsonProperty("objectVersions") List<PurgeObjectGroupObjectVersion> objectVersions) {
         this.id = id;
         this.originatingAgency = originatingAgency;
@@ -56,6 +58,7 @@ public class PurgeObjectGroupReportEntry {
         this.deletedParentUnitIds = deletedParentUnitIds;
         this.objectIds = objectIds;
         this.status = status;
+        this.archivalAgencyIdentifier = archivalAgencyIdentifier;
         this.objectVersions = objectVersions;
     }
 
@@ -92,5 +95,10 @@ public class PurgeObjectGroupReportEntry {
     @JsonProperty("status")
     public String getStatus() {
         return status;
+    }
+
+    @JsonProperty("archivalAgencyIdentifier")
+    public String getArchivalAgencyIdentifier() {
+        return archivalAgencyIdentifier;
     }
 }

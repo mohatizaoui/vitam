@@ -57,6 +57,10 @@
               {
                 "name": "TransferReplyContext",
                 "uri": "WORKSPACE:TransferReplyContext.json"
+              },
+              {
+                "name": "atrFileSerialized",
+                "uri": "MEMORY:atrFileSerialized"
               }
             ]
           }
@@ -69,6 +73,10 @@
               {
                 "name": "TransferReplyContext",
                 "uri": "WORKSPACE:TransferReplyContext.json"
+              },
+              {
+                "name": "atrFileSerialized",
+                "uri": "MEMORY:atrFileSerialized"
               }
             ]
           }

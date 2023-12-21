@@ -24,7 +24,7 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.worker.core.plugin.purge;
+package fr.gouv.vitam.worker.core.plugin.transfer.reply;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -47,6 +47,8 @@ import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.processing.common.parameter.WorkerParametersFactory;
 import fr.gouv.vitam.worker.common.HandlerIO;
 import fr.gouv.vitam.worker.core.distribution.JsonLineModel;
+import fr.gouv.vitam.worker.core.plugin.purge.PurgeObjectGroupStatus;
+import fr.gouv.vitam.worker.core.plugin.purge.PurgeReportService;
 import fr.gouv.vitam.worker.core.plugin.transfer.reply.model.TransferReplyContext;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.collections4.SetUtils;
@@ -77,33 +79,37 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class PurgeObjectGroupPreparationHandlerTest {
+public class TransferReplyObjectGroupPreparationHandlerTest {
 
     @Rule
     public RunWithCustomExecutorRule runInThread =
         new RunWithCustomExecutorRule(VitamThreadPoolExecutor.getDefaultExecutor());
 
     @Rule
-    public TemporaryFolder tempFolder = new TemporaryFolder();
-
-    @Rule
     public MockitoRule mockitoRule = MockitoJUnit.rule();
 
+    @Rule
+    public TemporaryFolder tempFolder = new TemporaryFolder();
+
+    static final String OBJECT_GROUPS_TO_DELETE_FILE = "object_groups_to_delete.jsonl";
+    static final String OBJECT_GROUPS_TO_DETACH_FILE = "object_groups_to_detach.jsonl";
+
     @Mock
-    private MetaDataClientFactory metaDataClientFactory;
+    private PurgeReportService purgeReportService;
 
     @Mock
     private MetaDataClient metaDataClient;
 
     @Mock
-    private PurgeReportService purgeReportService;
-
-    private ArrayList<PurgeObjectGroupReportEntry> reportEntries;
+    private MetaDataClientFactory metaDataClientFactory;
 
     @Mock
     private HandlerIO handler;
 
     private WorkerParameters params;
+
+    private ArrayList<PurgeObjectGroupReportEntry> reportEntries;
+
 
     @Before
     public void setUp() throws Exception {
@@ -116,7 +122,7 @@ public class PurgeObjectGroupPreparationHandlerTest {
         doReturn(metaDataClient).when(metaDataClientFactory).getClient();
 
         params = WorkerParametersFactory.newWorkerParameters().setWorkerGUID(GUIDFactory
-                .newGUID().getId()).setContainerName(VitamThreadUtils.getVitamSession().getRequestId())
+            .newGUID().getId()).setContainerName(VitamThreadUtils.getVitamSession().getRequestId())
             .setRequestId(VitamThreadUtils.getVitamSession().getRequestId())
             .setProcessId(VitamThreadUtils.getVitamSession().getRequestId())
             .setObjectName("REF")
@@ -147,9 +153,9 @@ public class PurgeObjectGroupPreparationHandlerTest {
             "EliminationAction/EliminationActionObjectGroupPreparationHandler/existingUnits.json"));
         doReturn(existingUnits).when(metaDataClient).selectUnits(any());
 
-        PurgeObjectGroupPreparationHandler instance = new PurgeObjectGroupPreparationHandler(
-            "PLUGIN_NAME",
+        TransferReplyObjectGroupPreparationHandler instance = new TransferReplyObjectGroupPreparationHandler(
             metaDataClientFactory, purgeReportService, 10);
+
         when(handler.getJsonFromWorkspace("TransferReplyContext.json"))
             .thenReturn(JsonHandler.toJsonNode(new TransferReplyContext(
                 "messageRequestIdentifier",
@@ -164,25 +170,25 @@ public class PurgeObjectGroupPreparationHandlerTest {
         assertThat(reportEntries).hasSize(4);
         checkReportEntry(reportEntries, "id_got_1", "sp_1", "opi1",
             Arrays.asList("id_got_1_object_1", "id_got_1_object_2"), null,
-            PurgeObjectGroupStatus.DELETED);
+            PurgeObjectGroupStatus.DELETED, "archivalAgencyIdentifier");
         checkReportEntry(reportEntries, "id_got_2", "sp_2", "opi2", null, Arrays.asList("id_unit_20"),
-            PurgeObjectGroupStatus.PARTIAL_DETACHMENT);
+            PurgeObjectGroupStatus.PARTIAL_DETACHMENT, "archivalAgencyIdentifier");
         checkReportEntry(reportEntries, "id_got_3", "sp_3", "opi3",
             Arrays.asList("id_got_3_object_1"), null,
-            PurgeObjectGroupStatus.DELETED);
+            PurgeObjectGroupStatus.DELETED, "archivalAgencyIdentifier");
         checkReportEntry(reportEntries, "id_got_5", "sp_5", "opi5", null, Arrays.asList("id_unit_50", "id_unit_51"),
-            PurgeObjectGroupStatus.PARTIAL_DETACHMENT);
+            PurgeObjectGroupStatus.PARTIAL_DETACHMENT, "archivalAgencyIdentifier");
 
         ArgumentCaptor<File> objectGroupsToDeleteFileArgCaptor = ArgumentCaptor.forClass(File.class);
         ArgumentCaptor<File> objectGroupsToDetachFileArgCaptor = ArgumentCaptor.forClass(File.class);
-        verify(handler).transferFileToWorkspace(eq(PurgeObjectGroupPreparationHandler.OBJECT_GROUPS_TO_DELETE_FILE),
+        verify(handler).transferFileToWorkspace(eq(OBJECT_GROUPS_TO_DELETE_FILE),
             objectGroupsToDeleteFileArgCaptor.capture(), eq(true), eq(false));
-        verify(handler).transferFileToWorkspace(eq(PurgeObjectGroupPreparationHandler.OBJECT_GROUPS_TO_DETACH_FILE),
+        verify(handler).transferFileToWorkspace(eq(OBJECT_GROUPS_TO_DETACH_FILE),
             objectGroupsToDetachFileArgCaptor.capture(), eq(true), eq(false));
 
         List<JsonLineModel> objectGroupsToDelete =
             FileUtils.readLines(objectGroupsToDeleteFileArgCaptor.getValue(), StandardCharsets.UTF_8)
-                .stream().map(PurgeObjectGroupPreparationHandlerTest::parse).collect(toList());
+                .stream().map(TransferReplyObjectGroupPreparationHandlerTest::parse).collect(toList());
 
         assertThat(objectGroupsToDelete).hasSize(2);
 
@@ -192,7 +198,7 @@ public class PurgeObjectGroupPreparationHandlerTest {
 
         List<JsonLineModel> objectGroupsToDetach =
             FileUtils.readLines(objectGroupsToDetachFileArgCaptor.getValue(), StandardCharsets.UTF_8)
-                .stream().map(PurgeObjectGroupPreparationHandlerTest::parse).collect(toList());
+                .stream().map(TransferReplyObjectGroupPreparationHandlerTest::parse).collect(toList());
 
         assertThat(objectGroupsToDetach).hasSize(2);
         checkObjectGroupToDetach(objectGroupsToDetach, "id_got_2", "id_unit_20");
@@ -201,7 +207,7 @@ public class PurgeObjectGroupPreparationHandlerTest {
 
     private void checkReportEntry(ArrayList<PurgeObjectGroupReportEntry> entries, String id,
         String sp, String opi, List<String> deletedObjectIds, List<String> deletedParentUnitIds,
-        PurgeObjectGroupStatus status) {
+        PurgeObjectGroupStatus status, String archivalAgencyIdentifier) {
 
         PurgeObjectGroupReportEntry entry =
             entries.stream().filter(e -> e.getId().equals(id)).findFirst().get();
@@ -210,28 +216,14 @@ public class PurgeObjectGroupPreparationHandlerTest {
         assertThat(entry.getOriginatingAgency()).isEqualTo(sp);
         assertThat(entry.getInitialOperation()).isEqualTo(opi);
         assertThat(entry.getStatus()).isEqualTo(status.name());
-        assertThat(entry.getArchivalAgencyIdentifier()).isNull();
+        assertThat(entry.getArchivalAgencyIdentifier()).isEqualTo(archivalAgencyIdentifier);
         assertThat(SetUtils.emptyIfNull(entry.getObjectIds()))
             .containsExactlyInAnyOrder(ListUtils.emptyIfNull(deletedObjectIds).toArray(new String[0]));
         assertThat(SetUtils.emptyIfNull(entry.getDeletedParentUnitIds()))
             .containsExactlyInAnyOrder(ListUtils.emptyIfNull(deletedParentUnitIds).toArray(new String[0]));
     }
 
-    private void checkObjectGroupToDetach(List<JsonLineModel> objectGroupsToDetach, String id,
-        String... removedParentIds)
-        throws InvalidParseOperationException {
-
-        JsonLineModel objectGroupToDetach =
-            objectGroupsToDetach.stream().filter(o -> o.getId().equals(id)).findFirst().get();
-
-        assertThat(objectGroupToDetach.getId()).isEqualTo(id);
-        assertThat(objectGroupToDetach.getDistribGroup()).isNull();
-        assertThat(JsonHandler.getFromJsonNode(objectGroupToDetach.getParams(), Set.class))
-            .containsExactlyInAnyOrder(removedParentIds);
-    }
-
-    private void checkObjectGroupToDelete(List<JsonLineModel> objectGroupsToDelete, String id, String... objectIds)
-        throws InvalidParseOperationException {
+    private void checkObjectGroupToDelete(List<JsonLineModel> objectGroupsToDelete, String id, String... objectIds) {
         JsonLineModel objectGroupToDelete = objectGroupsToDelete.stream().filter(o -> o.getId().equals(id)).findFirst()
             .get();
 
@@ -257,5 +249,19 @@ public class PurgeObjectGroupPreparationHandlerTest {
         } catch (InvalidParseOperationException e) {
             throw new RuntimeException(e);
         }
+    }
+
+
+    private void checkObjectGroupToDetach(List<JsonLineModel> objectGroupsToDetach, String id,
+        String... removedParentIds)
+        throws InvalidParseOperationException {
+
+        JsonLineModel objectGroupToDetach =
+            objectGroupsToDetach.stream().filter(o -> o.getId().equals(id)).findFirst().get();
+
+        assertThat(objectGroupToDetach.getId()).isEqualTo(id);
+        assertThat(objectGroupToDetach.getDistribGroup()).isNull();
+        assertThat(JsonHandler.getFromJsonNode(objectGroupToDetach.getParams(), Set.class))
+            .containsExactlyInAnyOrder(removedParentIds);
     }
 }

@@ -54,6 +54,8 @@ import java.util.Optional;
 import static fr.gouv.vitam.metadata.core.reconstruction.model.ReportLine.ReportLineType.DELETED_GOT_VERSION;
 import static fr.gouv.vitam.metadata.core.reconstruction.model.ReportLine.ReportLineType.DELETED_OBJECT_GROUP;
 import static fr.gouv.vitam.metadata.core.reconstruction.model.ReportLine.ReportLineType.DELETED_UNIT;
+import static fr.gouv.vitam.metadata.core.reconstruction.model.ReportLine.ReportLineType.TRANSFERRED_OBJECT_GROUP;
+import static fr.gouv.vitam.metadata.core.reconstruction.model.ReportLine.ReportLineType.TRANSFERRED_UNIT;
 import static fr.gouv.vitam.metadata.core.reconstruction.model.ReportLine.ReportLineType.UNDEFINED;
 
 public class OperationReportParser {
@@ -63,9 +65,9 @@ public class OperationReportParser {
     public static final String ELIMINATION_ACTION = "ELIMINATION_ACTION";
     public static final String DELETE_GOT_VERSIONS = "DELETE_GOT_VERSIONS";
     public static final String DETAIL_TYPE = "detailType";
-    public static final String OBJECT_GROUP_GLOBAL = "objectGroupGlobal";
     public static final String PARAMS = "params";
     public static final String TYPE = "type";
+    public static final String TRANSFER_REPLY = "TRANSFER_REPLY";
 
     final private OperationReportRepository operationReportRepository;
     final private PurgedPersistentIdentifierExtractorFactory purgedPersistentIdentifierExtractorFactory;
@@ -131,6 +133,8 @@ public class OperationReportParser {
                 return getReportLineFromEliminationReport(element);
             case DELETE_GOT_VERSIONS:
                 return getReportLineFromDeletingVersionsReport(element);
+            case TRANSFER_REPLY:
+                return getReportLineFromTransferredReport(element);
             default:
                 throw new MetaDataExecutionException("Illegal reconstruction type parameter");
         }
@@ -153,6 +157,25 @@ public class OperationReportParser {
                         return new ReportLine(params, DELETED_UNIT);
                     case OBJECT_GROUP:
                         return new ReportLine(params, DELETED_OBJECT_GROUP);
+                    default:
+                        throw new MetaDataExecutionException(
+                            "Illegal reconstruction type parameter '" + type + "'");
+                }
+            }
+        }
+        return new ReportLine(element, UNDEFINED);
+    }
+
+    private ReportLine getReportLineFromTransferredReport(JsonNode element) throws MetaDataExecutionException {
+        if (element.has(PARAMS)) {
+            JsonNode params = element.get(PARAMS);
+            if (params.has(TYPE)) {
+                String type = params.get(TYPE).asText();
+                switch (type) {
+                    case UNIT:
+                        return new ReportLine(params, TRANSFERRED_UNIT);
+                    case OBJECT_GROUP:
+                        return new ReportLine(params, TRANSFERRED_OBJECT_GROUP);
                     default:
                         throw new MetaDataExecutionException(
                             "Illegal reconstruction type parameter '" + type + "'");

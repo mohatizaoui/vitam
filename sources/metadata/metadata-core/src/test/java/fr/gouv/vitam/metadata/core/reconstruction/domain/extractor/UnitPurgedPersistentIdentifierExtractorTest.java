@@ -93,6 +93,7 @@ public class UnitPurgedPersistentIdentifierExtractorTest {
         assertThat(purgedPersistentIdentifier.getTenant()).isEqualTo(0);
         assertThat(purgedPersistentIdentifier.getType()).isEqualTo("Unit");
         assertThat(purgedPersistentIdentifier.getPersistentIdentifier().size()).isEqualTo(2);
+        assertThat(purgedPersistentIdentifier.getArchivalAgencyIdentifier()).isEqualTo("identifier4");
     }
 
     private JsonNode createSampleJsonNode() throws Exception {
@@ -100,6 +101,7 @@ public class UnitPurgedPersistentIdentifierExtractorTest {
         node.put("id", "aeaqaaaaaae6eg5mabudoamkdsdghiiaaaba");
         node.set("persistentIdentifier", new ObjectMapper().readTree(PERSISTENT_IDENTIFIER));
         node.put("type", "Unit");
+        node.put("archivalAgencyIdentifier", "identifier4");
         return node;
     }
 

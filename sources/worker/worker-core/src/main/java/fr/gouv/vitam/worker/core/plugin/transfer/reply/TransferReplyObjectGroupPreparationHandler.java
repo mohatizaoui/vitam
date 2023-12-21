@@ -26,13 +26,19 @@
  */
 package fr.gouv.vitam.worker.core.plugin.transfer.reply;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.annotations.VisibleForTesting;
+import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
+import fr.gouv.vitam.processing.common.exception.ProcessingException;
+import fr.gouv.vitam.worker.common.HandlerIO;
+import fr.gouv.vitam.worker.core.exception.ProcessingStatusException;
 import fr.gouv.vitam.worker.core.plugin.purge.PurgeObjectGroupPreparationHandler;
 import fr.gouv.vitam.worker.core.plugin.purge.PurgeReportService;
 
 public class TransferReplyObjectGroupPreparationHandler extends PurgeObjectGroupPreparationHandler {
 
+    public static final String TRANSFER_REPLY_CONTEXT_JSON = "TransferReplyContext.json";
     private static final String TRANSFER_REPLY_OBJECT_GROUP_PREPARATION =
         "TRANSFER_REPLY_OBJECT_GROUP_PREPARATION";
 
@@ -53,6 +59,15 @@ public class TransferReplyObjectGroupPreparationHandler extends PurgeObjectGroup
         int objectGroupBulkSize) {
         super(TRANSFER_REPLY_OBJECT_GROUP_PREPARATION, metaDataClientFactory, purgeReportService,
             objectGroupBulkSize);
+    }
+
+    @Override
+    public JsonNode retrieveTransferReplyContext(HandlerIO handler) throws ProcessingStatusException {
+        try {
+            return handler.getJsonFromWorkspace(TRANSFER_REPLY_CONTEXT_JSON);
+        } catch (ProcessingException e) {
+            throw new ProcessingStatusException(StatusCode.FATAL, "Could not retrieve transfer reply context", e);
+        }
     }
 
     public static String getId() {

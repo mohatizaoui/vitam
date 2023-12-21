@@ -41,6 +41,7 @@ import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.mongo.MongoRule;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Objects;
 import org.assertj.core.api.Assertions;
 import org.bson.Document;
@@ -67,6 +68,12 @@ public class PurgeUnitRepositoryTest {
     private final static String PURGE_UNIT = "PurgeUnit" + GUIDFactory.newGUID().getId();
     private static final int TENANT_ID = 0;
     private static final String PROCESS_ID = "123456789";
+
+    public static final String ID = "id";
+    public static final String TYPE = "type";
+    public static final String ARCHIVAL_AGENCY_IDENTIFIER = "archivalAgencyIdentifier";
+    public static final String PARAMS = "params";
+
     private static final TypeReference<ReportBody<PurgeUnitReportEntry>>
         TYPE_REFERENCE = new TypeReference<>() {
     };
@@ -103,7 +110,7 @@ public class PurgeUnitRepositoryTest {
         Object metadata = first.get("_metadata");
         JsonNode metadataNode = JsonHandler.toJsonNode(metadata);
         JsonNode expected = JsonHandler.getFromString(
-            "{\"id\":\"unitId1\",\"originatingAgency\":\"sp1\",\"opi\":\"opi0\",\"objectGroupId\":\"id2\",\"status\":\"DELETED\",\"extraInfo\":{\"key1\":\"unit1_value1\",\"key2\":[\"unit1_value2\"]},\"persistentIdentifier\":[{\"PersistentIdentifierType\":\"ark\",\"PersistentIdentifierContent\":\"ark:/666567/001a957db5eadaac\"},{\"PersistentIdentifierType\":\"ark\",\"PersistentIdentifierContent\":\"ark:/26661/001d957db5eadaac\"}],\"type\":\"INGEST\"}");
+            "{\"id\":\"unitId1\",\"originatingAgency\":\"sp1\",\"opi\":\"opi0\",\"objectGroupId\":\"id2\",\"status\":\"DELETED\",\"archivalAgencyIdentifier\":\"identifier4\",\"extraInfo\":{\"key1\":\"unit1_value1\",\"key2\":[\"unit1_value2\"]},\"persistentIdentifier\":[{\"PersistentIdentifierType\":\"ark\",\"PersistentIdentifierContent\":\"ark:/666567/001a957db5eadaac\"},{\"PersistentIdentifierType\":\"ark\",\"PersistentIdentifierContent\":\"ark:/26661/001d957db5eadaac\"}],\"type\":\"INGEST\"}");
         assertThat(metadataNode).isNotNull().isEqualTo(expected);
         repository.bulkAppendReport(purgeUnitModels);
         assertThat(purgeUnitCollection.countDocuments()).isEqualTo(4);
@@ -214,6 +221,13 @@ public class PurgeUnitRepositoryTest {
             documents.add(next);
         }
         assertThat(documents.size()).isEqualTo(4);
+        List<Document> sortedDocuments = documents.stream()
+            .sorted(Comparator.comparing(doc -> doc.getString(ID)))
+            .collect(Collectors.toList());
+
+        Assertions.assertThat(sortedDocuments.get(0).get(PARAMS))
+            .extracting(ORIGINATING_AGENCY, ID, TYPE, OPI, ARCHIVAL_AGENCY_IDENTIFIER)
+            .containsExactly("sp1", "unitId1", "Unit", "opi0", "identifier4");
     }
 
 

@@ -188,11 +188,13 @@ import retrofit2.http.Path;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
@@ -2407,6 +2409,7 @@ public class EndToEndEliminationAndTransferReplyIT extends VitamRuleRunner {
                 if (!expectedAlreadyDeletedUnitIds.contains(entry.getKey())) {
                     assertThat(entry.getValue().params.opi).isEqualTo(ingestOperationGuid);
                     assertThat(entry.getValue().params.originatingAgency).isEqualTo(ORIGINATING_AGENCY);
+                    assertThat(entry.getValue().params.archivalAgencyIdentifier).isEqualTo("Identifier4");
                     assertThat(entry.getValue().params.objectGroupId).isEqualTo(
                         getById(ingestedUnits, entry.getKey()).has("#object") ?
                             getById(ingestedUnits, entry.getKey()).get("#object").asText() : null
@@ -2431,6 +2434,7 @@ public class EndToEndEliminationAndTransferReplyIT extends VitamRuleRunner {
 
                 if (expectedDeletedObjectGroupIds.contains(entry.getKey())) {
                     assertThat(entry.getValue().params.status).isEqualTo("DELETED");
+                    assertThat(entry.getValue().params.archivalAgencyIdentifier).isEqualTo("Identifier4");
                     assertThat(entry.getValue().params.objectIds).containsExactlyInAnyOrderElementsOf(
                         getBinaryObjectIds(getById(ingestedObjectGroups, entry.getKey()))
                     );
@@ -3085,6 +3089,8 @@ public class EndToEndEliminationAndTransferReplyIT extends VitamRuleRunner {
         String originatingAgency;
         @JsonProperty("objectGroupId")
         String objectGroupId;
+        @JsonProperty("archivalAgencyIdentifier")
+        String archivalAgencyIdentifier;
         @JsonProperty("extraInfo")
         Map<String, Object> extraInfo;
         @JsonProperty("type")
@@ -3117,6 +3123,8 @@ public class EndToEndEliminationAndTransferReplyIT extends VitamRuleRunner {
         String opi;
         @JsonProperty("originatingAgency")
         String originatingAgency;
+        @JsonProperty("archivalAgencyIdentifier")
+        String archivalAgencyIdentifier;
         @JsonProperty("objectIds")
         List<String> objectIds;
         @JsonProperty("deletedParentUnitIds")
