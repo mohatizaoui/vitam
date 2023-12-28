@@ -26,116 +26,177 @@
  */
 package fr.gouv.vitam.collect.external.external.rest;
 
-import fr.gouv.vitam.collect.internal.client.CollectInternalClientRestMock;
+import fr.gouv.vitam.collect.internal.client.CollectInternalClient;
+import fr.gouv.vitam.collect.internal.client.CollectInternalClientFactory;
 import fr.gouv.vitam.common.GlobalDataRest;
 import fr.gouv.vitam.common.client.VitamClientFactory;
 import fr.gouv.vitam.common.exception.VitamApplicationServerException;
+import fr.gouv.vitam.common.exception.VitamClientException;
 import fr.gouv.vitam.common.junit.JunitHelper;
-import fr.gouv.vitam.common.logging.SysErrLogger;
+import fr.gouv.vitam.common.logging.VitamLogger;
+import fr.gouv.vitam.common.logging.VitamLoggerFactory;
+import fr.gouv.vitam.common.model.RequestResponseOK;
+import fr.gouv.vitam.common.server.application.junit.ResteasyTestApplication;
+import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
+import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import javax.ws.rs.core.Response;
+import java.util.Set;
 
 import static io.restassured.RestAssured.given;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-public class TransactionExternalResourceTest {
+public class TransactionExternalResourceTest extends ResteasyTestApplication {
+
+    static final String COLLECT_CONF = "collect-external-test.conf";
+    // URI
+    private static final String COLLECT_RESOURCE_URI = "collect-external/v1";
     private static CollectExternalMain application;
-    private final static JunitHelper junitHelper = JunitHelper.getInstance();
-    private static int portAvailable;
+
+    // LOGGER
+    private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(ProjectExternalResourceTest.class);
+    private static JunitHelper junitHelper = JunitHelper.getInstance();
+    private static int port = junitHelper.findAvailablePort();
+
+    @Rule
+    public RunWithCustomExecutorRule runInThread =
+        new RunWithCustomExecutorRule(VitamThreadPoolExecutor.getDefaultExecutor());
+
+    private final static BusinessApplicationTest businessApplicationTest = new BusinessApplicationTest();
+    private final static CollectInternalClientFactory collectInternalClientFactory =
+        businessApplicationTest.getCollectInternalClientFactory();
+    private final static CollectInternalClient collectInternalClient = mock(CollectInternalClient.class);
+
+    @Override
+    public Set<Object> getResources() {
+        return businessApplicationTest.getSingletons();
+    }
+
+    @Override
+    public Set<Class<?>> getClasses() {
+        return businessApplicationTest.getClasses();
+    }
 
     @BeforeClass
-    public static void setUpBeforeMethod() throws VitamApplicationServerException {
-        portAvailable = junitHelper.findAvailablePort();
-        RestAssured.port = portAvailable;
-        RestAssured.basePath = "collect-external/v1";
-        application = new CollectExternalMain("collect-external-test.conf",
-                BusinessApplicationTest.class, null);
-        application.start();
+    public static void setUpBeforeClass() {
+        junitHelper = JunitHelper.getInstance();
+        port = junitHelper.findAvailablePort();
+        try {
+            application = new CollectExternalMain(COLLECT_CONF, TransactionExternalResourceTest.class, null);
+            application.start();
+            RestAssured.port = port;
+            RestAssured.basePath = COLLECT_RESOURCE_URI;
+
+            LOGGER.debug("Beginning tests");
+        } catch (final VitamApplicationServerException e) {
+            LOGGER.error(e);
+            throw new IllegalStateException(
+                "Cannot start the Collect Application Server", e);
+        }
+
+    }
+
+    @Before
+    public void setUpBefore() {
+        Mockito.reset(collectInternalClient);
+        Mockito.reset(collectInternalClientFactory);
+        when(collectInternalClientFactory.getClient()).thenReturn(collectInternalClient);
     }
 
     @AfterClass
-    public static void tearDown() throws Exception {
-        try {
-            if (application != null && application.getVitamServer() != null &&
-                    application.getVitamServer() != null) {
-
-                application.stop();
-            }
-        } catch (Exception e) {
-            SysErrLogger.FAKE_LOGGER.syserr("", e);
+    public static void tearDownAfterClass() throws Exception {
+        LOGGER.debug("Ending tests");
+        junitHelper.releasePort(port);
+        if (application != null) {
+            application.stop();
         }
-
-        junitHelper.releasePort(portAvailable);
         VitamClientFactory.resetConnections();
         fr.gouv.vitam.common.external.client.VitamClientFactory.resetConnections();
     }
 
     @Test
-    public void uploadArchiveUnit_OK() {
+    public void uploadArchiveUnit_OK() throws Exception {
+
+        String transactionId = "myTxId";
+        doReturn(new RequestResponseOK<>())
+            .when(collectInternalClient).uploadArchiveUnit(any(), eq(transactionId));
         given()
-                .accept(ContentType.JSON)
-                .contentType(ContentType.JSON)
-                .header(GlobalDataRest.X_TENANT_ID, "0")
-                .body("{\n" +
-                        "  \"DescriptionLevel\": \"RecordGrp\",\n" +
-                        "  \"Title\": \"Bulletins de salaire : mars 2020\"\n" +
-                        "}")
-                .when().log().all()
-                .post("/transactions/" + CollectInternalClientRestMock.TRANSACTION_ID + "/units")
-                .then().log().all()
-                .statusCode(Response.Status.OK.getStatusCode());
+            .accept(ContentType.JSON)
+            .contentType(ContentType.JSON)
+            .header(GlobalDataRest.X_TENANT_ID, "0")
+            .body("{\n" +
+                "  \"DescriptionLevel\": \"RecordGrp\",\n" +
+                "  \"Title\": \"Bulletins de salaire : mars 2020\"\n" +
+                "}")
+            .when().log().all()
+            .post("/transactions/" + transactionId + "/units")
+            .then().log().all()
+            .statusCode(Response.Status.OK.getStatusCode());
     }
 
     @Test
-    public void uploadArchiveUnit_with_bad_transaction_id() {
+    public void uploadArchiveUnit_with_bad_transaction_id()
+        throws Exception {
+        doThrow(new VitamClientException("Error"))
+            .when(collectInternalClient).uploadArchiveUnit(any(), anyString());
         given()
-                .accept(ContentType.JSON)
-                .contentType(ContentType.JSON)
-                .header(GlobalDataRest.X_TENANT_ID, "0")
-                .body("{\n" +
-                        "  \"DescriptionLevel\": \"RecordGrp\",\n" +
-                        "  \"Title\": \"Bulletins de salaire : mars 2020\"\n" +
-                        "}")
-                .when().log().all()
-                .post("/transactions/BAD_TRANSACTION_ID/units")
-                .then().log().all()
-                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+            .accept(ContentType.JSON)
+            .contentType(ContentType.JSON)
+            .header(GlobalDataRest.X_TENANT_ID, "0")
+            .body("{\n" +
+                "  \"DescriptionLevel\": \"RecordGrp\",\n" +
+                "  \"Title\": \"Bulletins de salaire : mars 2020\"\n" +
+                "}")
+            .when().log().all()
+            .post("/transactions/BAD_TRANSACTION_ID/units")
+            .then().log().all()
+            .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
 
     @Test
     public void bad_endpoint_match_pattern() {
         given()
-                .accept(ContentType.JSON)
-                .contentType(ContentType.JSON)
-                .header(GlobalDataRest.X_TENANT_ID, "0")
-                .body("{\n" +
-                        "  \"DescriptionLevel\": \"RecordGrp\",\n" +
-                        "  \"Title\": \"Bulletins de salaire : mars 2020\"\n" +
-                        "}")
-                .when().log().all()
-                .post("/transactions/units")
-                .then().log().all()
-                .statusCode(Response.Status.METHOD_NOT_ALLOWED.getStatusCode());
+            .accept(ContentType.JSON)
+            .contentType(ContentType.JSON)
+            .header(GlobalDataRest.X_TENANT_ID, "0")
+            .body("{\n" +
+                "  \"DescriptionLevel\": \"RecordGrp\",\n" +
+                "  \"Title\": \"Bulletins de salaire : mars 2020\"\n" +
+                "}")
+            .when().log().all()
+            .post("/transactions/units")
+            .then().log().all()
+            .statusCode(Response.Status.METHOD_NOT_ALLOWED.getStatusCode());
     }
 
     @Test
     public void bad_endpoint_no_match() {
         given()
-                .accept(ContentType.JSON)
-                .contentType(ContentType.JSON)
-                .header(GlobalDataRest.X_TENANT_ID, "0")
-                .body("{\n" +
-                        "  \"DescriptionLevel\": \"RecordGrp\",\n" +
-                        "  \"Title\": \"Bulletins de salaire : mars 2020\"\n" +
-                        "}")
-                .when().log().all()
-                .post("/transactions//units")
-                .then().log().all()
-                .statusCode(Response.Status.NOT_FOUND.getStatusCode());
+            .accept(ContentType.JSON)
+            .contentType(ContentType.JSON)
+            .header(GlobalDataRest.X_TENANT_ID, "0")
+            .body("{\n" +
+                "  \"DescriptionLevel\": \"RecordGrp\",\n" +
+                "  \"Title\": \"Bulletins de salaire : mars 2020\"\n" +
+                "}")
+            .when().log().all()
+            .post("/transactions//units")
+            .then().log().all()
+            .statusCode(Response.Status.NOT_FOUND.getStatusCode());
     }
 }
