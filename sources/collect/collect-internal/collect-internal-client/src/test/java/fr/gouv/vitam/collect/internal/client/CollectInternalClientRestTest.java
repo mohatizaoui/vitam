@@ -32,12 +32,17 @@ import fr.gouv.vitam.collect.common.dto.CriteriaProjectDto;
 import fr.gouv.vitam.collect.common.dto.ObjectDto;
 import fr.gouv.vitam.collect.common.dto.ProjectDto;
 import fr.gouv.vitam.collect.common.dto.TransactionDto;
+import fr.gouv.vitam.collect.common.exception.CollectRequestResponse;
+import fr.gouv.vitam.collect.internal.client.exceptions.ClientInternalNotFoundException;
 import fr.gouv.vitam.common.CommonMediaType;
+import fr.gouv.vitam.common.exception.VitamClientException;
 import fr.gouv.vitam.common.model.RequestResponse;
+import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.server.application.junit.ResteasyTestApplication;
 import fr.gouv.vitam.common.serverv2.VitamServerTestRunner;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
+import org.apache.commons.io.input.NullInputStream;
 import org.assertj.core.api.Assertions;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -59,9 +64,13 @@ import javax.ws.rs.core.Response;
 import java.io.InputStream;
 import java.util.Set;
 
-public class CollectInternalClientRestTest extends ResteasyTestApplication {
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-    private final static int TENANT_ID = 0;
+public class CollectInternalClientRestTest extends ResteasyTestApplication {
 
     protected static CollectInternalClientRest client;
 
@@ -151,6 +160,39 @@ public class CollectInternalClientRestTest extends ResteasyTestApplication {
         Mockito.when(mock.get()).thenReturn(Response.ok().build());
         final RequestResponse<JsonNode> response = client.getProjects();
         Assertions.assertThat(response).isNotNull();
+    }
+
+    @Test
+    public void uploadZipToTransaction() {
+        Mockito.when(mock.post()).thenReturn(Response.ok(new RequestResponseOK<>().addResult("RESULT")).build());
+        assertThatCode(() ->
+            client.uploadZipToTransaction("TX_ID", new NullInputStream(100))
+        ).doesNotThrowAnyException();
+    }
+
+    @Test
+    public void uploadZipToProjectOK() throws Exception {
+        Mockito.when(mock.post()).thenReturn(Response.ok(new RequestResponseOK<>().addResult("RESULT")).build());
+        final String result = client.uploadZipToProject("PR_ID", new NullInputStream(100));
+        Assertions.assertThat(result).isEqualTo("RESULT");
+    }
+
+    @Test
+    public void uploadZipToProjectNotFound() {
+        Mockito.when(mock.post()).thenReturn(
+            CollectRequestResponse.toVitamError(NOT_FOUND, "Prb"));
+        assertThatThrownBy(() -> client.uploadZipToProject("PR_ID", new NullInputStream(100)))
+            .isExactlyInstanceOf(ClientInternalNotFoundException.class)
+            .hasMessage("Prb");
+    }
+
+    @Test
+    public void uploadZipToProjectKo() {
+        Mockito.when(mock.post()).thenReturn(
+            CollectRequestResponse.toVitamError(INTERNAL_SERVER_ERROR, "Prb"));
+        assertThatThrownBy(() -> client.uploadZipToProject("PR_ID", new NullInputStream(100)))
+            .isExactlyInstanceOf(VitamClientException.class)
+            .hasMessage("Prb");
     }
 
     @Path("/collect-internal/v1")
@@ -326,6 +368,24 @@ public class CollectInternalClientRestTest extends ResteasyTestApplication {
         public Response download(@PathParam("unitId") String unitId, @PathParam("usage") String usageString,
             @PathParam("version") Integer version) {
             return expectedResponse.get();
+        }
+
+        @Path("/transactions/{transactionId}/upload")
+        @POST
+        @Consumes({CommonMediaType.ZIP})
+        @Produces(APPLICATION_JSON)
+        public Response uploadZipToTransaction(@PathParam("transactionId") String transactionId,
+            InputStream inputStreamObject) {
+            return expectedResponse.post();
+        }
+
+        @Path("/projects/{projectId}/upload")
+        @POST
+        @Consumes({CommonMediaType.ZIP})
+        @Produces(APPLICATION_JSON)
+        public Response uploadZipToProject(@PathParam("projectId") String projectId,
+            InputStream inputStreamObject) {
+            return expectedResponse.post();
         }
     }
 }

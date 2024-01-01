@@ -141,6 +141,29 @@ documentation:
             application/json:
               type: object
               example: !include libraries/examples/transactionResponse.json
+  /{id}/upload:
+    displayName: upload d'une archive Zip à un projet avec gestion automatique des transactions
+    is: [ StandardTraits.StandardOptionalHeader,
+          StandardTraits.StandardHeader401, StandardTraits.StandardHeader404,
+          StandardTraits.StandardHeader409, StandardTraits.StandardHeader412 ]
+    post:
+      description: |
+        Permet de soumettre un ensemble de binaire au format Zip.
+        L'arborescence est rattachée à une transaction auto-générée dont l'identifiant est retourné à l'appelant. 
+        Optionnellement, le Zip peut contenir un fichier "metadata.csv" décrivant l'ensemble des métadonnées de
+        l'arborescence.
+        Attention : Cette API est alpha / expérimentale.
+      body:
+        application/zip:
+      headers:
+        X-tenant-Id:
+          required: true
+      responses:
+        200:
+          body:
+            application/json:
+              type: object
+              example: !include libraries/examples/uploadZipToProjectResponseExample.json
 
 /transactions:
   displayName: Transactions
@@ -188,6 +211,19 @@ documentation:
             application/json:
               type: object
               example: !include libraries/examples/CollectUnitObjectResponse.json
+    put:
+      description: |
+        Permet de mettre à jour les métadonnées à partir d'un fichier CSV en entrée.
+      body:
+        application/octet-stream: Fichier CSV de MAJ
+      headers:
+        X-tenant-Id:
+          required: true
+      responses:
+        200:
+          body:
+            application/json:
+              type: object
 
   /{id}/unitsWithInheritedRules:
     is: [ StandardTraits.StandardOptionalHeader,
@@ -292,7 +328,9 @@ documentation:
           StandardTraits.StandardHeader409, StandardTraits.StandardHeader412 ]
     post:
       description: |
-        Permet de soumettre un ensemble de binaire au format Zip
+        Permet de soumettre un ensemble de binaire au format Zip.
+        Optionnellement, le Zip peut contenir un fichier "metadata.csv" décrivant l'ensemble des métadonnées de
+        l'arborescence.
       body:
         application/zip:
       headers:

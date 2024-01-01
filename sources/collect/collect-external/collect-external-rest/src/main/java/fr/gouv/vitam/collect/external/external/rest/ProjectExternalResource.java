@@ -27,6 +27,7 @@
 package fr.gouv.vitam.collect.external.external.rest;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.annotations.Beta;
 import com.google.common.annotations.VisibleForTesting;
 import fr.gouv.vitam.collect.common.dto.CriteriaProjectDto;
 import fr.gouv.vitam.collect.common.dto.ProjectDto;
@@ -34,6 +35,8 @@ import fr.gouv.vitam.collect.common.dto.TransactionDto;
 import fr.gouv.vitam.collect.common.exception.CollectRequestResponse;
 import fr.gouv.vitam.collect.internal.client.CollectInternalClient;
 import fr.gouv.vitam.collect.internal.client.CollectInternalClientFactory;
+import fr.gouv.vitam.collect.internal.client.exceptions.ClientInternalNotFoundException;
+import fr.gouv.vitam.common.CommonMediaType;
 import fr.gouv.vitam.common.ParametersChecker;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.exception.VitamClientException;
@@ -57,11 +60,13 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.InputStream;
 
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.PROJECT_CREATE;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.PROJECT_ID_DELETE;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.PROJECT_ID_READ;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.PROJECT_ID_TRANSACTIONS;
+import static fr.gouv.vitam.utils.SecurityProfilePermissions.PROJECT_ID_ZIP_CREATE;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.PROJECT_QUERY_READ;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.PROJECT_READ;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.PROJECT_UPDATE;
@@ -69,6 +74,7 @@ import static fr.gouv.vitam.utils.SecurityProfilePermissions.TRANSACTION_CREATE;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.fromStatusCode;
 
 
@@ -278,6 +284,36 @@ public class ProjectExternalResource extends ApplicationStatusResource {
         } catch (InvalidParseOperationException e) {
             LOGGER.error(PREDICATES_FAILED_EXCEPTION, e);
             return Response.status(Response.Status.PRECONDITION_FAILED).build();
+        }
+    }
+
+    @Path("/{projectId}/upload")
+    @POST
+    @Consumes({CommonMediaType.ZIP})
+    @Produces(APPLICATION_JSON)
+    @Secured(permission = PROJECT_ID_ZIP_CREATE, description = "Verser une archive arborescente ZIP à un projet de versement automatique sans transaction")
+    @Beta
+    public Response uploadZipToProject(@PathParam("projectId") String projectId,
+        InputStream inputStreamObject) {
+
+        try {
+            SanityChecker.checkParameter(projectId);
+            ParametersChecker.checkParameter("You must supply a body!", inputStreamObject);
+        } catch (InvalidParseOperationException | IllegalArgumentException e) {
+            LOGGER.error("Cannot validate request", e);
+            return Response.status(BAD_REQUEST).build();
+        }
+
+        try (CollectInternalClient client = collectInternalClientFactory.getClient()) {
+            String transactionId = client.uploadZipToProject(projectId, inputStreamObject);
+            RequestResponseOK<String> transactionsResponse = new RequestResponseOK<String>().addResult(transactionId);
+            return Response.status(Response.Status.OK).entity(transactionsResponse).build();
+        } catch (final ClientInternalNotFoundException e) {
+            LOGGER.error("Error when uploading Zip to project", e);
+            return CollectRequestResponse.toVitamError(NOT_FOUND, e.getLocalizedMessage());
+        } catch (final VitamClientException e) {
+            LOGGER.error("Error when uploading Zip to project", e);
+            return CollectRequestResponse.toVitamError(INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
         }
     }
 }

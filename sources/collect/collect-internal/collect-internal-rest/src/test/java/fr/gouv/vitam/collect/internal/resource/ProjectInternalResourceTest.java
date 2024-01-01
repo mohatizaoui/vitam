@@ -32,9 +32,11 @@ import fr.gouv.vitam.collect.common.dto.TransactionDto;
 import fr.gouv.vitam.collect.common.exception.CollectInternalException;
 import fr.gouv.vitam.collect.internal.core.common.TransactionModel;
 import fr.gouv.vitam.collect.internal.rest.ProjectInternalResource;
+import fr.gouv.vitam.common.CommonMediaType;
 import fr.gouv.vitam.common.GlobalDataRest;
 import fr.gouv.vitam.common.json.JsonHandler;
 import io.restassured.http.ContentType;
+import org.apache.commons.io.input.NullInputStream;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -50,6 +52,7 @@ import static org.mockito.ArgumentCaptor.forClass;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -568,6 +571,55 @@ public class ProjectInternalResourceTest extends CollectInternalResourceBaseTest
             .post(PROJECTS + "/1/transactions")
             .then()
             .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+    }
 
+    @Test
+    public void upload_zip_to_project_OK() throws Exception {
+        ProjectDto project = new ProjectDto();
+        project.setId("prId");
+        doReturn(Optional.of(project)).when(projectService).findProject("prId");
+        given()
+            .contentType(CommonMediaType.ZIP)
+            .accept(ContentType.JSON)
+            .header(GlobalDataRest.X_TENANT_ID, TENANT)
+            .body(new NullInputStream(100))
+            .when()
+            .post(PROJECTS + "/prId/upload")
+            .then()
+            .statusCode(Response.Status.OK.getStatusCode());
+        verify(fluxService).processStream(any(), eq("prId"), eq("VIRTUAL_TX_prId"));
+    }
+
+    @Test
+    public void upload_zip_to_project_not_found_project() throws Exception {
+        doReturn(Optional.empty()).when(projectService).findProject("prId");
+        given()
+            .contentType(CommonMediaType.ZIP)
+            .accept(ContentType.JSON)
+            .header(GlobalDataRest.X_TENANT_ID, TENANT)
+            .body(new NullInputStream(100))
+            .when()
+            .post(PROJECTS + "/prId/upload")
+            .then()
+            .statusCode(Response.Status.NOT_FOUND.getStatusCode());
+        verify(fluxService, never()).processStream(any(), eq("prId"), eq("VIRTUAL_TX_prId"));
+    }
+
+    @Test
+    public void upload_zip_to_project_error() throws Exception {
+        ProjectDto project = new ProjectDto();
+        project.setId("prId");
+        doReturn(Optional.of(project)).when(projectService).findProject("prId");
+        doThrow(new CollectInternalException("error")).when(fluxService)
+            .processStream(any(), eq("prId"), eq("VIRTUAL_TX_prId"));
+        given()
+            .contentType(CommonMediaType.ZIP)
+            .accept(ContentType.JSON)
+            .header(GlobalDataRest.X_TENANT_ID, TENANT)
+            .body(new NullInputStream(100))
+            .when()
+            .post(PROJECTS + "/prId/upload")
+            .then()
+            .statusCode(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
     }
 }

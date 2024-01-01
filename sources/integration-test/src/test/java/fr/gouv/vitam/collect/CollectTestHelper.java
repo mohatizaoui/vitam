@@ -103,7 +103,7 @@ public class CollectTestHelper {
                 final CollectExternalClient client = CollectExternalClientFactory.getInstance().getClient();
                 final InputStream is = PropertiesUtils.getResourceAsStream(zipPath)
         ) {
-            client.uploadProjectZip(vitamContext, transactionId, is);
+            client.uploadZipToTransaction(vitamContext, transactionId, is);
         } catch (IOException | VitamClientException e) {
             throw new RuntimeException(e);
         }

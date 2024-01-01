@@ -147,7 +147,7 @@ public class CollectInternalResourceBaseIT {
                 singletons.add(new SanityCheckerCommonFilter());
                 singletons.add(new GenericExceptionMapper());
                 final ProjectInternalResource projectInternalResource =
-                    new ProjectInternalResource(projectService, transactionService, metadataService);
+                    new ProjectInternalResource(projectService, fluxService, transactionService, metadataService);
                 final TransactionInternalResource transactionInternalResource =
                     new TransactionInternalResource(transactionService, sipService, metadataService, fluxService,
                         projectService);

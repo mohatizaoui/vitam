@@ -337,7 +337,7 @@ public class TransactionExternalResource extends ApplicationStatusResource {
         try (CollectInternalClient client = collectInternalClientFactory.getClient()) {
             SanityChecker.checkParameter(transactionId);
             ParametersChecker.checkParameter("You must supply a file!", inputStreamObject);
-            client.uploadTransactionZip(transactionId, inputStreamObject);
+            client.uploadZipToTransaction(transactionId, inputStreamObject);
             return Response.ok().build();
         } catch (final VitamClientException e) {
             LOGGER.error("Error when uploading transaction Zip   ", e);

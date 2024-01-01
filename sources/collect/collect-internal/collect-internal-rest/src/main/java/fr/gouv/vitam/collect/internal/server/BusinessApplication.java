@@ -123,7 +123,7 @@ public class BusinessApplication extends ConfigurationApplication {
                 new TransactionInternalResource(transactionService, sipService,
                     metadataService, fluxService, projectService);
             final ProjectInternalResource projectInternalResource =
-                new ProjectInternalResource(projectService, transactionService, metadataService);
+                new ProjectInternalResource(projectService, fluxService, transactionService, metadataService);
             final CollectMetadataInternalResource collectMetadataInternalResource =
                 new CollectMetadataInternalResource(metadataService,
                     collectService, transactionService);

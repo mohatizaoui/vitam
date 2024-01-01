@@ -33,9 +33,11 @@ import fr.gouv.vitam.collect.common.dto.TransactionDto;
 import fr.gouv.vitam.collect.common.exception.CollectInternalException;
 import fr.gouv.vitam.collect.common.exception.CollectRequestResponse;
 import fr.gouv.vitam.collect.internal.core.common.TransactionModel;
+import fr.gouv.vitam.collect.internal.core.service.FluxService;
 import fr.gouv.vitam.collect.internal.core.service.MetadataService;
 import fr.gouv.vitam.collect.internal.core.service.ProjectService;
 import fr.gouv.vitam.collect.internal.core.service.TransactionService;
+import fr.gouv.vitam.common.CommonMediaType;
 import fr.gouv.vitam.common.ParametersChecker;
 import fr.gouv.vitam.common.database.parser.request.multiple.SelectParserMultiple;
 import fr.gouv.vitam.common.exception.BadRequestException;
@@ -58,6 +60,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
 
@@ -65,6 +68,7 @@ import static fr.gouv.vitam.common.error.VitamCode.GLOBAL_EMPTY_QUERY;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
 @Path("/collect-internal/v1/projects")
 public class ProjectInternalResource {
@@ -79,16 +83,20 @@ public class ProjectInternalResource {
         "Error when getting units by project ID in metadata : {}";
 
     private static final String EMPTY_QUERY_IS_IMPOSSIBLE = "Empty query is impossible";
+    public static final String VIRTUAL_TX = "VIRTUAL_TX_";
 
     private final ProjectService projectService;
+
+    private final FluxService fluxService;
 
     private final TransactionService transactionService;
 
     private final MetadataService metadataService;
 
-    public ProjectInternalResource(ProjectService projectService, TransactionService transactionService,
+    public ProjectInternalResource(ProjectService projectService, FluxService fluxService, TransactionService transactionService,
         MetadataService metadataService) {
         this.projectService = projectService;
+        this.fluxService = fluxService;
         this.transactionService = transactionService;
         this.metadataService = metadataService;
     }
@@ -293,6 +301,42 @@ public class ProjectInternalResource {
             return CollectRequestResponse.toVitamError(INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
         } catch (IllegalArgumentException | InvalidParseOperationException e) {
             LOGGER.error("Error when trying to parse : {}", e);
+            return CollectRequestResponse.toVitamError(BAD_REQUEST, e.getLocalizedMessage());
+        }
+    }
+
+    @Path("/{projectId}/upload")
+    @POST
+    @Consumes({CommonMediaType.ZIP})
+    @Produces(APPLICATION_JSON)
+    public Response uploadZipToProject(@PathParam("projectId") String projectId,
+        InputStream inputStreamObject) {
+
+        try {
+            ParametersChecker.checkParameter("You must supply a ZIP input stream body!", inputStreamObject);
+            SanityChecker.checkParameter(projectId);
+        } catch (IllegalArgumentException | InvalidParseOperationException e) {
+            LOGGER.error("An error occurs when try to upload the ZIP: {}", e);
+            return CollectRequestResponse.toVitamError(BAD_REQUEST, e.getLocalizedMessage());
+        }
+
+        try {
+            Optional<ProjectDto> projectOpt = projectService.findProject(projectId);
+            if (projectOpt.isEmpty()) {
+                LOGGER.error(PROJECT_NOT_FOUND);
+                return CollectRequestResponse.toVitamError(NOT_FOUND, PROJECT_NOT_FOUND);
+            }
+            
+            // Use projectId to ensure the virtual transactionId is reused within the same project
+            String virtualTransactionId = VIRTUAL_TX + projectId;
+            
+            fluxService.processStream(inputStreamObject, projectId, virtualTransactionId);
+            return Response.ok(new RequestResponseOK<>().addResult(virtualTransactionId)).build();
+        } catch (CollectInternalException e) {
+            LOGGER.error("An error occurs when try to upload the ZIP: {}", e);
+            return CollectRequestResponse.toVitamError(INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
+        } catch (IllegalArgumentException e) {
+            LOGGER.error("An error occurs when try to upload the ZIP: {}", e);
             return CollectRequestResponse.toVitamError(BAD_REQUEST, e.getLocalizedMessage());
         }
     }

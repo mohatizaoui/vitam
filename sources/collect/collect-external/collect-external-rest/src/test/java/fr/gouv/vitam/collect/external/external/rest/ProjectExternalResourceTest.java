@@ -30,6 +30,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import fr.gouv.vitam.collect.common.dto.ProjectDto;
 import fr.gouv.vitam.collect.internal.client.CollectInternalClient;
 import fr.gouv.vitam.collect.internal.client.CollectInternalClientFactory;
+import fr.gouv.vitam.collect.internal.client.exceptions.ClientInternalNotFoundException;
+import fr.gouv.vitam.common.CommonMediaType;
 import fr.gouv.vitam.common.GlobalDataRest;
 import fr.gouv.vitam.common.client.VitamClientFactory;
 import fr.gouv.vitam.common.exception.VitamApplicationServerException;
@@ -45,9 +47,8 @@ import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import org.hamcrest.MatcherAssert;
+import org.apache.commons.io.input.NullInputStream;
 import org.hamcrest.Matchers;
-import org.hamcrest.text.MatchesPattern;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
@@ -63,11 +64,13 @@ import java.util.Set;
 import static io.restassured.RestAssured.given;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.OK;
-import static javax.ws.rs.core.Response.Status.PRECONDITION_FAILED;
 import static org.apache.http.HttpHeaders.EXPECT;
 import static org.apache.http.protocol.HTTP.EXPECT_CONTINUE;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
@@ -389,5 +392,55 @@ public class ProjectExternalResourceTest extends ResteasyTestApplication {
             .post(PROJECTS_URI)
         .then()
             .statusCode(OK.getStatusCode());
+    }
+
+    @Test
+    public void upload_zip_to_project_OK() throws Exception {
+        when(collectInternalClient.uploadZipToProject(eq("prId"), any())).thenReturn("txId");
+
+        RequestResponseOK<?> responseOK = given()
+            .contentType(CommonMediaType.ZIP)
+            .accept(ContentType.JSON)
+            .header(GlobalDataRest.X_TENANT_ID, TENANT)
+            .body(new NullInputStream(100))
+            .when()
+            .post(PROJECTS_URI + "/prId/upload")
+            .then()
+            .statusCode(OK.getStatusCode())
+            .extract().body().as(RequestResponseOK.class);
+
+        assertThat(responseOK.getFirstResult()).isEqualTo("txId");
+    }
+
+    @Test
+    public void upload_zip_to_project_not_found() throws Exception {
+        when(collectInternalClient.uploadZipToProject(eq("prId"), any()))
+            .thenThrow(new ClientInternalNotFoundException("Prb"));
+
+        given()
+            .contentType(CommonMediaType.ZIP)
+            .accept(ContentType.JSON)
+            .header(GlobalDataRest.X_TENANT_ID, TENANT)
+            .body(new NullInputStream(100))
+            .when()
+            .post(PROJECTS_URI + "/prId/upload")
+            .then()
+            .statusCode(NOT_FOUND.getStatusCode());
+    }
+
+    @Test
+    public void upload_zip_to_project_KO() throws Exception {
+        when(collectInternalClient.uploadZipToProject(eq("prId"), any()))
+            .thenThrow(new VitamClientException("Prb"));
+
+        given()
+            .contentType(CommonMediaType.ZIP)
+            .accept(ContentType.JSON)
+            .header(GlobalDataRest.X_TENANT_ID, TENANT)
+            .body(new NullInputStream(100))
+            .when()
+            .post(PROJECTS_URI + "/prId/upload")
+            .then()
+            .statusCode(INTERNAL_SERVER_ERROR.getStatusCode());
     }
 }
