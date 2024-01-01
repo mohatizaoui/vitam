@@ -199,7 +199,7 @@ public class TransactionExternalResource extends ApplicationStatusResource {
     @GET
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
-    @Secured(permission = TRANSACTION_UNIT_READ, description = "Récupére toutes les unités archivistique")
+    @Secured(permission = TRANSACTION_UNIT_READ, description = "Récupère toutes les unités archivistique")
     public Response selectUnits(@PathParam("transactionId") String transactionId,
         @Dsl(value = DslSchema.SELECT_MULTIPLE) JsonNode jsonQuery) {
         try (CollectInternalClient client = collectInternalClientFactory.getClient()) {

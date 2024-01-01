@@ -41,7 +41,6 @@ import fr.gouv.vitam.common.external.client.DefaultClient;
 import fr.gouv.vitam.common.model.RequestResponse;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
@@ -370,7 +369,8 @@ public class CollectExternalClientRest extends DefaultClient implements CollectE
             .withPath(TRANSACTION_PATH + "/" + transactionId + "/upload")
             .withHeaders(vitamContext.getHeaders())
             .withBody(inputStreamUploaded)
-            .withContentType(CommonMediaType.ZIP_TYPE))) {
+            .withContentType(CommonMediaType.ZIP_TYPE)
+            .withJsonAccept())) {
             check(response);
             return RequestResponse.parseFromResponse(response, JsonNode.class);
         }

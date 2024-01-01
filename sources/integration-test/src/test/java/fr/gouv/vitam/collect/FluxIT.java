@@ -116,7 +116,7 @@ public class FluxIT extends VitamRuleRunner {
     }
 
     @Test
-    public void should_upload_project_zip() throws Exception {
+    public void should_upload_zip_to_transaction() throws Exception {
         try (CollectExternalClient collectClient = CollectExternalClientFactory.getInstance().getClient()) {
             final ProjectDto projectDto = initProjectData();
             projectDto.setUnitUp(ATTACHMENT_UNIT_ID);
@@ -165,7 +165,7 @@ public class FluxIT extends VitamRuleRunner {
     }
 
     @Test
-    public void should_upload_project_zip_with_multi_rattachement() throws Exception {
+    public void should_upload_zip_to_transaction_with_multi_rattachement() throws Exception {
         try (CollectExternalClient collectClient = CollectExternalClientFactory.getInstance().getClient()) {
             ProjectDto projectDto = initProjectData();
             projectDto.setUnitUp(ATTACHMENT_UNIT_ID);
@@ -342,7 +342,7 @@ public class FluxIT extends VitamRuleRunner {
         CollectTestHelper.uploadUnit(vitamContext, transaction.getId(), unitUploadResourcePath);
 
         final VitamClientException vitamClientException = assertThrows(VitamClientException.class,
-                () -> updateUnit(vitamContext, transaction.getId(), unitUpdateResourcePath));
+            () -> updateUnit(vitamContext, transaction.getId(), unitUpdateResourcePath));
 
         assertThat(vitamClientException.getLocalizedMessage()).contains("Invalid input bytes length");
     }
@@ -360,7 +360,7 @@ public class FluxIT extends VitamRuleRunner {
         CollectTestHelper.uploadUnit(vitamContext, transaction.getId(), unitUploadResourcePath);
 
         final VitamClientException vitamClientException = assertThrows(VitamClientException.class,
-                () -> updateUnit(vitamContext, transaction.getId(), unitUpdateResourcePath));
+            () -> updateUnit(vitamContext, transaction.getId(), unitUpdateResourcePath));
 
         assertThat(vitamClientException.getLocalizedMessage()).contains("Invalid input bytes");
     }
@@ -378,7 +378,7 @@ public class FluxIT extends VitamRuleRunner {
         uploadZipTransaction(vitamContext, transaction.getId(), zipPath);
 
         final VitamClientException vitamClientException = assertThrows(VitamClientException.class,
-                () -> updateUnit(vitamContext, transaction.getId(), unitUpdateResourcePath));
+            () -> updateUnit(vitamContext, transaction.getId(), unitUpdateResourcePath));
 
         assertThat(vitamClientException.getLocalizedMessage()).contains("Cannot find unit with path no-dir");
     }
@@ -396,7 +396,7 @@ public class FluxIT extends VitamRuleRunner {
         uploadZipTransaction(vitamContext, transaction.getId(), zipPath);
 
         final VitamClientException vitamClientException = assertThrows(VitamClientException.class,
-                () -> updateUnit(vitamContext, transaction.getId(), unitUpdateResourcePath));
+            () -> updateUnit(vitamContext, transaction.getId(), unitUpdateResourcePath));
 
         assertThat(vitamClientException.getLocalizedMessage()).contains("Duplicate key versement/pastis.json");
     }
@@ -414,7 +414,7 @@ public class FluxIT extends VitamRuleRunner {
         uploadZipTransaction(vitamContext, transaction.getId(), zipPath);
 
         final VitamClientException vitamClientException = assertThrows(VitamClientException.class,
-                () -> updateUnit(vitamContext, transaction.getId(), unitUpdateResourcePath));
+            () -> updateUnit(vitamContext, transaction.getId(), unitUpdateResourcePath));
 
         assertThat(vitamClientException.getLocalizedMessage()).contains("Error when trying to update units metadata");
     }
@@ -433,9 +433,9 @@ public class FluxIT extends VitamRuleRunner {
         closeTransaction(vitamContext, transaction.getId());
 
         final VitamClientException vitamClientException = assertThrows(VitamClientException.class,
-                () -> updateUnit(vitamContext, transaction.getId(), unitUpdateResourcePath));
+            () -> updateUnit(vitamContext, transaction.getId(), unitUpdateResourcePath));
 
         assertThat(vitamClientException.getLocalizedMessage())
-                .contains("Unable to find transaction Id or invalid status");
+            .contains("Unable to find transaction Id or invalid status");
     }
 }

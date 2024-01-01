@@ -288,15 +288,6 @@ public class CollectExternalClientRestTest extends ResteasyTestApplication {
             return expectedResponse.get();
         }
 
-
-        @Path("/projects/{projectId}/binary")
-        @POST
-        @Consumes({CommonMediaType.ZIP})
-        @Produces(MediaType.APPLICATION_JSON)
-        public Response uploadProjectZip(@PathParam("projectId") String projectId, InputStream inputStreamObject) {
-            return expectedResponse.get();
-        }
-
         @Path("/units/{unitId}")
         @GET
         @Produces(MediaType.APPLICATION_JSON)

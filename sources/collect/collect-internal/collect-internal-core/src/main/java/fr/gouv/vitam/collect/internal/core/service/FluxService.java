@@ -34,7 +34,6 @@ import com.google.common.collect.Iterators;
 import fr.gouv.culture.archivesdefrance.seda.v2.LevelType;
 import fr.gouv.vitam.collect.common.exception.CollectInternalException;
 import fr.gouv.vitam.collect.common.exception.CsvParseInternalException;
-import fr.gouv.vitam.collect.internal.core.common.DescriptionLevel;
 import fr.gouv.vitam.collect.internal.core.common.ProjectModel;
 import fr.gouv.vitam.collect.internal.core.common.TransactionModel;
 import fr.gouv.vitam.collect.internal.core.helpers.CsvHelper;
@@ -237,7 +236,7 @@ public class FluxService {
     private int createMetadata(TransactionModel transactionModel, ArchiveEntry entry,
         ArchiveEntryInputStream entryInputStream, int maxLevel, Map<String, String> unitIds, String path,
         boolean isAttachmentAuExist) throws IOException, CollectInternalException, InvalidParseOperationException {
-        DescriptionLevel descriptionLevel = (entry.isDirectory()) ? DescriptionLevel.RECORD_GRP : DescriptionLevel.ITEM;
+        LevelType descriptionLevel = (entry.isDirectory()) ? LevelType.RECORD_GRP : LevelType.ITEM;
 
         String parent = FilenameUtils.getPathNoEndSeparator(path);
 
@@ -257,8 +256,7 @@ public class FluxService {
         String fileName = FilenameUtils.getName(path);
 
         ArchiveUnitModel unit =
-            MetadataHelper.createUnit(transactionModel.getId(), LevelType.fromValue(descriptionLevel.getValue()),
-                fileName, parentUnit);
+            MetadataHelper.createUnit(transactionModel.getId(), descriptionLevel, fileName, parentUnit);
 
         unitIds.put(path, unit.getId());
         if (!entry.isDirectory()) {
