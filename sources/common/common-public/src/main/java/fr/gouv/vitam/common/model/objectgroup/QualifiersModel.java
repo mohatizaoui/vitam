@@ -35,13 +35,17 @@ import java.util.List;
  */
 public class QualifiersModel {
 
-    @JsonProperty("qualifier")
+    public static final String QUALIFIER = "qualifier";
+    public static final String NB_OBJECTS = "#nbobjects";
+    public static final String VERSIONS = "versions";
+
+    @JsonProperty(QUALIFIER)
     private String qualifier;
 
-    @JsonProperty("#nbobjects")
+    @JsonProperty(NB_OBJECTS)
     private String nbc;
 
-    @JsonProperty("versions")
+    @JsonProperty(VERSIONS)
     private List<VersionsModel> versions;
 
     public String getQualifier() {

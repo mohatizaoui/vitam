@@ -48,6 +48,7 @@ import fr.gouv.vitam.common.database.builder.query.Query;
 import fr.gouv.vitam.common.database.builder.query.QueryHelper;
 import fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper;
 import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
+import fr.gouv.vitam.common.database.builder.request.multiple.SelectMultiQuery;
 import fr.gouv.vitam.common.database.builder.request.single.Select;
 import fr.gouv.vitam.common.elasticsearch.ElasticsearchRule;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
@@ -62,6 +63,9 @@ import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.administration.AccessionRegisterDetailModel;
 import fr.gouv.vitam.common.model.logbook.LogbookEventOperation;
 import fr.gouv.vitam.common.model.logbook.LogbookOperation;
+import fr.gouv.vitam.common.model.objectgroup.ObjectGroupResponse;
+import fr.gouv.vitam.common.model.objectgroup.QualifiersModel;
+import fr.gouv.vitam.common.model.objectgroup.VersionsModel;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.functional.administration.rest.AdminManagementMain;
 import fr.gouv.vitam.ingest.external.client.IngestExternalClient;
@@ -109,6 +113,8 @@ public class IngestExternalIT extends VitamRuleRunner {
     private static final String ACCESS_CONTRACT = "aName3";
 
     private static final String INTEGRATION_PROCESSING_4_UNITS_2_GOTS_ZIP = "integration-processing/4_UNITS_2_GOTS.zip";
+    private static final String INTEGRATION_PROCESSING_OOO_DOV_ZIP =
+        "integration-processing/OK_out_of_order_dataobjectversions.zip";
     private static final String SIP_NOT_ALLOWED_NAME = "integration-processing/KO_FILE_extension_caractere_special.zip";
     private static final String SIP_INCORRECT_OBJECT_SIZE = "integration-processing/KO_SIP_INCORRECT_OBJECT_SIZE.zip";
     private static final String SIP_MISSED_OBJECT_SIZE = "integration-processing/OK_SIP_MISSED_OBJECT_SIZE.zip";
@@ -370,6 +376,77 @@ public class IngestExternalIT extends VitamRuleRunner {
 
     @RunWithCustomExecutor
     @Test
+    public void test_ingest_with_out_of_order_got_versions() throws Exception {
+        try (InputStream inputStream =
+            PropertiesUtils.getResourceAsStream(INTEGRATION_PROCESSING_OOO_DOV_ZIP)) {
+
+            // ingest sip
+            VitamContext vitamContext = new VitamContext(tenantId).setApplicationSessionId(APPLICATION_SESSION_ID)
+                .setAccessContract(ACCESS_CONTRACT);
+            RequestResponse<Void> response = ingestExternalClient
+                .ingest(vitamContext,
+                    inputStream, DEFAULT_WORKFLOW.name(), ProcessAction.RESUME.name());
+
+            assertThat(response.isOk()).as(JsonHandler.unprettyPrint(response)).isTrue();
+
+            // get operation id
+            final String operationId = response.getHeaderString(GlobalDataRest.X_REQUEST_ID);
+            assertThat(operationId).as(format("%s not found for request", X_REQUEST_ID)).isNotNull();
+
+            // wait for end of processing
+            final VitamPoolingClient vitamPoolingClient = new VitamPoolingClient(adminExternalClient);
+            boolean process_timeout = vitamPoolingClient
+                .wait(tenantId, operationId, ProcessState.COMPLETED, 1800, 1_000L, TimeUnit.MILLISECONDS);
+            if (!process_timeout) {
+                Assertions.fail("Sip processing not finished : operation (" + operationId + "). Timeout exceeded.");
+            }
+
+            // check that processing was ok
+            RequestResponse<ItemStatus> itemStatusRequestResponse1 =
+                adminExternalClient.getOperationProcessExecutionDetails(new VitamContext(tenantId), operationId);
+            assertThat(itemStatusRequestResponse1.isOk()).isTrue();
+
+            RequestResponseOK<ItemStatus> itemStatusRequestResponse =
+                (RequestResponseOK<ItemStatus>) itemStatusRequestResponse1;
+            assertThat(itemStatusRequestResponse.getResults()).hasSize(1);
+
+            ItemStatus itemStatus = itemStatusRequestResponse.getFirstResult();
+            assertThat(itemStatus).isNotNull();
+            assertThat(itemStatus.getGlobalState()).isEqualTo(ProcessState.COMPLETED);
+            assertThat(itemStatus.getGlobalStatus()).as(JsonHandler
+                    .unprettyPrint(LogbookCollections.OPERATION.getCollection().find(Filters.eq(operationId))))
+                .isEqualTo(StatusCode.OK);
+
+            // retrieve the unit we just ingested
+            RequestResponse<JsonNode> units = getUnitsFromTitle("Image de lac - 1", tenantId, ACCESS_CONTRACT);
+            List<JsonNode> results = ((RequestResponseOK<JsonNode>) units).getResults();
+            assertNotNull(results);
+            assertThat(results.size()).isGreaterThan(0);
+
+            String unitId = results.get(0).get(VitamFieldsHelper.id()).asText();
+
+            // get objects metadata for this unit
+            SelectMultiQuery select = new SelectMultiQuery();
+
+            RequestResponse<JsonNode> result =
+                accessExternalClient.selectObjectMetadatasByUnitId(vitamContext, select.getFinalSelectById(), unitId);
+            assertTrue(result.isOk());
+            List<JsonNode> resultGots = ((RequestResponseOK<JsonNode>) result).getResults();
+            assertNotNull(resultGots);
+            assertThat(resultGots).isNotEmpty();
+            assertEquals(1, resultGots.size());
+
+            // check that the order is correct now
+            JsonNode versions =
+                resultGots.get(0).get(ObjectGroupResponse.QUALIFIERS).get(0).get(QualifiersModel.VERSIONS);
+            assertEquals(2, versions.size());
+            assertEquals("BinaryMaster_1", versions.get(0).get(VersionsModel.DATA_OBJECT_VERSION).asText());
+            assertEquals("BinaryMaster_2", versions.get(1).get(VersionsModel.DATA_OBJECT_VERSION).asText());
+        }
+    }
+
+    @RunWithCustomExecutor
+    @Test
     public void test_ingest_with_invalid_manifest_digest_ko() throws Exception {
         try (InputStream inputStream =
             PropertiesUtils.getResourceAsStream(INTEGRATION_PROCESSING_4_UNITS_2_GOTS_ZIP)) {
@@ -488,6 +565,7 @@ public class IngestExternalIT extends VitamRuleRunner {
                     .contains(event.getOutDetail())).count()).isEqualTo(2L);
         }
     }
+
     @RunWithCustomExecutor
     @Test
     public void test_ingest_with_missed_object_size() throws Exception {
@@ -596,6 +674,7 @@ public class IngestExternalIT extends VitamRuleRunner {
             .isInstanceOf(VitamClientException.class)
             .hasMessageContaining("Not Found");
     }
+
     private RequestResponse<JsonNode> getUnitsFromTitle(String title, int tenant, String accessContract)
         throws VitamClientException, InvalidParseOperationException {
         VitamContext vitamContext = new VitamContext(tenant)
