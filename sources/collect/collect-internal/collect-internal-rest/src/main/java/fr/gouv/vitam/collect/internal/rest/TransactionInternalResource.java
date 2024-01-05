@@ -74,6 +74,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
@@ -86,7 +87,8 @@ import static javax.ws.rs.core.Response.Status.OK;
 public class TransactionInternalResource {
     public static final String SIP_GENERATED_MANIFEST_CAN_T_BE_NULL = "SIP generated manifest can't be null";
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(TransactionInternalResource.class);
-    private static final String TRANSACTION_NOT_FOUND = "Unable to find transaction Id or invalid status";
+    private static final String TRANSACTION_NOT_FOUND = "Unable to find transaction Id";
+    private static final String STATUS_NOT_ALLOWED = "Invalid status";
     private static final String PROJECT_NOT_FOUND = "Unable to find project Id or invalid status";
 
     private static final String EMPTY_QUERY_IS_IMPOSSIBLE = "Empty query is impossible";
@@ -108,6 +110,19 @@ public class TransactionInternalResource {
         this.metadataService = metadataService;
         this.fluxService = fluxService;
         this.projectService = projectService;
+    }
+
+    @GET
+    @Path("/withAutomaticIngest")
+    @Produces(APPLICATION_JSON)
+    public Response getTransactionsToAutomaticallyIngest() throws CollectInternalException {
+
+        return CollectRequestResponse.toResponseOK(transactionService.findReadyAutoIngestTransactions()
+            .stream().map(CollectHelper::convertTransactionModelToTransactionDto)
+            .collect(Collectors.toList())
+        );
+
+
     }
 
     @Path("/{transactionId}")
@@ -305,14 +320,24 @@ public class TransactionInternalResource {
         try {
             SanityChecker.checkParameter(transactionId);
             Optional<TransactionModel> transactionModel = transactionService.findTransaction(transactionId);
-            if (transactionModel.isEmpty() ||
-                !transactionService.checkStatus(transactionModel.get(), TransactionStatus.READY)) {
+            if (transactionModel.isEmpty()) {
                 LOGGER.error(TRANSACTION_NOT_FOUND);
                 return Response.status(BAD_REQUEST).build();
             }
+
             transaction = transactionModel.get();
-            transactionService.isTransactionContentEmpty(transaction.getId());
-            transactionService.changeTransactionStatus(TransactionStatus.SENDING, transactionId);
+            transaction.setStatus(TransactionStatus.SENDING);
+            transaction.setLastUpdate(LocalDateUtil.now().toString());
+            boolean updatedDocument =
+                transactionService
+                    .findOneAndReplace(TransactionStatus.READY, transaction);
+
+            if (!updatedDocument) {
+                LOGGER.error(STATUS_NOT_ALLOWED);
+                return Response.status(BAD_REQUEST).build();
+            }
+
+            transactionService.isTransactionContentEmpty(transactionId);
             String digest = sipService.generateSip(transaction);
             if (digest == null) {
                 LOGGER.error(SIP_GENERATED_MANIFEST_CAN_T_BE_NULL);

@@ -141,6 +141,9 @@ public class CollectHelper {
         projectDto.setStatus(Objects.requireNonNullElse(projectModel.getStatus(), ProjectStatus.OPEN).toString());
         projectDto.setTenant(projectModel.getTenant());
         projectDto.setUnitUps(projectModel.getUnitUps());
+
+        projectDto.setAutomaticIngest(projectModel.getAutomaticIngest());
+
         if (projectModel.getManifestContext() != null) {
             projectDto.setArchivalAgreement(projectModel.getManifestContext().getArchivalAgreement());
             projectDto.setMessageIdentifier(projectModel.getManifestContext().getMessageIdentifier());
@@ -185,6 +188,7 @@ public class CollectHelper {
             transactionDto.setAcquisitionInformation(transactionModel.getManifestContext().getAcquisitionInformation());
             transactionDto.setLegalStatus(transactionModel.getManifestContext().getLegalStatus());
             transactionDto.setVitamOperationId(transactionModel.getVitamOperationId());
+            transactionDto.setAutomaticIngest(transactionModel.getAutomaticIngest());
         }
         return transactionDto;
     }

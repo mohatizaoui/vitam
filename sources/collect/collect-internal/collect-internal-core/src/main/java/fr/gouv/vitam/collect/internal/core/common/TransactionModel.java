@@ -63,11 +63,14 @@ public class TransactionModel {
     @JsonProperty("_tenant")
     private Integer tenant;
 
+    @JsonProperty("AutomaticIngest")
+    private Boolean automaticIngest;
+
     public TransactionModel() {
     }
 
     public TransactionModel(String id, String name, ManifestContext manifestContext, TransactionStatus status,
-        String projectId, String creationDate, String lastUpdate, Integer tenant) {
+        String projectId, String creationDate, String lastUpdate, Integer tenant, Boolean automaticIngest) {
         this.id = id;
         this.name = name;
         this.manifestContext = manifestContext;
@@ -76,6 +79,7 @@ public class TransactionModel {
         this.creationDate = creationDate;
         this.lastUpdate = lastUpdate;
         this.tenant = tenant;
+        this.automaticIngest = automaticIngest;
     }
 
     public String getId() {
@@ -148,6 +152,14 @@ public class TransactionModel {
 
     public void setTenant(Integer tenant) {
         this.tenant = tenant;
+    }
+
+    public Boolean getAutomaticIngest() {
+        return automaticIngest;
+    }
+
+    public void setAutomaticIngest(Boolean automaticIngest) {
+        this.automaticIngest = automaticIngest;
     }
 
     @Override

@@ -129,7 +129,7 @@ public class TransactionServiceTest {
         TransactionDto transactionDto =
             new TransactionDto("XXXX00000111111", null, null, null, null, null, null, null, null, null, null, null,
                 null, null,
-                TransactionStatus.OPEN.toString());
+                TransactionStatus.OPEN.toString(), false);
         ProjectDto project = new ProjectDto();
 
         // When
@@ -150,7 +150,7 @@ public class TransactionServiceTest {
         TransactionDto transactionDto =
             new TransactionDto("XXXX00000111111", null, null, null, null, null, null, null, null, null, null, null,
                 null, null,
-                TransactionStatus.OPEN.toString());
+                TransactionStatus.OPEN.toString(), false);
         doReturn(Optional.of(transactionDto)).when(transactionRepository).findTransaction(any());
 
         // When
@@ -166,7 +166,7 @@ public class TransactionServiceTest {
         // Given
         final String idCollect = "XXXX000002222222";
         TransactionModel transactionModel =
-            new TransactionModel(idCollect, null, null, TransactionStatus.OPEN, null, null, null, null);
+            new TransactionModel(idCollect, null, null, TransactionStatus.OPEN, null, null, null, null, null);
 
         // When
         boolean checkStatus =
@@ -181,7 +181,7 @@ public class TransactionServiceTest {
         // Given
         final String idCollect = "XXXX000002222222";
         TransactionModel transactionModel =
-            new TransactionModel(idCollect, null, null, TransactionStatus.OPEN, null, null, null, null);
+            new TransactionModel(idCollect, null, null, TransactionStatus.OPEN, null, null, null, null, null);
 
         // When
         boolean checkStatus =

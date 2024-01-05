@@ -28,8 +28,8 @@ package fr.gouv.vitam.collect.internal.core.helpers;
 
 import fr.gouv.vitam.collect.common.dto.ProjectDto;
 import fr.gouv.vitam.collect.common.dto.TransactionDto;
-import fr.gouv.vitam.collect.internal.core.common.ManifestContext;
 import fr.gouv.vitam.collect.common.enums.TransactionStatus;
+import fr.gouv.vitam.collect.internal.core.common.ManifestContext;
 import fr.gouv.vitam.common.LocalDateUtil;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
@@ -45,7 +45,7 @@ public class CollectHelperTest {
         projectDto = new ProjectDto("XXXX00000111111", "name", "acquisitionInformation", "legalStatus", creationDate,
             creationDate, "status", "archivalAgreement", "messageIdentifier",
             "archivalAgencyIdentifier", "transferringAgencyIdentifier", "originatingAgencyIdentifier",
-            "submissionAgencyIdentifier", "archivalProfile", "comment", "unitUp", 1);
+            "submissionAgencyIdentifier", "archivalProfile", "comment", "unitUp", 1, null);
     }
 
     @Test
@@ -57,7 +57,7 @@ public class CollectHelperTest {
                 "Tr_submissionAgencyIdentifier", "Tr_archivalProfile", "Tr_comment", 1, "Tr_acquisitionInformation",
                 "Tr_legalStatus",
                 creationDate, creationDate,
-                TransactionStatus.OPEN.toString());
+                TransactionStatus.OPEN.toString(), false);
 
 
         // WHEN
@@ -81,7 +81,7 @@ public class CollectHelperTest {
                 null, null, null,
                 null, null, null, 1, null, null,
                 creationDate, creationDate,
-                TransactionStatus.OPEN.toString());
+                TransactionStatus.OPEN.toString(), false);
         // WHEN
         ManifestContext manifestContext = CollectHelper.mapTransactionDtoToManifestContext(transactionDto, projectDto);
 
@@ -102,7 +102,7 @@ public class CollectHelperTest {
                 "Tr_archivalAgencyIdentifier", "Tr_transferringAgencyIdentifier", "Tr_originatingAgencyIdentifier",
                 "Tr_submissionAgencyIdentifier", "Tr_archivalProfile", "Tr_comment", 1, null, "Tr_legalStatus",
                 creationDate, creationDate,
-                TransactionStatus.OPEN.toString());
+                TransactionStatus.OPEN.toString(), false);
         // WHEN
         ManifestContext manifestContext = CollectHelper.mapTransactionDtoToManifestContext(transactionDto, projectDto);
 

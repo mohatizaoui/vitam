@@ -32,8 +32,10 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.BulkWriteOptions;
+import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOneModel;
 import com.mongodb.client.model.UpdateOptions;
+import fr.gouv.vitam.collect.common.enums.TransactionStatus;
 import fr.gouv.vitam.collect.common.exception.CollectInternalException;
 import fr.gouv.vitam.collect.internal.core.common.TransactionModel;
 import fr.gouv.vitam.common.database.server.mongodb.BsonHelper;
@@ -66,6 +68,7 @@ public class TransactionRepository {
     public static final String CREATION_DATE = "context.CreationDate";
     public static final String SET = "$set";
     public static final String STATUS = "Status";
+    public static final String LAST_UPDATE = "LastUpdate";
 
     private final MongoCollection<Document> transactionCollection;
 
@@ -109,7 +112,10 @@ public class TransactionRepository {
         } catch (InvalidParseOperationException e) {
             throw new CollectInternalException("Error when replacing transaction: " + e);
         }
+
     }
+
+
 
     public UpdateOneModel<Document> getUpdateOneModel(TransactionModel transactionModel) {
         // FIXME : update date?
@@ -195,9 +201,25 @@ public class TransactionRepository {
     }
 
 
+
     public List<TransactionModel> findTransactionsByQuery(Bson query) throws CollectInternalException {
         List<TransactionModel> listTransactions = new ArrayList<>();
         try (MongoCursor<Document> transactions = this.getIterableTransactionsByQuery(query).cursor()) {
+            while (transactions.hasNext()) {
+                Document doc = transactions.next();
+                listTransactions.add(BsonHelper.fromDocumentToObject(doc, TransactionModel.class));
+            }
+            return listTransactions;
+
+        } catch (InvalidParseOperationException e) {
+            LOGGER.error("Error when fetching transactions: ", e);
+            throw new CollectInternalException("Error when fetching transactions : " + e);
+        }
+    }
+
+    public List<TransactionModel> findTransactionsByQueryWithoutTenant(Bson query) throws CollectInternalException {
+        List<TransactionModel> listTransactions = new ArrayList<>();
+        try (MongoCursor<Document> transactions = transactionCollection.find(query).cursor()) {
             while (transactions.hasNext()) {
                 Document doc = transactions.next();
                 listTransactions.add(BsonHelper.fromDocumentToObject(doc, TransactionModel.class));
@@ -246,5 +268,20 @@ public class TransactionRepository {
             throw new CollectInternalException("Error when fetching transaction to delete : " + e);
         }
     }
-}
 
+    public boolean findOneAndReplace(TransactionStatus transactionStatus,
+        TransactionModel transactionModel) throws InvalidParseOperationException {
+        Integer tenantId = VitamThreadUtils.getVitamSession().getTenantId();
+        Bson filter = Filters.and(
+            Filters.eq(ID, transactionModel.getId()),
+            Filters.eq(TENANT_ID, tenantId),
+            Filters.eq(STATUS, transactionStatus.toString())
+        );
+
+        String transactionModelAsString = JsonHandler.writeAsString(transactionModel);
+        Document documentToUpdate = Document.parse(transactionModelAsString);
+
+        Document updatedDocument = transactionCollection.findOneAndReplace(filter, documentToUpdate);
+        return (updatedDocument != null);
+    }
+}
