@@ -47,6 +47,7 @@ import java.util.Map;
  */
 public class DescriptiveMetadataModel {
 
+    public static final String SIGNING_INFORMATION = "SigningInformation";
     @JsonProperty("DescriptionLevel")
     private LevelType descriptionLevel;
 
@@ -176,7 +177,7 @@ public class DescriptiveMetadataModel {
     @JsonProperty("Signature")
     private List<SignatureTypeModel> signature;
 
-    @JsonProperty("SigningInformation")
+    @JsonProperty(SIGNING_INFORMATION)
     private SigningInformationTypeModel signingInformation;
 
     @JsonProperty("Gps")

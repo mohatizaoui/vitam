@@ -6,10 +6,9 @@
           "#id": "aeaqaaaaaahkelqaaas54alhkuxi2byaaaaq"
         }
       }
-    ],
-    "$filter": {},
-    "$projection": {}
+    ]
   },
-  "usage": [ "BinaryMaster" ],
-  "version": "LAST"
+  "usage": "BinaryMaster",
+  "version": "1",
+  "includeDetachedSigningInformation": false
 }

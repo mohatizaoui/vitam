@@ -24,6 +24,13 @@
     - name: Set dnsname for mongos service
       set_fact:
         mongos_dnsname: "{{ mongo_cluster_name }}-mongos.service.{{ consul_domain }}"
+      when: inventory_hostname not in single_vm_hostnames
+      tags: update_mongodb_configuration
+
+    - name: Set dnsname for mongos service (localhost deploy)
+      set_fact:
+        mongos_dnsname: "{{ ip_service }}"
+      when: inventory_hostname in single_vm_hostnames
       tags: update_mongodb_configuration
 
     # Make sure the service is open (mongos listening on 27017)

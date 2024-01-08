@@ -162,6 +162,17 @@ public final class JsonHandler {
     }
 
     /**
+     * @return a string ArrayNode filled with provided values
+     */
+    public static ArrayNode createStringArrayNode(String... values) {
+        ArrayNode arrayNode = createArrayNode();
+        for (String value : values) {
+            arrayNode.add(value);
+        }
+        return arrayNode;
+    }
+
+    /**
      * @param value in format String to transform
      * @return the jsonNode (ObjectNode or ArrayNode)
      * @throws InvalidParseOperationException if parse JsonNode object exception occurred

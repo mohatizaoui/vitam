@@ -28,7 +28,10 @@ package fr.gouv.vitam.worker.core.plugin.probativevalue;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.annotations.Beta;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Iterators;
+import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.database.builder.query.Query;
 import fr.gouv.vitam.common.database.builder.query.QueryHelper;
 import fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper;
@@ -37,13 +40,13 @@ import fr.gouv.vitam.common.database.builder.request.multiple.SelectMultiQuery;
 import fr.gouv.vitam.common.database.parser.request.multiple.SelectParserMultiple;
 import fr.gouv.vitam.common.database.utils.ScrollSpliterator;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
-import fr.gouv.vitam.common.exception.VitamRuntimeException;
-import fr.gouv.vitam.common.iterables.SpliteratorIterator;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.ProbativeValueRequest;
+import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.common.model.unit.SigningRoleType;
 import fr.gouv.vitam.metadata.client.MetaDataClient;
 import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
@@ -51,26 +54,33 @@ import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.worker.common.HandlerIO;
 import fr.gouv.vitam.worker.core.distribution.JsonLineModel;
 import fr.gouv.vitam.worker.core.distribution.JsonLineWriter;
+import fr.gouv.vitam.worker.core.exception.ProcessingStatusException;
 import fr.gouv.vitam.worker.core.handler.ActionHandler;
 import fr.gouv.vitam.worker.core.plugin.ScrollSpliteratorHelper;
+import fr.gouv.vitam.worker.core.plugin.probativevalue.pojo.SelectedUnit;
 import fr.gouv.vitam.worker.core.utils.PluginHelper.EventDetails;
+import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageNotFoundException;
+import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import org.apache.commons.collections4.MultiValuedMap;
-import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static fr.gouv.vitam.common.database.builder.query.QueryHelper.and;
 import static fr.gouv.vitam.common.json.JsonHandler.createObjectNode;
 import static fr.gouv.vitam.common.model.StatusCode.KO;
 import static fr.gouv.vitam.common.model.StatusCode.OK;
+import static fr.gouv.vitam.common.model.unit.DescriptiveMetadataModel.SIGNING_INFORMATION;
+import static fr.gouv.vitam.common.model.unit.SigningInformationTypeModel.DETACHED_SIGNING_ROLE;
+import static fr.gouv.vitam.common.model.unit.SigningInformationTypeModel.SIGNING_ROLE;
 import static fr.gouv.vitam.worker.core.utils.PluginHelper.buildItemStatus;
 
 public class ProbativeCreateDistributionFile extends ActionHandler {
@@ -91,55 +101,190 @@ public class ProbativeCreateDistributionFile extends ActionHandler {
 
     @Override
     public ItemStatus execute(WorkerParameters param, HandlerIO handler) throws ProcessingException {
-        File objectGroupsToCheck = handler.getNewLocalFile("OBJECT_GROUP_TO_CHECK.jsonl");
 
-        try (MetaDataClient metadataClient = metaDataClientFactory.getClient();
-            FileOutputStream outputStream = new FileOutputStream(objectGroupsToCheck);
-            JsonLineWriter writer = new JsonLineWriter(outputStream);
-            InputStream request = handler.getInputStreamFromWorkspace("request")) {
+        try {
 
-            ProbativeValueRequest probativeValueRequest =
-                JsonHandler.getFromInputStream(request, ProbativeValueRequest.class);
+            ProbativeValueRequest probativeValueRequest = loadRequest(handler);
+
+            List<SelectedUnit> selectedUnitsWithInitialQuery = selectInitialQueryUnits(probativeValueRequest);
+
+            Collection<SelectedUnit> extendedResultSet =
+                extendResultSetWithDetachedSigningInformation(selectedUnitsWithInitialQuery, probativeValueRequest);
+
             String usageVersion =
                 String.format("%s_%s", probativeValueRequest.getUsage(), probativeValueRequest.getVersion());
+            File objectGroupsToCheck = generateDistributionFile(handler, extendedResultSet, usageVersion);
 
-            SelectMultiQuery select = constructSelectMultiQuery(probativeValueRequest);
-            ScrollSpliterator<JsonNode> scrollRequest =
-                ScrollSpliteratorHelper.createUnitScrollSplitIterator(metadataClient, select);
-            SpliteratorIterator<JsonNode> iterator = new SpliteratorIterator<>(scrollRequest);
+            handler.transferFileToWorkspace("distributionFile.jsonl", objectGroupsToCheck, false, false);
 
-            MultiValuedMap<String, String> unitsByObjectId = new HashSetValuedHashMap<>();
-            while (iterator.hasNext()) {
-                JsonNode element = iterator.next();
-
-                JsonNode objectValue = element.path(VitamFieldsHelper.object());
-                if (objectValue.isMissingNode() || objectValue.isNull() || StringUtils.isBlank(objectValue.asText())) {
-                    continue;
-                }
-
-                unitsByObjectId.put(objectValue.asText(), element.get(VitamFieldsHelper.id()).asText());
-            }
-
-            for (Map.Entry<String, Collection<String>> entry : unitsByObjectId.asMap().entrySet()) {
-                JsonLineModel jsonLine = toJsonLineDistribution(entry.getKey(), usageVersion, entry.getValue());
-                writeLines(jsonLine, writer);
-            }
+            return buildItemStatus(HANDLER_ID, OK, EventDetails.of("Creation of distribution file succeed."));
 
         } catch (Exception e) {
             LOGGER.error(e);
             return buildItemStatus(HANDLER_ID, KO, EventDetails.of("Creation of distribution file error."));
         }
-
-        handler.transferFileToWorkspace("distributionFile.jsonl", objectGroupsToCheck, false, false);
-        return buildItemStatus(HANDLER_ID, OK, EventDetails.of("Creation of distribution file succeed."));
     }
 
-    private void writeLines(JsonLineModel jsonLine, JsonLineWriter writer) {
+    private static ProbativeValueRequest loadRequest(HandlerIO handler) throws ProcessingStatusException {
         try {
-            writer.addEntry(jsonLine);
-        } catch (IOException e) {
-            throw new VitamRuntimeException(e);
+            InputStream request = handler.getInputStreamFromWorkspace("request");
+            return JsonHandler.getFromInputStream(request, ProbativeValueRequest.class);
+        } catch (IOException | ContentAddressableStorageNotFoundException | ContentAddressableStorageServerException |
+                 InvalidParseOperationException e) {
+            throw new ProcessingStatusException(StatusCode.FATAL, "Cannot load request from workspace", e);
         }
+    }
+
+    private List<SelectedUnit> selectInitialQueryUnits(ProbativeValueRequest probativeValueRequest)
+        throws ProcessingStatusException {
+        SelectMultiQuery initialSelectQuery = buildInitialSelectQuery(probativeValueRequest);
+        return executeQuery(initialSelectQuery);
+    }
+
+    private SelectMultiQuery buildInitialSelectQuery(ProbativeValueRequest probativeValueRequest)
+        throws ProcessingStatusException {
+
+        boolean signingInformationAuditMode = includeDetachedSigningInformation(probativeValueRequest);
+
+        try {
+
+            JsonNode initialQuery = probativeValueRequest.getDslQuery();
+            JsonNode restrictedQuery = getRestrictedQueryWithAccessContract(initialQuery);
+
+            SelectParserMultiple parser = new SelectParserMultiple();
+            parser.parse(restrictedQuery);
+            SelectMultiQuery select = parser.getRequest();
+
+            Query unitsHavingObjectGroupsQuery = QueryHelper.exists(VitamFieldsHelper.object());
+
+            if (select.getQueries().isEmpty()) {
+                select.getQueries().add(unitsHavingObjectGroupsQuery.setDepthLimit(0));
+            } else {
+                int lastQueryIndex = select.getQueries().size() - 1;
+                Query lastQuery = select.getQueries().get(lastQueryIndex);
+                int lastQueryDepth = lastQuery.getParserRelativeDepth();
+                Query queryExistObject =
+                    and().add(lastQuery, unitsHavingObjectGroupsQuery).setDepthLimit(lastQueryDepth);
+                select.getQueries().set(lastQueryIndex, queryExistObject);
+            }
+
+            // Add projections
+            select.addUsedProjection(VitamFieldsHelper.id(), VitamFieldsHelper.object());
+            if (signingInformationAuditMode) {
+                select.addUsedProjection(SIGNING_INFORMATION + "." + DETACHED_SIGNING_ROLE);
+            }
+
+            return select;
+
+        } catch (InvalidParseOperationException | InvalidCreateOperationException e) {
+            throw new ProcessingStatusException(StatusCode.FATAL, "Could not build select query", e);
+        }
+    }
+
+    private List<SelectedUnit> executeQuery(SelectMultiQuery selectQuery)
+        throws ProcessingStatusException {
+
+        try (MetaDataClient metadataClient = metaDataClientFactory.getClient()) {
+
+            ScrollSpliterator<JsonNode> scrollRequest =
+                ScrollSpliteratorHelper.createUnitScrollSplitIterator(metadataClient, selectQuery);
+
+            return scrollRequest.toStream()
+                .filter(unit -> unit.hasNonNull(VitamFieldsHelper.object()))
+                .map(SelectedUnit::fromUnit)
+                .collect(Collectors.toList());
+
+        } catch (RuntimeException e) {
+            throw new ProcessingStatusException(StatusCode.FATAL, "Could not execute select query", e);
+        }
+    }
+
+    private Collection<SelectedUnit> extendResultSetWithDetachedSigningInformation(List<SelectedUnit> initialResultSet,
+        ProbativeValueRequest probativeValueRequest) throws ProcessingStatusException {
+
+        if (!includeDetachedSigningInformation(probativeValueRequest)) {
+            LOGGER.info("No need for Detached SigningInformation to be added to result set");
+            return initialResultSet;
+        }
+
+        Map<String, SelectedUnit> totalSelectedUnitsByUnitId = initialResultSet.stream()
+            .collect(Collectors.toMap(SelectedUnit::getUnitId, selectedUnit -> selectedUnit));
+
+        Iterator<String> unitIdsWithDetachedSigningRoles = initialResultSet.stream()
+            .filter(SelectedUnit::isHaveDetachedSigningRoles)
+            .map(SelectedUnit::getUnitId)
+            .iterator();
+
+        Iterator<List<String>> partitionedUnitIdsWithDetachedSigningRoles =
+            Iterators.partition(unitIdsWithDetachedSigningRoles, VitamConfiguration.getMaxElasticsearchBulk());
+
+        while (partitionedUnitIdsWithDetachedSigningRoles.hasNext()) {
+            List<String> unitIds = partitionedUnitIdsWithDetachedSigningRoles.next();
+
+            SelectMultiQuery select = buildSelectQueryForDetachedSigningInformationChildUnits(unitIds);
+            List<SelectedUnit> detachedSigningInformationUnits = executeQuery(select);
+
+            for (SelectedUnit unit : detachedSigningInformationUnits) {
+                totalSelectedUnitsByUnitId.put(unit.getUnitId(), unit);
+            }
+        }
+        return totalSelectedUnitsByUnitId.values();
+    }
+
+    private static SelectMultiQuery buildSelectQueryForDetachedSigningInformationChildUnits(Collection<String> unitIds)
+        throws ProcessingStatusException {
+        try {
+
+            SelectMultiQuery select = new SelectMultiQuery();
+            select.addQueries(QueryHelper.and()
+                .add(QueryHelper.in(VitamFieldsHelper.unitups(), unitIds.toArray(String[]::new)),
+                    QueryHelper.exists(SIGNING_INFORMATION + "." + SIGNING_ROLE),
+                    QueryHelper.ne(SIGNING_INFORMATION + "." + SIGNING_ROLE,
+                        SigningRoleType.SIGNED_DOCUMENT.getValue())));
+            select.addUsedProjection(VitamFieldsHelper.id(), VitamFieldsHelper.object());
+            select.addOrderByAscFilter(VitamFieldsHelper.object());
+
+            return select;
+        } catch (InvalidCreateOperationException | InvalidParseOperationException e) {
+            throw new ProcessingStatusException(StatusCode.FATAL,
+                "Could not select detached SigningInformation entries", e);
+        }
+    }
+
+    /**
+     * FIXME : For now, access-contract restrictions are "out of scope" of this US.
+     *   We need to restrict query using access contract (see AccessContractRestrictionHelper.applyAccessContractRestrictionForUnitForSelect)
+     *   Important : Must be done for both "initial" AND "Detached SigningInformation child unit" queries
+     */
+    @Beta
+    private static JsonNode getRestrictedQueryWithAccessContract(JsonNode query) {
+        return query;
+    }
+
+    private static boolean includeDetachedSigningInformation(ProbativeValueRequest probativeValueRequest) {
+        return Boolean.TRUE.equals(probativeValueRequest.getIncludeDetachedSigningInformation());
+    }
+
+    private File generateDistributionFile(HandlerIO handler, Collection<SelectedUnit> extendedResult,
+        String usageVersion)
+        throws IOException, InvalidParseOperationException {
+        File objectGroupsToCheck = handler.getNewLocalFile("OBJECT_GROUP_TO_CHECK.jsonl");
+        try (FileOutputStream fileOutputStream = new FileOutputStream(objectGroupsToCheck);
+            JsonLineWriter writer = new JsonLineWriter(fileOutputStream)) {
+
+            // Group UnitIds by ObjectGroupId
+            MultiValuedMap<String, String> unitIdsByObjectGroupId = new ArrayListValuedHashMap<>();
+            for (SelectedUnit selectedUnit : extendedResult) {
+                unitIdsByObjectGroupId.put(selectedUnit.getObjectGroupId(), selectedUnit.getUnitId());
+            }
+
+            // Append to distribution file
+            for (String objectGroupId : unitIdsByObjectGroupId.keySet()) {
+                Collection<String> unitIds = unitIdsByObjectGroupId.get(objectGroupId);
+                writer.addEntry(toJsonLineDistribution(objectGroupId, usageVersion, unitIds));
+            }
+        }
+        return objectGroupsToCheck;
     }
 
     private JsonLineModel toJsonLineDistribution(String objectId, String usageVersion, Collection<String> elementIds)
@@ -153,34 +298,5 @@ public class ProbativeCreateDistributionFile extends ActionHandler {
         model.setParams(objectNode);
         model.setDistribGroup(null);
         return model;
-    }
-
-    private SelectMultiQuery constructSelectMultiQuery(ProbativeValueRequest probativeValueRequest)
-        throws InvalidParseOperationException, InvalidCreateOperationException {
-        SelectParserMultiple parser = new SelectParserMultiple();
-
-        JsonNode probativeQuery = probativeValueRequest.getDslQuery();
-        parser.parse(probativeQuery);
-        SelectMultiQuery select = parser.getRequest();
-
-        List<Query> queryList = new ArrayList<>(select.getQueries());
-        if (queryList.isEmpty()) {
-            select.getQueries().add(QueryHelper.exists(VitamFieldsHelper.object()).setDepthLimit(0));
-
-        } else {
-            Query lastQuery = queryList.get(queryList.size() - 1);
-            Query queryExistObject =
-                and().add(lastQuery, QueryHelper.exists(VitamFieldsHelper.object()).setDepthLimit(0));
-            select.getQueries().set(queryList.size() - 1, queryExistObject);
-        }
-        select.addUsedProjection(VitamFieldsHelper.id(), VitamFieldsHelper.object());
-
-        ObjectNode objectGroup = createObjectNode();
-        objectGroup.put(VitamFieldsHelper.object(), 1);
-        ObjectNode filter = createObjectNode();
-        filter.set("$orderby", objectGroup);
-        select.setFilter(filter);
-
-        return select;
     }
 }

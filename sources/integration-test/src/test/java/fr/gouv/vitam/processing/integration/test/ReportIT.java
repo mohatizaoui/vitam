@@ -263,18 +263,8 @@ public class ReportIT extends VitamRuleRunner {
         VitamTestHelper.verifyLogbook(containerName, "MASS_UPDATE_FINALIZE", StatusCode.WARNING.name());
 
         // CHECK REPORT
-        List<JsonNode> reportLines;
-        try (StorageClient storageClient = StorageClientFactory.getInstance().getClient()) {
-            Response reportResponse = null;
-            try {
-                reportResponse = storageClient.getContainerAsync(VitamConfiguration.getDefaultStrategy(),
-                    operationGuid.getId() + ".jsonl", DataCategory.REPORT, AccessLogUtils.getNoLogAccessLog());
-                assertThat(reportResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-                reportLines = VitamTestHelper.getReport(reportResponse);
-            } finally {
-                consumeAnyEntityAndClose(reportResponse);
-            }
-        }
+        List<JsonNode> reportLines = VitamTestHelper.getReports(operationGuid.getId());
+
         assertThat(reportLines.size()).isEqualTo(4);
         assertThat(reportLines.get(0).get("outDetail").asText()).isEqualTo("MASS_UPDATE_UNITS.WARNING");
         assertThat(reportLines.get(1).get("vitamResults").get("OK").asInt()).isEqualTo(1);
@@ -340,18 +330,8 @@ public class ReportIT extends VitamRuleRunner {
         VitamTestHelper.verifyLogbook(containerName, "MASS_UPDATE_FINALIZE", StatusCode.WARNING.name());
 
         // CHECK REPORT
-        List<JsonNode> reportLines;
-        try (StorageClient storageClient = StorageClientFactory.getInstance().getClient()) {
-            Response reportResponse = null;
-            try {
-                reportResponse = storageClient.getContainerAsync(VitamConfiguration.getDefaultStrategy(),
-                    operationGuid.getId() + ".jsonl", DataCategory.REPORT, AccessLogUtils.getNoLogAccessLog());
-                assertThat(reportResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-                reportLines = VitamTestHelper.getReport(reportResponse);
-            } finally {
-                consumeAnyEntityAndClose(reportResponse);
-            }
-        }
+        List<JsonNode> reportLines = VitamTestHelper.getReports(operationGuid.getId());
+
         assertThat(reportLines.size()).isEqualTo(5);
         assertThat(reportLines.get(0).get("outDetail").asText()).isEqualTo("MASS_UPDATE_UNITS.WARNING");
         assertThat(reportLines.get(1).get("vitamResults").get("OK").asInt()).isEqualTo(1);
@@ -428,18 +408,8 @@ public class ReportIT extends VitamRuleRunner {
             assertTrue(deletedUnit.isEmpty());
 
             // CHECK REPORT
-            List<JsonNode> reportLines;
-            try (StorageClient storageClient = StorageClientFactory.getInstance().getClient()) {
-                Response reportResponse = null;
-                try {
-                    reportResponse = storageClient.getContainerAsync(VitamConfiguration.getDefaultStrategy(),
-                        operationGuid.getId() + ".jsonl", DataCategory.REPORT, AccessLogUtils.getNoLogAccessLog());
-                    assertThat(reportResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-                    reportLines = VitamTestHelper.getReport(reportResponse);
-                } finally {
-                    consumeAnyEntityAndClose(reportResponse);
-                }
-            }
+            List<JsonNode> reportLines = VitamTestHelper.getReports(operationGuid.getId());
+
             assertThat(reportLines.size()).isEqualTo(4);
             assertThat(reportLines.get(0).get("outDetail").asText()).isEqualTo("MASS_UPDATE_UNITS_RULES.WARNING");
             assertThat(reportLines.get(1).get("vitamResults").get("OK").asInt()).isEqualTo(1);
@@ -512,18 +482,8 @@ public class ReportIT extends VitamRuleRunner {
             VitamTestHelper.verifyLogbook(containerName, "MASS_UPDATE_FINALIZE", StatusCode.WARNING.name());
 
             // CHECK REPORT
-            List<JsonNode> reportLines;
-            try (StorageClient storageClient = StorageClientFactory.getInstance().getClient()) {
-                Response reportResponse = null;
-                try {
-                    reportResponse = storageClient.getContainerAsync(VitamConfiguration.getDefaultStrategy(),
-                        operationGuid.getId() + ".jsonl", DataCategory.REPORT, AccessLogUtils.getNoLogAccessLog());
-                    assertThat(reportResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-                    reportLines = VitamTestHelper.getReport(reportResponse);
-                } finally {
-                    consumeAnyEntityAndClose(reportResponse);
-                }
-            }
+            List<JsonNode> reportLines = VitamTestHelper.getReports(operationGuid.getId());
+
             assertThat(reportLines.size()).isEqualTo(5);
             assertThat(reportLines.get(0).get("outDetail").asText()).isEqualTo("MASS_UPDATE_UNITS_RULES.WARNING");
             assertThat(reportLines.get(1).get("vitamResults").get("OK").asInt()).isEqualTo(1);

@@ -32,22 +32,29 @@ import java.util.List;
 
 public class SigningInformationTypeModel {
 
-    @JsonProperty("SigningRole")
+    public static final String SIGNING_ROLE = "SigningRole";
+    public static final String DETACHED_SIGNING_ROLE = "DetachedSigningRole";
+    public static final String SIGNATURE_DESCRIPTION = "SignatureDescription";
+    public static final String TIMESTAMPING_INFORMATION = "TimestampingInformation";
+    public static final String ADDITIONAL_PROOF = "AdditionalProof";
+    public static final String EXTENDED = "Extended";
+
+    @JsonProperty(SIGNING_ROLE)
     protected List<SigningRoleType> signingRole;
 
-    @JsonProperty("DetachedSigningRole")
+    @JsonProperty(DETACHED_SIGNING_ROLE)
     protected List<DetachedSigningRoleType> detachedSigningRole;
 
-    @JsonProperty("SignatureDescription")
+    @JsonProperty(SIGNATURE_DESCRIPTION)
     protected List<SignatureDescriptionTypeModel> signatureDescription;
 
-    @JsonProperty("TimestampingInformation")
+    @JsonProperty(TIMESTAMPING_INFORMATION)
     protected List<TimestampingInformationTypeModel> timestampingInformation;
 
-    @JsonProperty("AdditionalProof")
+    @JsonProperty(ADDITIONAL_PROOF)
     protected List<AdditionalProofType> additionalProof;
 
-    @JsonProperty("Extended")
+    @JsonProperty(EXTENDED)
     protected SignatureInformationExtendedModel extended;
 
     public List<SigningRoleType> getSigningRole() {

@@ -1,0 +1,25 @@
+# Configuration
+@access-contract = ContratTNR
+@tenant = 0
+
+### Lancement de l'audit de Valeur Probante
+POST {{url-access}}/admin-external/v1/probativevalueexport
+Accept: application/json
+Content-Type: application/json
+X-Access-Contract-Id: {{access-contract}}
+X-Tenant-Id: {{tenant}}
+
+{
+  "dslQuery": {
+    "$query": [
+      {
+        "$eq": {
+          "#id": "aeaqaaaaaaer2c3dactrgammvkxsmpaaaaba"
+        }
+      }
+    ]
+  },
+  "usage": "BinaryMaster",
+  "version": "1",
+  "includeDetachedSigningInformation": false
+}

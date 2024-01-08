@@ -231,7 +231,7 @@ hosts_alertmanager
 ansible_become=true
 
 ### dns ###
-dns_servers=["10.100.211.222", "8.8.8.8"]
+dns_servers=["1.1.1.1", "8.8.8.8"]
 
 ### memory settings ###
 memory_opts="-Xms32m -Xmx256m"

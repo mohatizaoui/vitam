@@ -26,16 +26,22 @@
  */
 package fr.gouv.vitam.common.model.unit;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum DetachedSigningRoleType {
 
-    @JsonProperty("Timestamp")
-    TIMESTAMP,
+    TIMESTAMP("Timestamp"),
+    SIGNATURE("Signature"),
+    ADDITIONAL_PROOF("AdditionalProof");
 
-    @JsonProperty("Signature")
-    SIGNATURE,
+    private final String value;
 
-    @JsonProperty("AdditionalProof")
-    ADDITIONAL_PROOF
+    DetachedSigningRoleType(String value) {
+        this.value = value;
+    }
+
+    @JsonValue
+    public String getValue() {
+        return value;
+    }
 }

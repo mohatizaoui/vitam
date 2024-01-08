@@ -335,19 +335,7 @@ public class BulkAtomicUpdateIT extends VitamRuleRunner {
             assertThat(jsoned.get("diff").textValue()).contains(expected);
 
             // CHECK REPORT
-            List<JsonNode> reportLines;
-            try (StorageClient storageClient = StorageClientFactory.getInstance().getClient()) {
-                Response reportResponse = null;
-                try {
-                    reportResponse = storageClient.getContainerAsync(VitamConfiguration.getDefaultStrategy(),
-                        operationGuid.getId() + ".jsonl", DataCategory.REPORT, AccessLogUtils.getNoLogAccessLog());
-                    assertThat(reportResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-
-                    reportLines = VitamTestHelper.getReport(reportResponse);
-                } finally {
-                    consumeAnyEntityAndClose(reportResponse);
-                }
-            }
+            List<JsonNode> reportLines = VitamTestHelper.getReports(operationGuid.getId());
             assertThat(reportLines.size()).isEqualTo(14);
             assertThat(reportLines.get(0).get("outDetail").asText()).isEqualTo("BULK_ATOMIC_UPDATE_UNITS.OK");
             assertThat(reportLines.get(1).get("vitamResults").get("OK").asInt()).isEqualTo(11);
@@ -473,19 +461,8 @@ public class BulkAtomicUpdateIT extends VitamRuleRunner {
             assertThat(jsoned.get("diff").textValue()).contains(expected);
 
             // CHECK REPORT
-            List<JsonNode> reportLines;
-            try (StorageClient storageClient = StorageClientFactory.getInstance().getClient()) {
-                Response reportResponse = null;
-                try {
-                    reportResponse = storageClient.getContainerAsync(VitamConfiguration.getDefaultStrategy(),
-                        operationGuid.getId() + ".jsonl", DataCategory.REPORT, AccessLogUtils.getNoLogAccessLog());
-                    assertThat(reportResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+            List<JsonNode> reportLines = VitamTestHelper.getReports(operationGuid.getId());
 
-                    reportLines = VitamTestHelper.getReport(reportResponse);
-                } finally {
-                    consumeAnyEntityAndClose(reportResponse);
-                }
-            }
             assertThat(reportLines.size()).isEqualTo(14);
             assertThat(reportLines.get(0).get("outDetail").asText()).isEqualTo("BULK_ATOMIC_UPDATE_UNITS.OK");
             assertThat(reportLines.get(1).get("vitamResults").get("OK").asInt()).isEqualTo(7);
@@ -625,19 +602,7 @@ public class BulkAtomicUpdateIT extends VitamRuleRunner {
             assertThat(jsoned.get("diff").textValue()).contains(expected);
 
             // CHECK REPORT
-            List<JsonNode> reportLines;
-            try (StorageClient storageClient = StorageClientFactory.getInstance().getClient()) {
-                Response reportResponse = null;
-                try {
-                    reportResponse = storageClient.getContainerAsync(VitamConfiguration.getDefaultStrategy(),
-                        operationGuid.getId() + ".jsonl", DataCategory.REPORT, AccessLogUtils.getNoLogAccessLog());
-                    assertThat(reportResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-
-                    reportLines = VitamTestHelper.getReport(reportResponse);
-                } finally {
-                    consumeAnyEntityAndClose(reportResponse);
-                }
-            }
+            List<JsonNode> reportLines = VitamTestHelper.getReports(operationGuid.getId());
 
             assertThat(reportLines.size()).isEqualTo(7);
             assertThat(reportLines.get(0).get("outDetail").asText()).isEqualTo("BULK_ATOMIC_UPDATE_UNITS.WARNING");
@@ -734,19 +699,7 @@ public class BulkAtomicUpdateIT extends VitamRuleRunner {
             verifyEvent(events, "BULK_ATOMIC_UPDATE_UNIT_DESC.WARNING");
 
             // CHECK REPORT
-            List<JsonNode> reportLines;
-            try (StorageClient storageClient = StorageClientFactory.getInstance().getClient()) {
-                Response reportResponse = null;
-                try {
-                    reportResponse = storageClient.getContainerAsync(VitamConfiguration.getDefaultStrategy(),
-                        operationGuid.getId() + ".jsonl", DataCategory.REPORT, AccessLogUtils.getNoLogAccessLog());
-                    assertThat(reportResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-
-                    reportLines = VitamTestHelper.getReport(reportResponse);
-                } finally {
-                    consumeAnyEntityAndClose(reportResponse);
-                }
-            }
+            List<JsonNode> reportLines = VitamTestHelper.getReports(operationGuid.getId());
 
             assertThat(reportLines.size()).isEqualTo(5);
             assertThat(reportLines.get(0).get("outDetail").asText()).isEqualTo("OBJECTS_LIST_EMPTY.WARNING");
@@ -841,19 +794,7 @@ public class BulkAtomicUpdateIT extends VitamRuleRunner {
             verifyEvent(events, "BULK_ATOMIC_UPDATE_UNIT_DESC.KO");
 
             // CHECK REPORT
-            List<JsonNode> reportLines;
-            try (StorageClient storageClient = StorageClientFactory.getInstance().getClient()) {
-                Response reportResponse = null;
-                try {
-                    reportResponse = storageClient.getContainerAsync(VitamConfiguration.getDefaultStrategy(),
-                        operationGuid.getId() + ".jsonl", DataCategory.REPORT, AccessLogUtils.getNoLogAccessLog());
-                    assertThat(reportResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-
-                    reportLines = VitamTestHelper.getReport(reportResponse);
-                } finally {
-                    consumeAnyEntityAndClose(reportResponse);
-                }
-            }
+            List<JsonNode> reportLines = VitamTestHelper.getReports(operationGuid.getId());
 
             assertThat(reportLines.size()).isEqualTo(3);
             assertThat(reportLines.get(0).get("outDetail").asText())
@@ -959,19 +900,8 @@ public class BulkAtomicUpdateIT extends VitamRuleRunner {
             verifyEvent(events, "BULK_ATOMIC_UPDATE_UNIT_DESC.WARNING");
 
             // CHECK REPORT
-            List<JsonNode> reportLines;
-            try (StorageClient storageClient = StorageClientFactory.getInstance().getClient()) {
-                Response reportResponse = null;
-                try {
-                    reportResponse = storageClient.getContainerAsync(VitamConfiguration.getDefaultStrategy(),
-                        operationGuid2.getId() + ".jsonl", DataCategory.REPORT, AccessLogUtils.getNoLogAccessLog());
-                    assertThat(reportResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+            List<JsonNode> reportLines = VitamTestHelper.getReports(operationGuid2.getId());
 
-                    reportLines = VitamTestHelper.getReport(reportResponse);
-                } finally {
-                    consumeAnyEntityAndClose(reportResponse);
-                }
-            }
             assertThat(reportLines.size()).isEqualTo(4);
             assertThat(reportLines.get(0).get("outDetail").asText()).isEqualTo("BULK_ATOMIC_UPDATE_UNITS.WARNING");
             assertThat(reportLines.get(1).get("vitamResults").get("OK").asInt()).isEqualTo(0);
@@ -1210,19 +1140,7 @@ public class BulkAtomicUpdateIT extends VitamRuleRunner {
             assertThat(jsoned.get("diff").textValue()).contains(expected);
 
             // CHECK REPORT
-            List<JsonNode> reportLines;
-            try (StorageClient storageClient = StorageClientFactory.getInstance().getClient()) {
-                Response reportResponse = null;
-                try {
-                    reportResponse = storageClient.getContainerAsync(VitamConfiguration.getDefaultStrategy(),
-                        operationGuid.getId() + ".jsonl", DataCategory.REPORT, AccessLogUtils.getNoLogAccessLog());
-                    assertThat(reportResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-
-                    reportLines = VitamTestHelper.getReport(reportResponse);
-                } finally {
-                    consumeAnyEntityAndClose(reportResponse);
-                }
-            }
+            List<JsonNode> reportLines = VitamTestHelper.getReports(operationGuid.getId());
 
             assertThat(reportLines.size()).isEqualTo(7);
             assertThat(reportLines.get(0).get("outDetail").asText()).isEqualTo("BULK_ATOMIC_UPDATE_UNITS.WARNING");

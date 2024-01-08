@@ -27,6 +27,7 @@
 
 package fr.gouv.vitam.common;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.gouv.vitam.common.accesslog.AccessLogUtils;
 import fr.gouv.vitam.common.database.builder.query.QueryHelper;
@@ -77,19 +78,17 @@ import fr.gouv.vitam.storage.engine.client.exception.StorageServerClientExceptio
 import fr.gouv.vitam.storage.engine.client.exception.StorageUnavailableDataFromAsyncOfferClientException;
 import fr.gouv.vitam.storage.engine.common.exception.StorageNotFoundException;
 import fr.gouv.vitam.storage.engine.common.model.DataCategory;
+import fr.gouv.vitam.worker.core.distribution.JsonLineGenericIterator;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import org.apache.commons.collections4.iterators.PeekingIterator;
+import org.apache.commons.collections4.IteratorUtils;
 import org.bson.Document;
 
 import javax.ws.rs.core.Response;
-import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -184,14 +183,27 @@ public class VitamTestHelper {
         }
     }
 
-    public static String printLogbook(String opId) {
+    public static String readLogbook(String opId) {
         try {
             JsonNode logbook = findLogbook(opId);
             RequestResponseOK<JsonNode> result = RequestResponseOK.getFromJsonNode(logbook);
             assertThat(result.getResults()).isNotEmpty();
             return JsonHandler.prettyPrint(result.getFirstResult());
         } catch (InvalidParseOperationException e) {
-            return fail("Error", e);
+            return fail("Error - Cannot read LogbookOperation " + opId, e);
+        }
+    }
+
+    public static String readReportFile(String fileName) {
+        try (StorageClient client = StorageClientFactory.getInstance().getClient()) {
+            Response containerAsync =
+                client.getContainerAsync(VitamConfiguration.getDefaultStrategy(), fileName, DataCategory.REPORT,
+                    AccessLogUtils.getNoLogAccessLog());
+            return containerAsync.readEntity(String.class);
+        } catch (StorageNotFoundException e) {
+            return "No " + fileName + " found";
+        } catch (Exception e) {
+            return fail("Cannot read " + fileName, e);
         }
     }
 
@@ -203,16 +215,13 @@ public class VitamTestHelper {
      * @throws IOException
      * @throws InvalidParseOperationException
      */
-    public static List<JsonNode> getReport(Response reportResponse) throws IOException, InvalidParseOperationException {
-        List<JsonNode> reportLines = new ArrayList<>();
+    private static List<JsonNode> getReport(Response reportResponse)
+        throws IOException, InvalidParseOperationException {
         try (InputStream is = reportResponse.readEntity(InputStream.class)) {
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
-            PeekingIterator<String> linesPeekIterator = new PeekingIterator<>(bufferedReader.lines().iterator());
-            while (linesPeekIterator.hasNext()) {
-                reportLines.add(JsonHandler.getFromString(linesPeekIterator.next()));
-            }
+            JsonLineGenericIterator<JsonNode> iterator = new JsonLineGenericIterator<>(is, new TypeReference<>() {
+            });
+            return IteratorUtils.toList(iterator);
         }
-        return reportLines;
     }
 
     public static List<JsonNode> getReports(String operationGuid) {
@@ -307,7 +316,7 @@ public class VitamTestHelper {
             try {
                 assertThat(itemStatus.getGlobalStatus()).isEqualTo(statusCode);
             } catch (AssertionError e) {
-                System.err.println(VitamTestHelper.printLogbook(opId));
+                printDebutInformation(opId);
                 throw e;
             }
         } catch (VitamClientException | InternalServerException | BadRequestException e) {
@@ -315,13 +324,24 @@ public class VitamTestHelper {
         }
     }
 
+    public static void printDebutInformation(String opId) {
+        if (opId == null) {
+            System.err.println("Missing operation id");
+            return;
+        }
+        System.err.println("Dump LogbookOperation: \n" + readLogbook(opId));
+        System.err.println("Dump ATR: \n" + readReportFile(opId + ".xml"));
+        System.err.println("Dump json report: \n" + readReportFile(opId + ".json"));
+        System.err.println("Dump jsonl report: \n" + readReportFile(opId + ".jsonl"));
+    }
+
     public static void verifyOperation(String opId, StatusCode... statusCodes) {
         try (ProcessingManagementClient client = ProcessingManagementClientFactory.getInstance().getClient()) {
             ItemStatus itemStatus = client.getOperationProcessStatus(opId);
             try {
-                assertThat(itemStatus.getGlobalStatus()).isIn(statusCodes);
+                assertThat(itemStatus.getGlobalStatus()).isIn((Object[]) statusCodes);
             } catch (AssertionError e) {
-                System.err.println(VitamTestHelper.printLogbook(opId));
+                printDebutInformation(opId);
                 throw e;
             }
         } catch (VitamClientException | InternalServerException | BadRequestException e) {
@@ -474,6 +494,37 @@ public class VitamTestHelper {
             assertNotNull(results);
             assertFalse(results.isEmpty());
             return results.get(0);
+        }
+    }
+
+    public static void doTraceabilityGots() throws VitamException {
+        try (LogbookOperationsClient logbookOperationsClient = LogbookOperationsClientFactory.getInstance()
+            .getClient()) {
+            RequestResponseOK<?> traceabilityObjectGroupResponse = logbookOperationsClient.traceabilityLfcObjectGroup();
+            String traceabilityGotOperationId =
+                traceabilityObjectGroupResponse.getHeaderString(GlobalDataRest.X_REQUEST_ID);
+            waitOperation(traceabilityGotOperationId);
+        }
+    }
+
+    public static void doTraceabilityUnits() throws VitamException {
+        try (LogbookOperationsClient logbookOperationsClient = LogbookOperationsClientFactory.getInstance()
+            .getClient()) {
+            RequestResponseOK<?> traceabilityUnitResponse = logbookOperationsClient.traceabilityLfcUnit();
+            String traceabilityUnitOperationId = traceabilityUnitResponse.getHeaderString(GlobalDataRest.X_REQUEST_ID);
+            waitOperation(traceabilityUnitOperationId);
+        }
+    }
+
+    public static void doTraceabilityOperations() throws VitamException {
+        Integer tenantId = VitamThreadUtils.getVitamSession().getTenantId();
+
+        try (LogbookOperationsClient client = LogbookOperationsClientFactory.getInstance().getClient()) {
+            VitamThreadUtils.getVitamSession().setTenantId(VitamConfiguration.getAdminTenant());
+
+            client.traceability(List.of(tenantId));
+        } finally {
+            VitamThreadUtils.getVitamSession().setTenantId(tenantId);
         }
     }
 }

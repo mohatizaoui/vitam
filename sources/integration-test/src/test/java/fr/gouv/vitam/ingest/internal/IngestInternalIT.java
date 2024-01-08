@@ -2557,11 +2557,10 @@ public class IngestInternalIT extends VitamRuleRunner {
     @RunWithCustomExecutor
     @Test
     public void testOgValidSchemaIngestInternal() throws Exception {
-        GUID operationGuid = null;
+        String operationId = null;
         try {
             prepareVitamSession(tenantId, "aName3", "Context_IT");
-            String operationId = VitamTestHelper.doIngest(tenantId, SIP_CHECK_OG_SCHEMA);
-            operationGuid = GUIDReader.getGUID(operationId);
+            operationId = VitamTestHelper.doIngest(tenantId, SIP_CHECK_OG_SCHEMA);
             verifyOperation(operationId, WARNING);
 
             // Try to check AU
@@ -2585,11 +2584,13 @@ public class IngestInternalIT extends VitamRuleRunner {
                 frameHeight =
                 jsonResponse.get(RESULTS).get(0).get("#qualifiers").get(0).get("versions").get(0).get("Metadata")
                     .get("Video").get("VideoStream").get(0).get("FrameHeight").get(0);
-            assertThat(frameHeight.isInt());
+            assertThat(frameHeight.isInt()).isTrue();
             assertThat(frameHeight.asInt()).isEqualTo(720);
         } catch (final Exception e) {
             LOGGER.error(e);
-            VitamTestHelper.printLogbook(operationGuid.getId());
+            if (operationId != null) {
+                VitamTestHelper.printDebutInformation(operationId);
+            }
             throw e;
         }
     }
