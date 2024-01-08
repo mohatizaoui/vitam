@@ -189,6 +189,7 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -200,6 +201,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
+import java.util.stream.StreamSupport;
 
 import static fr.gouv.vitam.common.SedaConstants.TAG_ARCHIVE_TRANSFER;
 import static fr.gouv.vitam.common.database.parser.query.QueryParserHelper.ne;
@@ -2625,7 +2627,21 @@ public class ExtractSedaActionHandler extends ActionHandler {
                 objectNode.put(SedaConstants.TAG_NB, objectNode.get(SedaConstants.TAG_NB).asInt() + 1);
             }
         }
+        // Sort versions for each qualifier
+        for (final JsonNode qualifierData : qualifiersArray) {
+            final ArrayNode versions = (ArrayNode) qualifierData.get(SedaConstants.TAG_VERSIONS);
+            List<JsonNode> sortedVersions = StreamSupport.stream(versions.spliterator(), false)
+                .sorted(Comparator.comparing(this::getVersionNumber))
+                .collect(toList());
+            versions.removeAll();
+            versions.addAll(sortedVersions);
+        }
         return qualifiersArray;
+    }
+
+    private int getVersionNumber(JsonNode versionNode) {
+        String dataObjectVersion = versionNode.get(SedaConstants.TAG_DO_VERSION).asText();
+        return Integer.parseInt(dataObjectVersion.split("_")[1]);
     }
 
     private ObjectNode findQualifierObjectNode(ArrayNode qualifiersArray, String qualifier) {

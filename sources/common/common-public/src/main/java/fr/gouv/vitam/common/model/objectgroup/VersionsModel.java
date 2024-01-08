@@ -46,66 +46,87 @@ import static java.util.Arrays.asList;
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class VersionsModel {
 
-    @JsonProperty("#id")
+    public static final String ID = "#id";
+    public static final String DATA_OBJECT_VERSION = "DataObjectVersion";
+    public static final String DATA_OBJECT_GROUP_ID = "DataObjectGroupId";
+    public static final String FORMAT_IDENTIFICATION = "FormatIdentification";
+    public static final String FILE_INFO = "FileInfo";
+    public static final String METADATA = "Metadata";
+    public static final String SIZE = "Size";
+    public static final String URI = "Uri";
+    public static final String MESSAGE_DIGEST = "MessageDigest";
+    public static final String ALGORITHM = "Algorithm";
+    public static final String STORAGE = "#storage";
+    public static final String PHYSICAL_DIMENSIONS = "PhysicalDimensions";
+    public static final String PHYSICAL_ID = "PhysicalId";
+    public static final String OTHER_METADATA = "OtherMetadata";
+    public static final String OPI = "#opi";
+    public static final String DATA_OBJECT_PROFILE = "DataObjectProfile";
+    public static final String MANAGEMENT_CONTRACT_ID = "#managementContractId";
+    public static final String DATA_OBJECT_USE = "DataObjectUse";
+    public static final String DATA_OBJECT_NUMBER = "DataObjectNumber";
+    public static final String PERSISTENT_IDENTIFIER = "PersistentIdentifier";
+
+    @JsonProperty(ID)
     private String id;
 
-    @JsonProperty("DataObjectVersion")
+    @JsonProperty(DATA_OBJECT_VERSION)
     private String dataObjectVersion;
 
     @JsonIgnore
     private final Map<String, Object> any = new HashMap<>();
 
-    @JsonProperty("DataObjectGroupId")
+    @JsonProperty(DATA_OBJECT_GROUP_ID)
     private String dataObjectGroupId;
 
-    @JsonProperty("FormatIdentification")
+    @JsonProperty(FORMAT_IDENTIFICATION)
     private FormatIdentificationModel formatIdentification;
 
-    @JsonProperty("FileInfo")
+    @JsonProperty(FILE_INFO)
     private FileInfoModel fileInfoModel;
 
-    @JsonProperty("Metadata")
+    @JsonProperty(METADATA)
     private MetadataModel metadata;
 
-    @JsonProperty("Size")
+    @JsonProperty(SIZE)
     private long size;
 
-    @JsonProperty("Uri")
+    @JsonProperty(URI)
     private String uri;
 
-    @JsonProperty("MessageDigest")
+    @JsonProperty(MESSAGE_DIGEST)
     private String messageDigest;
 
-    @JsonProperty("Algorithm")
+    @JsonProperty(ALGORITHM)
     private String algorithm;
 
-    @JsonProperty("#storage")
+    @JsonProperty(STORAGE)
     private StorageJson storage;
 
-    @JsonProperty("PhysicalDimensions")
+    @JsonProperty(PHYSICAL_DIMENSIONS)
     private PhysicalDimensionsModel physicalDimensionsModel;
 
-    @JsonProperty("PhysicalId")
+    @JsonProperty(PHYSICAL_ID)
     private String physicalId;
 
-    @JsonProperty("OtherMetadata")
+    @JsonProperty(OTHER_METADATA)
     private Map<String, Object> otherMetadata = new LinkedHashMap<>();
 
-    @JsonProperty("#opi")
+    @JsonProperty(OPI)
     private String opi;
-    @JsonProperty("DataObjectProfile")
+    @JsonProperty(DATA_OBJECT_PROFILE)
     private String dataObjectProfile;
 
-    @JsonProperty("#managementContractId")
+    @JsonProperty(MANAGEMENT_CONTRACT_ID)
     private String managementContractId;
 
-    @JsonProperty("DataObjectUse")
+    @JsonProperty(DATA_OBJECT_USE)
     private String dataObjectUse;
 
-    @JsonProperty("DataObjectNumber")
+    @JsonProperty(DATA_OBJECT_NUMBER)
     private Integer dataObjectNumber;
 
-    @JsonProperty("PersistentIdentifier")
+    @JsonProperty(PERSISTENT_IDENTIFIER)
     private List<PersistentIdentifierModel> persistentIdentifier;
 
     @JsonAnyGetter
