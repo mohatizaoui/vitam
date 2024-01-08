@@ -31,6 +31,7 @@ import fr.gouv.vitam.collect.common.dto.CriteriaProjectDto;
 import fr.gouv.vitam.collect.common.dto.ProjectDto;
 import fr.gouv.vitam.collect.common.dto.TransactionDto;
 import fr.gouv.vitam.collect.common.enums.TransactionStatus;
+import fr.gouv.vitam.collect.internal.client.exceptions.ClientInternalNotFoundException;
 import fr.gouv.vitam.common.CommonMediaType;
 import fr.gouv.vitam.common.client.DefaultClient;
 import fr.gouv.vitam.common.client.VitamClientFactoryInterface;
@@ -38,8 +39,10 @@ import fr.gouv.vitam.common.client.VitamRequestBuilder;
 import fr.gouv.vitam.common.error.VitamError;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.exception.VitamClientException;
+import fr.gouv.vitam.common.exception.VitamClientInternalException;
 import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
+import fr.gouv.vitam.common.model.StatusCode;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.ws.rs.core.NewCookie;
@@ -96,7 +99,6 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
 
         VitamRequestBuilder request = put()
             .withPath(PROJECT_PATH)
-
             .withBody(projectDto)
             .withJsonContentType()
             .withJsonAccept();
@@ -113,7 +115,6 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
 
         VitamRequestBuilder request = get()
             .withPath(PROJECT_PATH + "/" + projectId)
-
             .withJsonAccept();
 
         try (Response response = make(request)) {
@@ -129,7 +130,6 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
 
         VitamRequestBuilder request = get()
             .withPath(TRANSACTION_PATH + "/" + transactionId)
-
             .withJsonAccept();
 
         try (Response response = make(request)) {
@@ -144,7 +144,6 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
 
         VitamRequestBuilder request = get()
             .withPath(PROJECT_PATH + "/" + projectId + TRANSACTION_PATH)
-
             .withJsonAccept();
 
         try (Response response = make(request)) {
@@ -160,7 +159,6 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
 
         VitamRequestBuilder request = delete()
             .withPath(PROJECT_PATH + "/" + projectId)
-
             .withJsonAccept();
 
         try (Response response = make(request)) {
@@ -175,7 +173,6 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
 
         VitamRequestBuilder request = delete()
             .withPath(TRANSACTION_PATH + "/" + transactionId)
-
             .withJsonAccept();
 
         try (Response response = make(request)) {
@@ -189,7 +186,6 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
 
         VitamRequestBuilder request = get()
             .withPath(PROJECT_PATH)
-
             .withJsonAccept();
 
         try (Response response = make(request)) {
@@ -204,7 +200,6 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
 
         VitamRequestBuilder request = get()
             .withPath(UNITS_PATH + "/" + unitId)
-
             .withJsonAccept();
 
         try (Response response = make(request)) {
@@ -235,7 +230,6 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
 
         VitamRequestBuilder request = get()
             .withPath(OBJECTS_PATH + "/" + gotId)
-
             .withJsonAccept();
 
         try (Response response = make(request)) {
@@ -252,7 +246,6 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
 
         VitamRequestBuilder request = post()
             .withPath(PROJECT_PATH + "/" + projectId + TRANSACTION_PATH)
-
             .withBody(transactionDto)
             .withJson();
 
@@ -352,7 +345,7 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
     }
 
     @Override
-    public void uploadTransactionZip(String transactionId, InputStream inputStreamUploaded)
+    public void uploadZipToTransaction(String transactionId, InputStream inputStreamUploaded)
         throws VitamClientException {
         try (Response response = make(post()
             .withPath(TRANSACTION_PATH + "/" + transactionId + "/upload")
@@ -363,11 +356,25 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
     }
 
     @Override
+    public String uploadZipToProject(String projectId, InputStream inputStreamUploaded)
+        throws VitamClientException {
+        try (Response response = make(post()
+            .withPath(PROJECT_PATH + "/" + projectId + "/upload")
+            .withBody(inputStreamUploaded)
+            .withContentType(CommonMediaType.ZIP_TYPE)
+            .withJsonAccept())) {
+            handleNotFoundResponses(response);
+            check(response);
+            RequestResponse<String> requestResponse = RequestResponse.parseFromResponse(response, String.class);
+            return ((RequestResponseOK<String>) requestResponse).getFirstResult();
+        }
+    }
+
+    @Override
     public RequestResponseOK<JsonNode> getUnitsByProjectId(
         String projectId, JsonNode dslQuery) throws VitamClientException {
         try (Response response = make(
             get().withPath(PROJECT_PATH + "/" + projectId + UNITS_PATH)
-
                 .withBody(dslQuery)
                 .withJson())) {
             check(response);
@@ -439,16 +446,26 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
 
         try (final Response clonedResponse = responseBuilder.build()) {
             final VitamError<JsonNode> vitamError = RequestResponse.parseVitamError(clonedResponse);
-
             if (StringUtils.isNotBlank(vitamError.getDescription())) {
                 message = vitamError.getDescription();
             } else if (StringUtils.isNotBlank(vitamError.getMessage())) {
                 message = vitamError.getMessage();
             }
-
             throw new VitamClientException(message);
         } catch (InvalidParseOperationException e) {
             throw new VitamClientException(message);
+        }
+    }
+
+    private static void handleNotFoundResponses(Response response)
+        throws VitamClientInternalException {
+        if(Response.Status.NOT_FOUND.getStatusCode() == response.getStatusInfo().getStatusCode()) {
+            try {
+                final VitamError<JsonNode> vitamError = RequestResponse.parseVitamError(response);
+                throw new ClientInternalNotFoundException(vitamError.getMessage());
+            } catch (RuntimeException | InvalidParseOperationException e) {
+                throw new VitamClientInternalException("Could not parse error", e);
+            }
         }
     }
 

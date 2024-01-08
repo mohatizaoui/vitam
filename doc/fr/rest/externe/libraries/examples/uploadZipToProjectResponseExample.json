@@ -1,0 +1,11 @@
+{
+  "httpCode": 200,
+  "$hits": {
+    "total": 1,
+    "offset": 0,
+    "limit": 0,
+    "size": 1
+  },
+  "$results": [ "VIRTUAL_TX_aeaqaaaaaaecg2hmabhlsammhkxs45iaaaca" ],
+  "$context": {}
+}

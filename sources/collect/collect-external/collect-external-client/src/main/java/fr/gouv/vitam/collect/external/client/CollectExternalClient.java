@@ -27,9 +27,11 @@
 package fr.gouv.vitam.collect.external.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.annotations.Beta;
 import fr.gouv.vitam.collect.common.dto.CriteriaProjectDto;
 import fr.gouv.vitam.collect.common.dto.ProjectDto;
 import fr.gouv.vitam.collect.common.dto.TransactionDto;
+import fr.gouv.vitam.collect.external.external.exception.CollectExternalClientNotFoundException;
 import fr.gouv.vitam.common.client.MockOrRestClient;
 import fr.gouv.vitam.common.client.VitamContext;
 import fr.gouv.vitam.common.exception.VitamClientException;
@@ -260,17 +262,43 @@ public interface CollectExternalClient extends MockOrRestClient {
         VitamClientException;
 
     /**
-     * Upload zip and consume
+     * Upload zip to a transaction.
+     * Consumes a ZIP (application/zip).
      *
-     * Consume CommonMediaType.ZIP
+     * @return RequestResponse<JsonNode>
+     * @throws VitamClientException exception occurs when parse operation failed
+     * @deprecated Use uploadZipToTransaction() instead.
+     */
+    @Deprecated(forRemoval = true, since = "Vitam 7.1")
+    default RequestResponse<JsonNode> uploadProjectZip(VitamContext vitamContext, String transactionId,
+        InputStream inputStreamUploaded)
+        throws VitamClientException {
+        return uploadZipToTransaction(vitamContext, transactionId, inputStreamUploaded);
+    }
+
+    /**
+     * Upload zip to a transaction.
+     * Consumes a ZIP (application/zip).
      *
      * @return RequestResponse<JsonNode>
      * @throws VitamClientException exception occurs when parse operation failed
      */
-    RequestResponse<JsonNode> uploadProjectZip(VitamContext vitamContext, String transactionId,
+    RequestResponse<JsonNode> uploadZipToTransaction(VitamContext vitamContext, String transactionId,
         InputStream inputStreamUploaded)
         throws VitamClientException;
 
+    /**
+     * Upload zip to a project with automatic transaction management.
+     * Consumes a ZIP (application/zip).
+     * Warning: This Method is marked as "beta". API signature & behavior might evolve in next versions.
+     *
+     * @return RequestResponse<JsonNode>
+     * @throws VitamClientException exception occurs when parse operation failed
+     */
+    @Beta
+    RequestResponse<String> uploadZipToProject(VitamContext vitamContext, String projectId,
+        InputStream inputStreamUploaded)
+        throws VitamClientException, CollectExternalClientNotFoundException;
 
     /**
      * Get all AU attached to transactions related to project Id param

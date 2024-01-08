@@ -171,7 +171,7 @@ public class CollectIngestIT extends VitamRuleRunner {
             idTransaction = transactionDtoResult.getId();
             try (InputStream inputStream = PropertiesUtils.getResourceAsStream("collect/arbo_to_ingest.zip")) {
                 RequestResponse<JsonNode> response =
-                    collectClient.uploadProjectZip(vitamContext, transactionDtoResult.getId(), inputStream);
+                    collectClient.uploadZipToTransaction(vitamContext, transactionDtoResult.getId(), inputStream);
                 Assertions.assertThat(response.getStatus()).isEqualTo(200);
             }
 

@@ -148,7 +148,7 @@ public class CollectInternalResourceBaseTest {
                 singletons = new HashSet<>();
                 singletons.add(new SanityCheckerCommonFilter());
                 final ProjectInternalResource projectInternalResource =
-                    new ProjectInternalResource(projectService, transactionService, metadataService);
+                    new ProjectInternalResource(projectService, fluxService, transactionService, metadataService);
                 final TransactionInternalResource transactionInternalResource =
                     new TransactionInternalResource(transactionService, sipService, metadataService, fluxService,
                         projectService);

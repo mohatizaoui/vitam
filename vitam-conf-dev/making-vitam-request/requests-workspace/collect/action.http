@@ -67,6 +67,22 @@ accept: application/json
 content-type: application/json
 X-Tenant-Id: {{tenant}}
 
+### upload a zip to project without transaction
+POST {{url-collect}}/collect-external/v1/projects/{{project-id}}/upload
+Accept: application/json
+Content-Type: application/zip
+X-Tenant-Id: {{tenant}}
+
+< ./SimpleTreeZip.zip
+
+### upload a zip + csv to project without transaction
+POST {{url-collect}}/collect-external/v1/projects/{{project-id}}/upload
+Accept: application/json
+Content-Type: application/zip
+X-Tenant-Id: {{tenant}}
+
+< ./SimpleTreeZipWithCSV.zip
+
 ### Récuperation d'une unité archivistique pas dsl query
 GET {{url-collect}}/collect-external/v1/transactions/{{transaction-id}}/units
 accept: application/json
@@ -117,17 +133,6 @@ Content-Length: 143
 
 {
 }
-
-
-### upload zip avec arborescence a traiter
-POST {{url-collect}}/collect-external/v1/projects/{{project-id}}/binary
-Accept: application/json
-Content-Type: application/zip
-X-Tenant-Id: {{tenant}}
-
-< /path_tozip/stream.zip
-
-
 
 ### Mise à jour des metadonnées par un fichier csv
 PUT {{url-collect}}/collect-external/v1/transactions/{{transaction-id}}/units

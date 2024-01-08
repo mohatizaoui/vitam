@@ -34,7 +34,6 @@ import com.google.common.collect.Iterators;
 import fr.gouv.culture.archivesdefrance.seda.v2.LevelType;
 import fr.gouv.vitam.collect.common.exception.CollectInternalException;
 import fr.gouv.vitam.collect.common.exception.CsvParseInternalException;
-import fr.gouv.vitam.collect.internal.core.common.DescriptionLevel;
 import fr.gouv.vitam.collect.internal.core.common.ProjectModel;
 import fr.gouv.vitam.collect.internal.core.common.TransactionModel;
 import fr.gouv.vitam.collect.internal.core.helpers.CsvHelper;
@@ -117,10 +116,10 @@ public class FluxService {
         this.metadataRepository = metadataRepository;
     }
 
-    public void processStream(InputStream inputStreamObject, TransactionModel transactionModel)
+    public void processStream(InputStream inputStreamObject, String projectId, String transactionId)
         throws CollectInternalException {
 
-        Optional<ProjectModel> projectById = projectRepository.findProjectById(transactionModel.getProjectId());
+        Optional<ProjectModel> projectById = projectRepository.findProjectById(projectId);
         if (projectById.isEmpty()) {
             throw new CollectInternalException("Project not found");
         }
@@ -132,7 +131,7 @@ public class FluxService {
             ArchiveEntry entry;
             boolean isEmpty = true;
             Map<String, String> unitIds =
-                metadataService.prepareAttachmentUnits(projectModel, transactionModel.getId());
+                metadataService.prepareAttachmentUnits(projectModel, transactionId);
             boolean isExtraMetadataExist = false;
             // create entryInputStream to resolve the stream closed problem
             final ArchiveEntryInputStream entryInputStream = new ArchiveEntryInputStream(archiveInputStream);
@@ -149,11 +148,11 @@ public class FluxService {
                     path = FilenameUtils.normalizeNoEndSeparator(path);
                     if (!entry.isDirectory() && path.equals(METADATA_CSV_FILE)) {
                         // save file in workspace
-                        collectService.pushStreamToWorkspace(transactionModel.getId(), entryInputStream,
+                        collectService.pushStreamToWorkspace(transactionId, entryInputStream,
                             METADATA_CSV_FILE);
                         isExtraMetadataExist = true;
                     } else {
-                        maxLevel = createMetadata(transactionModel, entry, entryInputStream, maxLevel, unitIds, path,
+                        maxLevel = createMetadata(transactionId, entry, entryInputStream, maxLevel, unitIds, path,
                             projectModel.getUnitUp() != null);
                     }
                     isEmpty = false;
@@ -167,27 +166,27 @@ public class FluxService {
 
             if (isExtraMetadataExist) {
                 File metadataFile = PropertiesUtils.fileFromTmpFolder(
-                    METADATA + "_" + transactionModel.getId() + VitamConstants.JSONL_EXTENSION);
-                try (InputStream is = collectService.getInputStreamFromWorkspace(transactionModel.getId(),
+                    METADATA + "_" + transactionId + VitamConstants.JSONL_EXTENSION);
+                try (InputStream is = collectService.getInputStreamFromWorkspace(transactionId,
                     METADATA_CSV_FILE)) {
                     CsvHelper.convertCsvToMetadataFile(is, metadataFile);
                 }
             }
 
             Map<String, Set<String>> unitUps =
-                (isExtraMetadataExist) ? findUnitUps(projectModel, transactionModel, unitIds) : new HashMap<>();
+                (isExtraMetadataExist) ? findUnitUps(projectModel, transactionId, unitIds) : new HashMap<>();
 
-            bulkWriteUnits(maxLevel, unitUps, transactionModel.getId());
+            bulkWriteUnits(maxLevel, unitUps, transactionId);
 
-            bulkWriteObjectGroups(transactionModel.getId());
+            bulkWriteObjectGroups(transactionId);
 
-            cleanTemporaryFiles(maxLevel, transactionModel.getId());
+            cleanTemporaryFiles(maxLevel, transactionId);
 
             if (isExtraMetadataExist) {
                 File metadataFile = PropertiesUtils.fileFromTmpFolder(
-                    METADATA + "_" + transactionModel.getId() + VitamConstants.JSONL_EXTENSION);
+                    METADATA + "_" + transactionId + VitamConstants.JSONL_EXTENSION);
                 try (InputStream is = new FileInputStream(metadataFile)) {
-                    metadataService.updateUnitsWithMetadataFile(transactionModel.getId(), is);
+                    metadataService.updateUnitsWithMetadataFile(transactionId, is);
                 } finally {
                     FileUtils.deleteQuietly(metadataFile);
                 }
@@ -211,11 +210,11 @@ public class FluxService {
         }
     }
 
-    private Map<String, Set<String>> findUnitUps(ProjectModel projectModel, TransactionModel transactionModel,
+    private Map<String, Set<String>> findUnitUps(ProjectModel projectModel, String transactionId,
         Map<String, String> unitIds) throws FileNotFoundException {
         if (projectModel.getUnitUps() != null) {
             File metadataFile = PropertiesUtils.fileFromTmpFolder(
-                METADATA + "_" + transactionModel.getId() + VitamConstants.JSONL_EXTENSION);
+                METADATA + "_" + transactionId + VitamConstants.JSONL_EXTENSION);
             try (JsonLineGenericIterator<JsonLineModel> iterator = new JsonLineGenericIterator<>(
                 new FileInputStream(metadataFile), new TypeReference<>() {
             })) {
@@ -234,10 +233,10 @@ public class FluxService {
         }
     }
 
-    private int createMetadata(TransactionModel transactionModel, ArchiveEntry entry,
+    private int createMetadata(String transactionId, ArchiveEntry entry,
         ArchiveEntryInputStream entryInputStream, int maxLevel, Map<String, String> unitIds, String path,
         boolean isAttachmentAuExist) throws IOException, CollectInternalException, InvalidParseOperationException {
-        DescriptionLevel descriptionLevel = (entry.isDirectory()) ? DescriptionLevel.RECORD_GRP : DescriptionLevel.ITEM;
+        LevelType descriptionLevel = (entry.isDirectory()) ? LevelType.RECORD_GRP : LevelType.ITEM;
 
         String parent = FilenameUtils.getPathNoEndSeparator(path);
 
@@ -257,8 +256,7 @@ public class FluxService {
         String fileName = FilenameUtils.getName(path);
 
         ArchiveUnitModel unit =
-            MetadataHelper.createUnit(transactionModel.getId(), LevelType.fromValue(descriptionLevel.getValue()),
-                fileName, parentUnit);
+            MetadataHelper.createUnit(transactionId, descriptionLevel, fileName, parentUnit);
 
         unitIds.put(path, unit.getId());
         if (!entry.isDirectory()) {
@@ -270,11 +268,11 @@ public class FluxService {
             try {
                 Optional<FormatIdentifierResponse> formatIdentifierResponseOpt = collectService.detectFileFormat(file);
                 Entry<String, Long> binaryInformations =
-                    writeObjectToWorkspace(transactionModel.getId(), file, newFilename);
+                    writeObjectToWorkspace(transactionId, file, newFilename);
                 ObjectGroupResponse objectGroup =
-                    MetadataHelper.createObjectGroup(transactionModel.getId(), fileName, objectId, newFilename,
+                    MetadataHelper.createObjectGroup(transactionId, fileName, objectId, newFilename,
                         formatIdentifierResponseOpt, binaryInformations.getKey(), binaryInformations.getValue());
-                writeObjectGroupToTemporaryFile(objectGroup, transactionModel.getId());
+                writeObjectGroupToTemporaryFile(objectGroup, transactionId);
                 unit.setOg(objectGroup.getId());
             } finally {
                 Files.deleteIfExists(file.toPath());
@@ -282,7 +280,7 @@ public class FluxService {
         }
 
         maxLevel = writeUnitToTemporaryFile(StringUtils.countMatches(path, File.separator), maxLevel, unit,
-            transactionModel.getId());
+            transactionId);
         return maxLevel;
     }
 

@@ -24,38 +24,13 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
+package fr.gouv.vitam.collect.internal.client.exceptions;
 
-package fr.gouv.vitam.collect.internal.core.common;
+import fr.gouv.vitam.common.exception.VitamClientInternalException;
 
-public enum DescriptionLevel {
-    FONDS("Fonds"),
-    SUBFONDS("Subfonds"),
-    CLASS("Class"),
-    COLLECTION("Collection"),
-    SERIES("Series"),
-    SUBSERIES("Subseries"),
-    RECORD_GRP("RecordGrp"),
-    SUB_GRP("SubGrp"),
-    FILE("File"),
-    ITEM("Item"),
-    OTHER_LEVEL("OtherLevel");
-
-    private final String value;
-
-    DescriptionLevel(String value) {
-        this.value = value;
-    }
-
-    public static DescriptionLevel fromValue(String v) {
-        for (DescriptionLevel c : DescriptionLevel.values()) {
-            if (c.value.equals(v)) {
-                return c;
-            }
-        }
-        throw new IllegalArgumentException(v);
-    }
-
-    public String getValue() {
-        return value;
+public class ClientInternalNotFoundException extends VitamClientInternalException {
+    
+    public ClientInternalNotFoundException(String message) {
+        super(message);
     }
 }
