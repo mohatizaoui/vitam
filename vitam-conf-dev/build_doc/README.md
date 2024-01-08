@@ -16,7 +16,6 @@
    cd /code
    mvn package javadoc:aggregate-jar install -f sources/pom.xml -P-vitam -DskipTests=true
    ```
-
    Alternatively, if you need RPM & DEB packages also :
 
    ```bash
