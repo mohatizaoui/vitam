@@ -171,6 +171,15 @@ public class AccessInternalClientRestTest extends ResteasyTestApplication {
 
         @Override
         @GET
+        @Path("/objects/persistentIdentifier/{persistentIdentifier:.+}")
+        @Consumes(MediaType.APPLICATION_JSON)
+        @Produces(MediaType.APPLICATION_JSON)
+        public Response downloadObject(@PathParam("persistentIdentifier") String persistentIdentifier) {
+            return expectedResponse.get();
+        }
+
+        @Override
+        @GET
         @Path("/units/stream")
         @Consumes(MediaType.APPLICATION_JSON)
         @Produces(MediaType.APPLICATION_JSON)

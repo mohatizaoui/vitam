@@ -31,6 +31,7 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import fr.gouv.vitam.common.model.administration.DataObjectVersionType;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -293,18 +294,22 @@ public class VersionsModel {
         this.persistentIdentifier = persistentIdentifier;
     }
 
-    @JsonIgnore
-    public int getDataVersion() {
-        List<String> split = asList(dataObjectVersion.split("_"));
-        return parseInt(split.get(1));
-    }
-
     public String getManagementContractId() {
         return managementContractId;
     }
 
     public void setManagementContractId(String managementContractId) {
         this.managementContractId = managementContractId;
+    }
+
+    @JsonIgnore
+    public int getVersion() {
+        return parseInt(dataObjectVersion.split("_")[1]);
+    }
+
+    @JsonIgnore
+    public DataObjectVersionType getQualifier() {
+        return DataObjectVersionType.fromName(dataObjectVersion.split("_")[0]);
     }
 
     @Override

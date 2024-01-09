@@ -1,0 +1,17 @@
+{
+  "_id": "aeaqaaaaaaeaaaabaatogammrnxmtsiaaaaq",
+  "persistentIdentifier": [
+    {
+      "PersistentIdentifierType": "ark",
+      "PersistentIdentifierContent": "ark:/00001/removed_object_version"
+    }
+  ],
+  "_tenant": 0,
+  "_v": 0,
+  "type": "Object",
+  "idObjectGroup": "aebaaaaaaaeaaaabaatogammrnxmsnaaaaaq",
+  "opId": "aeeaaaaaaceaaaabaatogammrnxnpwyaaaaq",
+  "opType": "DELETE_GOT_VERSIONS",
+  "opEndDate": "2023-12-21T08:12:28.455",
+  "lastPersistentDate": "2023-12-31T08:12:29.605"
+}

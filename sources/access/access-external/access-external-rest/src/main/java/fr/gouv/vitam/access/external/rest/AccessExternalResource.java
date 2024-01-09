@@ -62,6 +62,7 @@ import fr.gouv.vitam.common.exception.BadRequestException;
 import fr.gouv.vitam.common.exception.ExpectationFailedClientException;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.exception.NoWritingPermissionException;
+import fr.gouv.vitam.common.exception.VitamClientException;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
@@ -1096,104 +1097,18 @@ public class AccessExternalResource extends ApplicationStatusResource {
             @ApiResponse(responseCode = "500", description = "Internal Server Error.")
         }
     )
-
     public Response getDataObjectByObjectPersistentIdentifier(@Context HttpHeaders headers,
-        @PathParam("persistentIdentifier") String persistentIdentifier) {
-
-        Status status;
-        try {
-            List<JsonNode> objectsFound = findObjectGroupByPersistentIdentifier(persistentIdentifier, null);
-            String idObjectGroup;
-            if (objectsFound == null || objectsFound.isEmpty()) {
-                throw new AccessInternalClientNotFoundException("Object not found");
-            }
-            ObjectNode firstObjectFound = (ObjectNode) objectsFound.get(0);
-            if (firstObjectFound == null || firstObjectFound.get(VitamFieldsHelper.id()) == null) {
-                throw new AccessInternalClientNotFoundException("Object not found");
-            }
-            idObjectGroup = firstObjectFound.get(VitamFieldsHelper.id()).textValue();
-
-            //check all versions to retrieve the right object to download 
-
-            List<JsonNode> dataObjectUpsValues = firstObjectFound.findValues(UNIT_UPS);
-
-            if (dataObjectUpsValues == null || dataObjectUpsValues.isEmpty() || dataObjectUpsValues.get(0).isEmpty()) {
-                throw new AccessInternalClientNotFoundException("Could not find UPS fields of object");
-            }
-            String unitId = dataObjectUpsValues.get(0).get(0).textValue();
-            String objectId = null;
-            String dataObjectVersionValue = null;
-            List<JsonNode> dataObjectQualifiers = firstObjectFound.findValues(QUALIFIERS);
-            for (JsonNode dataObjectQualifier : dataObjectQualifiers) {
-                List<JsonNode> dataObjectVersions = dataObjectQualifier.findValues(VERSIONS);
-                for (JsonNode version : dataObjectVersions) {
-                    JsonNode persistentIdsFields = version.get(0).get(PERSISTENT_IDENTIFIERS);
-                    for (JsonNode persistentId : persistentIdsFields) {
-                        String persistentIdentifierInVersion =
-                            persistentId.get(PERSISTENT_IDENTIFIER_CONTENT).textValue();
-                        if (persistentIdentifier.equals(persistentIdentifierInVersion)) {
-                            objectId = version.get(0).get("#id").textValue();
-                            dataObjectVersionValue = version.get(0).get(DATA_OBJECT_VERSION).textValue();
-                            break;
-                        }
-                    }
-                    if (objectId != null) {
-                        break;
-                    }
-                }
-                if (objectId != null) {
-                    break;
-                }
-            }
-            if (objectId == null) {
-                throw new AccessInternalClientNotFoundException(
-                    "could not find the right object with the persistent identifier");
-            }
-            if (dataObjectVersionValue == null) {
-                throw new AccessInternalClientNotFoundException("dataObjectVersion is empty");
-            }
-            String[] dataObjectVersionValueTokens = dataObjectVersionValue.split("_");
-            if (dataObjectVersionValueTokens.length < 2) {
-                throw new AccessInternalClientNotFoundException("dataObjectVersion does not respect qualifier_version");
-            }
-
-            return asyncObjectStream(dataObjectVersionValueTokens[0], dataObjectVersionValueTokens[1], idObjectGroup,
-                unitId);
-        } catch (final InvalidParseOperationException | BadRequestException | InvalidCreateOperationException e) {
-            LOGGER.debug(PREDICATES_FAILED_EXCEPTION, e);
-            status = Status.PRECONDITION_FAILED;
-            return Response.status(status)
-                .entity(getErrorStream(
-                    VitamCodeHelper.toVitamError(VitamCode.ACCESS_EXTERNAL_SELECT_DATA_OBJECT_BY_UNIT_ID_ERROR,
-                        e.getLocalizedMessage()).setHttpCode(status.getStatusCode())))
-                .build();
-        } catch (final AccessInternalClientServerException e) {
-            LOGGER.error("Unauthorized request Exception ", e);
-            status = Status.INTERNAL_SERVER_ERROR;
-            return Response.status(status)
-                .entity(getErrorStream(
-                    VitamCodeHelper.toVitamError(VitamCode.ACCESS_EXTERNAL_SELECT_DATA_OBJECT_BY_UNIT_ID_ERROR,
-                        e.getLocalizedMessage()).setHttpCode(status.getStatusCode())))
-                .build();
-        } catch (final AccessInternalClientNotFoundException e) {
-            LOGGER.debug(REQUEST_RESOURCES_DOES_NOT_EXISTS, e);
-            status = Status.NOT_FOUND;
-            return Response.status(status)
-                .entity(getErrorStream(
-                    VitamCodeHelper.toVitamError(VitamCode.ACCESS_EXTERNAL_SELECT_DATA_OBJECT_BY_UNIT_ID_ERROR,
-                        e.getLocalizedMessage()).setHttpCode(status.getStatusCode())))
-                .build();
-        } catch (AccessUnauthorizedException e) {
-            LOGGER.error(CONTRACT_ACCESS_NOT_ALLOW, e);
-            status = Status.UNAUTHORIZED;
-            return Response.status(status)
-                .entity(getErrorStream(
-                    VitamCodeHelper.toVitamError(VitamCode.ACCESS_EXTERNAL_SELECT_DATA_OBJECT_BY_UNIT_ID_ERROR,
-                        e.getLocalizedMessage()).setHttpCode(status.getStatusCode())))
-                .build();
+        @PathParam("persistentIdentifier") String persistentIdentifier) throws InvalidParseOperationException {
+        ParametersChecker.checkParameter("Persistent identifier must not be blank or defined", persistentIdentifier);
+        SanityChecker.checkParameter(persistentIdentifier);
+        try (final AccessInternalClient client = accessInternalClientFactory.getClient()) {
+            return client.downloadObject(persistentIdentifier);
+        } catch (VitamClientException e) {
+            final VitamError<?> vitamError = e.getVitamError();
+            final int statusCode = vitamError.getStatus();
+            return Response.status(statusCode).entity(e).build();
         }
     }
-
 
     /**
      * get Objects list based on persistent identifier

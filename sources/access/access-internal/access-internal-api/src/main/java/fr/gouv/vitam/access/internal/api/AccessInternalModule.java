@@ -27,7 +27,6 @@
 package fr.gouv.vitam.access.internal.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import fr.gouv.vitam.access.internal.common.exception.AccessInternalClientNotFoundException;
 import fr.gouv.vitam.access.internal.common.exception.AccessInternalException;
 import fr.gouv.vitam.access.internal.common.exception.AccessInternalExecutionException;
 import fr.gouv.vitam.access.internal.common.exception.AccessInternalIllegalOperationException;
@@ -138,6 +137,17 @@ public interface AccessInternalModule {
         String qualifier, int version, String idUnit)
         throws StorageNotFoundException, InvalidParseOperationException, MetaDataNotFoundException,
         AccessInternalExecutionException, AccessInternalUnavailableDataFromAsyncOfferException;
+
+    /**
+     * Gets a Response as InputStream according the founded object by persistent identifier.
+     *
+     * @param persistentIdentifier The object persistent identifier.
+     * @return Response with InputStream.
+     * @throws MetaDataNotFoundException when persistent identifier not found in metadata database.
+     */
+    Response getObject(String persistentIdentifier)
+        throws MetaDataNotFoundException, StorageNotFoundException,
+        AccessInternalUnavailableDataFromAsyncOfferException, AccessInternalExecutionException;
 
     /**
      * Retrieve all accessLog by the concatenation of all accesslog files as InputStream

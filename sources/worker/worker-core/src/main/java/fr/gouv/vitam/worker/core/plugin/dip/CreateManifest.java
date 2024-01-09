@@ -473,7 +473,7 @@ public class CreateManifest extends ActionHandler {
                         .stream()
                         .flatMap(version -> getVersions(qualifier, version).stream())
                         .distinct()
-                        .sorted(comparing(VersionsModel::getDataVersion))
+                        .sorted(comparing(VersionsModel::getVersion))
                         .collect(Collectors.toList());
                 qualifier.setVersions(versionsToExport);
             });
@@ -562,11 +562,11 @@ public class CreateManifest extends ActionHandler {
     }
 
     private Optional<VersionsModel> getLastVersion(QualifiersModel qualifier) {
-        return qualifier.getVersions().stream().max(comparing(VersionsModel::getDataVersion));
+        return qualifier.getVersions().stream().max(comparing(VersionsModel::getVersion));
     }
 
     private Optional<VersionsModel> getFirstVersion(QualifiersModel qualifier) {
-        return qualifier.getVersions().stream().min(comparing(VersionsModel::getDataVersion));
+        return qualifier.getVersions().stream().min(comparing(VersionsModel::getVersion));
     }
 
     private boolean checkEmptinessSelectedUnits(ItemStatus itemStatus, long total) {
