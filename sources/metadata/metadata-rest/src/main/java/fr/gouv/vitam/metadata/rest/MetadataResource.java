@@ -1369,4 +1369,18 @@ public class MetadataResource extends ApplicationStatusResource {
         return documentCount > threshold;
     }
 
+    @Path("/scroll")
+    @DELETE
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
+    public Response clearESScrollFilter(String scrollId) {
+        try {
+            metaData.clearESScrollFilter(scrollId);
+            return Response.status(OK).build();
+        } catch (Exception e) {
+            LOGGER.error(e);
+            return VitamCodeHelper.toVitamError(VitamCode.METADATA_INTERNAL_SERVER_ERROR, e.getMessage()).toResponse();
+        }
+    }
+
 }

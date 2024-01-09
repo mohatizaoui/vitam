@@ -40,6 +40,10 @@ import fr.gouv.vitam.common.client.VitamClientFactory;
 import fr.gouv.vitam.common.database.api.VitamRepositoryFactory;
 import fr.gouv.vitam.common.database.api.impl.VitamElasticsearchRepository;
 import fr.gouv.vitam.common.database.api.impl.VitamMongoRepository;
+import fr.gouv.vitam.common.database.builder.query.QueryHelper;
+import fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper;
+import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
+import fr.gouv.vitam.common.database.builder.request.multiple.SelectMultiQuery;
 import fr.gouv.vitam.common.database.parameter.IndexParameters;
 import fr.gouv.vitam.common.database.parameter.SwitchIndexParameters;
 import fr.gouv.vitam.common.database.parser.request.GlobalDatasParser;
@@ -52,6 +56,8 @@ import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.junit.JunitHelper;
 import fr.gouv.vitam.common.logging.SysErrLogger;
+import fr.gouv.vitam.common.model.DatabaseCursor;
+import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.config.CollectionConfiguration;
 import fr.gouv.vitam.common.mongo.MongoRule;
 import fr.gouv.vitam.common.server.application.configuration.MongoDbNode;
@@ -79,6 +85,7 @@ import fr.gouv.vitam.metadata.core.mapping.MappingLoader;
 import fr.gouv.vitam.metadata.rest.utils.MappingLoaderTestUtils;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import io.restassured.response.Response;
 import net.javacrumbs.jsonunit.JsonAssert;
 import net.javacrumbs.jsonunit.core.Option;
 import org.apache.commons.lang3.StringUtils;
@@ -104,6 +111,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import static fr.gouv.vitam.metadata.core.database.collections.MetadataCollections.OBJECTGROUP;
 import static fr.gouv.vitam.metadata.core.database.collections.MetadataCollections.UNIT;
@@ -621,5 +629,62 @@ public class MetadataResourceTest {
             .get("/objects/stream")
             .then().log().all()
             .statusCode(Status.OK.getStatusCode());
+    }
+
+    @Test
+    public void shouldClearESScrollFilter() throws Exception {
+        // GIVEN
+        int numberOfElements = 10;
+        fillInUnits(numberOfElements);
+        DatabaseCursor hits = readFirstPage(numberOfElements);
+        String scrollId = hits.getScrollId();
+
+        // WHEN
+        given().header(GlobalDataRest.X_TENANT_ID, TENANT_ID).contentType(ContentType.JSON).body(scrollId).when().log()
+            .all().delete("/scroll").then().log().all().statusCode(Status.OK.getStatusCode());
+
+        // THEN
+        verifyThatReadingPageWithTheSameScrollIdThrowsException(numberOfElements, scrollId);
+    }
+
+    private void verifyThatReadingPageWithTheSameScrollIdThrowsException(int numberOfElements, String scrollId)
+        throws InvalidCreateOperationException, InvalidParseOperationException {
+        SelectMultiQuery selectMultiQuery = new SelectMultiQuery();
+        selectMultiQuery.addQueries(QueryHelper.exists(VitamFieldsHelper.id()));
+        selectMultiQuery.addUsedProjection(VitamFieldsHelper.id());
+        selectMultiQuery.setScrollFilter(scrollId, GlobalDatasParser.DEFAULT_SCROLL_TIMEOUT, numberOfElements / 2);
+        selectMultiQuery.addOrderByAscFilter(VitamFieldsHelper.id());
+        JsonNode finalSelect = selectMultiQuery.getFinalSelect();
+        given().header(GlobalDataRest.X_TENANT_ID, TENANT_ID).contentType(ContentType.JSON).body(finalSelect).when()
+            .log().all().get("/units").then().log().all().statusCode(Status.INTERNAL_SERVER_ERROR.getStatusCode())
+            .statusLine("HTTP/1.1 500 Server Error").body("description",
+                equalTo("Elasticsearch exception [type=search_phase_execution_exception, reason=all shards failed]"));
+    }
+
+    private DatabaseCursor readFirstPage(int numberOfElements)
+        throws InvalidCreateOperationException, InvalidParseOperationException {
+        SelectMultiQuery selectMultiQuery = new SelectMultiQuery();
+        selectMultiQuery.addQueries(QueryHelper.exists(VitamFieldsHelper.id()));
+        selectMultiQuery.addUsedProjection(VitamFieldsHelper.id());
+        String scrollId = "START";
+        selectMultiQuery.setScrollFilter(scrollId, GlobalDatasParser.DEFAULT_SCROLL_TIMEOUT, numberOfElements / 2);
+        selectMultiQuery.addOrderByAscFilter(VitamFieldsHelper.id());
+        JsonNode finalSelect = selectMultiQuery.getFinalSelect();
+        Response response =
+            given().header(GlobalDataRest.X_TENANT_ID, TENANT_ID).contentType(ContentType.JSON).body(finalSelect).when()
+                .log().all().get("/units").andReturn();
+        RequestResponseOK<JsonNode> requestResponse =
+            RequestResponseOK.getFromJsonNode(response.body().as(JsonNode.class), JsonNode.class);
+        return requestResponse.getHits();
+    }
+
+    private void fillInUnits(int size) {
+        IntStream.range(0, size).forEach(i -> {
+            try {
+                createUnit("" + i, "sp1");
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 }

@@ -100,6 +100,7 @@ public class MetaDataClientRest extends DefaultClient implements MetaDataClient 
     private static final String PURGE_EXPIRED_TRANSFER_SIP_FILES_URI = "/purgeTransfersSIP";
     private static final String AUDIT_DATA_CONSISTENCY_URI = "/auditDataConsistency";
     private static final String PERSISTENT_IDENTIFIER_URI = "/purgedPersistentIdentifier";
+    public static final String CLEAR_SCROLL_FILTER_URI = "/scroll";
 
     public MetaDataClientRest(VitamClientFactoryInterface<MetaDataClient> factory) {
         super(factory);
@@ -727,6 +728,18 @@ public class MetaDataClientRest extends DefaultClient implements MetaDataClient 
             check(response);
             return response;
         } catch (MetaDataExecutionException | MetaDataDocumentSizeException | VitamClientInternalException e) {
+            throw new MetaDataClientServerException(e);
+        }
+    }
+
+    @Override
+    public Response clearESScrollFilter(String scrollId) throws MetaDataClientServerException {
+        try (Response response = make(
+            delete().withJson().withPath(CLEAR_SCROLL_FILTER_URI).withBody(scrollId, "The scroll id is mandatory"))) {
+            check(response);
+            return response;
+        } catch (MetaDataClientServerException | MetaDataExecutionException | MetaDataDocumentSizeException |
+                 VitamClientInternalException | MetaDataNotFoundException | InvalidParseOperationException e) {
             throw new MetaDataClientServerException(e);
         }
     }
