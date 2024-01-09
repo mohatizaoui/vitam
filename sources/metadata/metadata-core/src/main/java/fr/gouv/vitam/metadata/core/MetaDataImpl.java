@@ -1086,4 +1086,8 @@ public class MetaDataImpl {
                 set(MetadataSnapshot.VALUE, LocalDateUtil.getFormattedDateForMongo(LocalDateUtil.now()))),
             new UpdateOptions().upsert(true));
     }
+
+    public void clearESScrollFilter(String scrollId) {
+        dbRequest.clearEsScrollId(scrollId);
+    }
 }

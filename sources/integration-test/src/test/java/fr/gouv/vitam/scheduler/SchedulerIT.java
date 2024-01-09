@@ -64,7 +64,7 @@ import fr.gouv.vitam.processing.management.rest.ProcessManagementMain;
 import fr.gouv.vitam.scheduler.server.SchedulerMain;
 import fr.gouv.vitam.scheduler.server.client.SchedulerClient;
 import fr.gouv.vitam.scheduler.server.client.SchedulerClientFactory;
-import fr.gouv.vitam.scheduler.server.job.AuditObjectJob;
+import fr.gouv.vitam.scheduler.server.job.auditobject.AuditObjectJob;
 import fr.gouv.vitam.storage.engine.server.rest.StorageMain;
 import fr.gouv.vitam.storage.offers.rest.DefaultOfferMain;
 import fr.gouv.vitam.worker.server.rest.WorkerMain;
@@ -233,7 +233,7 @@ public class SchedulerIT extends VitamRuleRunner {
         try (SchedulerClient schedulerClient = SchedulerClientFactory.getInstance().getClient()) {
             for (int nbtimes = 0; nbtimes <= NB_TRY; nbtimes++) {
                 RequestResponseOK<JsonNode> states = schedulerClient.jobState(jobKey);
-                if (states.getResults().size() == 0) {
+                if (states.getResults().isEmpty()) {
                     break;
                 } else if (nbtimes == NB_TRY) {
                     LOGGER.error("Job did not triggred", jobKey);
@@ -248,5 +248,4 @@ public class SchedulerIT extends VitamRuleRunner {
         } catch (VitamClientException e) {
             fail("An error occured while retreiving job state", e);
         }
-    }
-}
+    }}

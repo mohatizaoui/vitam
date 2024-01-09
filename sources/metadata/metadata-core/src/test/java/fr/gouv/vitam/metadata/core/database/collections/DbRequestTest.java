@@ -106,6 +106,7 @@ import fr.gouv.vitam.metadata.core.validation.UnitValidator;
 import net.javacrumbs.jsonunit.JsonAssert;
 import org.apache.commons.io.IOUtils;
 import org.bson.Document;
+import org.elasticsearch.ElasticsearchStatusException;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -261,8 +262,7 @@ public class DbRequestTest {
     private static final String REQUEST_INSERT_TEST_ES_UPDATE = "REQUEST_INSERT_TEST_ES_UPDATE.json";
     private static final String REQUEST_INSERT_TEST_ES_UPDATE_KO =
         "{ \"#id\": \"aeaqaaaaaagbcaacabg44ak45e54criaaaaq\", \"#tenant\": 0, \"Title\": \"Archive3\", " +
-            "\"_mgt\": {\"OriginatingAgency\": \"XXXXXXX\"}," +
-            " \"DescriptionLevel\": \"toto\" }";
+            "\"_mgt\": {\"OriginatingAgency\": \"XXXXXXX\"}," + " \"DescriptionLevel\": \"toto\" }";
     private static final String REQUEST_UPDATE_INDEX_TEST_KO =
         "{$roots:['aeaqaaaaaagbcaacabg44ak45e54criaaaaq'],$query:[],$filter:{},$action:[{$set:{'date':'09/09/2015'}},{$set:{'title':'Archive2'}}]}";
     private static final String ADDITIONAL_SCHEMA =
@@ -3204,5 +3204,38 @@ public class DbRequestTest {
         // Then
         assertThat(responseWithoutTrackTotalSizeFlag.getHits().getTotalHits().value).isLessThan(totalDocuments);
         assertThat(responseWithTrackTotalSizeFlag.getHits().getTotalHits().value).isEqualTo(totalDocuments);
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void shouldDeleteESScrollId() throws Exception {
+        // Given
+        int totalDocuments = 20000;
+        List<Unit> units = IntStream.range(0, totalDocuments).mapToObj(i -> new Unit(
+                JsonHandler.createObjectNode().put(VitamDocument.ID, GUIDFactory.newGUID().toString())
+                    .put(VitamDocument.TENANT_ID, TENANT_ID_0).put("MyCustomField", "MyCustomValue")))
+            .collect(Collectors.toList());
+
+        UNIT.getCollection().insertMany(units);
+        UNIT.getEsClient().insertFullDocuments(UNIT, 0, units);
+
+        ElasticsearchIndexAlias indexAlias =
+            indexManager.getElasticsearchIndexAliasResolver(UNIT).resolveIndexName(TENANT_ID_0);
+
+        final QueryBuilder query = QueryBuilders.matchPhraseQuery("MyCustomField", "MyCustomValue");
+
+        SearchResponse responseWithoutTrackTotalSizeFlag =
+            esClientWithoutVitamBehavior.search(indexAlias, query, null, null, null, 0, 10, null, "START", null, false);
+        String scrollId = responseWithoutTrackTotalSizeFlag.getScrollId();
+
+        // WHEN
+        esClientWithoutVitamBehavior.clearScroll(scrollId);
+        assertThatThrownBy(
+            () -> esClientWithoutVitamBehavior.search(indexAlias, query, null, null, null, 0, 10, null, scrollId, null,
+                false))
+
+            // THEN
+            .isInstanceOf(ElasticsearchStatusException.class);
+
     }
 }
