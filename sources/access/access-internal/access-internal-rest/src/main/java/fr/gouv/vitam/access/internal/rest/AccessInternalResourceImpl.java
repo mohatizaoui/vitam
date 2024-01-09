@@ -44,6 +44,8 @@ import fr.gouv.vitam.access.internal.common.exception.AccessInternalRuleExecutio
 import fr.gouv.vitam.access.internal.common.exception.AccessInternalUnavailableDataFromAsyncOfferException;
 import fr.gouv.vitam.access.internal.common.model.AccessInternalConfiguration;
 import fr.gouv.vitam.access.internal.core.AccessInternalModuleImpl;
+import fr.gouv.vitam.access.internal.core.identifier.exception.PersistentIdentifierNotFoundException;
+import fr.gouv.vitam.access.internal.core.identifier.search.ObjectPurgedPersistentIdentifierSearchService;
 import fr.gouv.vitam.common.GlobalDataRest;
 import fr.gouv.vitam.common.ParametersChecker;
 import fr.gouv.vitam.common.client.CustomVitamHttpStatusCode;
@@ -86,6 +88,7 @@ import fr.gouv.vitam.common.model.dip.DataObjectVersions;
 import fr.gouv.vitam.common.model.elimination.EliminationRequestBody;
 import fr.gouv.vitam.common.model.export.ExportRequest;
 import fr.gouv.vitam.common.model.export.ExportType;
+import fr.gouv.vitam.common.model.identifier.PurgedPersistentIdentifier;
 import fr.gouv.vitam.common.model.massupdate.MassUpdateUnitRuleRequest;
 import fr.gouv.vitam.common.model.massupdate.RuleActions;
 import fr.gouv.vitam.common.model.revertupdate.RevertUpdateOptions;
@@ -165,6 +168,7 @@ import static fr.gouv.vitam.logbook.common.parameters.Contexts.DELETE_GOT_VERSIO
 import static fr.gouv.vitam.logbook.common.parameters.Contexts.PRESERVATION;
 import static fr.gouv.vitam.logbook.common.parameters.Contexts.TRANSFER_REPLY;
 import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 
 @Path("/access-internal/v1")
 @Tag(name = "Access")
@@ -360,6 +364,31 @@ public class AccessInternalResourceImpl extends ApplicationStatusResource implem
                 .build();
         }
         return Response.status(Status.OK).entity(result).build();
+    }
+
+    @Override
+    @GET
+    @Path("/objects/persistentIdentifier/{persistentIdentifier:.+}")
+    @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON})
+    public Response downloadObject(@PathParam("persistentIdentifier") final String persistentIdentifier) {
+        try {
+            return accessModule.getObject(persistentIdentifier);
+        } catch (MetaDataNotFoundException e) {
+            final Optional<PurgedPersistentIdentifier> optionalPurgedPersistentIdentifier =
+                new ObjectPurgedPersistentIdentifierSearchService().search(persistentIdentifier)
+                    .stream()
+                    .findFirst();
+            final Response.ResponseBuilder responseBuilder = Response.status(NOT_FOUND);
+            if (optionalPurgedPersistentIdentifier.isPresent()) {
+                return responseBuilder.entity(optionalPurgedPersistentIdentifier.get()).build();
+            }
+            throw new PersistentIdentifierNotFoundException();
+        } catch (AccessInternalUnavailableDataFromAsyncOfferException | StorageNotFoundException |
+                 AccessInternalExecutionException e) {
+            LOGGER.error(e);
+            return Response.status(INTERNAL_SERVER_ERROR).entity(getErrorEntity(INTERNAL_SERVER_ERROR, e.getMessage()))
+                .build();
+        }
     }
 
     /**
@@ -911,7 +940,7 @@ public class AccessInternalResourceImpl extends ApplicationStatusResource implem
             return Response.status(status).entity(getErrorEntity(status, e.getMessage())).build();
         } catch (final MetaDataNotFoundException e) {
             LOGGER.error(e.getMessage(), e);
-            status = Status.NOT_FOUND;
+            status = NOT_FOUND;
             return Response.status(status).entity(getErrorEntity(status, e.getMessage())).build();
         }
     }
@@ -959,7 +988,7 @@ public class AccessInternalResourceImpl extends ApplicationStatusResource implem
             return Response.status(status).entity(getErrorEntity(status, e.getMessage())).build();
         } catch (final MetaDataNotFoundException e) {
             LOGGER.error(NOT_FOUND_EXCEPTION, e);
-            status = Status.NOT_FOUND;
+            status = NOT_FOUND;
             return Response.status(status).entity(getErrorEntity(status, e.getMessage())).build();
         }
     }
@@ -991,7 +1020,7 @@ public class AccessInternalResourceImpl extends ApplicationStatusResource implem
             return Response.status(status).entity(getErrorEntity(status, exc.getMessage())).build();
         } catch (final MetaDataNotFoundException e) {
             LOGGER.error(e.getMessage(), e);
-            status = Status.NOT_FOUND;
+            status = NOT_FOUND;
             return Response.status(status).entity(getErrorEntity(status, e.getMessage())).build();
         }
     }
@@ -1065,7 +1094,7 @@ public class AccessInternalResourceImpl extends ApplicationStatusResource implem
             return Response.status(CustomVitamHttpStatusCode.UNAVAILABLE_DATA_FROM_ASYNC_OFFER.getStatusCode()).build();
         } catch (StorageNotFoundException | MetaDataNotFoundException exc) {
             LOGGER.warn(exc);
-            return Response.status(Status.NOT_FOUND).entity(getErrorStream(Status.NOT_FOUND, exc.getMessage())).build();
+            return Response.status(NOT_FOUND).entity(getErrorStream(NOT_FOUND, exc.getMessage())).build();
         }
     }
 
@@ -1135,7 +1164,7 @@ public class AccessInternalResourceImpl extends ApplicationStatusResource implem
                 .entity(getErrorStream(Status.PRECONDITION_FAILED, exc.getMessage())).build();
         } catch (MetaDataNotFoundException exc) {
             LOGGER.error(exc);
-            return Response.status(Status.NOT_FOUND).entity(getErrorStream(Status.NOT_FOUND, exc.getMessage())).build();
+            return Response.status(NOT_FOUND).entity(getErrorStream(NOT_FOUND, exc.getMessage())).build();
         } catch (final Exception exc) {
             LOGGER.error(exc.getMessage(), exc);
             return Response.status(INTERNAL_SERVER_ERROR).entity(getErrorStream(INTERNAL_SERVER_ERROR,
@@ -1261,7 +1290,7 @@ public class AccessInternalResourceImpl extends ApplicationStatusResource implem
                 exc.getMessage())).build();
         } catch (StorageNotFoundException exc) {
             LOGGER.error(exc);
-            return Response.status(Status.NOT_FOUND).entity(getErrorStream(Status.NOT_FOUND, exc.getMessage())).build();
+            return Response.status(NOT_FOUND).entity(getErrorStream(NOT_FOUND, exc.getMessage())).build();
         }
     }
 

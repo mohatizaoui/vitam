@@ -43,7 +43,9 @@ import fr.gouv.vitam.common.exception.ForbiddenClientException;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.exception.NoWritingPermissionException;
 import fr.gouv.vitam.common.exception.PreconditionFailedClientException;
+import fr.gouv.vitam.common.exception.VitamClientException;
 import fr.gouv.vitam.common.exception.VitamClientInternalException;
+import fr.gouv.vitam.common.exception.VitamException;
 import fr.gouv.vitam.common.model.DeleteGotVersionsRequest;
 import fr.gouv.vitam.common.model.PreservationRequest;
 import fr.gouv.vitam.common.model.RequestResponse;
@@ -79,6 +81,7 @@ import static fr.gouv.vitam.logbook.common.LogbookDataRest.X_SLICED_OPERATIONS;
 import static fr.gouv.vitam.storage.engine.common.model.DataCategory.STORAGEACCESSLOG;
 import static javax.ws.rs.core.Response.Status.Family.SUCCESSFUL;
 import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.PRECONDITION_FAILED;
 
 class AccessInternalClientRest extends DefaultClient implements AccessInternalClient {
@@ -153,7 +156,7 @@ class AccessInternalClientRest extends DefaultClient implements AccessInternalCl
             check(response);
             return response;
         } catch (VitamClientInternalException | PreconditionFailedClientException |
-            ExpectationFailedClientException e) {
+                 ExpectationFailedClientException e) {
             throw new AccessInternalClientServerException(e);
         } catch (ForbiddenClientException e) {
             throw new BadRequestException(e);
@@ -379,6 +382,28 @@ class AccessInternalClientRest extends DefaultClient implements AccessInternalCl
             throw new InvalidParseOperationException(e);
         } finally {
             if (response != null && !SUCCESSFUL.equals(response.getStatusInfo().getFamily())) {
+                response.close();
+            }
+        }
+    }
+
+    @Override
+    public Response downloadObject(String persistentIdentifier) throws VitamClientException {
+        ParametersChecker.checkParameter("Persistent identifier must not be blank or defined", persistentIdentifier);
+        final String path = String.format("objects/persistentIdentifier/%s", persistentIdentifier);
+        Response response = null;
+        try {
+            response = make(get().withBefore(CHECK_REQUEST_ID).withPath(path).withJson());
+            if (response.getStatusInfo().toEnum() == NOT_FOUND) {
+                return response;
+            }
+            check(response);
+            return response;
+        } catch (VitamException e) {
+            throw new VitamClientException(e);
+        } finally {
+            if (response != null && !SUCCESSFUL.equals(response.getStatusInfo().getFamily()) &&
+                response.getStatusInfo().toEnum() != NOT_FOUND) {
                 response.close();
             }
         }

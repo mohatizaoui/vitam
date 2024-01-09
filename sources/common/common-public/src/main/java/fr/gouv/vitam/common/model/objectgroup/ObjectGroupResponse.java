@@ -220,7 +220,7 @@ public class ObjectGroupResponse {
                 .get()
                 .getVersions()
                 .stream()
-                .max(comparing(VersionsModel::getDataVersion));
+                .max(comparing(VersionsModel::getVersion));
         }
         return empty();
     }
@@ -235,7 +235,7 @@ public class ObjectGroupResponse {
                 .get()
                 .getVersions()
                 .stream()
-                .min(comparing(VersionsModel::getDataVersion));
+                .min(comparing(VersionsModel::getVersion));
         }
         return empty();
     }

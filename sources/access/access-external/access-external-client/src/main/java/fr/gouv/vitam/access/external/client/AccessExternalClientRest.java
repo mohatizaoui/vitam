@@ -33,11 +33,14 @@ import fr.gouv.vitam.common.GlobalDataRest;
 import fr.gouv.vitam.common.ParametersChecker;
 import fr.gouv.vitam.common.client.VitamContext;
 import fr.gouv.vitam.common.client.VitamRequestBuilder;
+import fr.gouv.vitam.common.error.VitamError;
 import fr.gouv.vitam.common.exception.AccessUnauthorizedException;
+import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.exception.VitamClientAccessUnavailableDataFromAsyncOfferException;
 import fr.gouv.vitam.common.exception.VitamClientException;
 import fr.gouv.vitam.common.exception.VitamClientIllegalAccessRequestOperationOnSyncOfferException;
 import fr.gouv.vitam.common.external.client.DefaultClient;
+import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.common.model.JsonLineIterator;
@@ -45,6 +48,7 @@ import fr.gouv.vitam.common.model.PreservationRequest;
 import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.elimination.EliminationRequestBody;
 import fr.gouv.vitam.common.model.export.transfer.TransferRequest;
+import fr.gouv.vitam.common.model.identifier.PurgedPersistentIdentifier;
 import fr.gouv.vitam.common.model.logbook.LogbookLifecycle;
 import fr.gouv.vitam.common.model.logbook.LogbookOperation;
 import fr.gouv.vitam.common.model.storage.AccessRequestReference;
@@ -55,16 +59,19 @@ import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.Optional;
 
 import static fr.gouv.vitam.common.client.VitamRequestBuilder.delete;
 import static fr.gouv.vitam.common.client.VitamRequestBuilder.get;
 import static fr.gouv.vitam.common.client.VitamRequestBuilder.post;
 import static fr.gouv.vitam.common.client.VitamRequestBuilder.put;
 import static javax.ws.rs.core.Response.Status.Family.SUCCESSFUL;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.fromStatusCode;
 
 class AccessExternalClientRest extends DefaultClient implements AccessExternalClient {
     public static final String BLANK_QUERY = "selectQuery cannot be null.";
+    public static final String PATH_STREAM_OBJECTS = "/objects/stream";
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(AccessExternalClientRest.class);
     private static final String UNITS = "/units/";
     private static final String UNITS_ATOMIC_BULK = "/units/bulk/";
@@ -79,7 +86,6 @@ class AccessExternalClientRest extends DefaultClient implements AccessExternalCl
     private static final String BLANK_TRANSFER_ID = "Transfer identifier should be filled";
     private static final String MISSING_RECLASSIFICATION_REQUEST = "Missing reclassification request";
     private static final String MISSING_ELIMINATION_REQUEST = "Missing elimination request";
-    public static final String PATH_STREAM_OBJECTS = "/objects/stream";
 
     AccessExternalClientRest(AccessExternalClientFactory factory) {
         super(factory);
@@ -606,6 +612,27 @@ class AccessExternalClientRest extends DefaultClient implements AccessExternalCl
                 throw new VitamClientAccessUnavailableDataFromAsyncOfferException(
                     "Object unavailable for immediate access. Access Request required");
             }
+
+            final Response.Status status = Response.Status.fromStatusCode(response.getStatus());
+            if (status == NOT_FOUND) {
+                final String payload = response.readEntity(String.class);
+
+                final Optional<VitamError<?>> optionalVitamError = toVitamError(payload);
+                if (optionalVitamError.isPresent()) {
+                    final VitamClientException vitamClientException =
+                        new VitamClientException(optionalVitamError.get().getMessage());
+                    vitamClientException.setVitamError(optionalVitamError.get());
+
+                    throw vitamClientException;
+                }
+
+                final Optional<PurgedPersistentIdentifier> optionalPurgedPersistentIdentifier =
+                    toPurgedPersistentIdentifier(payload);
+                if (optionalPurgedPersistentIdentifier.isPresent()) {
+                    return Response.status(status).entity(payload).build();
+                }
+            }
+
             check(response);
             return response;
         } finally {
@@ -614,6 +641,30 @@ class AccessExternalClientRest extends DefaultClient implements AccessExternalCl
             }
         }
     }
+
+    private Optional<VitamError<?>> toVitamError(final String payload) {
+        try {
+            final VitamError<?> vitamError = JsonHandler.getFromString(payload, VitamError.class);
+            // FIXME: JsonHandler.getFromString doesn't parse like normal ObjectMapper and gives code 0 VitamError.
+            if (vitamError.getHttpCode() == 0) {
+                throw new InvalidParseOperationException("JsonHandler.getFromString not working as expected");
+            }
+            return Optional.of(vitamError);
+        } catch (InvalidParseOperationException e) {
+            return Optional.empty();
+        }
+    }
+
+    private Optional<PurgedPersistentIdentifier> toPurgedPersistentIdentifier(final String payload) {
+        try {
+            final PurgedPersistentIdentifier purgedPersistentIdentifier =
+                JsonHandler.getFromString(payload, PurgedPersistentIdentifier.class);
+            return Optional.of(purgedPersistentIdentifier);
+        } catch (InvalidParseOperationException e) {
+            return Optional.empty();
+        }
+    }
+
 
     @Override
     public RequestResponse<JsonNode> selectUnitsWithInheritedRules(VitamContext vitamContext, JsonNode selectQuery)

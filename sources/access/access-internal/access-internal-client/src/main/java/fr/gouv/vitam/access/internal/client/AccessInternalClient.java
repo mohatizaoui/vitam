@@ -39,6 +39,7 @@ import fr.gouv.vitam.common.exception.BadRequestException;
 import fr.gouv.vitam.common.exception.ExpectationFailedClientException;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.exception.NoWritingPermissionException;
+import fr.gouv.vitam.common.exception.VitamClientException;
 import fr.gouv.vitam.common.model.DeleteGotVersionsRequest;
 import fr.gouv.vitam.common.model.PreservationRequest;
 import fr.gouv.vitam.common.model.RequestResponse;
@@ -75,6 +76,15 @@ public interface AccessInternalClient extends MockOrRestClient {
     Response selectUnitsByUnitPersistentIdentifier(String persistentIdentifier, JsonNode selectQuery)
         throws InvalidParseOperationException, AccessInternalClientServerException,
         AccessInternalClientNotFoundException, AccessUnauthorizedException, BadRequestException;
+
+    /**
+     * Download object by its persistent identifier.
+     *
+     * @param persistentIdentifier object's persistent identifier
+     * @return object binary
+     */
+    Response downloadObject(String persistentIdentifier)
+        throws VitamClientException;
 
     /**
      * Select Units
