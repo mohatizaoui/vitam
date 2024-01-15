@@ -588,7 +588,6 @@ public class IngestContractImpl implements ContractService<IngestContractModel> 
 
             final JsonNode signaturePolicyNode = queryDsl.findValue(IngestContractModel.TAG_SIGNATURE_POLICY);
             if (signaturePolicyNode != null) {
-                ObjectMapper objectMapper = new ObjectMapper();
                 SignaturePolicy signaturePolicy =
                     JsonHandler.getFromJsonNode(signaturePolicyNode, SignaturePolicy.class);
                 if (validationService.isInvalidSignaturePolicy(signaturePolicy)) {
@@ -631,7 +630,7 @@ public class IngestContractImpl implements ContractService<IngestContractModel> 
                 updateDiffs.get(ingestContractModel.getId()));
             return response;
 
-        } catch (SchemaValidationException | BadRequestException exp) {
+        } catch (SchemaValidationException | BadRequestException | InvalidParseOperationException exp) {
             LOGGER.error(exp);
             final String err = "Update ingest contract error > " + exp.getMessage();
             logbookService.logValidationError(err, CONTRACT_UPDATE_EVENT, UPDATE_CONTRACT_BAD_REQUEST);
