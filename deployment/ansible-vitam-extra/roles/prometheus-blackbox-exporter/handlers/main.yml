@@ -1,0 +1,16 @@
+---
+
+- name: "prometheus-blackbox-exporter - restart service"
+  systemd:
+    name: vitam-blackbox-exporter
+    state: restarted
+    daemon_reload: yes
+
+- name: "prometheus-blackbox-exporter - reload consul configuration"
+  systemd:
+    name: vitam-consul
+    state: reloaded
+
+- name: daemon reload
+  systemd:
+    daemon_reload: yes

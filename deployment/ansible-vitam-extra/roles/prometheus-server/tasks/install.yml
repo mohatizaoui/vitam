@@ -71,6 +71,7 @@
     - memory.yml
     - state.yml
     - tape_storage_offer.yml
+    - certificat.yml
   notify: "prometheus-server - restart service"
 
 - name: Copy prometheus primary-site rule files

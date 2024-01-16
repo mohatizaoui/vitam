@@ -181,6 +181,13 @@ prometheus:
         #  - api_url: "https://hooks.slack.com/services/xxxxxxx/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
         #    channel: '#your_alert_channel'
         #    send_resolved: true
+    blackbox_exporter:
+        enabled: true
+        port: 9115
+        metrics_path: /probe
+        targets:
+            ## List all the targeted URLs that must be controled with blackbox
+            - "{{ vitam_reverse_external_protocol | default('https') }}://{{ vitam_reverse_external_dns }}"
 
 grafana:
     check_consul: 10 # in seconds

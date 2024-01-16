@@ -305,3 +305,37 @@ scrape_configs:
         hostname: "{{ host.split(".")[0] }}"
 {% endfor %}
 {% endif %}
+
+{% if prometheus.blackbox_exporter.enabled | bool %}
+  - job_name: vitam-blackbox
+    metrics_path: {{ prometheus.blackbox_exporter.metrics_path | default('/probe') }}
+    params:
+      module:
+      - http_2xx
+    relabel_configs:
+    - source_labels:
+      - __address__
+      regex: ([^,]*),(.*)
+      replacement: $1
+      target_label: __param_target
+    - source_labels:
+      - __address__
+      target_label: instance
+    - source_labels:
+      - __address__
+      regex: ([^,]*),(.*)
+      replacement: $2
+      target_label: instance
+    - source_labels:
+      - __address__
+      regex: ([^,]*),(.*)
+      replacement: $1
+      target_label: addresse
+    - target_label: __address__
+      replacement: localhost:9115
+    static_configs:
+    - targets:
+{% for target in prometheus.blackbox_exporter.targets %}
+      - {{ target }}
+{% endfor %}
+{% endif %}

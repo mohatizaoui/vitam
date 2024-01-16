@@ -1,0 +1,16 @@
+[Unit]
+Description=Prometheus Blackbox Exporter
+Documentation=https://github.com/prometheus/blackbox_exporter
+After=network.target
+
+[Service]
+User={{ vitam_defaults.users.vitam }}
+Group={{ vitam_defaults.users.group }}
+ExecStart={{ vitam_defaults.folder.root_path }}/bin/blackbox_exporter/blackbox_exporter \
+          --config.file={{prometheus_blackbox_exporter_config_path}}/blackbox.yml
+
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

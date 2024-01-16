@@ -1,0 +1,22 @@
+modules:
+  http_2xx:
+    http:
+      method: GET
+      no_follow_redirects: false
+      preferred_ip_protocol: ipv4
+      tls_config:
+        insecure_skip_verify: true
+      basic_auth:
+        username: '{{ blackbox_user }}'
+        password: '{{ blackbox_password }}'
+    prober: http
+    timeout: 5s
+  tcp_connect:
+    prober: tcp
+    tcp:
+      ip_protocol_fallback: false
+      preferred_ip_protocol: ip4
+      tls: false
+      tls_config:
+        insecure_skip_verify: true
+    timeout: 15s
