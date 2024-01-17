@@ -71,13 +71,17 @@ public class IngestContractChecker {
         switch (signedDocumentPolicy) {
             case MANDATORY:
                 validateMandatorySignedDocument();
-                validateDeclaredFields(signaturePolicy);
+                if (hasSigningInformation() && verifySigningRoleValue(SIGNED_DOCUMENT)) {
+                    validateDeclaredFields(signaturePolicy);
+                }
                 break;
             case FORBIDDEN:
                 validateForbiddenSignedDocument();
                 break;
             case ALLOWED:
-                validateDeclaredFields(signaturePolicy);
+                if (hasSigningInformation() && verifySigningRoleValue(SIGNED_DOCUMENT)) {
+                    validateDeclaredFields(signaturePolicy);
+                }
                 break;
             default:
                 throw new IllegalArgumentException("Unknown SignedDocument policy");
@@ -124,20 +128,20 @@ public class IngestContractChecker {
     }
 
 
+    private boolean verifySigningRoleValue(String value) {
+        JsonNode signingInformationNode = archiveUnit.path(TAG_ARCHIVE_UNIT).path(TAG_SIGNING_INFORMATION);
+        ArrayNode signingRoleNode = (ArrayNode) signingInformationNode.path(TAG_SIGNING_ROLE);
+        return hasValue(signingRoleNode, value);
+    }
+
     private boolean hasSigningRoleAttributeWithValue(String value) {
         JsonNode signingInformationNode = archiveUnit.path(TAG_ARCHIVE_UNIT).path(TAG_SIGNING_INFORMATION);
 
-        if (signingInformationNode.isMissingNode()) {
-            return false;
-        }
 
-        ArrayNode signingRoleNode = (ArrayNode) signingInformationNode.path(TAG_SIGNING_ROLE);
-        if (!signingRoleNode.isMissingNode() && hasValue(signingRoleNode, SIGNED_DOCUMENT)) {
-            ArrayNode detachedSigningRoleNode = (ArrayNode) signingInformationNode.path(TAG_DETACHED_SIGNING_ROLE);
-            return hasValue(signingRoleNode, value) || hasValue(detachedSigningRoleNode, value);
-        }
 
-        return false;
+        JsonNode detachedSigningRoleNode = signingInformationNode.path(TAG_DETACHED_SIGNING_ROLE);
+        return verifySigningRoleValue(value) ||
+            (!detachedSigningRoleNode.isMissingNode() && hasValue((ArrayNode) detachedSigningRoleNode, value));
     }
 
     private boolean hasValue(ArrayNode arrayNode, String targetValue) {
