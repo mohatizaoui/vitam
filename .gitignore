@@ -34,6 +34,9 @@ deployment/environments/backups
 .floo
 .flooignore
 vitam-conf-dev/conf/offer3/default-storage.conf
+vitam-conf-dev/making-vitam-request/requests-workspace/http-client.private.env.json
+vitam-conf-dev/making-vitam-request/requests-workspace/external_key.pem
+vitam-conf-dev/making-vitam-request/requests-workspace/external_pub.pem
 cucumber-reports
 .run
 deployment/environments/keystores
