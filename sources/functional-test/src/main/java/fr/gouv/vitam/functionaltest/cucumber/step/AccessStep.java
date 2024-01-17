@@ -27,6 +27,7 @@
 package fr.gouv.vitam.functionaltest.cucumber.step;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Iterables;
 import cucumber.api.DataTable;
@@ -42,6 +43,8 @@ import fr.gouv.vitam.common.client.VitamContext;
 import fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper;
 import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
 import fr.gouv.vitam.common.database.builder.request.multiple.SelectMultiQuery;
+import fr.gouv.vitam.common.digest.Digest;
+import fr.gouv.vitam.common.digest.DigestType;
 import fr.gouv.vitam.common.error.VitamError;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.exception.VitamClientException;
@@ -71,12 +74,14 @@ import org.assertj.core.api.Fail;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -90,6 +95,8 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static fr.gouv.vitam.access.external.api.AdminCollections.AGENCIES;
 import static fr.gouv.vitam.access.external.api.AdminCollections.FORMATS;
@@ -98,6 +105,7 @@ import static fr.gouv.vitam.common.GlobalDataRest.X_REQUEST_ID;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.junit.Assert.assertEquals;
 
 /**
  * step defining access glue
@@ -588,7 +596,92 @@ public class AccessStep extends CommonStep {
         }
     }
 
+    @When("^je recherche l'unité archivistique ayant l'identifiant pérenne (.*)$")
+    public void search_archive_unit_by_persistent_identifier(String persistentIdentifier) throws Throwable {
+        JsonNode queryJSON = JsonHandler.getFromString(world.getQuery());
+        RequestResponse<JsonNode> requestResponse = world.getAccessClient().selectUnitsByUnitPersistentIdentifier(
+            new VitamContext(world.getTenantId()).setAccessContract(world.getContractId())
+                .setApplicationSessionId(world.getApplicationSessionId()),
+            queryJSON, persistentIdentifier);
+        if (requestResponse.isOk()) {
+            RequestResponseOK<JsonNode> requestResponseOK = (RequestResponseOK<JsonNode>) requestResponse;
+            world.setResults(requestResponseOK.getResults());
+            facetResults = requestResponseOK.getFacetResults();
+        } else {
+            VitamError vitamError = (VitamError) requestResponse;
+            Fail.fail("request selectUnit return an error: " + vitamError.getCode());
+        }
+    }
 
+    @When("^je télécharge l'objet ayant le qualifier (.*) rattaché à une unité archivistique ayant l'identifiant pérenne (.*)$")
+    public void download_object_by_qualifier_and_persistent_identifier(String qualifier, String persistentIdentifier) throws Throwable {
+        download_object_by_qualifier_and_version_persistent_identifier(qualifier, null, persistentIdentifier);
+    }
+
+    @When("^je télécharge l'objet ayant le qualifier (.*) et la version (.*) rattaché à une unité archivistique ayant l'identifiant pérenne (.*)$")
+    public void download_object_by_qualifier_and_version_persistent_identifier(String qualifier, String version, String persistentIdentifier) throws Throwable {
+        Response response = world.getAccessClient().getObjectByUnitPersistentIdentifier(
+            new VitamContext(world.getTenantId()).setAccessContract(world.getContractId())
+                .setApplicationSessionId(world.getApplicationSessionId()),
+            persistentIdentifier, qualifier, version);
+        if (response.getStatus() == Status.OK.getStatusCode()) {
+            File tempFile = Files.createTempFile("TRANSFER-" + world.getOperationId(), ".bin").toFile();
+            try (InputStream inputStream = response.readEntity(InputStream.class)) {
+                Files.copy(inputStream, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            }
+            world.setTransferFile(tempFile.toPath());
+            world.getAccessClient().consumeAnyEntityAndClose(response);
+        } else {
+            VitamError vitamError = (VitamError) requestResponse;
+            Fail.fail("request download object returned an error: " + vitamError.getCode());
+        }
+    }
+
+    @When("^je télécharge l'objet ayant l'identifiant pérenne (.*)$")
+    public void download_object_by_persistent_identifier(String persistentIdentifier) throws Throwable {
+        Response response = world.getAccessClient().downloadObjectByObjectPersistentIdentifier(
+            new VitamContext(world.getTenantId()).setAccessContract(world.getContractId())
+                .setApplicationSessionId(world.getApplicationSessionId()),
+            persistentIdentifier);
+        if (response.getStatus() == Status.OK.getStatusCode()) {
+            File tempFile = Files.createTempFile("TRANSFER-" + world.getOperationId(), ".bin").toFile();
+            try (InputStream inputStream = response.readEntity(InputStream.class)) {
+                Files.copy(inputStream, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            }
+            world.setTransferFile(tempFile.toPath());
+            world.getAccessClient().consumeAnyEntityAndClose(response);
+        } else {
+            VitamError vitamError = (VitamError) requestResponse;
+            Fail.fail("request download object returned an error: " + vitamError.getCode());
+        }
+    }
+
+    @When("^je recherche l'objet ayant l'identifiant pérenne (.*)$")
+    public void get_object_by_persistent_identifier(String persistentIdentifier) throws Throwable {
+        JsonNode queryJSON = JsonHandler.getFromString(world.getQuery());
+        Response response = world.getAccessClient().getObjectByObjectPersistentIdentifier(
+            new VitamContext(world.getTenantId()).setAccessContract(world.getContractId())
+                .setApplicationSessionId(world.getApplicationSessionId()),
+            queryJSON, persistentIdentifier);
+        if (response.getStatus() == Status.OK.getStatusCode()) {
+            ArrayNode arrayNodeResults = response.readEntity(ArrayNode.class);
+            List<JsonNode> results = StreamSupport.stream(arrayNodeResults.spliterator(), false)
+                .collect(Collectors.toList());
+            world.setResults(results);
+        } else {
+            VitamError vitamError = (VitamError) requestResponse;
+            Fail.fail("request getObjectByObjectPersistentIdentifier return an error: " + vitamError.getCode());
+        }
+    }
+
+    @Then("^le hash (.*) du fichier transféré est (.*)$")
+    public void check_downloaded_object_message_digest(String algorithm, String expectedDigest) throws Throwable {
+        Path transferFile = world.getTransferFile();
+        DigestType digestType = DigestType.fromValue(algorithm);
+        Digest digest = new Digest(digestType);
+        digest.update(transferFile.toFile());
+        assertEquals(expectedDigest, digest.toString());
+    }
 
     /**
      * search an archive unit according to the query define before
