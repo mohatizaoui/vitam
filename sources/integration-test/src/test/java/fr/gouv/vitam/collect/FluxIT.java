@@ -39,6 +39,7 @@ import fr.gouv.vitam.collect.external.external.rest.CollectExternalMain;
 import fr.gouv.vitam.collect.internal.CollectInternalMain;
 import fr.gouv.vitam.collect.internal.client.CollectInternalClient;
 import fr.gouv.vitam.collect.internal.client.CollectInternalClientFactory;
+import fr.gouv.vitam.collect.internal.core.helpers.MetadataHelper;
 import fr.gouv.vitam.common.DataLoader;
 import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.VitamRuleRunner;
@@ -75,6 +76,7 @@ import org.junit.Test;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -184,6 +186,53 @@ public class FluxIT extends VitamRuleRunner {
             assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
             assertThat(response.readEntity(InputStream.class)).hasSameContentAs(new ByteArrayInputStream(
                 "Link to 2_Front-Populaire/Porte-de-la-Chapelle/Marx-Dormoy/Saint-Lazare".getBytes()));
+        }
+    }
+
+    @Test
+    public void should_upload_windows_generated_zip_with_implicit_parent_entries_to_transaction_11756()
+        throws Exception {
+        try (CollectExternalClient collectClient = CollectExternalClientFactory.getInstance().getClient()) {
+            final ProjectDto projectDto = initProjectData();
+            projectDto.setUnitUp(ATTACHMENT_UNIT_ID);
+            final RequestResponse<JsonNode> projectResponse = collectClient.initProject(vitamContext, projectDto);
+            Assertions.assertThat(projectResponse.getStatus()).isEqualTo(200);
+            final ProjectDto projectDtoResult =
+                JsonHandler.getFromJsonNode(((RequestResponseOK<JsonNode>) projectResponse).getFirstResult(),
+                    ProjectDto.class);
+            final TransactionDto transactiondto = initTransaction();
+            final RequestResponse<JsonNode> transactionResponse =
+                collectClient.initTransaction(vitamContext, transactiondto, projectDtoResult.getId());
+            Assertions.assertThat(transactionResponse.getStatus()).isEqualTo(200);
+            final RequestResponseOK<JsonNode> requestResponseOK = (RequestResponseOK<JsonNode>) transactionResponse;
+            final TransactionDto transactionDtoResult =
+                JsonHandler.getFromJsonNode(requestResponseOK.getFirstResult(), TransactionDto.class);
+            try (InputStream inputStream = PropertiesUtils.getResourceAsStream(
+                "collect/collect_windows_generated_zip_with_implicit_parent_entries_to_transaction_11756.zip")) {
+                final RequestResponse<JsonNode> response =
+                    collectClient.uploadZipToTransaction(vitamContext, transactionDtoResult.getId(), inputStream);
+                Assertions.assertThat(response.getStatus()).isEqualTo(200);
+            }
+            final RequestResponseOK<JsonNode> unitsByTransaction =
+                (RequestResponseOK<JsonNode>) collectClient.getUnitsByTransaction(vitamContext,
+                    transactionDtoResult.getId(),
+                    new SelectMultiQuery().addUsedProjection("#id", "Title").getFinalSelect());
+
+            assertThat(unitsByTransaction.getResults()).hasSize(6);
+            assertThat(unitsByTransaction.getResults().stream().map(u -> u.get("Title").asText()))
+                .containsExactlyInAnyOrder(MetadataHelper.STATIC_ATTACHMENT, "content", "AU1",
+                    "doc2.txt", "doc3.txt", "doc4.txt");
+
+            // test download got
+            String unitId = unitsByTransaction.getResults().stream()
+                .filter(a -> a.get("Title").asText().equals("AU1"))
+                .map(a -> a.get(VitamFieldsHelper.id()).asText()).findFirst().get();
+            Response response = collectClient.getObjectStreamByUnitId(vitamContext, unitId,
+                DataObjectVersionType.BINARY_MASTER.getName(), 1);
+
+            assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+            assertThat(response.readEntity(InputStream.class)).hasSameContentAs(new ByteArrayInputStream(
+                "sdfgdsfgdsfgdfs".getBytes(StandardCharsets.UTF_8)));
         }
     }
 
