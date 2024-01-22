@@ -34,6 +34,7 @@ import fr.gouv.vitam.collect.common.dto.ProjectDto;
 import fr.gouv.vitam.collect.common.dto.TransactionDto;
 import fr.gouv.vitam.collect.external.client.CollectExternalClient;
 import fr.gouv.vitam.collect.external.client.CollectExternalClientFactory;
+import fr.gouv.vitam.collect.external.external.exception.CollectExternalClientInvalidRequestException;
 import fr.gouv.vitam.collect.external.external.exception.CollectExternalClientNotFoundException;
 import fr.gouv.vitam.collect.external.external.rest.CollectExternalMain;
 import fr.gouv.vitam.collect.internal.CollectInternalMain;
@@ -303,6 +304,35 @@ public class FluxIT extends VitamRuleRunner {
                 assertThatThrownBy(() -> collectClient.uploadZipToProject(vitamContext, "Unknown", inputStream))
                     .isExactlyInstanceOf(CollectExternalClientNotFoundException.class)
                     .hasMessage("Unable to find project Id or invalid status");
+            }
+        }
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void should_fail_when_upload_zip_with_empty_binary_to_transaction_11756() throws Exception {
+        try (CollectExternalClient collectClient = CollectExternalClientFactory.getInstance().getClient()) {
+
+            final ProjectDto projectDto = initProjectData();
+            projectDto.setUnitUp(ATTACHMENT_UNIT_ID);
+            final RequestResponse<JsonNode> projectResponse = collectClient.initProject(vitamContext, projectDto);
+            Assertions.assertThat(projectResponse.getStatus()).isEqualTo(200);
+            final ProjectDto projectDtoResult =
+                JsonHandler.getFromJsonNode(((RequestResponseOK<JsonNode>) projectResponse).getFirstResult(),
+                    ProjectDto.class);
+            final TransactionDto transactiondto = initTransaction();
+            final RequestResponse<JsonNode> transactionResponse =
+                collectClient.initTransaction(vitamContext, transactiondto, projectDtoResult.getId());
+            Assertions.assertThat(transactionResponse.getStatus()).isEqualTo(200);
+            final RequestResponseOK<JsonNode> requestResponseOK = (RequestResponseOK<JsonNode>) transactionResponse;
+            final TransactionDto transactionDtoResult =
+                JsonHandler.getFromJsonNode(requestResponseOK.getFirstResult(), TransactionDto.class);
+            try (InputStream inputStream = PropertiesUtils.getResourceAsStream(
+                "collect/zipWithEmptyBinary_11756.zip")) {
+                assertThatThrownBy(() ->
+                    collectClient.uploadZipToTransaction(vitamContext, transactionDtoResult.getId(), inputStream))
+                    .isExactlyInstanceOf(CollectExternalClientInvalidRequestException.class)
+                    .hasMessage("Cannot upload empty file 'A/C.txt'");
             }
         }
     }

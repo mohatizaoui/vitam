@@ -30,6 +30,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import fr.gouv.vitam.collect.common.dto.CriteriaProjectDto;
 import fr.gouv.vitam.collect.common.dto.ProjectDto;
 import fr.gouv.vitam.collect.common.dto.TransactionDto;
+import fr.gouv.vitam.collect.external.external.exception.CollectExternalClientException;
+import fr.gouv.vitam.collect.external.external.exception.CollectExternalClientInvalidRequestException;
 import fr.gouv.vitam.collect.external.external.exception.CollectExternalClientNotFoundException;
 import fr.gouv.vitam.common.CommonMediaType;
 import fr.gouv.vitam.common.client.VitamClientFactoryInterface;
@@ -38,7 +40,6 @@ import fr.gouv.vitam.common.client.VitamRequestBuilder;
 import fr.gouv.vitam.common.error.VitamError;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.exception.VitamClientException;
-import fr.gouv.vitam.common.exception.VitamClientInternalException;
 import fr.gouv.vitam.common.external.client.DefaultClient;
 import fr.gouv.vitam.common.model.RequestResponse;
 import org.apache.commons.lang3.StringUtils;
@@ -381,14 +382,13 @@ public class CollectExternalClientRest extends DefaultClient implements CollectE
     @Override
     public RequestResponse<String> uploadZipToProject(VitamContext vitamContext, String projectId,
         InputStream inputStreamUploaded)
-        throws VitamClientException, CollectExternalClientNotFoundException {
+        throws VitamClientException {
         try (Response response = make(post()
             .withPath(PROJECT_PATH + "/" + projectId + "/upload")
             .withHeaders(vitamContext.getHeaders())
             .withBody(inputStreamUploaded)
             .withContentType(CommonMediaType.ZIP_TYPE)
             .withJsonAccept())) {
-            handleNotFoundResponses(response);
             check(response);
             return RequestResponse.parseFromResponse(response, String.class);
         }
@@ -466,7 +466,15 @@ public class CollectExternalClientRest extends DefaultClient implements CollectE
                 message = vitamError.getMessage();
             }
 
-            throw new VitamClientException(message);
+            if (response.getStatusInfo().getStatusCode() == Response.Status.BAD_REQUEST.getStatusCode()) {
+                throw new CollectExternalClientInvalidRequestException(message);
+            }
+
+            if (response.getStatusInfo().getStatusCode() == Response.Status.NOT_FOUND.getStatusCode()) {
+                throw new CollectExternalClientNotFoundException(message);
+            }
+
+            throw new CollectExternalClientException(message);
         } catch (InvalidParseOperationException e) {
             throw new VitamClientException(message);
         }
@@ -525,18 +533,6 @@ public class CollectExternalClientRest extends DefaultClient implements CollectE
         try (Response response = make(request)) {
             check(response);
             return RequestResponse.parseFromResponse(response, JsonNode.class);
-        }
-    }
-
-    private static void handleNotFoundResponses(Response response)
-        throws CollectExternalClientNotFoundException, VitamClientInternalException {
-        if(Response.Status.NOT_FOUND.getStatusCode() == response.getStatusInfo().getStatusCode()) {
-            try {
-                final VitamError<JsonNode> vitamError = RequestResponse.parseVitamError(response);
-                throw new CollectExternalClientNotFoundException(vitamError.getMessage());
-            } catch (RuntimeException | InvalidParseOperationException e) {
-                throw new VitamClientInternalException("Could not parse error", e);
-            }
         }
     }
 }

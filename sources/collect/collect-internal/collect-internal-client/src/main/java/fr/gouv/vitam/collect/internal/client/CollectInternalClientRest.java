@@ -31,7 +31,8 @@ import fr.gouv.vitam.collect.common.dto.CriteriaProjectDto;
 import fr.gouv.vitam.collect.common.dto.ProjectDto;
 import fr.gouv.vitam.collect.common.dto.TransactionDto;
 import fr.gouv.vitam.collect.common.enums.TransactionStatus;
-import fr.gouv.vitam.collect.internal.client.exceptions.ClientInternalNotFoundException;
+import fr.gouv.vitam.collect.internal.client.exceptions.CollectInternalClientInvalidRequestException;
+import fr.gouv.vitam.collect.internal.client.exceptions.CollectInternalClientNotFoundException;
 import fr.gouv.vitam.common.CommonMediaType;
 import fr.gouv.vitam.common.client.DefaultClient;
 import fr.gouv.vitam.common.client.VitamClientFactoryInterface;
@@ -39,10 +40,8 @@ import fr.gouv.vitam.common.client.VitamRequestBuilder;
 import fr.gouv.vitam.common.error.VitamError;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.exception.VitamClientException;
-import fr.gouv.vitam.common.exception.VitamClientInternalException;
 import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
-import fr.gouv.vitam.common.model.StatusCode;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.ws.rs.core.NewCookie;
@@ -363,7 +362,6 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
             .withBody(inputStreamUploaded)
             .withContentType(CommonMediaType.ZIP_TYPE)
             .withJsonAccept())) {
-            handleNotFoundResponses(response);
             check(response);
             RequestResponse<String> requestResponse = RequestResponse.parseFromResponse(response, String.class);
             return ((RequestResponseOK<String>) requestResponse).getFirstResult();
@@ -451,21 +449,18 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
             } else if (StringUtils.isNotBlank(vitamError.getMessage())) {
                 message = vitamError.getMessage();
             }
+
+            if (response.getStatusInfo().getStatusCode() == Response.Status.BAD_REQUEST.getStatusCode()) {
+                throw new CollectInternalClientInvalidRequestException(message);
+            }
+
+            if (response.getStatusInfo().getStatusCode() == Response.Status.NOT_FOUND.getStatusCode()) {
+                throw new CollectInternalClientNotFoundException(message);
+            }
+
             throw new VitamClientException(message);
         } catch (InvalidParseOperationException e) {
             throw new VitamClientException(message);
-        }
-    }
-
-    private static void handleNotFoundResponses(Response response)
-        throws VitamClientInternalException {
-        if(Response.Status.NOT_FOUND.getStatusCode() == response.getStatusInfo().getStatusCode()) {
-            try {
-                final VitamError<JsonNode> vitamError = RequestResponse.parseVitamError(response);
-                throw new ClientInternalNotFoundException(vitamError.getMessage());
-            } catch (RuntimeException | InvalidParseOperationException e) {
-                throw new VitamClientInternalException("Could not parse error", e);
-            }
         }
     }
 
@@ -529,8 +524,7 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
             .withJson();
         try (Response response = make(request)) {
             check(response);
-            RequestResponse<JsonNode> result = RequestResponse.parseFromResponse(response, JsonNode.class);
-            return result;
+            return RequestResponse.parseFromResponse(response, JsonNode.class);
         }
     }
 

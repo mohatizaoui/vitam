@@ -30,7 +30,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import fr.gouv.vitam.collect.common.dto.ProjectDto;
 import fr.gouv.vitam.collect.internal.client.CollectInternalClient;
 import fr.gouv.vitam.collect.internal.client.CollectInternalClientFactory;
-import fr.gouv.vitam.collect.internal.client.exceptions.ClientInternalNotFoundException;
+import fr.gouv.vitam.collect.internal.client.exceptions.CollectInternalClientNotFoundException;
 import fr.gouv.vitam.common.CommonMediaType;
 import fr.gouv.vitam.common.GlobalDataRest;
 import fr.gouv.vitam.common.client.VitamClientFactory;
@@ -415,7 +415,7 @@ public class ProjectExternalResourceTest extends ResteasyTestApplication {
     @Test
     public void upload_zip_to_project_not_found() throws Exception {
         when(collectInternalClient.uploadZipToProject(eq("prId"), any()))
-            .thenThrow(new ClientInternalNotFoundException("Prb"));
+            .thenThrow(new CollectInternalClientNotFoundException("Prb"));
 
         given()
             .contentType(CommonMediaType.ZIP)

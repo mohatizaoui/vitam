@@ -31,6 +31,7 @@ import fr.gouv.vitam.collect.common.dto.CriteriaProjectDto;
 import fr.gouv.vitam.collect.common.dto.ProjectDto;
 import fr.gouv.vitam.collect.common.dto.TransactionDto;
 import fr.gouv.vitam.collect.common.exception.CollectInternalException;
+import fr.gouv.vitam.collect.common.exception.CollectInternalClientInvalidRequestException;
 import fr.gouv.vitam.collect.common.exception.CollectRequestResponse;
 import fr.gouv.vitam.collect.internal.core.common.TransactionModel;
 import fr.gouv.vitam.collect.internal.core.service.FluxService;
@@ -332,12 +333,12 @@ public class ProjectInternalResource {
             
             fluxService.processStream(inputStreamObject, projectId, virtualTransactionId);
             return Response.ok(new RequestResponseOK<>().addResult(virtualTransactionId)).build();
+        } catch (CollectInternalClientInvalidRequestException | IllegalArgumentException e) {
+            LOGGER.error("An error occurs when try to upload the ZIP: {}", e);
+            return CollectRequestResponse.toVitamError(BAD_REQUEST, e.getLocalizedMessage());
         } catch (CollectInternalException e) {
             LOGGER.error("An error occurs when try to upload the ZIP: {}", e);
             return CollectRequestResponse.toVitamError(INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
-        } catch (IllegalArgumentException e) {
-            LOGGER.error("An error occurs when try to upload the ZIP: {}", e);
-            return CollectRequestResponse.toVitamError(BAD_REQUEST, e.getLocalizedMessage());
         }
     }
 

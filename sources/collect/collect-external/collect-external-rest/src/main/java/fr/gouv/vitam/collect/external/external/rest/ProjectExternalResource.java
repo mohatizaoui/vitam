@@ -35,7 +35,8 @@ import fr.gouv.vitam.collect.common.dto.TransactionDto;
 import fr.gouv.vitam.collect.common.exception.CollectRequestResponse;
 import fr.gouv.vitam.collect.internal.client.CollectInternalClient;
 import fr.gouv.vitam.collect.internal.client.CollectInternalClientFactory;
-import fr.gouv.vitam.collect.internal.client.exceptions.ClientInternalNotFoundException;
+import fr.gouv.vitam.collect.internal.client.exceptions.CollectInternalClientInvalidRequestException;
+import fr.gouv.vitam.collect.internal.client.exceptions.CollectInternalClientNotFoundException;
 import fr.gouv.vitam.common.CommonMediaType;
 import fr.gouv.vitam.common.ParametersChecker;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
@@ -308,7 +309,10 @@ public class ProjectExternalResource extends ApplicationStatusResource {
             String transactionId = client.uploadZipToProject(projectId, inputStreamObject);
             RequestResponseOK<String> transactionsResponse = new RequestResponseOK<String>().addResult(transactionId);
             return Response.status(Response.Status.OK).entity(transactionsResponse).build();
-        } catch (final ClientInternalNotFoundException e) {
+        } catch (CollectInternalClientInvalidRequestException e) {
+            LOGGER.error("Error when uploading Zip to project - BAD REQUEST ", e);
+            return CollectRequestResponse.toVitamError(BAD_REQUEST, e.getLocalizedMessage());
+        } catch (final CollectInternalClientNotFoundException e) {
             LOGGER.error("Error when uploading Zip to project", e);
             return CollectRequestResponse.toVitamError(NOT_FOUND, e.getLocalizedMessage());
         } catch (final VitamClientException e) {
