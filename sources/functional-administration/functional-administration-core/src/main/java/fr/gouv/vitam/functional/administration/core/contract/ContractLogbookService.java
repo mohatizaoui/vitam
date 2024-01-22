@@ -67,6 +67,7 @@ public class ContractLogbookService {
     public static final String UPDATE_WRONG_FILEFORMAT = ".FILEFORMAT_NOT_FOUND.KO";
     public static final String STRATEGY_VALIDATION_ERROR = ".STRATEGY_VALIDATION_ERROR.KO";
     public static final String VERSION_RETENTION_POLICY_VALIDATION_ERROR = ".VERSION_RETENTION_POLICY_ERROR.KO";
+    public static final String PERSISTENCE_IDENTIFIER_POLICY_VALIDATION_ERROR = ".PERSISTENCE_IDENTIFIER_POLICY_ERROR.KO";
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(ContractLogbookService.class);
     private static final String EVDETDATA_IDENTIFIER = "identifier";
     private static final String UPDATED_DIFFS = "updatedDiffs";
@@ -179,6 +180,7 @@ public class ContractLogbookService {
                     case IC_GLOBAL_ERROR:
                     case MC_GLOBAL_ERROR:
                     case VERSION_RETENTION_POLICY_VALIDATION_ERROR:
+                    case PERSISTENCE_IDENTIFIER_POLICY_VALIDATION_ERROR:
                         evDetDataKey = this.contractCheckKey;
                         break;
                     default:

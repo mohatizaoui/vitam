@@ -1936,6 +1936,50 @@ public class ManagementContractImplTest {
         assertThat(usages.size()).isEqualTo(2);
     }
 
+    @Test
+    @RunWithCustomExecutor
+    public void when_create_contracts_should_insert_not_correct_persistent_identifier_policy()
+        throws VitamException, FileNotFoundException {
+        // Given
+        final File fileContracts = PropertiesUtils.getResourceFile("contracts_management_ark_ok.json");
+        final List<ManagementContractModel> contractModelList = JsonHandler.getFromFileAsTypeReference(fileContracts,
+            new TypeReference<>() {
+            });
+
+        PersistentIdentifierUsage binaryPersistentIdentifier = new PersistentIdentifierUsage();
+        binaryPersistentIdentifier.setInitialVersion(true);
+        binaryPersistentIdentifier.setIntermediaryVersion(VersionUsageModel.IntermediaryVersionEnum.LAST);
+        binaryPersistentIdentifier.setUsageName(BINARY_MASTER);
+
+        contractModelList.get(0).getPersistentIdentifierPolicyList().get(0).getPersistentIdentifierUsages()
+            .add(binaryPersistentIdentifier);
+
+
+        when(vitamCounterService.isSlaveFunctionnalCollectionOnTenant(
+            eq(FunctionalAdminCollections.MANAGEMENT_CONTRACT), eq(TENANT_ID))).thenReturn(true);
+        when(mongoAccess.insertDocuments(any(ArrayNode.class), eq(FunctionalAdminCollections.MANAGEMENT_CONTRACT)))
+            .thenReturn(new DbRequestResult());
+        when(mongoAccess.findDocuments(any(), eq(FunctionalAdminCollections.MANAGEMENT_CONTRACT)))
+            .thenReturn(new DbRequestResult());
+        when(storageClient.getStorageStrategies()).thenReturn(loadStorageStrategies());
+
+        // When
+        RequestResponse<ManagementContractModel> response = managementContractService
+            .createContracts(contractModelList);
+
+        assertThat(response.isOk()).isFalse();
+        assertThat(((VitamError<ManagementContractModel>) response).getErrors()).isNotNull();
+        assertThat(((VitamError<ManagementContractModel>) response).getErrors().size()).isEqualTo(1);
+        assertThat(((VitamError<ManagementContractModel>) response).getErrors().get(0).getMessage())
+            .isEqualTo("STP_IMPORT_MANAGEMENT_CONTRACT.PERSISTENCE_IDENTIFIER_POLICY_ERROR.KO");
+        assertThat(((VitamError<ManagementContractModel>) response).getErrors().get(0).getDescription())
+            .isEqualTo("Duplicate usage type BinaryMaster found in the contract Contrat de gestion avec PersistentIdentifierPolicy.");
+        assertThat(((VitamError<ManagementContractModel>) response).getState()).isEqualTo("KO");
+        assertThat(response.getHttpCode()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+
+
+    }
+
     private RequestResponseOK<StorageStrategy> loadStorageStrategies()
         throws FileNotFoundException, InvalidParseOperationException {
         StorageStrategy[] storageStrategiesArray = JsonHandler.getFromFileLowerCamelCase(

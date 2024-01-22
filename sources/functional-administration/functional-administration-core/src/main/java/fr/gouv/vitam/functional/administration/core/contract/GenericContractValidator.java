@@ -104,6 +104,9 @@ public interface GenericContractValidator<T extends AbstractContractModel> {
         private static final String ERR_VERSION_RETENTION_POLICY_INVALID_USAGE =
             "The usage type %s is invalid in the contract %s.";
 
+        private static final String ERR_PERSISTENCE_IDENTIFIER_RETENTION_POLICY_DUPLICATE_USAGE =
+            "Duplicate usage type %s found in the contract %s.";
+
         private String reason;
 
         /**
@@ -286,6 +289,14 @@ public interface GenericContractValidator<T extends AbstractContractModel> {
             return new GenericRejectionCause(
                 String.format(ERR_VERSION_RETENTION_POLICY_INVALID_USAGE, fieldName, contractName));
         }
+
+        public static GenericRejectionCause rejectDuplicateVersionRetentionPolicyUsage(String fieldName,
+            String contractName) {
+            return new GenericRejectionCause(
+                String.format(ERR_PERSISTENCE_IDENTIFIER_RETENTION_POLICY_DUPLICATE_USAGE, fieldName, contractName));
+        }
+
+
 
         /**
          * Get Reason
