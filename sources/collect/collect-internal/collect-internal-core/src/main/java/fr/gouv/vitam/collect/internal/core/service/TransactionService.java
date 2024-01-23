@@ -36,6 +36,7 @@ import fr.gouv.vitam.collect.common.dto.ProjectDto;
 import fr.gouv.vitam.collect.common.dto.TransactionDto;
 import fr.gouv.vitam.collect.common.enums.TransactionStatus;
 import fr.gouv.vitam.collect.common.exception.CollectInternalException;
+import fr.gouv.vitam.collect.internal.core.common.ManifestContext;
 import fr.gouv.vitam.collect.internal.core.common.TransactionModel;
 import fr.gouv.vitam.collect.internal.core.helpers.CollectHelper;
 import fr.gouv.vitam.collect.internal.core.repository.MetadataRepository;
@@ -84,6 +85,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
 import static fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper.id;
 import static fr.gouv.vitam.common.json.JsonHandler.getFromJsonNodeList;
@@ -94,6 +96,7 @@ public class TransactionService {
     private static final String TRANSACTION_NOT_UPDATED = "Wrong status to update! ";
     private static final String PROJECT_ID = "ProjectId";
     private static final String STATUS = "Status";
+    private static final String AUTOMATIC_INGEST = "AutomaticIngest";
     private static final String PROCESS_SIP_UNITARY = "PROCESS_SIP_UNITARY";
 
     private static final Map<String, TransactionStatus> OPERATION_STATUS_TO_TRANSACTION_STATUS_MAP = Map.of(
@@ -133,7 +136,7 @@ public class TransactionService {
         TransactionModel transactionModel = new TransactionModel(transactionDto.getId(), transactionDto.getName(),
             CollectHelper.mapTransactionDtoToManifestContext(transactionDto, projectDto), TransactionStatus.OPEN,
             projectDto.getId(),
-            creationDate, creationDate, transactionDto.getTenant());
+            creationDate, creationDate, transactionDto.getTenant(), projectDto.getAutomaticIngest());
 
         transactionRepository.createTransaction(transactionModel);
     }
@@ -246,6 +249,12 @@ public class TransactionService {
         final String updateDate = LocalDateUtil.now().toString();
         transactionModel.setLastUpdate(updateDate);
         transactionRepository.replaceTransaction(transactionModel);
+    }
+
+    public boolean findOneAndReplace(TransactionStatus transactionStatus,
+        TransactionModel transactionModel) throws InvalidParseOperationException {
+
+        return transactionRepository.findOneAndReplace(transactionStatus, transactionModel);
     }
 
     public void checkAbortTransaction(TransactionModel transactionModel) throws CollectInternalException {
@@ -433,6 +442,11 @@ public class TransactionService {
         return StatusCode.UNKNOWN.name();
     }
 
+    public List<TransactionModel> findReadyAutoIngestTransactions() throws CollectInternalException {
+        return this.transactionRepository.findTransactionsByQueryWithoutTenant(
+            and(eq(STATUS, TransactionStatus.READY.name()), eq(AUTOMATIC_INGEST, true)));
+    }
+
     public void manageTransactionsStatus() throws CollectInternalException {
         List<TransactionModel> transactions =
             this.transactionRepository.findTransactionsByQuery(eq(STATUS, TransactionStatus.SENT.name()));
@@ -467,21 +481,27 @@ public class TransactionService {
      * @throws CollectInternalException exception thrown in case of error
      */
     public void replaceTransaction(TransactionDto transactionDto) throws CollectInternalException {
-        Optional<ProjectDto> projectOpt = projectService.findProject(transactionDto.getProjectId());
+        final String projectId = transactionDto.getProjectId();
+        Optional<ProjectDto> projectOpt = projectService.findProject(projectId);
         if (projectOpt.isEmpty()) {
-            throw new CollectInternalException("project with id " + transactionDto.getProjectId() + " not found");
+            throw new CollectInternalException("project with id " + projectId + " not found");
         }
-        TransactionModel transactionModel = new TransactionModel();
-        transactionModel.setId(transactionDto.getId());
-        transactionModel.setName(transactionDto.getName());
-        transactionModel
-            .setManifestContext(CollectHelper.mapTransactionDtoToManifestContext(transactionDto, projectOpt.get()));
-        transactionModel.setTenant(transactionDto.getTenant());
-        transactionModel.setProjectId(transactionDto.getProjectId());
-        transactionModel.setStatus(TransactionStatus.valueOf(transactionDto.getStatus()));
+
+        final String id = transactionDto.getId();
+        final String name = transactionDto.getName();
+        final ManifestContext manifestContext =
+            CollectHelper.mapTransactionDtoToManifestContext(transactionDto, projectOpt.get());
+        final Integer tenant = transactionDto.getTenant();
+        final TransactionStatus status = TransactionStatus.valueOf(transactionDto.getStatus());
         // Update Dates
-        transactionModel.setCreationDate(transactionDto.getCreationDate());
-        transactionModel.setLastUpdate(transactionDto.getLastUpdate());
+        final String creationDate = transactionDto.getCreationDate();
+        final String lastUpdate = transactionDto.getLastUpdate();
+
+        final Boolean automaticIngest = transactionDto.getAutomaticIngest();
+
+        TransactionModel transactionModel =
+            new TransactionModel(id, name, manifestContext, status, projectId, creationDate, lastUpdate, tenant,
+                automaticIngest);
 
         transactionRepository.replaceTransaction(transactionModel);
     }

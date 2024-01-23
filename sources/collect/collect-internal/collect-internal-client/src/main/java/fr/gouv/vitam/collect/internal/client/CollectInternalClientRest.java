@@ -543,4 +543,16 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
             return response;
         }
     }
+
+    @Override
+    public RequestResponse<JsonNode> getTransactionsToAutomaticallyIngest() throws
+        VitamClientException {
+        VitamRequestBuilder request = get()
+            .withPath(TRANSACTION_PATH + "/withAutomaticIngest")
+            .withJsonAccept();
+        try (Response response = make(request)) {
+            check(response);
+            return RequestResponse.parseFromResponse(response, JsonNode.class);
+        }
+    }
 }

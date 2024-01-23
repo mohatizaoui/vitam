@@ -362,5 +362,7 @@ public interface CollectInternalClient extends MockOrRestClient {
      */
     RequestResponse<JsonNode> selectUnitsWithInheritedRules(String transactionId, JsonNode selectQuery)
         throws VitamClientException;
+
+    RequestResponse<JsonNode> getTransactionsToAutomaticallyIngest() throws VitamClientException;
 }
 

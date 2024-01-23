@@ -64,13 +64,15 @@ public class ProjectModel {
     @JsonProperty("_tenant")
     private Integer tenant;
 
+    @JsonProperty("AutomaticIngest")
+    private Boolean automaticIngest;
 
     public ProjectModel() {
     }
 
 
     public ProjectModel(String id, String name, ManifestContext manifestContext, ProjectStatus status,
-        String creationDate, String lastUpdate, String unitUp, List<MetadataUnitUp> unitUps, Integer tenant) {
+        String creationDate, String lastUpdate, String unitUp, List<MetadataUnitUp> unitUps, Integer tenant, Boolean automaticIngest) {
         this.id = id;
         this.name = name;
         this.manifestContext = manifestContext;
@@ -80,6 +82,7 @@ public class ProjectModel {
         this.unitUps = unitUps;
         this.unitUp = unitUp;
         this.tenant = tenant;
+        this.automaticIngest = automaticIngest;
     }
 
     public String getId() {
@@ -152,6 +155,14 @@ public class ProjectModel {
 
     public void setTenant(Integer tenant) {
         this.tenant = tenant;
+    }
+
+    public Boolean getAutomaticIngest() {
+        return automaticIngest;
+    }
+
+    public void setAutomaticIngest(Boolean automaticIngest) {
+        this.automaticIngest = automaticIngest;
     }
 
     @Override

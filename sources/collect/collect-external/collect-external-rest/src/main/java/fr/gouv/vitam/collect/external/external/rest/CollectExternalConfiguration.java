@@ -34,6 +34,8 @@ import fr.gouv.vitam.common.server.application.configuration.DefaultVitamApplica
 public class CollectExternalConfiguration extends DefaultVitamApplicationConfiguration {
 
     private boolean allowSslClientHeader = false;
+    private long ingestionThreadFrequencySeconds = 5;
+    private int ingestionThreadPoolSize = 4;
 
     /**
      * CollectExternalConfiguration empty constructor for YAMLFactory
@@ -48,5 +50,22 @@ public class CollectExternalConfiguration extends DefaultVitamApplicationConfigu
 
     public void setAllowSslClientHeader(boolean allowSslClientHeader) {
         this.allowSslClientHeader = allowSslClientHeader;
+    }
+
+
+    public int getIngestionThreadPoolSize() {
+        return ingestionThreadPoolSize;
+    }
+
+    public long getIngestionThreadFrequencySeconds() {
+        return ingestionThreadFrequencySeconds;
+    }
+
+    public void setIngestionThreadFrequencySeconds(long ingestionThreadFrequencySeconds) {
+        this.ingestionThreadFrequencySeconds = ingestionThreadFrequencySeconds;
+    }
+
+    public void setIngestionThreadPoolSize(int ingestionThreadPoolSize) {
+        this.ingestionThreadPoolSize = ingestionThreadPoolSize;
     }
 }

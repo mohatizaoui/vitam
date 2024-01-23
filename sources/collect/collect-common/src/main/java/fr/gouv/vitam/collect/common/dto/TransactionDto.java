@@ -72,6 +72,8 @@ public class TransactionDto implements Serializable {
 
     @JsonProperty(value = "VitamOperationId") private String vitamOperationId;
 
+    @JsonProperty(value = "AutomaticIngest") private Boolean automaticIngest;
+
 
     public TransactionDto() {
         //Empty constructor for serialization
@@ -84,7 +86,8 @@ public class TransactionDto implements Serializable {
     public TransactionDto(String id, String archivalAgreement, String messageIdentifier,
         String archivalAgencyIdentifier, String transferringAgencyIdentifier, String originatingAgencyIdentifier,
         String submissionAgencyIdentifier, String archivalProfile, String comment, Integer tenant,
-        String acquisitionInformation, String legalStatus, String creationDate, String lastUpdate, String status) {
+        String acquisitionInformation, String legalStatus, String creationDate, String lastUpdate, String status,
+        Boolean automaticIngest) {
         this.id = id;
         this.archivalAgreement = archivalAgreement;
         this.messageIdentifier = messageIdentifier;
@@ -100,6 +103,7 @@ public class TransactionDto implements Serializable {
         this.creationDate = creationDate;
         this.lastUpdate = lastUpdate;
         this.status = status;
+        this.automaticIngest = automaticIngest;
     }
 
     public String getId() {
@@ -244,6 +248,14 @@ public class TransactionDto implements Serializable {
 
     public void setVitamOperationId(String vitamOperationId) {
         this.vitamOperationId = vitamOperationId;
+    }
+
+    public Boolean getAutomaticIngest() {
+        return automaticIngest;
+    }
+
+    public void setAutomaticIngest(Boolean automaticIngest) {
+        this.automaticIngest = automaticIngest;
     }
 
     @Override

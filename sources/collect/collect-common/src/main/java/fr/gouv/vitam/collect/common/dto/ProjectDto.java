@@ -91,6 +91,9 @@ public class ProjectDto implements Serializable {
     @JsonProperty(value = "Status")
     private String status;
 
+    @JsonProperty("AutomaticIngest")
+    private Boolean automaticIngest;
+
     public ProjectDto() {
         //Empty constructor for serialization
     }
@@ -102,7 +105,7 @@ public class ProjectDto implements Serializable {
     public ProjectDto(String id, String name, String acquisitionInformation, String legalStatus, String creationDate,
         String lastUpdate, String status, String archivalAgreement, String messageIdentifier,
         String archivalAgencyIdentifier, String transferringAgencyIdentifier, String originatingAgencyIdentifier,
-        String submissionAgencyIdentifier, String archivalProfile, String comment, String unitUp, Integer tenant) {
+        String submissionAgencyIdentifier, String archivalProfile, String comment, String unitUp, Integer tenant, Boolean automaticIngest) {
         this.id = id;
         this.name = name;
         this.acquisitionInformation = acquisitionInformation;
@@ -120,6 +123,7 @@ public class ProjectDto implements Serializable {
         this.comment = comment;
         this.unitUp = unitUp;
         this.tenant = tenant;
+        this.automaticIngest = automaticIngest;
     }
 
     public String getId() {
@@ -264,6 +268,14 @@ public class ProjectDto implements Serializable {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public Boolean getAutomaticIngest() {
+        return automaticIngest;
+    }
+
+    public void setAutomaticIngest(Boolean automaticIngest) {
+        this.automaticIngest = automaticIngest;
     }
 
     @Override
