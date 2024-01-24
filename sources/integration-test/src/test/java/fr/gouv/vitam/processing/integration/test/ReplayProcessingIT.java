@@ -87,6 +87,7 @@ import fr.gouv.vitam.worker.server.rest.WorkerMain;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageNotFoundException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 import fr.gouv.vitam.workspace.rest.WorkspaceMain;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.AfterClass;
@@ -164,7 +165,7 @@ public class ReplayProcessingIT extends VitamRuleRunner {
 
         runAfter();
 
-        try (WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance().getClient()) {
+        try (WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient()) {
             workspaceClient.deleteContainer("process", true);
         } catch (ContentAddressableStorageNotFoundException e) {
             LOGGER.error(e);
@@ -361,7 +362,7 @@ public class ReplayProcessingIT extends VitamRuleRunner {
                 PropertiesUtils.getResourceAsStream(SIP_OK_REPLAY_1);
         }
 
-        WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance().getClient();
+        WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
         workspaceClient.createContainer(containerName);
         workspaceClient.uncompressObject(containerName, SIP_FOLDER, CommonMediaType.ZIP,
             zipInputStreamSipObject);

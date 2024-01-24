@@ -82,7 +82,7 @@ public class WorkspaceClientObjectTest extends ResteasyTestApplication {
     private static final DigestType ALGO = DigestType.MD5;
     private static final String MESSAGE_DIGEST = "DigestHex";
 
-    static WorkspaceClientFactory factory = WorkspaceClientFactory.getInstance();
+    static WorkspaceClientFactory factory = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM);
 
     public static VitamServerTestRunner
         vitamServerTestRunner =

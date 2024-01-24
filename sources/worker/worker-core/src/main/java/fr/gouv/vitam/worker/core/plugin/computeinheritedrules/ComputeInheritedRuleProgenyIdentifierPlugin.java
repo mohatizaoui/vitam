@@ -66,6 +66,7 @@ import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageNotFoundEx
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -97,7 +98,7 @@ public class ComputeInheritedRuleProgenyIdentifierPlugin extends ActionHandler {
 
     public ComputeInheritedRuleProgenyIdentifierPlugin() {
         this(MetaDataClientFactory.getInstance(), BatchReportClientFactory.getInstance(),
-            WorkspaceClientFactory.getInstance(), GlobalDatas.LIMIT_LOAD);
+            WorkspaceClientFactory.getInstance(WorkspaceType.VITAM), GlobalDatas.LIMIT_LOAD);
         // Default constructor for workflow initialization by Worker
     }
 

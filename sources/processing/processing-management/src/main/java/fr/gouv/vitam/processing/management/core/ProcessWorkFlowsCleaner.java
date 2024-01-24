@@ -41,6 +41,7 @@ import fr.gouv.vitam.processing.data.core.management.ProcessDataManagement;
 import fr.gouv.vitam.processing.data.core.management.WorkspaceProcessDataManagement;
 import fr.gouv.vitam.processing.management.api.ProcessManagement;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -63,7 +64,7 @@ public class ProcessWorkFlowsCleaner implements Runnable {
 
     public ProcessWorkFlowsCleaner(ProcessManagement processManagement, TimeUnit timeunit) {
         this(processManagement, WorkspaceProcessDataManagement.getInstance(),
-            WorkspaceClientFactory.getInstance(), timeunit);
+            WorkspaceClientFactory.getInstance(WorkspaceType.VITAM), timeunit);
     }
 
     @VisibleForTesting

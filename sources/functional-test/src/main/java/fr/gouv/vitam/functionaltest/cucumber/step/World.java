@@ -61,6 +61,7 @@ import fr.gouv.vitam.storage.engine.client.StorageClient;
 import fr.gouv.vitam.storage.engine.client.StorageClientFactory;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 
 import java.io.File;
 import java.io.IOException;
@@ -192,10 +193,10 @@ public class World {
         collectExternalClient = CollectExternalClientFactory.getInstance().getClient();
 
         storageClient = StorageClientFactory.getInstance().getClient();
-        WorkspaceClientFactory.changeMode(tnrClientConfiguration.getUrlWorkspace());
+        WorkspaceClientFactory.changeMode(tnrClientConfiguration.getUrlWorkspace(), WorkspaceType.VITAM);
         configureLogbookClient();
         logbookOperationsClient = LogbookOperationsClientFactory.getInstance().getClient();
-        workspaceClient = WorkspaceClientFactory.getInstance().getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
         logbookService = new LogbookService();
         accessService = new AccessService();
     }

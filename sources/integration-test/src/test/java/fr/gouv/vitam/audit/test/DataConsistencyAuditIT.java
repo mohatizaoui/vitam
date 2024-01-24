@@ -61,6 +61,7 @@ import fr.gouv.vitam.metadata.core.database.collections.Unit;
 import fr.gouv.vitam.metadata.rest.MetadataMain;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 import fr.gouv.vitam.workspace.rest.WorkspaceMain;
 import okhttp3.OkHttpClient;
 import org.bson.BsonTimestamp;
@@ -168,7 +169,7 @@ public class DataConsistencyAuditIT extends VitamRuleRunner {
             .deleteIndexByAliasForTesting(MetadataCollections.OBJECTGROUP, TENANT_ID);
 
         // create workspace file
-        WorkspaceClientFactory workspaceClientFactory = WorkspaceClientFactory.getInstance();
+        WorkspaceClientFactory workspaceClientFactory = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM);
         try (WorkspaceClient workspaceClient = workspaceClientFactory.getClient()) {
             if (!workspaceClient.isExistingContainer(AUDIT_CONTAINER_NAME)) {
                 workspaceClient.createContainer(AUDIT_CONTAINER_NAME);

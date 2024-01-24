@@ -48,6 +48,7 @@ import fr.gouv.vitam.storage.driver.model.StorageLogTraceabilityResult;
 import fr.gouv.vitam.storage.engine.server.distribution.StorageDistribution;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -79,7 +80,7 @@ public class StorageTraceabilityAdministration {
         this.traceabilityLogbookService = traceabilityLogbookService;
         this.distribution = distribution;
         this.timestampGenerator = timestampGenerator;
-        this.workspaceClient = WorkspaceClientFactory.getInstance().getClient();
+        this.workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
         this.logbookOperations = LogbookOperationsClientFactory.getInstance().getClient();
         this.operationTraceabilityOverlapDelayInSeconds =
             validateAndGetTraceabilityOverlapDelay(operationTraceabilityOverlapDelay);

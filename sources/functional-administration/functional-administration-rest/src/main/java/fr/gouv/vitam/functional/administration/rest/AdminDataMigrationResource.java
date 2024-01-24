@@ -44,6 +44,7 @@ import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClient;
 import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClientFactory;
 import fr.gouv.vitam.processing.management.client.ProcessingManagementClientFactory;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import javax.ws.rs.ApplicationPath;
@@ -61,7 +62,7 @@ public class AdminDataMigrationResource {
 
     AdminDataMigrationResource() {
         this(LogbookOperationsClientFactory.getInstance(), ProcessingManagementClientFactory.getInstance(),
-            WorkspaceClientFactory.getInstance());
+            WorkspaceClientFactory.getInstance(WorkspaceType.VITAM));
     }
 
     /**

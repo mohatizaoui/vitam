@@ -41,6 +41,7 @@ import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClientFactory;
 import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.processing.common.config.ServerConfiguration;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 
 import javax.ws.rs.core.Application;
 
@@ -96,7 +97,7 @@ public class ProcessManagementMain {
                 // Logbook dependency
                 .register(LogbookOperationsClientFactory.getInstance())
                 // Workspace dependency
-                .register(WorkspaceClientFactory.getInstance())
+                .register(WorkspaceClientFactory.getInstance(WorkspaceType.VITAM))
                 // Metadata dependency: optional ???
                 .registerOptional(MetaDataClientFactory.getInstance());
 

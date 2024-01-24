@@ -76,6 +76,7 @@ import fr.gouv.vitam.worker.core.plugin.preservation.model.PreservationDistribut
 import fr.gouv.vitam.worker.core.utils.GroupByObjectIterator;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
@@ -131,7 +132,7 @@ public class PreservationPreparationPlugin extends ActionHandler {
 
     public PreservationPreparationPlugin() {
         this(AdminManagementClientFactory.getInstance(), MetaDataClientFactory.getInstance(),
-            WorkspaceClientFactory.getInstance());
+            WorkspaceClientFactory.getInstance(WorkspaceType.VITAM));
     }
 
     @VisibleForTesting

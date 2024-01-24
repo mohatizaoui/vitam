@@ -41,6 +41,7 @@ import fr.gouv.vitam.metadata.core.config.MetaDataConfiguration;
 import fr.gouv.vitam.metadata.core.mapping.MappingLoader;
 import fr.gouv.vitam.processing.management.client.ProcessingManagementClientFactory;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import javax.ws.rs.Consumes;
@@ -59,7 +60,8 @@ public class MetadataAuditResource {
     private final MetadataAuditService metadataAuditService;
 
     public MetadataAuditResource(MetaDataConfiguration metaDataConfiguration) {
-        this.metadataAuditService = new MetadataAuditService(WorkspaceClientFactory.getInstance(),
+        this.metadataAuditService = new MetadataAuditService(WorkspaceClientFactory.getInstance(
+            metaDataConfiguration.getCollectModule()? WorkspaceType.COLLECT : WorkspaceType.VITAM),
             LogbookOperationsClientFactory.getInstance(), VitamRepositoryFactory.get(),
             new ElasticsearchMetadataIndexManager(metaDataConfiguration, VitamConfiguration.getTenants(),
                 new MappingLoader(metaDataConfiguration.getElasticsearchExternalMetadataMappings())),

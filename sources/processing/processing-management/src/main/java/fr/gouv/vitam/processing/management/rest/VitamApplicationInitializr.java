@@ -41,6 +41,7 @@ import fr.gouv.vitam.processing.distributor.rest.ProcessDistributorResource;
 import fr.gouv.vitam.processing.management.api.ProcessManagement;
 import fr.gouv.vitam.worker.client.WorkerClientFactory;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -80,7 +81,7 @@ public class VitamApplicationInitializr {
 
 
 
-            WorkspaceClientFactory.changeMode(configuration.getUrlWorkspace());
+            WorkspaceClientFactory.changeMode(configuration.getUrlWorkspace(), WorkspaceType.VITAM);
 
             IWorkerManager workerManager = new WorkerManager();
             workerManager.initialize();

@@ -40,6 +40,7 @@ import fr.gouv.vitam.worker.core.handler.ActionHandler;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -59,7 +60,7 @@ public class ExtractSecureTraceabilityDataFilePlugin extends ActionHandler {
 
     @SuppressWarnings("unused")
     public ExtractSecureTraceabilityDataFilePlugin() {
-        this(WorkspaceClientFactory.getInstance());
+        this(WorkspaceClientFactory.getInstance(WorkspaceType.VITAM));
     }
 
     public ExtractSecureTraceabilityDataFilePlugin(WorkspaceClientFactory workspaceClientFactory) {

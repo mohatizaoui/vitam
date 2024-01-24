@@ -152,6 +152,7 @@ import fr.gouv.vitam.worker.server.rest.WorkerMain;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageNotFoundException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 import fr.gouv.vitam.workspace.rest.WorkspaceMain;
 import io.restassured.RestAssured;
 import net.javacrumbs.jsonunit.JsonAssert;
@@ -2354,7 +2355,7 @@ public class EndToEndEliminationAndTransferReplyIT extends VitamRuleRunner {
         }
 
         // Check SIP transfer is deleted after atr reception
-        WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance().getClient();
+        WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
         assertThatThrownBy(() ->
             workspaceClient.getObject(TRANSFER_CONTAINER, tenantId + "/" + transferReplyOperationId1))
             .isInstanceOf(ContentAddressableStorageNotFoundException.class);

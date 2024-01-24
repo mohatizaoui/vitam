@@ -82,6 +82,7 @@ import fr.gouv.vitam.worker.core.distribution.JsonLineGenericIterator;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 import org.apache.commons.collections4.IteratorUtils;
 import org.bson.Document;
 
@@ -274,7 +275,8 @@ public class VitamTestHelper {
         // init workflow before execution
         client.initWorkflow(workflow);
 
-        try (final WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance().getClient()) {
+        try (final WorkspaceClient workspaceClient =
+            WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient()) {
             InputStream sanityCheckStream = PropertiesUtils.getResourceAsStream(SANITY_CHECK_RESULT_FILE);
             workspaceClient.putObject(ingestOperationGuid.getId(), SANITY_CHECK_RESULT_FILE, sanityCheckStream);
         } catch (FileNotFoundException e) {
@@ -394,7 +396,8 @@ public class VitamTestHelper {
     }
 
     public static void insertWaitForStepEssentialFiles(String containerName) {
-        try (final WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance().getClient()) {
+        try (final WorkspaceClient workspaceClient =
+            WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient()) {
             InputStream sanityCheckStream = PropertiesUtils.getResourceAsStream(SANITY_CHECK_RESULT_FILE);
             workspaceClient.putObject(containerName, SANITY_CHECK_RESULT_FILE, sanityCheckStream);
 

@@ -110,6 +110,7 @@ import fr.gouv.vitam.worker.server.rest.WorkerMain;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 import fr.gouv.vitam.workspace.rest.WorkspaceMain;
 import net.javacrumbs.jsonunit.JsonAssert;
 import net.javacrumbs.jsonunit.core.Option;
@@ -249,7 +250,7 @@ public class MetadataManagementIT extends VitamRuleRunner {
             new Retrofit.Builder().client(okHttpClient).baseUrl(METADATA_URL)
                 .addConverterFactory(JacksonConverterFactory.create()).build();
         metadataManagementResource = retrofit.create(MetadataManagementResource.class);
-        workspaceClient = WorkspaceClientFactory.getInstance().getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
         storageClient = StorageClientFactory.getInstance().getClient();
 
         MongoDbAccess mongoDbAccess =

@@ -63,6 +63,7 @@ import fr.gouv.vitam.processing.management.rest.ProcessManagementMain;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 import fr.gouv.vitam.workspace.rest.WorkspaceMain;
 import org.assertj.core.api.Assertions;
 import org.junit.AfterClass;
@@ -182,7 +183,7 @@ public class MultiFamilyWorkerProcessingIT extends VitamRuleRunner {
         // Restart processing in order to remove override default ingest workflow
         runner.stopProcessManagementServer(false);
 
-        try (WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance().getClient()) {
+        try (WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient()) {
             workspaceClient.deleteContainer("process", true);
         } catch (Exception e) {
             LOGGER.error(e);
@@ -372,7 +373,7 @@ public class MultiFamilyWorkerProcessingIT extends VitamRuleRunner {
 
     private void simulateIngest(String containerName)
         throws ContentAddressableStorageServerException, BadRequestException, InternalServerException, IOException {
-        workspaceClient = WorkspaceClientFactory.getInstance().getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
         workspaceClient.createContainer(containerName);
         ProcessingManagementClientFactory.getInstance().getClient()
             .initVitamProcess(containerName, Contexts.DEFAULT_WORKFLOW.name());

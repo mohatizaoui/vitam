@@ -56,6 +56,7 @@ import fr.gouv.vitam.processing.data.core.management.WorkspaceProcessDataManagem
 import fr.gouv.vitam.processing.engine.api.ProcessEngine;
 import fr.gouv.vitam.processing.engine.core.operation.OperationContextMonitor;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.Map;
@@ -92,7 +93,7 @@ public class StateMachine implements IEventsState, IEventsProcessEngine {
 
     public StateMachine(ProcessWorkflow processWorkflow, ProcessEngine processEngine) {
         this(processWorkflow, processEngine, WorkspaceProcessDataManagement.getInstance(),
-            WorkspaceClientFactory.getInstance());
+            WorkspaceClientFactory.getInstance(WorkspaceType.VITAM));
     }
 
     @VisibleForTesting

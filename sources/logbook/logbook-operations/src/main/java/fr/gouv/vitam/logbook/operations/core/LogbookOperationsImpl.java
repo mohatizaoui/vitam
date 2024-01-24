@@ -82,6 +82,7 @@ import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageNotFoundEx
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.collections4.SetValuedMap;
@@ -121,7 +122,7 @@ public class LogbookOperationsImpl implements LogbookOperations {
 
     public LogbookOperationsImpl(LogbookDbAccess mongoDbAccess,
         ElasticsearchLogbookIndexManager indexManager) {
-        this(mongoDbAccess, WorkspaceClientFactory.getInstance(), StorageClientFactory.getInstance(),
+        this(mongoDbAccess, WorkspaceClientFactory.getInstance(WorkspaceType.VITAM), StorageClientFactory.getInstance(),
             IndexationHelper.getInstance(), indexManager);
     }
 

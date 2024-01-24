@@ -49,6 +49,7 @@ import fr.gouv.vitam.functional.administration.core.backup.FunctionalBackupServi
 import fr.gouv.vitam.functional.administration.core.profile.ProfileService;
 import fr.gouv.vitam.functional.administration.core.profile.ProfileServiceImpl;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import javax.ws.rs.ApplicationPath;
@@ -101,9 +102,9 @@ public class ProfileResource {
         VitamCounterService vitamCounterService, FunctionalBackupService functionalBackupService) {
         this.mongoAccess = mongoAccess;
         this.vitamCounterService = vitamCounterService;
-        this.workspaceClientFactory = WorkspaceClientFactory.getInstance();
+        this.workspaceClientFactory = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM);
         this.functionalBackupService = functionalBackupService;
-        WorkspaceClientFactory.changeMode(configuration.getWorkspaceUrl());
+        WorkspaceClientFactory.changeMode(configuration.getWorkspaceUrl(), WorkspaceType.VITAM);
         LOGGER.debug("init Admin Management Resource server");
     }
 

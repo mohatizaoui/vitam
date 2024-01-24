@@ -47,6 +47,7 @@ import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageNotFoundEx
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 
 import java.util.List;
 
@@ -63,7 +64,7 @@ public abstract class CommonReportService<T> {
     protected CommonReportService(ReportType reportType) {
         this(
             reportType, BatchReportClientFactory.getInstance(),
-            WorkspaceClientFactory.getInstance(),
+            WorkspaceClientFactory.getInstance(WorkspaceType.VITAM),
             StorageClientFactory.getInstance());
     }
 

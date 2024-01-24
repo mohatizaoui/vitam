@@ -56,6 +56,7 @@ import fr.gouv.vitam.storage.engine.common.referential.model.StorageStrategy;
 import fr.gouv.vitam.storage.engine.server.rest.StorageConfiguration;
 import fr.gouv.vitam.storage.engine.server.spi.DriverManager;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
@@ -82,7 +83,7 @@ public class StorageService {
     public StorageService(StorageConfiguration configuration) {
         ParametersChecker.checkParameter("Storage service configuration is mandatory", configuration);
         String urlWorkspace = configuration.getUrlWorkspace();
-        WorkspaceClientFactory.changeMode(urlWorkspace);
+        WorkspaceClientFactory.changeMode(urlWorkspace, WorkspaceType.VITAM);
     }
 
     private static StorageOffer getStorageOffer(OfferReference offerReference) {

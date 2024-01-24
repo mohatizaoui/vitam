@@ -44,6 +44,7 @@ import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerExce
 import fr.gouv.vitam.workspace.api.model.TimeToLive;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 
 import java.time.temporal.ChronoUnit;
 import java.util.Iterator;
@@ -62,7 +63,8 @@ public class ExportsPurgeService {
     private final TimeToLiveConfiguration timeToLiveConfiguration;
 
     public ExportsPurgeService(TimeToLiveConfiguration timeToLiveConfiguration) {
-        this(WorkspaceClientFactory.getInstance(), StorageClientFactory.getInstance(), timeToLiveConfiguration);
+        this(WorkspaceClientFactory.getInstance(WorkspaceType.VITAM),
+            StorageClientFactory.getInstance(), timeToLiveConfiguration);
     }
 
     @VisibleForTesting

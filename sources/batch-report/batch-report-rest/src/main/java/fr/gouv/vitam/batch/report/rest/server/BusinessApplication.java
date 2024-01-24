@@ -50,6 +50,7 @@ import fr.gouv.vitam.common.server.HeaderIdContainerFilter;
 import fr.gouv.vitam.common.serverv2.ConfigurationApplication;
 import fr.gouv.vitam.common.serverv2.application.CommonBusinessApplication;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 
 import javax.servlet.ServletConfig;
 import javax.ws.rs.core.Context;
@@ -92,8 +93,8 @@ public class BusinessApplication extends ConfigurationApplication {
             UnitComputedInheritedRulesInvalidationRepository
                 unitComputedInheritedRulesInvalidationRepository =
                 new UnitComputedInheritedRulesInvalidationRepository(mongoDbAccess);
-            WorkspaceClientFactory.changeMode(configuration.getWorkspaceUrl());
-            WorkspaceClientFactory workspaceClientFactory = WorkspaceClientFactory.getInstance();
+            WorkspaceClientFactory.changeMode(configuration.getWorkspaceUrl(), WorkspaceType.VITAM);
+            WorkspaceClientFactory workspaceClientFactory = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM);
             UpdateUnitReportRepository updateUnitReportRepository = new UpdateUnitReportRepository(mongoDbAccess);
             BulkUpdateUnitMetadataReportRepository bulkUpdateUnitMetadataReportRepository =
                 new BulkUpdateUnitMetadataReportRepository(mongoDbAccess);

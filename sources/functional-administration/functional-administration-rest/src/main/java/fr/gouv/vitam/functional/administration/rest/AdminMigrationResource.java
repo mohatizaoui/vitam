@@ -81,6 +81,7 @@ import fr.gouv.vitam.processing.management.client.ProcessingManagementClientFact
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang.StringUtils;
 
@@ -127,7 +128,7 @@ public class AdminMigrationResource {
     AdminMigrationResource(AdminManagementConfiguration configuration, OntologyLoader ontologyLoader,
         ElasticsearchFunctionalAdminIndexManager indexManager) {
         this(LogbookOperationsClientFactory.getInstance(), ProcessingManagementClientFactory.getInstance(),
-            WorkspaceClientFactory.getInstance(), configuration, ontologyLoader, indexManager);
+            WorkspaceClientFactory.getInstance(WorkspaceType.VITAM), configuration, ontologyLoader, indexManager);
     }
 
     /**

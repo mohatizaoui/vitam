@@ -85,6 +85,7 @@ import fr.gouv.vitam.processing.management.client.ProcessingManagementClientFact
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import javax.ws.rs.Consumes;
@@ -155,10 +156,11 @@ public class MetadataManagementResource {
         ElasticsearchMetadataIndexManager indexManager) {
         this(
             GraphComputeServiceImpl.initialize(vitamRepositoryProvider, metadata, indexManager),
-            new ReclassificationDistributionService(metadata),
+            new ReclassificationDistributionService(metadata, configuration),
             ProcessingManagementClientFactory.getInstance(),
             LogbookOperationsClientFactory.getInstance(),
-            WorkspaceClientFactory.getInstance(),
+            WorkspaceClientFactory.getInstance(
+                configuration.getCollectModule() ? WorkspaceType.COLLECT : WorkspaceType.VITAM),
             configuration,
             new ExportsPurgeService(configuration.getTimeToLiveConfiguration()));
     }

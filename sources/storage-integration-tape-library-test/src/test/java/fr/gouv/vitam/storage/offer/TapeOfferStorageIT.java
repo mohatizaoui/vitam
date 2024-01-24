@@ -118,6 +118,7 @@ import fr.gouv.vitam.worker.core.distribution.JsonLineGenericIterator;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 import fr.gouv.vitam.workspace.rest.WorkspaceMain;
 import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
@@ -310,7 +311,7 @@ public class TapeOfferStorageIT {
         VitamThreadUtils.getVitamSession().setRequestId(GUIDFactory.newGUID());
         tapeLibrarySimulatorRule.getTapeLibrarySimulator().setSleepDelayMillis(10);
 
-        workspaceClient = WorkspaceClientFactory.getInstance().getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
         storageClient = StorageClientFactory.getInstance().getClient();
 
         objectReferentialRepository = new ObjectReferentialRepository(
@@ -345,7 +346,7 @@ public class TapeOfferStorageIT {
         workspaceMain.start();
         SystemPropertyUtil.clear(WorkspaceMain.PARAMETER_JETTY_SERVER_PORT);
         SystemPropertyUtil.clear("vitam.conf.folder");
-        WorkspaceClientFactory.changeMode(WORKSPACE_URL);
+        WorkspaceClientFactory.changeMode(WORKSPACE_URL, WorkspaceType.VITAM);
     }
 
     private static void shutdownWorkspace() throws VitamApplicationServerException {

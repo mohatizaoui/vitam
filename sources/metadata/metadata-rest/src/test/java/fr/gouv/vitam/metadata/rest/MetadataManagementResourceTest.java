@@ -43,6 +43,7 @@ import fr.gouv.vitam.metadata.core.graph.api.GraphComputeService;
 import fr.gouv.vitam.processing.management.client.ProcessingManagementClientFactory;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -85,13 +86,14 @@ public class MetadataManagementResourceTest {
         MetaDataConfiguration configuration = new MetaDataConfiguration();
         configuration.setUrlProcessing("http://processing.service.consul:8203/");
         configuration.setContextPath("/metadata");
+        configuration.setCollectModule(false);
         exportsPurgeService = mock(ExportsPurgeService.class);
         metadataManagementResource =
             new MetadataManagementResource(graphBuilderService,
                 reclassificationDistributionService,
                 ProcessingManagementClientFactory.getInstance(),
                 LogbookOperationsClientFactory.getInstance(),
-                WorkspaceClientFactory.getInstance(),
+                WorkspaceClientFactory.getInstance(WorkspaceType.VITAM),
                 configuration, exportsPurgeService);
         VitamConfiguration.setTenants(Arrays.asList(0, 1, 2));
     }

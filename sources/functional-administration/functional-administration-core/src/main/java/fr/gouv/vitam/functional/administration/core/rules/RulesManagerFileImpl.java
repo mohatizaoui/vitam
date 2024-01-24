@@ -119,6 +119,7 @@ import fr.gouv.vitam.storage.engine.common.model.DataCategory;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 import org.apache.commons.compress.utils.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.util.CollectionUtils;
@@ -203,7 +204,7 @@ public class RulesManagerFileImpl implements ReferentialFile<FileRules> {
         this.mongoAccess = dbConfiguration;
         this.vitamCounterService = vitamCounterService;
         metaDataClientFactory = MetaDataClientFactory.getInstance();
-        workspaceClientFactory = WorkspaceClientFactory.getInstance();
+        workspaceClientFactory = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM);
         processingManagementClientFactory = ProcessingManagementClientFactory.getInstance();
         this.vitamRuleService = vitamRuleService;
         this.logbookRuleImportManager = new LogbookRuleImportManager(LogbookOperationsClientFactory.getInstance());

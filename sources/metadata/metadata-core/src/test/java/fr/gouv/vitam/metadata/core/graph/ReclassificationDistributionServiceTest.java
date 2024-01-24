@@ -100,7 +100,6 @@ public class ReclassificationDistributionServiceTest {
     @Mock
     private MetaDataImpl metaData;
 
-    @InjectMocks
     ReclassificationDistributionService instance;
 
     private String operationId;
@@ -108,6 +107,7 @@ public class ReclassificationDistributionServiceTest {
     @Before
     public void init() throws Exception {
         doReturn(workspaceClient).when(workspaceClientFactory).getClient();
+        instance = new ReclassificationDistributionService(workspaceClientFactory, metaData);
 
         int tenant = 0;
         VitamThreadUtils.getVitamSession().setTenantId(tenant);

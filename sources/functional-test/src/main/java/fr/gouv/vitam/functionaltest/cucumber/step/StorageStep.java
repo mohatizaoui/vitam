@@ -55,6 +55,7 @@ import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageNotFoundEx
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 
 import javax.ws.rs.core.Response;
 import java.io.FileNotFoundException;
@@ -266,7 +267,7 @@ public class StorageStep extends CommonStep {
         ContentAddressableStorageServerException, ContentAddressableStorageAlreadyExistException,
         ContentAddressableStorageNotFoundException, IOException {
         try (InputStream inputStream = Files.newInputStream(sip, StandardOpenOption.READ)) {
-            WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance().getClient();
+            WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
             workspaceClient.createContainer(guid);
             workspaceClient.putObject(guid, uri, inputStream);
             final ObjectDescription description = new ObjectDescription();

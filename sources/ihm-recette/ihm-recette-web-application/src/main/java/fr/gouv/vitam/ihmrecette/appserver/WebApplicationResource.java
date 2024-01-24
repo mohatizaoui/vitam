@@ -101,6 +101,7 @@ import fr.gouv.vitam.storage.engine.common.exception.StorageTechnicalException;
 import fr.gouv.vitam.storage.engine.common.model.DataCategory;
 import fr.gouv.vitam.storage.engine.common.referential.model.StorageStrategy;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
@@ -205,7 +206,7 @@ public class WebApplicationResource extends ApplicationStatusResource {
         this.functionalAdminAdmin = webApplicationConfigonfig.getFunctionalAdminAdmin();
         LOGGER.debug("init Admin Management Resource server");
 
-        WorkspaceClientFactory.changeMode(webApplicationConfigonfig.getWorkspaceUrl());
+        WorkspaceClientFactory.changeMode(webApplicationConfigonfig.getWorkspaceUrl(), WorkspaceType.VITAM);
     }
 
     /**

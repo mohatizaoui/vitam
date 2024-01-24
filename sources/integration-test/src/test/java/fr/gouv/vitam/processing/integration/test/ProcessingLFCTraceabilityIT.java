@@ -89,6 +89,7 @@ import fr.gouv.vitam.storage.offers.rest.DefaultOfferMain;
 import fr.gouv.vitam.worker.server.rest.WorkerMain;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 import fr.gouv.vitam.workspace.rest.WorkspaceMain;
 import io.restassured.RestAssured;
 import org.junit.After;
@@ -184,7 +185,7 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
 
     @Before
     public void before() {
-        workspaceClient = WorkspaceClientFactory.getInstance().getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
         processingClient = ProcessingManagementClientFactory.getInstance().getClient();
     }
 

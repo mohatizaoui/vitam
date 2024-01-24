@@ -46,12 +46,14 @@ import fr.gouv.vitam.metadata.api.exception.MetaDataDocumentSizeException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataExecutionException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataNotFoundException;
 import fr.gouv.vitam.metadata.core.MetaDataImpl;
+import fr.gouv.vitam.metadata.core.config.MetaDataConfiguration;
 import fr.gouv.vitam.metadata.core.model.MetadataResult;
 import fr.gouv.vitam.worker.core.distribution.JsonLineModel;
 import fr.gouv.vitam.worker.core.distribution.JsonLineWriter;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -73,8 +75,9 @@ public class ReclassificationDistributionService {
     private final WorkspaceClientFactory workspaceClientFactory;
     private final MetaDataImpl metaData;
 
-    public ReclassificationDistributionService(MetaDataImpl metaData) {
-        this(WorkspaceClientFactory.getInstance(),
+    public ReclassificationDistributionService(MetaDataImpl metaData, MetaDataConfiguration configuration) {
+        this(WorkspaceClientFactory.getInstance(
+            configuration.getCollectModule() ? WorkspaceType.COLLECT : WorkspaceType.VITAM),
             metaData);
     }
 

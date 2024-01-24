@@ -41,6 +41,7 @@ import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClientFactory;
 import fr.gouv.vitam.processing.management.client.ProcessingManagementClientFactory;
 import fr.gouv.vitam.storage.engine.client.StorageClientFactory;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -82,12 +83,12 @@ public class IngestInternalMain {
             try (final InputStream yamlIS = PropertiesUtils.getConfigAsStream(args[0])) {
                 final IngestInternalConfiguration configuration =
                     PropertiesUtils.readYaml(yamlIS, IngestInternalConfiguration.class);
-                WorkspaceClientFactory.changeMode(configuration.getWorkspaceUrl());
+                WorkspaceClientFactory.changeMode(configuration.getWorkspaceUrl(), WorkspaceType.VITAM);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
             // Register Workspace
-            serviceRegistry.register(WorkspaceClientFactory.getInstance())
+            serviceRegistry.register(WorkspaceClientFactory.getInstance(WorkspaceType.VITAM))
                 // Register Logbook for Operation
                 .register(LogbookOperationsClientFactory.getInstance())
                 // Register Storage (ATR access)

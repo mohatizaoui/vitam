@@ -73,6 +73,7 @@ import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageException;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 import fr.gouv.vitam.workspace.rest.WorkspaceMain;
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.ArchiveException;
@@ -159,7 +160,7 @@ public class ProperlyStopStartProcessingIT extends VitamRuleRunner {
         ProcessingManagementClientFactory.getInstance().getClient()
             .unregisterWorker("DefaultWorker", String.valueOf(ServerIdentity.getInstance().getGlobalPlatformId()));
 
-        try (WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance().getClient()) {
+        try (WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient()) {
             workspaceClient.deleteContainer("process", true);
         } catch (Exception e) {
             LOGGER.error(e);
@@ -424,7 +425,7 @@ public class ProperlyStopStartProcessingIT extends VitamRuleRunner {
         final String operationId = "aeeaaaaaacbfmfhuaa64malrmquyediaaaaq";
         VitamThreadUtils.getVitamSession().setRequestId(operationId);
 
-        workspaceClient = WorkspaceClientFactory.getInstance().getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
         workspaceClient.createContainer(operationId);
 
         String vitamDataFolder = VitamConfiguration.getVitamDataFolder();
@@ -485,7 +486,7 @@ public class ProperlyStopStartProcessingIT extends VitamRuleRunner {
         final String operationId = "aeeaaaaaacbfmfhuaa64malrmquyediaaaaq";
         VitamThreadUtils.getVitamSession().setRequestId(operationId);
 
-        workspaceClient = WorkspaceClientFactory.getInstance().getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
         workspaceClient.createContainer(operationId);
 
         String vitamDataFolder = VitamConfiguration.getVitamDataFolder();
@@ -547,7 +548,7 @@ public class ProperlyStopStartProcessingIT extends VitamRuleRunner {
         final String operationId = "aeeaaaaaacbfmfhuaa64malrmquyediaaaaq";
         VitamThreadUtils.getVitamSession().setRequestId(operationId);
 
-        workspaceClient = WorkspaceClientFactory.getInstance().getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
         workspaceClient.createContainer(operationId);
 
         String vitamDataFolder = VitamConfiguration.getVitamDataFolder();
@@ -586,7 +587,7 @@ public class ProperlyStopStartProcessingIT extends VitamRuleRunner {
         final String operationId = "aeeaaaaaacbfmfhuaa64malrmquyediaaaaq";
         VitamThreadUtils.getVitamSession().setRequestId(operationId);
 
-        workspaceClient = WorkspaceClientFactory.getInstance().getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
         workspaceClient.createContainer(operationId);
 
         String vitamDataFolder = VitamConfiguration.getVitamDataFolder();
@@ -644,7 +645,7 @@ public class ProperlyStopStartProcessingIT extends VitamRuleRunner {
         final String operationId = "aecaaaaaa6haol6vaacfyalrvlc4qbiaaaaq";
         VitamThreadUtils.getVitamSession().setRequestId(operationId);
 
-        workspaceClient = WorkspaceClientFactory.getInstance().getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
         workspaceClient.createContainer(operationId);
 
         String vitamDataFolder = VitamConfiguration.getVitamDataFolder();
@@ -706,7 +707,7 @@ public class ProperlyStopStartProcessingIT extends VitamRuleRunner {
         final String operationId = "aecaaaaaaghaol6vaacfyalrvlc4elaaaaaq";
         VitamThreadUtils.getVitamSession().setRequestId(operationId);
 
-        workspaceClient = WorkspaceClientFactory.getInstance().getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
         workspaceClient.createContainer(operationId);
 
         String vitamDataFolder = VitamConfiguration.getVitamDataFolder();
@@ -801,7 +802,7 @@ public class ProperlyStopStartProcessingIT extends VitamRuleRunner {
 
     private void simulateIngest(String containerName)
         throws ContentAddressableStorageServerException, BadRequestException, InternalServerException, IOException {
-        workspaceClient = WorkspaceClientFactory.getInstance().getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
         workspaceClient.createContainer(containerName);
         ProcessingManagementClientFactory.getInstance().getClient()
             .initVitamProcess(containerName, Contexts.DEFAULT_WORKFLOW.name());

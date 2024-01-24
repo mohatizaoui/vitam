@@ -41,6 +41,7 @@ import fr.gouv.vitam.storage.engine.server.rest.StorageMain;
 import fr.gouv.vitam.storage.offers.rest.DefaultOfferMain;
 import fr.gouv.vitam.storage.offers.rest.OfferConfiguration;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 import fr.gouv.vitam.workspace.rest.WorkspaceMain;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -99,7 +100,7 @@ class SetupStorageAndOffers {
         workspaceMain = new WorkspaceMain(workspaceConfigFile.getAbsolutePath());
         workspaceMain.start();
         SystemPropertyUtil.clear(WorkspaceMain.PARAMETER_JETTY_SERVER_PORT);
-        WorkspaceClientFactory.changeMode(WORKSPACE_URL);
+        WorkspaceClientFactory.changeMode(WORKSPACE_URL, WorkspaceType.VITAM);
 
         // First  offer
         // Sorry Hack

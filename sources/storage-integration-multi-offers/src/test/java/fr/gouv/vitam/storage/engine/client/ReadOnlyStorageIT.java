@@ -68,6 +68,7 @@ import fr.gouv.vitam.storage.engine.server.spi.DriverManager;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageNotFoundException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -164,7 +165,7 @@ public class ReadOnlyStorageIT {
         setupStorageAndOffers.cleanOffers();
         mongoRuleOffer1.handleAfter();
         mongoRuleOffer2.handleAfter();
-        try (WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance().getClient()) {
+        try (WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient()) {
             workspaceClient.deleteContainer(CONTAINER_NAME, true);
         } catch (ContentAddressableStorageNotFoundException e) {
             // NOP
@@ -318,7 +319,7 @@ public class ReadOnlyStorageIT {
     public void testStoreFileFromWorkspace() throws Exception {
 
         // Given
-        try (WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance().getClient()) {
+        try (WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient()) {
             workspaceClient.createContainer(CONTAINER_NAME);
             workspaceClient.putObject(CONTAINER_NAME, OBJ_1,
                 new ByteArrayInputStream("data1".getBytes(StandardCharsets.UTF_8)));
@@ -344,7 +345,7 @@ public class ReadOnlyStorageIT {
     public void testCreate() throws Exception {
 
         // Given
-        try (WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance().getClient()) {
+        try (WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient()) {
             workspaceClient.createContainer(CONTAINER_NAME);
             workspaceClient.putObject(CONTAINER_NAME, OBJ_1,
                 new ByteArrayInputStream("data1".getBytes(StandardCharsets.UTF_8)));
@@ -367,7 +368,7 @@ public class ReadOnlyStorageIT {
     @Test
     public void testBulkStoreFilesFromWorkspace() throws Exception {
         // Given
-        try (WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance().getClient()) {
+        try (WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient()) {
             workspaceClient.createContainer(CONTAINER_NAME);
             workspaceClient.putObject(CONTAINER_NAME, OBJ_1,
                 new ByteArrayInputStream("data1".getBytes(StandardCharsets.UTF_8)));

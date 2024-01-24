@@ -41,6 +41,7 @@ import fr.gouv.vitam.metadata.core.mapping.MappingLoader;
 import fr.gouv.vitam.security.internal.filter.AdminRequestIdFilter;
 import fr.gouv.vitam.security.internal.filter.BasicAuthenticationFilter;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 
 import javax.servlet.ServletConfig;
 import javax.ws.rs.core.Application;
@@ -89,10 +90,8 @@ public class AdminMetadataApplication extends Application {
             MongoDbAccessMetadataImpl mongoDbAccessMetadata =
                 MongoDbAccessMetadataFactory.create(metaDataConfiguration, indexManager);
 
-            // TODO: Ugly fix as we have to change all unit test
-            if (null != metaDataConfiguration.getWorkspaceUrl() && !metaDataConfiguration.getWorkspaceUrl().isEmpty()) {
-                WorkspaceClientFactory.changeMode(metaDataConfiguration.getWorkspaceUrl());
-            }
+            WorkspaceClientFactory.changeMode(metaDataConfiguration.getWorkspaceUrl(),
+                metaDataConfiguration.getCollectModule() ? WorkspaceType.COLLECT : WorkspaceType.VITAM);
 
             VitamRepositoryFactory vitamRepositoryProvider = VitamRepositoryFactory.get();
 

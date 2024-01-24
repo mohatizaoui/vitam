@@ -98,6 +98,7 @@ import fr.gouv.vitam.storage.engine.server.storagelog.StorageLogFactory;
 import fr.gouv.vitam.storage.engine.server.storagetraceability.StorageTraceabilityAdministration;
 import fr.gouv.vitam.storage.engine.server.storagetraceability.TraceabilityStorageService;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.output.CloseShieldOutputStream;
@@ -169,7 +170,7 @@ public class StorageResource extends ApplicationStatusResource implements VitamA
             distribution = StorageDistributionFactory.createStorageDistribution(
                 configuration, storageLogService, new AlertServiceImpl());
 
-            WorkspaceClientFactory.changeMode(configuration.getUrlWorkspace());
+            WorkspaceClientFactory.changeMode(configuration.getUrlWorkspace(), WorkspaceType.VITAM);
             storageLogAdministration =
                 new StorageLogAdministration(storageLogService, distribution, configuration);
 

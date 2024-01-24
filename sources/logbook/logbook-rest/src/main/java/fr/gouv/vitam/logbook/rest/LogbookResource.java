@@ -112,6 +112,7 @@ import fr.gouv.vitam.logbook.operations.core.LogbookOperationsImpl;
 import fr.gouv.vitam.processing.management.client.ProcessingManagementClientFactory;
 import fr.gouv.vitam.worker.core.distribution.JsonLineWriter;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.SetUtils;
@@ -206,8 +207,8 @@ public class LogbookResource extends ApplicationStatusResource {
             throw new RuntimeException(e);
         }
         final TimestampGenerator timestampGenerator = new TimestampGenerator(timeStampSignature);
-        final WorkspaceClientFactory clientFactory = WorkspaceClientFactory.getInstance();
-        WorkspaceClientFactory.changeMode(configuration.getWorkspaceUrl());
+        final WorkspaceClientFactory clientFactory = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM);
+        WorkspaceClientFactory.changeMode(configuration.getWorkspaceUrl(), WorkspaceType.VITAM);
 
         logbookAdministration = new LogbookAdministration(logbookOperation, timestampGenerator,
             configuration.getOperationTraceabilityTemporizationDelay(),
