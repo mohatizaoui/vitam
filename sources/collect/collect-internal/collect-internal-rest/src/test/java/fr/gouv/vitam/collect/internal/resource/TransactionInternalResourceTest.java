@@ -490,7 +490,7 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
     @Test
     public void generateAndSendSip_ko_not_ready_error() throws Exception {
         when(transactionService.findTransaction("1")).thenReturn(Optional.of(new TransactionModel()));
-        when(transactionService.checkStatus(any(TransactionModel.class), eq(TransactionStatus.READY))).thenReturn(
+        when(transactionService.findOneAndReplace(eq(TransactionStatus.READY), any(TransactionModel.class))).thenReturn(
             false);
         given()
             .contentType(CommonMediaType.APPLICATION_OCTET_STREAM_TYPE.getType())
@@ -504,7 +504,7 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
     @Test
     public void generateAndSendSip_ko_digest_i_null() throws Exception {
         when(transactionService.findTransaction("1")).thenReturn(Optional.of(new TransactionModel()));
-        when(transactionService.checkStatus(any(TransactionModel.class), eq(TransactionStatus.READY))).thenReturn(true);
+        when(transactionService.findOneAndReplace(eq(TransactionStatus.READY), any(TransactionModel.class))).thenReturn(true);
         doNothing().when(transactionService).isTransactionContentEmpty(any());
         when(sipService.generateSip(any())).thenReturn(null);
         given()

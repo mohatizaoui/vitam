@@ -59,6 +59,7 @@ import fr.gouv.vitam.common.database.builder.request.multiple.SelectMultiQuery;
 import fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchIndexAlias;
 import fr.gouv.vitam.common.elasticsearch.ElasticsearchRule;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
+import fr.gouv.vitam.common.exception.VitamApplicationServerException;
 import fr.gouv.vitam.common.exception.VitamClientException;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.ItemStatus;
@@ -86,8 +87,8 @@ import fr.gouv.vitam.storage.offers.rest.DefaultOfferMain;
 import fr.gouv.vitam.worker.server.rest.WorkerMain;
 import fr.gouv.vitam.workspace.rest.WorkspaceMain;
 import org.assertj.core.api.Assertions;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -113,8 +114,6 @@ public class CollectIngestIT extends VitamRuleRunner {
 
     private static String prefix;
 
-
-
     @ClassRule public static VitamServerRunner runner =
         new VitamServerRunner(CollectIngestIT.class, mongoRule.getMongoDatabase().getName(),
             ElasticsearchRule.getClusterName(),
@@ -128,8 +127,8 @@ public class CollectIngestIT extends VitamRuleRunner {
 
     private final VitamContext vitamContext = new VitamContext(TENANT_ID);
 
-    @BeforeClass
-    public static void setUpBeforeClass() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         prefix = MetadataCollections.UNIT.getPrefix();
         runner.startMetadataCollectServer();
         runner.startWorkspaceCollectServer();
@@ -137,8 +136,8 @@ public class CollectIngestIT extends VitamRuleRunner {
         new DataLoader("integration-ingest-internal").prepareData();
     }
 
-    @AfterClass
-    public static void tearDownAfterClass() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         MetadataCollections.UNIT.setPrefix(prefix);
         runner.stopMetadataCollectServer(false);
         runner.stopWorkspaceCollectServer();
@@ -241,13 +240,11 @@ public class CollectIngestIT extends VitamRuleRunner {
 
             assertEquals(6, ((RequestResponseOK<JsonNode>) results).getResults().size());
 
-
             opi = ((RequestResponseOK<JsonNode>) results).getResults().get(0).get(VitamFieldsHelper.initialOperation())
                 .toString();
         }
 
         try (AdminExternalClient adminExternalClient = AdminExternalClientFactory.getInstance().getClient()) {
-
             final String query =
                 "{\n" + "  \"$query\":\n" + "    {\n" + "      \"$eq\": {\n" + "        \"Opi\": " + opi + "\n" +
                     "      }\n" + "    },\n" + "  \"$projection\": {},\n" + "  \"$filter\":{}\n" + "}";
@@ -264,9 +261,7 @@ public class CollectIngestIT extends VitamRuleRunner {
                 .isEqualTo("Versement du service producteur : Cabinet de Michel Mercier");
             Assertions.assertThat(accessionRegisterDetail.getAcquisitionInformation())
                 .isEqualTo("AcquisitionInformation");
-
         }
-
 
         //// Cette requette permet de récupérer des unités par transaction avec l'opi de vitam core
         // du coup le nombre des résultats obtenus doit être zéro.
@@ -274,20 +269,56 @@ public class CollectIngestIT extends VitamRuleRunner {
         runner.startMetadataCollectServer();
 
         try (CollectExternalClient collectClient = CollectExternalClientFactory.getInstance().getClient()) {
-
             final RequestResponseOK<JsonNode> unitsByTransaction =
                 (RequestResponseOK<JsonNode>) collectClient.getUnitsByTransaction(vitamContext,
                     processId, new SelectMultiQuery().getFinalSelect());
 
             assertEquals(0, unitsByTransaction.getResults().size());
-
         }
-
-
-
     }
 
-    public String retryAndWaitOperation(String transactionId, TransactionStatus transactionStatus)
+    @Test
+    @RunWithCustomExecutor
+    public void shouldAutomaticallySendTransaction()
+        throws InvalidParseOperationException, VitamClientException, IOException,
+        InterruptedException, VitamApplicationServerException {
+
+        runner.startMetadataCollectServer();
+
+        IngestExternalClientFactory.getInstance()
+            .setVitamClientType((VitamClientFactoryInterface.VitamClientType.MOCK));
+
+        try (CollectExternalClient collectClient = CollectExternalClientFactory.getInstance().getClient()) {
+            ProjectDto projectDto = initProjectData();
+            projectDto.setAutomaticIngest(true);
+
+            final RequestResponse<JsonNode> projectResponse = collectClient.initProject(vitamContext, projectDto);
+            Assertions.assertThat(projectResponse.getStatus()).isEqualTo(200);
+
+            ProjectDto projectDtoResult =
+                JsonHandler.getFromJsonNode(((RequestResponseOK<JsonNode>) projectResponse).getFirstResult(),
+                    ProjectDto.class);
+
+            final TransactionDto transactiondto = initTransaction();
+
+            final RequestResponse<JsonNode> transactionResponse =
+                collectClient.initTransaction(vitamContext, transactiondto, projectDtoResult.getId());
+            Assertions.assertThat(transactionResponse.getStatus()).isEqualTo(200);
+
+            final String idTransaction =
+                JsonHandler.getFromJsonNode(((RequestResponseOK<JsonNode>) transactionResponse).getFirstResult(),
+                    TransactionDto.class).getId();
+            try (InputStream inputStream = PropertiesUtils.getResourceAsStream("collect/arbo_to_ingest.zip")) {
+                RequestResponse<JsonNode> response =
+                    collectClient.uploadZipToTransaction(vitamContext, idTransaction, inputStream);
+                Assertions.assertThat(response.getStatus()).isEqualTo(200);
+            }
+            collectClient.closeTransaction(vitamContext, idTransaction);
+            retryAndWaitOperation(idTransaction, TransactionStatus.SENT);
+        }
+    }
+
+    private void retryAndWaitOperation(String transactionId, TransactionStatus transactionStatus)
         throws InterruptedException, VitamClientException, InvalidParseOperationException {
         int maxRetries = 3;
         long waitTime = TimeUnit.SECONDS.toMillis(5);
@@ -302,7 +333,7 @@ public class CollectIngestIT extends VitamRuleRunner {
 
             // Vérifiez si le statut souhaité est atteint
             if (currentStatus.equals(transactionStatus.toString())) {
-                return currentStatus;
+                return;
             }
 
             // Attendez avant la prochaine tentative
@@ -319,10 +350,8 @@ public class CollectIngestIT extends VitamRuleRunner {
         throws VitamClientException, InvalidParseOperationException {
 
         try (CollectInternalClient client = CollectInternalClientFactory.getInstance().getClient()) {
-
             VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
             RequestResponse<JsonNode> transactionResponse = client.getTransactionById(transactionId);
-
 
             RequestResponseOK<JsonNode> requestResponseOK = (RequestResponseOK<JsonNode>) transactionResponse;
             TransactionDto transactionDtoResult =
@@ -331,53 +360,4 @@ public class CollectIngestIT extends VitamRuleRunner {
 
         }
     }
-
-
-
-    @Test
-    @RunWithCustomExecutor
-    public void shouldAutomaticallySendTransaction() throws InvalidParseOperationException, VitamClientException, IOException,
-        InterruptedException {
-
-        String idTransaction;
-
-
-        IngestExternalClientFactory.getInstance()
-            .setVitamClientType((VitamClientFactoryInterface.VitamClientType.MOCK));
-
-
-
-        try (CollectExternalClient collectClient = CollectExternalClientFactory.getInstance().getClient()) {
-            ProjectDto projectDto = initProjectData();
-            projectDto.setAutomaticIngest(true);
-
-            final RequestResponse<JsonNode> projectResponse = collectClient.initProject(vitamContext, projectDto);
-            Assertions.assertThat(projectResponse.getStatus()).isEqualTo(200);
-
-            ProjectDto projectDtoResult =
-                JsonHandler.getFromJsonNode(((RequestResponseOK<JsonNode>) projectResponse).getFirstResult(),
-                    ProjectDto.class);
-
-            TransactionDto transactiondto = initTransaction();
-
-            RequestResponse<JsonNode> transactionResponse =
-                collectClient.initTransaction(vitamContext, transactiondto, projectDtoResult.getId());
-            Assertions.assertThat(transactionResponse.getStatus()).isEqualTo(200);
-
-            RequestResponseOK<JsonNode> requestResponseOK = (RequestResponseOK<JsonNode>) transactionResponse;
-            TransactionDto transactionDtoResult =
-                JsonHandler.getFromJsonNode(requestResponseOK.getFirstResult(), TransactionDto.class);
-            idTransaction = transactionDtoResult.getId();
-            try (InputStream inputStream = PropertiesUtils.getResourceAsStream("collect/arbo_to_ingest.zip")) {
-                RequestResponse<JsonNode> response =
-                    collectClient.uploadZipToTransaction(vitamContext, transactionDtoResult.getId(), inputStream);
-                Assertions.assertThat(response.getStatus()).isEqualTo(200);
-            }
-            collectClient.closeTransaction(vitamContext, transactionDtoResult.getId());
-            retryAndWaitOperation(idTransaction, TransactionStatus.SENT);
-        }
-    }
-
-
-
 }

@@ -88,6 +88,7 @@ public class TransactionInternalResource {
     public static final String SIP_GENERATED_MANIFEST_CAN_T_BE_NULL = "SIP generated manifest can't be null";
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(TransactionInternalResource.class);
     private static final String TRANSACTION_NOT_FOUND = "Unable to find transaction Id";
+    private static final String TRANSACTION_NOT_FOUND_OR_INVALID_STATUS = "Unable to find transaction Id or invalid status";
     private static final String STATUS_NOT_ALLOWED = "Invalid status";
     private static final String PROJECT_NOT_FOUND = "Unable to find project Id or invalid status";
 
@@ -135,8 +136,8 @@ public class TransactionInternalResource {
             Optional<TransactionModel> transactionModel = transactionService.findTransaction(transactionId);
 
             if (transactionModel.isEmpty()) {
-                LOGGER.error(TRANSACTION_NOT_FOUND);
-                return CollectRequestResponse.toVitamError(BAD_REQUEST, TRANSACTION_NOT_FOUND);
+                LOGGER.error(TRANSACTION_NOT_FOUND_OR_INVALID_STATUS);
+                return CollectRequestResponse.toVitamError(BAD_REQUEST, TRANSACTION_NOT_FOUND_OR_INVALID_STATUS);
             }
 
             TransactionDto transactionDto =
@@ -162,8 +163,8 @@ public class TransactionInternalResource {
             SanityChecker.checkJsonAll(JsonHandler.toJsonNode(transactionDto));
             Optional<TransactionModel> transactionModel = transactionService.findTransaction(transactionDto.getId());
             if (transactionModel.isEmpty()) {
-                LOGGER.error(TRANSACTION_NOT_FOUND);
-                return CollectRequestResponse.toVitamError(NOT_FOUND, TRANSACTION_NOT_FOUND);
+                LOGGER.error(TRANSACTION_NOT_FOUND_OR_INVALID_STATUS);
+                return CollectRequestResponse.toVitamError(NOT_FOUND, TRANSACTION_NOT_FOUND_OR_INVALID_STATUS);
             }
 
             // TODO : Move setting internal Fields to the service
@@ -195,8 +196,8 @@ public class TransactionInternalResource {
             Optional<TransactionModel> transactionModel = transactionService.findTransaction(transactionId);
 
             if (transactionModel.isEmpty()) {
-                LOGGER.error(TRANSACTION_NOT_FOUND);
-                return CollectRequestResponse.toVitamError(BAD_REQUEST, TRANSACTION_NOT_FOUND);
+                LOGGER.error(TRANSACTION_NOT_FOUND_OR_INVALID_STATUS);
+                return CollectRequestResponse.toVitamError(BAD_REQUEST, TRANSACTION_NOT_FOUND_OR_INVALID_STATUS);
             }
 
             transactionService.deleteTransaction(transactionModel.get().getId());
@@ -224,8 +225,8 @@ public class TransactionInternalResource {
 
             if (transactionModel.isEmpty() ||
                 !transactionService.checkStatus(transactionModel.get(), TransactionStatus.OPEN)) {
-                LOGGER.error(TRANSACTION_NOT_FOUND);
-                return CollectRequestResponse.toVitamError(BAD_REQUEST, TRANSACTION_NOT_FOUND);
+                LOGGER.error(TRANSACTION_NOT_FOUND_OR_INVALID_STATUS);
+                return CollectRequestResponse.toVitamError(BAD_REQUEST, TRANSACTION_NOT_FOUND_OR_INVALID_STATUS);
             }
 
             JsonNode savedUnitJsonNode = metadataService.saveArchiveUnit(unitJsonNode, transactionModel.get());
@@ -375,8 +376,8 @@ public class TransactionInternalResource {
             Optional<TransactionModel> transactionModel = transactionService.findTransaction(transactionId);
             if (transactionModel.isEmpty() ||
                 !transactionService.checkStatus(transactionModel.get(), TransactionStatus.OPEN)) {
-                LOGGER.error(TRANSACTION_NOT_FOUND);
-                return CollectRequestResponse.toVitamError(BAD_REQUEST, TRANSACTION_NOT_FOUND);
+                LOGGER.error(TRANSACTION_NOT_FOUND_OR_INVALID_STATUS);
+                return CollectRequestResponse.toVitamError(BAD_REQUEST, TRANSACTION_NOT_FOUND_OR_INVALID_STATUS);
             }
             TransactionModel transaction = transactionModel.get();
 
@@ -426,8 +427,8 @@ public class TransactionInternalResource {
             Optional<TransactionModel> transactionModel = transactionService.findTransaction(transactionId);
             if (transactionModel.isEmpty() ||
                 !transactionService.checkStatus(transactionModel.get(), TransactionStatus.OPEN)) {
-                LOGGER.error(TRANSACTION_NOT_FOUND);
-                return CollectRequestResponse.toVitamError(NOT_FOUND, TRANSACTION_NOT_FOUND);
+                LOGGER.error(TRANSACTION_NOT_FOUND_OR_INVALID_STATUS);
+                return CollectRequestResponse.toVitamError(NOT_FOUND, TRANSACTION_NOT_FOUND_OR_INVALID_STATUS);
             }
             fluxService.processStream(
                 inputStreamObject, transactionModel.get().getProjectId(), transactionModel.get().getId());
