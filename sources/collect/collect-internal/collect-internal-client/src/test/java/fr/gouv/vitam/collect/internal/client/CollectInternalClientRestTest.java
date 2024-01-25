@@ -33,7 +33,7 @@ import fr.gouv.vitam.collect.common.dto.ObjectDto;
 import fr.gouv.vitam.collect.common.dto.ProjectDto;
 import fr.gouv.vitam.collect.common.dto.TransactionDto;
 import fr.gouv.vitam.collect.common.exception.CollectRequestResponse;
-import fr.gouv.vitam.collect.internal.client.exceptions.ClientInternalNotFoundException;
+import fr.gouv.vitam.collect.internal.client.exceptions.CollectInternalClientNotFoundException;
 import fr.gouv.vitam.common.CommonMediaType;
 import fr.gouv.vitam.common.exception.VitamClientException;
 import fr.gouv.vitam.common.model.RequestResponse;
@@ -182,7 +182,7 @@ public class CollectInternalClientRestTest extends ResteasyTestApplication {
         Mockito.when(mock.post()).thenReturn(
             CollectRequestResponse.toVitamError(NOT_FOUND, "Prb"));
         assertThatThrownBy(() -> client.uploadZipToProject("PR_ID", new NullInputStream(100)))
-            .isExactlyInstanceOf(ClientInternalNotFoundException.class)
+            .isExactlyInstanceOf(CollectInternalClientNotFoundException.class)
             .hasMessage("Prb");
     }
 
