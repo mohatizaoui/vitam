@@ -763,6 +763,12 @@ public class IngestContractImplTest {
         // Test update for ingest contract Status => inactive
         final String now = LocalDateUtil.now().toString();
         final UpdateParserSingle updateParser = new UpdateParserSingle(new SingleVarNameAdapter());
+        final ObjectNode signedDocumentNode = JsonHandler.createObjectNode();
+        signedDocumentNode.put("SignedDocument", "ALLOWED");
+        final ObjectNode signaturePolicyNode = JsonHandler.createObjectNode();
+        signaturePolicyNode.set("SignaturePolicy", signedDocumentNode);
+        final SetAction setActionSignaturePolicy =
+            UpdateActionHelper.set(signaturePolicyNode);
         final SetAction setActionStatusInactive =
             UpdateActionHelper.set("Status", ActivationStatus.INACTIVE.toString());
         final SetAction setActionDesactivationDateInactive = UpdateActionHelper.set("DeactivationDate", now);
@@ -770,7 +776,7 @@ public class IngestContractImplTest {
 
         final Update update = new Update();
         update.setQuery(QueryHelper.eq("Identifier", identifier));
-        update.addActions(setActionStatusInactive, setActionDesactivationDateInactive, setActionLastUpdateInactive);
+        update.addActions(setActionSignaturePolicy, setActionStatusInactive, setActionDesactivationDateInactive, setActionLastUpdateInactive);
         updateParser.parse(update.getFinalUpdate());
         JsonNode queryDslForUpdate = updateParser.getRequest().getFinalUpdate();
 
@@ -812,6 +818,9 @@ public class IngestContractImplTest {
             assertThat(ingestContractModel.getActivationdate()).isNotEmpty();
             assertThat(ingestContractModel.getLastupdate()).isNotEmpty();
             assertThat(ingestContractModel.getLinkParentId()).isEqualTo("");
+            assertThat(ingestContractModel.getSignaturePolicy().isDeclaredSignature()).isFalse();
+            assertThat(ingestContractModel.getSignaturePolicy().isDeclaredTimestamp()).isFalse();
+            assertThat(ingestContractModel.getSignaturePolicy().isDeclaredAdditionalProof()).isFalse();
             assertEquals(IngestContractCheckState.AUTHORIZED, ingestContractModel.getCheckParentLink());
         }
 

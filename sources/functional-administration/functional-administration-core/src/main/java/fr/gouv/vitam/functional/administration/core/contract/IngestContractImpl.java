@@ -28,7 +28,6 @@ package fr.gouv.vitam.functional.administration.core.contract;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.annotations.VisibleForTesting;
@@ -598,6 +597,7 @@ public class IngestContractImpl implements ContractService<IngestContractModel> 
                             .getReason()).setMessage(UPDATE_CONTRACT_BAD_REQUEST));
                 }
                 validationService.validSignatureObject(signaturePolicy);
+                queryDsl = addValidatedSignatureToQueryDsl(queryDsl, signaturePolicy);
             }
 
 
@@ -646,6 +646,22 @@ public class IngestContractImpl implements ContractService<IngestContractModel> 
 
             return error;
         }
+    }
+
+    private JsonNode addValidatedSignatureToQueryDsl(JsonNode queryDsl, SignaturePolicy signaturePolicy) {
+        ArrayNode actions = (ArrayNode) queryDsl.get("$action");
+        for (JsonNode action : actions) {
+            if (action.has("$set")) {
+                JsonNode setAction = action.get("$set");
+                if (setAction.has("SignaturePolicy")) {
+                    ObjectNode mySignaturePolicyNode = (ObjectNode) setAction.get("SignaturePolicy");
+                    mySignaturePolicyNode.put("DeclaredSignature", signaturePolicy.isDeclaredSignature());
+                    mySignaturePolicyNode.put("DeclaredTimestamp", signaturePolicy.isDeclaredTimestamp());
+                    mySignaturePolicyNode.put("DeclaredAdditionalProof", signaturePolicy.isDeclaredAdditionalProof());
+                }
+            }
+        }
+        return queryDsl;
     }
 
     private void validateUpdateAction(IngestContractValidationService validationService, String name,
