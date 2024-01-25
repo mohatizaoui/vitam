@@ -27,15 +27,9 @@
 package fr.gouv.vitam.metadata.core.reconstruction.domain.extractor;
 
 
-import fr.gouv.vitam.metadata.api.exception.MetaDataExecutionException;
-import fr.gouv.vitam.metadata.core.reconstruction.domain.extractor.ObjectPurgedPersistentIdentifierExtractor;
-import fr.gouv.vitam.metadata.core.reconstruction.domain.extractor.PurgedPersistentIdentifierExtractor;
-import fr.gouv.vitam.metadata.core.reconstruction.domain.extractor.PurgedPersistentIdentifierExtractorFactory;
-import fr.gouv.vitam.metadata.core.reconstruction.domain.extractor.UnitPurgedPersistentIdentifierExtractor;
 import org.junit.Before;
 import org.junit.Test;
 
-import static fr.gouv.vitam.metadata.core.reconstruction.model.ReportLine.ReportLineType.DELETED_GOT_VERSION;
 import static fr.gouv.vitam.metadata.core.reconstruction.model.ReportLine.ReportLineType.DELETED_OBJECT_GROUP;
 import static fr.gouv.vitam.metadata.core.reconstruction.model.ReportLine.ReportLineType.DELETED_UNIT;
 import static fr.gouv.vitam.metadata.core.reconstruction.model.ReportLine.ReportLineType.TRANSFERRED_OBJECT_GROUP;

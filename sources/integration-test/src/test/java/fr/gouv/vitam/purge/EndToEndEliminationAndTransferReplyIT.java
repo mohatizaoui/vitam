@@ -2812,10 +2812,11 @@ public class EndToEndEliminationAndTransferReplyIT extends VitamRuleRunner {
             assertThat(deletedGotReport.params.status).isEqualTo(PurgeObjectGroupStatus.DELETED.name());
             assertThat(deletedGotReport.params.opi).isEqualTo(ingestOperationGuid);
             assertThat(deletedGotReport.params.originatingAgency).isEqualTo(ORIGINATING_AGENCY);
+            final Set<String> binaryObjectIds = getBinaryObjectIds(getById(ingestedGots, deletedGotId));
             assertThat(deletedGotReport.params.objectIds).containsExactlyInAnyOrderElementsOf(
-                getBinaryObjectIds(getById(ingestedGots, deletedGotId)));
+                binaryObjectIds);
             assertThat(deletedGotReport.params.deletedParentUnitIds).isNullOrEmpty();
-
+            assertThat(deletedGotReport.params.objectVersions.get(0).id).isEqualTo(binaryObjectIds.iterator().next());
             ObjectGroupReportEntry detachedGotReport = objectGroupReports.stream()
                 .filter(got -> got.id.equals(detachedGotId))
                 .findFirst().orElseThrow();
@@ -3109,6 +3110,8 @@ public class EndToEndEliminationAndTransferReplyIT extends VitamRuleRunner {
 
 
     private static class ObjectVersion {
+        @JsonProperty("id")
+        String id;
         @JsonProperty("persistentIdentifier")
         List<PersistentIdentifierModel> persistentIdentifier;
     }

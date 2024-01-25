@@ -27,7 +27,6 @@
 package fr.gouv.vitam.metadata.core.reconstruction.domain.extractor;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.metadata.core.reconstruction.domain.PurgedPersistentIdentifierValidator;
@@ -67,7 +66,7 @@ public class ObjectPurgedPersistentIdentifierExtractor extends PurgedPersistentI
     public PurgedPersistentIdentifier buildObjetPurgedPersistentIdentifier(String objectGroupId, JsonNode element,
         ReconstructionOperation operation) {
 
-        if (!PurgedPersistentIdentifierValidator.validateFields(element, "persistentIdentifier")) {
+        if (!PurgedPersistentIdentifierValidator.validateFields(element, "id", "persistentIdentifier")) {
             LOGGER.warn(
                 "This element {} is ignored in the persistent identifier reconstruction because id or persistent identifier are not provided",
                 element);
@@ -75,7 +74,7 @@ public class ObjectPurgedPersistentIdentifierExtractor extends PurgedPersistentI
         }
 
         return PurgedPersistentIdentifier.builder()
-            .setId(GUIDFactory.newGUID().getId())
+            .setId(element.get("id").asText())
             .setTenant(operation.getTenant())
             .setPersistentIdentifier(extractPersistentIdentifiers(element.get("persistentIdentifier")))
             .setVersion(0)
@@ -88,4 +87,3 @@ public class ObjectPurgedPersistentIdentifierExtractor extends PurgedPersistentI
             .build();
     }
 }
-
