@@ -28,6 +28,7 @@ package fr.gouv.vitam.worker.core.plugin.transfer.reply;
 
 import fr.gouv.culture.archivesdefrance.seda.v2.ArchiveTransferReplyType;
 import fr.gouv.culture.archivesdefrance.seda.v2.IdentifierType;
+import fr.gouv.culture.archivesdefrance.seda.v2.OrganizationWithIdType;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.worker.core.plugin.preservation.TestHandlerIO;
@@ -37,6 +38,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
+import java.util.Optional;
 
 import static fr.gouv.vitam.common.model.StatusCode.KO;
 import static fr.gouv.vitam.common.model.StatusCode.OK;
@@ -96,7 +98,11 @@ public class CheckAtrAndAddItToWorkspacePluginTest {
         // Then
         assertThat(JsonHandler.getFromFile(file, TransferReplyContext.class)).isEqualTo(
             new TransferReplyContext(atr.getMessageRequestIdentifier().getValue(),
-                atr.getMessageIdentifier()));
+                atr.getMessageIdentifier(), Optional.ofNullable(atr)
+                .map(ArchiveTransferReplyType::getArchivalAgency)
+                .map(OrganizationWithIdType::getIdentifier)
+                .map(IdentifierType::getValue)
+                .orElse(null)));
     }
 
     private ArchiveTransferReplyType createATR(String name) {

@@ -97,6 +97,7 @@ public class PurgeUnitPlugin extends ActionHandler {
 
     private static final String UNIT_DELETION_ABORT = "UNIT_DELETION_ABORT";
     private static final String REPORT_PERSISTENT_IDENTIFIER_FIELD = "PersistentIdentifier";
+    public static final String ARCHIVAL_AGENCY_IDENTIFIER = "#archivalAgencyIdentifier";
 
     private final String actionId;
     private final PurgeDeleteService purgeDeleteService;
@@ -185,7 +186,8 @@ public class PurgeUnitPlugin extends ActionHandler {
                 }
             }
 
-            PurgeUnitReportEntry reportEntry = createReportEntry(unitsById, unitId, purgeUnitStatus);
+            PurgeUnitReportEntry reportEntry =
+                createReportEntry(unitsById, unitId, purgeUnitStatus, actionId);
             purgeUnitReportEntries.add(reportEntry);
 
         }
@@ -204,7 +206,7 @@ public class PurgeUnitPlugin extends ActionHandler {
     }
 
     private static PurgeUnitReportEntry createReportEntry(Map<String, JsonNode> unitsById, String unitId,
-        PurgeUnitStatus purgeUnitStatus) {
+        PurgeUnitStatus purgeUnitStatus, String actionId) {
         JsonNode unit = unitsById.get(unitId);
         String initialOperation = unit.get(VitamFieldsHelper.initialOperation()).asText();
         String objectGroupId =
@@ -214,15 +216,19 @@ public class PurgeUnitPlugin extends ActionHandler {
             null;
         String unitType =
             unit.has(VitamFieldsHelper.unitType()) ? unit.get(VitamFieldsHelper.unitType()).asText() : null;
-
+        String archivalAgencyIdentifier = null;
+        if (TRANSFER_REPLY_DELETE_UNIT.equals(actionId)) {
+            archivalAgencyIdentifier =
+                unit.has(ARCHIVAL_AGENCY_IDENTIFIER) ? unit.get(ARCHIVAL_AGENCY_IDENTIFIER).asText() : null;
+        }
         if (purgeUnitStatus.equals(PurgeUnitStatus.DELETED)) {
             List<PersistentIdentifierModel> persistentIdentifier = extractPersistentIdentifiersFromUnit(unit);
             JsonNode extraInfo = extractExtraInfoFromUnit(unit);
             return new PurgeUnitReportEntry(unitId, originatingAgency, initialOperation, objectGroupId,
-                purgeUnitStatus.name(), extraInfo, persistentIdentifier, unitType);
+                purgeUnitStatus.name(), archivalAgencyIdentifier, extraInfo, persistentIdentifier, unitType);
         } else {
             return new PurgeUnitReportEntry(unitId, originatingAgency, initialOperation, objectGroupId,
-                purgeUnitStatus.name(), null, null, unitType);
+                purgeUnitStatus.name(), archivalAgencyIdentifier, null, null, unitType);
         }
     }
 
@@ -291,7 +297,7 @@ public class PurgeUnitPlugin extends ActionHandler {
             return result;
 
         } catch (InvalidParseOperationException | InvalidCreateOperationException | MetaDataExecutionException |
-                 MetaDataDocumentSizeException | MetaDataClientServerException e) {
+            MetaDataDocumentSizeException | MetaDataClientServerException e) {
             throw new ProcessingStatusException(StatusCode.FATAL, "Could not check child units", e);
         }
     }

@@ -27,6 +27,7 @@
 package fr.gouv.vitam.worker.core.plugin.purge;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Iterators;
 import fr.gouv.vitam.batch.report.model.entry.PurgeObjectGroupObjectVersion;
@@ -91,6 +92,7 @@ public class PurgeObjectGroupPreparationHandler extends ActionHandler {
     private static final int MAX_ELASTIC_SEARCH_IN_REQUEST_SIZE = 1000;
 
     private static final int DEFAULT_OBJECT_GROUP_BULK_SIZE = MAX_ELASTIC_SEARCH_IN_REQUEST_SIZE;
+    public static final String ARCHIVAL_AGENCY_IDENTIFIER = "archivalAgencyIdentifier";
 
     private final String actionId;
     private final MetaDataClientFactory metaDataClientFactory;
@@ -129,6 +131,12 @@ public class PurgeObjectGroupPreparationHandler extends ActionHandler {
 
         try {
 
+            final JsonNode context = retrieveTransferReplyContext(handler);
+            String archivalAgencyIdentifier = null;
+            if (!context.isNull()) {
+                archivalAgencyIdentifier = context.get(ARCHIVAL_AGENCY_IDENTIFIER).asText();
+            }
+
             File objectGroupsToDeleteFile = handler.getNewLocalFile(OBJECT_GROUPS_TO_DELETE_FILE);
             File objectGroupsToDetachFile = handler.getNewLocalFile(OBJECT_GROUPS_TO_DETACH_FILE);
 
@@ -144,7 +152,7 @@ public class PurgeObjectGroupPreparationHandler extends ActionHandler {
 
                 while (bulkIterator.hasNext()) {
                     List<String> objectGroupIds = bulkIterator.next();
-                    process(new HashSet<>(objectGroupIds), objectGroupsToDeleteWriter, objectGroupsToDetachWriter,
+                    process(new HashSet<>(objectGroupIds), archivalAgencyIdentifier, objectGroupsToDeleteWriter, objectGroupsToDetachWriter,
                         param.getContainerName());
                 }
 
@@ -167,7 +175,7 @@ public class PurgeObjectGroupPreparationHandler extends ActionHandler {
         }
     }
 
-    private void process(Set<String> objectGroupIds, JsonLineWriter objectGroupsToDeleteWriter,
+    private void process(Set<String> objectGroupIds, String archivalAgencyIdentifier, JsonLineWriter objectGroupsToDeleteWriter,
         JsonLineWriter objectGroupsToDetachWriter,
         String processId)
         throws ProcessingStatusException, IOException, InvalidParseOperationException {
@@ -213,7 +221,7 @@ public class PurgeObjectGroupPreparationHandler extends ActionHandler {
 
                 purgeObjectGroupReportEntries.add(new PurgeObjectGroupReportEntry(objectGroup.getId(),
                     objectGroup.getOriginatingAgency(), objectGroup.getOpi(), null,
-                    objectIds, PurgeObjectGroupStatus.DELETED.name(), objectVersions));
+                    objectIds, PurgeObjectGroupStatus.DELETED.name(), archivalAgencyIdentifier, objectVersions));
 
             } else {
 
@@ -229,7 +237,7 @@ public class PurgeObjectGroupPreparationHandler extends ActionHandler {
                 purgeObjectGroupReportEntries
                     .add(new PurgeObjectGroupReportEntry(objectGroup.getId(),
                         objectGroup.getOriginatingAgency(), objectGroup.getOpi(), removedParentUnits,
-                        null, PurgeObjectGroupStatus.PARTIAL_DETACHMENT.name(), null));
+                        null, PurgeObjectGroupStatus.PARTIAL_DETACHMENT.name(), archivalAgencyIdentifier, null));
             }
         }
 
@@ -309,5 +317,9 @@ public class PurgeObjectGroupPreparationHandler extends ActionHandler {
     @Override
     public void checkMandatoryIOParameter(HandlerIO handler) throws ProcessingException {
         // NOP.
+    }
+
+    public JsonNode retrieveTransferReplyContext(HandlerIO handler) throws ProcessingStatusException {
+        return JsonHandler.createNullNode();
     }
 }

@@ -28,8 +28,12 @@ package fr.gouv.vitam.worker.core.plugin.transfer.reply;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Iterators;
+import fr.gouv.culture.archivesdefrance.seda.v2.ArchiveTransferReplyType;
+import fr.gouv.culture.archivesdefrance.seda.v2.IdentifierType;
+import fr.gouv.culture.archivesdefrance.seda.v2.OrganizationWithIdType;
 import fr.gouv.vitam.batch.report.model.entry.TransferReplyUnitReportEntry;
 import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.accesslog.AccessLogUtils;
@@ -79,6 +83,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -94,12 +99,14 @@ public class TransferReplyUnitPreparationHandler extends ActionHandler {
 
     private static final String TRANSFER_REPLY_UNIT_PREPARATION = "TRANSFER_REPLY_UNIT_PREPARATION";
     private static final int TRANSFER_REPLY_CONTEXT_IN_RANK = 0;
+    private static final int TRANSFER_REPLY_ATR_RANK = 1;
 
     private static final String UNITS_TO_DELETE_JSONL = "units_to_delete.jsonl";
     public static final TypeReference<JsonLineModel>
         JSON_NODE_TYPE_REFERENCE = new TypeReference<>() {
     };
     public static final String PERSISTENT_IDENTIFIER_FIELD = "PersistentIdentifier";
+    public static final String ARCHIVAL_AGENCY_IDENTIFIER = "#archivalAgencyIdentifier";
 
     private final MetaDataClientFactory metaDataClientFactory;
     private final StorageClientFactory storageClientFactory;
@@ -146,7 +153,7 @@ public class TransferReplyUnitPreparationHandler extends ActionHandler {
 
     private void exportUnitDistributionFiles(CloseableIterator<String> transferUnitIdIterator,
         HandlerIO handler) throws ProcessingStatusException {
-
+        ArchiveTransferReplyType archiveTransferReplyType = (ArchiveTransferReplyType) handler.getInput(TRANSFER_REPLY_ATR_RANK);
         try (MetaDataClient metaDataClient = metaDataClientFactory.getClient();
             BufferedConsumer<TransferReplyUnitReportEntry> reportAppender =
                 createReportAppender(handler.getContainerName());
@@ -174,6 +181,14 @@ public class TransferReplyUnitPreparationHandler extends ActionHandler {
                 for (JsonNode unit : jsonUnits) {
                     String unitId = unit.get(VitamFieldsHelper.id()).asText();
                     int level = unit.get(VitamFieldsHelper.max()).asInt();
+                    if (unit.isObject()) {
+                        ((ObjectNode) unit).put(
+                            ARCHIVAL_AGENCY_IDENTIFIER, Optional.ofNullable(archiveTransferReplyType)
+                                .map(ArchiveTransferReplyType::getArchivalAgency)
+                                .map(OrganizationWithIdType::getIdentifier)
+                                .map(IdentifierType::getValue)
+                                .orElse(null));
+                    }
                     unitToPurgeWriter.addEntry(new JsonLineModel(unitId, level, unit));
                 }
             }

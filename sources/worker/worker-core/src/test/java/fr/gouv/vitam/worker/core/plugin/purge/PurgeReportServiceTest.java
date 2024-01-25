@@ -132,10 +132,10 @@ public class PurgeReportServiceTest {
 
         // Given
         List<PurgeUnitReportEntry> entries = Arrays.asList(
-            new PurgeUnitReportEntry("unit1", "sp1", "opi1", "got1", PurgeUnitStatus.DELETED.name(), null, null,
+            new PurgeUnitReportEntry("unit1", "sp1", "opi1", "got1", PurgeUnitStatus.DELETED.name(), "identifier4", null, null,
                 "INGEST"),
             new PurgeUnitReportEntry("unit2", "sp2", "opi2", "got2",
-                PurgeUnitStatus.NON_DESTROYABLE_HAS_CHILD_UNITS.name(), null, persistentIdentifiers, "INGEST")
+                PurgeUnitStatus.NON_DESTROYABLE_HAS_CHILD_UNITS.name(), "identifier4", null, persistentIdentifiers, "INGEST")
         );
 
         // When
@@ -154,6 +154,7 @@ public class PurgeReportServiceTest {
         assertThat(unitEntry.getId()).isEqualTo("unit1");
         assertThat(unitEntry.getInitialOperation()).isEqualTo("opi1");
         assertThat(unitEntry.getOriginatingAgency()).isEqualTo("sp1");
+        assertThat(unitEntry.getArchivalAgencyIdentifier()).isEqualTo("identifier4");
         assertThat(unitEntry.getObjectGroupId()).isEqualTo("got1");
         assertThat(unitEntry.getStatus()).isEqualTo(PurgeUnitStatus.DELETED.name());
     }
@@ -162,6 +163,7 @@ public class PurgeReportServiceTest {
     @RunWithCustomExecutor
     public void appendEntries() throws Exception {
 
+        // Given
         List<PersistentIdentifierModel> persistentIdentifier = new ArrayList<>();
         final PersistentIdentifierModel persistentIdentifierModel = new PersistentIdentifierModel();
         persistentIdentifierModel.setPersistentIdentifierType("ark");
@@ -169,16 +171,15 @@ public class PurgeReportServiceTest {
         persistentIdentifierModel.setPersistentIdentifierOrigin("OriginatingAgency");
         persistentIdentifierModel.setPersistentIdentifierReference("Agency-00221");
         persistentIdentifier.add(persistentIdentifierModel);
-        // Given
         List<PurgeObjectGroupReportEntry> entries = Arrays.asList(
             new PurgeObjectGroupReportEntry("got1", "sp1", "opi1",
-                null, new HashSet<>(Arrays.asList("o1", "o2")), PurgeObjectGroupStatus.DELETED.name(),
+                null, new HashSet<>(Arrays.asList("o1", "o2")), PurgeObjectGroupStatus.DELETED.name(), "identifier4",
                 Arrays.asList(
                     new PurgeObjectGroupObjectVersion("1234", "opi_o_1", 10L, "BinaryMaster_1", "BinaryMaster", persistentIdentifier),
                     new PurgeObjectGroupObjectVersion("4321", "opi_o_2", 100L, "BinaryMaster_1", "BinaryMaster", persistentIdentifier))),
             new PurgeObjectGroupReportEntry("got2", "sp2", "opi2",
                 new HashSet<>(Collections.singletonList("unit3")), null,
-                PurgeObjectGroupStatus.PARTIAL_DETACHMENT.name(),
+                PurgeObjectGroupStatus.PARTIAL_DETACHMENT.name(), "identifier4",
                 null)
         );
 
@@ -204,6 +205,7 @@ public class PurgeReportServiceTest {
         assertThat(objectGroup.getObjectIds()).containsExactly("o1", "o2");
         assertThat(objectGroup.getDeletedParentUnitIds()).isNull();
         assertThat(objectGroup.getStatus()).isEqualTo(PurgeObjectGroupStatus.DELETED.name());
+        assertThat(objectGroup.getArchivalAgencyIdentifier()).isEqualTo("identifier4");
 
         assertThat(objectGroup2.getId()).isEqualTo("got2");
         assertThat(objectGroup2.getInitialOperation()).isEqualTo("opi2");

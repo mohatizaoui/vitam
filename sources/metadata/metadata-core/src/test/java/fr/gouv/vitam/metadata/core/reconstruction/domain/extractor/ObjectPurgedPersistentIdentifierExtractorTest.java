@@ -93,6 +93,7 @@ public class ObjectPurgedPersistentIdentifierExtractorTest {
         // Then
         assertThat(purgedPersistentIdentifier.getTenant()).isEqualTo(0);
         assertThat(purgedPersistentIdentifier.getType()).isEqualTo("Object");
+        assertThat(purgedPersistentIdentifier.getArchivalAgencyIdentifier()).isEqualTo("identifier4");
         assertThat(purgedPersistentIdentifier.getPersistentIdentifier().size()).isEqualTo(2);
     }
 
@@ -101,6 +102,7 @@ public class ObjectPurgedPersistentIdentifierExtractorTest {
         node.put("id", "aeaqaaaaaae6eg5mabudoamkdsdghiiaaaba");
         node.set("persistentIdentifier", new ObjectMapper().readTree(PERSISTENT_IDENTIFIER));
         node.put("type", "Object");
+        node.put("archivalAgencyIdentifier", "identifier4");
 
         return node;
     }

@@ -55,6 +55,7 @@ import fr.gouv.vitam.common.mongo.MongoRule;
 import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -72,6 +73,10 @@ public class PurgeObjectGroupRepositoryTest {
     private static final TypeReference<ReportBody<PurgeObjectGroupReportEntry>>
         TYPE_REFERENCE = new TypeReference<>() {
     };
+    public static final String ID = "id";
+    public static final String TYPE = "type";
+    public static final String ARCHIVAL_AGENCY_IDENTIFIER = "archivalAgencyIdentifier";
+    public static final String PARAMS = "params";
 
     @Rule
     public MongoRule mongoRule =
@@ -106,7 +111,7 @@ public class PurgeObjectGroupRepositoryTest {
         Object metadata = first.get("_metadata");
         JsonNode metadataNode = JsonHandler.toJsonNode(metadata);
         JsonNode expected = JsonHandler.getFromString(
-            "{\"id\":\"id2\",\"opi\":\"opi0\",\"originatingAgency\":\"sp1\",\"status\":\"DELETED\",\"objectIds\":[\"parent\",\"parent2\"],\"objectVersions\":[{\"opi\":\"opi0\",\"size\":3},{\"opi\":\"opi0add\",\"size\":6}]}");
+            "{\"id\":\"id2\",\"originatingAgency\":\"sp1\",\"opi\":\"opi0\",\"objectIds\":[\"parent\",\"parent2\"],\"status\":\"DELETED\",\"archivalAgencyIdentifier\":\"identifier4\",\"objectVersions\":[{\"opi\":\"opi0\",\"size\":3},{\"opi\":\"opi0add\",\"size\":6}]}");
         assertThat(metadataNode).isNotNull().isEqualTo(expected);
     }
 
@@ -226,6 +231,13 @@ public class PurgeObjectGroupRepositoryTest {
             documents.add(next);
         }
         assertThat(documents.size()).isEqualTo(4);
+        List<Document> sortedDocuments = documents.stream()
+            .sorted(Comparator.comparing(doc -> doc.getString(ID)))
+            .collect(Collectors.toList());
+
+        Assertions.assertThat(sortedDocuments.get(0).get(PARAMS))
+            .extracting(ORIGINATING_AGENCY, ID, TYPE, OPI, ARCHIVAL_AGENCY_IDENTIFIER)
+            .containsExactly("sp1", "id1", "ObjectGroup", "opi2", "identifier4");
     }
 
     @Test

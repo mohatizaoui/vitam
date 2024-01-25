@@ -27,6 +27,8 @@
 package fr.gouv.vitam.worker.core.plugin.transfer.reply;
 
 import fr.gouv.culture.archivesdefrance.seda.v2.ArchiveTransferReplyType;
+import fr.gouv.culture.archivesdefrance.seda.v2.IdentifierType;
+import fr.gouv.culture.archivesdefrance.seda.v2.OrganizationWithIdType;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.logging.VitamLogger;
@@ -43,6 +45,7 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Optional;
 
 import static fr.gouv.vitam.common.model.StatusCode.FATAL;
 import static fr.gouv.vitam.common.model.StatusCode.KO;
@@ -55,6 +58,7 @@ public class CheckAtrAndAddItToWorkspacePlugin extends ActionHandler {
 
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(CheckAtrAndAddItToWorkspacePlugin.class);
     private static final int TRANSFER_REPLY_CONTEXT_OUT_RANK = 0;
+    private static final int TRANSFER_REPLY_ATR_RANK = 1;
 
     @Override
     public ItemStatus execute(WorkerParameters param, HandlerIO handler) throws ProcessingException {
@@ -70,6 +74,7 @@ public class CheckAtrAndAddItToWorkspacePlugin extends ActionHandler {
             File tempFile = handler.getNewLocalFile(handler.getOutput(TRANSFER_REPLY_CONTEXT_OUT_RANK).getPath());
             FileUtils.copyInputStreamToFile(streamFromIds(atr), tempFile);
             handler.addOutputResult(TRANSFER_REPLY_CONTEXT_OUT_RANK, tempFile, true, false);
+            handler.addOutputResult(TRANSFER_REPLY_ATR_RANK, atr);
 
             return buildItemStatus(PLUGIN_NAME, OK,
                 EventDetails.of(String.format("ATR '%s' is OK.", messageIdentifier)));
@@ -87,7 +92,12 @@ public class CheckAtrAndAddItToWorkspacePlugin extends ActionHandler {
     private InputStream streamFromIds(ArchiveTransferReplyType atr) throws InvalidParseOperationException {
         return JsonHandler.writeToInpustream(new TransferReplyContext(
             atr.getMessageRequestIdentifier().getValue(),
-            atr.getMessageIdentifier()
+            atr.getMessageIdentifier(),
+            Optional.ofNullable(atr)
+                .map(ArchiveTransferReplyType::getArchivalAgency)
+                .map(OrganizationWithIdType::getIdentifier)
+                .map(IdentifierType::getValue)
+                .orElse(null)
         ));
     }
 }

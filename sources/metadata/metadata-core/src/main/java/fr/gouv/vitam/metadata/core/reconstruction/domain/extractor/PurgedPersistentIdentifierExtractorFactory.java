@@ -38,11 +38,13 @@ public class PurgedPersistentIdentifierExtractorFactory {
     public PurgedPersistentIdentifierExtractor instance(ReportLineType type) throws MetaDataExecutionException {
         switch (type) {
             case DELETED_UNIT:
+            case TRANSFERRED_UNIT:
                 if (unitInstance == null) {
                     unitInstance = new UnitPurgedPersistentIdentifierExtractor();
                 }
                 return unitInstance;
             case DELETED_OBJECT_GROUP:
+            case TRANSFERRED_OBJECT_GROUP:
                 if (objectGroupInstance == null) {
                     objectGroupInstance = new ObjectPurgedPersistentIdentifierExtractor();
                 }

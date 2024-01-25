@@ -48,6 +48,7 @@ public class PurgedPersistentIdentifier {
     private final String operationType;
     private final String operationLastPersistentDate;
     private final String objectGroupId;
+    private final String archivalAgencyIdentifier;
 
     private PurgedPersistentIdentifier(Builder builder) {
         this.id = builder.id;
@@ -56,6 +57,7 @@ public class PurgedPersistentIdentifier {
         this.version = builder.version;
         this.type = builder.type;
         this.objectGroupId = builder.objectGroupId;
+        this.archivalAgencyIdentifier = builder.archivalAgencyIdentifier;
         this.operationId = builder.operationId;
         this.operationType = builder.operationType;
         this.operationLastPersistentDate = builder.operationLastPersistentDate;
@@ -75,6 +77,7 @@ public class PurgedPersistentIdentifier {
         document.append(VitamDocument.VERSION, 0);
         document.append("type", purgedIdentifier.getType());
         document.append("idObjectGroup", purgedIdentifier.getObjectGroupId());
+        document.append("archivalAgencyIdentifier", purgedIdentifier.getArchivalAgencyIdentifier());
         document.append("opId", purgedIdentifier.getOperationId());
         document.append("opType", purgedIdentifier.getOperationType());
         document.append("opEndDate", purgedIdentifier.getOperationLastPersistentDate());
@@ -99,6 +102,7 @@ public class PurgedPersistentIdentifier {
             .setVersion(document.getInteger(VitamDocument.VERSION))
             .setType(document.getString("type"))
             .setObjectGroupId(document.getString("idObjectGroup"))
+            .setArchivalAgencyIdentifier(document.getString("archivalAgencyIdentifier"))
             .setOperationId(document.getString("opId"))
             .setOperationType(document.getString("opType"))
             .setOperationLastPersistentDate(document.getString("opEndDate"))
@@ -149,6 +153,10 @@ public class PurgedPersistentIdentifier {
         return objectGroupId;
     }
 
+    public String getArchivalAgencyIdentifier() {
+        return archivalAgencyIdentifier;
+    }
+
     public String getOperationId() {
         return operationId;
     }
@@ -173,6 +181,7 @@ public class PurgedPersistentIdentifier {
         private String operationId;
         private String operationType;
         private String operationLastPersistentDate;
+        private String archivalAgencyIdentifier;
 
         public Builder() {
         }
@@ -199,6 +208,11 @@ public class PurgedPersistentIdentifier {
 
         public Builder setObjectGroupId(String objectGroupId) {
             this.objectGroupId = objectGroupId;
+            return this;
+        }
+
+        public Builder setArchivalAgencyIdentifier(String archivalAgencyIdentifier) {
+            this.archivalAgencyIdentifier = archivalAgencyIdentifier;
             return this;
         }
 

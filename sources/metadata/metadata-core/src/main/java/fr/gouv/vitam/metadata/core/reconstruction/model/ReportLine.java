@@ -50,6 +50,8 @@ public class ReportLine {
         DELETED_UNIT,
         DELETED_OBJECT_GROUP,
         DELETED_GOT_VERSION,
+        TRANSFERRED_UNIT,
+        TRANSFERRED_OBJECT_GROUP,
         UNDEFINED
     }
 }

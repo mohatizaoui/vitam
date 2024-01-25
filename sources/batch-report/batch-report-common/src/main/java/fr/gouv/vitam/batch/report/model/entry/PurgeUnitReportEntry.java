@@ -41,11 +41,13 @@ public class PurgeUnitReportEntry {
     private final static String PERSISTENT_IDENTIFIER = "persistentIdentifier";
     private final static String STATUS = "status";
     private final static String TYPE = "type";
+    public static final String ARCHIVAL_AGENCY_IDENTIFIER = "archivalAgencyIdentifier";
 
     private final String id;
     private final String originatingAgency;
     private final String initialOperation;
     private final String objectGroupId;
+    private final String archivalAgencyIdentifier;
     private final JsonNode extraInfo;
     private final List<PersistentIdentifierModel> persistentIdentifier;
     private final String status;
@@ -58,6 +60,7 @@ public class PurgeUnitReportEntry {
       @JsonProperty(OPI) String initialOperation,
       @JsonProperty(OBJECT_GROUP) String objectGroupId,
       @JsonProperty(STATUS) String status,
+      @JsonProperty(ARCHIVAL_AGENCY_IDENTIFIER) String archivalAgencyIdentifier,
       @JsonProperty(EXTRA_INFO) JsonNode extraInfo,
       @JsonProperty(PERSISTENT_IDENTIFIER) List<PersistentIdentifierModel> persistentIdentifier,
       @JsonProperty(TYPE) String type) {
@@ -66,6 +69,7 @@ public class PurgeUnitReportEntry {
         this.initialOperation = initialOperation;
         this.objectGroupId = objectGroupId;
         this.status = status;
+        this.archivalAgencyIdentifier = archivalAgencyIdentifier;
         this.extraInfo = extraInfo;
         this.persistentIdentifier = persistentIdentifier;
         this.type = type;
@@ -105,8 +109,14 @@ public class PurgeUnitReportEntry {
     public List<PersistentIdentifierModel> getPersistentIdentifier() {
         return persistentIdentifier;
     }
+
     @JsonProperty(TYPE)
     public String getType() {
         return type;
+    }
+
+    @JsonProperty(ARCHIVAL_AGENCY_IDENTIFIER)
+    public String getArchivalAgencyIdentifier() {
+        return archivalAgencyIdentifier;
     }
 }

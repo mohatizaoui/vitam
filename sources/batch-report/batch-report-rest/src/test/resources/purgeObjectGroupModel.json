@@ -5,6 +5,7 @@
       "opi": "opi0",
       "id": "id2",
       "originatingAgency": "sp1",
+      "archivalAgencyIdentifier" : "identifier4",
       "status": "DELETED",
       "objectIds": [
         "parent",
@@ -25,6 +26,7 @@
       "opi": "opi1",
       "id": "id3",
       "originatingAgency": "sp1",
+      "archivalAgencyIdentifier" : "identifier4",
       "status": "PARTIAL_DESTROY",
       "deletedParentUnitIds": [
         "unitId21",
@@ -62,6 +64,7 @@
       "opi": "opi2",
       "id": "id1",
       "originatingAgency": "sp1",
+      "archivalAgencyIdentifier" : "identifier4",
       "status": "DELETED",
       "objectIds": [
         "unitId31",
@@ -82,6 +85,7 @@
       "opi": "opi3",
       "id": "id4",
       "originatingAgency": "sp2",
+      "archivalAgencyIdentifier" : "identifier4",
       "status": "DELETED",
       "objectIds": [
         "unitId41",

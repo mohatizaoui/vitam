@@ -38,6 +38,8 @@ import org.junit.Test;
 import static fr.gouv.vitam.metadata.core.reconstruction.model.ReportLine.ReportLineType.DELETED_GOT_VERSION;
 import static fr.gouv.vitam.metadata.core.reconstruction.model.ReportLine.ReportLineType.DELETED_OBJECT_GROUP;
 import static fr.gouv.vitam.metadata.core.reconstruction.model.ReportLine.ReportLineType.DELETED_UNIT;
+import static fr.gouv.vitam.metadata.core.reconstruction.model.ReportLine.ReportLineType.TRANSFERRED_OBJECT_GROUP;
+import static fr.gouv.vitam.metadata.core.reconstruction.model.ReportLine.ReportLineType.TRANSFERRED_UNIT;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
@@ -56,6 +58,20 @@ public class PurgedPersistentIdentifierExtractorFactoryTest {
         PurgedPersistentIdentifierExtractor result = extractorFactory.instance(DELETED_UNIT);
 
         assertThat(result instanceof UnitPurgedPersistentIdentifierExtractor).isTrue();
+    }
+
+    @Test
+    public void instance_TransferUnitType_ReturnsUnitInstance() throws Exception {
+        PurgedPersistentIdentifierExtractor result = extractorFactory.instance(TRANSFERRED_UNIT);
+
+        assertThat(result instanceof UnitPurgedPersistentIdentifierExtractor).isTrue();
+    }
+
+    @Test
+    public void instance_TransferObjectType_ReturnsObjectInstance() throws Exception {
+        PurgedPersistentIdentifierExtractor result = extractorFactory.instance(TRANSFERRED_OBJECT_GROUP);
+
+        assertThat(result instanceof ObjectPurgedPersistentIdentifierExtractor).isTrue();
     }
 
     @Test

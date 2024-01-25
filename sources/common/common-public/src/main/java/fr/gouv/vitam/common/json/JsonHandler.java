@@ -173,6 +173,13 @@ public final class JsonHandler {
     }
 
     /**
+     * @return an null Node
+     */
+    public static JsonNode createNullNode() {
+        return OBJECT_MAPPER.nullNode();
+    }
+
+    /**
      * @param value in format String to transform
      * @return the jsonNode (ObjectNode or ArrayNode)
      * @throws InvalidParseOperationException if parse JsonNode object exception occurred
