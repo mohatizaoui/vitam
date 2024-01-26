@@ -33,6 +33,7 @@ import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.processing.distributor.api.ProcessDistributor;
 import fr.gouv.vitam.processing.engine.core.ProcessEngineImpl;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 
 /**
  * Class ProcessEngineFactory Goal : create an instance of ProcessEngineImpl
@@ -56,7 +57,7 @@ final public class ProcessEngineFactoryTest {
     public ProcessEngineImpl create(WorkerParameters workParams, ProcessDistributor processDistributor) {
         ParametersChecker.checkParameter("ProcessDistributor cannot be null", processDistributor);
         return new ProcessEngineTest(workParams, processDistributor, LogbookOperationsClientFactory.getInstance(),
-            WorkspaceClientFactory.getInstance());
+            WorkspaceClientFactory.getInstance(WorkspaceType.VITAM));
     }
 
     @VisibleForTesting

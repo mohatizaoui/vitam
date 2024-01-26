@@ -46,13 +46,6 @@ public class WorkspaceClientFactory extends VitamClientFactory<WorkspaceClient> 
     }
 
     /**
-     * @return the instance
-     */
-    public static WorkspaceClientFactory getInstance() {
-        return getInstance(WorkspaceType.VITAM);
-    }
-
-    /**
      * @param workspaceType type of workspace VITAM | COLLECT
      * @return an instance of WorkspaceClientFactory based on the type of workspace
      */
@@ -62,7 +55,7 @@ public class WorkspaceClientFactory extends VitamClientFactory<WorkspaceClient> 
         } else if (workspaceType == WorkspaceType.COLLECT) {
             return WORKSPACE_COLLECT_CLIENT_FACTORY;
         }
-        return null;
+        throw new IllegalArgumentException("Unknown " + workspaceType);
     }
 
     @Override
@@ -75,33 +68,11 @@ public class WorkspaceClientFactory extends VitamClientFactory<WorkspaceClient> 
      *
      * @param serviceUrl as String
      */
-    public static void changeMode(String serviceUrl) {
-        ParametersChecker.checkParameter("Server Url can not be null", serviceUrl);
-        final URI uri = URI.create(serviceUrl);
-        final ClientConfiguration configuration = new ClientConfigurationImpl(uri.getHost(), uri.getPort());
-        changeMode(configuration);
-    }
-
-    /**
-     * change mode client by server url
-     *
-     * @param serviceUrl as String
-     */
     public static void changeMode(String serviceUrl, WorkspaceType workspaceType) {
         ParametersChecker.checkParameter("Server Url can not be null", serviceUrl);
         final URI uri = URI.create(serviceUrl);
         final ClientConfiguration configuration = new ClientConfigurationImpl(uri.getHost(), uri.getPort());
         changeMode(configuration, workspaceType);
-    }
-
-
-    /**
-     * @param configuration null for MOCK
-     */
-    private static void changeMode(ClientConfiguration configuration) {
-        for (WorkspaceType type : WorkspaceType.values()) {
-            getInstance(type).initialisation(configuration, getInstance(type).getResourcePath());
-        }
     }
 
     /**

@@ -58,7 +58,7 @@ public class WorkspaceClientAtomicObjectTest extends ResteasyTestApplication {
     private static final String CONTAINER_NAME = "myContainer";
     private static final String OBJECT_NAME = "myObject";
 
-    static WorkspaceClientFactory factory = WorkspaceClientFactory.getInstance();
+    static WorkspaceClientFactory factory = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM);
 
     public static VitamServerTestRunner
         vitamServerTestRunner =

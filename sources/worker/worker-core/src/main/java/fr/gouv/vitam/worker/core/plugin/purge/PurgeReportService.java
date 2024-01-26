@@ -50,6 +50,7 @@ import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageNotFoundEx
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 import org.apache.commons.io.IOUtils;
 
 import javax.ws.rs.core.Response;
@@ -76,7 +77,7 @@ public class PurgeReportService {
     public PurgeReportService() {
         this(
             BatchReportClientFactory.getInstance(),
-            WorkspaceClientFactory.getInstance());
+            WorkspaceClientFactory.getInstance(WorkspaceType.VITAM));
     }
 
     @VisibleForTesting

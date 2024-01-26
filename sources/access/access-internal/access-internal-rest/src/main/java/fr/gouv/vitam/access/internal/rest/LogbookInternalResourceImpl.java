@@ -92,6 +92,7 @@ import fr.gouv.vitam.storage.engine.common.model.DataCategory;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import javax.ws.rs.ApplicationPath;
@@ -148,7 +149,7 @@ public class LogbookInternalResourceImpl {
         accessModule = new AccessInternalModuleImpl();
         this.processingManagementClientFactory = ProcessingManagementClientFactory.getInstance();
         this.logbookOperationsClientFactory = LogbookOperationsClientFactory.getInstance();
-        this.workspaceClientFactory = WorkspaceClientFactory.getInstance();
+        this.workspaceClientFactory = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM);
         LOGGER.debug("LogbookExternalResource initialized");
     }
 

@@ -46,6 +46,7 @@ import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageNotFoundEx
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
@@ -67,7 +68,7 @@ public class WorkspaceProcessDataManagement implements ProcessDataManagement {
     private final WorkspaceClientFactory workspaceClientFactory;
 
     private WorkspaceProcessDataManagement() {
-        this.workspaceClientFactory = WorkspaceClientFactory.getInstance();
+        this.workspaceClientFactory = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM);
     }
 
     @VisibleForTesting

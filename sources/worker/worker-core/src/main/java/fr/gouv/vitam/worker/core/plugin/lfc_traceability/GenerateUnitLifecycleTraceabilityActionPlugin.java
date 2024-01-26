@@ -41,6 +41,7 @@ import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.worker.common.HandlerIO;
 import fr.gouv.vitam.worker.core.distribution.JsonLineGenericIterator;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -67,7 +68,7 @@ public class GenerateUnitLifecycleTraceabilityActionPlugin extends GenerateLifec
      */
     public GenerateUnitLifecycleTraceabilityActionPlugin() {
         this(LogbookOperationsClientFactory.getInstance(),
-            WorkspaceClientFactory.getInstance());
+            WorkspaceClientFactory.getInstance(WorkspaceType.VITAM));
     }
 
     /**

@@ -52,6 +52,7 @@ import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageNotFoundEx
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 
 public class StorageTestUtils {
 
@@ -60,7 +61,7 @@ public class StorageTestUtils {
         StorageNotFoundClientException, StorageServerClientException, ContentAddressableStorageNotFoundException {
 
         try (StorageClient storageClient = StorageClientFactory.getInstance().getClient();
-            WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance().getClient()) {
+            WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient()) {
 
             String container = GUIDFactory.newGUID().getId();
             workspaceClient.createContainer(container);

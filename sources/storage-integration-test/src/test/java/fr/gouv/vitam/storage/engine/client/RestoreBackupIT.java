@@ -60,6 +60,7 @@ import fr.gouv.vitam.storage.offers.rest.DefaultOfferMain;
 import fr.gouv.vitam.storage.offers.rest.OfferConfiguration;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 import fr.gouv.vitam.workspace.rest.WorkspaceMain;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -146,8 +147,8 @@ public class RestoreBackupIT {
         workspaceMain.start();
         SystemPropertyUtil.clear(WorkspaceMain.PARAMETER_JETTY_SERVER_PORT);
 
-        WorkspaceClientFactory.changeMode("http://localhost:" + workspacePort);
-        workspaceClient = WorkspaceClientFactory.getInstance().getClient();
+        WorkspaceClientFactory.changeMode("http://localhost:" + workspacePort, WorkspaceType.VITAM);
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
 
         // prepare offer
         defaultOfferPort = JunitHelper.getInstance().findAvailablePort();

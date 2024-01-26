@@ -97,12 +97,14 @@ public class TransactionIT extends VitamRuleRunner {
         runner.startMetadataCollectServer();
         handleBeforeClass(Arrays.asList(0, 1), Collections.emptyMap());
         new DataLoader("integration-ingest-internal").prepareData();
+        runner.startWorkspaceCollectServer();
     }
 
     @AfterClass
     public static void tearDownAfterClass() throws Exception {
         runner.stopMetadataCollectServer(true);
         runner.stopMetadataServer(true);
+        runner.stopWorkspaceCollectServer();
         handleAfterClass();
         runAfter();
         fr.gouv.vitam.common.external.client.VitamClientFactory.resetConnections();

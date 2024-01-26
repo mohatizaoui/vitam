@@ -86,6 +86,7 @@ import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerExce
 import fr.gouv.vitam.workspace.api.exception.ZipFilesNameNotAllowedException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import javax.ws.rs.ApplicationPath;
@@ -143,9 +144,9 @@ public class IngestInternalResource extends ApplicationStatusResource {
      */
     public IngestInternalResource(IngestInternalConfiguration configuration) {
         this.logbookOperationsClientFactory = LogbookOperationsClientFactory.getInstance();
-        WorkspaceClientFactory.changeMode(configuration.getWorkspaceUrl());
+        WorkspaceClientFactory.changeMode(configuration.getWorkspaceUrl(), WorkspaceType.VITAM);
         ProcessingManagementClientFactory.changeConfigurationUrl(configuration.getProcessingUrl());
-        this.workspaceClientFactory = WorkspaceClientFactory.getInstance();
+        this.workspaceClientFactory = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM);
         this.processingManagementClientFactory = ProcessingManagementClientFactory.getInstance();
 
     }

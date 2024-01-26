@@ -72,6 +72,7 @@ import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageAlreadyExi
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
 import org.apache.commons.io.FileUtils;
@@ -204,7 +205,7 @@ public class StorageTwoOffersIT {
         offerDiffAdminResource = retrofit.create(OfferDiffAdminResource.class);
 
         storageClient = StorageClientFactory.getInstance().getClient();
-        workspaceClient = WorkspaceClientFactory.getInstance().getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
     }
 
     @AfterClass

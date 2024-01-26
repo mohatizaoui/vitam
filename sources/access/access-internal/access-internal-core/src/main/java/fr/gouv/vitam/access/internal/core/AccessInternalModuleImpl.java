@@ -143,6 +143,7 @@ import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerExce
 import fr.gouv.vitam.workspace.client.WorkspaceAutoCleanableStreamingOutput;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 import fr.gouv.vitam.workspace.common.CompressInformation;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.apache.commons.lang3.BooleanUtils;
@@ -249,7 +250,7 @@ public class AccessInternalModuleImpl implements AccessInternalModule {
     // constructor
     public AccessInternalModuleImpl() {
         this(LogbookLifeCyclesClientFactory.getInstance(), LogbookOperationsClientFactory.getInstance(),
-            StorageClientFactory.getInstance(), WorkspaceClientFactory.getInstance(),
+            StorageClientFactory.getInstance(), WorkspaceClientFactory.getInstance(WorkspaceType.VITAM),
             AdminManagementClientFactory.getInstance(), MetaDataClientFactory.getInstance());
     }
 

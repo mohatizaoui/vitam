@@ -81,6 +81,7 @@ import fr.gouv.vitam.storage.offers.rest.DefaultOfferMain;
 import fr.gouv.vitam.worker.server.rest.WorkerMain;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 import fr.gouv.vitam.workspace.rest.WorkspaceMain;
 import org.junit.After;
 import org.junit.BeforeClass;
@@ -145,7 +146,7 @@ public class RevertEssentialMetadataIT extends VitamRuleRunner {
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
         handleBeforeClass(Collections.singletonList(TENANT_0), Collections.emptyMap());
-        workspaceClient = WorkspaceClientFactory.getInstance().getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
         processingClient = ProcessingManagementClientFactory.getInstance().getClient();
         new DataLoader("integration-processing").prepareData();
     }
@@ -185,7 +186,7 @@ public class RevertEssentialMetadataIT extends VitamRuleRunner {
                 .get(JsonHandler.getFromInputStream(PropertiesUtils.getResourceAsStream(OPTIONS_JSON_FILE)))));
 
         OperationContextMonitor
-            .compressInWorkspace(WorkspaceClientFactory.getInstance(), containerName,
+            .compressInWorkspace(WorkspaceClientFactory.getInstance(WorkspaceType.VITAM), containerName,
                 Contexts.REVERT_ESSENTIAL_METADATA.getLogbookTypeProcess(),
                 OperationContextMonitor.OperationContextFileName);
 
@@ -250,7 +251,7 @@ public class RevertEssentialMetadataIT extends VitamRuleRunner {
                 .get(JsonHandler.getFromInputStream(PropertiesUtils.getResourceAsStream(OPTIONS_JSON_FILE)))));
 
         OperationContextMonitor
-            .compressInWorkspace(WorkspaceClientFactory.getInstance(), containerName,
+            .compressInWorkspace(WorkspaceClientFactory.getInstance(WorkspaceType.VITAM), containerName,
                 Contexts.REVERT_ESSENTIAL_METADATA.getLogbookTypeProcess(),
                 OperationContextMonitor.OperationContextFileName);
 
@@ -311,7 +312,7 @@ public class RevertEssentialMetadataIT extends VitamRuleRunner {
                 .get(JsonHandler.getFromInputStream(PropertiesUtils.getResourceAsStream(FORCE_OPTIONS_JSON_FILE)))));
 
         OperationContextMonitor
-            .compressInWorkspace(WorkspaceClientFactory.getInstance(), containerName,
+            .compressInWorkspace(WorkspaceClientFactory.getInstance(WorkspaceType.VITAM), containerName,
                 Contexts.REVERT_ESSENTIAL_METADATA.getLogbookTypeProcess(),
                 OperationContextMonitor.OperationContextFileName);
 

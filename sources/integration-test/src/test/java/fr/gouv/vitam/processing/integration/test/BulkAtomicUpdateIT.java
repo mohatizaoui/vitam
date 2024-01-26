@@ -103,6 +103,7 @@ import fr.gouv.vitam.worker.server.rest.WorkerMain;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 import fr.gouv.vitam.workspace.rest.WorkspaceMain;
 import org.bson.Document;
 import org.junit.After;
@@ -259,7 +260,7 @@ public class BulkAtomicUpdateIT extends VitamRuleRunner {
             VitamThreadUtils.getVitamSession().setRequestId(operationGuid);
             createLogbookOperation(operationGuid, operationGuid, BULK_ATOMIC_UPDATE_UNIT_DESC,
                 LogbookTypeProcess.BULK_UPDATE);
-            workspaceClient = WorkspaceClientFactory.getInstance().getClient();
+            workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
             workspaceClient.createContainer(containerName);
 
             // insert units and LFC
@@ -288,7 +289,7 @@ public class BulkAtomicUpdateIT extends VitamRuleRunner {
             workspaceClient.putObject(containerName, OperationContextMonitor.OperationContextFileName,
                 JsonHandler.writeToInpustream(OperationContextModel.get(queries)));
             OperationContextMonitor
-                .compressInWorkspace(WorkspaceClientFactory.getInstance(), containerName,
+                .compressInWorkspace(WorkspaceClientFactory.getInstance(WorkspaceType.VITAM), containerName,
                     Contexts.BULK_ATOMIC_UPDATE_UNIT_DESC.getLogbookTypeProcess(),
                     OperationContextMonitor.OperationContextFileName);
 
@@ -377,7 +378,7 @@ public class BulkAtomicUpdateIT extends VitamRuleRunner {
             VitamThreadUtils.getVitamSession().setRequestId(operationGuid);
             createLogbookOperation(operationGuid, operationGuid, BULK_ATOMIC_UPDATE_UNIT_DESC,
                 LogbookTypeProcess.BULK_UPDATE);
-            workspaceClient = WorkspaceClientFactory.getInstance().getClient();
+            workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
             workspaceClient.createContainer(containerName);
 
             // insert units and LFC
@@ -406,7 +407,7 @@ public class BulkAtomicUpdateIT extends VitamRuleRunner {
             workspaceClient.putObject(containerName, OperationContextMonitor.OperationContextFileName,
                 JsonHandler.writeToInpustream(OperationContextModel.get(queries)));
             OperationContextMonitor
-                .compressInWorkspace(WorkspaceClientFactory.getInstance(), containerName,
+                .compressInWorkspace(WorkspaceClientFactory.getInstance(WorkspaceType.VITAM), containerName,
                     Contexts.BULK_ATOMIC_UPDATE_UNIT_DESC.getLogbookTypeProcess(),
                     OperationContextMonitor.OperationContextFileName);
 
@@ -533,7 +534,7 @@ public class BulkAtomicUpdateIT extends VitamRuleRunner {
             VitamThreadUtils.getVitamSession().setRequestId(operationGuid);
             createLogbookOperation(operationGuid, operationGuid, BULK_ATOMIC_UPDATE_UNIT_DESC,
                 LogbookTypeProcess.BULK_UPDATE);
-            workspaceClient = WorkspaceClientFactory.getInstance().getClient();
+            workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
             workspaceClient.createContainer(containerName);
 
             // insert units and LFC
@@ -555,7 +556,7 @@ public class BulkAtomicUpdateIT extends VitamRuleRunner {
             workspaceClient.putObject(containerName, OperationContextMonitor.OperationContextFileName,
                 JsonHandler.writeToInpustream(OperationContextModel.get(queries)));
             OperationContextMonitor
-                .compressInWorkspace(WorkspaceClientFactory.getInstance(), containerName,
+                .compressInWorkspace(WorkspaceClientFactory.getInstance(WorkspaceType.VITAM), containerName,
                     Contexts.BULK_ATOMIC_UPDATE_UNIT_DESC.getLogbookTypeProcess(),
                     OperationContextMonitor.OperationContextFileName);
 
@@ -648,7 +649,7 @@ public class BulkAtomicUpdateIT extends VitamRuleRunner {
             VitamThreadUtils.getVitamSession().setRequestId(operationGuid);
             createLogbookOperation(operationGuid, operationGuid, BULK_ATOMIC_UPDATE_UNIT_DESC,
                 LogbookTypeProcess.BULK_UPDATE);
-            workspaceClient = WorkspaceClientFactory.getInstance().getClient();
+            workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
             workspaceClient.createContainer(containerName);
 
             // insert units and LFC
@@ -670,7 +671,7 @@ public class BulkAtomicUpdateIT extends VitamRuleRunner {
             workspaceClient.putObject(containerName, OperationContextMonitor.OperationContextFileName,
                 JsonHandler.writeToInpustream(OperationContextModel.get(queries)));
             OperationContextMonitor
-                .compressInWorkspace(WorkspaceClientFactory.getInstance(), containerName,
+                .compressInWorkspace(WorkspaceClientFactory.getInstance(WorkspaceType.VITAM), containerName,
                     Contexts.BULK_ATOMIC_UPDATE_UNIT_DESC.getLogbookTypeProcess(),
                     OperationContextMonitor.OperationContextFileName);
 
@@ -743,7 +744,7 @@ public class BulkAtomicUpdateIT extends VitamRuleRunner {
             VitamThreadUtils.getVitamSession().setRequestId(operationGuid);
             createLogbookOperation(operationGuid, operationGuid, BULK_ATOMIC_UPDATE_UNIT_DESC,
                 LogbookTypeProcess.BULK_UPDATE);
-            workspaceClient = WorkspaceClientFactory.getInstance().getClient();
+            workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
             workspaceClient.createContainer(containerName);
 
             // insert units and LFC
@@ -766,7 +767,7 @@ public class BulkAtomicUpdateIT extends VitamRuleRunner {
             workspaceClient.putObject(containerName, OperationContextMonitor.OperationContextFileName,
                 JsonHandler.writeToInpustream(OperationContextModel.get(queries)));
             OperationContextMonitor
-                .compressInWorkspace(WorkspaceClientFactory.getInstance(), containerName,
+                .compressInWorkspace(WorkspaceClientFactory.getInstance(WorkspaceType.VITAM), containerName,
                     Contexts.BULK_ATOMIC_UPDATE_UNIT_DESC.getLogbookTypeProcess(),
                     OperationContextMonitor.OperationContextFileName);
 
@@ -819,7 +820,7 @@ public class BulkAtomicUpdateIT extends VitamRuleRunner {
 
             // global init
             insertUnitAndLFC(UNIT_00_JSON, UNIT_LFC_00_JSON);
-            workspaceClient = WorkspaceClientFactory.getInstance().getClient();
+            workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
             processingClient = ProcessingManagementClientFactory.getInstance().getClient();
 
             // First operation
@@ -839,7 +840,7 @@ public class BulkAtomicUpdateIT extends VitamRuleRunner {
             workspaceClient.putObject(containerName1, OperationContextMonitor.OperationContextFileName,
                 JsonHandler.writeToInpustream(OperationContextModel.get(queries)));
             OperationContextMonitor
-                .compressInWorkspace(WorkspaceClientFactory.getInstance(), containerName1,
+                .compressInWorkspace(WorkspaceClientFactory.getInstance(WorkspaceType.VITAM), containerName1,
                     Contexts.BULK_ATOMIC_UPDATE_UNIT_DESC.getLogbookTypeProcess(),
                     OperationContextMonitor.OperationContextFileName);
 
@@ -872,7 +873,7 @@ public class BulkAtomicUpdateIT extends VitamRuleRunner {
             workspaceClient.putObject(containerName2, OperationContextMonitor.OperationContextFileName,
                 JsonHandler.writeToInpustream(OperationContextModel.get(queries)));
             OperationContextMonitor
-                .compressInWorkspace(WorkspaceClientFactory.getInstance(), containerName2,
+                .compressInWorkspace(WorkspaceClientFactory.getInstance(WorkspaceType.VITAM), containerName2,
                     Contexts.BULK_ATOMIC_UPDATE_UNIT_DESC.getLogbookTypeProcess(),
                     OperationContextMonitor.OperationContextFileName);
 
@@ -936,7 +937,7 @@ public class BulkAtomicUpdateIT extends VitamRuleRunner {
             createLogbookOperation(operationGuid, operationGuid, BULK_ATOMIC_UPDATE_UNIT_DESC,
                 LogbookTypeProcess.BULK_UPDATE);
 
-            workspaceClient = WorkspaceClientFactory.getInstance().getClient();
+            workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
             workspaceClient.createContainer(containerName);
 
             // insert units and LFC
@@ -974,7 +975,7 @@ public class BulkAtomicUpdateIT extends VitamRuleRunner {
             workspaceClient.putObject(containerName, OperationContextMonitor.OperationContextFileName,
                 JsonHandler.writeToInpustream(OperationContextModel.get(queries)));
             OperationContextMonitor
-                .compressInWorkspace(WorkspaceClientFactory.getInstance(), containerName,
+                .compressInWorkspace(WorkspaceClientFactory.getInstance(WorkspaceType.VITAM), containerName,
                     Contexts.BULK_ATOMIC_UPDATE_UNIT_DESC.getLogbookTypeProcess(),
                     OperationContextMonitor.OperationContextFileName);
 
@@ -1008,7 +1009,7 @@ public class BulkAtomicUpdateIT extends VitamRuleRunner {
             createLogbookOperation(operationGuid, operationGuid, BULK_ATOMIC_UPDATE_UNIT_DESC,
                 LogbookTypeProcess.BULK_UPDATE);
 
-            workspaceClient = WorkspaceClientFactory.getInstance().getClient();
+            workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
             workspaceClient.createContainer(containerName);
 
             // insert units and LFC
@@ -1029,7 +1030,7 @@ public class BulkAtomicUpdateIT extends VitamRuleRunner {
             workspaceClient.putObject(containerName, OperationContextMonitor.OperationContextFileName,
                 JsonHandler.writeToInpustream(OperationContextModel.get(queries)));
             OperationContextMonitor
-                .compressInWorkspace(WorkspaceClientFactory.getInstance(), containerName,
+                .compressInWorkspace(WorkspaceClientFactory.getInstance(WorkspaceType.VITAM), containerName,
                     Contexts.BULK_ATOMIC_UPDATE_UNIT_DESC.getLogbookTypeProcess(),
                     OperationContextMonitor.OperationContextFileName);
 
@@ -1070,7 +1071,7 @@ public class BulkAtomicUpdateIT extends VitamRuleRunner {
             VitamThreadUtils.getVitamSession().setRequestId(operationGuid);
             createLogbookOperation(operationGuid, operationGuid, BULK_ATOMIC_UPDATE_UNIT_DESC,
                 LogbookTypeProcess.BULK_UPDATE);
-            workspaceClient = WorkspaceClientFactory.getInstance().getClient();
+            workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
             workspaceClient.createContainer(containerName);
 
             // insert units and LFC
@@ -1092,7 +1093,7 @@ public class BulkAtomicUpdateIT extends VitamRuleRunner {
             workspaceClient.putObject(containerName, OperationContextMonitor.OperationContextFileName,
                 JsonHandler.writeToInpustream(OperationContextModel.get(queries)));
             OperationContextMonitor
-                .compressInWorkspace(WorkspaceClientFactory.getInstance(), containerName,
+                .compressInWorkspace(WorkspaceClientFactory.getInstance(WorkspaceType.VITAM), containerName,
                     Contexts.BULK_ATOMIC_UPDATE_UNIT_DESC.getLogbookTypeProcess(),
                     OperationContextMonitor.OperationContextFileName);
 

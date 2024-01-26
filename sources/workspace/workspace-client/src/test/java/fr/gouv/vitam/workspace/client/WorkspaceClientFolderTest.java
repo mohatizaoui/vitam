@@ -71,7 +71,7 @@ public class WorkspaceClientFolderTest extends ResteasyTestApplication {
 
     private static final String CONTAINER_NAME = "myContainer";
     private static final String FOLDER_NAME = "myFolder";
-    static WorkspaceClientFactory factory = WorkspaceClientFactory.getInstance();
+    static WorkspaceClientFactory factory = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM);
     private final static ExpectedResults mock = mock(ExpectedResults.class);
 
     public static VitamServerTestRunner

@@ -124,6 +124,7 @@ import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageNotFoundEx
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.ws.rs.core.Response;
@@ -232,8 +233,8 @@ public class StorageDistributionImpl implements StorageDistribution {
         throws StorageTechnicalException {
         ParametersChecker.checkParameter(STORAGE_SERVICE_CONFIGURATION_IS_MANDATORY, configuration);
         urlWorkspace = configuration.getUrlWorkspace();
-        WorkspaceClientFactory.changeMode(urlWorkspace);
-        this.workspaceClientFactory = WorkspaceClientFactory.getInstance();
+        WorkspaceClientFactory.changeMode(urlWorkspace, WorkspaceType.VITAM);
+        this.workspaceClientFactory = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM);
         this.storageLogService = storageLogService;
         digestType = VitamConfiguration.getDefaultDigestType();
         this.transfertTimeoutHelper = new TransfertTimeoutHelper(configuration.getTimeoutMsPerKB(),

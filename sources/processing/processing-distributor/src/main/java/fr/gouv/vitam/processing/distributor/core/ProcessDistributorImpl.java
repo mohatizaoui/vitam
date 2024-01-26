@@ -74,6 +74,7 @@ import fr.gouv.vitam.worker.core.distribution.JsonLineModel;
 import fr.gouv.vitam.workspace.client.WorkspaceBufferingInputStream;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 import org.apache.commons.collections4.iterators.PeekingIterator;
 
 import javax.ws.rs.core.Response;
@@ -142,7 +143,7 @@ public class ProcessDistributorImpl implements ProcessDistributor {
     public ProcessDistributorImpl(IWorkerManager workerManager, AsyncResourcesMonitor asyncResourcesMonitor,
         AsyncResourceCleaner asyncResourceCleaner, ServerConfiguration serverConfiguration) {
         this(workerManager, asyncResourcesMonitor, asyncResourceCleaner, serverConfiguration,
-            WorkspaceProcessDataManagement.getInstance(), WorkspaceClientFactory.getInstance(),
+            WorkspaceProcessDataManagement.getInstance(), WorkspaceClientFactory.getInstance(WorkspaceType.VITAM),
             MetaDataClientFactory.getInstance(), null);
     }
 

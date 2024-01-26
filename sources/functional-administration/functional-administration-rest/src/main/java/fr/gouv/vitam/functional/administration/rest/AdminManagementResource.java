@@ -131,6 +131,7 @@ import fr.gouv.vitam.storage.engine.client.exception.StorageUnavailableDataFromA
 import fr.gouv.vitam.storage.engine.common.exception.StorageNotFoundException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.SetUtils;
@@ -224,14 +225,14 @@ public class AdminManagementResource extends ApplicationStatusResource {
                 new DbConfigurationImpl(configuration.getMongoDbNodes(),
                     configuration.getDbName());
         }
-        workspaceClientFactory = WorkspaceClientFactory.getInstance();
+        workspaceClientFactory = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM);
         processingManagementClientFactory = ProcessingManagementClientFactory.getInstance();
         logbookOperationsClientFactory = LogbookOperationsClientFactory.getInstance();
         metaDataClientFactory = MetaDataClientFactory.getInstance();
         storageClientFactory = StorageClientFactory.getInstance();
         mongoAccess = MongoDbAccessAdminFactory.create(adminConfiguration, ontologyLoader, indexManager);
         vitamRuleService = new VitamRuleService(configuration.getListMinimumRuleDuration());
-        WorkspaceClientFactory.changeMode(configuration.getWorkspaceUrl());
+        WorkspaceClientFactory.changeMode(configuration.getWorkspaceUrl(), WorkspaceType.VITAM);
         ProcessingManagementClientFactory.changeConfigurationUrl(configuration.getProcessingUrl());
         ElasticsearchAccessAdminFactory.create(configuration, indexManager);
         LOGGER.debug("init Admin Management Resource server");

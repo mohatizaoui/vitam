@@ -62,6 +62,7 @@ import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageNotFoundEx
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 import fr.gouv.vitam.workspace.common.CompressInformation;
 import io.prometheus.client.Histogram;
 import org.bson.Document;
@@ -137,7 +138,7 @@ public class StoreGraphService {
     public StoreGraphService(VitamRepositoryProvider vitamRepositoryProvider) {
         this.vitamRepositoryProvider = vitamRepositoryProvider;
         this.restoreBackupService = new RestoreBackupService();
-        this.workspaceClientFactory = WorkspaceClientFactory.getInstance();
+        this.workspaceClientFactory = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM);
         this.storageClientFactory = StorageClientFactory.getInstance();
     }
 

@@ -198,7 +198,7 @@ public class UpdateUnitResourceTest {
             .setDefaultCollectionConfiguration(new DefaultCollectionConfiguration()
                 .setUnit(new CollectionConfiguration(1, 0))
                 .setObjectgroup(new CollectionConfiguration(1, 0))));
-
+        configuration.setWorkspaceUrl("http://localhost:8094");
         VitamConfiguration.setTenants(tenantList);
         serverPort = junitHelper.findAvailablePort();
         File configurationFile = tempFolder.newFile();

@@ -62,7 +62,7 @@ public class WorkspaceClientContainerTest extends ResteasyTestApplication {
     protected static WorkspaceClient client;
 
     private static final String CONTAINER_NAME = "myContainer" + GUIDFactory.newGUID().toString();
-    static WorkspaceClientFactory factory = WorkspaceClientFactory.getInstance();
+    static WorkspaceClientFactory factory = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM);
 
     private final static ExpectedResults mock = mock(ExpectedResults.class);
     public static VitamServerTestRunner

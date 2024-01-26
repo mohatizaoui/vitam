@@ -62,6 +62,7 @@ import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerExce
 import fr.gouv.vitam.workspace.api.model.FileParams;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import javax.ws.rs.core.Response;
@@ -118,8 +119,8 @@ public class HandlerIOImpl implements HandlerIO, VitamAutoCloseable {
      * @param objectIds
      */
     public HandlerIOImpl(String containerName, String workerId, List<String> objectIds) {
-        this(WorkspaceClientFactory.getInstance(), LogbookLifeCyclesClientFactory.getInstance(), containerName,
-            workerId, objectIds);
+        this(WorkspaceClientFactory.getInstance(WorkspaceType.VITAM), LogbookLifeCyclesClientFactory.getInstance(),
+            containerName, workerId, objectIds);
     }
 
     /**

@@ -67,6 +67,7 @@ import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageNotFoundEx
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -320,7 +321,8 @@ public class LogbookOperationTraceabilityHelper implements LogbookTraceabilityHe
         TraceabilityEvent event)
         throws TraceabilityException {
         try (InputStream inputStream = new BufferedInputStream(new FileInputStream(zipFile));
-            final WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance().getClient()) {
+            final WorkspaceClient workspaceClient =
+                WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient()) {
 
             String containerName = VitamThreadUtils.getVitamSession().getRequestId();
             workspaceClient.createContainer(containerName);

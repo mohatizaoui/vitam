@@ -238,7 +238,7 @@ public class SelectUnitResourceTest {
             .setDefaultCollectionConfiguration(new DefaultCollectionConfiguration()
                 .setUnit(new CollectionConfiguration(1, 0))
                 .setObjectgroup(new CollectionConfiguration(1, 0))));
-
+        configuration.setWorkspaceUrl("http://localhost:8094");
         serverPort = junitHelper.findAvailablePort();
 
         File configurationFile = tempFolder.newFile();

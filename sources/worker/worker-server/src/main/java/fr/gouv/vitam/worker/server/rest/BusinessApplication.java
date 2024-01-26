@@ -38,6 +38,7 @@ import fr.gouv.vitam.worker.core.api.Worker;
 import fr.gouv.vitam.worker.core.plugin.PluginLoader;
 import fr.gouv.vitam.worker.core.validation.MetadataValidationProvider;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 
 import javax.servlet.ServletConfig;
 import javax.ws.rs.core.Application;
@@ -91,7 +92,7 @@ public class BusinessApplication extends Application {
             if (mock != null) {
                 singletons.add(new WorkerResource(pluginLoader, mock));
             } else {
-                WorkspaceClientFactory.changeMode(configuration.getUrlWorkspace());
+                WorkspaceClientFactory.changeMode(configuration.getUrlWorkspace(), WorkspaceType.VITAM);
                 singletons.add(new WorkerResource(pluginLoader));
             }
 

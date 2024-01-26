@@ -34,7 +34,7 @@ public class WorkspaceClientFactoryTest {
 
     @Test
     public void givenWorkspaceClientFactoryWhenCallingCreateThenReturnClient() {
-        WorkspaceClientFactory.changeMode("http://localhost:8080");
-        assertTrue(WorkspaceClientFactory.getInstance().getClient() instanceof WorkspaceClient);
+        WorkspaceClientFactory.changeMode("http://localhost:8080", WorkspaceType.VITAM);
+        assertTrue(WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient() instanceof WorkspaceClient);
     }
 }

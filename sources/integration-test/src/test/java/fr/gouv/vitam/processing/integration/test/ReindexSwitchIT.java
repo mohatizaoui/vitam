@@ -84,6 +84,7 @@ import fr.gouv.vitam.worker.server.rest.WorkerMain;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageNotFoundException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 import fr.gouv.vitam.workspace.rest.WorkspaceMain;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -150,7 +151,7 @@ public class ReindexSwitchIT extends VitamRuleRunner {
 
         runAfter();
 
-        try (WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance().getClient()) {
+        try (WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient()) {
             workspaceClient.deleteContainer("process", true);
         } catch (ContentAddressableStorageNotFoundException e) {
             LOGGER.error(e);
@@ -284,7 +285,7 @@ public class ReindexSwitchIT extends VitamRuleRunner {
             PropertiesUtils.getResourceAsStream(SIP_OK);
 
         //
-        workspaceClient = WorkspaceClientFactory.getInstance().getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
         workspaceClient.createContainer(containerName);
         workspaceClient.uncompressObject(containerName, SIP_FOLDER, CommonMediaType.ZIP,
             zipInputStreamSipObject);

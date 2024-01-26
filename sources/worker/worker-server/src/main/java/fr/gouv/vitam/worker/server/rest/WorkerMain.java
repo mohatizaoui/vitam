@@ -41,6 +41,7 @@ import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClientFactory;
 import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.worker.server.registration.WorkerRegistrationListener;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import javax.servlet.ServletContextListener;
@@ -103,14 +104,14 @@ public class WorkerMain {
             try (final InputStream yamlIS = PropertiesUtils.getConfigAsStream(args[0])) {
                 final WorkerConfiguration configuration =
                     PropertiesUtils.readYaml(yamlIS, WorkerConfiguration.class);
-                WorkspaceClientFactory.changeMode(configuration.getUrlWorkspace());
+                WorkspaceClientFactory.changeMode(configuration.getUrlWorkspace(), WorkspaceType.VITAM);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
             // Register LogbookLifecycle
             serviceRegistry.register(LogbookLifeCyclesClientFactory.getInstance())
                 // Workspace dependency
-                .register(WorkspaceClientFactory.getInstance())
+                .register(WorkspaceClientFactory.getInstance(WorkspaceType.VITAM))
                 // Metadata dependency
                 .register(MetaDataClientFactory.getInstance());
             // Database dependency

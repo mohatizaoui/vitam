@@ -68,6 +68,7 @@ import fr.gouv.vitam.storage.offers.rest.OfferConfiguration;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 import fr.gouv.vitam.workspace.rest.WorkspaceMain;
 import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
@@ -148,8 +149,8 @@ public class StorageTestMultiNoSslIT {
         workspaceMain.start();
         SystemPropertyUtil.clear(WorkspaceMain.PARAMETER_JETTY_SERVER_PORT);
 
-        WorkspaceClientFactory.changeMode("http://localhost:" + workspacePort);
-        workspaceClient = WorkspaceClientFactory.getInstance().getClient();
+        WorkspaceClientFactory.changeMode("http://localhost:" + workspacePort, WorkspaceType.VITAM);
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
 
         // offer
         defaultOfferPort = JunitHelper.getInstance().findAvailablePort();

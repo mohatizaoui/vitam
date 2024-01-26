@@ -47,6 +47,7 @@ import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageNotFoundEx
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 
 import java.io.InputStream;
 
@@ -62,7 +63,7 @@ public class BackupService {
     private final StorageClientFactory storageClientFactory;
 
     public BackupService() {
-        workspaceClientFactory = WorkspaceClientFactory.getInstance();
+        workspaceClientFactory = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM);
         storageClientFactory = StorageClientFactory.getInstance();
     }
 

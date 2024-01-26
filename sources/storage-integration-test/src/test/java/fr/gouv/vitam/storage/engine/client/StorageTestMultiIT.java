@@ -70,6 +70,7 @@ import fr.gouv.vitam.storage.offers.rest.OfferConfiguration;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 import fr.gouv.vitam.workspace.rest.WorkspaceMain;
 import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
@@ -159,8 +160,8 @@ public class StorageTestMultiIT {
         workspaceMain.start();
         SystemPropertyUtil.clear(WorkspaceMain.PARAMETER_JETTY_SERVER_PORT);
 
-        WorkspaceClientFactory.changeMode("http://localhost:" + workspacePort);
-        workspaceClient = WorkspaceClientFactory.getInstance().getClient();
+        WorkspaceClientFactory.changeMode("http://localhost:" + workspacePort, WorkspaceType.VITAM);
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
 
         // first offer
         defaultOfferPort = JunitHelper.getInstance().findAvailablePort();
@@ -291,7 +292,7 @@ public class StorageTestMultiIT {
     }
 
     private static void populateWorkspace() throws ContentAddressableStorageServerException {
-        try (WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance().getClient()) {
+        try (WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient()) {
             try {
                 workspaceClient.createContainer(CONTAINER);
             } catch (ContentAddressableStorageServerException e) {
@@ -306,7 +307,7 @@ public class StorageTestMultiIT {
 
     private static void populateWorkspace(String filepath)
         throws ContentAddressableStorageServerException, IOException {
-        try (WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance().getClient()) {
+        try (WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient()) {
             try {
                 workspaceClient.createContainer(CONTAINER);
             } catch (ContentAddressableStorageServerException e) {

@@ -864,7 +864,7 @@ public class VitamServerRunner extends ExternalResource {
 
     public void startWorkspaceServer() throws IOException, VitamApplicationServerException {
         if (null != workspaceMain) {
-            WorkspaceClientFactory.changeMode(WORKSPACE_URL);
+            WorkspaceClientFactory.changeMode(WORKSPACE_URL, WorkspaceType.VITAM);
             return;
         }
         SystemPropertyUtil.set(WorkspaceMain.PARAMETER_JETTY_SERVER_PORT, Integer.toString(PORT_SERVICE_WORKSPACE));
@@ -1142,7 +1142,7 @@ public class VitamServerRunner extends ExternalResource {
 
     void waitServerStart() {
         if (null != workspaceMain) {
-            waitServerStart(WorkspaceClientFactory.getInstance().getClient());
+            waitServerStart(WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient());
         }
         if (null != metadataMain) {
             waitServerStart(MetaDataClientFactory.getInstance().getClient());
@@ -1355,7 +1355,7 @@ public class VitamServerRunner extends ExternalResource {
 
     public void startWorkspaceCollectServer() throws IOException, VitamApplicationServerException {
         if (null != workspaceCollectMain) {
-            WorkspaceClientFactory.changeMode(WORKSPACE_COLLECT_URL);
+            WorkspaceClientFactory.changeMode(WORKSPACE_COLLECT_URL, WorkspaceType.COLLECT);
             return;
         }
         SystemPropertyUtil.set(WorkspaceMain.PARAMETER_JETTY_SERVER_PORT,

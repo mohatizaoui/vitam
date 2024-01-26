@@ -39,6 +39,7 @@ import fr.gouv.vitam.worker.common.HandlerIO;
 import fr.gouv.vitam.worker.core.handler.ActionHandler;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 
 import static fr.gouv.vitam.worker.core.utils.PluginHelper.EventDetails.of;
 import static fr.gouv.vitam.worker.core.utils.PluginHelper.buildItemStatus;
@@ -52,7 +53,7 @@ public class PreservationPreparationInsertionAuMetadata extends ActionHandler {
     private final WorkspaceClientFactory workspaceClientFactory;
 
     public PreservationPreparationInsertionAuMetadata() {
-        this(BatchReportClientFactory.getInstance(), WorkspaceClientFactory.getInstance());
+        this(BatchReportClientFactory.getInstance(), WorkspaceClientFactory.getInstance(WorkspaceType.VITAM));
     }
 
     @VisibleForTesting

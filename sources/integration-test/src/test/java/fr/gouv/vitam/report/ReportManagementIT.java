@@ -64,6 +64,7 @@ import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageNotFoundEx
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceType;
 import fr.gouv.vitam.workspace.rest.WorkspaceMain;
 import net.javacrumbs.jsonunit.JsonAssert;
 import net.javacrumbs.jsonunit.core.Option;
@@ -132,7 +133,7 @@ public class ReportManagementIT extends VitamRuleRunner {
         handleBeforeClass(Arrays.asList(0, 1), Collections.emptyMap());
         BatchReportClientFactory batchReportClientFactory = BatchReportClientFactory.getInstance();
         batchReportClient = batchReportClientFactory.getClient();
-        workspaceClient = WorkspaceClientFactory.getInstance().getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
     }
 
     @Before
