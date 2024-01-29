@@ -105,7 +105,6 @@ import static fr.gouv.vitam.common.GlobalDataRest.X_REQUEST_ID;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.junit.Assert.assertEquals;
 
 /**
  * step defining access glue
@@ -680,7 +679,7 @@ public class AccessStep extends CommonStep {
         DigestType digestType = DigestType.fromValue(algorithm);
         Digest digest = new Digest(digestType);
         digest.update(transferFile.toFile());
-        assertEquals(expectedDigest, digest.toString());
+        assertThat(digest.toString()).isEqualTo(expectedDigest);
     }
 
     /**
