@@ -108,7 +108,7 @@ public class ReconstructionOperationRepositoryImpl implements ReconstructionOper
             final Date to = LocalDateUtil.getDate(endDate);
 
             RangeQuery range = QueryHelper.range(VitamFieldsHelper.lastPersistedDate(), from, true, to, false);
-            final String[] evTypes = {"ELIMINATION_ACTION", "DELETE_GOT_VERSIONS"};
+            final String[] evTypes = {"ELIMINATION_ACTION", "DELETE_GOT_VERSIONS", "TRANSFER_REPLY"};
             final InQuery type = QueryHelper.in("evType", evTypes);
             final String[] operationOutDetails = {"ELIMINATION_ACTION.OK", "ELIMINATION_ACTION.WARNING", "DELETE_GOT_VERSIONS.OK", "TRANSFER_REPLY.OK"};
             final InQuery status = QueryHelper.in("events" + "." + "outDetail", operationOutDetails);
