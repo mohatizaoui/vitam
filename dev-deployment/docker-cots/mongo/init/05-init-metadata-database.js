@@ -1,0 +1,16 @@
+
+// Switch to metadata database
+db = db.getSiblingDB('metadata')
+
+// Create indexes
+// A single collection can have no more than 64 indexes.
+
+db.Unit.createIndex( { "_tenant" : 1 } )
+db.Unit.createIndex( { "_ops" : 1 } )
+db.Unit.createIndex( { "_glpd" : 1 } )
+
+db.ObjectGroup.createIndex( { "_tenant" : 1 } )
+db.ObjectGroup.createIndex( { "_ops" : 1 } )
+db.ObjectGroup.createIndex( { "_glpd" : 1 } )
+
+db.Snapshot.createIndex( { "_tenant" : 1, "Name" : 1 } , { unique: true } )

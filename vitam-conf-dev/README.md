@@ -35,7 +35,7 @@
    127.0.0.1       collect-internal.service.consul
    127.0.0.1       offer-tape-1.service.consul' > /etc/hosts`
 
-Should be usefull: Add 'export VITAMDEV_GIT_REPO=/path/to/git/vitam/repo' in .bashrc before launch run_cots
+Should be useful: Add 'export VITAMDEV_GIT_REPO=/path/to/git/vitam/repo' in .bashrc before launch run_cots
 
 5. If not done yet, install docker:
     1. sudo apt install docker.io
@@ -43,7 +43,7 @@ Should be usefull: Add 'export VITAMDEV_GIT_REPO=/path/to/git/vitam/repo' in .ba
 
 6. Run the `dev-deployment/run_cots.sh` file in order to create container with necessary components for vitam (like
    databases).
-    1. If DNS error occures while launching run_cots.sh, it could be usefull to change default docker dns creating a '
+    1. If DNS error occurs while launching run_cots.sh, it could be useful to change default docker dns creating a '
        /etc/docker/daemon.json' containing { "dns": ["10.100.211.222"] } where '10.100.211.222' is the programmevitam
        culture dns.
     2. After update DNS conf, restart docker with `sudo systemctl restart docker`
@@ -103,7 +103,7 @@ Should be usefull: Add 'export VITAMDEV_GIT_REPO=/path/to/git/vitam/repo' in .ba
        with `docker run -d -p 10081:8081 --name="mongo-express" -e ME_CONFIG_MONGODB_ADMINUSERNAME="vitamdb-admin" -e ME_CONFIG_MONGODB_ADMINPASSWORD="azerty" -e ME_CONFIG_MONGODB_SERVER="172.17.0.2" --link vitam-rpm-cots-dev:mongo docker.programmevitam.fr/mongo-express`
 
 13. Pour utiliser une deuxième offre de type FS:
-    1. Executer le script `init_offer2_database.sh` qui initialisera une base offer2 dans le mongo
+    1. Exécuter le script `init_offer2_database.sh` qui initialisera une base offer2 dans le mongo
     2. Ajouter un deuxième serveur application offer dans intellij:
        a. Main class: fr.gouv.vitam.storage.offers.rest.DefaultOfferMain
        b. VM Options: -Xms256m -Xmx256m -Dlogback.configurationFile=path/to/vitam/vitam-conf-dev/conf/offer2/logback.xml
@@ -112,15 +112,15 @@ Should be usefull: Add 'export VITAMDEV_GIT_REPO=/path/to/git/vitam/repo' in .ba
        e. module classpath: vitam-offer
        f. Log (Add new log entry): /vitam/log/offer2/offer.*.log
        f. AccessLog (Add new log entry): /vitam/log/offer2/accesslog-offer.*.log
-    3. Si nécéssaire créer les dossier `/vitam/data/offer2` et `/vitam/log/offer2`
+    3. Si nécessaire créer les dossier `/vitam/data/offer2` et `/vitam/log/offer2`
 
 14. Pour utiliser une troisième offre de type TAPE:
-    1. Récupérer le repository `vtl-utils` et executer les scripts pour lancer le serveur et configurer le client sur la
+    1. Récupérer le repository `vtl-utils` et exécuter les scripts pour lancer le serveur et configurer le client sur la
        machine locale
     2. Copier le fichier `conf/offer3/default-storage.conf.sample` vers `conf/offer3/default-storage.conf` et y
        remplacer les valeurs $SERIAL_NUMBER_ROBOT$, $SERIAL_NUMBER_DRIVE0$ et $SERIAL_NUMBER_DRIVE1$ par les valeurs
-       obtenues en executant `ll /dev/tape/by-id/`
-    2. Executer le script  `init_offer3_database.sh` qui initialisera une base offer3 dans le mongo
+       obtenues en exécutant `ll /dev/tape/by-id/`
+    2. Exécuter le script  `init_offer3_database.sh` qui initialisera une base offer3 dans le mongo
     3. Ajouter un deuxième serveur application offer dans intellij:
        a. Main class: fr.gouv.vitam.storage.offers.rest.DefaultOfferMain
        b. VM Options: -Xms256m -Xmx256m -Dlogback.configurationFile=path/to/vitam/vitam-conf-dev/conf/offer3/logback.xml
@@ -129,7 +129,7 @@ Should be usefull: Add 'export VITAMDEV_GIT_REPO=/path/to/git/vitam/repo' in .ba
        e. module classpath: vitam-offer
        f. Log (Add new log entry): /vitam/log/offer3/offer.*.log
        f. AccessLog (Add new log entry): /vitam/log/offer3/accesslog-offer.*.log
-    4. Si nécéssaire créer les dossier `/vitam/data/offer3` et `/vitam/log/offer3`
+    4. Si nécessaire créer les dossier `/vitam/data/offer3` et `/vitam/log/offer3`
 
 # Configuration Mac specific
 
@@ -146,7 +146,7 @@ Add in elasticsearch conf to connect everywhere with:
 
 * To get a vitam service status, run : `systemctl status -l vitam-[SERVICE_NAME].service`
 * To restart a vitam service, run : `sudo systemctl start vitam-[SERVICE_NAME].service`
-* When using ES cluster, and in case memory use exeeds 95%, run those commands to disable the control that ES apply on
+* When using ES cluster, and in case memory use exceeds 95%, run those commands to disable the control that ES apply on
   the memory use :
     1. curl -XPUT -H "Content-Type: application/json" http://localhost:9200/_cluster/settings -d '{ "transient": { "
        cluster.routing.allocation.disk.threshold_enabled": false } }'

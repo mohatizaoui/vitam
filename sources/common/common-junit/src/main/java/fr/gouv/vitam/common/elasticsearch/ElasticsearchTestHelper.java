@@ -50,6 +50,6 @@ public class ElasticsearchTestHelper {
     private static String loadMapping(String path) {
         String dir = Paths.get("").toAbsolutePath().toString();
         String userDir = StringUtils.substringBeforeLast(dir, "sources/");
-        return userDir + path;
+        return Paths.get(userDir, path).toString();
     }
 }

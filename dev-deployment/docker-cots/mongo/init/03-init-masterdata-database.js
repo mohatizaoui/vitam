@@ -1,0 +1,50 @@
+// Switch to masterdata database
+db = db.getSiblingDB('masterdata')
+
+// Create indexes
+// A single collection can have no more than 64 indexes.
+
+db.Agencies.createIndex( { "_tenant" : 1 , "Identifier" : 1 } , { unique: true } )
+
+db.FileRules.createIndex( { "_tenant" : 1 , "RuleId" : 1 } , { unique: true } )
+db.FileRules.createIndex( { "_tenant" : 1 } )
+db.FileRules.createIndex( { "RuleId" : 1 } )
+db.FileRules.createIndex( { "RuleType" : 1 } )
+
+db.FileFormat.createIndex( { "PUID" : 1 } , { unique: true } )
+
+// Create AccessionRegisterSummary indexes
+db.AccessionRegisterSummary.createIndex( { "_tenant" : 1 , "OriginatingAgency" : 1 } , { unique: true } )
+db.AccessionRegisterSummary.createIndex( { "_tenant" : 1 } )
+
+// Create AccessionRegisterDetail indexes
+db.AccessionRegisterDetail.createIndex( { "_tenant" : 1 } )
+db.AccessionRegisterDetail.createIndex( { "OriginatingAgency" : 1 } )
+db.AccessionRegisterDetail.createIndex( { "SubmissionAgency" : 1 } )
+db.AccessionRegisterDetail.createIndex( { "Opc" : 1 } )
+db.AccessionRegisterDetail.createIndex( { "Opi" : 1 } )
+db.AccessionRegisterDetail.createIndex( { "OriginatingAgency" : 1, "Opi" : 1, "_tenant" : 1} , { unique: true } )
+
+db.IngestContract.createIndex( { "_tenant" : 1 , "Identifier" : 1 } , { unique: true } )
+
+db.AccessContract.createIndex( { "_tenant" : 1 , "Identifier" : 1 } , { unique: true } )
+
+db.Profile.createIndex( { "_tenant" : 1 , "Identifier" : 1 } , { unique: true } )
+
+db.ArchiveUnitProfile.createIndex( { "_tenant" : 1 , "Identifier" : 1 } , { unique: true } )
+
+db.Ontology.createIndex( { "_tenant" : 1 , "Identifier" : 1 } , { unique: true } )
+db.Ontology.createIndex( { "_tenant" : 1 , "Collections" : 1 } )
+
+db.Context.createIndex ( { "Identifier" : 1 } , { unique: true } )
+
+db.SecurityProfile.createIndex ( { "Name" : 1  } , { unique: true } )
+db.SecurityProfile.createIndex ( { "Identifier" : 1 } , { unique: true } )
+
+db.VitamSequence.createIndex( { "Name" : 1 } )
+db.VitamSequence.createIndex( { "Name" : 1, "_tenant" : 1 } , { unique: true } )
+
+db.Griffin.createIndex( { "_tenant" : 1 , "Identifier" : 1 } , { unique: true } )
+db.PreservationScenario.createIndex( { "_tenant" : 1 , "Identifier" : 1 } , { unique: true } )
+
+db.ManagementContract.createIndex( { "_tenant" : 1 , "Identifier" : 1 } , { unique: true } )

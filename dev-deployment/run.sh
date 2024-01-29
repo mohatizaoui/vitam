@@ -45,6 +45,10 @@ then
 	exit 1
 fi
 
+sudoMkdirP() {
+	[ -d "${1}" ] || (sudo -n true 2>/dev/null || echo "We need your sudo credentials to create directories in your filesystem root." ; sudo mkdir -p ${1})
+}
+
 # Either rpm or deb
 if [ -z "${VITAM_TARGET}" ] ; then
 	VITAM_TARGET=rpm
@@ -95,11 +99,11 @@ if [ -z "$(docker ps -a | grep -w vitam-${VITAM_TARGET}-${CONTAINER_NAME})" ]; t
 		dev-base
 	echo "Launching docker container as daemon (launching systemd init process...)"
 	if [ "${VITAM_TARGET}" == "rpm-cots" ] || [ "${VITAM_TARGET}" == "deb-cots" ]; then
-		sudo mkdir -p ${VOLUME_INGEST}
-		sudo mkdir -p ${VOLUME_WORKER}
-		sudo mkdir -p ${VOLUME_WORKER_TMP}
-		sudo mkdir -p ${VOLUME_DATA_TMP}
-    sudo mkdir -p ${VOLUME_COLLECT_TMP}
+		sudoMkdirP ${VOLUME_INGEST}
+		sudoMkdirP ${VOLUME_WORKER}
+		sudoMkdirP ${VOLUME_WORKER_TMP}
+		sudoMkdirP ${VOLUME_DATA_TMP}
+		sudoMkdirP ${VOLUME_COLLECT_TMP}
 
 		docker run -d --privileged -v "${VITAMDEV_GIT_REPO}:/code" -v ${VOLUME_INGEST}:${VOLUME_INGEST} -v ${VOLUME_WORKER}:${VOLUME_WORKER} -v ${VOLUME_WORKER_TMP}:${VOLUME_WORKER_TMP} -v  ${VOLUME_COLLECT_TMP}:${VOLUME_COLLECT_TMP} -v ${VOLUME_DATA_TMP}:${VOLUME_DATA_TMP} -v /sys/fs/cgroup:/sys/fs/cgroup:ro -v "${VITAMDEV_HOME}/.npmrc:/devhome/.npmrc"  -v "${VITAMDEV_HOME}/.m2:/devhome/.m2" ${MAPPING_PORTS} --cap-add=SYS_ADMIN --security-opt seccomp=unconfined --name=${VITAMDEV_CONTAINER} --net=bridge --dns=127.0.0.1 --dns=10.100.211.222 --dns=8.8.8.8 --ulimit memlock=-1 ${VITAMDEV_IMAGE}
 	else

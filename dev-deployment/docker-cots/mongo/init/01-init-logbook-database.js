@@ -1,0 +1,22 @@
+
+// Switch to logbook database
+db = db.getSiblingDB('logbook')
+
+// Create indexes
+// A single collection can have no more than 64 indexes.
+
+db.LogbookOperation.createIndex( { "_tenant" : 1 , "evDateTime" : 1 , "evTypeProc" : 1 , "events.evDateTime" : 1 , "events.outDetail" : 1 } )
+db.LogbookOperation.createIndex( { "_tenant" : 1 , "events.evType" : 1 } )
+db.LogbookOperation.createIndex( { "_tenant" : 1 , "evIdProc" : 1 } )
+// Required for operation traceability (select by _lastPersistedDate && _tenant, order by _lastPersistedDate via index prefix)
+db.LogbookOperation.createIndex( { "_lastPersistedDate": 1, "_tenant" : 1 })
+
+//db.LogbookLifeCycleUnit.createIndex( { "_id" : 1 , "_tenant" : 1 , "evIdProc" : 1 , "events.evIdProc" : 1 } )
+// Required for unit lifecycle traceability (select by _lastPersistedDate && _tenant, order by _lastPersistedDate via index prefix)
+db.LogbookLifeCycleUnit.createIndex( { "_tenant": 1, "_lastPersistedDate": 1 })
+db.LogbookLifeCycleUnitInProcess.createIndex( { "_tenant": 1, "_lastPersistedDate": 1 })
+
+//db.LogbookLifeCycleObjectGroup.createIndex( { "_id" : 1 , "_tenant" : 1 , "evIdProc" : 1 , "events.evIdProc" : 1 , "_tenant" : 1 } )
+// Required for object group lifecycle traceability (select by _lastPersistedDate && _tenant, order by _lastPersistedDate via index prefix)
+db.LogbookLifeCycleObjectGroup.createIndex( { "_tenant": 1, "_lastPersistedDate": 1 })
+db.LogbookLifeCycleObjectGroupInProcess.createIndex( { "_tenant": 1, "_lastPersistedDate": 1 })

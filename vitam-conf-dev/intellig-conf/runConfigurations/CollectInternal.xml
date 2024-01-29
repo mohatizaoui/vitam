@@ -1,0 +1,16 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="CollectInternal" type="Application" factoryName="Application">
+    <option name="ALTERNATIVE_JRE_PATH" value="11" />
+    <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+    <log_file alias="Logs" path="$vitamLocalShareFolder$/log/collect-internal/collect-internal*.log" />
+    <log_file alias="AccessLogs" path="$vitamLocalShareFolder$/log/collect-internal/accesslog-collect-internal.*.log" />
+    <option name="MAIN_CLASS_NAME" value="fr.gouv.vitam.collect.internal.CollectInternalMain" />
+    <module name="collect-internal-rest" />
+    <option name="PROGRAM_PARAMETERS" value="$vitamLocalShareFolder$/conf/collect-internal/collect-internal.conf" />
+    <option name="VM_PARAMETERS" value="-Xms256m -Xmx256m -Dlogback.configurationFile=$vitamLocalShareFolder$/conf/collect-internal/logback.xml -Dvitam.tmp.folder=$vitamLocalShareFolder$/tmp/collect-internal -Dvitam.config.folder=$vitamLocalShareFolder$/conf/collect-internal -Dvitam.data.folder=$vitamLocalShareFolder$/data/collect-internal -Dvitam.log.folder=$vitamLocalShareFolder$/log/collect-internal" />
+    <option name="WORKING_DIRECTORY" value="$vitamLocalShareFolder$/conf/collect-internal" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
