@@ -1,6 +1,6 @@
 ### tenants ###
 # List of dead / removed tenants that should never be reused / present in vitam_tenant_ids
-vitam_removed_tenants: []
+vitam_removed_tenants: [ ]
 # Administration tenant
 vitam_tenant_admin: 1
 
@@ -74,6 +74,7 @@ vitam_elasticsearch_tenant_indexation:
   #   - preservationscenario
   #   - profile
   #   - securityprofile
+  #   - schema
   ###
   masterdata:
   #  {collection}:
@@ -127,7 +128,7 @@ vitam_elasticsearch_tenant_indexation:
 extendedConfiguration:
   default:
     eliminationReportExtraFields: [ ]
-    objectGroupBlackListedFields: ['Filename']
+    objectGroupBlackListedFields: [ 'Filename' ]
   custom:
   # The `eliminationReportExtraFields` configuration option specifies the metadata keys that should be included in the report when performing an elimination.
   #   It determines which additional metadata fields should be retained and displayed in the elimination report.

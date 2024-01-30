@@ -26,19 +26,30 @@
  */
 package fr.gouv.vitam.functional.administration.rest;
 
+import fr.gouv.vitam.common.ParametersChecker;
+import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
-import fr.gouv.vitam.common.model.administration.SchemaModel;
-import fr.gouv.vitam.functional.administration.core.ontologies.OntologyService;
+import fr.gouv.vitam.common.model.RequestResponse;
+import fr.gouv.vitam.common.model.administration.schema.SchemaInputModel;
+import fr.gouv.vitam.common.model.administration.schema.SchemaModel;
+import fr.gouv.vitam.common.model.administration.schema.SchemaResponse;
+import fr.gouv.vitam.functional.administration.common.exception.ReferentialException;
+import fr.gouv.vitam.functional.administration.core.schema.SchemaService;
+import fr.gouv.vitam.functional.administration.utils.ResponseErrorUtils;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import javax.ws.rs.ApplicationPath;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.util.List;
 
@@ -46,40 +57,91 @@ import java.util.List;
 @ApplicationPath("webresources")
 @Tag(name = "Functional-Administration")
 public class SchemaResource {
-
+    private static final String FUNCTIONAL_ADMINISTRATION_MODULE = "FUNCTIONAL_ADMINISTRATION_MODULE";
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(SchemaResource.class);
+    public static final String UNIT_SCHEMA_URI = "/schema/unit";
+    public static final String OBJECTGROUP_SCHEMA_URI = "/schema/objectgroup";
+    private static final String SCHEMA_JSON_IS_MANDATORY_PARAMETER =
+        "The json input of external schema type is mandatory";
 
-    private final OntologyService ontologyService;
+    private final SchemaService schemaService;
 
-    public SchemaResource(OntologyService ontologyService) {
-        this.ontologyService = ontologyService;
+    public SchemaResource(SchemaService schemaService) {
+        this.schemaService = schemaService;
     }
 
-    @Path("/schema/unit")
+    /**
+     * Api to return unit schema
+     *
+     * @return
+     */
+    @Path(UNIT_SCHEMA_URI)
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response unitSchema() {
         try {
             LOGGER.info(" retrieving unit schema elements");
-            List<SchemaModel> unitSchema = ontologyService.findUnitSchema();
+            List<SchemaResponse> unitSchema = schemaService.findUnitSchema();
             return Response.ok(unitSchema).build();
-        } catch (InvalidParseOperationException | IOException e) {
+        } catch (InvalidParseOperationException | IOException | ReferentialException |
+                 InvalidCreateOperationException e) {
             LOGGER.error("Cannot retrieve unit schema ", e);
             return Response.serverError().build();
         }
     }
 
-    @Path("/schema/objectgroup")
+
+
+    @Path(OBJECTGROUP_SCHEMA_URI)
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response objectGroupSchema() {
         try {
             LOGGER.info(" retrieving object group schema elements");
-            List<SchemaModel> objectGroupSchema = ontologyService.findObjectGroupSchema();
+            List<SchemaResponse> objectGroupSchema = schemaService.findObjectGroupInternalSchema();
             return Response.ok(objectGroupSchema).build();
         } catch (InvalidParseOperationException | IOException e) {
             LOGGER.error("Cannot retrieve object group schema ", e);
             return Response.serverError().build();
+        }
+    }
+
+    /**
+     * Import a set of external schema. </BR>
+     *
+     * The input is invalid in the following situations : </BR>
+     * <ul>
+     * <li>The json is invalid</li>
+     * <li>The json contains an already used path</li>
+     * <li>One or more mandatory field is missing</li>
+     * <li>A field has an invalid format</li>
+     * </ul>
+     *
+     * @param externalSchemaList as InputStream
+     * @param uri the uri info
+     * @return Response
+     */
+    @Path(UNIT_SCHEMA_URI)
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response importExternalSchemaElements(List<SchemaInputModel> externalSchemaList, @Context UriInfo uri) {
+        ParametersChecker.checkParameter(SCHEMA_JSON_IS_MANDATORY_PARAMETER, externalSchemaList);
+
+        try {
+            RequestResponse<SchemaModel> requestResponse =
+                schemaService.importExternalSchemaElements(externalSchemaList);
+
+            if (!requestResponse.isOk()) {
+                return Response.status(requestResponse.getHttpCode()).entity(requestResponse).build();
+            } else {
+                return Response.accepted(uri.getRequestUri().normalize()).entity(requestResponse).build();
+            }
+        } catch (Exception exp) {
+            LOGGER.error("Unexpected server error {}", exp);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity(ResponseErrorUtils.getErrorEntity(Response.Status.INTERNAL_SERVER_ERROR, exp.getMessage(),
+                    FUNCTIONAL_ADMINISTRATION_MODULE)).build();
         }
     }
 }

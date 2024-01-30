@@ -53,6 +53,7 @@ import fr.gouv.vitam.functional.administration.common.Profile;
 import fr.gouv.vitam.functional.administration.common.SecurityProfile;
 import fr.gouv.vitam.functional.administration.common.VitamSequence;
 import fr.gouv.vitam.functional.administration.common.exception.ReferentialException;
+import fr.gouv.vitam.functional.administration.common.schema.Schema;
 import org.bson.Document;
 
 import java.util.ArrayList;
@@ -138,7 +139,14 @@ public enum FunctionalAdminCollections {
     /**
      * Ontology collection
      */
-    ONTOLOGY(Ontology.class, false, false);
+    ONTOLOGY(Ontology.class, false, false),
+
+    /**
+     * Schema collection
+     */
+    SCHEMA(Schema.class, true, false);
+
+
 
     private final VitamDescriptionResolver vitamDescriptionResolver;
     private final VitamCollection<? extends VitamDocument<?>> vitamCollection;
@@ -301,6 +309,8 @@ public enum FunctionalAdminCollections {
                 return ElasticsearchCollections.GRIFFIN;
             case PRESERVATION_SCENARIO:
                 return ElasticsearchCollections.PRESERVATION_SCENARIO;
+            case SCHEMA:
+                return ElasticsearchCollections.SCHEMA;
             case VITAM_SEQUENCE:
                 throw new IllegalStateException("No ES index for collection " + this);
             default:

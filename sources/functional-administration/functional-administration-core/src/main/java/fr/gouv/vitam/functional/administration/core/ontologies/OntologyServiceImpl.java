@@ -26,7 +26,6 @@
  */
 package fr.gouv.vitam.functional.administration.core.ontologies;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -35,7 +34,6 @@ import com.mongodb.client.FindIterable;
 import fr.gouv.vitam.common.GlobalDataRest;
 import fr.gouv.vitam.common.LocalDateUtil;
 import fr.gouv.vitam.common.ParametersChecker;
-import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper;
 import fr.gouv.vitam.common.database.builder.query.action.SetAction;
@@ -71,7 +69,6 @@ import fr.gouv.vitam.common.model.administration.ArchiveUnitProfileModel;
 import fr.gouv.vitam.common.model.administration.OntologyModel;
 import fr.gouv.vitam.common.model.administration.OntologyOrigin;
 import fr.gouv.vitam.common.model.administration.OntologyType;
-import fr.gouv.vitam.common.model.administration.SchemaModel;
 import fr.gouv.vitam.common.parameter.ParameterHelper;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.functional.administration.common.ArchiveUnitProfile;
@@ -813,25 +810,6 @@ public class OntologyServiceImpl implements OntologyService {
         }
     }
 
-    @Override
-    public List<SchemaModel> findUnitSchema() throws InvalidParseOperationException, IOException {
-        LOGGER.info("retrieving unit schema ");
-        InputStream isUnitInternalSchema = loadUnitInternalSchema();
-        List<SchemaModel> unitSchemaModels =
-            JsonHandler.getFromInputStreamAsTypeReference(isUnitInternalSchema, new TypeReference<>() {
-            });
-        return unitSchemaModels;
-    }
-
-    @Override
-    public List<SchemaModel> findObjectGroupSchema() throws InvalidParseOperationException, IOException {
-        LOGGER.info("retrieving ObjectGroup schema ");
-        InputStream isObjectGroupInternalSchema = loadObjectGroupInternalSchema();
-        List<SchemaModel> objectGroupSchemaModels =
-            JsonHandler.getFromInputStreamAsTypeReference(isObjectGroupInternalSchema, new TypeReference<>() {
-            });
-        return objectGroupSchemaModels;
-    }
 
     private VitamError getVitamError(String vitamCode, String error, StatusCode statusCode) {
         return VitamErrorUtils.getVitamError(vitamCode, error, "Ontology", statusCode);
@@ -1032,17 +1010,5 @@ public class OntologyServiceImpl implements OntologyService {
     }
 
 
-
-    public static InputStream loadUnitInternalSchema() throws IOException {
-        InputStream vitamInternalOntology = PropertiesUtils.getResourceAsStream("vitam-unit-internal-schema.json");
-        return vitamInternalOntology;
-    }
-
-
-    public static InputStream loadObjectGroupInternalSchema() throws IOException {
-        InputStream vitamInternalOntology =
-            PropertiesUtils.getResourceAsStream("vitam-object-group-internal-schema.json");
-        return vitamInternalOntology;
-    }
 
 }

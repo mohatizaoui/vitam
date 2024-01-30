@@ -154,6 +154,19 @@ public interface MongoDbAccessReferential {
         throws ReferentialException;
 
     /**
+     * find documents Without Restriction On CurrentTenant
+     *
+     * @param select filter
+     * @param collection collection of Mongo for find
+     * @return DbRequestResult
+     * @throws ReferentialException when error occurs
+     * @throws BadRequestException when query is incorrect
+     */
+    DbRequestResult findDocumentsWithoutRestrictionOnCurrentTenant(JsonNode select,
+        FunctionalAdminCollections collection)
+        throws ReferentialException;
+
+    /**
      * @param delete filter
      * @param collection collection of Mongo for delete
      * @return DbRequestResult

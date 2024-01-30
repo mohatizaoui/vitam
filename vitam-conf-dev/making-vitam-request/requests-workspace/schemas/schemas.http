@@ -16,3 +16,32 @@ Accept: application/json
 Content-Type: application/json
 X-Tenant-Id: {{tenant}}
 X-Access-Contract-Id: {{access-contract}}
+
+
+### insert external schema Ok
+
+POST {{url-access}}/admin-external/v1/schema/unit
+Accept: application/json
+Content-Type: application/json
+X-Tenant-Id: {{tenant}}
+
+[
+  {
+    "IsObject": true,
+    "Cardinality": "MANY",
+    "Path": "Invoice",
+    "ApiPath": "Invoice",
+    "ShortName": "Facture"
+  },
+  {
+    "IsObject": true,
+    "Cardinality": "MANY",
+    "Path": "Invoice.Provider",
+    "ShortName": "Provider"
+  },
+  {
+    "Cardinality": "ONE",
+    "Path": "Invoice.Provider.BirthDate",
+    "ShortName": "Date de naissance"
+  }
+]

@@ -24,10 +24,42 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL-C license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.common.model.administration;
+package fr.gouv.vitam.common.model.administration.schema;
 
-public enum SchemaCategory {
-    DESCRIPTION,
-    MANAGEMENT,
-    OTHER;
+import com.fasterxml.jackson.annotation.JsonValue;
+
+public enum SchemaType {
+    TEXT("TEXT"),
+    KEYWORD("KEYWORD"),
+    DATE("DATE"),
+    LONG("LONG"),
+    DOUBLE("DOUBLE"),
+    BOOLEAN("BOOLEAN"),
+    ENUM("ENUM"),
+    OBJECT("OBJECT");
+
+    private String type;
+
+    SchemaType(String type) {
+        this.type = type;
+    }
+
+    @JsonValue
+    public String getType() {
+        return type;
+    }
+
+    public static SchemaType getEnumFromType(String type) throws IllegalStateException {
+        if (type == null) {
+            return null;
+        }
+
+        for (final SchemaType e : values()) {
+            if (e.getType().equalsIgnoreCase(type)) {
+                return e;
+            }
+        }
+        throw new IllegalStateException("Cannot find SchemaType " + type);
+    }
+
 }

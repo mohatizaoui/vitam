@@ -8,9 +8,7 @@
     "Path": "FileInfo",
     "ApiPath": "FileInfo",
     "ApiField": "FileInfo",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -28,9 +26,7 @@
     "Path": "FileInfo.CreatingApplicationName",
     "ApiPath": "FileInfo.CreatingApplicationName",
     "ApiField": "CreatingApplicationName",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -49,9 +45,7 @@
     "Path": "FileInfo.CreatingApplicationVersion",
     "ApiPath": "FileInfo.CreatingApplicationVersion",
     "ApiField": "CreatingApplicationVersion",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -70,9 +64,7 @@
     "Path": "FileInfo.CreatingOs",
     "ApiPath": "FileInfo.CreatingOs",
     "ApiField": "CreatingOs",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -91,9 +83,7 @@
     "Path": "FileInfo.CreatingOsVersion",
     "ApiPath": "FileInfo.CreatingOsVersion",
     "ApiField": "CreatingOsVersion",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -112,9 +102,7 @@
     "Path": "FileInfo.DateCreatedByApplication",
     "ApiPath": "FileInfo.DateCreatedByApplication",
     "ApiField": "DateCreatedByApplication",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -133,9 +121,7 @@
     "Path": "FileInfo.Filename",
     "ApiPath": "FileInfo.Filename",
     "ApiField": "Filename",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -154,9 +140,7 @@
     "Path": "FileInfo.LastModified",
     "ApiPath": "FileInfo.LastModified",
     "ApiField": "LastModified",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -175,9 +159,7 @@
     "Path": "Metadata",
     "ApiPath": "Metadata",
     "ApiField": "Metadata",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -195,9 +177,7 @@
     "Path": "Metadata.Audio",
     "ApiPath": "Metadata.Audio",
     "ApiField": "Audio",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -215,9 +195,7 @@
     "Path": "Metadata.Document",
     "ApiPath": "Metadata.Document",
     "ApiField": "Document",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -235,9 +213,7 @@
     "Path": "Metadata.Image",
     "ApiPath": "Metadata.Image",
     "ApiField": "Image",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -255,9 +231,7 @@
     "Path": "Metadata.Text",
     "ApiPath": "Metadata.Text",
     "ApiField": "Text",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -275,9 +249,7 @@
     "Path": "Metadata.Video",
     "ApiPath": "Metadata.Video",
     "ApiField": "Video",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -295,9 +267,7 @@
     "Path": "OtherMetadata",
     "ApiPath": "OtherMetadata",
     "ApiField": "OtherMetadata",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -315,9 +285,7 @@
     "Path": "OtherMetadata.RawMetadata",
     "ApiPath": "OtherMetadata.RawMetadata",
     "ApiField": "RawMetadata",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -335,9 +303,7 @@
     "Path": "_acd",
     "ApiPath": "#approximate_creation_date",
     "ApiField": "#approximate_creation_date",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -355,9 +321,7 @@
     "Path": "_aud",
     "ApiPath": "#approximate_update_date",
     "ApiField": "#approximate_update_date",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -375,9 +339,7 @@
     "Path": "_av",
     "ApiPath": "#atomic_version",
     "ApiField": "#atomic_version",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -395,9 +357,7 @@
     "Path": "_glpd",
     "ApiPath": "#graph_last_persisted_date",
     "ApiField": "#graph_last_persisted_date",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -415,9 +375,7 @@
     "Path": "_id",
     "ApiPath": "#id",
     "ApiField": "#id",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -435,9 +393,7 @@
     "Path": "_nbc",
     "ApiPath": "#nbc",
     "ApiField": "#nbc",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -455,9 +411,7 @@
     "Path": "_opi",
     "ApiPath": "#opi",
     "ApiField": "#opi",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -475,9 +429,7 @@
     "Path": "_ops",
     "ApiPath": "#operations",
     "ApiField": "#operations",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -495,9 +447,7 @@
     "Path": "_qualifiers",
     "ApiPath": "#qualifiers",
     "ApiField": "#qualifiers",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -515,9 +465,7 @@
     "Path": "_qualifiers._nbc",
     "ApiPath": "#qualifiers.#nbc",
     "ApiField": "#nbc",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -535,9 +483,7 @@
     "Path": "_qualifiers.qualifier",
     "ApiPath": "#qualifiers.qualifier",
     "ApiField": "qualifier",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -555,9 +501,7 @@
     "Path": "_qualifiers.versions",
     "ApiPath": "#qualifiers.versions",
     "ApiField": "versions",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -575,9 +519,7 @@
     "Path": "_qualifiers.versions.Algorithm",
     "ApiPath": "#qualifiers.versions.Algorithm",
     "ApiField": "Algorithm",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -596,9 +538,7 @@
     "Path": "_qualifiers.versions.Compressed",
     "ApiPath": "#qualifiers.versions.Compressed",
     "ApiField": "Compressed",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -617,9 +557,7 @@
     "Path": "_qualifiers.versions.DataObjectGroupId",
     "ApiPath": "#qualifiers.versions.DataObjectGroupId",
     "ApiField": "DataObjectGroupId",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -638,9 +576,7 @@
     "Path": "_qualifiers.versions.DataObjectGroupSystemId",
     "ApiPath": "#qualifiers.versions.DataObjectGroupSystemId",
     "ApiField": "DataObjectGroupSystemId",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -659,9 +595,7 @@
     "Path": "_qualifiers.versions.DataObjectNumber",
     "ApiPath": "#qualifiers.versions.DataObjectNumber",
     "ApiField": "DataObjectNumber",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -680,9 +614,7 @@
     "Path": "_qualifiers.versions.DataObjectProfile",
     "ApiPath": "#qualifiers.versions.DataObjectProfile",
     "ApiField": "DataObjectProfile",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -701,9 +633,7 @@
     "Path": "_qualifiers.versions.DataObjectSystemId",
     "ApiPath": "#qualifiers.versions.DataObjectSystemId",
     "ApiField": "DataObjectSystemId",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -722,9 +652,7 @@
     "Path": "_qualifiers.versions.DataObjectUse",
     "ApiPath": "#qualifiers.versions.DataObjectUse",
     "ApiField": "DataObjectUse",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -743,9 +671,7 @@
     "Path": "_qualifiers.versions.DataObjectVersion",
     "ApiPath": "#qualifiers.versions.DataObjectVersion",
     "ApiField": "DataObjectVersion",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -764,9 +690,7 @@
     "Path": "_qualifiers.versions.FileInfo",
     "ApiPath": "#qualifiers.versions.FileInfo",
     "ApiField": "FileInfo",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -784,9 +708,7 @@
     "Path": "_qualifiers.versions.FileInfo.CreatingApplicationName",
     "ApiPath": "#qualifiers.versions.FileInfo.CreatingApplicationName",
     "ApiField": "CreatingApplicationName",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -805,9 +727,7 @@
     "Path": "_qualifiers.versions.FileInfo.CreatingApplicationVersion",
     "ApiPath": "#qualifiers.versions.FileInfo.CreatingApplicationVersion",
     "ApiField": "CreatingApplicationVersion",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -826,9 +746,7 @@
     "Path": "_qualifiers.versions.FileInfo.CreatingOs",
     "ApiPath": "#qualifiers.versions.FileInfo.CreatingOs",
     "ApiField": "CreatingOs",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -847,9 +765,7 @@
     "Path": "_qualifiers.versions.FileInfo.CreatingOsVersion",
     "ApiPath": "#qualifiers.versions.FileInfo.CreatingOsVersion",
     "ApiField": "CreatingOsVersion",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -868,9 +784,7 @@
     "Path": "_qualifiers.versions.FileInfo.DateCreatedByApplication",
     "ApiPath": "#qualifiers.versions.FileInfo.DateCreatedByApplication",
     "ApiField": "DateCreatedByApplication",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -889,9 +803,7 @@
     "Path": "_qualifiers.versions.FileInfo.Filename",
     "ApiPath": "#qualifiers.versions.FileInfo.Filename",
     "ApiField": "Filename",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -910,9 +822,7 @@
     "Path": "_qualifiers.versions.FileInfo.LastModified",
     "ApiPath": "#qualifiers.versions.FileInfo.LastModified",
     "ApiField": "LastModified",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -931,9 +841,7 @@
     "Path": "_qualifiers.versions.FormatIdentification",
     "ApiPath": "#qualifiers.versions.FormatIdentification",
     "ApiField": "FormatIdentification",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -951,9 +859,7 @@
     "Path": "_qualifiers.versions.FormatIdentification.Encoding",
     "ApiPath": "#qualifiers.versions.FormatIdentification.Encoding",
     "ApiField": "Encoding",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -972,9 +878,7 @@
     "Path": "_qualifiers.versions.FormatIdentification.FormatId",
     "ApiPath": "#qualifiers.versions.FormatIdentification.FormatId",
     "ApiField": "FormatId",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -993,9 +897,7 @@
     "Path": "_qualifiers.versions.FormatIdentification.FormatLitteral",
     "ApiPath": "#qualifiers.versions.FormatIdentification.FormatLitteral",
     "ApiField": "FormatLitteral",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1014,9 +916,7 @@
     "Path": "_qualifiers.versions.FormatIdentification.MimeType",
     "ApiPath": "#qualifiers.versions.FormatIdentification.MimeType",
     "ApiField": "MimeType",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1035,9 +935,7 @@
     "Path": "_qualifiers.versions.MessageDigest",
     "ApiPath": "#qualifiers.versions.MessageDigest",
     "ApiField": "MessageDigest",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1056,9 +954,7 @@
     "Path": "_qualifiers.versions.PersistentIdentifier",
     "ApiPath": "#qualifiers.versions.PersistentIdentifier",
     "ApiField": "PersistentIdentifier",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.2",
       "2.3"
@@ -1075,9 +971,7 @@
     "Path": "_qualifiers.versions.PersistentIdentifier.PersistentIdentifierContent",
     "ApiPath": "#qualifiers.versions.PersistentIdentifier.PersistentIdentifierContent",
     "ApiField": "PersistentIdentifierContent",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.2",
       "2.3"
@@ -1095,9 +989,7 @@
     "Path": "_qualifiers.versions.PersistentIdentifier.PersistentIdentifierOrigin",
     "ApiPath": "#qualifiers.versions.PersistentIdentifier.PersistentIdentifierOrigin",
     "ApiField": "PersistentIdentifierOrigin",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1116,9 +1008,7 @@
     "Path": "_qualifiers.versions.PersistentIdentifier.PersistentIdentifierReference",
     "ApiPath": "#qualifiers.versions.PersistentIdentifier.PersistentIdentifierReference",
     "ApiField": "PersistentIdentifierReference",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1137,9 +1027,7 @@
     "Path": "_qualifiers.versions.PersistentIdentifier.PersistentIdentifierType",
     "ApiPath": "#qualifiers.versions.PersistentIdentifier.PersistentIdentifierType",
     "ApiField": "PersistentIdentifierType",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1158,9 +1046,7 @@
     "Path": "_qualifiers.versions.PhysicalDimensions",
     "ApiPath": "#qualifiers.versions.PhysicalDimensions",
     "ApiField": "PhysicalDimensions",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1178,9 +1064,7 @@
     "Path": "_qualifiers.versions.PhysicalDimensions.Depth",
     "ApiPath": "#qualifiers.versions.PhysicalDimensions.Depth",
     "ApiField": "Depth",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1198,9 +1082,7 @@
     "Path": "_qualifiers.versions.PhysicalDimensions.Depth.dValue",
     "ApiPath": "#qualifiers.versions.PhysicalDimensions.Depth.dValue",
     "ApiField": "dValue",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1219,9 +1101,7 @@
     "Path": "_qualifiers.versions.PhysicalDimensions.Depth.unit",
     "ApiPath": "#qualifiers.versions.PhysicalDimensions.Depth.unit",
     "ApiField": "unit",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1240,9 +1120,7 @@
     "Path": "_qualifiers.versions.PhysicalDimensions.Diameter",
     "ApiPath": "#qualifiers.versions.PhysicalDimensions.Diameter",
     "ApiField": "Diameter",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1260,9 +1138,7 @@
     "Path": "_qualifiers.versions.PhysicalDimensions.Diameter.dValue",
     "ApiPath": "#qualifiers.versions.PhysicalDimensions.Diameter.dValue",
     "ApiField": "dValue",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1281,9 +1157,7 @@
     "Path": "_qualifiers.versions.PhysicalDimensions.Diameter.unit",
     "ApiPath": "#qualifiers.versions.PhysicalDimensions.Diameter.unit",
     "ApiField": "unit",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1302,9 +1176,7 @@
     "Path": "_qualifiers.versions.PhysicalDimensions.Height",
     "ApiPath": "#qualifiers.versions.PhysicalDimensions.Height",
     "ApiField": "Height",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1322,9 +1194,7 @@
     "Path": "_qualifiers.versions.PhysicalDimensions.Height.dValue",
     "ApiPath": "#qualifiers.versions.PhysicalDimensions.Height.dValue",
     "ApiField": "dValue",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1343,9 +1213,7 @@
     "Path": "_qualifiers.versions.PhysicalDimensions.Height.unit",
     "ApiPath": "#qualifiers.versions.PhysicalDimensions.Height.unit",
     "ApiField": "unit",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1364,9 +1232,7 @@
     "Path": "_qualifiers.versions.PhysicalDimensions.Length",
     "ApiPath": "#qualifiers.versions.PhysicalDimensions.Length",
     "ApiField": "Length",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1384,9 +1250,7 @@
     "Path": "_qualifiers.versions.PhysicalDimensions.Length.dValue",
     "ApiPath": "#qualifiers.versions.PhysicalDimensions.Length.dValue",
     "ApiField": "dValue",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1405,9 +1269,7 @@
     "Path": "_qualifiers.versions.PhysicalDimensions.Length.unit",
     "ApiPath": "#qualifiers.versions.PhysicalDimensions.Length.unit",
     "ApiField": "unit",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1426,9 +1288,7 @@
     "Path": "_qualifiers.versions.PhysicalDimensions.NumberOfPage",
     "ApiPath": "#qualifiers.versions.PhysicalDimensions.NumberOfPage",
     "ApiField": "NumberOfPage",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1447,9 +1307,7 @@
     "Path": "_qualifiers.versions.PhysicalDimensions.Shape",
     "ApiPath": "#qualifiers.versions.PhysicalDimensions.Shape",
     "ApiField": "Shape",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1468,9 +1326,7 @@
     "Path": "_qualifiers.versions.PhysicalDimensions.Thickness",
     "ApiPath": "#qualifiers.versions.PhysicalDimensions.Thickness",
     "ApiField": "Thickness",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1488,9 +1344,7 @@
     "Path": "_qualifiers.versions.PhysicalDimensions.Thickness.dValue",
     "ApiPath": "#qualifiers.versions.PhysicalDimensions.Thickness.dValue",
     "ApiField": "dValue",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1509,9 +1363,7 @@
     "Path": "_qualifiers.versions.PhysicalDimensions.Thickness.unit",
     "ApiPath": "#qualifiers.versions.PhysicalDimensions.Thickness.unit",
     "ApiField": "unit",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1530,9 +1382,7 @@
     "Path": "_qualifiers.versions.PhysicalDimensions.Weight",
     "ApiPath": "#qualifiers.versions.PhysicalDimensions.Weight",
     "ApiField": "Weight",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1550,9 +1400,7 @@
     "Path": "_qualifiers.versions.PhysicalDimensions.Weight.dValue",
     "ApiPath": "#qualifiers.versions.PhysicalDimensions.Weight.dValue",
     "ApiField": "dValue",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1571,9 +1419,7 @@
     "Path": "_qualifiers.versions.PhysicalDimensions.Weight.unit",
     "ApiPath": "#qualifiers.versions.PhysicalDimensions.Weight.unit",
     "ApiField": "unit",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1592,9 +1438,7 @@
     "Path": "_qualifiers.versions.PhysicalDimensions.Width",
     "ApiPath": "#qualifiers.versions.PhysicalDimensions.Width",
     "ApiField": "Width",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1612,9 +1456,7 @@
     "Path": "_qualifiers.versions.PhysicalDimensions.Width.dValue",
     "ApiPath": "#qualifiers.versions.PhysicalDimensions.Width.dValue",
     "ApiField": "dValue",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1633,9 +1475,7 @@
     "Path": "_qualifiers.versions.PhysicalDimensions.Width.unit",
     "ApiPath": "#qualifiers.versions.PhysicalDimensions.Width.unit",
     "ApiField": "unit",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1654,9 +1494,7 @@
     "Path": "_qualifiers.versions.PhysicalId",
     "ApiPath": "#qualifiers.versions.PhysicalId",
     "ApiField": "PhysicalId",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1675,9 +1513,7 @@
     "Path": "_qualifiers.versions.Size",
     "ApiPath": "#qualifiers.versions.Size",
     "ApiField": "Size",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1696,9 +1532,7 @@
     "Path": "_qualifiers.versions.Uri",
     "ApiPath": "#qualifiers.versions.Uri",
     "ApiField": "Uri",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1717,9 +1551,7 @@
     "Path": "_qualifiers.versions._id",
     "ApiPath": "#qualifiers.versions.#id",
     "ApiField": "#id",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1737,9 +1569,7 @@
     "Path": "_qualifiers.versions._opi",
     "ApiPath": "#qualifiers.versions.#opi",
     "ApiField": "#opi",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1757,9 +1587,7 @@
     "Path": "_qualifiers.versions._storage",
     "ApiPath": "#qualifiers.versions.#storage",
     "ApiField": "#storage",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1777,9 +1605,7 @@
     "Path": "_qualifiers.versions._storage._nbc",
     "ApiPath": "#qualifiers.versions.#storage.#nbc",
     "ApiField": "#nbc",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1797,9 +1623,7 @@
     "Path": "_qualifiers.versions._storage.offerIds",
     "ApiPath": "#qualifiers.versions.#storage.offerIds",
     "ApiField": "offerIds",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1817,9 +1641,7 @@
     "Path": "_qualifiers.versions._storage.strategyId",
     "ApiPath": "#qualifiers.versions.#storage.strategyId",
     "ApiField": "strategyId",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1837,9 +1659,7 @@
     "Path": "_sp",
     "ApiPath": "#originating_agency",
     "ApiField": "#originating_agency",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1858,9 +1678,7 @@
     "Path": "_sps",
     "ApiPath": "#originating_agencies",
     "ApiField": "#originating_agencies",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1878,9 +1696,7 @@
     "Path": "_storage",
     "ApiPath": "#storage",
     "ApiField": "#storage",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1898,9 +1714,7 @@
     "Path": "_storage._nbc",
     "ApiPath": "#storage.#nbc",
     "ApiField": "#nbc",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1918,9 +1732,7 @@
     "Path": "_storage.offerIds",
     "ApiPath": "#storage.offerIds",
     "ApiField": "offerIds",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1938,9 +1750,7 @@
     "Path": "_storage.strategyId",
     "ApiPath": "#storage.strategyId",
     "ApiField": "strategyId",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1958,9 +1768,7 @@
     "Path": "_tenant",
     "ApiPath": "#tenant",
     "ApiField": "#tenant",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1978,9 +1786,7 @@
     "Path": "_uds",
     "ApiPath": "#uds",
     "ApiField": "#uds",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1998,9 +1804,7 @@
     "Path": "_up",
     "ApiPath": "#unitups",
     "ApiField": "#unitups",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -2018,9 +1822,7 @@
     "Path": "_us",
     "ApiPath": "#allunitups",
     "ApiField": "#allunitups",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -2038,9 +1840,7 @@
     "Path": "_v",
     "ApiPath": "#version",
     "ApiField": "#version",
-    "Collections": [
-      "ObjectGroup"
-    ],
+    "Collection": "ObjectGroup",
     "SedaVersions": [
       "2.1",
       "2.2",

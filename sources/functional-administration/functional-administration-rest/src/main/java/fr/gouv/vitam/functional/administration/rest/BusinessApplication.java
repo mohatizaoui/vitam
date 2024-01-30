@@ -51,6 +51,7 @@ import fr.gouv.vitam.functional.administration.core.context.ContextServiceImpl;
 import fr.gouv.vitam.functional.administration.core.griffin.GriffinService;
 import fr.gouv.vitam.functional.administration.core.griffin.PreservationScenarioService;
 import fr.gouv.vitam.functional.administration.core.ontologies.OntologyServiceImpl;
+import fr.gouv.vitam.functional.administration.core.schema.SchemaService;
 import fr.gouv.vitam.functional.administration.core.security.profile.SecurityProfileService;
 
 import javax.servlet.ServletConfig;
@@ -140,6 +141,8 @@ public class BusinessApplication extends Application {
                 new AgenciesService(mongoDbAccess, vitamCounterService, functionalBackupService);
             final OntologyServiceImpl
                 ontologyService = new OntologyServiceImpl(mongoDbAccess, functionalBackupService);
+            final SchemaService schemaService =
+                new SchemaService(mongoDbAccess, functionalBackupService, ontologyService);
             final ArchiveUnitProfileServiceImpl archiveUnitProfileService =
                 new ArchiveUnitProfileServiceImpl(mongoDbAccess, vitamCounterService, functionalBackupService);
 
@@ -169,7 +172,7 @@ public class BusinessApplication extends Application {
                 new PreservationResource(preservationScenarioService, griffinService);
 
             singletons.add(griffinResource);
-            singletons.add(new SchemaResource(ontologyService));
+            singletons.add(new SchemaResource(schemaService));
         } catch (IOException | VitamException e) {
             throw new VitamRuntimeException(e);
         }

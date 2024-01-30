@@ -1,0 +1,14 @@
+{
+  "_id": "aegaaaaaaeeu4mlpab6hialbt7tvkjqaaaaq",
+  "Origin": "EXTERNAL",
+  "Collection": "Unit",
+  "Path": "myparent.myfield",
+  "Cardinality": "ONE",
+  "Description": "Some description",
+  "ShortName": "Some short name",
+  "IsObject": true,
+  "CreationDate": "2016-12-10T00:00:00.000",
+  "LastUpdate": "2018-02-16T18:36:33.444",
+  "_tenant": 1,
+  "_v": 0
+}

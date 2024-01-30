@@ -24,22 +24,25 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL-C license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.common.model.administration;
+package fr.gouv.vitam.common.model.administration.schema;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import fr.gouv.vitam.common.model.ModelConstants;
 
 import java.util.List;
 
 
 /**
- * POJO java for ontology api response
+ * POJO java for schema response
  */
-public class SchemaModel {
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
+public class SchemaResponse {
 
     /**
      * Collections Tag
      */
-    public static final String TAG_COLLECTIONS = "Collections";
+    public static final String TAG_COLLECTION = "Collection";
 
     /**
      * Identifier Tag
@@ -94,21 +97,29 @@ public class SchemaModel {
     public static final String TAG_PATH_CARDINALITY = "Cardinality";
 
     /**
-     * The ontology fieldName
+     * The fieldName
      */
     @JsonProperty(TAG_FIELD_NAME)
     private String fieldName;
+
     /**
-     * The ontology seda field
+     * tenant id
+     */
+    @JsonProperty(ModelConstants.TAG_TENANT)
+    private Integer tenant;
+
+
+    /**
+     * The seda field
      */
     @JsonProperty(TAG_SEDAFIELD)
     private String sedaField;
     /**
-     * The ontology api field
+     * The api field
      */
 
-    @JsonProperty(TAG_COLLECTIONS)
-    private List<String> collections;
+    @JsonProperty(TAG_COLLECTION)
+    private String collection;
 
     @JsonProperty(TAG_API_PATH)
     private String apiPath;
@@ -120,23 +131,23 @@ public class SchemaModel {
     private SchemaCategory category;
 
     /**
-     * The ontology description
+     * The description
      */
     @JsonProperty(TAG_DESCRIPTION)
     private String description;
 
     @JsonProperty(TAG_PATH_CARDINALITY)
-    private OntologyCardinality cardinality;
+    private SchemaCardinality cardinality;
     /**
-     * The ontology type
+     * The type
      */
     @JsonProperty(TAG_TYPE)
     private SchemaType type;
     /**
-     * The ontology origin
+     * The origin
      */
     @JsonProperty(TAG_ORIGIN)
-    private OntologyOrigin origin;
+    private SchemaOrigin origin;
 
     @JsonProperty(TAG_SHORT_NAME)
     private String shortName;
@@ -148,12 +159,12 @@ public class SchemaModel {
     private List<String> sedaVersions;
 
     @JsonProperty(TAG_STRING_TYPE_SIZE)
-    private OntologyStringTypeSize stringSize;
+    private SchemaStringSizeType stringSize;
 
     /**
      * Constructor without fields use for jackson
      */
-    public SchemaModel() {
+    public SchemaResponse() {
         super();
     }
 
@@ -162,7 +173,7 @@ public class SchemaModel {
         return fieldName;
     }
 
-    public SchemaModel setFieldName(String fieldName) {
+    public SchemaResponse setFieldName(String fieldName) {
         this.fieldName = fieldName;
         return this;
     }
@@ -171,7 +182,7 @@ public class SchemaModel {
         return sedaField;
     }
 
-    public SchemaModel setSedaField(String sedaField) {
+    public SchemaResponse setSedaField(String sedaField) {
         this.sedaField = sedaField;
         return this;
     }
@@ -180,7 +191,7 @@ public class SchemaModel {
         return apiField;
     }
 
-    public SchemaModel setApiField(String apiField) {
+    public SchemaResponse setApiField(String apiField) {
         this.apiField = apiField;
         return this;
     }
@@ -189,7 +200,7 @@ public class SchemaModel {
         return category;
     }
 
-    public SchemaModel setCategory(SchemaCategory category) {
+    public SchemaResponse setCategory(SchemaCategory category) {
         this.category = category;
         return this;
     }
@@ -198,7 +209,7 @@ public class SchemaModel {
         return apiPath;
     }
 
-    public SchemaModel setApiPath(String apiPath) {
+    public SchemaResponse setApiPath(String apiPath) {
         this.apiPath = apiPath;
         return this;
     }
@@ -208,16 +219,16 @@ public class SchemaModel {
         return description;
     }
 
-    public SchemaModel setDescription(String description) {
+    public SchemaResponse setDescription(String description) {
         this.description = description;
         return this;
     }
 
-    public OntologyOrigin getOrigin() {
+    public SchemaOrigin getOrigin() {
         return origin;
     }
 
-    public SchemaModel setOrigin(OntologyOrigin origin) {
+    public SchemaResponse setOrigin(SchemaOrigin origin) {
         this.origin = origin;
         return this;
     }
@@ -226,7 +237,7 @@ public class SchemaModel {
         return type;
     }
 
-    public SchemaModel setType(SchemaType type) {
+    public SchemaResponse setType(SchemaType type) {
         this.type = type;
         return this;
     }
@@ -235,36 +246,44 @@ public class SchemaModel {
         return shortName;
     }
 
-    public SchemaModel setShortName(String shortName) {
+    public SchemaResponse setShortName(String shortName) {
         this.shortName = shortName;
         return this;
     }
 
-    public List<String> getCollections() {
-        return collections;
+    public String getCollection() {
+        return collection;
     }
 
-    public SchemaModel setCollections(List<String> collections) {
-        this.collections = collections;
+    public SchemaResponse setCollection(String collection) {
+        this.collection = collection;
         return this;
     }
 
-    public OntologyCardinality getCardinality() {
+    public SchemaCardinality getCardinality() {
         return cardinality;
     }
 
-    public void setCardinality(OntologyCardinality cardinality) {
+    public void setCardinality(SchemaCardinality cardinality) {
         this.cardinality = cardinality;
     }
 
-    public OntologyStringTypeSize getStringSize() {
+    public SchemaStringSizeType getStringSize() {
         return stringSize;
     }
 
-    public void setStringSize(OntologyStringTypeSize stringSize) {
+    public void setStringSize(SchemaStringSizeType stringSize) {
         this.stringSize = stringSize;
     }
 
+    public Integer getTenant() {
+        return tenant;
+    }
+
+    public SchemaResponse setTenant(Integer tenant) {
+        this.tenant = tenant;
+        return this;
+    }
 
     public String getPath() {
         return path;

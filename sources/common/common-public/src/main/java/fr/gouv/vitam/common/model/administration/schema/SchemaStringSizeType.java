@@ -24,26 +24,28 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL-C license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.common.model.administration;
+package fr.gouv.vitam.common.model.administration.schema;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum OntologyStringTypeSize {
+public enum SchemaStringSizeType {
     SHORT("SHORT"),
     MEDIUM("MEDIUM"),
     LARGE("LARGE");
 
     private final String value;
 
-    OntologyStringTypeSize(String value) {
+    SchemaStringSizeType(String value) {
         this.value = value;
     }
 
+    @JsonValue
     public String value() {
         return this.value;
     }
 
-    public static OntologyStringTypeSize fromValue(String v) {
-        for (OntologyStringTypeSize c : OntologyStringTypeSize.values()) {
+    public static SchemaStringSizeType fromValue(String v) {
+        for (SchemaStringSizeType c : SchemaStringSizeType.values()) {
             if (c.value.equalsIgnoreCase(v)) {
                 return c;
             }

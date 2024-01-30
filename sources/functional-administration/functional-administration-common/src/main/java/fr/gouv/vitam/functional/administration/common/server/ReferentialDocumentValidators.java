@@ -51,8 +51,11 @@ public final class ReferentialDocumentValidators {
     public static final String SECURITY_PROFILE_SCHEMA_JSON = "/json-schema/security-profile-schema.json";
     public static final String ONTOLOGY_SCHEMA_JSON = "/json-schema/ontology-schema.json";
     public static final String GRIFFIN_SCHEMA_JSON = "/json-schema/griffin-schema-schema.json";
+
     public static final String PRESERVATION_SCENARIO_SCHEMA_JSON =
         "/json-schema/preservation-scenario-schema.json";
+
+    public static final String SCHEMA_SCHEMA_JSON = "/json-schema/schema-schema.json";
 
     private static final DocumentValidator ACCESS_CONTRACT_SCHEMA_VALIDATOR =
         forBuiltInSchema(ACCESS_CONTRACT_SCHEMA_JSON);
@@ -86,6 +89,8 @@ public final class ReferentialDocumentValidators {
         forBuiltInSchema(GRIFFIN_SCHEMA_JSON);
     private static final DocumentValidator PRESERVATION_SCENARIO_SCHEMA =
         forBuiltInSchema(PRESERVATION_SCENARIO_SCHEMA_JSON);
+
+    private static final DocumentValidator SCHEMA_SCHEMA = forBuiltInSchema(SCHEMA_SCHEMA_JSON);
     private static final DocumentValidator NULL_SCHEMA_VALIDATOR = (jsonNode) -> { /* NOP */ };
 
     private static DocumentValidator forBuiltInSchema(String schemaFilename) {
@@ -136,6 +141,8 @@ public final class ReferentialDocumentValidators {
                 return ACCESSION_REGISTER_DETAIL_SCHEMA_VALIDATOR;
             case ACCESSION_REGISTER_SYMBOLIC:
                 return ACCESSION_REGISTER_SYMBOLIC_SCHEMA_VALIDATOR;
+            case SCHEMA:
+                return SCHEMA_SCHEMA;
             case VITAM_SEQUENCE:
                 // Internal collection. No need for schema validator
                 return NULL_SCHEMA_VALIDATOR;

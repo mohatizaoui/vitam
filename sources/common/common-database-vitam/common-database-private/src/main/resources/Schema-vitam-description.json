@@ -1,0 +1,80 @@
+[
+  {
+    "path": "_id",
+    "type": "keyword",
+    "indexed": true,
+    "cardinality": "one"
+  },
+  {
+    "path": "IsObject",
+    "type": "bool",
+    "cardinality": "one",
+    "indexed": true
+  },
+  {
+    "path": "Description",
+    "type": "text",
+    "cardinality": "one",
+    "indexed": true
+  },
+  {
+    "path": "ShortName",
+    "type": "keyword",
+    "cardinality": "one",
+    "indexed": true
+  },
+  {
+    "path": "Origin",
+    "type": "keyword",
+    "cardinality": "one",
+    "indexed": true
+  },
+  {
+    "path": "Path",
+    "type": "keyword",
+    "cardinality": "one",
+    "indexed": true
+  },
+  {
+    "path": "StringSize",
+    "type": "keyword",
+    "cardinality": "one",
+    "indexed": true
+  },
+  {
+    "path": "Cardinality",
+    "type": "keyword",
+    "cardinality": "one",
+    "indexed": true
+  },
+  {
+    "path": "CreationDate",
+    "type": "datetime",
+    "cardinality": "one",
+    "indexed": true
+  },
+  {
+    "path": "Collection",
+    "type": "keyword",
+    "indexed": true,
+    "cardinality": "one"
+  },
+  {
+    "path": "LastUpdate",
+    "type": "datetime",
+    "cardinality": "one",
+    "indexed": true
+  },
+  {
+    "path": "_v",
+    "type": "signed_long",
+    "cardinality": "one",
+    "indexed": true
+  },
+  {
+    "path": "_tenant",
+    "type": "signed_long",
+    "indexed": true,
+    "cardinality": "one"
+  }
+]

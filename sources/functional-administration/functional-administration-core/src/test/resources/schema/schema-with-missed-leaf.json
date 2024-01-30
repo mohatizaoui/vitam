@@ -1,0 +1,27 @@
+[
+  {
+    "Cardinality": "ONE",
+    "Path": "Invoice",
+    "IsObject": true,
+    "StringSize": "SHORT",
+    "ShortName": "Facture"
+  },
+  {
+    "Cardinality": "ONE",
+    "Path": "Invoice.Provider",
+    "IsObject": true,
+    "StringSize": "SHORT",
+    "ShortName": "Provider"
+  },
+  {
+    "Cardinality": "ONE",
+    "Path": "Invoice.Provider.BirthDate",
+    "ShortName": "Date de naissance"
+  },
+  {
+    "Cardinality": "ONE",
+    "Path": "Invoice.Provider.SomeDate",
+    "StringSize": "SHORT",
+    "ShortName": "Une certaine date"
+  }
+]

@@ -549,7 +549,10 @@ public enum VitamCode {
 
     ACCESS_EXTERNAL_REVERT_UPDATE_ERROR(ServiceName.EXTERNAL_ACCESS, DomainName.IO, "47",
         Status.BAD_REQUEST,
-        "Access external client error in the revert update units method.");
+        "Access external client error in the revert update units method."),
+
+    SCHEMA_CHECK_ERROR(ServiceName.FUNCTIONAL_ADMINISTRATION, DomainName.VALIDATION, "48",
+        Status.BAD_REQUEST, "Schema check mode error");
 
     private final ServiceName service;
     private final DomainName domain;

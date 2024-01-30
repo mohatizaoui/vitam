@@ -66,10 +66,11 @@ import fr.gouv.vitam.common.model.administration.IngestContractModel;
 import fr.gouv.vitam.common.model.administration.ManagementContractModel;
 import fr.gouv.vitam.common.model.administration.OntologyModel;
 import fr.gouv.vitam.common.model.administration.ProfileModel;
-import fr.gouv.vitam.common.model.administration.SchemaModel;
 import fr.gouv.vitam.common.model.administration.SecurityProfileModel;
 import fr.gouv.vitam.common.model.administration.preservation.GriffinModel;
 import fr.gouv.vitam.common.model.administration.preservation.PreservationScenarioModel;
+import fr.gouv.vitam.common.model.administration.schema.SchemaInputModel;
+import fr.gouv.vitam.common.model.administration.schema.SchemaResponse;
 import fr.gouv.vitam.common.model.audit.AuditReferentialOptions;
 import fr.gouv.vitam.functional.administration.common.Context;
 import fr.gouv.vitam.functional.administration.common.Ontology;
@@ -91,7 +92,6 @@ import fr.gouv.vitam.logbook.common.parameters.LogbookOperationParameters;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 import static fr.gouv.vitam.common.client.VitamRequestBuilder.get;
@@ -154,6 +154,8 @@ class AdminManagementClientRest extends DefaultClient implements AdminManagement
     private static final String RECONSTRUCTION_URI = "/reconstruction/";
 
     private static final String RECONSTRUCTION_ACCESSION_REGISTER = "/accessionregisterreconstruction/";
+    public static final String SCHEMA_UNIT_URI = "/schema/unit";
+    public static final String SCHEMA_OBJECTGROUP_URI = "/schema/objectgroup";
 
     AdminManagementClientRest(AdminManagementClientFactory factory) {
         super(factory);
@@ -1562,16 +1564,16 @@ class AdminManagementClientRest extends DefaultClient implements AdminManagement
     }
 
     @Override
-    public RequestResponse<SchemaModel> getUnitSchema() throws AdminManagementClientServerException {
+    public RequestResponse<SchemaResponse> getUnitSchema() throws AdminManagementClientServerException {
         VitamRequestBuilder request = get()
-            .withPath("/schema/unit")
+            .withPath(SCHEMA_UNIT_URI)
             .withJson();
 
         try (Response response = make(request)) {
             check(response);
-            return new RequestResponseOK<SchemaModel>().addAllResults(
+            return new RequestResponseOK<SchemaResponse>().addAllResults(
                     JsonHandler.getFromInputStreamAsTypeReference(response.readEntity(InputStream.class),
-                        new TypeReference<ArrayList>() {
+                        new TypeReference<>() {
                         }))
                 .setHttpCode(Status.OK.getStatusCode());
         } catch (VitamClientInternalException | InvalidParseOperationException | InvalidFormatException e) {
@@ -1579,17 +1581,36 @@ class AdminManagementClientRest extends DefaultClient implements AdminManagement
         }
     }
 
+
     @Override
-    public RequestResponse<SchemaModel> getObjectGroupSchema() throws AdminManagementClientServerException {
+    public Status importUnitExternalSchema(List<SchemaInputModel> externalSchemaInputList)
+        throws AdminManagementClientServerException {
+        ParametersChecker.checkParameter("The unit external schema json is mandatory", externalSchemaInputList);
+
+        VitamRequestBuilder request = post()
+            .withPath(SCHEMA_UNIT_URI)
+            .withBody(externalSchemaInputList)
+            .withJson();
+
+        try (Response response = make(request)) {
+            checkCreation(response);
+            return fromStatusCode(response.getStatus());
+        } catch (VitamClientInternalException e) {
+            throw new AdminManagementClientServerException(INTERNAL_SERVER_ERROR_MSG, e);
+        }
+    }
+
+    @Override
+    public RequestResponse<SchemaResponse> getObjectGroupSchema() throws AdminManagementClientServerException {
         VitamRequestBuilder request = get()
-            .withPath("/schema/objectgroup")
+            .withPath(SCHEMA_OBJECTGROUP_URI)
             .withJson();
 
         try (Response response = make(request)) {
             check(response);
-            return new RequestResponseOK<SchemaModel>().addAllResults(
+            return new RequestResponseOK<SchemaResponse>().addAllResults(
                     JsonHandler.getFromInputStreamAsTypeReference(response.readEntity(InputStream.class),
-                        new TypeReference<ArrayList>() {
+                        new TypeReference<>() {
                         }))
                 .setHttpCode(Status.OK.getStatusCode());
         } catch (VitamClientInternalException | InvalidParseOperationException | InvalidFormatException e) {

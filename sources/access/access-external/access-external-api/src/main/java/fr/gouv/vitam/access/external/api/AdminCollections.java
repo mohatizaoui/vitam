@@ -108,7 +108,9 @@ public enum AdminCollections {
 
     GRIFFIN(AccessExtAPI.GRIFFIN, null),
 
-    PRESERVATION_SCENARIO(AccessExtAPI.PRESERVATION_SCENARIO, null);
+    PRESERVATION_SCENARIO(AccessExtAPI.PRESERVATION_SCENARIO, null),
+
+    UNIT_SCHEMA(AccessExtAPI.UNIT_SCHEMA, null);
 
     private String name;
 

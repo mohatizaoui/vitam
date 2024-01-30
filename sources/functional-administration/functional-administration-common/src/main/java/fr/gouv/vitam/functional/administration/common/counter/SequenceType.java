@@ -74,6 +74,7 @@ public enum SequenceType {
      */
     ONTOLOGY_SEQUENCE(FunctionalAdminCollections.ONTOLOGY, "ON"),
 
+
     /**
      * Context collection
      */
@@ -100,7 +101,13 @@ public enum SequenceType {
     /**
      * Accession Register Detail sequence type
      */
-    ACCESSION_REGISTER_DETAIL(FunctionalAdminCollections.ACCESSION_REGISTER_DETAIL, "REGISTER_DETAIL");
+    ACCESSION_REGISTER_DETAIL(FunctionalAdminCollections.ACCESSION_REGISTER_DETAIL, "REGISTER_DETAIL"),
+
+    /**
+     * Schema collection
+     */
+    SCHEMA_SEQUENCE(FunctionalAdminCollections.SCHEMA, "SCHEMA");
+
 
     public static final String BACK_UP_SEQUENCE_PREFIX = "BACKUP_";
 

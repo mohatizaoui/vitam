@@ -192,6 +192,7 @@ public enum SecurityProfilePermissions {
     TRANSACTION_ID_READ("transaction:id:read"),
     JOB_READ("job:read"),
     UNIT_SCHEMA_READ("schema:unit:read"),
+    UNIT_SCHEMA_CREATE("schema:unit:create"),
     OBJECTGROUP_SCHEMA_READ("schema:objectgroup:read");
 
 
