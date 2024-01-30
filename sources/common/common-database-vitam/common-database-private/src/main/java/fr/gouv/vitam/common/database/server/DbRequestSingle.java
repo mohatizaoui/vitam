@@ -135,7 +135,15 @@ public class DbRequestSingle {
         VitamDBException, SchemaValidationException {
         DynamicParserTokens parserTokens =
             new DynamicParserTokens(vitamCollection.getVitamDescriptionResolver(), ontologyLoader.loadOntologies());
-        return findDocuments(request.getFinalSelect(), parserTokens);
+        return findDocuments(request.getFinalSelect(), parserTokens, true);
+    }
+
+    public DbRequestResult executeQueryWithoutRestrictionOnCurrentTenant(Select request)
+        throws InvalidParseOperationException, DatabaseException, BadRequestException, InvalidCreateOperationException,
+        VitamDBException, SchemaValidationException {
+        DynamicParserTokens parserTokens =
+            new DynamicParserTokens(vitamCollection.getVitamDescriptionResolver(), ontologyLoader.loadOntologies());
+        return findDocuments(request.getFinalSelect(), parserTokens, false);
     }
 
     public DbRequestResult execute(Insert request, Integer version,
@@ -230,13 +238,15 @@ public class DbRequestSingle {
      * Main Select method
      *
      * @param select
+     * @param restrictOnCurrentTenant
      * @return DbRequestResult
      * @throws DatabaseException
      * @throws BadRequestException
      */
-    private DbRequestResult findDocuments(JsonNode select, DynamicParserTokens parserTokens)
+    private DbRequestResult findDocuments(JsonNode select, DynamicParserTokens parserTokens,
+        boolean restrictOnCurrentTenant)
         throws DatabaseException, BadRequestException, VitamDBException {
-        MongoCursor<VitamDocument<?>> cursor = search(select, parserTokens);
+        MongoCursor<VitamDocument<?>> cursor = search(select, parserTokens, restrictOnCurrentTenant);
         return new DbRequestResult().setCursor(cursor).setTotal(total > 0 ? total : count).setCount(count)
             .setLimit(limit).setOffset(offset);
     }
@@ -246,16 +256,18 @@ public class DbRequestSingle {
      *
      * @param select
      * @param parserTokens
+     * @param restrictOnCurrentTenant
      * @return MongoCursor<VitamDocument < ?>>
      * @throws DatabaseException
      * @throws BadRequestException
      */
-    private MongoCursor<VitamDocument<?>> search(JsonNode select, DynamicParserTokens parserTokens)
+    private MongoCursor<VitamDocument<?>> search(JsonNode select, DynamicParserTokens parserTokens,
+        boolean restrictOnCurrentTenant)
         throws DatabaseException, BadRequestException, VitamDBException {
         try {
             final SelectParserSingle parser = new SelectParserSingle(vaNameAdapter);
             parser.parse(select);
-            if (vitamCollection.isMultiTenant()) {
+            if (restrictOnCurrentTenant && vitamCollection.isMultiTenant()) {
                 parser.addCondition(QueryHelper.eq(VitamFieldsHelper.tenant(), ParameterHelper.getTenantParameter()));
             }
             if (vitamCollection.getEsClient() != null) {
@@ -419,7 +431,7 @@ public class DbRequestSingle {
         final Select selectQuery = new Select();
         selectQuery.setQuery(parser.getRequest().getQuery());
 
-        MongoCursor<VitamDocument<?>> searchResult = search(selectQuery.getFinalSelect(), parserTokens);
+        MongoCursor<VitamDocument<?>> searchResult = search(selectQuery.getFinalSelect(), parserTokens, true);
 
         if (searchResult == null || !searchResult.hasNext()) {
             throw new DatabaseException("Document not found");
@@ -536,7 +548,8 @@ public class DbRequestSingle {
         final SelectParserSingle parser = new SelectParserSingle(vaNameAdapter);
         parser.parse(request);
         parser.addProjection(JsonHandler.createObjectNode(), JsonHandler.createObjectNode().put(VitamDocument.ID, 1));
-        final MongoCursor<VitamDocument<?>> searchResult = search(parser.getRequest().getFinalSelect(), parserTokens);
+        final MongoCursor<VitamDocument<?>> searchResult =
+            search(parser.getRequest().getFinalSelect(), parserTokens, true);
         if (searchResult == null || !searchResult.hasNext()) {
             throw new DatabaseException("Document not found");
         }

@@ -6,8 +6,8 @@
  * This software is a computer program whose purpose is to implement a digital archiving back-office system managing
  * high volumetry securely and efficiently.
  *
- * This software is governed by the CeCILL-C license under French law and abiding by the rules of distribution of free
- * software. You can use, modify and/ or redistribute the software under the terms of the CeCILL-C license as
+ * This software is governed by the CeCILL 2.1 license under French law and abiding by the rules of distribution of free
+ * software. You can use, modify and/ or redistribute the software under the terms of the CeCILL 2.1 license as
  * circulated by CEA, CNRS and INRIA at the following URL "https://cecill.info".
  *
  * As a counterpart to the access to the source code and rights to copy, modify and redistribute granted by the license,
@@ -21,33 +21,58 @@
  * software's suitability as regards their requirements in conditions enabling the security of their systems and/or data
  * to be ensured and, more generally, to use and operate it in the same conditions as regards security.
  *
- * The fact that you are presently reading this means that you have had knowledge of the CeCILL-C license and that you
+ * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.common.model.administration;
+package fr.gouv.vitam.functional.administration.common.schema;
 
-public enum OntologyCardinality {
-    ONE("0-1"),
-    ONE_REQUIRED("1-1"),
-    MANY("0-N"),
-    MANY_REQUIRED("1-N");
+public enum SchemaErrorCode {
+    /**
+     * File not in json format
+     */
+    IMPORT_SCHEMA_NOT_JSON_FORMAT,
 
-    private final String value;
+    /**
+     * path parent missed
+     */
+    IMPORT_SCHEMA_PATH_PARENT_MISSED,
 
-    OntologyCardinality(String value) {
-        this.value = value;
-    }
+    /**
+     * path for object already used in ontology
+     */
+    IMPORT_SCHEMA_PATH_OBJECT_IN_ONTOLOGY,
 
-    public String value() {
-        return this.value;
-    }
+    /**
+     * path already used in current schema
+     */
+    IMPORT_SCHEMA_PATH_ALREADY_IN_SCHEMA,
 
-    public static OntologyCardinality fromValue(String v) {
-        for (OntologyCardinality c : OntologyCardinality.values()) {
-            if (c.value.equals(v)) {
-                return c;
-            }
-        }
-        throw new IllegalArgumentException(v);
-    }
+    /**
+     * path duplicated
+     */
+    IMPORT_SCHEMA_PATH_DUPLICATED,
+
+    /**
+     * leaf not found
+     */
+    IMPORT_SCHEMA_LEAF_NOT_FOUND,
+
+    /**
+     * leaf wrong type
+     */
+    IMPORT_SCHEMA_LEAF_WRONG_TYPE,
+
+    /**
+     * Missing information
+     */
+    IMPORT_SCHEMA_MISSING_INFORMATION,
+
+
+    IMPORT_SCHEMA_WRONG_PATH_FORMAT,
+
+
+    /**
+     * General import error
+     */
+    IMPORT_SCHEMA_EXCEPTION,
 }

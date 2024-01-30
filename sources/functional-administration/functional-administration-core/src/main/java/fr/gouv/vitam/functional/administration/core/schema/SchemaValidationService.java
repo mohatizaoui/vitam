@@ -1,0 +1,401 @@
+/*
+ * Copyright French Prime minister Office/SGMAP/DINSIC/Vitam Program (2015-2022)
+ *
+ * contact.vitam@culture.gouv.fr
+ *
+ * This software is a computer program whose purpose is to implement a digital archiving back-office system managing
+ * high volumetry securely and efficiently.
+ *
+ * This software is governed by the CeCILL 2.1 license under French law and abiding by the rules of distribution of free
+ * software. You can use, modify and/ or redistribute the software under the terms of the CeCILL 2.1 license as
+ * circulated by CEA, CNRS and INRIA at the following URL "https://cecill.info".
+ *
+ * As a counterpart to the access to the source code and rights to copy, modify and redistribute granted by the license,
+ * users are provided only with a limited warranty and the software's author, the holder of the economic rights, and the
+ * successive licensors have only limited liability.
+ *
+ * In this respect, the user's attention is drawn to the risks associated with loading, using, modifying and/or
+ * developing or reproducing the software by the user in light of its specific status of free software, that may mean
+ * that it is complicated to manipulate, and that also therefore means that it is reserved for developers and
+ * experienced professionals having in-depth computer knowledge. Users are therefore encouraged to load and test the
+ * software's suitability as regards their requirements in conditions enabling the security of their systems and/or data
+ * to be ensured and, more generally, to use and operate it in the same conditions as regards security.
+ *
+ * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
+ * accept its terms.
+ */
+package fr.gouv.vitam.functional.administration.core.schema;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import fr.gouv.vitam.common.VitamConfiguration;
+import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
+import fr.gouv.vitam.common.database.server.DbRequestResult;
+import fr.gouv.vitam.common.exception.InvalidParseOperationException;
+import fr.gouv.vitam.common.exception.VitamException;
+import fr.gouv.vitam.common.guid.GUID;
+import fr.gouv.vitam.common.guid.GUIDFactory;
+import fr.gouv.vitam.common.i18n.VitamLogbookMessages;
+import fr.gouv.vitam.common.json.JsonHandler;
+import fr.gouv.vitam.common.logging.VitamLogger;
+import fr.gouv.vitam.common.logging.VitamLoggerFactory;
+import fr.gouv.vitam.common.model.RequestResponseOK;
+import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.common.model.administration.OntologyModel;
+import fr.gouv.vitam.common.model.administration.schema.SchemaInputModel;
+import fr.gouv.vitam.common.model.administration.schema.SchemaModel;
+import fr.gouv.vitam.common.model.administration.schema.SchemaResponse;
+import fr.gouv.vitam.common.parameter.ParameterHelper;
+import fr.gouv.vitam.common.security.SanityChecker;
+import fr.gouv.vitam.common.thread.VitamThreadUtils;
+import fr.gouv.vitam.functional.administration.common.exception.ReferentialException;
+import fr.gouv.vitam.functional.administration.common.exception.schema.SchemaImportValidationException;
+import fr.gouv.vitam.functional.administration.common.schema.ErrorReportSchema;
+import fr.gouv.vitam.functional.administration.common.schema.Schema;
+import fr.gouv.vitam.functional.administration.common.schema.SchemaErrorCode;
+import fr.gouv.vitam.functional.administration.common.server.FunctionalAdminCollections;
+import fr.gouv.vitam.functional.administration.common.server.MongoDbAccessReferential;
+import fr.gouv.vitam.logbook.common.exception.LogbookClientAlreadyExistsException;
+import fr.gouv.vitam.logbook.common.exception.LogbookClientBadRequestException;
+import fr.gouv.vitam.logbook.common.exception.LogbookClientServerException;
+import fr.gouv.vitam.logbook.common.parameters.LogbookOperationParameters;
+import fr.gouv.vitam.logbook.common.parameters.LogbookParameterHelper;
+import fr.gouv.vitam.logbook.common.parameters.LogbookParameterName;
+import fr.gouv.vitam.logbook.common.parameters.LogbookTypeProcess;
+import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClient;
+import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClientFactory;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+public class SchemaValidationService {
+    private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(SchemaValidationService.class);
+    private static final Pattern PATH_PATTERN = Pattern.compile("^(\\w+(\\.\\w+)*)*$");
+    private final MongoDbAccessReferential mongoDbAccessReferential;
+    private final LogbookOperationsClientFactory logbookOperationsClientFactory;
+
+    public SchemaValidationService(MongoDbAccessReferential mongoDbAccessReferential,
+        LogbookOperationsClientFactory logbookOperationsClientFactory) {
+        this.mongoDbAccessReferential = mongoDbAccessReferential;
+        this.logbookOperationsClientFactory = logbookOperationsClientFactory;
+    }
+
+    /**
+     * Validate input schema list coherence
+     *
+     * @param externalSchemaInputList
+     * @param currentUnitSchemaList
+     * @param ontologiesElements
+     * @throws VitamException
+     * @throws InvalidCreateOperationException
+     */
+    public void validateExternalSchemaInputs(List<SchemaInputModel> externalSchemaInputList,
+        List<SchemaResponse> currentUnitSchemaList, List<OntologyModel> ontologiesElements,
+        Map<String, List<ErrorReportSchema>> importErrors)
+        throws VitamException {
+
+        validateExternalSchemaInputsConsistency(externalSchemaInputList, importErrors);
+
+        Map<String, SchemaInputModel> externalSchemaInputsMapByPath = externalSchemaInputList.stream().collect(
+            Collectors.toMap(SchemaInputModel::getPath, schemaModel -> schemaModel));
+        Map<String, SchemaResponse> currentUnitSchemaMapByPath = currentUnitSchemaList.stream().collect(
+            Collectors.toMap(SchemaResponse::getPath, schemaModel -> schemaModel));
+
+        Map<String, OntologyModel> ontologyEltsMapByIdentifier = ontologiesElements.stream().collect(
+            Collectors.toMap(OntologyModel::getIdentifier, ontologyElt -> ontologyElt));
+
+        checkExistingPathsInCurrentSchema(currentUnitSchemaMapByPath, externalSchemaInputsMapByPath, importErrors);
+
+        checkFullPathsReturnNotfound(currentUnitSchemaMapByPath, externalSchemaInputsMapByPath, importErrors);
+
+        checkPathsWithOntology(externalSchemaInputsMapByPath, ontologyEltsMapByIdentifier, importErrors);
+
+    }
+
+    private void checkExistingPathsInCurrentSchema(Map<String, SchemaResponse> currentUnitSchemaMapByPath,
+        Map<String, SchemaInputModel> externalSchemaInputsMapByPath,
+        Map<String, List<ErrorReportSchema>> importErrors) throws VitamException {
+        LOGGER.debug("Checking paths already in internal schema");
+
+        List<String> existingPathsInCurrentSchema =
+            externalSchemaInputsMapByPath.keySet().stream().filter(externalSchemaPath ->
+                currentUnitSchemaMapByPath.containsKey(externalSchemaPath)).collect(Collectors.toList());
+
+        if (!CollectionUtils.isEmpty(existingPathsInCurrentSchema)) {
+            LOGGER.error("Paths already in current schema");
+            existingPathsInCurrentSchema.stream().forEach(
+                schemaPath ->
+                    addError(schemaPath, new ErrorReportSchema(SchemaErrorCode.IMPORT_SCHEMA_PATH_ALREADY_IN_SCHEMA,
+                        externalSchemaInputsMapByPath.get(schemaPath), "Path already in current schema"), importErrors)
+            );
+
+            String message = String.format("Paths already in current schema =  %s  ",
+                existingPathsInCurrentSchema.stream().collect(Collectors.joining(", ")));
+            throw new SchemaImportValidationException(message);
+        }
+    }
+
+    private void validateExternalSchemaInputsConsistency(List<SchemaInputModel> externalSchemaInputList,
+        Map<String, List<ErrorReportSchema>> importErrors)
+        throws SchemaImportValidationException {
+        LOGGER.debug("Validating external schema inputs consistency ");
+        if (CollectionUtils.isEmpty(externalSchemaInputList)) {
+            LOGGER.error("Empty schema list ");
+            String message = String.format("Empty schema list ");
+            throw new SchemaImportValidationException(message);
+        }
+        List<SchemaInputModel> schemaInputsWithErrors = new ArrayList<>();
+        for (SchemaInputModel inputSchema : externalSchemaInputList) {
+            final Matcher matcher = PATH_PATTERN.matcher(inputSchema.getPath());
+            if (!matcher.find()) {
+                schemaInputsWithErrors.add(inputSchema);
+            }
+        }
+        if (!CollectionUtils.isEmpty(schemaInputsWithErrors)) {
+            LOGGER.error("Some paths wrong path format ");
+            schemaInputsWithErrors.stream().forEach(
+                schema ->
+                    addError(schema.getPath(), new ErrorReportSchema(SchemaErrorCode.IMPORT_SCHEMA_WRONG_PATH_FORMAT,
+                        schema, "Wrong path format"), importErrors));
+
+            String message = String.format("Some paths wrong path format  =  %s  ",
+                schemaInputsWithErrors.stream().map(schemaInputModel -> schemaInputModel.getPath())
+                    .collect(Collectors.joining(", ")));
+            throw new SchemaImportValidationException(message);
+        }
+    }
+
+
+    /**
+     * Check that all paths exist in requested list or in internal or external
+     *
+     * @param currentUnitSchemaMapByPath
+     * @param externalSchemaInputsMapByPath
+     * @throws VitamException
+     */
+
+    private void checkFullPathsReturnNotfound(Map<String, SchemaResponse> currentUnitSchemaMapByPath,
+        Map<String, SchemaInputModel> externalSchemaInputsMapByPath, Map<String, List<ErrorReportSchema>> importErrors)
+        throws VitamException {
+        LOGGER.debug("Checking parents paths ");
+        List<String> pathsWithErrors = new ArrayList<>();
+        for (Map.Entry<String, SchemaInputModel> schemaModelEntry : externalSchemaInputsMapByPath.entrySet()) {
+            checkExistingParentPath(currentUnitSchemaMapByPath, externalSchemaInputsMapByPath,
+                schemaModelEntry.getKey(), pathsWithErrors);
+        }
+        if (!CollectionUtils.isEmpty(pathsWithErrors)) {
+            LOGGER.error("Some paths with missing parents ");
+            pathsWithErrors.stream().forEach(
+                schemaPath ->
+                    addError(schemaPath, new ErrorReportSchema(SchemaErrorCode.IMPORT_SCHEMA_PATH_PARENT_MISSED,
+                        externalSchemaInputsMapByPath.get(schemaPath), "Paths with missing parents"), importErrors));
+
+            String message = String.format("Paths with missing parents =  %s  ",
+                pathsWithErrors.stream().collect(Collectors.joining(", ")));
+            throw new SchemaImportValidationException(message);
+        }
+    }
+
+    private void checkPathsWithOntology(Map<String, SchemaInputModel> externalSchemaInputsMapByPath,
+        Map<String, OntologyModel> ontologyEltsMapByIdentifier, Map<String, List<ErrorReportSchema>> importErrors)
+        throws VitamException {
+
+        List<String> pathsWithMissedLeavesErrors = new ArrayList<>();
+        List<String> pathsWithOntologyConflicts = new ArrayList<>();
+        Set<String> leavesList =
+            externalSchemaInputsMapByPath.values().stream()
+                .filter(schemaModelElt -> !Boolean.TRUE.equals(schemaModelElt.isObject()))
+                .map(schemaModelElt ->
+                    SchemaCommonService.extractLeafFromPath(schemaModelElt.getPath())).collect(Collectors.toSet());
+
+        //all leaves should be in ontology
+        for (String leafElt : leavesList) {
+            if (!ontologyEltsMapByIdentifier.containsKey(leafElt)) {
+                pathsWithMissedLeavesErrors.add(leafElt);
+            }
+        }
+
+        if (!CollectionUtils.isEmpty(pathsWithMissedLeavesErrors)) {
+            LOGGER.error("Path leaf missed ");
+            pathsWithMissedLeavesErrors.stream().forEach(
+                schemaPath ->
+                    addError(schemaPath, new ErrorReportSchema(SchemaErrorCode.IMPORT_SCHEMA_LEAF_NOT_FOUND,
+                        externalSchemaInputsMapByPath.get(schemaPath), "Path leaf missed"), importErrors));
+            String message = String.format("Paths leaf missed =  %s  ",
+                pathsWithMissedLeavesErrors.stream().collect(Collectors.joining(", ")));
+            throw new SchemaImportValidationException(message);
+        }
+
+        //any sub path should not be in ontology
+        Set<String> objectSubPathElts = new HashSet<>();
+        for (SchemaInputModel inputElt : externalSchemaInputsMapByPath.values()) {
+            if (Boolean.TRUE.equals(inputElt.isObject())) {
+                objectSubPathElts.addAll(Set.of(StringUtils.splitByWholeSeparator(inputElt.getPath(), ".")));
+            } else {
+                objectSubPathElts.addAll(Set.of(
+                    StringUtils.splitByWholeSeparator(StringUtils.substringBeforeLast(inputElt.getPath(), "."), ".")));
+            }
+        }
+        for (String subPathElt : objectSubPathElts) {
+            if (ontologyEltsMapByIdentifier.containsKey(subPathElt)) {
+                pathsWithOntologyConflicts.add(subPathElt);
+            }
+        }
+
+        if (!CollectionUtils.isEmpty(pathsWithOntologyConflicts)) {
+            LOGGER.error("Paths leafs declared as objects but already in ontology ");
+            pathsWithMissedLeavesErrors.stream().forEach(
+                schemaPath ->
+                    addError(schemaPath, new ErrorReportSchema(SchemaErrorCode.IMPORT_SCHEMA_PATH_OBJECT_IN_ONTOLOGY,
+                        externalSchemaInputsMapByPath.get(schemaPath),
+                        "Paths leafs declared as objects but already in ontology"), importErrors));
+            String message = String.format("Paths leafs declared as objects but already in ontology =  %s  ",
+                pathsWithOntologyConflicts.stream().collect(Collectors.joining(", ")));
+            throw new SchemaImportValidationException(message);
+        }
+    }
+
+    private List<SchemaModel> findCurrentExternalSchemaFromPathsForCurrentTenantAndAdminTenant(
+        List<String> externalSchemaPaths)
+        throws InvalidCreateOperationException, ReferentialException, InvalidParseOperationException {
+        if (CollectionUtils.isEmpty(externalSchemaPaths)) {
+            return Collections.emptyList();
+        }
+        Integer tenantId = VitamThreadUtils.getVitamSession().getTenantId();
+        Set<Integer> filteredTenants = new HashSet<>();
+        filteredTenants.add(tenantId);
+        filteredTenants.add(VitamConfiguration.getAdminTenant());
+
+        RequestResponseOK<SchemaModel> schemasResponse =
+            findExternalSchema(
+                SchemaCommonService.buildDslQueryForExtractingSchema(filteredTenants, externalSchemaPaths));
+        return schemasResponse.getResults();
+    }
+
+    private void checkExistingParentPath(Map<String, SchemaResponse> currentUnitSchemaMapByPath,
+        Map<String, SchemaInputModel> externalInputSchemaMapByPath, String schemaPath,
+        List<String> pathsWithErrors) {
+
+        LOGGER.debug("Checking parent paths of {}  ", schemaPath);
+
+        if (currentUnitSchemaMapByPath.containsKey(schemaPath)) {
+            return;
+        }
+
+        if (externalInputSchemaMapByPath.containsKey(schemaPath)) {
+            if (schemaPath.contains(".")) {
+                checkExistingParentPath(
+                    currentUnitSchemaMapByPath,
+                    externalInputSchemaMapByPath,
+                    StringUtils.substringBeforeLast(schemaPath, "."),
+                    pathsWithErrors
+                );
+            }
+        } else {
+            pathsWithErrors.add(schemaPath);
+        }
+    }
+
+    private RequestResponseOK<SchemaModel> findExternalSchema(JsonNode queryDsl)
+        throws ReferentialException, InvalidParseOperationException {
+        try (DbRequestResult result =
+            mongoDbAccessReferential.findDocumentsWithoutRestrictionOnCurrentTenant(queryDsl,
+                FunctionalAdminCollections.SCHEMA)) {
+            return result.getRequestResponseOK(queryDsl, Schema.class, SchemaModel.class);
+        }
+    }
+
+    /**
+     * Log validation error (business error)
+     *
+     * @param errorsDetails
+     */
+    public void logValidationError(GUID operationGuid, String eventType, String errorsDetails)
+        throws VitamException {
+        LOGGER.error("Validation errors on the input file {}", errorsDetails);
+        final GUID eipId = GUIDFactory.newOperationLogbookGUID(ParameterHelper.getTenantParameter());
+        final LogbookOperationParameters logbookParameters = LogbookParameterHelper
+            .newLogbookOperationParameters(eipId, eventType, operationGuid, LogbookTypeProcess.MASTERDATA,
+                StatusCode.KO,
+                VitamLogbookMessages.getCodeOp(eventType, StatusCode.KO), operationGuid);
+        logbookMessageError(null, errorsDetails, logbookParameters);
+        try (LogbookOperationsClient logbookOperationsClient = logbookOperationsClientFactory.getClient()) {
+            logbookOperationsClient.update(logbookParameters);
+        }
+    }
+
+    private void logbookMessageError(String objectId, String errorsDetails,
+        LogbookOperationParameters logbookParameters) {
+        if (null != errorsDetails && !errorsDetails.isEmpty()) {
+            try {
+                final ObjectNode object = JsonHandler.createObjectNode();
+                object.put("schemaCheck", errorsDetails);
+
+                final String wellFormedJson = SanityChecker.sanitizeJson(object);
+                logbookParameters.putParameterValue(LogbookParameterName.eventDetailData, wellFormedJson);
+            } catch (InvalidParseOperationException e) {
+                // Do nothing
+            }
+        }
+        if (null != objectId && !objectId.isEmpty()) {
+            logbookParameters.putParameterValue(LogbookParameterName.objectIdentifier, objectId);
+        }
+    }
+
+    public void startLogBook(GUID importExternalSchemaOpId, String eventType)
+        throws LogbookClientBadRequestException, LogbookClientAlreadyExistsException, LogbookClientServerException {
+        final LogbookOperationParameters logbookParameters = LogbookParameterHelper
+            .newLogbookOperationParameters(importExternalSchemaOpId, eventType, importExternalSchemaOpId,
+                LogbookTypeProcess.MASTERDATA,
+                StatusCode.STARTED,
+                VitamLogbookMessages.getCodeOp(eventType, StatusCode.STARTED), importExternalSchemaOpId);
+
+        try (LogbookOperationsClient logbookOperationsClient = logbookOperationsClientFactory.getClient()) {
+            logbookOperationsClient.create(logbookParameters);
+        }
+    }
+
+    public void logFatalError(GUID importExternalSchemaOpId, String eventType, String objectId, String errorsDetails)
+        throws VitamException {
+        LOGGER.error("Validation errors on the input file {}", errorsDetails);
+        final GUID eipId = GUIDFactory.newOperationLogbookGUID(ParameterHelper.getTenantParameter());
+        final LogbookOperationParameters logbookParameters = LogbookParameterHelper
+            .newLogbookOperationParameters(eipId, eventType, importExternalSchemaOpId, LogbookTypeProcess.MASTERDATA,
+                StatusCode.KO, VitamLogbookMessages.getCodeOp(eventType, StatusCode.KO), importExternalSchemaOpId);
+
+        logbookMessageError(objectId, errorsDetails, logbookParameters);
+        try (LogbookOperationsClient logbookOperationsClient = logbookOperationsClientFactory.getClient()) {
+            logbookOperationsClient.update(logbookParameters);
+        }
+    }
+
+    public void logSuccessLogBook(GUID importExternalSchemaOpId, String eventType)
+        throws VitamException {
+        final GUID eipId = GUIDFactory.newOperationLogbookGUID(ParameterHelper.getTenantParameter());
+        final LogbookOperationParameters logbookParameters = LogbookParameterHelper
+            .newLogbookOperationParameters(eipId, eventType, importExternalSchemaOpId, LogbookTypeProcess.MASTERDATA,
+                StatusCode.OK, VitamLogbookMessages.getCodeOp(eventType, StatusCode.OK), importExternalSchemaOpId);
+
+        try (LogbookOperationsClient logbookOperationsClient = logbookOperationsClientFactory.getClient()) {
+            logbookOperationsClient.update(logbookParameters);
+        }
+    }
+
+    public void addError(String path, ErrorReportSchema error, Map<String, List<ErrorReportSchema>> errors) {
+        List<ErrorReportSchema> lineErrors = errors.get(path);
+        if (lineErrors == null) {
+            lineErrors = new ArrayList<>();
+        }
+        lineErrors.add(error);
+        errors.put(path, lineErrors);
+    }
+}

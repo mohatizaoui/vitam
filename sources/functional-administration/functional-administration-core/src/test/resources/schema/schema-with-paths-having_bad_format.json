@@ -1,0 +1,33 @@
+[
+  {
+    "IsObject": true,
+    "Cardinality": "ONE",
+    "Path": "Invoice-Provider",
+    "StringSize": "SHORT",
+    "ShortName": "Provider"
+  },
+  {
+    "Cardinality": "ONE",
+    "Path": "Invoice.Provider .BirthDate",
+    "StringSize": "SHORT",
+    "ShortName": "Date de naissance"
+  },
+  {
+    "Cardinality": "ONE",
+    "Path": "Addressee.' ' BirthPlace.City",
+    "ShortName": "Ville"
+  },
+  {
+    "IsObject": true,
+    "Cardinality": "ONE",
+    "Path": "Invoice & wrong Invoice",
+    "StringSize": "SHORT",
+    "ShortName": "Facture"
+  },
+  {
+    "Cardinality": "ONE",
+    "Path": "Addressee*BirthPlace\\Country",
+    "StringSize": "SHORT",
+    "ShortName": "Pays"
+  }
+]

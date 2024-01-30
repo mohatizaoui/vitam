@@ -67,10 +67,10 @@ import fr.gouv.vitam.common.model.administration.IngestContractModel;
 import fr.gouv.vitam.common.model.administration.ManagementContractModel;
 import fr.gouv.vitam.common.model.administration.OntologyModel;
 import fr.gouv.vitam.common.model.administration.ProfileModel;
-import fr.gouv.vitam.common.model.administration.SchemaModel;
 import fr.gouv.vitam.common.model.administration.SecurityProfileModel;
 import fr.gouv.vitam.common.model.administration.preservation.GriffinModel;
 import fr.gouv.vitam.common.model.administration.preservation.PreservationScenarioModel;
+import fr.gouv.vitam.common.model.administration.schema.SchemaResponse;
 import fr.gouv.vitam.common.model.processing.ProcessDetail;
 import fr.gouv.vitam.common.model.processing.WorkFlow;
 import fr.gouv.vitam.logbook.common.parameters.LogbookOperationParameters;
@@ -1232,28 +1232,52 @@ public class AdminExternalClientRest extends DefaultClient implements AdminExter
     }
 
     @Override
-    public RequestResponse<SchemaModel> getUnitSchema(VitamContext vitamContext) throws VitamClientException {
+    public RequestResponse<SchemaResponse> getUnitSchema(VitamContext vitamContext) throws VitamClientException {
         VitamRequestBuilder request = get()
             .withPath(AccessExtAPI.UNIT_SCHEMA)
             .withHeaders(vitamContext.getHeaders())
             .withJson();
         try (Response response = make(request)) {
             check(response);
-            return RequestResponse.parseFromResponse(response, SchemaModel.class);
+            return RequestResponse.parseFromResponse(response, SchemaResponse.class);
         }
     }
 
     @Override
-    public RequestResponse<SchemaModel> getObjectGroupSchema(VitamContext vitamContext) throws VitamClientException {
+    public RequestResponse<Void> importUnitExternalSchema(VitamContext vitamContext, InputStream externalSchema)
+        throws AccessExternalClientException {
+        VitamRequestBuilder request = post()
+            .withPath(AdminCollections.UNIT_SCHEMA.getName())
+            .withHeaders(vitamContext.getHeaders())
+            .withBody(externalSchema, "The input schema json is mandatory")
+            .withJson();
+        try (Response response = make(request)) {
+            check(response);
+            return new RequestResponseOK<Void>()
+                .setHttpCode(OK.getStatusCode())
+                .addHeader(X_REQUEST_ID, response.getHeaderString(X_REQUEST_ID));
+        } catch (AdminExternalClientException e) {
+            LOGGER.error(e);
+            return e.getVitamError();
+        } catch (VitamClientInternalException e) {
+            throw new AccessExternalClientException(e);
+        }
+    }
+
+    @Override
+    public RequestResponse<SchemaResponse> getObjectGroupSchema(VitamContext vitamContext)
+        throws VitamClientException {
         VitamRequestBuilder request = get()
             .withPath(AccessExtAPI.OBJECTGROUP_SCHEMA)
             .withHeaders(vitamContext.getHeaders())
             .withJson();
         try (Response response = make(request)) {
             check(response);
-            return RequestResponse.parseFromResponse(response, SchemaModel.class);
+            return RequestResponse.parseFromResponse(response, SchemaResponse.class);
         }
     }
+
+
 
     private void check(Response response) throws AdminExternalClientException {
         Response.Status status = response.getStatusInfo().toEnum();

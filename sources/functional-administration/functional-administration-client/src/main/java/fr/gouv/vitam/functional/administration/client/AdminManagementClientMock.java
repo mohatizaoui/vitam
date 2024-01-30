@@ -56,10 +56,11 @@ import fr.gouv.vitam.common.model.administration.ManagementContractModel;
 import fr.gouv.vitam.common.model.administration.OntologyModel;
 import fr.gouv.vitam.common.model.administration.ProfileModel;
 import fr.gouv.vitam.common.model.administration.RegisterValueDetailModel;
-import fr.gouv.vitam.common.model.administration.SchemaModel;
 import fr.gouv.vitam.common.model.administration.SecurityProfileModel;
 import fr.gouv.vitam.common.model.administration.preservation.GriffinModel;
 import fr.gouv.vitam.common.model.administration.preservation.PreservationScenarioModel;
+import fr.gouv.vitam.common.model.administration.schema.SchemaInputModel;
+import fr.gouv.vitam.common.model.administration.schema.SchemaResponse;
 import fr.gouv.vitam.common.model.audit.AuditReferentialOptions;
 import fr.gouv.vitam.common.stream.StreamUtils;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
@@ -669,13 +670,17 @@ public class AdminManagementClientMock extends AbstractMockClient implements Adm
     }
 
     @Override
-    public RequestResponse<SchemaModel> getUnitSchema() throws AdminManagementClientServerException {
+    public RequestResponse<SchemaResponse> getUnitSchema() throws AdminManagementClientServerException {
         throw new IllegalStateException(CANNOT_BE_USED);
     }
 
     @Override
-    public RequestResponse<SchemaModel> getObjectGroupSchema() throws AdminManagementClientServerException {
+    public RequestResponse<SchemaResponse> getObjectGroupSchema() throws AdminManagementClientServerException {
         throw new IllegalStateException(CANNOT_BE_USED);
     }
 
+    @Override
+    public Status importUnitExternalSchema(List<SchemaInputModel> externalSchemaInputList) {
+        throw new IllegalStateException(CANNOT_BE_USED);
+    }
 }

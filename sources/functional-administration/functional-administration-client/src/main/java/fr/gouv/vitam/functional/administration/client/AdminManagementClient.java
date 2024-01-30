@@ -49,10 +49,11 @@ import fr.gouv.vitam.common.model.administration.IngestContractModel;
 import fr.gouv.vitam.common.model.administration.ManagementContractModel;
 import fr.gouv.vitam.common.model.administration.OntologyModel;
 import fr.gouv.vitam.common.model.administration.ProfileModel;
-import fr.gouv.vitam.common.model.administration.SchemaModel;
 import fr.gouv.vitam.common.model.administration.SecurityProfileModel;
 import fr.gouv.vitam.common.model.administration.preservation.GriffinModel;
 import fr.gouv.vitam.common.model.administration.preservation.PreservationScenarioModel;
+import fr.gouv.vitam.common.model.administration.schema.SchemaInputModel;
+import fr.gouv.vitam.common.model.administration.schema.SchemaResponse;
 import fr.gouv.vitam.common.model.audit.AuditReferentialOptions;
 import fr.gouv.vitam.functional.administration.common.ReconstructionRequestItem;
 import fr.gouv.vitam.functional.administration.common.exception.AdminManagementClientServerException;
@@ -876,8 +877,27 @@ public interface AdminManagementClient extends MockOrRestClient {
         AdminManagementClientServerException;
 
 
-    RequestResponse<SchemaModel> getUnitSchema() throws AdminManagementClientServerException;
+    RequestResponse<SchemaResponse> getUnitSchema() throws AdminManagementClientServerException;
 
-    RequestResponse<SchemaModel> getObjectGroupSchema() throws AdminManagementClientServerException;
+    RequestResponse<SchemaResponse> getObjectGroupSchema() throws AdminManagementClientServerException;
+
+    /**
+     * Import a set of external unit schema. </BR>
+     *
+     * <ul>
+     * <li>The json is invalid</li>
+     * <li>The json contains an already used identifier</li>
+     * <li>One or more mandatory field is missing</li>
+     * <li>A field has an invalid format</li>
+     * </ul>
+     *
+     * @param externalSchemaInputList the list of external unit schema to import
+     * @return The server response as vitam RequestResponse
+     * @throws VitamClientInternalException
+     * @throws InvalidParseOperationException
+     */
+    Status importUnitExternalSchema(List<SchemaInputModel> externalSchemaInputList)
+        throws InvalidParseOperationException, AdminManagementClientServerException;
+
 }
 

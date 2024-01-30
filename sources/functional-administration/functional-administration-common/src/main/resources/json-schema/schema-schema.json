@@ -1,0 +1,95 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "definitions": {
+    "date-opt-time": {
+      "description": "pattern: Date",
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+        },
+        {
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "type": "string",
+          "format": "date-time-vitam"
+        }
+      ]
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "_id": {
+      "type": "string"
+    },
+    "_tenant": {
+      "type": "integer"
+    },
+    "_v": {
+      "type": "integer"
+    },
+    "IsObject": {
+      "type": "boolean"
+    },
+    "Path": {
+      "type": "string"
+    },
+    "Cardinality": {
+      "type": "string",
+      "enum": [
+        "ONE",
+        "ONE_REQUIRED",
+        "MANY",
+        "MANY_REQUIRED"
+      ]
+    },
+    "Description": {
+      "type": "string"
+    },
+    "StringSize": {
+      "type": "string",
+      "enum": [
+        "SHORT",
+        "MEDIUM",
+        "LARGE"
+      ]
+    },
+    "Origin": {
+      "type": "string",
+      "enum": [
+        "INTERNAL",
+        "EXTERNAL"
+      ]
+    },
+    "ShortName": {
+      "type": "string"
+    },
+    "Collection": {
+      "type": "string",
+      "enum": [
+        "ObjectGroup",
+        "Unit"
+      ]
+    },
+    "CreationDate": {
+      "$ref": "#/definitions/date-opt-time"
+    },
+    "LastUpdate": {
+      "$ref": "#/definitions/date-opt-time"
+    }
+  },
+  "required": [
+    "_tenant",
+    "_v",
+    "Path",
+    "Cardinality",
+    "CreationDate",
+    "LastUpdate",
+    "IsObject",
+    "Collection",
+    "Origin"
+  ]
+}

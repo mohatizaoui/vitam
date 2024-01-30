@@ -61,10 +61,10 @@ import fr.gouv.vitam.common.model.administration.IngestContractModel;
 import fr.gouv.vitam.common.model.administration.ManagementContractModel;
 import fr.gouv.vitam.common.model.administration.OntologyModel;
 import fr.gouv.vitam.common.model.administration.ProfileModel;
-import fr.gouv.vitam.common.model.administration.SchemaModel;
 import fr.gouv.vitam.common.model.administration.SecurityProfileModel;
 import fr.gouv.vitam.common.model.administration.preservation.GriffinModel;
 import fr.gouv.vitam.common.model.administration.preservation.PreservationScenarioModel;
+import fr.gouv.vitam.common.model.administration.schema.SchemaResponse;
 import fr.gouv.vitam.common.model.processing.ProcessDetail;
 import fr.gouv.vitam.common.model.processing.WorkFlow;
 import fr.gouv.vitam.common.stream.StreamUtils;
@@ -624,12 +624,17 @@ public class AdminExternalClientMock extends AbstractMockClient implements Admin
     }
 
     @Override
-    public RequestResponse<SchemaModel> getUnitSchema(VitamContext vitamContext) throws VitamClientException {
-        return new RequestResponseOK().setHttpCode(Status.NOT_IMPLEMENTED.getStatusCode());
+    public RequestResponse<SchemaResponse> getUnitSchema(VitamContext vitamContext) throws VitamClientException {
+        throw new IllegalStateException("Stop using mocks in production");
     }
 
     @Override
-    public RequestResponse<SchemaModel> getObjectGroupSchema(VitamContext vitamContext) throws VitamClientException {
-        return new RequestResponseOK().setHttpCode(Status.NOT_IMPLEMENTED.getStatusCode());
+    public RequestResponse<Void> importUnitExternalSchema(VitamContext vitamContext, InputStream externalSchema) {
+        throw new IllegalStateException("Stop using mocks in production");
+    }
+
+    @Override
+    public RequestResponse<SchemaResponse> getObjectGroupSchema(VitamContext vitamContext) {
+        throw new IllegalStateException("Stop using mocks in production");
     }
 }

@@ -43,6 +43,7 @@ import fr.gouv.vitam.common.model.administration.ProfileModel;
 import fr.gouv.vitam.common.model.administration.SecurityProfileModel;
 import fr.gouv.vitam.common.model.administration.preservation.GriffinModel;
 import fr.gouv.vitam.common.model.administration.preservation.PreservationScenarioModel;
+import fr.gouv.vitam.common.model.administration.schema.SchemaModel;
 import fr.gouv.vitam.functional.administration.common.SecurityProfile;
 import fr.gouv.vitam.functional.administration.common.server.FunctionalAdminCollections;
 import fr.gouv.vitam.functional.administration.common.server.ReferentialDocumentValidators;
@@ -182,6 +183,13 @@ public class FunctionalAdminModelValidationTest {
         validateDataModel(
             FunctionalAdminCollections.MANAGEMENT_CONTRACT, ManagementContractModel.class,
             ReferentialDocumentValidators.MANAGEMENT_CONTRACT_SCHEMA_JSON);
+    }
+
+    @Test
+    public void testSchemaElasticsearchMapping() throws Exception {
+        validateDataModel(
+            FunctionalAdminCollections.SCHEMA, SchemaModel.class,
+            ReferentialDocumentValidators.SCHEMA_SCHEMA_JSON);
     }
 
     private void validateDataModel(FunctionalAdminCollections collection,

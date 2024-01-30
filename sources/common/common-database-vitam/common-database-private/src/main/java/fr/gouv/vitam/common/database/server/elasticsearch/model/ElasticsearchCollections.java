@@ -118,7 +118,11 @@ public enum ElasticsearchCollections {
      */
     PRESERVATION_SCENARIO("/preservationscenario-es-mapping.json", "preservationscenario"),
 
-    GRIFFIN("/griffin-es-mapping.json", "griffin");
+    GRIFFIN("/griffin-es-mapping.json", "griffin"),
+    /**
+     * Schema
+     */
+    SCHEMA("/schema-es-mapping.json", "schema");
 
     ElasticsearchCollections(String mapping, String indexName) {
         this.mapping = mapping;

@@ -82,10 +82,10 @@ import fr.gouv.vitam.common.model.administration.IngestContractModel;
 import fr.gouv.vitam.common.model.administration.ManagementContractModel;
 import fr.gouv.vitam.common.model.administration.OntologyModel;
 import fr.gouv.vitam.common.model.administration.ProfileModel;
-import fr.gouv.vitam.common.model.administration.SchemaModel;
 import fr.gouv.vitam.common.model.administration.SecurityProfileModel;
 import fr.gouv.vitam.common.model.administration.preservation.GriffinModel;
 import fr.gouv.vitam.common.model.administration.preservation.PreservationScenarioModel;
+import fr.gouv.vitam.common.model.administration.schema.SchemaResponse;
 import fr.gouv.vitam.common.model.audit.AuditReferentialOptions;
 import fr.gouv.vitam.common.security.SanityChecker;
 import fr.gouv.vitam.common.security.rest.EndpointInfo;
@@ -231,6 +231,7 @@ import static fr.gouv.vitam.utils.SecurityProfilePermissions.SECURITYPROFILES_RE
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.TRACEABILITYCHECKS_CREATE;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.TRACEABILITYLINKEDCHECKS_CREATE;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.TRACEABILITY_ID_READ;
+import static fr.gouv.vitam.utils.SecurityProfilePermissions.UNIT_SCHEMA_CREATE;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.UNIT_SCHEMA_READ;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.WORKFLOWS_READ;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
@@ -257,6 +258,9 @@ public class AdminManagementExternalResource extends ApplicationStatusResource {
     private static final String SUCCESSFULLY_IMPORTED = "Successfully imported";
     private static final String FORMAT_ID_MANDATORY = "formatId is a mandatory parameter";
     private static final String UNEXPECTED_ERROR = "Unexpected error was thrown : ";
+
+    public static final String UNIT_SCHEMA = "/schema/unit";
+    public static final String OBJECTGROUP_SCHEMA = "/schema/objectgroup";
 
     private final SecureEndpointRegistry secureEndpointRegistry;
     private static final AlertService alertService = new AlertServiceImpl();
@@ -3152,13 +3156,13 @@ public class AdminManagementExternalResource extends ApplicationStatusResource {
         }
     }
 
-    @Path("/schema/unit")
+    @Path(UNIT_SCHEMA)
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Secured(permission = UNIT_SCHEMA_READ, description = "récuperer le schéma des unités archivestiques")
     public Response unitSchema() {
         try (AdminManagementClient adminManagementClient = adminManagementClientFactory.getClient()) {
-            RequestResponse<SchemaModel> schema = adminManagementClient.getUnitSchema();
+            RequestResponse<SchemaResponse> schema = adminManagementClient.getUnitSchema();
             return Response.ok(schema).build();
         } catch (AdminManagementClientServerException e) {
             LOGGER.error("Cannot retrieve unit schema ", e);
@@ -3168,16 +3172,52 @@ public class AdminManagementExternalResource extends ApplicationStatusResource {
     }
 
 
-    @Path("/schema/objectgroup")
+    @Path(UNIT_SCHEMA)
+    @POST
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
+    @Secured(permission = UNIT_SCHEMA_CREATE, description = "Importer des schemas externes dans le référentiel")
+    public Response importUnitExternalSchema(JsonNode externalSchema) {
+
+        try (AdminManagementClient client = adminManagementClientFactory.getClient()) {
+            checkParameter("Json unit external schema is a mandatory parameter", externalSchema);
+            SanityChecker.checkJsonAll(externalSchema);
+            Status status = client.importUnitExternalSchema(JsonHandler.getFromJsonNode(externalSchema,
+                new TypeReference<>() {
+                }));
+            return Response.status(status).build();
+        } catch (ReferentialException e) {
+            LOGGER.error(e);
+            return VitamCodeHelper.toVitamError(VitamCode.ADMIN_EXTERNAL_BAD_REQUEST, e.getMessage())
+                .toResponse();
+        } catch (InvalidParseOperationException e) {
+            LOGGER.error(e);
+            VitamError error = new VitamError(VitamCode.ACCESS_EXTERNAL_INVALID_JSON.getItem())
+                .setMessage(VitamCode.ACCESS_EXTERNAL_INVALID_JSON.getMessage())
+                .setState(StatusCode.KO.name())
+                .setCode(VitamCodeHelper.getCode(VitamCode.ACCESS_EXTERNAL_INVALID_JSON))
+                .setContext(ACCESS_EXTERNAL_MODULE)
+                .setDescription(VitamCode.ACCESS_EXTERNAL_INVALID_JSON.getMessage());
+            return Response.status(BAD_REQUEST)
+                .entity(error).build();
+        } catch (final Exception e) {
+            LOGGER.error(e);
+            return VitamCodeHelper.toVitamError(VitamCode.ADMIN_EXTERNAL_INTERNAL_SERVER_ERROR, e.getMessage())
+                .toResponse();
+        }
+
+    }
+
+    @Path(OBJECTGROUP_SCHEMA)
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Secured(permission = OBJECTGROUP_SCHEMA_READ, description = "récuperer le schéma des groupes d'objets")
     public Response objectGroupSchema() {
         try (AdminManagementClient adminManagementClient = adminManagementClientFactory.getClient()) {
-            RequestResponse<SchemaModel> objectGroupSchema = adminManagementClient.getObjectGroupSchema();
+            RequestResponse<SchemaResponse> objectGroupSchema = adminManagementClient.getObjectGroupSchema();
             return Response.ok(objectGroupSchema).build();
         } catch (AdminManagementClientServerException e) {
-            LOGGER.error("Cannot retrieve objectgroup schema ", e);
+            LOGGER.error("Cannot retrieve object group schema ", e);
             return VitamCodeHelper.toVitamError(VitamCode.LOGBOOK_EXTERNAL_INTERNAL_SERVER_ERROR,
                 e.getLocalizedMessage()).setHttpCode(Status.INTERNAL_SERVER_ERROR.getStatusCode()).toResponse();
         }

@@ -54,13 +54,15 @@ import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.exception.VitamClientException;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.JsonLineIterator;
+import fr.gouv.vitam.common.model.MetadataType;
 import fr.gouv.vitam.common.model.ProcessAction;
 import fr.gouv.vitam.common.model.ProcessState;
 import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
-import fr.gouv.vitam.common.model.administration.OntologyCardinality;
-import fr.gouv.vitam.common.model.administration.SchemaModel;
-import fr.gouv.vitam.common.model.administration.SchemaType;
+import fr.gouv.vitam.common.model.administration.schema.SchemaCardinality;
+import fr.gouv.vitam.common.model.administration.schema.SchemaOrigin;
+import fr.gouv.vitam.common.model.administration.schema.SchemaResponse;
+import fr.gouv.vitam.common.model.administration.schema.SchemaType;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.functional.administration.rest.AdminManagementMain;
 import fr.gouv.vitam.ingest.external.client.IngestExternalClient;
@@ -98,6 +100,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import static fr.gouv.vitam.common.GlobalDataRest.X_REQUEST_ID;
 import static fr.gouv.vitam.common.model.objectgroup.FileInfoModel.FILENAME;
@@ -122,6 +125,7 @@ public class AccessExternalIT extends VitamRuleRunner {
     private static final String UNITS_RESOURCE_FILE = "access/units.json";
     private static final String GOT_RESOURCE_FILE = "database/got.json";
     private static final String INTEGRATION_PROCESSING_FULL_SEDA = "integration-processing/OK_SIP_FULL_SEDA2.3.zip";
+    private static final String EXTERNAL_UNIT_SCHEMA_JSON = "schema/external-unit-schema.json";
 
     @ClassRule
     public static VitamServerRunner runner =
@@ -679,44 +683,110 @@ public class AccessExternalIT extends VitamRuleRunner {
 
         // WHEN
 
-        RequestResponse<SchemaModel> response = adminExternalClient.getUnitSchema(vitamContext);
+        RequestResponse<SchemaResponse> response = adminExternalClient.getUnitSchema(vitamContext);
 
         // THEN
         assertThat(response.isOk()).isTrue();
-        List<SchemaModel> schemaModelUnit = ((RequestResponseOK<SchemaModel>) response).getResults();
+        List<SchemaResponse> schemaModelUnit = ((RequestResponseOK<SchemaResponse>) response).getResults();
         assertNotNull(schemaModelUnit);
         assertThat(schemaModelUnit).isNotEmpty();
-        Optional<SchemaModel> addressBirthPlaceAdressSchemaEltOpt =
+        Optional<SchemaResponse> addressBirthPlaceAdressSchemaEltOpt =
             schemaModelUnit.stream().filter(schemaElt -> "Addressee.BirthPlace.Address".equals(schemaElt.getPath()))
                 .findAny();
         assertThat(addressBirthPlaceAdressSchemaEltOpt).isPresent();
-        SchemaModel addressBirthPlaceAdressSchemaElt = addressBirthPlaceAdressSchemaEltOpt.get();
+        SchemaResponse addressBirthPlaceAdressSchemaElt = addressBirthPlaceAdressSchemaEltOpt.get();
 
         assertEquals(addressBirthPlaceAdressSchemaElt.getType(), SchemaType.TEXT);
         assertEquals(addressBirthPlaceAdressSchemaElt.getSedaField(), "Address");
-        assertEquals(addressBirthPlaceAdressSchemaElt.getCollections(), List.of("Unit"));
-        assertEquals(addressBirthPlaceAdressSchemaElt.getCardinality(), OntologyCardinality.ONE);
+        assertEquals(addressBirthPlaceAdressSchemaElt.getCollection(), MetadataType.UNIT.getName());
+        assertEquals(addressBirthPlaceAdressSchemaElt.getCardinality(), SchemaCardinality.ONE);
         assertThat(addressBirthPlaceAdressSchemaElt.getSedaVersions().contains("2.1"));
         assertThat(addressBirthPlaceAdressSchemaElt.getSedaVersions().contains("2.2"));
         assertThat(addressBirthPlaceAdressSchemaElt.getSedaVersions().contains("2.3"));
 
 
-        Optional<SchemaModel> persistentIdentifierContentSchemaEltOpt =
+        Optional<SchemaResponse> persistentIdentifierContentSchemaEltOpt =
             schemaModelUnit.stream()
                 .filter(schemaElt -> "PersistentIdentifier.PersistentIdentifierContent".equals(schemaElt.getPath()))
                 .findAny();
         assertThat(persistentIdentifierContentSchemaEltOpt).isPresent();
-        SchemaModel persistentIdentifierContentElt = persistentIdentifierContentSchemaEltOpt.get();
+        SchemaResponse persistentIdentifierContentElt = persistentIdentifierContentSchemaEltOpt.get();
 
         assertEquals(persistentIdentifierContentElt.getType(), SchemaType.KEYWORD);
         assertEquals(persistentIdentifierContentElt.getSedaField(), "PersistentIdentifierContent");
-        assertEquals(persistentIdentifierContentElt.getCollections(), List.of("Unit"));
-        assertEquals(persistentIdentifierContentElt.getCardinality(), OntologyCardinality.ONE);
+        assertEquals(persistentIdentifierContentElt.getCollection(), MetadataType.UNIT.getName());
+        assertEquals(persistentIdentifierContentElt.getCardinality(), SchemaCardinality.ONE);
         assertThat(persistentIdentifierContentElt.getSedaVersions().contains("2.2"));
         assertThat(persistentIdentifierContentElt.getSedaVersions().contains("2.3"));
         assertThat(!persistentIdentifierContentElt.getSedaVersions().contains("2.1"));
     }
 
+
+    @RunWithCustomExecutor
+    @Test
+    public void should_call_importing_external_schema() throws Exception {
+        try (InputStream inputStream =
+            PropertiesUtils.getResourceAsStream(EXTERNAL_UNIT_SCHEMA_JSON)) {
+            // given
+            VitamContext vitamContext = new VitamContext(TENANT_ID)
+                .setApplicationSessionId(APPLICATION_SESSION_ID)
+                .setAccessContract(ACCESS_CONTRACT);
+
+            // WHEN
+
+            RequestResponse<Void> response =
+                adminExternalClient.importUnitExternalSchema(vitamContext, inputStream);
+            // THEN
+            assertThat(response.isOk()).isTrue();
+
+            // WHEN
+            RequestResponse<SchemaResponse> responseRetrieveSchema =
+                adminExternalClient.getUnitSchema(vitamContext);
+
+            // THEN
+            assertThat(response.isOk()).isTrue();
+            List<SchemaResponse> schemaModelUnit =
+                ((RequestResponseOK<SchemaResponse>) responseRetrieveSchema).getResults();
+            assertNotNull(schemaModelUnit);
+            assertThat(schemaModelUnit).isNotEmpty();
+            Optional<SchemaResponse> addressBirthPlaceAdressSchemaEltOpt =
+                schemaModelUnit.stream().filter(schemaElt -> "Addressee.BirthPlace.Address".equals(schemaElt.getPath()))
+                    .findAny();
+
+            assertThat(addressBirthPlaceAdressSchemaEltOpt).isPresent();
+            SchemaResponse addressBirthPlaceAdressSchemaElt = addressBirthPlaceAdressSchemaEltOpt.get();
+
+            assertEquals(addressBirthPlaceAdressSchemaElt.getType(), SchemaType.TEXT);
+            assertEquals(addressBirthPlaceAdressSchemaElt.getSedaField(), "Address");
+            assertEquals(addressBirthPlaceAdressSchemaElt.getCollection(), MetadataType.UNIT.getName());
+            assertEquals(addressBirthPlaceAdressSchemaElt.getCardinality(), SchemaCardinality.ONE);
+            assertThat(addressBirthPlaceAdressSchemaElt.getSedaVersions().contains("2.1"));
+            assertThat(addressBirthPlaceAdressSchemaElt.getSedaVersions().contains("2.2"));
+            assertThat(addressBirthPlaceAdressSchemaElt.getSedaVersions().contains("2.3"));
+
+
+            List<SchemaResponse> externalSchemaElts =
+                schemaModelUnit.stream().filter(schemaElt -> SchemaOrigin.EXTERNAL == schemaElt.getOrigin())
+                    .collect(Collectors.toList());
+
+            assertThat(externalSchemaElts).isNotEmpty();
+            Optional<SchemaResponse> invoiceOpt =
+                externalSchemaElts.stream().filter(schemaModel -> "Invoice".equals(schemaModel.getPath())).findAny();
+            assertThat(invoiceOpt).isPresent();
+            SchemaResponse invoiceSchema = invoiceOpt.get();
+            assertThat(invoiceSchema.getType()).isEqualTo(SchemaType.OBJECT);
+            assertThat(invoiceSchema.getTenant()).isEqualTo(TENANT_ID);
+            assertThat(invoiceSchema.getCardinality()).isEqualTo(SchemaCardinality.ONE);
+
+            Optional<SchemaResponse> birthDateProvideOpt =
+                externalSchemaElts.stream()
+                    .filter(schemaModel -> "Invoice.Provider.BirthDate".equals(schemaModel.getPath())).findAny();
+            assertThat(birthDateProvideOpt).isPresent();
+            SchemaResponse birthDateProvideSchema = birthDateProvideOpt.get();
+            assertThat(birthDateProvideSchema.getType()).isEqualTo(SchemaType.DATE);
+            assertThat(birthDateProvideSchema.getCardinality()).isEqualTo(SchemaCardinality.MANY);
+        }
+    }
 
     @RunWithCustomExecutor
     @Test
@@ -728,44 +798,44 @@ public class AccessExternalIT extends VitamRuleRunner {
 
         // WHEN
 
-        RequestResponse<SchemaModel> response = adminExternalClient.getObjectGroupSchema(vitamContext);
+        RequestResponse<SchemaResponse> response = adminExternalClient.getObjectGroupSchema(vitamContext);
 
         // THEN
 
         assertThat(response.isOk()).isTrue();
-        List<SchemaModel> schemaModelUnit = ((RequestResponseOK<SchemaModel>) response).getResults();
+        List<SchemaResponse> schemaModelUnit = ((RequestResponseOK<SchemaResponse>) response).getResults();
         assertNotNull(schemaModelUnit);
         assertThat(schemaModelUnit).isNotEmpty();
-        Optional<SchemaModel> algorithSchemaEltOpt =
+        Optional<SchemaResponse> algorithSchemaEltOpt =
             schemaModelUnit.stream().filter(
                     schemaElt -> "_qualifiers.versions.Algorithm".equals(schemaElt.getPath()))
                 .findAny();
         assertThat(algorithSchemaEltOpt).isPresent();
-        SchemaModel algorithSchemaElt = algorithSchemaEltOpt.get();
+        SchemaResponse algorithSchemaElt = algorithSchemaEltOpt.get();
 
         assertEquals(algorithSchemaElt.getType(), SchemaType.KEYWORD);
         assertEquals(algorithSchemaElt.getSedaField(), "Algorithm");
         assertEquals(algorithSchemaElt.getPath(), "_qualifiers.versions.Algorithm");
         assertEquals(algorithSchemaElt.getApiPath(), "#qualifiers.versions.Algorithm");
-        assertEquals(algorithSchemaElt.getCollections(), List.of("ObjectGroup"));
-        assertEquals(algorithSchemaElt.getCardinality(), OntologyCardinality.ONE);
+        assertEquals(algorithSchemaElt.getCollection(), MetadataType.OBJECTGROUP.getName());
+        assertEquals(algorithSchemaElt.getCardinality(), SchemaCardinality.ONE);
         assertThat(algorithSchemaElt.getSedaVersions().contains("2.1"));
         assertThat(algorithSchemaElt.getSedaVersions().contains("2.2"));
         assertThat(algorithSchemaElt.getSedaVersions().contains("2.3"));
 
 
-        Optional<SchemaModel> persistentIdentifierContentSchemaEltOpt =
+        Optional<SchemaResponse> persistentIdentifierContentSchemaEltOpt =
             schemaModelUnit.stream()
                 .filter(schemaElt -> "_qualifiers.versions.PersistentIdentifier.PersistentIdentifierContent".equals(
                     schemaElt.getPath()))
                 .findAny();
         assertThat(persistentIdentifierContentSchemaEltOpt).isPresent();
-        SchemaModel persistentIdentifierContentElt = persistentIdentifierContentSchemaEltOpt.get();
+        SchemaResponse persistentIdentifierContentElt = persistentIdentifierContentSchemaEltOpt.get();
 
         assertEquals(persistentIdentifierContentElt.getType(), SchemaType.KEYWORD);
         assertEquals(persistentIdentifierContentElt.getSedaField(), "PersistentIdentifierContent");
-        assertEquals(persistentIdentifierContentElt.getCollections(), List.of("ObjectGroup"));
-        assertEquals(persistentIdentifierContentElt.getCardinality(), OntologyCardinality.ONE);
+        assertEquals(persistentIdentifierContentElt.getCollection(), MetadataType.OBJECTGROUP.getName());
+        assertEquals(persistentIdentifierContentElt.getCardinality(), SchemaCardinality.ONE);
         assertThat(persistentIdentifierContentElt.getSedaVersions().contains("2.2"));
         assertThat(persistentIdentifierContentElt.getSedaVersions().contains("2.3"));
         assertThat(!persistentIdentifierContentElt.getSedaVersions().contains("2.1"));

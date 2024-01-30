@@ -54,10 +54,10 @@ import fr.gouv.vitam.common.model.administration.IngestContractModel;
 import fr.gouv.vitam.common.model.administration.ManagementContractModel;
 import fr.gouv.vitam.common.model.administration.OntologyModel;
 import fr.gouv.vitam.common.model.administration.ProfileModel;
-import fr.gouv.vitam.common.model.administration.SchemaModel;
 import fr.gouv.vitam.common.model.administration.SecurityProfileModel;
 import fr.gouv.vitam.common.model.administration.preservation.GriffinModel;
 import fr.gouv.vitam.common.model.administration.preservation.PreservationScenarioModel;
+import fr.gouv.vitam.common.model.administration.schema.SchemaResponse;
 import fr.gouv.vitam.common.model.processing.ProcessDetail;
 import fr.gouv.vitam.common.model.processing.WorkFlow;
 import fr.gouv.vitam.logbook.common.parameters.LogbookOperationParameters;
@@ -984,7 +984,19 @@ public interface AdminExternalClient extends BasicClient, OperationStatusClient 
      * @param vitamContext
      * @return
      */
-    RequestResponse<SchemaModel> getUnitSchema(VitamContext vitamContext) throws VitamClientException;
+    RequestResponse<SchemaResponse> getUnitSchema(VitamContext vitamContext) throws VitamClientException;
+
+    /**
+     * Import unit external schema
+     *
+     * @param vitamContext
+     * @param externalSchema
+     * @return
+     * @throws InvalidParseOperationException
+     * @throws AccessExternalClientException
+     */
+    RequestResponse<Void> importUnitExternalSchema(VitamContext vitamContext, InputStream externalSchema)
+        throws InvalidParseOperationException, AccessExternalClientException;
 
     /**
      * get Object group schema
@@ -992,5 +1004,5 @@ public interface AdminExternalClient extends BasicClient, OperationStatusClient 
      * @param vitamContext
      * @return
      */
-    RequestResponse<SchemaModel> getObjectGroupSchema(VitamContext vitamContext) throws VitamClientException;
+    RequestResponse<SchemaResponse> getObjectGroupSchema(VitamContext vitamContext) throws VitamClientException;
 }

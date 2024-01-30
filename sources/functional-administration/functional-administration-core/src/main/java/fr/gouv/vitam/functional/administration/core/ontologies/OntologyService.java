@@ -32,7 +32,6 @@ import fr.gouv.vitam.common.exception.VitamException;
 import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.administration.OntologyModel;
-import fr.gouv.vitam.common.model.administration.SchemaModel;
 import fr.gouv.vitam.functional.administration.common.exception.ReferentialException;
 
 import java.io.IOException;
@@ -108,19 +107,5 @@ public interface OntologyService {
     RequestResponse<OntologyModel> checkUpgradeOntologies(List<OntologyModel> ontologyList)
         throws VitamException;
 
-    /**
-     * get unit schema
-     *
-     * @return
-     * @throws InvalidParseOperationException
-     */
-    List<SchemaModel> findUnitSchema() throws InvalidParseOperationException, IOException;
-
-    /**
-     * get object group schema
-     *
-     * @return
-     * @throws InvalidParseOperationException
-     */
-    List<SchemaModel> findObjectGroupSchema() throws InvalidParseOperationException, IOException;
+   
 }

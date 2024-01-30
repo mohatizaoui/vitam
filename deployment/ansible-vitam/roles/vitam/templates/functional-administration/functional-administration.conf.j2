@@ -33,7 +33,7 @@ elasticsearchTenantIndexation:
     number_of_shards: {{ vitam_elasticsearch_tenant_indexation.default_config.masterdata.number_of_shards | default('1') }}
     number_of_replicas: {{ vitam_elasticsearch_tenant_indexation.default_config.masterdata.number_of_replicas | default('2') }}
 
-{% for collection in ["accesscontract", "accessionregisterdetail", "accessionregistersummary", "accessionregistersymbolic", "agencies", "archiveunitprofile", "context", "fileformat", "filerules", "griffin", "ingestcontract", "managementcontract", "ontology", "preservationscenario", "profile", "securityprofile"] %}
+{% for collection in ["accesscontract", "accessionregisterdetail", "accessionregistersummary", "accessionregistersymbolic", "agencies", "archiveunitprofile", "context", "fileformat", "filerules", "griffin", "ingestcontract", "managementcontract", "ontology", "preservationscenario", "profile", "securityprofile","schema"] %}
   {% if vitam_elasticsearch_tenant_indexation.masterdata[collection] is defined %}
   {{ collection }}:
     {% if vitam_elasticsearch_tenant_indexation.masterdata[collection].number_of_shards is defined %}

@@ -45,7 +45,6 @@ import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.administration.OntologyModel;
 import fr.gouv.vitam.common.model.administration.ProfileModel;
-import fr.gouv.vitam.common.model.administration.SchemaModel;
 import fr.gouv.vitam.common.mongo.MongoRule;
 import fr.gouv.vitam.common.server.application.configuration.DbConfigurationImpl;
 import fr.gouv.vitam.common.server.application.configuration.MongoDbNode;
@@ -77,8 +76,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static fr.gouv.vitam.common.guid.GUIDFactory.newRequestIdGUID;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -936,37 +933,6 @@ public class OntologyServiceImplTest {
                 FunctionalAdminCollections.ONTOLOGY), any());
     }
 
-    @Test
-    @RunWithCustomExecutor
-    public void checkGetOntologySchemaForUnit() throws Exception {
-        List<SchemaModel> unitSchema = ontologyService.findUnitSchema();
-        assertThat(unitSchema).isNotEmpty();
-        List<SchemaModel> schemaWithEmptyPath =
-            unitSchema.stream().filter(schemaModel -> null != schemaModel.getPath()).collect(Collectors.toList());
-        assertThat(schemaWithEmptyPath).isNotEmpty();
-    }
-
-    @Test
-    @RunWithCustomExecutor
-    public void shouldEverySchemaItemsHasPathDefined() throws Exception {
-        final List<SchemaModel> unitSchema = ontologyService.findUnitSchema();
-        assertThat(unitSchema).isNotEmpty();
-
-        final boolean allItemsHavePath = unitSchema.stream()
-            .allMatch(schemaModel -> Objects.nonNull(schemaModel.getPath()));
-        assertThat(allItemsHavePath).isTrue();
-    }
-
-    @Test
-    @RunWithCustomExecutor
-    public void checkGetOntologySchemaObjectGroup() throws Exception {
-        List<SchemaModel> objectGroupSchema = ontologyService.findObjectGroupSchema();
-        assertThat(objectGroupSchema).isNotEmpty();
-        List<SchemaModel> schemaWithEmptyPath =
-            objectGroupSchema.stream().filter(schemaModel -> null != schemaModel.getPath())
-                .collect(Collectors.toList());
-        assertThat(schemaWithEmptyPath).isNotEmpty();
-    }
 
     private List<Ontology> getExternalOntologies()
         throws InvalidParseOperationException {

@@ -96,7 +96,8 @@
           "EliminationActionUnit",
           "PreservationReport",
           "PreservationScenario",
-          "ManagementContract"
+          "ManagementContract",
+          "Schema"
         ]
       }
     },

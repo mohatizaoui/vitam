@@ -110,8 +110,9 @@ public class MongoDbAccessAdminImpl extends MongoDbAccess implements MongoDbAcce
 
             DocumentValidator documentValidator = ReferentialDocumentValidators.getValidator(collection);
             return dbrequest.execute(insertquery, version, documentValidator);
-        } catch (MongoBulkWriteException | MongoWriteException | InvalidParseOperationException | BadRequestException | DatabaseException |
-            InvalidCreateOperationException | VitamDBException e) {
+        } catch (MongoBulkWriteException | MongoWriteException | InvalidParseOperationException | BadRequestException |
+                 DatabaseException |
+                 InvalidCreateOperationException | VitamDBException e) {
             if (DbRequestHelper.isDuplicateKeyError(e)) {
                 throw new DocumentAlreadyExistsException("Documents already exists: Duplicate Key", e);
             }
@@ -146,7 +147,7 @@ public class MongoDbAccessAdminImpl extends MongoDbAccess implements MongoDbAcce
 
                 return result;
             } catch (InvalidParseOperationException | BadRequestException | InvalidCreateOperationException |
-                VitamDBException | SchemaValidationException e) {
+                     VitamDBException | SchemaValidationException e) {
                 throw new DatabaseException("Delete document exception", e);
             }
         }
@@ -184,7 +185,7 @@ public class MongoDbAccessAdminImpl extends MongoDbAccess implements MongoDbAcce
                 }
                 return result;
             } catch (InvalidParseOperationException | BadRequestException | InvalidCreateOperationException |
-                VitamDBException e) {
+                     VitamDBException e) {
                 throw new DatabaseException("Delete document exception", e);
             }
         }
@@ -217,7 +218,23 @@ public class MongoDbAccessAdminImpl extends MongoDbAccess implements MongoDbAcce
                 indexManager.getElasticsearchIndexAliasResolver(collection).resolveIndexName(null));
             return dbrequest.execute(parser.getRequest());
         } catch (final DatabaseException | BadRequestException | InvalidParseOperationException |
-            InvalidCreateOperationException | VitamDBException | SchemaValidationException e) {
+                       InvalidCreateOperationException | VitamDBException | SchemaValidationException e) {
+            throw new ReferentialException("find Document Exception", e);
+        }
+    }
+
+    @Override
+    public DbRequestResult findDocumentsWithoutRestrictionOnCurrentTenant(JsonNode select,
+        FunctionalAdminCollections collection)
+        throws ReferentialException {
+        try {
+            final SelectParserSingle parser = new SelectParserSingle(collection.getVarNameAdapater());
+            parser.parse(select);
+            final DbRequestSingle dbRequest = new DbRequestSingle(collection.getVitamCollection(), this.ontologyLoader,
+                indexManager.getElasticsearchIndexAliasResolver(collection).resolveIndexName(null));
+            return dbRequest.executeQueryWithoutRestrictionOnCurrentTenant(parser.getRequest());
+        } catch (final DatabaseException | BadRequestException | InvalidParseOperationException |
+                       InvalidCreateOperationException | VitamDBException | SchemaValidationException e) {
             throw new ReferentialException("find Document Exception", e);
         }
     }

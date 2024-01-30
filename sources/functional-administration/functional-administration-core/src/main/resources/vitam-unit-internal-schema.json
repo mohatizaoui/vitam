@@ -7,9 +7,7 @@
     "Indexed": true,
     "Path": "AcquiredDate",
     "ApiField": "AcquiredDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -29,9 +27,7 @@
     "Indexed": true,
     "Path": "Addressee",
     "ApiField": "Addressee",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -48,9 +44,7 @@
     "Indexed": true,
     "Path": "Addressee.Activity",
     "ApiField": "Activity",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -68,9 +62,7 @@
     "Indexed": true,
     "Path": "Addressee.BirthDate",
     "ApiField": "BirthDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -88,9 +80,7 @@
     "Indexed": true,
     "Path": "Addressee.BirthName",
     "ApiField": "BirthName",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -108,9 +98,7 @@
     "Indexed": true,
     "Path": "Addressee.BirthPlace",
     "ApiField": "BirthPlace",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -127,9 +115,7 @@
     "Indexed": true,
     "Path": "Addressee.BirthPlace.Address",
     "ApiField": "Address",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -147,9 +133,7 @@
     "Indexed": true,
     "Path": "Addressee.BirthPlace.City",
     "ApiField": "City",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -167,9 +151,7 @@
     "Indexed": true,
     "Path": "Addressee.BirthPlace.Country",
     "ApiField": "Country",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -187,9 +169,7 @@
     "Indexed": true,
     "Path": "Addressee.BirthPlace.Geogname",
     "ApiField": "Geogname",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -207,9 +187,7 @@
     "Indexed": true,
     "Path": "Addressee.BirthPlace.PostalCode",
     "ApiField": "PostalCode",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -227,9 +205,7 @@
     "Indexed": true,
     "Path": "Addressee.BirthPlace.Region",
     "ApiField": "Region",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -247,9 +223,7 @@
     "Indexed": true,
     "Path": "Addressee.Corpname",
     "ApiField": "Corpname",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -267,9 +241,7 @@
     "Indexed": true,
     "Path": "Addressee.DeathDate",
     "ApiField": "DeathDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -287,9 +259,7 @@
     "Indexed": true,
     "Path": "Addressee.DeathPlace",
     "ApiField": "DeathPlace",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -306,9 +276,7 @@
     "Indexed": true,
     "Path": "Addressee.DeathPlace.Address",
     "ApiField": "Address",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -326,9 +294,7 @@
     "Indexed": true,
     "Path": "Addressee.DeathPlace.City",
     "ApiField": "City",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -346,9 +312,7 @@
     "Indexed": true,
     "Path": "Addressee.DeathPlace.Country",
     "ApiField": "Country",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -366,9 +330,7 @@
     "Indexed": true,
     "Path": "Addressee.DeathPlace.Geogname",
     "ApiField": "Geogname",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -386,9 +348,7 @@
     "Indexed": true,
     "Path": "Addressee.DeathPlace.PostalCode",
     "ApiField": "PostalCode",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -406,9 +366,7 @@
     "Indexed": true,
     "Path": "Addressee.DeathPlace.Region",
     "ApiField": "Region",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -426,9 +384,7 @@
     "Indexed": true,
     "Path": "Addressee.FirstName",
     "ApiField": "FirstName",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -446,9 +402,7 @@
     "Indexed": true,
     "Path": "Addressee.FullName",
     "ApiField": "FullName",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -468,9 +422,7 @@
     "Indexed": true,
     "Path": "Addressee.Fullpname",
     "ApiField": "Fullpname",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -487,9 +439,7 @@
     "Indexed": true,
     "Path": "Addressee.Function",
     "ApiField": "Function",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -507,9 +457,7 @@
     "Indexed": true,
     "Path": "Addressee.Gender",
     "ApiField": "Gender",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -527,9 +475,7 @@
     "Indexed": true,
     "Path": "Addressee.GivenName",
     "ApiField": "GivenName",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -547,9 +493,7 @@
     "Indexed": true,
     "Path": "Addressee.Identifier",
     "ApiField": "Identifier",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -567,9 +511,7 @@
     "Indexed": true,
     "Path": "Addressee.Mandate",
     "ApiField": "Mandate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -587,9 +529,7 @@
     "Indexed": true,
     "Path": "Addressee.Nationality",
     "ApiField": "Nationality",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -607,9 +547,7 @@
     "Indexed": true,
     "Path": "Addressee.Position",
     "ApiField": "Position",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -627,9 +565,7 @@
     "Indexed": true,
     "Path": "Addressee.Role",
     "ApiField": "Role",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -647,9 +583,7 @@
     "Indexed": true,
     "Path": "Agent",
     "ApiField": "Agent",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -666,9 +600,7 @@
     "Indexed": true,
     "Path": "Agent.Activity",
     "ApiField": "Activity",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -686,9 +618,7 @@
     "Indexed": true,
     "Path": "Agent.BirthDate",
     "ApiField": "BirthDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -706,9 +636,7 @@
     "Indexed": true,
     "Path": "Agent.BirthName",
     "ApiField": "BirthName",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -726,9 +654,7 @@
     "Indexed": true,
     "Path": "Agent.BirthPlace",
     "ApiField": "BirthPlace",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -745,9 +671,7 @@
     "Indexed": true,
     "Path": "Agent.BirthPlace.Address",
     "ApiField": "Address",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -765,9 +689,7 @@
     "Indexed": true,
     "Path": "Agent.BirthPlace.City",
     "ApiField": "City",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -785,9 +707,7 @@
     "Indexed": true,
     "Path": "Agent.BirthPlace.Country",
     "ApiField": "Country",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -805,9 +725,7 @@
     "Indexed": true,
     "Path": "Agent.BirthPlace.Geogname",
     "ApiField": "Geogname",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -825,9 +743,7 @@
     "Indexed": true,
     "Path": "Agent.BirthPlace.PostalCode",
     "ApiField": "PostalCode",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -845,9 +761,7 @@
     "Indexed": true,
     "Path": "Agent.BirthPlace.Region",
     "ApiField": "Region",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -865,9 +779,7 @@
     "Indexed": true,
     "Path": "Agent.Corpname",
     "ApiField": "Corpname",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -885,9 +797,7 @@
     "Indexed": true,
     "Path": "Agent.DeathDate",
     "ApiField": "DeathDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -905,9 +815,7 @@
     "Indexed": true,
     "Path": "Agent.DeathPlace",
     "ApiField": "DeathPlace",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -924,9 +832,7 @@
     "Indexed": true,
     "Path": "Agent.DeathPlace.Address",
     "ApiField": "Address",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -944,9 +850,7 @@
     "Indexed": true,
     "Path": "Agent.DeathPlace.City",
     "ApiField": "City",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -964,9 +868,7 @@
     "Indexed": true,
     "Path": "Agent.DeathPlace.Country",
     "ApiField": "Country",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -984,9 +886,7 @@
     "Indexed": true,
     "Path": "Agent.DeathPlace.Geogname",
     "ApiField": "Geogname",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1004,9 +904,7 @@
     "Indexed": true,
     "Path": "Agent.DeathPlace.PostalCode",
     "ApiField": "PostalCode",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1024,9 +922,7 @@
     "Indexed": true,
     "Path": "Agent.DeathPlace.Region",
     "ApiField": "Region",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1044,9 +940,7 @@
     "Indexed": true,
     "Path": "Agent.FirstName",
     "ApiField": "FirstName",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1064,9 +958,7 @@
     "Indexed": true,
     "Path": "Agent.FullName",
     "ApiField": "FullName",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1084,9 +976,7 @@
     "Indexed": true,
     "Path": "Agent.Function",
     "ApiField": "Function",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1104,9 +994,7 @@
     "Indexed": true,
     "Path": "Agent.Gender",
     "ApiField": "Gender",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1124,9 +1012,7 @@
     "Indexed": true,
     "Path": "Agent.GivenName",
     "ApiField": "GivenName",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1144,9 +1030,7 @@
     "Indexed": true,
     "Path": "Agent.Identifier",
     "ApiField": "Identifier",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1164,9 +1048,7 @@
     "Indexed": true,
     "Path": "Agent.Mandate",
     "ApiField": "Mandate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1184,9 +1066,7 @@
     "Indexed": true,
     "Path": "Agent.Nationality",
     "ApiField": "Nationality",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1204,9 +1084,7 @@
     "Indexed": true,
     "Path": "Agent.Position",
     "ApiField": "Position",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1224,9 +1102,7 @@
     "Indexed": true,
     "Path": "Agent.Role",
     "ApiField": "Role",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1244,9 +1120,7 @@
     "Indexed": true,
     "Path": "ArchivalAgencyArchiveUnitIdentifier",
     "ApiField": "ArchivalAgencyArchiveUnitIdentifier",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1266,9 +1140,7 @@
     "Indexed": true,
     "Path": "ArchiveUnitProfile",
     "ApiField": "ArchiveUnitProfile",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1288,9 +1160,7 @@
     "Indexed": true,
     "Path": "AuthorizedAgent",
     "ApiField": "AuthorizedAgent",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1307,9 +1177,7 @@
     "Indexed": true,
     "Path": "AuthorizedAgent.Activity",
     "ApiField": "Activity",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1327,9 +1195,7 @@
     "Indexed": true,
     "Path": "AuthorizedAgent.BirthDate",
     "ApiField": "BirthDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1347,9 +1213,7 @@
     "Indexed": true,
     "Path": "AuthorizedAgent.BirthName",
     "ApiField": "BirthName",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1367,9 +1231,7 @@
     "Indexed": true,
     "Path": "AuthorizedAgent.BirthPlace",
     "ApiField": "BirthPlace",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1386,9 +1248,7 @@
     "Indexed": true,
     "Path": "AuthorizedAgent.BirthPlace.Address",
     "ApiField": "Address",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1406,9 +1266,7 @@
     "Indexed": true,
     "Path": "AuthorizedAgent.BirthPlace.City",
     "ApiField": "City",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1426,9 +1284,7 @@
     "Indexed": true,
     "Path": "AuthorizedAgent.BirthPlace.Country",
     "ApiField": "Country",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1446,9 +1302,7 @@
     "Indexed": true,
     "Path": "AuthorizedAgent.BirthPlace.Geogname",
     "ApiField": "Geogname",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1466,9 +1320,7 @@
     "Indexed": true,
     "Path": "AuthorizedAgent.BirthPlace.PostalCode",
     "ApiField": "PostalCode",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1486,9 +1338,7 @@
     "Indexed": true,
     "Path": "AuthorizedAgent.BirthPlace.Region",
     "ApiField": "Region",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1506,9 +1356,7 @@
     "Indexed": true,
     "Path": "AuthorizedAgent.Corpname",
     "ApiField": "Corpname",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1526,9 +1374,7 @@
     "Indexed": true,
     "Path": "AuthorizedAgent.DeathDate",
     "ApiField": "DeathDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1546,9 +1392,7 @@
     "Indexed": true,
     "Path": "AuthorizedAgent.DeathPlace",
     "ApiField": "DeathPlace",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1565,9 +1409,7 @@
     "Indexed": true,
     "Path": "AuthorizedAgent.DeathPlace.Address",
     "ApiField": "Address",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1585,9 +1427,7 @@
     "Indexed": true,
     "Path": "AuthorizedAgent.DeathPlace.City",
     "ApiField": "City",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1605,9 +1445,7 @@
     "Indexed": true,
     "Path": "AuthorizedAgent.DeathPlace.Country",
     "ApiField": "Country",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1625,9 +1463,7 @@
     "Indexed": true,
     "Path": "AuthorizedAgent.DeathPlace.Geogname",
     "ApiField": "Geogname",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1645,9 +1481,7 @@
     "Indexed": true,
     "Path": "AuthorizedAgent.DeathPlace.PostalCode",
     "ApiField": "PostalCode",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1665,9 +1499,7 @@
     "Indexed": true,
     "Path": "AuthorizedAgent.DeathPlace.Region",
     "ApiField": "Region",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1685,9 +1517,7 @@
     "Indexed": true,
     "Path": "AuthorizedAgent.FirstName",
     "ApiField": "FirstName",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1705,9 +1535,7 @@
     "Indexed": true,
     "Path": "AuthorizedAgent.FullName",
     "ApiField": "FullName",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1725,9 +1553,7 @@
     "Indexed": true,
     "Path": "AuthorizedAgent.Function",
     "ApiField": "Function",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1745,9 +1571,7 @@
     "Indexed": true,
     "Path": "AuthorizedAgent.Gender",
     "ApiField": "Gender",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1765,9 +1589,7 @@
     "Indexed": true,
     "Path": "AuthorizedAgent.GivenName",
     "ApiField": "GivenName",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1785,9 +1607,7 @@
     "Indexed": true,
     "Path": "AuthorizedAgent.Identifier",
     "ApiField": "Identifier",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1805,9 +1625,7 @@
     "Indexed": true,
     "Path": "AuthorizedAgent.Mandate",
     "ApiField": "Mandate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1825,9 +1643,7 @@
     "Indexed": true,
     "Path": "AuthorizedAgent.Nationality",
     "ApiField": "Nationality",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1845,9 +1661,7 @@
     "Indexed": true,
     "Path": "AuthorizedAgent.Position",
     "ApiField": "Position",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1865,9 +1679,7 @@
     "Indexed": true,
     "Path": "AuthorizedAgent.Role",
     "ApiField": "Role",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1885,9 +1697,7 @@
     "Indexed": true,
     "Path": "Coverage",
     "ApiField": "Coverage",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1904,9 +1714,7 @@
     "Indexed": true,
     "Path": "Coverage.Juridictional",
     "ApiField": "Juridictional",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1924,9 +1732,7 @@
     "Indexed": true,
     "Path": "Coverage.Spatial",
     "ApiField": "Spatial",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1944,9 +1750,7 @@
     "Indexed": true,
     "Path": "Coverage.Temporal",
     "ApiField": "Temporal",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -1964,9 +1768,7 @@
     "Indexed": true,
     "Path": "CreatedDate",
     "ApiField": "CreatedDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -1986,9 +1788,7 @@
     "Indexed": true,
     "Path": "CustodialHistory",
     "ApiField": "CustodialHistory",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -2007,9 +1807,7 @@
     "Indexed": true,
     "Path": "CustodialHistory.CustodialHistoryFile",
     "ApiField": "CustodialHistoryFile",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -2026,9 +1824,7 @@
     "Indexed": true,
     "Path": "CustodialHistory.CustodialHistoryFile.DataObjectGroupReferenceId",
     "ApiField": "DataObjectGroupReferenceId",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -2046,9 +1842,7 @@
     "Indexed": true,
     "Path": "CustodialHistory.CustodialHistoryFile.DataObjectReferenceId",
     "ApiField": "DataObjectReferenceId",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -2066,9 +1860,7 @@
     "Indexed": true,
     "Path": "CustodialHistory.CustodialHistoryItem",
     "ApiField": "CustodialHistoryItem",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -2086,9 +1878,7 @@
     "Indexed": true,
     "Path": "DateLitteral",
     "ApiField": "DateLitteral",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -2108,9 +1898,7 @@
     "Indexed": true,
     "Path": "Description",
     "ApiField": "Description",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -2123,25 +1911,6 @@
     "ShortName": "Description"
   },
   {
-    "FieldName": "Description",
-    "Type": "TEXT",
-    "Origin": "INTERNAL",
-    "Cardinality": "ONE",
-    "Indexed": true,
-    "Path": "Description",
-    "ApiField": "Description",
-    "Collections": [
-      "Unit"
-    ],
-    "SedaVersions": [
-      "2.1"
-    ],
-    "StringSize": "SHORT",
-    "Category": "DESCRIPTION",
-    "ApiPath": "Description",
-    "ShortName": "Description"
-  },
-  {
     "FieldName": "DescriptionLanguage",
     "Type": "KEYWORD",
     "Origin": "INTERNAL",
@@ -2149,9 +1918,7 @@
     "Indexed": true,
     "Path": "DescriptionLanguage",
     "ApiField": "DescriptionLanguage",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -2171,9 +1938,7 @@
     "Indexed": true,
     "Path": "DescriptionLevel",
     "ApiField": "DescriptionLevel",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -2191,9 +1956,7 @@
     "Indexed": true,
     "Path": "Description_",
     "ApiField": "Description_",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -2212,9 +1975,7 @@
     "Indexed": true,
     "Path": "Description_.*",
     "ApiField": "*",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -2231,9 +1992,7 @@
     "Indexed": true,
     "Path": "DocumentType",
     "ApiField": "DocumentType",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -2253,9 +2012,7 @@
     "Indexed": true,
     "Path": "EndDate",
     "ApiField": "EndDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -2275,9 +2032,7 @@
     "Indexed": true,
     "Path": "Event",
     "ApiField": "Event",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -2294,9 +2049,7 @@
     "Indexed": true,
     "Path": "Event.evDateTime",
     "ApiField": "evDateTime",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -2314,9 +2067,7 @@
     "Indexed": true,
     "Path": "Event.evDetData",
     "ApiField": "evDetData",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -2336,9 +2087,7 @@
     "Indexed": true,
     "Path": "Event.evId",
     "ApiField": "evId",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -2356,9 +2105,7 @@
     "Indexed": true,
     "Path": "Event.evType",
     "ApiField": "evType",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -2376,9 +2123,7 @@
     "Indexed": true,
     "Path": "Event.evTypeDetail",
     "ApiField": "evTypeDetail",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -2396,9 +2141,7 @@
     "Indexed": true,
     "Path": "Event.evTypeProc",
     "ApiField": "evTypeProc",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -2416,9 +2159,7 @@
     "Indexed": true,
     "Path": "Event.outDetail",
     "ApiField": "outDetail",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -2436,9 +2177,7 @@
     "Indexed": true,
     "Path": "Event.outMessg",
     "ApiField": "outMessg",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -2456,9 +2195,7 @@
     "Indexed": true,
     "Path": "Event.outcome",
     "ApiField": "outcome",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -2476,9 +2213,7 @@
     "Indexed": true,
     "Path": "FilePlanPosition",
     "ApiField": "FilePlanPosition",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -2498,9 +2233,7 @@
     "Indexed": true,
     "Path": "Gps",
     "ApiField": "Gps",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -2517,9 +2250,7 @@
     "Indexed": true,
     "Path": "Gps.GpsAltitude",
     "ApiField": "GpsAltitude",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -2537,9 +2268,7 @@
     "Indexed": true,
     "Path": "Gps.GpsAltitudeRef",
     "ApiField": "GpsAltitudeRef",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -2557,9 +2286,7 @@
     "Indexed": true,
     "Path": "Gps.GpsDateStamp",
     "ApiField": "GpsDateStamp",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -2577,9 +2304,7 @@
     "Indexed": true,
     "Path": "Gps.GpsLatitude",
     "ApiField": "GpsLatitude",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -2597,9 +2322,7 @@
     "Indexed": true,
     "Path": "Gps.GpsLatitudeRef",
     "ApiField": "GpsLatitudeRef",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -2617,9 +2340,7 @@
     "Indexed": true,
     "Path": "Gps.GpsLongitude",
     "ApiField": "GpsLongitude",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -2637,9 +2358,7 @@
     "Indexed": true,
     "Path": "Gps.GpsLongitudeRef",
     "ApiField": "GpsLongitudeRef",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -2657,9 +2376,7 @@
     "Indexed": true,
     "Path": "Gps.GpsVersionID",
     "ApiField": "GpsVersionID",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -2677,9 +2394,7 @@
     "Indexed": true,
     "Path": "Keyword",
     "ApiField": "Keyword",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -2698,9 +2413,7 @@
     "Indexed": true,
     "Path": "Keyword.KeywordContent",
     "ApiField": "KeywordContent",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -2720,9 +2433,7 @@
     "Indexed": true,
     "Path": "Keyword.KeywordReference",
     "ApiField": "KeywordReference",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -2742,9 +2453,7 @@
     "Indexed": true,
     "Path": "Keyword.KeywordType",
     "ApiField": "KeywordType",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -2764,9 +2473,7 @@
     "Indexed": true,
     "Path": "Language",
     "ApiField": "Language",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -2786,9 +2493,7 @@
     "Indexed": true,
     "Path": "LinkingAgentIdentifier",
     "ApiField": "LinkingAgentIdentifier",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.2",
       "2.3"
@@ -2806,9 +2511,7 @@
     "Indexed": true,
     "Path": "LinkingAgentIdentifier.LinkingAgentIdentifierType",
     "ApiField": "LinkingAgentIdentifierType",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -2828,9 +2531,7 @@
     "Indexed": true,
     "Path": "LinkingAgentIdentifier.LinkingAgentIdentifierValue",
     "ApiField": "LinkingAgentIdentifierValue",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.2",
       "2.3"
@@ -2849,9 +2550,7 @@
     "Indexed": true,
     "Path": "LinkingAgentIdentifier.LinkingAgentRole",
     "ApiField": "LinkingAgentRole",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.2",
       "2.3"
@@ -2870,9 +2569,7 @@
     "Indexed": true,
     "Path": "OriginatingAgency",
     "ApiField": "OriginatingAgency",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -2892,9 +2589,7 @@
     "Indexed": true,
     "Path": "OriginatingAgency.Identifier",
     "ApiField": "Identifier",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -2914,9 +2609,7 @@
     "Indexed": true,
     "Path": "OriginatingAgency.OrganizationDescriptiveMetadata",
     "ApiField": "OrganizationDescriptiveMetadata",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -2935,9 +2628,7 @@
     "Indexed": true,
     "Path": "OriginatingAgencyArchiveUnitIdentifier",
     "ApiField": "OriginatingAgencyArchiveUnitIdentifier",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -2957,9 +2648,7 @@
     "Indexed": true,
     "Path": "OriginatingSystemId",
     "ApiField": "OriginatingSystemId",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -2979,9 +2668,7 @@
     "Indexed": true,
     "Path": "OriginatingSystemIdReplyTo",
     "ApiField": "OriginatingSystemIdReplyTo",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -3001,9 +2688,7 @@
     "Indexed": true,
     "Path": "PersistentIdentifier",
     "ApiField": "PersistentIdentifier",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.2",
       "2.3"
@@ -3021,9 +2706,7 @@
     "Indexed": true,
     "Path": "PersistentIdentifier.PersistentIdentifierContent",
     "ApiField": "PersistentIdentifierContent",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.2",
       "2.3"
@@ -3042,9 +2725,7 @@
     "Indexed": true,
     "Path": "PersistentIdentifier.PersistentIdentifierOrigin",
     "ApiField": "PersistentIdentifierOrigin",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.2",
       "2.3"
@@ -3063,9 +2744,7 @@
     "Indexed": true,
     "Path": "PersistentIdentifier.PersistentIdentifierReference",
     "ApiField": "PersistentIdentifierReference",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.2",
       "2.3"
@@ -3084,9 +2763,7 @@
     "Indexed": true,
     "Path": "PersistentIdentifier.PersistentIdentifierType",
     "ApiField": "PersistentIdentifierType",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.2",
       "2.3"
@@ -3105,9 +2782,7 @@
     "Indexed": true,
     "Path": "ReceivedDate",
     "ApiField": "ReceivedDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -3127,9 +2802,7 @@
     "Indexed": true,
     "Path": "Recipient",
     "ApiField": "Recipient",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -3146,9 +2819,7 @@
     "Indexed": true,
     "Path": "Recipient.Activity",
     "ApiField": "Activity",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -3166,9 +2837,7 @@
     "Indexed": true,
     "Path": "Recipient.BirthDate",
     "ApiField": "BirthDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -3186,9 +2855,7 @@
     "Indexed": true,
     "Path": "Recipient.BirthName",
     "ApiField": "BirthName",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -3206,9 +2873,7 @@
     "Indexed": true,
     "Path": "Recipient.BirthPlace",
     "ApiField": "BirthPlace",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -3225,9 +2890,7 @@
     "Indexed": true,
     "Path": "Recipient.BirthPlace.Address",
     "ApiField": "Address",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -3245,9 +2908,7 @@
     "Indexed": true,
     "Path": "Recipient.BirthPlace.City",
     "ApiField": "City",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -3265,9 +2926,7 @@
     "Indexed": true,
     "Path": "Recipient.BirthPlace.Country",
     "ApiField": "Country",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -3285,9 +2944,7 @@
     "Indexed": true,
     "Path": "Recipient.BirthPlace.Geogname",
     "ApiField": "Geogname",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -3305,9 +2962,7 @@
     "Indexed": true,
     "Path": "Recipient.BirthPlace.PostalCode",
     "ApiField": "PostalCode",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -3325,9 +2980,7 @@
     "Indexed": true,
     "Path": "Recipient.BirthPlace.Region",
     "ApiField": "Region",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -3345,9 +2998,7 @@
     "Indexed": true,
     "Path": "Recipient.Corpname",
     "ApiField": "Corpname",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -3365,9 +3016,7 @@
     "Indexed": true,
     "Path": "Recipient.DeathDate",
     "ApiField": "DeathDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -3385,9 +3034,7 @@
     "Indexed": true,
     "Path": "Recipient.DeathPlace",
     "ApiField": "DeathPlace",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -3404,9 +3051,7 @@
     "Indexed": true,
     "Path": "Recipient.DeathPlace.Address",
     "ApiField": "Address",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -3424,9 +3069,7 @@
     "Indexed": true,
     "Path": "Recipient.DeathPlace.City",
     "ApiField": "City",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -3444,9 +3087,7 @@
     "Indexed": true,
     "Path": "Recipient.DeathPlace.Country",
     "ApiField": "Country",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -3464,9 +3105,7 @@
     "Indexed": true,
     "Path": "Recipient.DeathPlace.Geogname",
     "ApiField": "Geogname",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -3484,9 +3123,7 @@
     "Indexed": true,
     "Path": "Recipient.DeathPlace.PostalCode",
     "ApiField": "PostalCode",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -3504,9 +3141,7 @@
     "Indexed": true,
     "Path": "Recipient.DeathPlace.Region",
     "ApiField": "Region",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -3524,9 +3159,7 @@
     "Indexed": true,
     "Path": "Recipient.FirstName",
     "ApiField": "FirstName",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -3544,9 +3177,7 @@
     "Indexed": true,
     "Path": "Recipient.FullName",
     "ApiField": "FullName",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -3564,9 +3195,7 @@
     "Indexed": true,
     "Path": "Recipient.Function",
     "ApiField": "Function",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -3584,9 +3213,7 @@
     "Indexed": true,
     "Path": "Recipient.Gender",
     "ApiField": "Gender",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -3604,9 +3231,7 @@
     "Indexed": true,
     "Path": "Recipient.GivenName",
     "ApiField": "GivenName",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -3624,9 +3249,7 @@
     "Indexed": true,
     "Path": "Recipient.Identifier",
     "ApiField": "Identifier",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -3644,9 +3267,7 @@
     "Indexed": true,
     "Path": "Recipient.Mandate",
     "ApiField": "Mandate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -3664,9 +3285,7 @@
     "Indexed": true,
     "Path": "Recipient.Nationality",
     "ApiField": "Nationality",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -3684,9 +3303,7 @@
     "Indexed": true,
     "Path": "Recipient.Position",
     "ApiField": "Position",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -3704,9 +3321,7 @@
     "Indexed": true,
     "Path": "Recipient.Role",
     "ApiField": "Role",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -3724,9 +3339,7 @@
     "Indexed": true,
     "Path": "RegisteredDate",
     "ApiField": "RegisteredDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -3746,9 +3359,7 @@
     "Indexed": true,
     "Path": "RelatedObjectReference",
     "ApiField": "RelatedObjectReference",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -3767,9 +3378,7 @@
     "Indexed": true,
     "Path": "RelatedObjectReference.IsPartOf",
     "ApiField": "IsPartOf",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -3788,9 +3397,7 @@
     "Indexed": true,
     "Path": "RelatedObjectReference.IsPartOf.ArchiveUnitRefId",
     "ApiField": "ArchiveUnitRefId",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -3810,9 +3417,7 @@
     "Indexed": true,
     "Path": "RelatedObjectReference.IsPartOf.DataObjectReference",
     "ApiField": "DataObjectReference",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -3831,9 +3436,7 @@
     "Indexed": true,
     "Path": "RelatedObjectReference.IsPartOf.DataObjectReference.DataObjectGroupReferenceId",
     "ApiField": "DataObjectGroupReferenceId",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -3853,9 +3456,7 @@
     "Indexed": true,
     "Path": "RelatedObjectReference.IsPartOf.DataObjectReference.DataObjectReferenceId",
     "ApiField": "DataObjectReferenceId",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -3875,9 +3476,7 @@
     "Indexed": true,
     "Path": "RelatedObjectReference.IsPartOf.ExternalReference",
     "ApiField": "ExternalReference",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -3897,9 +3496,7 @@
     "Indexed": true,
     "Path": "RelatedObjectReference.IsPartOf.RepositoryArchiveUnitPID",
     "ApiField": "RepositoryArchiveUnitPID",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -3919,9 +3516,7 @@
     "Indexed": true,
     "Path": "RelatedObjectReference.IsPartOf.RepositoryObjectPID",
     "ApiField": "RepositoryObjectPID",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -3941,9 +3536,7 @@
     "Indexed": true,
     "Path": "RelatedObjectReference.IsVersionOf",
     "ApiField": "IsVersionOf",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -3962,9 +3555,7 @@
     "Indexed": true,
     "Path": "RelatedObjectReference.IsVersionOf.ArchiveUnitRefId",
     "ApiField": "ArchiveUnitRefId",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -3984,9 +3575,7 @@
     "Indexed": true,
     "Path": "RelatedObjectReference.IsVersionOf.DataObjectReference",
     "ApiField": "DataObjectReference",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -4005,9 +3594,7 @@
     "Indexed": true,
     "Path": "RelatedObjectReference.IsVersionOf.DataObjectReference.DataObjectGroupReferenceId",
     "ApiField": "DataObjectGroupReferenceId",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -4027,9 +3614,7 @@
     "Indexed": true,
     "Path": "RelatedObjectReference.IsVersionOf.DataObjectReference.DataObjectReferenceId",
     "ApiField": "DataObjectReferenceId",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -4049,9 +3634,7 @@
     "Indexed": true,
     "Path": "RelatedObjectReference.IsVersionOf.ExternalReference",
     "ApiField": "ExternalReference",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -4071,9 +3654,7 @@
     "Indexed": true,
     "Path": "RelatedObjectReference.IsVersionOf.RepositoryArchiveUnitPID",
     "ApiField": "RepositoryArchiveUnitPID",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -4093,9 +3674,7 @@
     "Indexed": true,
     "Path": "RelatedObjectReference.IsVersionOf.RepositoryObjectPID",
     "ApiField": "RepositoryObjectPID",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -4115,9 +3694,7 @@
     "Indexed": true,
     "Path": "RelatedObjectReference.References",
     "ApiField": "References",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -4136,9 +3713,7 @@
     "Indexed": true,
     "Path": "RelatedObjectReference.References.ArchiveUnitRefId",
     "ApiField": "ArchiveUnitRefId",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -4158,9 +3733,7 @@
     "Indexed": true,
     "Path": "RelatedObjectReference.References.DataObjectReference",
     "ApiField": "DataObjectReference",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -4179,9 +3752,7 @@
     "Indexed": true,
     "Path": "RelatedObjectReference.References.DataObjectReference.DataObjectGroupReferenceId",
     "ApiField": "DataObjectGroupReferenceId",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -4201,9 +3772,7 @@
     "Indexed": true,
     "Path": "RelatedObjectReference.References.DataObjectReference.DataObjectReferenceId",
     "ApiField": "DataObjectReferenceId",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -4223,9 +3792,7 @@
     "Indexed": true,
     "Path": "RelatedObjectReference.References.ExternalReference",
     "ApiField": "ExternalReference",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -4245,9 +3812,7 @@
     "Indexed": true,
     "Path": "RelatedObjectReference.References.RepositoryArchiveUnitPID",
     "ApiField": "RepositoryArchiveUnitPID",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -4267,9 +3832,7 @@
     "Indexed": true,
     "Path": "RelatedObjectReference.References.RepositoryObjectPID",
     "ApiField": "RepositoryObjectPID",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -4289,9 +3852,7 @@
     "Indexed": true,
     "Path": "RelatedObjectReference.Replaces",
     "ApiField": "Replaces",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -4310,9 +3871,7 @@
     "Indexed": true,
     "Path": "RelatedObjectReference.Replaces.ArchiveUnitRefId",
     "ApiField": "ArchiveUnitRefId",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -4332,9 +3891,7 @@
     "Indexed": true,
     "Path": "RelatedObjectReference.Replaces.DataObjectReference",
     "ApiField": "DataObjectReference",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -4353,9 +3910,7 @@
     "Indexed": true,
     "Path": "RelatedObjectReference.Replaces.DataObjectReference.DataObjectGroupReferenceId",
     "ApiField": "DataObjectGroupReferenceId",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -4375,9 +3930,7 @@
     "Indexed": true,
     "Path": "RelatedObjectReference.Replaces.DataObjectReference.DataObjectReferenceId",
     "ApiField": "DataObjectReferenceId",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -4397,9 +3950,7 @@
     "Indexed": true,
     "Path": "RelatedObjectReference.Replaces.ExternalReference",
     "ApiField": "ExternalReference",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -4419,9 +3970,7 @@
     "Indexed": true,
     "Path": "RelatedObjectReference.Replaces.RepositoryArchiveUnitPID",
     "ApiField": "RepositoryArchiveUnitPID",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -4441,9 +3990,7 @@
     "Indexed": true,
     "Path": "RelatedObjectReference.Replaces.RepositoryObjectPID",
     "ApiField": "RepositoryObjectPID",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -4463,9 +4010,7 @@
     "Indexed": true,
     "Path": "RelatedObjectReference.Requires",
     "ApiField": "Requires",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -4484,9 +4029,7 @@
     "Indexed": true,
     "Path": "RelatedObjectReference.Requires.ArchiveUnitRefId",
     "ApiField": "ArchiveUnitRefId",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -4506,9 +4049,7 @@
     "Indexed": true,
     "Path": "RelatedObjectReference.Requires.DataObjectReference",
     "ApiField": "DataObjectReference",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -4527,9 +4068,7 @@
     "Indexed": true,
     "Path": "RelatedObjectReference.Requires.DataObjectReference.DataObjectGroupReferenceId",
     "ApiField": "DataObjectGroupReferenceId",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -4549,9 +4088,7 @@
     "Indexed": true,
     "Path": "RelatedObjectReference.Requires.DataObjectReference.DataObjectReferenceId",
     "ApiField": "DataObjectReferenceId",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -4571,9 +4108,7 @@
     "Indexed": true,
     "Path": "RelatedObjectReference.Requires.ExternalReference",
     "ApiField": "ExternalReference",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -4593,9 +4128,7 @@
     "Indexed": true,
     "Path": "RelatedObjectReference.Requires.RepositoryArchiveUnitPID",
     "ApiField": "RepositoryArchiveUnitPID",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -4615,9 +4148,7 @@
     "Indexed": true,
     "Path": "RelatedObjectReference.Requires.RepositoryObjectPID",
     "ApiField": "RepositoryObjectPID",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -4637,9 +4168,7 @@
     "Indexed": true,
     "Path": "Sender",
     "ApiField": "Sender",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -4656,9 +4185,7 @@
     "Indexed": true,
     "Path": "Sender.Activity",
     "ApiField": "Activity",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -4676,9 +4203,7 @@
     "Indexed": true,
     "Path": "Sender.BirthDate",
     "ApiField": "BirthDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -4696,9 +4221,7 @@
     "Indexed": true,
     "Path": "Sender.BirthName",
     "ApiField": "BirthName",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -4716,9 +4239,7 @@
     "Indexed": true,
     "Path": "Sender.BirthPlace",
     "ApiField": "BirthPlace",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -4735,9 +4256,7 @@
     "Indexed": true,
     "Path": "Sender.BirthPlace.Address",
     "ApiField": "Address",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -4755,9 +4274,7 @@
     "Indexed": true,
     "Path": "Sender.BirthPlace.City",
     "ApiField": "City",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -4775,9 +4292,7 @@
     "Indexed": true,
     "Path": "Sender.BirthPlace.Country",
     "ApiField": "Country",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -4795,9 +4310,7 @@
     "Indexed": true,
     "Path": "Sender.BirthPlace.Geogname",
     "ApiField": "Geogname",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -4815,9 +4328,7 @@
     "Indexed": true,
     "Path": "Sender.BirthPlace.PostalCode",
     "ApiField": "PostalCode",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -4835,9 +4346,7 @@
     "Indexed": true,
     "Path": "Sender.BirthPlace.Region",
     "ApiField": "Region",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -4855,9 +4364,7 @@
     "Indexed": true,
     "Path": "Sender.Corpname",
     "ApiField": "Corpname",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -4875,9 +4382,7 @@
     "Indexed": true,
     "Path": "Sender.DeathDate",
     "ApiField": "DeathDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -4895,9 +4400,7 @@
     "Indexed": true,
     "Path": "Sender.DeathPlace",
     "ApiField": "DeathPlace",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -4914,9 +4417,7 @@
     "Indexed": true,
     "Path": "Sender.DeathPlace.Address",
     "ApiField": "Address",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -4934,9 +4435,7 @@
     "Indexed": true,
     "Path": "Sender.DeathPlace.City",
     "ApiField": "City",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -4954,9 +4453,7 @@
     "Indexed": true,
     "Path": "Sender.DeathPlace.Country",
     "ApiField": "Country",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -4974,9 +4471,7 @@
     "Indexed": true,
     "Path": "Sender.DeathPlace.Geogname",
     "ApiField": "Geogname",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -4994,9 +4489,7 @@
     "Indexed": true,
     "Path": "Sender.DeathPlace.PostalCode",
     "ApiField": "PostalCode",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -5014,9 +4507,7 @@
     "Indexed": true,
     "Path": "Sender.DeathPlace.Region",
     "ApiField": "Region",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -5034,9 +4525,7 @@
     "Indexed": true,
     "Path": "Sender.FirstName",
     "ApiField": "FirstName",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -5054,9 +4543,7 @@
     "Indexed": true,
     "Path": "Sender.FullName",
     "ApiField": "FullName",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -5074,9 +4561,7 @@
     "Indexed": true,
     "Path": "Sender.Function",
     "ApiField": "Function",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -5094,9 +4579,7 @@
     "Indexed": true,
     "Path": "Sender.Gender",
     "ApiField": "Gender",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -5114,9 +4597,7 @@
     "Indexed": true,
     "Path": "Sender.GivenName",
     "ApiField": "GivenName",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -5134,9 +4615,7 @@
     "Indexed": true,
     "Path": "Sender.Identifier",
     "ApiField": "Identifier",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -5154,9 +4633,7 @@
     "Indexed": true,
     "Path": "Sender.Mandate",
     "ApiField": "Mandate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -5174,9 +4651,7 @@
     "Indexed": true,
     "Path": "Sender.Nationality",
     "ApiField": "Nationality",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -5194,9 +4669,7 @@
     "Indexed": true,
     "Path": "Sender.Position",
     "ApiField": "Position",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -5214,9 +4687,7 @@
     "Indexed": true,
     "Path": "Sender.Role",
     "ApiField": "Role",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -5234,9 +4705,7 @@
     "Indexed": true,
     "Path": "SentDate",
     "ApiField": "SentDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -5256,9 +4725,7 @@
     "Indexed": true,
     "Path": "Signature",
     "ApiField": "Signature",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -5276,9 +4743,7 @@
     "Indexed": true,
     "Path": "Signature.Masterdata",
     "ApiField": "Masterdata",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -5296,9 +4761,7 @@
     "Indexed": true,
     "Path": "Signature.ReferencedObject",
     "ApiField": "ReferencedObject",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -5316,9 +4779,7 @@
     "Indexed": true,
     "Path": "Signature.ReferencedObject.SignedObjectDigest",
     "ApiField": "SignedObjectDigest",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -5336,9 +4797,7 @@
     "Indexed": true,
     "Path": "Signature.ReferencedObject.SignedObjectDigest.Algorithm",
     "ApiField": "Algorithm",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -5358,9 +4817,7 @@
     "Indexed": true,
     "Path": "Signature.ReferencedObject.SignedObjectDigest.MessageDigest",
     "ApiField": "MessageDigest",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -5380,9 +4837,7 @@
     "Indexed": true,
     "Path": "Signature.ReferencedObject.SignedObjectId",
     "ApiField": "SignedObjectId",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -5401,9 +4856,7 @@
     "Indexed": true,
     "Path": "Signature.Signer",
     "ApiField": "Signer",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -5421,9 +4874,7 @@
     "Indexed": true,
     "Path": "Signature.Signer.Activity",
     "ApiField": "Activity",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -5442,9 +4893,7 @@
     "Indexed": true,
     "Path": "Signature.Signer.BirthDate",
     "ApiField": "BirthDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -5463,9 +4912,7 @@
     "Indexed": true,
     "Path": "Signature.Signer.BirthName",
     "ApiField": "BirthName",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -5484,9 +4931,7 @@
     "Indexed": true,
     "Path": "Signature.Signer.BirthPlace",
     "ApiField": "BirthPlace",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -5504,9 +4949,7 @@
     "Indexed": true,
     "Path": "Signature.Signer.BirthPlace.Address",
     "ApiField": "Address",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -5525,9 +4968,7 @@
     "Indexed": true,
     "Path": "Signature.Signer.BirthPlace.City",
     "ApiField": "City",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -5546,9 +4987,7 @@
     "Indexed": true,
     "Path": "Signature.Signer.BirthPlace.Country",
     "ApiField": "Country",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -5567,9 +5006,7 @@
     "Indexed": true,
     "Path": "Signature.Signer.BirthPlace.Geogname",
     "ApiField": "Geogname",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -5588,9 +5025,7 @@
     "Indexed": true,
     "Path": "Signature.Signer.BirthPlace.PostalCode",
     "ApiField": "PostalCode",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -5609,9 +5044,7 @@
     "Indexed": true,
     "Path": "Signature.Signer.BirthPlace.Region",
     "ApiField": "Region",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -5630,9 +5063,7 @@
     "Indexed": true,
     "Path": "Signature.Signer.Corpname",
     "ApiField": "Corpname",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -5651,9 +5082,7 @@
     "Indexed": true,
     "Path": "Signature.Signer.DeathDate",
     "ApiField": "DeathDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -5672,9 +5101,7 @@
     "Indexed": true,
     "Path": "Signature.Signer.DeathPlace",
     "ApiField": "DeathPlace",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -5692,9 +5119,7 @@
     "Indexed": true,
     "Path": "Signature.Signer.DeathPlace.Address",
     "ApiField": "Address",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -5713,9 +5138,7 @@
     "Indexed": true,
     "Path": "Signature.Signer.DeathPlace.City",
     "ApiField": "City",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -5734,9 +5157,7 @@
     "Indexed": true,
     "Path": "Signature.Signer.DeathPlace.Country",
     "ApiField": "Country",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -5755,9 +5176,7 @@
     "Indexed": true,
     "Path": "Signature.Signer.DeathPlace.Geogname",
     "ApiField": "Geogname",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -5776,9 +5195,7 @@
     "Indexed": true,
     "Path": "Signature.Signer.DeathPlace.PostalCode",
     "ApiField": "PostalCode",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -5797,9 +5214,7 @@
     "Indexed": true,
     "Path": "Signature.Signer.DeathPlace.Region",
     "ApiField": "Region",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -5818,9 +5233,7 @@
     "Indexed": true,
     "Path": "Signature.Signer.FirstName",
     "ApiField": "FirstName",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -5839,9 +5252,7 @@
     "Indexed": true,
     "Path": "Signature.Signer.FullName",
     "ApiField": "FullName",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -5861,9 +5272,7 @@
     "Indexed": true,
     "Path": "Signature.Signer.Fullpname",
     "ApiField": "Fullpname",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -5881,9 +5290,7 @@
     "Indexed": true,
     "Path": "Signature.Signer.Function",
     "ApiField": "Function",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -5902,9 +5309,7 @@
     "Indexed": true,
     "Path": "Signature.Signer.Gender",
     "ApiField": "Gender",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -5923,9 +5328,7 @@
     "Indexed": true,
     "Path": "Signature.Signer.GivenName",
     "ApiField": "GivenName",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -5944,9 +5347,7 @@
     "Indexed": true,
     "Path": "Signature.Signer.Identifier",
     "ApiField": "Identifier",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -5965,9 +5366,7 @@
     "Indexed": true,
     "Path": "Signature.Signer.Mandate",
     "ApiField": "Mandate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -5986,9 +5385,7 @@
     "Indexed": true,
     "Path": "Signature.Signer.Nationality",
     "ApiField": "Nationality",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -6007,9 +5404,7 @@
     "Indexed": true,
     "Path": "Signature.Signer.Position",
     "ApiField": "Position",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -6028,9 +5423,7 @@
     "Indexed": true,
     "Path": "Signature.Signer.Role",
     "ApiField": "Role",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -6049,9 +5442,7 @@
     "Indexed": true,
     "Path": "Signature.Signer.SigningTime",
     "ApiField": "SigningTime",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -6070,9 +5461,7 @@
     "Indexed": true,
     "Path": "Signature.Validator",
     "ApiField": "Validator",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -6090,9 +5479,7 @@
     "Indexed": true,
     "Path": "Signature.Validator.Activity",
     "ApiField": "Activity",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -6111,9 +5498,7 @@
     "Indexed": true,
     "Path": "Signature.Validator.BirthDate",
     "ApiField": "BirthDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -6132,9 +5517,7 @@
     "Indexed": true,
     "Path": "Signature.Validator.BirthName",
     "ApiField": "BirthName",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -6153,9 +5536,7 @@
     "Indexed": true,
     "Path": "Signature.Validator.BirthPlace",
     "ApiField": "BirthPlace",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -6173,9 +5554,7 @@
     "Indexed": true,
     "Path": "Signature.Validator.BirthPlace.Address",
     "ApiField": "Address",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -6194,9 +5573,7 @@
     "Indexed": true,
     "Path": "Signature.Validator.BirthPlace.City",
     "ApiField": "City",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -6215,9 +5592,7 @@
     "Indexed": true,
     "Path": "Signature.Validator.BirthPlace.Country",
     "ApiField": "Country",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -6236,9 +5611,7 @@
     "Indexed": true,
     "Path": "Signature.Validator.BirthPlace.Geogname",
     "ApiField": "Geogname",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -6257,9 +5630,7 @@
     "Indexed": true,
     "Path": "Signature.Validator.BirthPlace.PostalCode",
     "ApiField": "PostalCode",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -6278,9 +5649,7 @@
     "Indexed": true,
     "Path": "Signature.Validator.BirthPlace.Region",
     "ApiField": "Region",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -6299,9 +5668,7 @@
     "Indexed": true,
     "Path": "Signature.Validator.Corpname",
     "ApiField": "Corpname",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -6320,9 +5687,7 @@
     "Indexed": true,
     "Path": "Signature.Validator.DeathDate",
     "ApiField": "DeathDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -6341,9 +5706,7 @@
     "Indexed": true,
     "Path": "Signature.Validator.DeathPlace",
     "ApiField": "DeathPlace",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -6361,9 +5724,7 @@
     "Indexed": true,
     "Path": "Signature.Validator.DeathPlace.Address",
     "ApiField": "Address",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -6382,9 +5743,7 @@
     "Indexed": true,
     "Path": "Signature.Validator.DeathPlace.City",
     "ApiField": "City",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -6403,9 +5762,7 @@
     "Indexed": true,
     "Path": "Signature.Validator.DeathPlace.Country",
     "ApiField": "Country",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -6424,9 +5781,7 @@
     "Indexed": true,
     "Path": "Signature.Validator.DeathPlace.Geogname",
     "ApiField": "Geogname",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -6445,9 +5800,7 @@
     "Indexed": true,
     "Path": "Signature.Validator.DeathPlace.PostalCode",
     "ApiField": "PostalCode",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -6466,9 +5819,7 @@
     "Indexed": true,
     "Path": "Signature.Validator.DeathPlace.Region",
     "ApiField": "Region",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -6487,9 +5838,7 @@
     "Indexed": true,
     "Path": "Signature.Validator.FirstName",
     "ApiField": "FirstName",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -6508,9 +5857,7 @@
     "Indexed": true,
     "Path": "Signature.Validator.FullName",
     "ApiField": "FullName",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -6530,9 +5877,7 @@
     "Indexed": true,
     "Path": "Signature.Validator.Fullpname",
     "ApiField": "Fullpname",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -6550,9 +5895,7 @@
     "Indexed": true,
     "Path": "Signature.Validator.Function",
     "ApiField": "Function",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -6571,9 +5914,7 @@
     "Indexed": true,
     "Path": "Signature.Validator.Gender",
     "ApiField": "Gender",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -6592,9 +5933,7 @@
     "Indexed": true,
     "Path": "Signature.Validator.GivenName",
     "ApiField": "GivenName",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -6613,9 +5952,7 @@
     "Indexed": true,
     "Path": "Signature.Validator.Identifier",
     "ApiField": "Identifier",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -6634,9 +5971,7 @@
     "Indexed": true,
     "Path": "Signature.Validator.Mandate",
     "ApiField": "Mandate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -6655,9 +5990,7 @@
     "Indexed": true,
     "Path": "Signature.Validator.Nationality",
     "ApiField": "Nationality",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -6676,9 +6009,7 @@
     "Indexed": true,
     "Path": "Signature.Validator.Position",
     "ApiField": "Position",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -6697,9 +6028,7 @@
     "Indexed": true,
     "Path": "Signature.Validator.Role",
     "ApiField": "Role",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -6718,9 +6047,7 @@
     "Indexed": true,
     "Path": "Signature.Validator.ValidationTime",
     "ApiField": "ValidationTime",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2"
@@ -6739,9 +6066,7 @@
     "Indexed": true,
     "Path": "SigningInformation",
     "ApiField": "SigningInformation",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -6758,9 +6083,7 @@
     "Indexed": true,
     "Path": "SigningInformation.AdditionalProof",
     "ApiField": "AdditionalProof",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -6777,9 +6100,7 @@
     "Indexed": true,
     "Path": "SigningInformation.AdditionalProof.AdditionalProofInformation",
     "ApiField": "AdditionalProofInformation",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -6797,9 +6118,7 @@
     "Indexed": true,
     "Path": "SigningInformation.DetachedSigningRole",
     "ApiField": "DetachedSigningRole",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -6817,9 +6136,7 @@
     "Indexed": true,
     "Path": "SigningInformation.Extended",
     "ApiField": "Extended",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -6838,9 +6155,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription",
     "ApiField": "SignatureDescription",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -6857,9 +6172,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Signer",
     "ApiField": "Signer",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -6876,9 +6189,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Signer.Activity",
     "ApiField": "Activity",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -6896,9 +6207,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Signer.BirthDate",
     "ApiField": "BirthDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -6916,9 +6225,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Signer.BirthName",
     "ApiField": "BirthName",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -6936,9 +6243,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Signer.BirthPlace",
     "ApiField": "BirthPlace",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -6955,9 +6260,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Signer.BirthPlace.Address",
     "ApiField": "Address",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -6975,9 +6278,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Signer.BirthPlace.City",
     "ApiField": "City",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -6995,9 +6296,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Signer.BirthPlace.Country",
     "ApiField": "Country",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7015,9 +6314,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Signer.BirthPlace.Geogname",
     "ApiField": "Geogname",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7035,9 +6332,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Signer.BirthPlace.PostalCode",
     "ApiField": "PostalCode",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7055,9 +6350,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Signer.BirthPlace.Region",
     "ApiField": "Region",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7075,9 +6368,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Signer.Corpname",
     "ApiField": "Corpname",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7095,9 +6386,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Signer.DeathDate",
     "ApiField": "DeathDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7115,9 +6404,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Signer.DeathPlace",
     "ApiField": "DeathPlace",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7134,9 +6421,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Signer.DeathPlace.Address",
     "ApiField": "Address",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7154,9 +6439,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Signer.DeathPlace.City",
     "ApiField": "City",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7174,9 +6457,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Signer.DeathPlace.Country",
     "ApiField": "Country",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7194,9 +6475,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Signer.DeathPlace.Geogname",
     "ApiField": "Geogname",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7214,9 +6493,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Signer.DeathPlace.PostalCode",
     "ApiField": "PostalCode",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7234,9 +6511,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Signer.DeathPlace.Region",
     "ApiField": "Region",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7254,9 +6529,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Signer.FirstName",
     "ApiField": "FirstName",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7274,9 +6547,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Signer.FullName",
     "ApiField": "FullName",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -7296,9 +6567,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Signer.Fullpname",
     "ApiField": "Fullpname",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7315,9 +6584,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Signer.Function",
     "ApiField": "Function",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7335,9 +6602,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Signer.Gender",
     "ApiField": "Gender",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7355,9 +6620,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Signer.GivenName",
     "ApiField": "GivenName",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7375,9 +6638,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Signer.Identifier",
     "ApiField": "Identifier",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7395,9 +6656,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Signer.Mandate",
     "ApiField": "Mandate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7415,9 +6674,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Signer.Nationality",
     "ApiField": "Nationality",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7435,9 +6692,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Signer.Position",
     "ApiField": "Position",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7455,9 +6710,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Signer.Role",
     "ApiField": "Role",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7475,9 +6728,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Signer.SigningTime",
     "ApiField": "SigningTime",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7495,9 +6746,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.SigningType",
     "ApiField": "SigningType",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -7517,9 +6766,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.SignningType",
     "ApiField": "SignningType",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7536,9 +6783,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Validator",
     "ApiField": "Validator",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7555,9 +6800,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Validator.Activity",
     "ApiField": "Activity",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7575,9 +6818,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Validator.BirthDate",
     "ApiField": "BirthDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7595,9 +6836,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Validator.BirthName",
     "ApiField": "BirthName",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7615,9 +6854,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Validator.BirthPlace",
     "ApiField": "BirthPlace",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7634,9 +6871,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Validator.BirthPlace.Address",
     "ApiField": "Address",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7654,9 +6889,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Validator.BirthPlace.City",
     "ApiField": "City",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7674,9 +6907,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Validator.BirthPlace.Country",
     "ApiField": "Country",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7694,9 +6925,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Validator.BirthPlace.Geogname",
     "ApiField": "Geogname",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7714,9 +6943,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Validator.BirthPlace.PostalCode",
     "ApiField": "PostalCode",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7734,9 +6961,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Validator.BirthPlace.Region",
     "ApiField": "Region",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7754,9 +6979,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Validator.Corpname",
     "ApiField": "Corpname",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7774,9 +6997,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Validator.DeathDate",
     "ApiField": "DeathDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7794,9 +7015,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Validator.DeathPlace",
     "ApiField": "DeathPlace",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7813,9 +7032,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Validator.DeathPlace.Address",
     "ApiField": "Address",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7833,9 +7050,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Validator.DeathPlace.City",
     "ApiField": "City",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7853,9 +7068,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Validator.DeathPlace.Country",
     "ApiField": "Country",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7873,9 +7086,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Validator.DeathPlace.Geogname",
     "ApiField": "Geogname",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7893,9 +7104,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Validator.DeathPlace.PostalCode",
     "ApiField": "PostalCode",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7913,9 +7122,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Validator.DeathPlace.Region",
     "ApiField": "Region",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7933,9 +7140,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Validator.FirstName",
     "ApiField": "FirstName",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7953,9 +7158,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Validator.FullName",
     "ApiField": "FullName",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -7975,9 +7178,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Validator.Fullpname",
     "ApiField": "Fullpname",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -7994,9 +7195,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Validator.Function",
     "ApiField": "Function",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -8014,9 +7213,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Validator.Gender",
     "ApiField": "Gender",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -8034,9 +7231,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Validator.GivenName",
     "ApiField": "GivenName",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -8054,9 +7249,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Validator.Identifier",
     "ApiField": "Identifier",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -8074,9 +7267,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Validator.Mandate",
     "ApiField": "Mandate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -8094,9 +7285,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Validator.Nationality",
     "ApiField": "Nationality",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -8114,9 +7303,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Validator.Position",
     "ApiField": "Position",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -8134,9 +7321,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Validator.Role",
     "ApiField": "Role",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -8154,9 +7339,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignatureDescription.Validator.ValidationTime",
     "ApiField": "ValidationTime",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -8174,9 +7357,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SignedDocumentReferenceId",
     "ApiField": "SignedDocumentReferenceId",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -8193,9 +7374,7 @@
     "Indexed": true,
     "Path": "SigningInformation.SigningRole",
     "ApiField": "SigningRole",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -8213,9 +7392,7 @@
     "Indexed": true,
     "Path": "SigningInformation.TimestampingInformation",
     "ApiField": "TimestampingInformation",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -8232,9 +7409,7 @@
     "Indexed": true,
     "Path": "SigningInformation.TimestampingInformation.AdditionalTimestampingInformation",
     "ApiField": "AdditionalTimestampingInformation",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -8252,9 +7427,7 @@
     "Indexed": true,
     "Path": "SigningInformation.TimestampingInformation.TimeStamp",
     "ApiField": "TimeStamp",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.3"
     ],
@@ -8272,9 +7445,7 @@
     "Indexed": true,
     "Path": "Source",
     "ApiField": "Source",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -8294,9 +7465,7 @@
     "Indexed": true,
     "Path": "StartDate",
     "ApiField": "StartDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -8316,9 +7485,7 @@
     "Indexed": true,
     "Path": "Status",
     "ApiField": "Status",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -8338,9 +7505,7 @@
     "Indexed": true,
     "Path": "SubmissionAgency",
     "ApiField": "SubmissionAgency",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -8360,9 +7525,7 @@
     "Indexed": true,
     "Path": "SubmissionAgency.Identifier",
     "ApiField": "Identifier",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -8382,9 +7545,7 @@
     "Indexed": true,
     "Path": "SubmissionAgency.OrganizationDescriptiveMetadata",
     "ApiField": "OrganizationDescriptiveMetadata",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -8403,9 +7564,7 @@
     "Indexed": true,
     "Path": "SystemId",
     "ApiField": "SystemId",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -8425,9 +7584,7 @@
     "Indexed": true,
     "Path": "Tag",
     "ApiField": "Tag",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -8447,9 +7604,7 @@
     "Indexed": true,
     "Path": "TextContent",
     "ApiField": "TextContent",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -8469,9 +7624,7 @@
     "Indexed": true,
     "Path": "Title",
     "ApiField": "Title",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -8484,25 +7637,6 @@
     "ShortName": "Intitulé"
   },
   {
-    "FieldName": "Title",
-    "Type": "TEXT",
-    "Origin": "INTERNAL",
-    "Cardinality": "ONE_REQUIRED",
-    "Indexed": true,
-    "Path": "Title",
-    "ApiField": "Title",
-    "Collections": [
-      "Unit"
-    ],
-    "SedaVersions": [
-      "2.1"
-    ],
-    "StringSize": "SHORT",
-    "Category": "DESCRIPTION",
-    "ApiPath": "Title",
-    "ShortName": "Intitulé *"
-  },
-  {
     "FieldName": "keyword",
     "Type": "KEYWORD",
     "Origin": "INTERNAL",
@@ -8510,9 +7644,7 @@
     "Indexed": true,
     "Path": "Title.keyword",
     "ApiField": "keyword",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -8531,9 +7663,7 @@
     "Indexed": true,
     "Path": "Title_",
     "ApiField": "Title_",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -8552,9 +7682,7 @@
     "Indexed": true,
     "Path": "TransactedDate",
     "ApiField": "TransactedDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -8574,9 +7702,7 @@
     "Indexed": true,
     "Path": "TransferringAgencyArchiveUnitIdentifier",
     "ApiField": "TransferringAgencyArchiveUnitIdentifier",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -8596,9 +7722,7 @@
     "Indexed": true,
     "Path": "Transmitter",
     "ApiField": "Transmitter",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -8615,9 +7739,7 @@
     "Indexed": true,
     "Path": "Transmitter.Activity",
     "ApiField": "Activity",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -8635,9 +7757,7 @@
     "Indexed": true,
     "Path": "Transmitter.BirthDate",
     "ApiField": "BirthDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -8655,9 +7775,7 @@
     "Indexed": true,
     "Path": "Transmitter.BirthName",
     "ApiField": "BirthName",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -8675,9 +7793,7 @@
     "Indexed": true,
     "Path": "Transmitter.BirthPlace",
     "ApiField": "BirthPlace",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -8694,9 +7810,7 @@
     "Indexed": true,
     "Path": "Transmitter.BirthPlace.Address",
     "ApiField": "Address",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -8714,9 +7828,7 @@
     "Indexed": true,
     "Path": "Transmitter.BirthPlace.City",
     "ApiField": "City",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -8734,9 +7846,7 @@
     "Indexed": true,
     "Path": "Transmitter.BirthPlace.Country",
     "ApiField": "Country",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -8754,9 +7864,7 @@
     "Indexed": true,
     "Path": "Transmitter.BirthPlace.Geogname",
     "ApiField": "Geogname",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -8774,9 +7882,7 @@
     "Indexed": true,
     "Path": "Transmitter.BirthPlace.PostalCode",
     "ApiField": "PostalCode",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -8794,9 +7900,7 @@
     "Indexed": true,
     "Path": "Transmitter.BirthPlace.Region",
     "ApiField": "Region",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -8814,9 +7918,7 @@
     "Indexed": true,
     "Path": "Transmitter.Corpname",
     "ApiField": "Corpname",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -8834,9 +7936,7 @@
     "Indexed": true,
     "Path": "Transmitter.DeathDate",
     "ApiField": "DeathDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -8854,9 +7954,7 @@
     "Indexed": true,
     "Path": "Transmitter.DeathPlace",
     "ApiField": "DeathPlace",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -8873,9 +7971,7 @@
     "Indexed": true,
     "Path": "Transmitter.DeathPlace.Address",
     "ApiField": "Address",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -8893,9 +7989,7 @@
     "Indexed": true,
     "Path": "Transmitter.DeathPlace.City",
     "ApiField": "City",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -8913,9 +8007,7 @@
     "Indexed": true,
     "Path": "Transmitter.DeathPlace.Country",
     "ApiField": "Country",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -8933,9 +8025,7 @@
     "Indexed": true,
     "Path": "Transmitter.DeathPlace.Geogname",
     "ApiField": "Geogname",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -8953,9 +8043,7 @@
     "Indexed": true,
     "Path": "Transmitter.DeathPlace.PostalCode",
     "ApiField": "PostalCode",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -8973,9 +8061,7 @@
     "Indexed": true,
     "Path": "Transmitter.DeathPlace.Region",
     "ApiField": "Region",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -8993,9 +8079,7 @@
     "Indexed": true,
     "Path": "Transmitter.FirstName",
     "ApiField": "FirstName",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -9013,9 +8097,7 @@
     "Indexed": true,
     "Path": "Transmitter.FullName",
     "ApiField": "FullName",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -9033,9 +8115,7 @@
     "Indexed": true,
     "Path": "Transmitter.Function",
     "ApiField": "Function",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -9053,9 +8133,7 @@
     "Indexed": true,
     "Path": "Transmitter.Gender",
     "ApiField": "Gender",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -9073,9 +8151,7 @@
     "Indexed": true,
     "Path": "Transmitter.GivenName",
     "ApiField": "GivenName",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -9093,9 +8169,7 @@
     "Indexed": true,
     "Path": "Transmitter.Identifier",
     "ApiField": "Identifier",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -9113,9 +8187,7 @@
     "Indexed": true,
     "Path": "Transmitter.Mandate",
     "ApiField": "Mandate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -9133,9 +8205,7 @@
     "Indexed": true,
     "Path": "Transmitter.Nationality",
     "ApiField": "Nationality",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -9153,9 +8223,7 @@
     "Indexed": true,
     "Path": "Transmitter.Position",
     "ApiField": "Position",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -9173,9 +8241,7 @@
     "Indexed": true,
     "Path": "Transmitter.Role",
     "ApiField": "Role",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -9193,9 +8259,7 @@
     "Indexed": true,
     "Path": "Type",
     "ApiField": "Type",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -9215,9 +8279,7 @@
     "Indexed": true,
     "Path": "Version",
     "ApiField": "Version",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -9237,9 +8299,7 @@
     "Indexed": true,
     "Path": "Writer",
     "ApiField": "Writer",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -9256,9 +8316,7 @@
     "Indexed": true,
     "Path": "Writer.Activity",
     "ApiField": "Activity",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -9276,9 +8334,7 @@
     "Indexed": true,
     "Path": "Writer.BirthDate",
     "ApiField": "BirthDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -9296,9 +8352,7 @@
     "Indexed": true,
     "Path": "Writer.BirthName",
     "ApiField": "BirthName",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -9316,9 +8370,7 @@
     "Indexed": true,
     "Path": "Writer.BirthPlace",
     "ApiField": "BirthPlace",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -9335,9 +8387,7 @@
     "Indexed": true,
     "Path": "Writer.BirthPlace.Address",
     "ApiField": "Address",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -9355,9 +8405,7 @@
     "Indexed": true,
     "Path": "Writer.BirthPlace.City",
     "ApiField": "City",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -9375,9 +8423,7 @@
     "Indexed": true,
     "Path": "Writer.BirthPlace.Country",
     "ApiField": "Country",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -9395,9 +8441,7 @@
     "Indexed": true,
     "Path": "Writer.BirthPlace.Geogname",
     "ApiField": "Geogname",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -9415,9 +8459,7 @@
     "Indexed": true,
     "Path": "Writer.BirthPlace.PostalCode",
     "ApiField": "PostalCode",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -9435,9 +8477,7 @@
     "Indexed": true,
     "Path": "Writer.BirthPlace.Region",
     "ApiField": "Region",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -9455,9 +8495,7 @@
     "Indexed": true,
     "Path": "Writer.Corpname",
     "ApiField": "Corpname",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -9475,9 +8513,7 @@
     "Indexed": true,
     "Path": "Writer.DeathDate",
     "ApiField": "DeathDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -9495,9 +8531,7 @@
     "Indexed": true,
     "Path": "Writer.DeathPlace",
     "ApiField": "DeathPlace",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -9514,9 +8548,7 @@
     "Indexed": true,
     "Path": "Writer.DeathPlace.Address",
     "ApiField": "Address",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -9534,9 +8566,7 @@
     "Indexed": true,
     "Path": "Writer.DeathPlace.City",
     "ApiField": "City",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -9554,9 +8584,7 @@
     "Indexed": true,
     "Path": "Writer.DeathPlace.Country",
     "ApiField": "Country",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -9574,9 +8602,7 @@
     "Indexed": true,
     "Path": "Writer.DeathPlace.Geogname",
     "ApiField": "Geogname",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -9594,9 +8620,7 @@
     "Indexed": true,
     "Path": "Writer.DeathPlace.PostalCode",
     "ApiField": "PostalCode",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -9614,9 +8638,7 @@
     "Indexed": true,
     "Path": "Writer.DeathPlace.Region",
     "ApiField": "Region",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -9634,9 +8656,7 @@
     "Indexed": true,
     "Path": "Writer.FirstName",
     "ApiField": "FirstName",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -9654,9 +8674,7 @@
     "Indexed": true,
     "Path": "Writer.FullName",
     "ApiField": "FullName",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -9674,9 +8692,7 @@
     "Indexed": true,
     "Path": "Writer.Function",
     "ApiField": "Function",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -9694,9 +8710,7 @@
     "Indexed": true,
     "Path": "Writer.Gender",
     "ApiField": "Gender",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -9714,9 +8728,7 @@
     "Indexed": true,
     "Path": "Writer.GivenName",
     "ApiField": "GivenName",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -9734,9 +8746,7 @@
     "Indexed": true,
     "Path": "Writer.Identifier",
     "ApiField": "Identifier",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -9754,9 +8764,7 @@
     "Indexed": true,
     "Path": "Writer.Mandate",
     "ApiField": "Mandate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -9774,9 +8782,7 @@
     "Indexed": true,
     "Path": "Writer.Nationality",
     "ApiField": "Nationality",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -9794,9 +8800,7 @@
     "Indexed": true,
     "Path": "Writer.Position",
     "ApiField": "Position",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -9814,9 +8818,7 @@
     "Indexed": true,
     "Path": "Writer.Role",
     "ApiField": "Role",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1"
     ],
@@ -9834,9 +8836,7 @@
     "Indexed": true,
     "Path": "_acd",
     "ApiField": "#approximate_creation_date",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -9855,9 +8855,7 @@
     "Indexed": true,
     "Path": "_aud",
     "ApiField": "#approximate_update_date",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -9876,9 +8874,7 @@
     "Indexed": true,
     "Path": "_av",
     "ApiField": "#atomic_version",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -9897,9 +8893,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules",
     "ApiField": "#computedInheritedRules",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -9918,9 +8912,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.AccessRule",
     "ApiField": "AccessRule",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -9939,9 +8931,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.AccessRule.EndDates",
     "ApiField": "EndDates",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -9960,9 +8950,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.AccessRule.InheritanceOrigin",
     "ApiField": "InheritanceOrigin",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -9981,9 +8969,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.AccessRule.InheritedRuleIds",
     "ApiField": "InheritedRuleIds",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10002,9 +8988,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.AccessRule.MaxEndDate",
     "ApiField": "MaxEndDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10023,9 +9007,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.AccessRule.Rules",
     "ApiField": "Rules",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10044,9 +9026,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.AccessRule.Rules.EndDate",
     "ApiField": "EndDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10066,9 +9046,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.AccessRule.Rules.Rule",
     "ApiField": "Rule",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10088,9 +9066,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.AppraisalRule",
     "ApiField": "AppraisalRule",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10109,9 +9085,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.AppraisalRule.EndDates",
     "ApiField": "EndDates",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10130,9 +9104,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.AppraisalRule.FinalAction",
     "ApiField": "FinalAction",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10152,9 +9124,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.AppraisalRule.InheritanceOrigin",
     "ApiField": "InheritanceOrigin",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10173,9 +9143,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.AppraisalRule.InheritedRuleIds",
     "ApiField": "InheritedRuleIds",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10194,9 +9162,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.AppraisalRule.MaxEndDate",
     "ApiField": "MaxEndDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10215,9 +9181,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.AppraisalRule.Rules",
     "ApiField": "Rules",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10236,9 +9200,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.AppraisalRule.Rules.EndDate",
     "ApiField": "EndDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10258,9 +9220,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.AppraisalRule.Rules.Rule",
     "ApiField": "Rule",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10280,9 +9240,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.ClassificationRule",
     "ApiField": "ClassificationRule",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10301,9 +9259,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.ClassificationRule.EndDates",
     "ApiField": "EndDates",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10322,9 +9278,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.ClassificationRule.InheritanceOrigin",
     "ApiField": "InheritanceOrigin",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10343,9 +9297,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.ClassificationRule.InheritedRuleIds",
     "ApiField": "InheritedRuleIds",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10364,9 +9316,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.ClassificationRule.MaxEndDate",
     "ApiField": "MaxEndDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10385,9 +9335,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.ClassificationRule.Rules",
     "ApiField": "Rules",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10406,9 +9354,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.ClassificationRule.Rules.EndDate",
     "ApiField": "EndDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10428,9 +9374,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.ClassificationRule.Rules.Rule",
     "ApiField": "Rule",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10450,9 +9394,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.DisseminationRule",
     "ApiField": "DisseminationRule",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10471,9 +9413,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.DisseminationRule.EndDates",
     "ApiField": "EndDates",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10492,9 +9432,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.DisseminationRule.InheritanceOrigin",
     "ApiField": "InheritanceOrigin",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10513,9 +9451,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.DisseminationRule.InheritedRuleIds",
     "ApiField": "InheritedRuleIds",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10534,9 +9470,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.DisseminationRule.MaxEndDate",
     "ApiField": "MaxEndDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10555,9 +9489,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.DisseminationRule.Rules",
     "ApiField": "Rules",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10576,9 +9508,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.DisseminationRule.Rules.EndDate",
     "ApiField": "EndDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10598,9 +9528,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.DisseminationRule.Rules.Rule",
     "ApiField": "Rule",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10620,9 +9548,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.HoldRule",
     "ApiField": "HoldRule",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10641,9 +9567,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.HoldRule.EndDates",
     "ApiField": "EndDates",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10662,9 +9586,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.HoldRule.InheritanceOrigin",
     "ApiField": "InheritanceOrigin",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10683,9 +9605,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.HoldRule.InheritedRuleIds",
     "ApiField": "InheritedRuleIds",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10704,9 +9624,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.HoldRule.MaxEndDate",
     "ApiField": "MaxEndDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10725,9 +9643,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.HoldRule.Rules",
     "ApiField": "Rules",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10746,9 +9662,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.HoldRule.Rules.EndDate",
     "ApiField": "EndDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10768,9 +9682,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.HoldRule.Rules.Rule",
     "ApiField": "Rule",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10790,9 +9702,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.NeedAuthorization",
     "ApiField": "NeedAuthorization",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10812,9 +9722,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.ReuseRule",
     "ApiField": "ReuseRule",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10833,9 +9741,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.ReuseRule.EndDates",
     "ApiField": "EndDates",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10854,9 +9760,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.ReuseRule.InheritanceOrigin",
     "ApiField": "InheritanceOrigin",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10875,9 +9779,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.ReuseRule.InheritedRuleIds",
     "ApiField": "InheritedRuleIds",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10896,9 +9798,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.ReuseRule.MaxEndDate",
     "ApiField": "MaxEndDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10917,9 +9817,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.ReuseRule.Rules",
     "ApiField": "Rules",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10938,9 +9836,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.ReuseRule.Rules.EndDate",
     "ApiField": "EndDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10960,9 +9856,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.ReuseRule.Rules.Rule",
     "ApiField": "Rule",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -10982,9 +9876,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.StorageRule",
     "ApiField": "StorageRule",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11003,9 +9895,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.StorageRule.EndDates",
     "ApiField": "EndDates",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11024,9 +9914,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.StorageRule.FinalAction",
     "ApiField": "FinalAction",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11046,9 +9934,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.StorageRule.InheritanceOrigin",
     "ApiField": "InheritanceOrigin",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11067,9 +9953,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.StorageRule.InheritedRuleIds",
     "ApiField": "InheritedRuleIds",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11088,9 +9972,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.StorageRule.MaxEndDate",
     "ApiField": "MaxEndDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11109,9 +9991,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.StorageRule.Rules",
     "ApiField": "Rules",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11130,9 +10010,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.StorageRule.Rules.EndDate",
     "ApiField": "EndDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11152,9 +10030,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.StorageRule.Rules.Rule",
     "ApiField": "Rule",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11174,9 +10050,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.indexationDate",
     "ApiField": "indexationDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11195,9 +10069,7 @@
     "Indexed": true,
     "Path": "_computedInheritedRules.inheritedRulesAPIOutput",
     "ApiField": "inheritedRulesAPIOutput",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11216,9 +10088,7 @@
     "Indexed": true,
     "Path": "_elimination",
     "ApiField": "#elimination",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11237,9 +10107,7 @@
     "Indexed": true,
     "Path": "_elimination.DestroyableOriginatingAgencies",
     "ApiField": "DestroyableOriginatingAgencies",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11258,9 +10126,7 @@
     "Indexed": true,
     "Path": "_elimination.ExtendedInfo",
     "ApiField": "ExtendedInfo",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11279,9 +10145,7 @@
     "Indexed": true,
     "Path": "_elimination.ExtendedInfo.ExtendedInfoDetails",
     "ApiField": "ExtendedInfoDetails",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11300,9 +10164,7 @@
     "Indexed": true,
     "Path": "_elimination.ExtendedInfo.ExtendedInfoDetails.DestroyableOriginatingAgencies",
     "ApiField": "DestroyableOriginatingAgencies",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11321,9 +10183,7 @@
     "Indexed": true,
     "Path": "_elimination.ExtendedInfo.ExtendedInfoDetails.HoldRuleIds",
     "ApiField": "HoldRuleIds",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11342,9 +10202,7 @@
     "Indexed": true,
     "Path": "_elimination.ExtendedInfo.ExtendedInfoDetails.NonDestroyableOriginatingAgencies",
     "ApiField": "NonDestroyableOriginatingAgencies",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11363,9 +10221,7 @@
     "Indexed": true,
     "Path": "_elimination.ExtendedInfo.ExtendedInfoDetails.OriginatingAgenciesInConflict",
     "ApiField": "OriginatingAgenciesInConflict",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11384,9 +10240,7 @@
     "Indexed": true,
     "Path": "_elimination.ExtendedInfo.ExtendedInfoDetails.ParentUnitId",
     "ApiField": "ParentUnitId",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11405,9 +10259,7 @@
     "Indexed": true,
     "Path": "_elimination.ExtendedInfo.ExtendedInfoType",
     "ApiField": "ExtendedInfoType",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11426,9 +10278,7 @@
     "Indexed": true,
     "Path": "_elimination.GlobalStatus",
     "ApiField": "GlobalStatus",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11447,9 +10297,7 @@
     "Indexed": true,
     "Path": "_elimination.NonDestroyableOriginatingAgencies",
     "ApiField": "NonDestroyableOriginatingAgencies",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11468,9 +10316,7 @@
     "Indexed": true,
     "Path": "_elimination.OperationId",
     "ApiField": "OperationId",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11489,9 +10335,7 @@
     "Indexed": false,
     "Path": "_glpd",
     "ApiField": "#graph_last_persisted_date",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11510,9 +10354,7 @@
     "Indexed": false,
     "Path": "_graph",
     "ApiField": "#graph",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11531,9 +10373,7 @@
     "Indexed": true,
     "Path": "_history",
     "ApiField": "#history",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11552,9 +10392,7 @@
     "Indexed": true,
     "Path": "_history.data",
     "ApiField": "data",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11573,9 +10411,7 @@
     "Indexed": true,
     "Path": "_history.data._mgt",
     "ApiField": "#management",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11594,9 +10430,7 @@
     "Indexed": true,
     "Path": "_history.data._mgt.ClassificationRule",
     "ApiField": "ClassificationRule",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11615,9 +10449,7 @@
     "Indexed": true,
     "Path": "_history.data._mgt.ClassificationRule.ClassificationAudience",
     "ApiField": "ClassificationAudience",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11637,9 +10469,7 @@
     "Indexed": true,
     "Path": "_history.data._mgt.ClassificationRule.ClassificationLevel",
     "ApiField": "ClassificationLevel",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11659,9 +10489,7 @@
     "Indexed": true,
     "Path": "_history.data._mgt.ClassificationRule.ClassificationOwner",
     "ApiField": "ClassificationOwner",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11681,9 +10509,7 @@
     "Indexed": true,
     "Path": "_history.data._mgt.ClassificationRule.ClassificationReassessingDate",
     "ApiField": "ClassificationReassessingDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11703,9 +10529,7 @@
     "Indexed": true,
     "Path": "_history.data._mgt.ClassificationRule.Inheritance",
     "ApiField": "Inheritance",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11724,9 +10548,7 @@
     "Indexed": true,
     "Path": "_history.data._mgt.ClassificationRule.Inheritance.PreventInheritance",
     "ApiField": "PreventInheritance",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11746,9 +10568,7 @@
     "Indexed": true,
     "Path": "_history.data._mgt.ClassificationRule.Inheritance.PreventRulesId",
     "ApiField": "PreventRulesId",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11768,9 +10588,7 @@
     "Indexed": true,
     "Path": "_history.data._mgt.ClassificationRule.NeedReassessingAuthorization",
     "ApiField": "NeedReassessingAuthorization",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11790,9 +10608,7 @@
     "Indexed": true,
     "Path": "_history.data._mgt.ClassificationRule.Rules",
     "ApiField": "Rules",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11811,9 +10627,7 @@
     "Indexed": true,
     "Path": "_history.data._mgt.ClassificationRule.Rules.EndDate",
     "ApiField": "EndDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11833,9 +10647,7 @@
     "Indexed": true,
     "Path": "_history.data._mgt.ClassificationRule.Rules.Rule",
     "ApiField": "Rule",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11855,9 +10667,7 @@
     "Indexed": true,
     "Path": "_history.data._mgt.ClassificationRule.Rules.StartDate",
     "ApiField": "StartDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11877,9 +10687,7 @@
     "Indexed": true,
     "Path": "_history.data._v",
     "ApiField": "#version",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11898,9 +10706,7 @@
     "Indexed": true,
     "Path": "_history.ud",
     "ApiField": "ud",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11919,9 +10725,7 @@
     "Indexed": true,
     "Path": "_id",
     "ApiField": "#id",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11940,9 +10744,7 @@
     "Indexed": true,
     "Path": "_implementationVersion",
     "ApiField": "#implementationVersion",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11961,9 +10763,7 @@
     "Indexed": true,
     "Path": "_max",
     "ApiField": "#max",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -11982,9 +10782,7 @@
     "Indexed": true,
     "Path": "_mgt",
     "ApiField": "#management",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -12003,9 +10801,7 @@
     "Indexed": true,
     "Path": "_mgt.AccessRule",
     "ApiField": "AccessRule",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -12024,9 +10820,7 @@
     "Indexed": true,
     "Path": "_mgt.AccessRule.Inheritance",
     "ApiField": "Inheritance",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -12045,9 +10839,7 @@
     "Indexed": true,
     "Path": "_mgt.AccessRule.Inheritance.PreventInheritance",
     "ApiField": "PreventInheritance",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -12067,9 +10859,7 @@
     "Indexed": true,
     "Path": "_mgt.AccessRule.Inheritance.PreventRulesId",
     "ApiField": "PreventRulesId",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -12089,9 +10879,7 @@
     "Indexed": true,
     "Path": "_mgt.AccessRule.Rules",
     "ApiField": "Rules",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -12110,9 +10898,7 @@
     "Indexed": true,
     "Path": "_mgt.AccessRule.Rules.EndDate",
     "ApiField": "EndDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -12132,9 +10918,7 @@
     "Indexed": true,
     "Path": "_mgt.AccessRule.Rules.Rule",
     "ApiField": "Rule",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -12154,9 +10938,7 @@
     "Indexed": true,
     "Path": "_mgt.AccessRule.Rules.StartDate",
     "ApiField": "StartDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -12176,9 +10958,7 @@
     "Indexed": true,
     "Path": "_mgt.AppraisalRule",
     "ApiField": "AppraisalRule",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -12197,9 +10977,7 @@
     "Indexed": true,
     "Path": "_mgt.AppraisalRule.FinalAction",
     "ApiField": "FinalAction",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -12219,9 +10997,7 @@
     "Indexed": true,
     "Path": "_mgt.AppraisalRule.Inheritance",
     "ApiField": "Inheritance",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -12240,9 +11016,7 @@
     "Indexed": true,
     "Path": "_mgt.AppraisalRule.Inheritance.PreventInheritance",
     "ApiField": "PreventInheritance",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -12262,9 +11036,7 @@
     "Indexed": true,
     "Path": "_mgt.AppraisalRule.Inheritance.PreventRulesId",
     "ApiField": "PreventRulesId",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -12284,9 +11056,7 @@
     "Indexed": true,
     "Path": "_mgt.AppraisalRule.Rules",
     "ApiField": "Rules",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -12305,9 +11075,7 @@
     "Indexed": true,
     "Path": "_mgt.AppraisalRule.Rules.EndDate",
     "ApiField": "EndDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -12327,9 +11095,7 @@
     "Indexed": true,
     "Path": "_mgt.AppraisalRule.Rules.Rule",
     "ApiField": "Rule",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -12349,9 +11115,7 @@
     "Indexed": true,
     "Path": "_mgt.AppraisalRule.Rules.StartDate",
     "ApiField": "StartDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -12371,9 +11135,7 @@
     "Indexed": true,
     "Path": "_mgt.ClassificationRule",
     "ApiField": "ClassificationRule",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -12392,9 +11154,7 @@
     "Indexed": true,
     "Path": "_mgt.ClassificationRule.ClassificationAudience",
     "ApiField": "ClassificationAudience",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -12414,9 +11174,7 @@
     "Indexed": true,
     "Path": "_mgt.ClassificationRule.ClassificationLevel",
     "ApiField": "ClassificationLevel",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -12436,9 +11194,7 @@
     "Indexed": true,
     "Path": "_mgt.ClassificationRule.ClassificationOwner",
     "ApiField": "ClassificationOwner",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -12458,9 +11214,7 @@
     "Indexed": true,
     "Path": "_mgt.ClassificationRule.ClassificationReassessingDate",
     "ApiField": "ClassificationReassessingDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -12480,9 +11234,7 @@
     "Indexed": true,
     "Path": "_mgt.ClassificationRule.Inheritance",
     "ApiField": "Inheritance",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -12501,9 +11253,7 @@
     "Indexed": true,
     "Path": "_mgt.ClassificationRule.Inheritance.PreventInheritance",
     "ApiField": "PreventInheritance",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -12523,9 +11273,7 @@
     "Indexed": true,
     "Path": "_mgt.ClassificationRule.Inheritance.PreventRulesId",
     "ApiField": "PreventRulesId",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -12545,9 +11293,7 @@
     "Indexed": true,
     "Path": "_mgt.ClassificationRule.NeedReassessingAuthorization",
     "ApiField": "NeedReassessingAuthorization",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -12567,9 +11313,7 @@
     "Indexed": true,
     "Path": "_mgt.ClassificationRule.Rules",
     "ApiField": "Rules",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -12588,9 +11332,7 @@
     "Indexed": true,
     "Path": "_mgt.ClassificationRule.Rules.EndDate",
     "ApiField": "EndDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -12610,9 +11352,7 @@
     "Indexed": true,
     "Path": "_mgt.ClassificationRule.Rules.Rule",
     "ApiField": "Rule",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -12632,9 +11372,7 @@
     "Indexed": true,
     "Path": "_mgt.ClassificationRule.Rules.StartDate",
     "ApiField": "StartDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -12654,9 +11392,7 @@
     "Indexed": true,
     "Path": "_mgt.DisseminationRule",
     "ApiField": "DisseminationRule",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -12675,9 +11411,7 @@
     "Indexed": true,
     "Path": "_mgt.DisseminationRule.Inheritance",
     "ApiField": "Inheritance",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -12696,9 +11430,7 @@
     "Indexed": true,
     "Path": "_mgt.DisseminationRule.Inheritance.PreventInheritance",
     "ApiField": "PreventInheritance",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -12718,9 +11450,7 @@
     "Indexed": true,
     "Path": "_mgt.DisseminationRule.Inheritance.PreventRulesId",
     "ApiField": "PreventRulesId",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -12740,9 +11470,7 @@
     "Indexed": true,
     "Path": "_mgt.DisseminationRule.Rules",
     "ApiField": "Rules",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -12761,9 +11489,7 @@
     "Indexed": true,
     "Path": "_mgt.DisseminationRule.Rules.EndDate",
     "ApiField": "EndDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -12783,9 +11509,7 @@
     "Indexed": true,
     "Path": "_mgt.DisseminationRule.Rules.Rule",
     "ApiField": "Rule",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -12805,9 +11529,7 @@
     "Indexed": true,
     "Path": "_mgt.DisseminationRule.Rules.StartDate",
     "ApiField": "StartDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -12827,9 +11549,7 @@
     "Indexed": true,
     "Path": "_mgt.HoldRule",
     "ApiField": "HoldRule",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -12848,9 +11568,7 @@
     "Indexed": true,
     "Path": "_mgt.HoldRule.Inheritance",
     "ApiField": "Inheritance",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -12869,9 +11587,7 @@
     "Indexed": true,
     "Path": "_mgt.HoldRule.Inheritance.PreventInheritance",
     "ApiField": "PreventInheritance",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -12891,9 +11607,7 @@
     "Indexed": true,
     "Path": "_mgt.HoldRule.Inheritance.PreventRulesId",
     "ApiField": "PreventRulesId",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -12913,9 +11627,7 @@
     "Indexed": true,
     "Path": "_mgt.HoldRule.Rules",
     "ApiField": "Rules",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -12934,9 +11646,7 @@
     "Indexed": true,
     "Path": "_mgt.HoldRule.Rules.EndDate",
     "ApiField": "EndDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -12956,9 +11666,7 @@
     "Indexed": true,
     "Path": "_mgt.HoldRule.Rules.HoldEndDate",
     "ApiField": "HoldEndDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -12978,9 +11686,7 @@
     "Indexed": true,
     "Path": "_mgt.HoldRule.Rules.HoldOwner",
     "ApiField": "HoldOwner",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -13000,9 +11706,7 @@
     "Indexed": true,
     "Path": "_mgt.HoldRule.Rules.HoldReason",
     "ApiField": "HoldReason",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -13022,9 +11726,7 @@
     "Indexed": true,
     "Path": "_mgt.HoldRule.Rules.HoldReassessingDate",
     "ApiField": "HoldReassessingDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -13044,9 +11746,7 @@
     "Indexed": true,
     "Path": "_mgt.HoldRule.Rules.PreventRearrangement",
     "ApiField": "PreventRearrangement",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -13066,9 +11766,7 @@
     "Indexed": true,
     "Path": "_mgt.HoldRule.Rules.Rule",
     "ApiField": "Rule",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -13088,9 +11786,7 @@
     "Indexed": true,
     "Path": "_mgt.HoldRule.Rules.StartDate",
     "ApiField": "StartDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -13110,9 +11806,7 @@
     "Indexed": true,
     "Path": "_mgt.NeedAuthorization",
     "ApiField": "NeedAuthorization",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -13132,9 +11826,7 @@
     "Indexed": true,
     "Path": "_mgt.ReuseRule",
     "ApiField": "ReuseRule",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -13153,9 +11845,7 @@
     "Indexed": true,
     "Path": "_mgt.ReuseRule.Inheritance",
     "ApiField": "Inheritance",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -13174,9 +11864,7 @@
     "Indexed": true,
     "Path": "_mgt.ReuseRule.Inheritance.PreventInheritance",
     "ApiField": "PreventInheritance",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -13196,9 +11884,7 @@
     "Indexed": true,
     "Path": "_mgt.ReuseRule.Inheritance.PreventRulesId",
     "ApiField": "PreventRulesId",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -13218,9 +11904,7 @@
     "Indexed": true,
     "Path": "_mgt.ReuseRule.Rules",
     "ApiField": "Rules",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -13239,9 +11923,7 @@
     "Indexed": true,
     "Path": "_mgt.ReuseRule.Rules.EndDate",
     "ApiField": "EndDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -13261,9 +11943,7 @@
     "Indexed": true,
     "Path": "_mgt.ReuseRule.Rules.Rule",
     "ApiField": "Rule",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -13283,9 +11963,7 @@
     "Indexed": true,
     "Path": "_mgt.ReuseRule.Rules.StartDate",
     "ApiField": "StartDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -13305,9 +11983,7 @@
     "Indexed": true,
     "Path": "_mgt.StorageRule",
     "ApiField": "StorageRule",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -13326,9 +12002,7 @@
     "Indexed": true,
     "Path": "_mgt.StorageRule.FinalAction",
     "ApiField": "FinalAction",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -13348,9 +12022,7 @@
     "Indexed": true,
     "Path": "_mgt.StorageRule.Inheritance",
     "ApiField": "Inheritance",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -13369,9 +12041,7 @@
     "Indexed": true,
     "Path": "_mgt.StorageRule.Inheritance.PreventInheritance",
     "ApiField": "PreventInheritance",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -13391,9 +12061,7 @@
     "Indexed": true,
     "Path": "_mgt.StorageRule.Inheritance.PreventRulesId",
     "ApiField": "PreventRulesId",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -13413,9 +12081,7 @@
     "Indexed": true,
     "Path": "_mgt.StorageRule.Rules",
     "ApiField": "Rules",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -13434,9 +12100,7 @@
     "Indexed": true,
     "Path": "_mgt.StorageRule.Rules.EndDate",
     "ApiField": "EndDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -13456,9 +12120,7 @@
     "Indexed": true,
     "Path": "_mgt.StorageRule.Rules.Rule",
     "ApiField": "Rule",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -13478,9 +12140,7 @@
     "Indexed": true,
     "Path": "_mgt.StorageRule.Rules.StartDate",
     "ApiField": "StartDate",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -13500,9 +12160,7 @@
     "Indexed": true,
     "Path": "_min",
     "ApiField": "#min",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -13521,9 +12179,7 @@
     "Indexed": true,
     "Path": "_og",
     "ApiField": "#object",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -13542,9 +12198,7 @@
     "Indexed": true,
     "Path": "_opi",
     "ApiField": "#opi",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -13563,9 +12217,7 @@
     "Indexed": true,
     "Path": "_ops",
     "ApiField": "#operations",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -13584,9 +12236,7 @@
     "Indexed": true,
     "Path": "_opts",
     "ApiField": "#opts",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -13605,9 +12255,7 @@
     "Indexed": true,
     "Path": "_sedaVersion",
     "ApiField": "#sedaVersion",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -13626,9 +12274,7 @@
     "Indexed": true,
     "Path": "_sp",
     "ApiField": "#originating_agency",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "INTERNE"
     ],
@@ -13646,9 +12292,7 @@
     "Indexed": true,
     "Path": "_sps",
     "ApiField": "#originating_agencies",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "INTERNE"
     ],
@@ -13665,9 +12309,7 @@
     "Indexed": true,
     "Path": "_storage",
     "ApiField": "#storage",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -13686,9 +12328,7 @@
     "Indexed": true,
     "Path": "_storage._nbc",
     "ApiField": "#nbc",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -13707,9 +12347,7 @@
     "Indexed": true,
     "Path": "_storage.offerIds",
     "ApiField": "offerIds",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -13728,9 +12366,7 @@
     "Indexed": true,
     "Path": "_storage.strategyId",
     "ApiField": "strategyId",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -13749,9 +12385,7 @@
     "Indexed": true,
     "Path": "_tenant",
     "ApiField": "#tenant",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -13770,9 +12404,7 @@
     "Indexed": true,
     "Path": "_uds",
     "ApiField": "#uds",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -13791,9 +12423,7 @@
     "Indexed": true,
     "Path": "_unitType",
     "ApiField": "#unitType",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -13812,9 +12442,7 @@
     "Indexed": true,
     "Path": "_up",
     "ApiField": "#unitups",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -13833,9 +12461,7 @@
     "Indexed": true,
     "Path": "_us",
     "ApiField": "#allunitups",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",
@@ -13854,9 +12480,7 @@
     "Indexed": true,
     "Path": "_validComputedInheritedRules",
     "ApiField": "#validComputedInheritedRules",
-    "Collections": [
-      "Unit"
-    ],
+    "Collection": "Unit",
     "SedaVersions": [
       "2.1",
       "2.2",

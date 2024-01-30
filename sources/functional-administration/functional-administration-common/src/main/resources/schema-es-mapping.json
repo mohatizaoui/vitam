@@ -1,0 +1,42 @@
+{
+  "properties": {
+    "Path": {
+      "type": "keyword"
+    },
+    "Description": {
+      "type": "text"
+    },
+    "IsObject": {
+      "type": "boolean"
+    },
+    "Origin": {
+      "type": "keyword"
+    },
+    "Cardinality": {
+      "type": "keyword"
+    },
+    "ShortName": {
+      "type": "keyword"
+    },
+    "StringSize": {
+      "type": "keyword"
+    },
+    "Collection": {
+      "type": "keyword"
+    },
+    "CreationDate": {
+      "type": "date",
+      "format": "strict_date_optional_time"
+    },
+    "LastUpdate": {
+      "type": "date",
+      "format": "strict_date_optional_time"
+    },
+    "_tenant": {
+      "type": "long"
+    },
+    "_v": {
+      "type": "long"
+    }
+  }
+}

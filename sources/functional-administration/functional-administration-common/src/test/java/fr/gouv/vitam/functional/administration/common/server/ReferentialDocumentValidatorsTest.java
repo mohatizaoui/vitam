@@ -47,6 +47,8 @@ public class ReferentialDocumentValidatorsTest {
     private static final String SECURITY_PROFILE_OK_JSON_FILE = "security_profile_OK.json";
     private static final String MANAGEMENT_CONTRACT_OK_JSON_FILE = "management-contract_OK.json";
 
+    private static final String SCHEMA_OK_JSON_FILE = "schema_OK.json";
+
     @Test
     public void valid_AccessContract() throws Exception {
 
@@ -177,6 +179,20 @@ public class ReferentialDocumentValidatorsTest {
         assertThatCode(() -> {
             schemaValidator.validateDocument(
                 JsonHandler.getFromInputStream(PropertiesUtils.getResourceAsStream(MANAGEMENT_CONTRACT_OK_JSON_FILE)));
+        }).doesNotThrowAnyException();
+    }
+
+    @Test
+    public void valid_Schema() {
+
+        // Given
+        final DocumentValidator schemaValidator =
+            ReferentialDocumentValidators.getValidator(FunctionalAdminCollections.SCHEMA);
+
+        // When / Then
+        assertThatCode(() -> {
+            schemaValidator.validateDocument(
+                JsonHandler.getFromInputStream(PropertiesUtils.getResourceAsStream(SCHEMA_OK_JSON_FILE)));
         }).doesNotThrowAnyException();
     }
 }
