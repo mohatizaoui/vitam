@@ -1,5 +1,5 @@
 Name:    vitam-prometheus
-Version: 2.42.0
+Version: 2.49.1
 Release: 1%{?dist}
 Summary: The Prometheus monitoring system and time series database.
 License: ASL 2.0
