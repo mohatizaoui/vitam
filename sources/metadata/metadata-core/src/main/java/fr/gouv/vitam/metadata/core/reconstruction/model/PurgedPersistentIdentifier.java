@@ -49,6 +49,7 @@ public class PurgedPersistentIdentifier {
     private final String operationLastPersistentDate;
     private final String objectGroupId;
     private final String archivalAgencyIdentifier;
+    private final String lastPersistentDate;
 
     private PurgedPersistentIdentifier(Builder builder) {
         this.id = builder.id;
@@ -61,6 +62,7 @@ public class PurgedPersistentIdentifier {
         this.operationId = builder.operationId;
         this.operationType = builder.operationType;
         this.operationLastPersistentDate = builder.operationLastPersistentDate;
+        this.lastPersistentDate = builder.lastPersistentDate;
     }
 
     public static Builder builder() {
@@ -106,6 +108,7 @@ public class PurgedPersistentIdentifier {
             .setOperationId(document.getString("opId"))
             .setOperationType(document.getString("opType"))
             .setOperationLastPersistentDate(document.getString("opEndDate"))
+            .setLastPersistentDate(document.getString("lastPersistentDate"))
             .setPersistentIdentifier(persistentIdentifierModels)
             .build();
     }
@@ -169,6 +172,9 @@ public class PurgedPersistentIdentifier {
         return operationLastPersistentDate;
     }
 
+    public String getLastPersistentDate(){
+        return lastPersistentDate;
+    }
 
     public static class Builder {
 
@@ -182,6 +188,7 @@ public class PurgedPersistentIdentifier {
         private String operationType;
         private String operationLastPersistentDate;
         private String archivalAgencyIdentifier;
+        public String lastPersistentDate;
 
         public Builder() {
         }
@@ -218,6 +225,11 @@ public class PurgedPersistentIdentifier {
 
         public Builder setType(String type) {
             this.type = type;
+            return this;
+        }
+
+        public Builder setLastPersistentDate(String lastPersistentDate) {
+            this.lastPersistentDate = lastPersistentDate;
             return this;
         }
 

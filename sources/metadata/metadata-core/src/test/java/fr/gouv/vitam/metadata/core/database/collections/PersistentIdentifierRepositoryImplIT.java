@@ -124,6 +124,7 @@ public class PersistentIdentifierRepositoryImplIT {
         assertThat(iterator.hasNext()).isTrue();
         PurgedPersistentIdentifier purgedPersistentIdentifier = iterator.next();
         assertThat(purgedPersistentIdentifier.getId()).isEqualTo(purgedPersistentIdentifierDocument1.get("_id"));
+        assertThat(purgedPersistentIdentifier.getLastPersistentDate()).isNotEmpty();
         assertThat(iterator.hasNext()).isFalse();
     }
 
