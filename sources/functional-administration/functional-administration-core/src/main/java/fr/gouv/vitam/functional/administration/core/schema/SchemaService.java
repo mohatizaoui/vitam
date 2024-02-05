@@ -90,11 +90,8 @@ public class SchemaService {
         "The json input of external schema type is mandatory";
     public static final String SCHEMA_IMPORT_EVENT = "IMPORT_EXTERNAL_SCHEMA";
 
-    private static final String CHECK_SCHEMA_IMPORT_EVENT = "CHECK_SCHEMA_IMPORT";
-
-    private static final String SCHEMA_REPORT = "IMPORT_EXTERNAL_SCHEMA";
-
-    static final String BACKUP_SCHEMA_EVENT = "STP_BACKUP_SCHEMA";
+    private static final String SCHEMA_REPORT = "SCHEMA_REPORT";
+    static final String BACKUP_SCHEMA_EVENT = "BACKUP_SCHEMA";
 
     public static final String VITAM_UNIT_INTERNAL_SCHEMA_JSON = "vitam-unit-internal-schema.json";
     public static final String VITAM_OBJECT_GROUP_INTERNAL_SCHEMA_JSON = "vitam-object-group-internal-schema.json";
@@ -142,7 +139,7 @@ public class SchemaService {
     private List<SchemaResponse> findUnitExternalSchema(boolean includeAdminTenant)
         throws InvalidParseOperationException, ReferentialException, InvalidCreateOperationException {
         LOGGER.info("retrieving unit external schema ");
-        List<Schema> currentExternalSchemaList = loadCurrentExternalSchema(includeAdminTenant);
+        List<SchemaModel> currentExternalSchemaList = loadCurrentExternalSchema(includeAdminTenant);
         List<SchemaResponse> schemaResponseList =
             mapAndDecorateDbSchemaToExternalSchemaModel(currentExternalSchemaList);
         return schemaResponseList;
@@ -222,16 +219,16 @@ public class SchemaService {
 
             List<Schema> dbSchemaModelList = SchemaCommonService.mapSchemaFromInputParameters(externalSchemaList);
             persistImportedSchemaList(dbSchemaModelList);
-            schemaValidationService.logSuccessLogBook(importExternalSchemaOpId, CHECK_SCHEMA_IMPORT_EVENT);
+
             backupSchemaDatabaseToOffers(importExternalSchemaOpId);
             SchemaCommonService.fillSchemaImportReportOK(schemaImportReport, dbSchemaModelList,
                 importExternalSchemaOpId);
             backupReport(schemaImportReport, importExternalSchemaOpId);
-
+            schemaValidationService.logSuccessLogBook(importExternalSchemaOpId, SCHEMA_IMPORT_EVENT);
             return new RequestResponseOK<SchemaModel>().setHttpCode(Response.Status.CREATED.getStatusCode());
         } catch (SchemaImportValidationException e) {
             LOGGER.error(e);
-            schemaValidationService.logValidationError(importExternalSchemaOpId, CHECK_SCHEMA_IMPORT_EVENT,
+            schemaValidationService.logValidationError(importExternalSchemaOpId, SCHEMA_IMPORT_EVENT,
                 e.getMessage());
             if (importErrors != null) {
                 SchemaCommonService.fillSchemaImportReportError(schemaImportReport, importErrors.keySet(),
@@ -240,7 +237,7 @@ public class SchemaService {
             }
 
             return SchemaCommonService.getVitamError(VitamCode.SCHEMA_CHECK_ERROR.getItem(),
-                "Import schema importErros : " + e.getMessage(), StatusCode.KO).setHttpCode(
+                "Error importing schema : " + e.getMessage(), StatusCode.KO).setHttpCode(
                 Response.Status.BAD_REQUEST.getStatusCode());
         } catch (Exception e) {
             LOGGER.error(e);
@@ -249,10 +246,10 @@ public class SchemaService {
                     StatusCode.FATAL, importExternalSchemaOpId);
                 backupReport(schemaImportReport, importExternalSchemaOpId);
             }
-            schemaValidationService.logFatalError(importExternalSchemaOpId, CHECK_SCHEMA_IMPORT_EVENT, null,
+            schemaValidationService.logError(importExternalSchemaOpId, SCHEMA_IMPORT_EVENT, null,
                 e.getMessage());
             return SchemaCommonService.getVitamError(VitamCode.SCHEMA_CHECK_ERROR.getItem(),
-                "Import schema importErros : " + e.getMessage(), StatusCode.KO).setHttpCode(
+                "Error importing schema : " + e.getMessage(), StatusCode.KO).setHttpCode(
                 Response.Status.BAD_REQUEST.getStatusCode());
         }
     }
@@ -268,11 +265,11 @@ public class SchemaService {
      * @throws InvalidParseOperationException
      */
     private List<SchemaResponse> mapAndDecorateDbSchemaToExternalSchemaModel(
-        List<Schema> currentExternalSchemaList)
+        List<SchemaModel> currentExternalSchemaList)
         throws InvalidCreateOperationException, ReferentialException, InvalidParseOperationException {
 
         Set<String> schemaEltsLeaves =
-            currentExternalSchemaList.stream().filter(schemaElt -> !schemaElt.getIsObject())
+            currentExternalSchemaList.stream().filter(schemaElt -> !Boolean.TRUE.equals(schemaElt.getObject()))
                 .map(schemaElt -> SchemaCommonService.extractLeafFromPath(schemaElt.getPath()))
                 .collect(Collectors.toSet());
         Map<String, OntologyModel> mapOntologiesByIdentifier = new HashMap<>();
@@ -300,7 +297,7 @@ public class SchemaService {
      * @throws ReferentialException
      * @throws InvalidParseOperationException
      */
-    private List<Schema> loadCurrentExternalSchema(boolean includeAdminTenant)
+    private List<SchemaModel> loadCurrentExternalSchema(boolean includeAdminTenant)
         throws InvalidCreateOperationException, ReferentialException, InvalidParseOperationException {
         Set<Integer> filteredTenants = new HashSet<>();
         filteredTenants.add(VitamThreadUtils.getVitamSession().getTenantId());
@@ -308,7 +305,7 @@ public class SchemaService {
             filteredTenants.add(VitamConfiguration.getAdminTenant());
         }
 
-        RequestResponseOK<Schema> schemasResponse =
+        RequestResponseOK<SchemaModel> schemasResponse =
             findExternalSchemaByQueryDsl(
                 SchemaCommonService.buildDslQueryForExtractingSchema(filteredTenants, Collections.emptyList()));
         return schemasResponse.getResults();
@@ -392,12 +389,12 @@ public class SchemaService {
         }
     }
 
-    private RequestResponseOK<Schema> findExternalSchemaByQueryDsl(JsonNode queryDsl)
+    private RequestResponseOK<SchemaModel> findExternalSchemaByQueryDsl(JsonNode queryDsl)
         throws ReferentialException, InvalidParseOperationException {
         try (DbRequestResult result =
             mongoDbAccessReferential.findDocumentsWithoutRestrictionOnCurrentTenant(queryDsl,
                 FunctionalAdminCollections.SCHEMA)) {
-            return result.getRequestResponseOK(queryDsl, Schema.class, Schema.class);
+            return result.getRequestResponseOK(queryDsl, Schema.class, SchemaModel.class);
         }
     }
 }

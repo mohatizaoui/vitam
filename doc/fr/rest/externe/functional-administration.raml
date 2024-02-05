@@ -1578,6 +1578,23 @@ documentation:
           application/json:
           example: !include libraries/examples/schema-unit.json
 
+  post:
+    body:
+      application/json:
+        description: |
+            Requête qui permet d'importer des schémas externes
+        example: !include libraries/examples/import-schema-units.json
+
+      Permissions requises:
+        - schema:unit:create
+    headers:
+      X-Http-Method-Override:
+        required: false
+      X-Tenant-Id:
+        required: true
+      X-Access-Contract-Id:
+        required: false
+
 /schema/objectgroup:
   displayName:
   description: |
