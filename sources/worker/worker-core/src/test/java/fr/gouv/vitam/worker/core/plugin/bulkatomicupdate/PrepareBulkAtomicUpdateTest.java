@@ -507,6 +507,7 @@ public class PrepareBulkAtomicUpdateTest {
         DefaultWorkerParameters params = WorkerParametersFactory.newWorkerParameters();
         String processId = GUIDFactory.newGUID().getId();
         params.setProcessId(processId);
+        VitamThreadUtils.getVitamSession().setRequestId(processId);
 
         HandlerIO handlerIO = mock(HandlerIO.class);
 

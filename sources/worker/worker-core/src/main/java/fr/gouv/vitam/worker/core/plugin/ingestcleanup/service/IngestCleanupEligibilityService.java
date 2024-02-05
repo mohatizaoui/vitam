@@ -102,7 +102,7 @@ public class IngestCleanupEligibilityService {
                 ids -> checkChildUnitsFromOtherIngests(ingestOperationId, cleanupReportManager, ids))) {
 
                 scrollRequest.forEachRemaining(
-                    entry -> bufferedConsumer.appendEntry(entry.get(VitamFieldsHelper.id()).asText()));
+                    entry -> bufferedConsumer.accept(entry.get(VitamFieldsHelper.id()).asText()));
             }
 
         } catch (InvalidParseOperationException | InvalidCreateOperationException e) {

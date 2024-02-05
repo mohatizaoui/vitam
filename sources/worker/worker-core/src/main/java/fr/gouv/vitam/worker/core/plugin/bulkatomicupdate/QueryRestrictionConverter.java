@@ -24,44 +24,13 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.worker.core.utils;
+package fr.gouv.vitam.worker.core.plugin.bulkatomicupdate;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
+import com.fasterxml.jackson.databind.JsonNode;
+import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
+import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 
-public class BufferedConsumer<T> implements Consumer<T>, AutoCloseable {
-
-    private final Consumer<List<T>> bufferConsumer;
-    private final List<T> entryBuffer;
-    private final int bufferSize;
-
-    public BufferedConsumer(int bufferSize, Consumer<List<T>> bufferConsumer) {
-        this.entryBuffer = new ArrayList<>();
-        this.bufferSize = bufferSize;
-        this.bufferConsumer = bufferConsumer;
-    }
-
-    @Override
-    public void accept(T entry) {
-
-        entryBuffer.add(entry);
-
-        if (entryBuffer.size() >= bufferSize) {
-            flush();
-        }
-    }
-
-    public void flush() {
-        if (!this.entryBuffer.isEmpty()) {
-
-            this.bufferConsumer.accept(entryBuffer);
-            this.entryBuffer.clear();
-        }
-    }
-
-    @Override
-    public void close() {
-        flush();
-    }
+@FunctionalInterface
+public interface QueryRestrictionConverter {
+    JsonNode convert(JsonNode query) throws InvalidParseOperationException, InvalidCreateOperationException;
 }

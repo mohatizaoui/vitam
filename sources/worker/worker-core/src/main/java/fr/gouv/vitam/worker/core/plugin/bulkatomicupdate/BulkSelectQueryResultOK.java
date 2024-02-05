@@ -24,44 +24,30 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.worker.core.utils;
+package fr.gouv.vitam.worker.core.plugin.bulkatomicupdate;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
+import com.fasterxml.jackson.databind.JsonNode;
 
-public class BufferedConsumer<T> implements Consumer<T>, AutoCloseable {
+public class BulkSelectQueryResultOK {
+    private final int queryIndex;
+    private final JsonNode query;
+    private final String unitId;
 
-    private final Consumer<List<T>> bufferConsumer;
-    private final List<T> entryBuffer;
-    private final int bufferSize;
-
-    public BufferedConsumer(int bufferSize, Consumer<List<T>> bufferConsumer) {
-        this.entryBuffer = new ArrayList<>();
-        this.bufferSize = bufferSize;
-        this.bufferConsumer = bufferConsumer;
+    public BulkSelectQueryResultOK(int queryIndex, JsonNode query, String unitId) {
+        this.queryIndex = queryIndex;
+        this.query = query;
+        this.unitId = unitId;
     }
 
-    @Override
-    public void accept(T entry) {
-
-        entryBuffer.add(entry);
-
-        if (entryBuffer.size() >= bufferSize) {
-            flush();
-        }
+    public int getQueryIndex() {
+        return queryIndex;
     }
 
-    public void flush() {
-        if (!this.entryBuffer.isEmpty()) {
-
-            this.bufferConsumer.accept(entryBuffer);
-            this.entryBuffer.clear();
-        }
+    public JsonNode getQuery() {
+        return query;
     }
 
-    @Override
-    public void close() {
-        flush();
+    public String getUnitId() {
+        return unitId;
     }
 }

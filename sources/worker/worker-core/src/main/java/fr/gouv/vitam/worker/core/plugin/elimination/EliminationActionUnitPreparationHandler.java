@@ -179,7 +179,7 @@ public class EliminationActionUnitPreparationHandler extends ActionHandler {
                                 status = EliminationActionUnitStatus.GLOBAL_STATUS_CONFLICT;
                             }
 
-                            reportAppender.appendEntry(new EliminationActionUnitReportEntry(unitId,
+                            reportAppender.accept(new EliminationActionUnitReportEntry(unitId,
                                 getField(unit, VitamFieldsHelper.originatingAgency()),
                                 getField(unit, VitamFieldsHelper.initialOperation()),
                                 getField(unit, VitamFieldsHelper.object()),

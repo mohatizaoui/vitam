@@ -174,7 +174,7 @@ public class TransferReplyUnitPreparationHandler extends ActionHandler {
                     .collect(Collectors.toSet());
                 Set<String> notFoundUnitIds = SetUtils.difference(unitIds, foundUnitIds);
                 for (String notFoundUnitId : notFoundUnitIds) {
-                    reportAppender.appendEntry(new TransferReplyUnitReportEntry(notFoundUnitId,
+                    reportAppender.accept(new TransferReplyUnitReportEntry(notFoundUnitId,
                         TransferReplyUnitStatus.ALREADY_DELETED.name(), null));
                 }
                 // Append units to delete sorted by #max (
