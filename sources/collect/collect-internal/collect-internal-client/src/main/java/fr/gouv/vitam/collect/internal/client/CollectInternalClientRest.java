@@ -27,6 +27,7 @@
 package fr.gouv.vitam.collect.internal.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import fr.gouv.vitam.collect.common.dto.BulkAtomicUpdateResult;
 import fr.gouv.vitam.collect.common.dto.CriteriaProjectDto;
 import fr.gouv.vitam.collect.common.dto.ProjectDto;
 import fr.gouv.vitam.collect.common.dto.TransactionDto;
@@ -70,6 +71,7 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
     private static final String UNITS_WITH_INHERITED_RULES = "/unitsWithInheritedRules";
 
     private static final String BLANK_DSL = "select DSL is blank";
+    public static final String UNITS_BULK = "/units/bulk";
 
     public CollectInternalClientRest(VitamClientFactoryInterface<?> factory) {
         super(factory);
@@ -547,6 +549,20 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
         try (Response response = make(request)) {
             check(response);
             return RequestResponse.parseFromResponse(response, JsonNode.class);
+        }
+    }
+
+    @Override
+    public RequestResponseOK<BulkAtomicUpdateResult> bulkAtomicUpdateUnits(String transactionId, JsonNode updateQueriesJson)
+        throws VitamClientException {
+        VitamRequestBuilder request = post()
+            .withPath(TRANSACTION_PATH + "/" + transactionId + UNITS_BULK)
+            .withBody(updateQueriesJson)
+            .withJson();
+        try (Response response = make(request)) {
+            check(response);
+            return (RequestResponseOK<BulkAtomicUpdateResult>)
+                RequestResponse.parseFromResponse(response, BulkAtomicUpdateResult.class);
         }
     }
 }

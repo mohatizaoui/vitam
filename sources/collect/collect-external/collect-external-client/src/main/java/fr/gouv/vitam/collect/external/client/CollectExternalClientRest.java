@@ -27,6 +27,7 @@
 package fr.gouv.vitam.collect.external.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import fr.gouv.vitam.collect.common.dto.BulkAtomicUpdateResult;
 import fr.gouv.vitam.collect.common.dto.CriteriaProjectDto;
 import fr.gouv.vitam.collect.common.dto.ProjectDto;
 import fr.gouv.vitam.collect.common.dto.TransactionDto;
@@ -42,6 +43,7 @@ import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.exception.VitamClientException;
 import fr.gouv.vitam.common.external.client.DefaultClient;
 import fr.gouv.vitam.common.model.RequestResponse;
+import fr.gouv.vitam.common.model.RequestResponseOK;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.ws.rs.core.NewCookie;
@@ -70,6 +72,7 @@ public class CollectExternalClientRest extends DefaultClient implements CollectE
     private static final String UNITS_WITH_INHERITED_RULES = "/unitsWithInheritedRules";
 
     private static final String BLANK_DSL = "select DSL is blank";
+    public static final String UNITS_BULK = "/units/bulk";
 
     public CollectExternalClientRest(VitamClientFactoryInterface<?> factory) {
         super(factory);
@@ -533,6 +536,21 @@ public class CollectExternalClientRest extends DefaultClient implements CollectE
         try (Response response = make(request)) {
             check(response);
             return RequestResponse.parseFromResponse(response, JsonNode.class);
+        }
+    }
+
+    @Override
+    public RequestResponseOK<BulkAtomicUpdateResult> bulkAtomicUpdateUnits(VitamContext vitamContext,
+        String transactionId, JsonNode updateQueriesJson) throws VitamClientException {
+        VitamRequestBuilder request = post()
+            .withPath(TRANSACTION_PATH + "/" + transactionId + UNITS_BULK)
+            .withBody(updateQueriesJson)
+            .withHeaders(vitamContext.getHeaders())
+            .withJson();
+        try (Response response = make(request)) {
+            check(response);
+            return (RequestResponseOK<BulkAtomicUpdateResult>) RequestResponse.parseFromResponse(response,
+                BulkAtomicUpdateResult.class);
         }
     }
 }

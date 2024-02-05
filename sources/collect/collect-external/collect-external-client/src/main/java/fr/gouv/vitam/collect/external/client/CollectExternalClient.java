@@ -28,6 +28,7 @@ package fr.gouv.vitam.collect.external.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.annotations.Beta;
+import fr.gouv.vitam.collect.common.dto.BulkAtomicUpdateResult;
 import fr.gouv.vitam.collect.common.dto.CriteriaProjectDto;
 import fr.gouv.vitam.collect.common.dto.ProjectDto;
 import fr.gouv.vitam.collect.common.dto.TransactionDto;
@@ -36,6 +37,7 @@ import fr.gouv.vitam.common.client.MockOrRestClient;
 import fr.gouv.vitam.common.client.VitamContext;
 import fr.gouv.vitam.common.exception.VitamClientException;
 import fr.gouv.vitam.common.model.RequestResponse;
+import fr.gouv.vitam.common.model.RequestResponseOK;
 
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
@@ -345,6 +347,19 @@ public interface CollectExternalClient extends MockOrRestClient {
 
     RequestResponse<JsonNode> selectUnitsWithInheritedRules(VitamContext vitamContext, String transactionId,
         JsonNode selectQuery)
+        throws VitamClientException;
+
+    /**
+     * Bulk atomic update of archive units with json queries of the provided collect transaction.
+     * <br />
+     * Units are update in blocking mode (might take a few moments to proceed before returning).
+     * Please ensure proper request size / timeout is configured.
+     *
+     * @param transactionId the transaction Id. Must be a valid OPEN transaction.
+     * @param updateQueriesJson the bulk update queries (null not allowed)
+     */
+    RequestResponseOK<BulkAtomicUpdateResult> bulkAtomicUpdateUnits(VitamContext vitamContext, String transactionId,
+        JsonNode updateQueriesJson)
         throws VitamClientException;
 }
 

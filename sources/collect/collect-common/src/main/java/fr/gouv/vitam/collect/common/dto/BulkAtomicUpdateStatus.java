@@ -24,37 +24,9 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL-C license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.collect.common.exception;
+package fr.gouv.vitam.collect.common.dto;
 
-import fr.gouv.vitam.common.error.VitamError;
-import fr.gouv.vitam.common.model.RequestResponseOK;
-
-import javax.ws.rs.core.Response;
-import java.util.List;
-
-public class CollectRequestResponse {
-
-    public static final String COLLECT = "Collect";
-
-    private CollectRequestResponse() throws IllegalAccessException {
-        throw new IllegalAccessException("Utility class!");
-    }
-
-    public static Response toResponseOK(Object entity) {
-        RequestResponseOK<Object> requestResponse = new RequestResponseOK<>();
-        requestResponse.setHttpCode(Response.Status.OK.getStatusCode());
-        if (entity instanceof List) {
-            requestResponse.addAllResults((List<Object>) entity);
-        } else {
-            requestResponse.addResult(entity);
-        }
-        return Response.status(Response.Status.OK).entity(requestResponse).build();
-    }
-
-    public static Response toVitamError(Response.Status status, String message) {
-        VitamError<Object> vitamError = new VitamError<>(status.name()).setContext(COLLECT)
-            .setMessage(message == null ? "Unexpected error": message)
-            .setHttpCode(status.getStatusCode());
-        return Response.status(status).entity(vitamError).build();
-    }
+public enum BulkAtomicUpdateStatus {
+    OK,
+    KO
 }

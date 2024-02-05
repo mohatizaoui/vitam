@@ -29,6 +29,7 @@ package fr.gouv.vitam.collect.internal.resource;
 import fr.gouv.vitam.collect.internal.core.configuration.CollectInternalConfiguration;
 import fr.gouv.vitam.collect.internal.core.repository.MetadataRepository;
 import fr.gouv.vitam.collect.internal.core.repository.ProjectRepository;
+import fr.gouv.vitam.collect.internal.core.service.BulkAtomicUpdateMetadataService;
 import fr.gouv.vitam.collect.internal.core.service.CollectService;
 import fr.gouv.vitam.collect.internal.core.service.FluxService;
 import fr.gouv.vitam.collect.internal.core.service.MetadataService;
@@ -83,7 +84,8 @@ public class CollectInternalResourceBaseIT {
     protected static MetadataRepository metadataRepository = mock(MetadataRepository.class);
     protected static ProjectRepository projectRepository = mock(ProjectRepository.class);
     protected static MetadataService metadataService = new MetadataService(metadataRepository, projectRepository);
-
+    protected static BulkAtomicUpdateMetadataService bulkAtomicUpdateMetadataService
+        = mock(BulkAtomicUpdateMetadataService.class);
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
@@ -150,7 +152,7 @@ public class CollectInternalResourceBaseIT {
                     new ProjectInternalResource(projectService, fluxService, transactionService, metadataService);
                 final TransactionInternalResource transactionInternalResource =
                     new TransactionInternalResource(transactionService, sipService, metadataService, fluxService,
-                        projectService);
+                        projectService, bulkAtomicUpdateMetadataService);
                 final CollectMetadataInternalResource collectMetadataInternalResource =
                     new CollectMetadataInternalResource(metadataService, collectService, transactionService);
                 singletons.add(projectInternalResource);

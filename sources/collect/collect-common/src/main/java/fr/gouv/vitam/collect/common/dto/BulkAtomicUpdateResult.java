@@ -24,37 +24,52 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL-C license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.collect.common.exception;
+package fr.gouv.vitam.collect.common.dto;
 
-import fr.gouv.vitam.common.error.VitamError;
-import fr.gouv.vitam.common.model.RequestResponseOK;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.ws.rs.core.Response;
-import java.util.List;
+public class BulkAtomicUpdateResult {
+    @JsonProperty("status")
+    private BulkAtomicUpdateStatus status;
+    @JsonProperty("updatedUnitId")
+    private String updatedUnitId;
+    @JsonProperty("errorDetails")
+    private String errorDetails;
 
-public class CollectRequestResponse {
-
-    public static final String COLLECT = "Collect";
-
-    private CollectRequestResponse() throws IllegalAccessException {
-        throw new IllegalAccessException("Utility class!");
+    public BulkAtomicUpdateResult() {
+        // Empty constructor for serialization
     }
 
-    public static Response toResponseOK(Object entity) {
-        RequestResponseOK<Object> requestResponse = new RequestResponseOK<>();
-        requestResponse.setHttpCode(Response.Status.OK.getStatusCode());
-        if (entity instanceof List) {
-            requestResponse.addAllResults((List<Object>) entity);
-        } else {
-            requestResponse.addResult(entity);
-        }
-        return Response.status(Response.Status.OK).entity(requestResponse).build();
+    public BulkAtomicUpdateResult(BulkAtomicUpdateStatus status, String updatedUnitId, String errorDetails) {
+        this.status = status;
+        this.updatedUnitId = updatedUnitId;
+        this.errorDetails = errorDetails;
     }
 
-    public static Response toVitamError(Response.Status status, String message) {
-        VitamError<Object> vitamError = new VitamError<>(status.name()).setContext(COLLECT)
-            .setMessage(message == null ? "Unexpected error": message)
-            .setHttpCode(status.getStatusCode());
-        return Response.status(status).entity(vitamError).build();
+    public BulkAtomicUpdateStatus getStatus() {
+        return status;
+    }
+
+    public BulkAtomicUpdateResult setStatus(BulkAtomicUpdateStatus status) {
+        this.status = status;
+        return this;
+    }
+
+    public String getUpdatedUnitId() {
+        return updatedUnitId;
+    }
+
+    public BulkAtomicUpdateResult setUpdatedUnitId(String updatedUnitId) {
+        this.updatedUnitId = updatedUnitId;
+        return this;
+    }
+
+    public String getErrorDetails() {
+        return errorDetails;
+    }
+
+    public BulkAtomicUpdateResult setErrorDetails(String errorDetails) {
+        this.errorDetails = errorDetails;
+        return this;
     }
 }
