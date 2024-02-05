@@ -48,6 +48,7 @@ import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.administration.AccessContractModel;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.common.utils.BufferedConsumer;
+import fr.gouv.vitam.metadata.api.utils.BulkAtomicUpdateModelUtils;
 import fr.gouv.vitam.metadata.client.MetaDataClient;
 import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.metadata.common.bulkatomicupdate.BulkSelectQueryParallelProcessor;
@@ -196,7 +197,7 @@ public class PrepareBulkAtomicUpdate extends ActionHandler {
     private Iterator<JsonNode> loadQueries(HandlerIO handler) throws ProcessingStatusException {
         try {
             JsonNode queryNodes = handler.getJsonFromWorkspace(QUERY_NAME_IN);
-            return queryNodes.get(BulkAtomicUpdateModelUtils.QUERIES).iterator();
+            return BulkAtomicUpdateModelUtils.getQueries(queryNodes).iterator();
         } catch (ProcessingException ex) {
             throw new ProcessingStatusException(StatusCode.FATAL, "Could not load queries", ex);
         }

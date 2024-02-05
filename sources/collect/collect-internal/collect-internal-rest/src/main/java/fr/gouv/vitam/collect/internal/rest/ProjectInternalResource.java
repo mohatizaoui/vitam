@@ -31,7 +31,7 @@ import fr.gouv.vitam.collect.common.dto.CriteriaProjectDto;
 import fr.gouv.vitam.collect.common.dto.ProjectDto;
 import fr.gouv.vitam.collect.common.dto.TransactionDto;
 import fr.gouv.vitam.collect.common.exception.CollectInternalException;
-import fr.gouv.vitam.collect.common.exception.CollectInternalClientInvalidRequestException;
+import fr.gouv.vitam.collect.common.exception.CollectInternalInvalidRequestException;
 import fr.gouv.vitam.collect.common.exception.CollectRequestResponse;
 import fr.gouv.vitam.collect.internal.core.common.TransactionModel;
 import fr.gouv.vitam.collect.internal.core.service.FluxService;
@@ -94,7 +94,8 @@ public class ProjectInternalResource {
 
     private final MetadataService metadataService;
 
-    public ProjectInternalResource(ProjectService projectService, FluxService fluxService, TransactionService transactionService,
+    public ProjectInternalResource(ProjectService projectService, FluxService fluxService,
+        TransactionService transactionService,
         MetadataService metadataService) {
         this.projectService = projectService;
         this.fluxService = fluxService;
@@ -327,13 +328,13 @@ public class ProjectInternalResource {
                 LOGGER.error(PROJECT_NOT_FOUND);
                 return CollectRequestResponse.toVitamError(NOT_FOUND, PROJECT_NOT_FOUND);
             }
-            
+
             // Use projectId to ensure the virtual transactionId is reused within the same project
             String virtualTransactionId = VIRTUAL_TX + projectId;
-            
+
             fluxService.processStream(inputStreamObject, projectId, virtualTransactionId);
             return Response.ok(new RequestResponseOK<>().addResult(virtualTransactionId)).build();
-        } catch (CollectInternalClientInvalidRequestException | IllegalArgumentException e) {
+        } catch (CollectInternalInvalidRequestException | IllegalArgumentException e) {
             LOGGER.error("An error occurs when try to upload the ZIP: {}", e);
             return CollectRequestResponse.toVitamError(BAD_REQUEST, e.getLocalizedMessage());
         } catch (CollectInternalException e) {

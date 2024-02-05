@@ -32,6 +32,7 @@ import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.metadata.api.utils.BulkAtomicUpdateModelUtils;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.worker.common.HandlerIO;
@@ -55,12 +56,9 @@ public class CheckQueriesThreshold extends ActionHandler {
     @Override
     public ItemStatus execute(WorkerParameters param, HandlerIO handler) throws ProcessingException {
         JsonNode queryNode = handler.getJsonFromWorkspace(QUERY_NAME_IN);
-        boolean hasThresholdParameter = queryNode.has(BulkAtomicUpdateModelUtils.THRESHOLD);
-        ArrayNode queries = (ArrayNode) queryNode.get(BulkAtomicUpdateModelUtils.QUERIES);
-
-        final long total = queries.size();
-        final long threshold = hasThresholdParameter ? queryNode.get(BulkAtomicUpdateModelUtils.THRESHOLD).asLong() :
-            DEFAULT_THRESHOLD;
+        Long queryThreshold = BulkAtomicUpdateModelUtils.getQueryThreshold(queryNode);
+        final long total = BulkAtomicUpdateModelUtils.queryCount(queryNode);
+        final long threshold = queryThreshold != null ? queryThreshold : DEFAULT_THRESHOLD;
 
         if (total > threshold) {
             ObjectNode eventDetails = JsonHandler.createObjectNode();
