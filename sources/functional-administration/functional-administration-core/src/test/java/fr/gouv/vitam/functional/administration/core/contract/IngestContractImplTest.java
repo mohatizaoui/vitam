@@ -776,7 +776,8 @@ public class IngestContractImplTest {
 
         final Update update = new Update();
         update.setQuery(QueryHelper.eq("Identifier", identifier));
-        update.addActions(setActionSignaturePolicy, setActionStatusInactive, setActionDesactivationDateInactive, setActionLastUpdateInactive);
+        update.addActions(setActionSignaturePolicy, setActionStatusInactive, setActionDesactivationDateInactive,
+            setActionLastUpdateInactive);
         updateParser.parse(update.getFinalUpdate());
         JsonNode queryDslForUpdate = updateParser.getRequest().getFinalUpdate();
 
@@ -794,6 +795,9 @@ public class IngestContractImplTest {
             assertThat(ActivationStatus.INACTIVE.equals(ingestContractModel.getStatus())).isTrue();
             assertThat(ingestContractModel.getDeactivationdate()).isNotEmpty();
             assertThat(ingestContractModel.getLastupdate()).isNotEmpty();
+            assertThat(ingestContractModel.getSignaturePolicy().isDeclaredSignature()).isFalse();
+            assertThat(ingestContractModel.getSignaturePolicy().isDeclaredTimestamp()).isFalse();
+            assertThat(ingestContractModel.getSignaturePolicy().isDeclaredAdditionalProof()).isFalse();
         }
 
         // Test update for ingest contract Status => Active
@@ -818,9 +822,6 @@ public class IngestContractImplTest {
             assertThat(ingestContractModel.getActivationdate()).isNotEmpty();
             assertThat(ingestContractModel.getLastupdate()).isNotEmpty();
             assertThat(ingestContractModel.getLinkParentId()).isEqualTo("");
-            assertThat(ingestContractModel.getSignaturePolicy().isDeclaredSignature()).isFalse();
-            assertThat(ingestContractModel.getSignaturePolicy().isDeclaredTimestamp()).isFalse();
-            assertThat(ingestContractModel.getSignaturePolicy().isDeclaredAdditionalProof()).isFalse();
             assertEquals(IngestContractCheckState.AUTHORIZED, ingestContractModel.getCheckParentLink());
         }
 
@@ -829,6 +830,24 @@ public class IngestContractImplTest {
             ingestContractService.updateContract(ingestModelList.get(0).getIdentifier(), queryDslStatusActive);
         assertThat(responseUpdate.isOk()).isTrue();
         assertEquals(200, responseUpdate.getStatus());
+
+        // we update Signature policy with SignedDocument=FORBIDDEN
+        final UpdateParserSingle updateParser2 = new UpdateParserSingle(new SingleVarNameAdapter());
+        updateParser2.parse(((Update) new Update()
+            .addActions(UpdateActionHelper.set((ObjectNode) JsonHandler.createObjectNode()
+                .set("SignaturePolicy",
+                    JsonHandler.createObjectNode().put("SignedDocument", "FORBIDDEN")
+                )))
+            .setQuery(QueryHelper.eq("Identifier", identifier))).getFinalUpdate());
+        ingestContractService.updateContract(ingestModelList.get(0).getIdentifier(),
+            updateParser2.getRequest().getFinalUpdate());
+
+        final IngestContractModel ingestContract = ingestContractService.findByIdentifier(identifier);
+        assertThat(ingestContract.getSignaturePolicy().getSignedDocument()).isEqualTo(
+            SignaturePolicy.SignedDocumentPolicyEnum.FORBIDDEN);
+        assertThat(ingestContract.getSignaturePolicy().isDeclaredSignature()).isNull();
+        assertThat(ingestContract.getSignaturePolicy().isDeclaredTimestamp()).isNull();
+        assertThat(ingestContract.getSignaturePolicy().isDeclaredAdditionalProof()).isNull();
     }
 
     @Test
