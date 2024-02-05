@@ -75,6 +75,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.List;
 
 /**
  * Mock client implementation for Admin External
@@ -630,6 +631,12 @@ public class AdminExternalClientMock extends AbstractMockClient implements Admin
 
     @Override
     public RequestResponse<Void> importUnitExternalSchema(VitamContext vitamContext, InputStream externalSchema) {
+        throw new IllegalStateException("Stop using mocks in production");
+    }
+
+    @Override
+    public RequestResponse<Void> deleteUnitExternalSchemas(VitamContext vitamContext, List<String> externalSchemaPaths)
+        throws InvalidParseOperationException, AccessExternalClientException {
         throw new IllegalStateException("Stop using mocks in production");
     }
 

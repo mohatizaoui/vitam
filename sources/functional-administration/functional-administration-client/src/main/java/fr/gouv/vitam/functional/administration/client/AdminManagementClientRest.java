@@ -94,6 +94,7 @@ import javax.ws.rs.core.Response.Status;
 import java.io.InputStream;
 import java.util.List;
 
+import static fr.gouv.vitam.common.client.VitamRequestBuilder.delete;
 import static fr.gouv.vitam.common.client.VitamRequestBuilder.get;
 import static fr.gouv.vitam.common.client.VitamRequestBuilder.post;
 import static fr.gouv.vitam.common.client.VitamRequestBuilder.put;
@@ -1590,6 +1591,24 @@ class AdminManagementClientRest extends DefaultClient implements AdminManagement
         VitamRequestBuilder request = post()
             .withPath(SCHEMA_UNIT_URI)
             .withBody(externalSchemaInputList)
+            .withJson();
+
+        try (Response response = make(request)) {
+            checkCreation(response);
+            return fromStatusCode(response.getStatus());
+        } catch (VitamClientInternalException e) {
+            throw new AdminManagementClientServerException(INTERNAL_SERVER_ERROR_MSG, e);
+        }
+    }
+
+    @Override
+    public Status deleteUnitExternalSchemas(List<String> paths)
+        throws InvalidParseOperationException, AdminManagementClientServerException {
+        ParametersChecker.checkParameter("The unit external schema paths list is mandatory", paths);
+
+        VitamRequestBuilder request = delete()
+            .withPath(SCHEMA_UNIT_URI)
+            .withBody(paths)
             .withJson();
 
         try (Response response = make(request)) {

@@ -34,9 +34,12 @@ import com.google.common.annotations.VisibleForTesting;
 import fr.gouv.vitam.common.ParametersChecker;
 import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.VitamConfiguration;
+import fr.gouv.vitam.common.database.builder.query.QueryHelper;
 import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
+import fr.gouv.vitam.common.database.builder.request.single.Delete;
 import fr.gouv.vitam.common.database.server.DbRequestResult;
 import fr.gouv.vitam.common.error.VitamCode;
+import fr.gouv.vitam.common.exception.BadRequestException;
 import fr.gouv.vitam.common.exception.DocumentAlreadyExistsException;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.exception.SchemaValidationException;
@@ -78,6 +81,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static fr.gouv.vitam.functional.administration.core.schema.SchemaService.TenantScope.ALL_TENANTS;
+import static fr.gouv.vitam.functional.administration.core.schema.SchemaService.TenantScope.CURRENT_TENANT;
+import static fr.gouv.vitam.functional.administration.core.schema.SchemaService.TenantScope.INCLUDE_ADMIN_TENANT;
 
 /**
  * This service to manage schema operations
@@ -136,10 +143,10 @@ public class SchemaService {
      * @throws ReferentialException
      * @throws InvalidCreateOperationException
      */
-    private List<SchemaResponse> findUnitExternalSchema(boolean includeAdminTenant)
+    private List<SchemaResponse> findUnitExternalSchema(TenantScope tenantScope)
         throws InvalidParseOperationException, ReferentialException, InvalidCreateOperationException {
         LOGGER.info("retrieving unit external schema ");
-        List<SchemaModel> currentExternalSchemaList = loadCurrentExternalSchema(includeAdminTenant);
+        List<SchemaModel> currentExternalSchemaList = loadCurrentExternalSchema(tenantScope);
         List<SchemaResponse> schemaResponseList =
             mapAndDecorateDbSchemaToExternalSchemaModel(currentExternalSchemaList);
         return schemaResponseList;
@@ -171,7 +178,7 @@ public class SchemaService {
         throws InvalidParseOperationException, IOException, ReferentialException, InvalidCreateOperationException {
         LOGGER.info("retrieving internal and external unit schema ");
         List<SchemaResponse> unitSchemaModels = new ArrayList<>(loadUnitInternalSchema());
-        unitSchemaModels.addAll(this.findUnitExternalSchema(true));
+        unitSchemaModels.addAll(this.findUnitExternalSchema(INCLUDE_ADMIN_TENANT));
         return unitSchemaModels;
     }
 
@@ -212,7 +219,7 @@ public class SchemaService {
             List<OntologyModel> ontologiesElts = loadFullOntologiesElts();
 
             List<SchemaResponse> currentUnitSchemaList = new ArrayList<>(loadUnitInternalSchema());
-            currentUnitSchemaList.addAll(this.findUnitExternalSchema(true));
+            currentUnitSchemaList.addAll(this.findUnitExternalSchema(INCLUDE_ADMIN_TENANT));
 
             schemaValidationService.validateExternalSchemaInputs(externalSchemaList, currentUnitSchemaList,
                 ontologiesElts, importErrors);
@@ -297,12 +304,21 @@ public class SchemaService {
      * @throws ReferentialException
      * @throws InvalidParseOperationException
      */
-    private List<SchemaModel> loadCurrentExternalSchema(boolean includeAdminTenant)
+    private List<SchemaModel> loadCurrentExternalSchema(TenantScope tenantScope)
         throws InvalidCreateOperationException, ReferentialException, InvalidParseOperationException {
+
         Set<Integer> filteredTenants = new HashSet<>();
-        filteredTenants.add(VitamThreadUtils.getVitamSession().getTenantId());
-        if (includeAdminTenant) {
-            filteredTenants.add(VitamConfiguration.getAdminTenant());
+        switch (tenantScope) {
+            case INCLUDE_ADMIN_TENANT:
+                filteredTenants.add(VitamThreadUtils.getVitamSession().getTenantId());
+                filteredTenants.add(VitamConfiguration.getAdminTenant());
+                break;
+            case CURRENT_TENANT:
+                filteredTenants.add(VitamThreadUtils.getVitamSession().getTenantId());
+                break;
+            case ALL_TENANTS:
+                filteredTenants.addAll(VitamConfiguration.getTenants());
+                break;
         }
 
         RequestResponseOK<SchemaModel> schemasResponse =
@@ -397,4 +413,59 @@ public class SchemaService {
             return result.getRequestResponseOK(queryDsl, Schema.class, SchemaModel.class);
         }
     }
+
+    public void checkAndDeleteExternalSchemaElementsByPaths(List<String> pathsToDelete, boolean includeAllTenant)
+        throws InvalidCreateOperationException, ReferentialException, InvalidParseOperationException,
+        BadRequestException {
+
+        final List<SchemaModel> unitExternalSchemas =
+            loadCurrentExternalSchema(includeAllTenant ? ALL_TENANTS : CURRENT_TENANT);
+
+        List<String> existingPaths = unitExternalSchemas.stream()
+            .map(SchemaModel::getPath)
+            .collect(Collectors.toList());
+
+        List<String> nonExistingPaths = pathsToDelete.stream()
+            .filter(pathToDelete -> !existingPaths.contains(pathToDelete))
+            .collect(Collectors.toList());
+
+        if (!nonExistingPaths.isEmpty()) {
+            throw new BadRequestException(
+                "Some paths cannot be deleted because they do not exist: " + nonExistingPaths);
+        }
+
+        List<String> nonDeletablePaths = pathsToDelete.stream()
+            .filter(pathToDelete -> existingPaths.stream().anyMatch(
+                existingPath -> existingPath.startsWith(pathToDelete) && !pathsToDelete.contains(existingPath)))
+            .collect(Collectors.toList());
+
+        if (!nonDeletablePaths.isEmpty()) {
+            throw new BadRequestException("Some paths cannot be deleted because they are referenced by other schemas:");
+        } else {
+            LOGGER.debug("All selected paths are deletable.");
+            deleteExternalSchemaElementsByPaths(pathsToDelete);
+        }
+    }
+
+    private void deleteExternalSchemaElementsByPaths(List<String> schemaPathsToDelete)
+        throws BadRequestException, ReferentialException {
+
+        final Delete delete = new Delete();
+
+        try {
+            if (CollectionUtils.isNotEmpty(schemaPathsToDelete)) {
+                delete.setQuery(QueryHelper.in(SchemaModel.TAG_PATH, schemaPathsToDelete.toArray(String[]::new)));
+                mongoDbAccessReferential.deleteDocument(delete.getFinalDelete(), FunctionalAdminCollections.SCHEMA);
+            }
+        } catch (final SchemaValidationException | InvalidCreateOperationException e) {
+            throw new BadRequestException(e);
+        }
+    }
+
+    public enum TenantScope {
+        INCLUDE_ADMIN_TENANT,
+        CURRENT_TENANT,
+        ALL_TENANTS
+    }
+
 }

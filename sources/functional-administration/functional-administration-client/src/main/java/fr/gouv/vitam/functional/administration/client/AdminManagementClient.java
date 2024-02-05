@@ -899,5 +899,13 @@ public interface AdminManagementClient extends MockOrRestClient {
     Status importUnitExternalSchema(List<SchemaInputModel> externalSchemaInputList)
         throws InvalidParseOperationException, AdminManagementClientServerException;
 
+    /**
+     * Delete one or more external schemas by path(s)
+     *
+     * @param paths schemas paths
+     * @return status
+     */
+    Status deleteUnitExternalSchemas(List<String> paths)
+        throws InvalidParseOperationException, AdminManagementClientServerException;
 }
 
