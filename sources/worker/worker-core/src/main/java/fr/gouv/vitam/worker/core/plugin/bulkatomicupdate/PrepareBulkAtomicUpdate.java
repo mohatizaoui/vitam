@@ -47,8 +47,13 @@ import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.administration.AccessContractModel;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
+import fr.gouv.vitam.common.utils.BufferedConsumer;
 import fr.gouv.vitam.metadata.client.MetaDataClient;
 import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
+import fr.gouv.vitam.metadata.common.bulkatomicupdate.BulkSelectQueryParallelProcessor;
+import fr.gouv.vitam.metadata.common.bulkatomicupdate.BulkSelectQueryResultFailure;
+import fr.gouv.vitam.metadata.common.bulkatomicupdate.BulkSelectQueryResultOK;
+import fr.gouv.vitam.metadata.common.bulkatomicupdate.QueryRestrictionConverter;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.worker.common.HandlerIO;
@@ -56,7 +61,6 @@ import fr.gouv.vitam.worker.core.distribution.JsonLineModel;
 import fr.gouv.vitam.worker.core.distribution.JsonLineWriter;
 import fr.gouv.vitam.worker.core.exception.ProcessingStatusException;
 import fr.gouv.vitam.worker.core.handler.ActionHandler;
-import fr.gouv.vitam.common.utils.BufferedConsumer;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -68,7 +72,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Prepare execute execute each query in query.json.
+ * Prepares the execution of atomic update queries.
  * Queries are executed in bulks, each bulk is run concurrently is a thread pool.
  * Queries are updated with access contract restrictions.
  * Query projection is set to "_id" field only.
@@ -220,6 +224,8 @@ public class PrepareBulkAtomicUpdate extends ActionHandler {
                 itemStatus.increment(StatusCode.WARNING, bulkSelectQueryParallelProcessor.getNbWarnings());
             }
             return itemStatus;
+        } catch (InvalidParseOperationException e) {
+            throw new ProcessingStatusException(StatusCode.KO, "Query processing failed with KO", e);
         }
     }
 

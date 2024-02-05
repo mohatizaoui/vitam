@@ -24,23 +24,30 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.worker.core.plugin.bulkatomicupdate;
+package fr.gouv.vitam.metadata.common.bulkatomicupdate;
 
-public enum BulkUpdateUnitReportKey {
+import com.fasterxml.jackson.databind.JsonNode;
 
-    INVALID_DSL_QUERY("Invalid DSL query: cannot contains internal field(s)"),
-    UNIT_NOT_FOUND("No Unit was found for the $query"),
-    TOO_MANY_UNITS_FOUND("More than one Unit was found for the $query"),
-    ERROR_METADATA_UPDATE("An error occurred while executing the update");
+public class BulkSelectQueryResultOK {
+    private final int queryIndex;
+    private final JsonNode query;
+    private final String unitId;
 
-    private final String message;
-
-    BulkUpdateUnitReportKey(String message) {
-        this.message = message;
+    public BulkSelectQueryResultOK(int queryIndex, JsonNode query, String unitId) {
+        this.queryIndex = queryIndex;
+        this.query = query;
+        this.unitId = unitId;
     }
 
-    public String getMessage() {
-        return message;
+    public int getQueryIndex() {
+        return queryIndex;
     }
 
+    public JsonNode getQuery() {
+        return query;
+    }
+
+    public String getUnitId() {
+        return unitId;
+    }
 }

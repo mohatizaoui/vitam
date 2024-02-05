@@ -24,13 +24,23 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.worker.core.plugin.bulkatomicupdate;
+package fr.gouv.vitam.metadata.common.bulkatomicupdate;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
-import fr.gouv.vitam.common.exception.InvalidParseOperationException;
+public enum BulkUpdateUnitReportKey {
 
-@FunctionalInterface
-public interface QueryRestrictionConverter {
-    JsonNode convert(JsonNode query) throws InvalidParseOperationException, InvalidCreateOperationException;
+    INVALID_DSL_QUERY("Invalid DSL query: cannot contains internal field(s)"),
+    UNIT_NOT_FOUND("No Unit was found for the $query"),
+    TOO_MANY_UNITS_FOUND("More than one Unit was found for the $query"),
+    ERROR_METADATA_UPDATE("An error occurred while executing the update");
+
+    private final String message;
+
+    BulkUpdateUnitReportKey(String message) {
+        this.message = message;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
 }

@@ -105,7 +105,7 @@ import static fr.gouv.vitam.common.model.StatusCode.WARNING;
 import static fr.gouv.vitam.metadata.api.model.UpdateUnitKey.UNIT_METADATA_NO_CHANGES;
 import static fr.gouv.vitam.metadata.api.model.UpdateUnitKey.UNIT_METADATA_NO_NEW_DATA;
 import static fr.gouv.vitam.storage.engine.common.model.DataCategory.UNIT;
-import static fr.gouv.vitam.worker.core.plugin.bulkatomicupdate.BulkUpdateUnitReportKey.ERROR_METADATA_UPDATE;
+import static fr.gouv.vitam.metadata.common.bulkatomicupdate.BulkUpdateUnitReportKey.ERROR_METADATA_UPDATE;
 import static fr.gouv.vitam.worker.core.utils.PluginHelper.buildItemStatus;
 
 /**

@@ -24,19 +24,22 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.worker.core.plugin.bulkatomicupdate;
+package fr.gouv.vitam.metadata.common.bulkatomicupdate;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-public class BulkSelectQueryResultOK {
+public class BulkSelectQueryResultFailure {
     private final int queryIndex;
     private final JsonNode query;
-    private final String unitId;
+    private final BulkUpdateUnitReportKey bulkUpdateUnitReportKey;
+    private final String message;
 
-    public BulkSelectQueryResultOK(int queryIndex, JsonNode query, String unitId) {
+    public BulkSelectQueryResultFailure(int queryIndex, JsonNode query, BulkUpdateUnitReportKey bulkUpdateUnitReportKey,
+        String message) {
         this.queryIndex = queryIndex;
         this.query = query;
-        this.unitId = unitId;
+        this.bulkUpdateUnitReportKey = bulkUpdateUnitReportKey;
+        this.message = message;
     }
 
     public int getQueryIndex() {
@@ -47,7 +50,11 @@ public class BulkSelectQueryResultOK {
         return query;
     }
 
-    public String getUnitId() {
-        return unitId;
+    public BulkUpdateUnitReportKey getBulkUpdateUnitReportKey() {
+        return bulkUpdateUnitReportKey;
+    }
+
+    public String getMessage() {
+        return message;
     }
 }

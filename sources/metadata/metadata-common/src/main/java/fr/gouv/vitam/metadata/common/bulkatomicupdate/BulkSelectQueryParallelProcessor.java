@@ -25,7 +25,7 @@
  * accept its terms.
  */
 
-package fr.gouv.vitam.worker.core.plugin.bulkatomicupdate;
+package fr.gouv.vitam.metadata.common.bulkatomicupdate;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -37,18 +37,16 @@ import fr.gouv.vitam.common.database.builder.request.multiple.SelectMultiQuery;
 import fr.gouv.vitam.common.database.parser.request.multiple.SelectParserMultiple;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.exception.VitamRuntimeException;
+import fr.gouv.vitam.common.iterables.CountingIterator;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.common.model.RequestResponseOK;
-import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.thread.ExecutorUtils;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.metadata.api.exception.MetaDataClientServerException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataDocumentSizeException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataExecutionException;
 import fr.gouv.vitam.metadata.client.MetaDataClient;
-import fr.gouv.vitam.worker.core.exception.ProcessingStatusException;
-import fr.gouv.vitam.common.iterables.CountingIterator;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -95,7 +93,7 @@ public class BulkSelectQueryParallelProcessor {
         this.batchSize = batchSize;
     }
 
-    public void processQueries(Iterator<JsonNode> queryIterator) throws ProcessingStatusException {
+    public void processQueries(Iterator<JsonNode> queryIterator) throws InvalidParseOperationException {
         final int tenantId = VitamThreadUtils.getVitamSession().getTenantId();
         String processId = VitamThreadUtils.getVitamSession().getRequestId();
 
@@ -141,13 +139,12 @@ public class BulkSelectQueryParallelProcessor {
         awaitExecutorTermination(executor);
 
         if (koErrorOccurred.get()) {
-            throw new ProcessingStatusException(StatusCode.KO,
+            throw new InvalidParseOperationException(
                 "One or more KO errors occurred during bulk select query execution");
         }
 
         if (fatalErrorOccurred.get()) {
-            throw new ProcessingStatusException(StatusCode.FATAL,
-                "One or more FATAL errors occurred during bulk select query execution");
+            throw new VitamRuntimeException("One or more FATAL errors occurred during bulk select query execution");
         }
     }
 

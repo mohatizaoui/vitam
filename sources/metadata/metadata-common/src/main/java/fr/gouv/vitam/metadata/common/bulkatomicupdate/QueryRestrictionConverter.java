@@ -24,37 +24,13 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.worker.core.plugin.bulkatomicupdate;
+package fr.gouv.vitam.metadata.common.bulkatomicupdate;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
+import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 
-public class BulkSelectQueryResultFailure {
-    private final int queryIndex;
-    private final JsonNode query;
-    private final BulkUpdateUnitReportKey bulkUpdateUnitReportKey;
-    private final String message;
-
-    public BulkSelectQueryResultFailure(int queryIndex, JsonNode query, BulkUpdateUnitReportKey bulkUpdateUnitReportKey,
-        String message) {
-        this.queryIndex = queryIndex;
-        this.query = query;
-        this.bulkUpdateUnitReportKey = bulkUpdateUnitReportKey;
-        this.message = message;
-    }
-
-    public int getQueryIndex() {
-        return queryIndex;
-    }
-
-    public JsonNode getQuery() {
-        return query;
-    }
-
-    public BulkUpdateUnitReportKey getBulkUpdateUnitReportKey() {
-        return bulkUpdateUnitReportKey;
-    }
-
-    public String getMessage() {
-        return message;
-    }
+@FunctionalInterface
+public interface QueryRestrictionConverter {
+    JsonNode convert(JsonNode query) throws InvalidParseOperationException, InvalidCreateOperationException;
 }
