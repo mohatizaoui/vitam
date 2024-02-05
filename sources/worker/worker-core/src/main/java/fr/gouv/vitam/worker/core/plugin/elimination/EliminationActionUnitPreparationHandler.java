@@ -56,7 +56,7 @@ import fr.gouv.vitam.worker.core.plugin.elimination.model.EliminationAnalysisRes
 import fr.gouv.vitam.worker.core.plugin.elimination.model.EliminationEventDetails;
 import fr.gouv.vitam.worker.core.plugin.elimination.model.EliminationGlobalStatus;
 import fr.gouv.vitam.worker.core.plugin.elimination.report.EliminationActionReportService;
-import fr.gouv.vitam.worker.core.utils.BufferedConsumer;
+import fr.gouv.vitam.common.utils.BufferedConsumer;
 
 import java.io.File;
 import java.io.FileOutputStream;

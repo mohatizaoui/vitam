@@ -25,7 +25,7 @@
  * accept its terms.
  */
 
-package fr.gouv.vitam.worker.core.utils;
+package fr.gouv.vitam.common.iterables;
 
 import java.util.Iterator;
 

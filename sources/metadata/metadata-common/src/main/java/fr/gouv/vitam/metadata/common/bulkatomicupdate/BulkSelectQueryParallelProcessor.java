@@ -48,7 +48,7 @@ import fr.gouv.vitam.metadata.api.exception.MetaDataDocumentSizeException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataExecutionException;
 import fr.gouv.vitam.metadata.client.MetaDataClient;
 import fr.gouv.vitam.worker.core.exception.ProcessingStatusException;
-import fr.gouv.vitam.worker.core.utils.CountingIterator;
+import fr.gouv.vitam.common.iterables.CountingIterator;
 
 import java.util.ArrayList;
 import java.util.Iterator;

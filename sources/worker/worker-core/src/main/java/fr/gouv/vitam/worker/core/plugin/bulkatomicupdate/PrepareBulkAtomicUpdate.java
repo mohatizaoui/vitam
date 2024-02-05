@@ -56,7 +56,7 @@ import fr.gouv.vitam.worker.core.distribution.JsonLineModel;
 import fr.gouv.vitam.worker.core.distribution.JsonLineWriter;
 import fr.gouv.vitam.worker.core.exception.ProcessingStatusException;
 import fr.gouv.vitam.worker.core.handler.ActionHandler;
-import fr.gouv.vitam.worker.core.utils.BufferedConsumer;
+import fr.gouv.vitam.common.utils.BufferedConsumer;
 
 import java.io.File;
 import java.io.FileOutputStream;
