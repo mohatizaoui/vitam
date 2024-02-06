@@ -30,6 +30,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.Strings;
 import fr.gouv.vitam.common.client.DefaultClient;
 import fr.gouv.vitam.common.client.VitamClientFactoryInterface;
+import fr.gouv.vitam.common.client.VitamRequestBuilder;
 import fr.gouv.vitam.common.database.index.model.SwitchIndexResult;
 import fr.gouv.vitam.common.database.parameter.IndexParameters;
 import fr.gouv.vitam.common.database.parameter.SwitchIndexParameters;
@@ -45,6 +46,7 @@ import fr.gouv.vitam.common.model.DurationData;
 import fr.gouv.vitam.common.model.GraphComputeResponse;
 import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
+import fr.gouv.vitam.common.model.identifier.PurgedCollectionType;
 import fr.gouv.vitam.common.model.massupdate.RuleActions;
 import fr.gouv.vitam.metadata.api.exception.MetaDataClientServerException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataDocumentSizeException;
@@ -60,6 +62,7 @@ import fr.gouv.vitam.metadata.api.model.ReconstructionRequestItem;
 import fr.gouv.vitam.metadata.api.model.ReconstructionResponseItem;
 import fr.gouv.vitam.metadata.api.model.UnitPerOriginatingAgency;
 
+import javax.annotation.Nullable;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import java.util.ArrayList;
@@ -547,9 +550,14 @@ public class MetaDataClientRest extends DefaultClient implements MetaDataClient 
     }
 
     @Override
-    public JsonNode getPurgedPersistentIdentifiers(String persistentIdentifier)
+    public JsonNode getPurgedPersistentIdentifiers(String persistentIdentifier, @Nullable PurgedCollectionType type)
         throws MetaDataNotFoundException, InvalidParseOperationException, MetaDataClientServerException {
-        try (Response response = make(get().withJson().withPath(PERSISTENT_IDENTIFIER_URI + "/" + persistentIdentifier))) {
+        VitamRequestBuilder request =
+            get().withJson().withPath(PERSISTENT_IDENTIFIER_URI + "/" + persistentIdentifier);
+        if (type != null) {
+            request = request.withQueryParam("type", type.getValue());
+        }
+        try (Response response = make(request)) {
             check(response);
             return response.readEntity(JsonNode.class);
         } catch (MetaDataExecutionException | MetaDataDocumentSizeException | VitamClientInternalException e) {

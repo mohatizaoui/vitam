@@ -1,7 +1,7 @@
 # Configuration
 @access-contract = ContratTNR
-@tenant = 0
-@unit-persistent-identifier = ark:/27447/1234567xyz
+@tenant = 1
+@unit-persistent-identifier = ark:/23567/001a9d7db5eadabac
 @object-persistent-identifier = ark:/27447/1234567xyz_binary_master1
 
 ### Recherche d'une unitée archivistique dont un identifiant pérenne correspond à '{{unit-persistent-identifier}}'
@@ -39,7 +39,7 @@ X-Access-Contract-Id: {{access-contract}}
 X-Tenant-Id: {{tenant}}
 
 ### retourner les objets dont l'identifiant pérenne est ark:/23567/001a9d7db5eadxac_binary_master
-GET {{url-access}}/access-external/v1/objects/byobjectspersistentidentifier/ark:/23567/001a9d7db5eadxac_binary_master
+GET {{url-access}}/access-external/v1/objects/byobjectspersistentidentifier/ark:/23567/001a9d7db5eadabac
 Accept: application/json
 Content-Type: application/json
 X-Access-Contract-Id: {{access-contract}}

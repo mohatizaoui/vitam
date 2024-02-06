@@ -215,7 +215,7 @@ class AccessExternalClientMock extends AbstractMockClient implements AccessExter
     }
 
     @Override
-    public Response getObjectByObjectPersistentIdentifier(VitamContext vitamContext, JsonNode selectQuery,
+    public RequestResponse<JsonNode> getObjectByObjectPersistentIdentifier(VitamContext vitamContext, JsonNode selectQuery,
         String persistentIdentifier)
         throws VitamClientException {
         throw new IllegalStateException("Will not be implemented");

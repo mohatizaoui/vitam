@@ -45,13 +45,12 @@ import fr.gouv.vitam.access.internal.common.exception.AccessInternalUnavailableD
 import fr.gouv.vitam.access.internal.common.model.AccessInternalConfiguration;
 import fr.gouv.vitam.access.internal.core.AccessInternalModuleImpl;
 import fr.gouv.vitam.access.internal.core.identifier.exception.PersistentIdentifierNotFoundException;
-import fr.gouv.vitam.access.internal.core.identifier.search.ObjectPurgedPersistentIdentifierSearchService;
+import fr.gouv.vitam.access.internal.core.identifier.query.PersistentIdentifierMultiQueryFactory;
+import fr.gouv.vitam.access.internal.core.identifier.search.PurgedPersistentIdentifierSearchService;
 import fr.gouv.vitam.common.GlobalDataRest;
 import fr.gouv.vitam.common.ParametersChecker;
 import fr.gouv.vitam.common.client.CustomVitamHttpStatusCode;
-import fr.gouv.vitam.common.database.builder.query.QueryHelper;
 import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
-import fr.gouv.vitam.common.database.builder.request.multiple.SelectMultiQuery;
 import fr.gouv.vitam.common.database.parser.request.multiple.RequestParserHelper;
 import fr.gouv.vitam.common.database.parser.request.multiple.RequestParserMultiple;
 import fr.gouv.vitam.common.database.parser.request.multiple.SelectParserMultiple;
@@ -162,6 +161,8 @@ import static fr.gouv.vitam.common.model.ProcessAction.RESUME;
 import static fr.gouv.vitam.common.model.StatusCode.STARTED;
 import static fr.gouv.vitam.common.model.WorkspaceConstants.OPTIONS_FILE;
 import static fr.gouv.vitam.common.model.export.ExportRequest.EXPORT_QUERY_FILE_NAME;
+import static fr.gouv.vitam.common.model.identifier.PurgedCollectionType.OBJECT;
+import static fr.gouv.vitam.common.model.identifier.PurgedCollectionType.UNIT;
 import static fr.gouv.vitam.common.thread.VitamThreadUtils.getVitamSession;
 import static fr.gouv.vitam.logbook.common.parameters.Contexts.COMPUTE_INHERITED_RULES;
 import static fr.gouv.vitam.logbook.common.parameters.Contexts.COMPUTE_INHERITED_RULES_DELETE;
@@ -186,6 +187,8 @@ public class AccessInternalResourceImpl extends ApplicationStatusResource implem
     private static final String UNITS_URI = "/units";
     private static final String UNITS_ATOMIC_BULK_URI = "/units/atomicbulk";
     private static final String UNITS_RULES_URI = "/units/rules";
+    private static final String QUALIFIERS = "#qualifiers";
+    private static final String VERSIONS = "versions";
     private static final String PERSISTENT_IDENTIFIERS = "PersistentIdentifier";
     private static final String PERSISTENT_IDENTIFIER_CONTENT = "PersistentIdentifierContent";
 
@@ -206,6 +209,7 @@ public class AccessInternalResourceImpl extends ApplicationStatusResource implem
     private static final String CODE_VITAM = "code_vitam";
     private static final String ACCESS_RESOURCE_INITIALIZED = "AccessResource initialized";
     private static final String START_SELECT_UNITS_DEBUG_MSG = "DEBUG: start selectUnits {}";
+    private static final String START_SELECT_OBJECTS_DEBUG_MSG = "DEBUG: start selectObjects {}";
 
     private final AccessInternalModule accessModule;
 
@@ -320,39 +324,74 @@ public class AccessInternalResourceImpl extends ApplicationStatusResource implem
         JsonNode selectQuery) {
         LOGGER.debug(EXECUTION_OF_DSL_VITAM_FROM_ACCESS_ONGOING);
         Status status;
-        JsonNode result = null;
+        JsonNode result;
         LOGGER.debug(START_SELECT_UNITS_DEBUG_MSG, selectQuery);
         try {
-            // Create a DSL query to retrieve the unit by ARK identifier
-            SanityChecker.checkParameter(persistentIdentifier);
-            SelectParserMultiple query = new SelectParserMultiple();
-            query.parse(selectQuery);
-            SelectMultiQuery selectMultiQuery = query.getRequest();
-            selectMultiQuery.addQueries(
-                QueryHelper.eq(PERSISTENT_IDENTIFIERS + "." + PERSISTENT_IDENTIFIER_CONTENT, persistentIdentifier));
-
-            JsonNode dslQuery = selectMultiQuery.getFinalSelect();
-
-            SanityChecker.checkJsonAll(dslQuery);
-            checkEmptyQuery(dslQuery);
             result =
                 accessModule
-                    .selectUnit(applyAccessContractRestrictionForUnitForSelect(dslQuery,
-                        getVitamSession().getContract()));
+                    .selectUnit(PersistentIdentifierMultiQueryFactory.createSelectMultiQuery(UNIT, persistentIdentifier, selectQuery).getFinalSelect());
+
             LOGGER.debug(DEBUG, result);
             LOGGER.debug(END_OF_EXECUTION_OF_DSL_VITAM_FROM_ACCESS);
             if (RequestResponse.isRequestResponseEmpty(result)) {
-                JsonNode jsonNode = accessModule.selectPurgedPersistentIdentifier(persistentIdentifier);
+                JsonNode jsonNode = accessModule.selectPurgedPersistentIdentifier(persistentIdentifier,
+                    UNIT);
                 ((ObjectNode) result).set(RequestResponseOK.TAG_HISTORY, jsonNode);
                 ((ObjectNode) result).remove(RequestResponseOK.TAG_CONTEXT);
             }
-        } catch (final InvalidParseOperationException | InvalidCreateOperationException e) {
+        } catch (final InvalidParseOperationException e) {
             LOGGER.error(BAD_REQUEST_EXCEPTION, e);
             status = Status.BAD_REQUEST;
             return Response.status(status).entity(getErrorEntity(status, e.getMessage())).build();
-        } catch (BadRequestException e) {
-            LOGGER.error(EMPTY_QUERY_IS_IMPOSSIBLE, e);
-            return buildErrorResponse(VitamCode.GLOBAL_EMPTY_QUERY, null);
+        } catch (final Exception ve) {
+            LOGGER.error(ve);
+            status = Status.INTERNAL_SERVER_ERROR;
+            return Response.status(status)
+                .entity(new VitamError(status.name()).setHttpCode(status.getStatusCode())
+                    .setContext(UNITS)
+                    .setState(CODE_VITAM)
+                    .setMessage(ve.getMessage())
+                    .setDescription(status.getReasonPhrase()))
+                .build();
+        }
+        return Response.status(Status.OK).entity(result).build();
+    }
+
+    /**
+     * get Archive Unit list by query based on identifier
+     *
+     * @param persistentIdentifier persistent Identifier
+     * @param selectQuery as JsonNode
+     * @return an archive unit result list
+     */
+    @Override
+    @GET
+    @Path("/objects/persistentIdentifier/{persistentIdentifier:.+}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getObjectsByObjectPersistentIdentifier(@PathParam("persistentIdentifier") String persistentIdentifier,
+        JsonNode selectQuery) {
+        LOGGER.debug(EXECUTION_OF_DSL_VITAM_FROM_ACCESS_ONGOING);
+        Status status;
+        JsonNode result;
+        LOGGER.debug(START_SELECT_OBJECTS_DEBUG_MSG, selectQuery);
+        try {
+            result =
+                accessModule
+                    .selectObjects(PersistentIdentifierMultiQueryFactory.createSelectMultiQuery(OBJECT, persistentIdentifier, selectQuery).getFinalSelect());
+
+            LOGGER.debug(DEBUG, result);
+            LOGGER.debug(END_OF_EXECUTION_OF_DSL_VITAM_FROM_ACCESS);
+            if (RequestResponse.isRequestResponseEmpty(result)) {
+                JsonNode jsonNode = accessModule.selectPurgedPersistentIdentifier(persistentIdentifier,
+                    OBJECT);
+                ((ObjectNode) result).set(RequestResponseOK.TAG_HISTORY, jsonNode);
+                ((ObjectNode) result).remove(RequestResponseOK.TAG_CONTEXT);
+            }
+        } catch (final InvalidParseOperationException e) {
+            LOGGER.error(BAD_REQUEST_EXCEPTION, e);
+            status = Status.BAD_REQUEST;
+            return Response.status(status).entity(getErrorEntity(status, e.getMessage())).build();
         } catch (final Exception ve) {
             LOGGER.error(ve);
             status = Status.INTERNAL_SERVER_ERROR;
@@ -376,7 +415,7 @@ public class AccessInternalResourceImpl extends ApplicationStatusResource implem
             return accessModule.getObject(persistentIdentifier);
         } catch (MetaDataNotFoundException e) {
             final Optional<PurgedPersistentIdentifier> optionalPurgedPersistentIdentifier =
-                new ObjectPurgedPersistentIdentifierSearchService().search(persistentIdentifier)
+                new PurgedPersistentIdentifierSearchService().search(persistentIdentifier, OBJECT)
                     .stream()
                     .findFirst();
             final Response.ResponseBuilder responseBuilder = Response.status(NOT_FOUND);

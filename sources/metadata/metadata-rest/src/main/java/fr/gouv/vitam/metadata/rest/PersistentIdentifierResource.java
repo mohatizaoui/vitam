@@ -42,12 +42,14 @@ import fr.gouv.vitam.metadata.core.reconstruction.repository.ReconstructionRespo
 import fr.gouv.vitam.metadata.core.reconstruction.service.PersistentIdentifierReconstructionService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import javax.annotation.Nullable;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
@@ -116,19 +118,21 @@ public class PersistentIdentifierResource {
      * API to get purged persistent identifiers<br/>
      *
      * @param persistentIdentifier persistent identifier
+     * @param type Purged collection type
      * @return the response
      */
     @Path("/purgedPersistentIdentifier/{persistentIdentifier:.+}")
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getPersistentIdentifiers(@PathParam("persistentIdentifier") String persistentIdentifier) {
+    public Response getPersistentIdentifiers(@PathParam("persistentIdentifier") String persistentIdentifier,
+        @QueryParam("type") @Nullable String type) {
         ParametersChecker
             .checkParameter(PERSISTENT_IDENTIFIER_RECONSTRUCTION_JSON_MANDATORY_PARAMETERS_MSG, persistentIdentifier);
         final Integer tenant = ParameterHelper.getTenantParameter();
         try {
             final List<PurgedPersistentIdentifier> purgedPersistentIdentifiers =
-                persistentIdentifierRepository.findByPersistentIdentifierAndTenant(persistentIdentifier, tenant);
+                persistentIdentifierRepository.findByPersistentIdentifierAndTenant(persistentIdentifier, tenant, type);
 
             return Response.ok().entity(purgedPersistentIdentifiers).build();
         } catch (DatabaseException e) {

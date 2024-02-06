@@ -58,6 +58,8 @@ public interface AccessInternalResource {
 
     Response getUnitsByUnitPersistentIdentifier(String persistentIdentifier, JsonNode selectQuery);
 
+    Response getObjectsByObjectPersistentIdentifier(String persistentIdentifier, JsonNode selectQuery);
+
     Response downloadObject(String persistentId) throws Exception;
 
     Response streamUnits(JsonNode queryDsl);

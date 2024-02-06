@@ -78,6 +78,21 @@ public interface AccessInternalClient extends MockOrRestClient {
         AccessInternalClientNotFoundException, AccessUnauthorizedException, BadRequestException;
 
     /**
+     * Select Objects by persistent identifier
+     *
+     * @param selectQuery the query used to select objects
+     * @return a response containing a json node object including DSL queries and results
+     * @throws InvalidParseOperationException if the query is not well formatted
+     * @throws AccessInternalClientServerException if the server encountered an exception
+     * @throws AccessInternalClientNotFoundException if the requested object does not exist
+     * @throws AccessUnauthorizedException
+     * @throws BadRequestException if empty query is found
+     */
+    RequestResponse<JsonNode> selectObjectsByObjectPersistentIdentifier(String persistentIdentifier, JsonNode selectQuery)
+        throws InvalidParseOperationException, AccessInternalClientServerException,
+        AccessInternalClientNotFoundException, AccessUnauthorizedException, BadRequestException;
+
+    /**
      * Download object by its persistent identifier.
      *
      * @param persistentIdentifier object's persistent identifier

@@ -379,7 +379,7 @@ public interface AccessExternalClient extends BasicClient {
      * @return
      * @throws VitamClientException
      */
-    Response getObjectByObjectPersistentIdentifier(VitamContext vitamContext, JsonNode selectQuery,
+    RequestResponse<JsonNode> getObjectByObjectPersistentIdentifier(VitamContext vitamContext, JsonNode selectQuery,
         String persistentIdentifier) throws VitamClientException;
 
     /**

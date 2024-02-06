@@ -307,7 +307,7 @@ public class EndToEndAccessExternalIT extends VitamRuleRunner {
             final RequestResponse<?> reconstructionPayload = client.reconstructPersistentIdentifiers(request);
             assertThat(reconstructionPayload).isNotNull();
 
-            final JsonNode purgedPayload = client.getPurgedPersistentIdentifiers(persistentIdentifier);
+            final JsonNode purgedPayload = client.getPurgedPersistentIdentifiers(persistentIdentifier, null);
             assertThat(purgedPayload).isNotNull();
         }
 
