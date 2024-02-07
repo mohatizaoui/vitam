@@ -1,0 +1,29 @@
+{
+  "threshold": 4,
+  "queries": [
+    {
+      "$query": [ { "$match": { "Title": "UnitA" } } ],
+      "$action": [ { "$set": { "Description": "Description A" } } ]
+    },
+    {
+      "$query": [ { "$match": { "Title": "UnitB" } } ],
+      "$action": [ { "$set": { "Description": "Description B" } } ]
+    },
+    {
+      "$query": [ { "$match": { "Title": "UnitC" } } ],
+      "$action": [ { "$set": { "Description": "Description C" } } ]
+    },
+    {
+      "$query": [ { "$match": { "Title": "UnitD" } } ],
+      "$action": [ { "$set": { "#opi": "aeaqaaaaaafuviy5aan7kamexz37yzyaaaaq" } } ]
+    },
+    {
+      "$query": [ { "$match": { "Title": "Not Found" } } ],
+      "$action": [ { "$set": { "Description": "Some description" } } ]
+    },
+    {
+      "$query": [ { "$match": { "$exists": "Title" } } ],
+      "$action": [ { "$set": { "Description": "No update - too many units" } } ]
+    }
+  ]
+}
