@@ -232,7 +232,11 @@ documentation:
 
           La requête utilise le langage de requête DSL de type **mise à jour unitaire de masse (BULK UPDATE)** de Vitam en entrée.
 
-          **Important :** L'API est synchrone / bloquante, et peut prendre un quelques instants.
+          Le nombre de requêtes unitaires doit rester raisonnable, idéalement pas plus de 1000 par appel.
+          Il est limité à un seuil maximum de 100 000 par défaut.
+          Ce seuil peut être redéfini dans la requête via le paramètre `threshold`.
+
+          **Important :** L'API est synchrone / bloquante, et peut prendre quelques instants.
 
           Permissions requises:
             - transaction:id:units:bulk:update

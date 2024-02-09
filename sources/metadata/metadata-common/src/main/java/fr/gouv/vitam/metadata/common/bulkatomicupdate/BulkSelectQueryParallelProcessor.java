@@ -110,33 +110,36 @@ public class BulkSelectQueryParallelProcessor {
         AtomicBoolean koErrorOccurred = new AtomicBoolean(false);
         ThreadPoolExecutor executor =
             ExecutorUtils.createScalableBatchExecutorService(threadPoolSize, threadPoolQueueSize);
+        try {
 
-        while (queriesBulkIterator.hasNext() && !fatalErrorOccurred.get()) {
+            while (queriesBulkIterator.hasNext() && !fatalErrorOccurred.get()) {
 
-            final List<CountingIterator.EntryWithIndex<JsonNode>> bulkQueriesToProcess = queriesBulkIterator.next();
-            executor.submit(() -> {
+                final List<CountingIterator.EntryWithIndex<JsonNode>> bulkQueriesToProcess = queriesBulkIterator.next();
+                executor.submit(() -> {
 
-                VitamThreadUtils.getVitamSession().setTenantId(tenantId);
-                VitamThreadUtils.getVitamSession().setRequestId(processId);
+                    VitamThreadUtils.getVitamSession().setTenantId(tenantId);
+                    VitamThreadUtils.getVitamSession().setRequestId(processId);
 
-                if (fatalErrorOccurred.get() || koErrorOccurred.get()) {
-                    throw new CancellationException("Job cancelled");
-                }
+                    if (fatalErrorOccurred.get() || koErrorOccurred.get()) {
+                        throw new CancellationException("Job cancelled");
+                    }
 
-                try {
-                    processBulkQueries(bulkQueriesToProcess);
-                } catch (InvalidParseOperationException | IllegalArgumentException | MetaDataDocumentSizeException |
-                         InvalidCreateOperationException e) {
-                    koErrorOccurred.set(true);
-                    LOGGER.error("An error occurred during bulk select query execution", e);
-                } catch (Exception e) {
-                    fatalErrorOccurred.set(true);
-                    LOGGER.error("An unexpected error occurred during bulk select query execution", e);
-                }
-            }, executor);
+                    try {
+                        processBulkQueries(bulkQueriesToProcess);
+                    } catch (InvalidParseOperationException | IllegalArgumentException | MetaDataDocumentSizeException |
+                             InvalidCreateOperationException e) {
+                        koErrorOccurred.set(true);
+                        LOGGER.error("An error occurred during bulk select query execution", e);
+                    } catch (Exception e) {
+                        fatalErrorOccurred.set(true);
+                        LOGGER.error("An unexpected error occurred during bulk select query execution", e);
+                    }
+                }, executor);
+            }
+
+        } finally {
+            awaitExecutorTermination(executor);
         }
-
-        awaitExecutorTermination(executor);
 
         if (koErrorOccurred.get()) {
             throw new InvalidParseOperationException(
