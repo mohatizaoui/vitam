@@ -655,9 +655,12 @@ public class IngestContractImpl implements ContractService<IngestContractModel> 
                 JsonNode setAction = action.get("$set");
                 if (setAction.has("SignaturePolicy")) {
                     ObjectNode mySignaturePolicyNode = (ObjectNode) setAction.get("SignaturePolicy");
-                    mySignaturePolicyNode.put("DeclaredSignature", signaturePolicy.isDeclaredSignature());
-                    mySignaturePolicyNode.put("DeclaredTimestamp", signaturePolicy.isDeclaredTimestamp());
-                    mySignaturePolicyNode.put("DeclaredAdditionalProof", signaturePolicy.isDeclaredAdditionalProof());
+                    Optional.ofNullable(signaturePolicy.isDeclaredSignature())
+                        .ifPresent(value -> mySignaturePolicyNode.put("DeclaredSignature", value));
+                    Optional.ofNullable(signaturePolicy.isDeclaredTimestamp())
+                        .ifPresent(value -> mySignaturePolicyNode.put("DeclaredTimestamp", value));
+                    Optional.ofNullable(signaturePolicy.isDeclaredAdditionalProof())
+                        .ifPresent(value -> mySignaturePolicyNode.put("DeclaredAdditionalProof", value));
                 }
             }
         }
