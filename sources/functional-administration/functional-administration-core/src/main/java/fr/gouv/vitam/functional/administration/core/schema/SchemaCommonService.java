@@ -40,7 +40,6 @@ import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.common.model.MetadataType;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.administration.OntologyModel;
-import fr.gouv.vitam.common.model.administration.schema.SchemaCardinality;
 import fr.gouv.vitam.common.model.administration.schema.SchemaCategory;
 import fr.gouv.vitam.common.model.administration.schema.SchemaInputModel;
 import fr.gouv.vitam.common.model.administration.schema.SchemaModel;
@@ -67,8 +66,7 @@ public class SchemaCommonService {
 
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(SchemaValidationService.class);
     public static final String SCHEMA_COLLECTION = "Schema";
-    public static final String SCHEMA_IMPORT_EVENT = "IMPORT_EXTERNAL_SCHEMA";
-
+    private static final String SCHEMA_REPORT = "SCHEMA_REPORT";
 
     public static JsonNode buildDslQueryForExtractingSchema(Set<Integer> tenantIds, List<String> schemaPaths) throws
         InvalidCreateOperationException {
@@ -78,6 +76,8 @@ public class SchemaCommonService {
         }
         Select select = new Select();
         BooleanQuery andQuery = QueryHelper.and();
+        andQuery.add(QueryHelper.eq("Origin", "EXTERNAL"));
+        andQuery.add(QueryHelper.eq("Collection", "Unit"));
         andQuery.add(QueryHelper.in(VitamFieldsHelper.tenant(), tenantIds.stream()
             .mapToLong(Integer::longValue)
             .toArray()));
@@ -101,9 +101,6 @@ public class SchemaCommonService {
 
     /**
      * Map Schema intput to db entity
-     *
-     * @param externalSchemaInputList
-     * @return
      */
     public static List<Schema> mapSchemaFromInputParameters(List<SchemaInputModel> externalSchemaInputList) {
         List<Schema> schemaModelElementsBuilt = new ArrayList<>();
@@ -125,24 +122,24 @@ public class SchemaCommonService {
         return schemaModelElementsBuilt;
     }
 
-    public static List<SchemaResponse> mapSchemaDbEntityToModel(List<Schema> currentExternalSchemaList,
+    public static List<SchemaResponse> mapSchemaDbEntityToModel(List<SchemaModel> currentExternalSchemaList,
         Map<String, OntologyModel> mapOntologiesByIdentifier) {
         List<SchemaResponse> externalSchemaResponse = new ArrayList<>();
-        for (Schema schemaElt : currentExternalSchemaList) {
+        for (SchemaModel schemaElt : currentExternalSchemaList) {
             //Common fields
             SchemaResponse schemaResponse = new SchemaResponse();
             schemaResponse.setPath(schemaElt.getPath());
             schemaResponse.setShortName(schemaElt.getShortName());
-            schemaResponse.setCardinality(SchemaCardinality.valueOf(schemaElt.getCardinality()));
-            schemaResponse.setTenant((Integer) schemaElt.get("#tenant"));
+            schemaResponse.setCardinality(schemaElt.getCardinality());
+            schemaResponse.setTenant(schemaElt.getTenant());
             schemaResponse.setCollection(schemaElt.getCollection());
             schemaResponse.setDescription(schemaElt.getDescription());
             schemaResponse.setCategory(SchemaCategory.OTHER);
 
             String pathLeaf = SchemaCommonService.extractLeafFromPath(schemaElt.getPath());
             schemaResponse.setFieldName(pathLeaf);
-            schemaResponse.setOrigin(SchemaOrigin.valueOf(schemaElt.getOrigin()));
-            if (schemaElt.getIsObject()) {
+            schemaResponse.setOrigin(schemaElt.getOrigin());
+            if (Boolean.TRUE.equals(schemaElt.getObject())) {
                 schemaResponse.setType(SchemaType.OBJECT);
             } else {
                 OntologyModel ontologyElt = mapOntologiesByIdentifier.get(pathLeaf);
@@ -210,7 +207,7 @@ public class SchemaCommonService {
         SchemaImportReport schemaImportReport = new SchemaImportReport();
         FunctionalOperationModel operation = new FunctionalOperationModel();
 
-        operation.setEvType(SCHEMA_IMPORT_EVENT);
+        operation.setEvType(SCHEMA_REPORT);
         operation.setEvDateTime(LocalDateUtil.getFormattedDateForMongo(LocalDateUtil.now()));
         operation.setEvId(eip.toString());
         return schemaImportReport;

@@ -47,7 +47,6 @@ import fr.gouv.vitam.common.model.administration.schema.SchemaModel;
 import fr.gouv.vitam.common.model.administration.schema.SchemaResponse;
 import fr.gouv.vitam.common.parameter.ParameterHelper;
 import fr.gouv.vitam.common.security.SanityChecker;
-import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.functional.administration.common.exception.ReferentialException;
 import fr.gouv.vitam.functional.administration.common.exception.schema.SchemaImportValidationException;
 import fr.gouv.vitam.functional.administration.common.schema.ErrorReportSchema;
@@ -79,7 +78,7 @@ import java.util.stream.Collectors;
 
 public class SchemaValidationService {
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(SchemaValidationService.class);
-    private static final Pattern PATH_PATTERN = Pattern.compile("^(\\w+(\\.\\w+)*)*$");
+    private static final Pattern PATH_PATTERN = Pattern.compile("^\\w+(\\.\\w+)*$");
     private final MongoDbAccessReferential mongoDbAccessReferential;
     private final LogbookOperationsClientFactory logbookOperationsClientFactory;
 
@@ -101,7 +100,7 @@ public class SchemaValidationService {
     public void validateExternalSchemaInputs(List<SchemaInputModel> externalSchemaInputList,
         List<SchemaResponse> currentUnitSchemaList, List<OntologyModel> ontologiesElements,
         Map<String, List<ErrorReportSchema>> importErrors)
-        throws VitamException {
+        throws VitamException, InvalidCreateOperationException {
 
         validateExternalSchemaInputsConsistency(externalSchemaInputList, importErrors);
 
@@ -113,6 +112,10 @@ public class SchemaValidationService {
         Map<String, OntologyModel> ontologyEltsMapByIdentifier = ontologiesElements.stream().collect(
             Collectors.toMap(OntologyModel::getIdentifier, ontologyElt -> ontologyElt));
 
+        Integer currentTenant = ParameterHelper.getTenantParameter();
+        if (currentTenant.equals(VitamConfiguration.getAdminTenant())) {
+            checkExistingPathsAllTenantSchemaForAdminTenant(externalSchemaInputsMapByPath, importErrors);
+        }
         checkExistingPathsInCurrentSchema(currentUnitSchemaMapByPath, externalSchemaInputsMapByPath, importErrors);
 
         checkFullPathsReturnNotfound(currentUnitSchemaMapByPath, externalSchemaInputsMapByPath, importErrors);
@@ -121,10 +124,49 @@ public class SchemaValidationService {
 
     }
 
+    private void checkExistingPathsAllTenantSchemaForAdminTenant(
+        Map<String, SchemaInputModel> externalSchemaInputsMapByPath,
+        Map<String, List<ErrorReportSchema>> importErrors) throws VitamException, InvalidCreateOperationException {
+        LOGGER.debug("Checking if paths already in schema of all tenants ");
+
+        Set<Integer> tenants = VitamConfiguration.getTenants().stream().collect(Collectors.toSet());
+        RequestResponseOK<SchemaModel> schemasResponse =
+            findExternalSchema(
+                SchemaCommonService.buildDslQueryForExtractingSchema(tenants, Collections.emptyList()));
+        List<SchemaModel> unitSchemaForAllTenants = schemasResponse.getResults();
+
+        Map<String, SchemaModel> currentUnitSchemaForAllTenantsMapByPath = unitSchemaForAllTenants.stream().collect(
+            Collectors.toMap(SchemaModel::getPath, schemaModel -> schemaModel));
+
+        List<String> existingPathsInCurrentSchema =
+            externalSchemaInputsMapByPath.keySet().stream().filter(externalSchemaPath ->
+                currentUnitSchemaForAllTenantsMapByPath.containsKey(externalSchemaPath)).collect(Collectors.toList());
+
+        if (!CollectionUtils.isEmpty(existingPathsInCurrentSchema)) {
+            LOGGER.error("Paths already in current schema for the current or other tenants");
+            existingPathsInCurrentSchema.stream().forEach(
+                schemaPath ->
+                    addError(schemaPath, new ErrorReportSchema(SchemaErrorCode.IMPORT_SCHEMA_PATH_ALREADY_IN_SCHEMA,
+                        externalSchemaInputsMapByPath.get(schemaPath),
+                        "Paths already in current schema for the current or other tenants"), importErrors)
+            );
+
+            String message = String.format("Paths already in current schema for the current or other tenants =  %s  ",
+                existingPathsInCurrentSchema.stream().collect(Collectors.joining(", ")));
+            throw new SchemaImportValidationException(message);
+        }
+    }
+
     private void checkExistingPathsInCurrentSchema(Map<String, SchemaResponse> currentUnitSchemaMapByPath,
         Map<String, SchemaInputModel> externalSchemaInputsMapByPath,
         Map<String, List<ErrorReportSchema>> importErrors) throws VitamException {
-        LOGGER.debug("Checking paths already in internal schema");
+        LOGGER.debug("Checking paths already in current schema");
+
+        Integer currentTenant = ParameterHelper.getTenantParameter();
+        if (currentTenant.equals(VitamConfiguration.getAdminTenant())) {
+            List<Integer> tenants = VitamConfiguration.getTenants();
+
+        }
 
         List<String> existingPathsInCurrentSchema =
             externalSchemaInputsMapByPath.keySet().stream().filter(externalSchemaPath ->
@@ -264,22 +306,6 @@ public class SchemaValidationService {
         }
     }
 
-    private List<SchemaModel> findCurrentExternalSchemaFromPathsForCurrentTenantAndAdminTenant(
-        List<String> externalSchemaPaths)
-        throws InvalidCreateOperationException, ReferentialException, InvalidParseOperationException {
-        if (CollectionUtils.isEmpty(externalSchemaPaths)) {
-            return Collections.emptyList();
-        }
-        Integer tenantId = VitamThreadUtils.getVitamSession().getTenantId();
-        Set<Integer> filteredTenants = new HashSet<>();
-        filteredTenants.add(tenantId);
-        filteredTenants.add(VitamConfiguration.getAdminTenant());
-
-        RequestResponseOK<SchemaModel> schemasResponse =
-            findExternalSchema(
-                SchemaCommonService.buildDslQueryForExtractingSchema(filteredTenants, externalSchemaPaths));
-        return schemasResponse.getResults();
-    }
 
     private void checkExistingParentPath(Map<String, SchemaResponse> currentUnitSchemaMapByPath,
         Map<String, SchemaInputModel> externalInputSchemaMapByPath, String schemaPath,
@@ -364,7 +390,7 @@ public class SchemaValidationService {
         }
     }
 
-    public void logFatalError(GUID importExternalSchemaOpId, String eventType, String objectId, String errorsDetails)
+    public void logError(GUID importExternalSchemaOpId, String eventType, String objectId, String errorsDetails)
         throws VitamException {
         LOGGER.error("Validation errors on the input file {}", errorsDetails);
         final GUID eipId = GUIDFactory.newOperationLogbookGUID(ParameterHelper.getTenantParameter());

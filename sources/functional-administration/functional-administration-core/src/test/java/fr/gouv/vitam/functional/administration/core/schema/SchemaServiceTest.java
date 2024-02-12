@@ -31,6 +31,7 @@ import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
 import fr.gouv.vitam.common.database.server.DbRequestResult;
+import fr.gouv.vitam.common.database.server.mongodb.VitamMongoCursor;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.exception.VitamException;
 import fr.gouv.vitam.common.json.JsonHandler;
@@ -210,9 +211,6 @@ public class SchemaServiceTest {
             JsonHandler.getFromFileAsTypeReference(fileExternalSchema, new TypeReference<>() {
             });
 
-        DbRequestResult dbRequestResult = mock(DbRequestResult.class);
-        final RequestResponseOK response = new RequestResponseOK<>();
-        response.addAllResults(schemaModelList);
 
         final File ontologyFile = PropertiesUtils.getResourceFile("schema/ok-ontologies.json");
 
@@ -226,13 +224,24 @@ public class SchemaServiceTest {
         when(ontologyService.findOntologies(any())).thenReturn(ontologyResponse);
 
 
-        when(dbRequestResult.getCount()).thenReturn(Long.valueOf(schemaModelList.size()));
-        when(dbRequestResult.getTotal()).thenReturn(Long.valueOf(schemaModelList.size()));
 
-        when(dbRequestResult.getRequestResponseOK(any(), any(), any())).thenReturn(response);
+        VitamMongoCursor cursor = mock(VitamMongoCursor.class);
+        when(cursor.hasNext())
+            .thenReturn(true)
+            .thenReturn(true)
+            .thenReturn(true)
+            .thenReturn(false);
+        when(cursor.next())
+            .thenReturn(schemaModelList.get(0))
+            .thenReturn(schemaModelList.get(1))
+            .thenReturn(schemaModelList.get(2));
 
+        DbRequestResult result =
+            new DbRequestResult().setCount(schemaModelList.size()).setTotal(schemaModelList.size()).setOffset(0)
+                .setCursor(cursor);
         when(mongoDbAccessAdminMocked.findDocumentsWithoutRestrictionOnCurrentTenant(any(), any())).thenReturn(
-            dbRequestResult);
+            result);
+
 
 
         List<SchemaResponse> unitSchema = schemaService.findUnitSchema();
