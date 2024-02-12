@@ -28,6 +28,8 @@ package fr.gouv.vitam.collect.internal.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Sets;
+import fr.gouv.vitam.collect.common.dto.BulkAtomicUpdateResult;
+import fr.gouv.vitam.collect.common.dto.BulkAtomicUpdateStatus;
 import fr.gouv.vitam.collect.common.dto.CriteriaProjectDto;
 import fr.gouv.vitam.collect.common.dto.ObjectDto;
 import fr.gouv.vitam.collect.common.dto.ProjectDto;
@@ -36,6 +38,7 @@ import fr.gouv.vitam.collect.common.exception.CollectRequestResponse;
 import fr.gouv.vitam.collect.internal.client.exceptions.CollectInternalClientNotFoundException;
 import fr.gouv.vitam.common.CommonMediaType;
 import fr.gouv.vitam.common.exception.VitamClientException;
+import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.server.application.junit.ResteasyTestApplication;
@@ -193,6 +196,15 @@ public class CollectInternalClientRestTest extends ResteasyTestApplication {
         assertThatThrownBy(() -> client.uploadZipToProject("PR_ID", new NullInputStream(100)))
             .isExactlyInstanceOf(VitamClientException.class)
             .hasMessage("Prb");
+    }
+
+    @Test
+    public void bulkAtomicUpdateTransactionUnits() throws Exception {
+        RequestResponseOK<BulkAtomicUpdateResult> response =
+            client.bulkAtomicUpdateUnits("transactionId", JsonHandler.createObjectNode());
+        Assertions.assertThat(response.getResults()).hasSize(1);
+        Assertions.assertThat(response.getResults().get(0).getStatus()).isEqualTo(BulkAtomicUpdateStatus.OK);
+        Assertions.assertThat(response.getResults().get(0).getUpdatedUnitId()).isEqualTo("unitId");
     }
 
     @Path("/collect-internal/v1")
@@ -386,6 +398,18 @@ public class CollectInternalClientRestTest extends ResteasyTestApplication {
         public Response uploadZipToProject(@PathParam("projectId") String projectId,
             InputStream inputStreamObject) {
             return expectedResponse.post();
+        }
+
+        @POST
+        @Path("/transactions/{transactionId}/units/bulk")
+        @Consumes(MediaType.APPLICATION_JSON)
+        @Produces(MediaType.APPLICATION_JSON)
+        public Response bulkAtomicUpdateUnits(@PathParam("transactionId") String transactionId,
+            JsonNode updateQueriesJson) {
+            return Response.accepted(
+                new RequestResponseOK<BulkAtomicUpdateResult>().addResult(
+                    new BulkAtomicUpdateResult(BulkAtomicUpdateStatus.OK, "unitId", null)
+                ).setHttpCode(202)).build();
         }
     }
 }

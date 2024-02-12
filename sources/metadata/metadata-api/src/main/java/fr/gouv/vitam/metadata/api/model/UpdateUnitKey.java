@@ -24,14 +24,13 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.worker.core.plugin.bulkatomicupdate;
+package fr.gouv.vitam.metadata.api.model;
 
-public class BulkAtomicUpdateModelUtils {
-
-    public static final String QUERIES = "queries";
-    public static final String THRESHOLD = "threshold";
-
-    private BulkAtomicUpdateModelUtils() {
-        // Empty constructor
-    }
+public enum UpdateUnitKey {
+    UNIT_METADATA_UPDATE_CHECK_DT,
+    UNIT_METADATA_UPDATE,
+    CHECK_UNIT_SCHEMA,
+    UNIT_UNKNOWN_OR_FORBIDDEN,
+    UNIT_METADATA_NO_NEW_DATA,
+    UNIT_METADATA_NO_CHANGES
 }

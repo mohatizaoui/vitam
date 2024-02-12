@@ -28,6 +28,7 @@ package fr.gouv.vitam.collect.external.external.rest;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.annotations.VisibleForTesting;
+import fr.gouv.vitam.collect.common.dto.BulkAtomicUpdateResult;
 import fr.gouv.vitam.collect.common.dto.TransactionDto;
 import fr.gouv.vitam.collect.common.enums.TransactionStatus;
 import fr.gouv.vitam.collect.common.exception.CollectRequestResponse;
@@ -49,6 +50,7 @@ import fr.gouv.vitam.common.exception.VitamClientException;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.common.model.RequestResponse;
+import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.parameter.ParameterHelper;
 import fr.gouv.vitam.common.security.SanityChecker;
 import fr.gouv.vitam.common.security.rest.Secured;
@@ -75,6 +77,7 @@ import static fr.gouv.vitam.utils.SecurityProfilePermissions.TRANSACTION_ABORT;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.TRANSACTION_CLOSE;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.TRANSACTION_ID_DELETE;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.TRANSACTION_ID_READ;
+import static fr.gouv.vitam.utils.SecurityProfilePermissions.TRANSACTION_ID_UNITS_BULK_UPDATE;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.TRANSACTION_ID_UNITS_UPDATE;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.TRANSACTION_REOPEN;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.TRANSACTION_SEND;
@@ -327,6 +330,40 @@ public class TransactionExternalResource extends ApplicationStatusResource {
             return CollectRequestResponse.toVitamError(BAD_REQUEST, e.getLocalizedMessage());
         } catch (final VitamClientException e) {
             LOGGER.error("Error when updating units   ", e);
+            return CollectRequestResponse.toVitamError(INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
+        }
+    }
+
+    /**
+     * Bulk atomic update of archive units with json queries of the provided collect transaction.
+     * <br />
+     * Units are update in blocking mode (might take a few moments to proceed before returning).
+     * Please ensure proper request size / timeout is configured.
+     *
+     * @param updateQueriesJson the bulk update queries (null not allowed)
+     * @return HTTP 202 when request is accepted, 400 on BAD REQUEST, 500 on internal server error
+     */
+    @POST
+    @Path("/{transactionId}/units/bulk")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Secured(permission = TRANSACTION_ID_UNITS_BULK_UPDATE, description = "Mise à jour par lot de requêtes unitaires des unités archivistiques d'une transaction")
+    public Response bulkAtomicUpdateUnits(@PathParam("transactionId") String transactionId,
+        @Dsl(DslSchema.BULK_UPDATE) JsonNode updateQueriesJson) {
+        try (CollectInternalClient client = collectInternalClientFactory.getClient()) {
+            SanityChecker.checkParameter(transactionId);
+            ParametersChecker.checkParameter("Required query", updateQueriesJson);
+            SanityChecker.checkJsonAll(updateQueriesJson);
+
+            final RequestResponseOK<BulkAtomicUpdateResult> response
+                = client.bulkAtomicUpdateUnits(transactionId, updateQueriesJson);
+            return Response.accepted(response).build();
+        } catch (InvalidParseOperationException | IllegalArgumentException |
+                 CollectInternalClientInvalidRequestException e) {
+            LOGGER.error("Bulk atomic update failed - Bad request", e);
+            return CollectRequestResponse.toVitamError(BAD_REQUEST, e.getLocalizedMessage());
+        } catch (final Exception e) {
+            LOGGER.error("Bulk atomic update failed - Internal server error", e);
             return CollectRequestResponse.toVitamError(INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
         }
     }

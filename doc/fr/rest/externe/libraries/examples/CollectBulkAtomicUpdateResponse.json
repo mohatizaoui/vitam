@@ -1,0 +1,21 @@
+{
+  "httpCode": 202,
+  "$hits": {
+    "total": 2,
+    "offset": 0,
+    "limit": 0,
+    "size": 2
+  },
+  "$results": [
+    {
+      "status": "KO",
+      "updatedUnitId": "aeaqaaaaaefh4bz6cdxgkamnp5ozy3aaaaaq",
+      "errorDetails": "Invalid unit format : Document schema validation failed"
+    },
+    {
+      "status": "OK",
+      "updatedUnitId": "aeaqaaaaaefh4bz6cdxgkamnp5ozy3iaaaaq"
+    }
+  ],
+  "$facetResults": []
+}

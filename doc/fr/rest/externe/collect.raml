@@ -194,10 +194,10 @@ documentation:
     uriParameters:
       id:
         required: true
-        description: Identifiant du projet
+        description: Identifiant de la transaction
     get:
       description: |
-        Permet de retourner la liste des unités archivistique associés à l'identifiant du projet
+        Permet de retourner la liste des unités archivistique associés à l'identifiant de la transaction
       body:
         application/json:
           type: object
@@ -224,6 +224,23 @@ documentation:
           body:
             application/json:
               type: object
+
+    /bulk:
+      post:
+        description: |
+          Mise à jour unitaire des métadonnées descriptives de plusieurs unités archivistiques de la transaction.
+
+          La requête utilise le langage de requête DSL de type **mise à jour unitaire de masse (BULK UPDATE)** de Vitam en entrée.
+
+          Le nombre de requêtes unitaires doit rester raisonnable, idéalement pas plus de 1000 par appel.
+          Il est limité à un seuil maximum de 100 000 par défaut.
+          Ce seuil peut être redéfini dans la requête via le paramètre `threshold`.
+
+          **Important :** L'API est synchrone / bloquante, et peut prendre quelques instants.
+
+          Permissions requises:
+            - transaction:id:units:bulk:update
+        is: [CollectTraits.CollectBulkAtomicUpdateResponse]
 
   /{id}/unitsWithInheritedRules:
     is: [ StandardTraits.StandardOptionalHeader,

@@ -29,6 +29,8 @@ package fr.gouv.vitam.collect.external.client;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.annotations.Beta;
 import com.google.common.collect.Sets;
+import fr.gouv.vitam.collect.common.dto.BulkAtomicUpdateResult;
+import fr.gouv.vitam.collect.common.dto.BulkAtomicUpdateStatus;
 import fr.gouv.vitam.collect.common.dto.CriteriaProjectDto;
 import fr.gouv.vitam.collect.common.dto.ObjectDto;
 import fr.gouv.vitam.collect.common.dto.ProjectDto;
@@ -175,6 +177,15 @@ public class CollectExternalClientRestTest extends ResteasyTestApplication {
             "PJ_ID", new NullInputStream(100));
         Assertions.assertThat(((RequestResponseOK<String>) response).getFirstResult())
             .isEqualTo("MyVirtualTx");
+    }
+
+    @Test
+    public void bulkAtomicUpdateTransactionUnits() throws Exception {
+        RequestResponseOK<BulkAtomicUpdateResult> response =
+            client.bulkAtomicUpdateUnits(new VitamContext(TENANT_ID), "transactionId", JsonHandler.createObjectNode());
+        Assertions.assertThat(response.getResults()).hasSize(1);
+        Assertions.assertThat(response.getResults().get(0).getStatus()).isEqualTo(BulkAtomicUpdateStatus.OK);
+        Assertions.assertThat(response.getResults().get(0).getUpdatedUnitId()).isEqualTo("unitId");
     }
 
     @Path("/collect-external/v1")
@@ -369,6 +380,18 @@ public class CollectExternalClientRestTest extends ResteasyTestApplication {
         public Response uploadZipToProject(@PathParam("projectId") String projectId,
             InputStream inputStreamObject) {
             return expectedResponse.post();
+        }
+
+        @POST
+        @Path("/transactions/{transactionId}/units/bulk")
+        @Consumes(MediaType.APPLICATION_JSON)
+        @Produces(MediaType.APPLICATION_JSON)
+        public Response bulkAtomicUpdateUnits(@PathParam("transactionId") String transactionId,
+            JsonNode updateQueriesJson) {
+            return Response.accepted(
+                new RequestResponseOK<BulkAtomicUpdateResult>().addResult(
+                    new BulkAtomicUpdateResult(BulkAtomicUpdateStatus.OK, "unitId", null)
+                ).setHttpCode(202)).build();
         }
     }
 }

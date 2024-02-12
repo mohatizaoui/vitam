@@ -27,14 +27,16 @@
 package fr.gouv.vitam.collect.internal.rest;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import fr.gouv.vitam.collect.common.dto.BulkAtomicUpdateResult;
 import fr.gouv.vitam.collect.common.dto.ProjectDto;
 import fr.gouv.vitam.collect.common.dto.TransactionDto;
 import fr.gouv.vitam.collect.common.enums.TransactionStatus;
 import fr.gouv.vitam.collect.common.exception.CollectInternalException;
-import fr.gouv.vitam.collect.common.exception.CollectInternalClientInvalidRequestException;
+import fr.gouv.vitam.collect.common.exception.CollectInternalInvalidRequestException;
 import fr.gouv.vitam.collect.common.exception.CollectRequestResponse;
 import fr.gouv.vitam.collect.internal.core.common.TransactionModel;
 import fr.gouv.vitam.collect.internal.core.helpers.CollectHelper;
+import fr.gouv.vitam.collect.internal.core.service.BulkAtomicUpdateMetadataService;
 import fr.gouv.vitam.collect.internal.core.service.FluxService;
 import fr.gouv.vitam.collect.internal.core.service.MetadataService;
 import fr.gouv.vitam.collect.internal.core.service.ProjectService;
@@ -74,11 +76,13 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
+import static javax.ws.rs.core.Response.Status.ACCEPTED;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
@@ -89,7 +93,8 @@ public class TransactionInternalResource {
     public static final String SIP_GENERATED_MANIFEST_CAN_T_BE_NULL = "SIP generated manifest can't be null";
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(TransactionInternalResource.class);
     private static final String TRANSACTION_NOT_FOUND = "Unable to find transaction Id";
-    private static final String TRANSACTION_NOT_FOUND_OR_INVALID_STATUS = "Unable to find transaction Id or invalid status";
+    private static final String TRANSACTION_NOT_FOUND_OR_INVALID_STATUS =
+        "Unable to find transaction Id or invalid status";
     private static final String STATUS_NOT_ALLOWED = "Invalid status";
     private static final String PROJECT_NOT_FOUND = "Unable to find project Id or invalid status";
 
@@ -104,14 +109,17 @@ public class TransactionInternalResource {
     private final SipService sipService;
     private final FluxService fluxService;
     private final ProjectService projectService;
+    private final BulkAtomicUpdateMetadataService bulkAtomicUpdateMetadataService;
 
     public TransactionInternalResource(TransactionService transactionService, SipService sipService,
-        MetadataService metadataService, FluxService fluxService, ProjectService projectService) {
+        MetadataService metadataService, FluxService fluxService, ProjectService projectService,
+        BulkAtomicUpdateMetadataService bulkAtomicUpdateMetadataService) {
         this.transactionService = transactionService;
         this.sipService = sipService;
         this.metadataService = metadataService;
         this.fluxService = fluxService;
         this.projectService = projectService;
+        this.bulkAtomicUpdateMetadataService = bulkAtomicUpdateMetadataService;
     }
 
     @GET
@@ -317,7 +325,7 @@ public class TransactionInternalResource {
     @POST
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public Response generateSip(@PathParam("transactionId") String transactionId) throws CollectInternalException {
-        TransactionModel transaction = null;
+        TransactionModel transaction;
         InputStream sipInputStream = null;
         try {
             SanityChecker.checkParameter(transactionId);
@@ -434,7 +442,7 @@ public class TransactionInternalResource {
             fluxService.processStream(
                 inputStreamObject, transactionModel.get().getProjectId(), transactionModel.get().getId());
             return Response.ok().build();
-        } catch (CollectInternalClientInvalidRequestException | IllegalArgumentException e) {
+        } catch (CollectInternalInvalidRequestException | IllegalArgumentException e) {
             LOGGER.error("An error occurs when try to upload the ZIP: {}", e);
             return CollectRequestResponse.toVitamError(BAD_REQUEST, e.getLocalizedMessage());
         } catch (CollectInternalException e) {
@@ -498,7 +506,6 @@ public class TransactionInternalResource {
      * @param queryDsl as JsonNode
      * @return an archive unit result list with inherited rules
      */
-
     @GET
     @Path("/{transactionId}/unitsWithInheritedRules")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -524,11 +531,52 @@ public class TransactionInternalResource {
             LOGGER.error(ve);
             status = Response.Status.INTERNAL_SERVER_ERROR;
             return Response.status(status)
-                .entity(new VitamError(status.name()).setHttpCode(status.getStatusCode())
+                .entity(new VitamError<JsonNode>(status.name()).setHttpCode(status.getStatusCode())
                     .setMessage(ve.getMessage())
                     .setDescription(status.getReasonPhrase()))
                 .build();
         }
         return Response.status(Response.Status.OK).entity(result).build();
+    }
+
+    /**
+     * Bulk atomic update of archive units with json queries of the provided collect transaction.
+     * <br />
+     * Units are update in blocking mode (might take a few moments to proceed before returning).
+     * Please ensure proper request size / timeout is configured.
+     *
+     * @param updateQueriesJson the bulk update queries (null not allowed)
+     * @return HTTP 202 when request is accepted, 400 on BAD REQUEST, 500 on internal server error
+     */
+    @POST
+    @Path("/{transactionId}/units/bulk")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response bulkAtomicUpdateUnits(@PathParam("transactionId") String transactionId,
+        JsonNode updateQueriesJson) {
+        try {
+            Optional<TransactionModel> transactionModel = transactionService.findTransaction(transactionId);
+
+            if (transactionModel.isEmpty()) {
+                LOGGER.error(TRANSACTION_NOT_FOUND_OR_INVALID_STATUS);
+                return CollectRequestResponse.toVitamError(BAD_REQUEST, TRANSACTION_NOT_FOUND_OR_INVALID_STATUS);
+            }
+
+            List<BulkAtomicUpdateResult> bulkAtomicUpdateResults =
+                bulkAtomicUpdateMetadataService.bulkAtomicUpdateUnits(transactionModel.get(), updateQueriesJson);
+
+            return new RequestResponseOK<BulkAtomicUpdateResult>()
+                .addAllResults(bulkAtomicUpdateResults)
+                .setHttpCode(ACCEPTED.getStatusCode())
+                .toResponse();
+
+        } catch (IllegalArgumentException | CollectInternalInvalidRequestException e) {
+            LOGGER.error("Bulk atomic update failed - Bad request. Transaction by Id: '" + transactionId + "'", e);
+            return CollectRequestResponse.toVitamError(BAD_REQUEST, e.getLocalizedMessage());
+        } catch (CollectInternalException | RuntimeException e) {
+            LOGGER.error("Bulk atomic update failed - Internal server error. " +
+                "Transaction by Id: '" + transactionId + "'", e);
+            return CollectRequestResponse.toVitamError(INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
+        }
     }
 }

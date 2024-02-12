@@ -24,45 +24,23 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
+package fr.gouv.vitam.metadata.common.bulkatomicupdate;
 
-package fr.gouv.vitam.worker.core.utils;
+public enum BulkUpdateUnitReportKey {
 
-import java.util.Iterator;
+    INVALID_DSL_QUERY("Invalid DSL query: cannot contains internal field(s)"),
+    UNIT_NOT_FOUND("No Unit was found for the $query"),
+    TOO_MANY_UNITS_FOUND("More than one Unit was found for the $query"),
+    ERROR_METADATA_UPDATE("An error occurred while executing the update");
 
-public class CountingIterator<T> implements Iterator<CountingIterator.EntryWithIndex<T>> {
+    private final String message;
 
-    private final Iterator<T> innerIterator;
-    private int entryIndex = 0;
-
-    public CountingIterator(Iterator<T> innerIterator) {
-        this.innerIterator = innerIterator;
+    BulkUpdateUnitReportKey(String message) {
+        this.message = message;
     }
 
-    @Override
-    public boolean hasNext() {
-        return this.innerIterator.hasNext();
+    public String getMessage() {
+        return message;
     }
 
-    @Override
-    public EntryWithIndex<T> next() {
-        return new EntryWithIndex<>(this.innerIterator.next(), entryIndex++);
-    }
-
-    public static class EntryWithIndex<T> {
-        private final T value;
-        private final int index;
-
-        public EntryWithIndex(T value, int index) {
-            this.value = value;
-            this.index = index;
-        }
-
-        public T getValue() {
-            return value;
-        }
-
-        public int getIndex() {
-            return index;
-        }
-    }
 }

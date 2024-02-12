@@ -27,13 +27,16 @@
 package fr.gouv.vitam.worker.core.plugin.bulkatomicupdate;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Iterators;
 import fr.gouv.vitam.batch.report.client.BatchReportClient;
 import fr.gouv.vitam.batch.report.client.BatchReportClientFactory;
+import fr.gouv.vitam.batch.report.model.ReportBody;
+import fr.gouv.vitam.batch.report.model.ReportType;
+import fr.gouv.vitam.batch.report.model.entry.BulkUpdateUnitMetadataReportEntry;
 import fr.gouv.vitam.common.InternalActionKeysRetriever;
 import fr.gouv.vitam.common.VitamConfiguration;
-import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
+import fr.gouv.vitam.common.database.utils.AccessContractRestrictionHelper;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.exception.VitamClientInternalException;
 import fr.gouv.vitam.common.exception.VitamRuntimeException;
@@ -43,34 +46,34 @@ import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.administration.AccessContractModel;
-import fr.gouv.vitam.common.thread.ExecutorUtils;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
-import fr.gouv.vitam.metadata.api.exception.MetaDataClientServerException;
-import fr.gouv.vitam.metadata.api.exception.MetaDataDocumentSizeException;
-import fr.gouv.vitam.metadata.api.exception.MetaDataExecutionException;
+import fr.gouv.vitam.common.utils.BufferedConsumer;
+import fr.gouv.vitam.metadata.api.utils.BulkAtomicUpdateModelUtils;
 import fr.gouv.vitam.metadata.client.MetaDataClient;
 import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
+import fr.gouv.vitam.metadata.common.bulkatomicupdate.BulkSelectQueryParallelProcessor;
+import fr.gouv.vitam.metadata.common.bulkatomicupdate.BulkSelectQueryResultFailure;
+import fr.gouv.vitam.metadata.common.bulkatomicupdate.BulkSelectQueryResultOK;
+import fr.gouv.vitam.metadata.common.bulkatomicupdate.QueryRestrictionConverter;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.worker.common.HandlerIO;
+import fr.gouv.vitam.worker.core.distribution.JsonLineModel;
 import fr.gouv.vitam.worker.core.distribution.JsonLineWriter;
 import fr.gouv.vitam.worker.core.exception.ProcessingStatusException;
 import fr.gouv.vitam.worker.core.handler.ActionHandler;
-import fr.gouv.vitam.worker.core.utils.CountingIterator;
-import fr.gouv.vitam.worker.core.utils.CountingIterator.EntryWithIndex;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 /**
- * Prepare execute execute each query in query.json.
+ * Prepares the execution of atomic update queries.
  * Queries are executed in bulks, each bulk is run concurrently is a thread pool.
  * Queries are updated with access contract restrictions.
  * Query projection is set to "_id" field only.
@@ -87,6 +90,8 @@ public class PrepareBulkAtomicUpdate extends ActionHandler {
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(PrepareBulkAtomicUpdate.class);
     public static final String PREPARE_BULK_ATOMIC_UPDATE_UNIT_LIST_PLUGIN_NAME =
         "PREPARE_BULK_ATOMIC_UPDATE_UNIT_LIST";
+    private static final String ORIGIN_QUERY_KEY = "originQuery";
+    private static final String QUERY_INDEX_KEY = "queryIndex";
 
     // INPUTS
     private static final String QUERY_NAME_IN = "query.json";
@@ -117,7 +122,7 @@ public class PrepareBulkAtomicUpdate extends ActionHandler {
      *
      * @param metaDataClientFactory metadata client factory
      * @param batchReportClientFactory batch report client factory
-     * @param internalActionKeysRetriever
+     * @param internalActionKeysRetriever DSL query field name validator
      * @param batchSize batch size for processing
      * @param threadPoolSize max threads that can be run in concurrently is thread pool
      * @param threadPoolQueueSize number of jobs that can be queued before blocking (limits workload memory usage)
@@ -153,7 +158,7 @@ public class PrepareBulkAtomicUpdate extends ActionHandler {
                 MetaDataClient metadataClient = metaDataClientFactory.getClient();
                 BatchReportClient batchReportClient = batchReportClientFactory.getClient()) {
 
-                itemStatus = processQueries(param.getProcessId(), metadataClient, batchReportClient,
+                itemStatus = processQueries(metadataClient, batchReportClient,
                     accessContractModel, queryIterator, jsonLineWriter);
             }
 
@@ -163,7 +168,7 @@ public class PrepareBulkAtomicUpdate extends ActionHandler {
             return new ItemStatus(PREPARE_BULK_ATOMIC_UPDATE_UNIT_LIST_PLUGIN_NAME)
                 .setItemsStatus(PREPARE_BULK_ATOMIC_UPDATE_UNIT_LIST_PLUGIN_NAME, itemStatus);
 
-        } catch (IOException | VitamRuntimeException | IllegalStateException | ProcessingException e) {
+        } catch (IOException | RuntimeException | ProcessingException e) {
             LOGGER.error("Bulk atomic update preparation failed", e);
             return buildFatalItemStatus(StatusCode.FATAL);
         } catch (ProcessingStatusException e) {
@@ -192,71 +197,25 @@ public class PrepareBulkAtomicUpdate extends ActionHandler {
     private Iterator<JsonNode> loadQueries(HandlerIO handler) throws ProcessingStatusException {
         try {
             JsonNode queryNodes = handler.getJsonFromWorkspace(QUERY_NAME_IN);
-            return queryNodes.get(BulkAtomicUpdateModelUtils.QUERIES).iterator();
+            return BulkAtomicUpdateModelUtils.getQueries(queryNodes).iterator();
         } catch (ProcessingException ex) {
             throw new ProcessingStatusException(StatusCode.FATAL, "Could not load queries", ex);
         }
     }
 
-    private ItemStatus processQueries(String processId,
-        MetaDataClient metadataClient,
+    private ItemStatus processQueries(MetaDataClient metadataClient,
         BatchReportClient batchReportClient, AccessContractModel accessContractModel, Iterator<JsonNode> queryIterator,
         JsonLineWriter jsonLineWriter) throws ProcessingStatusException {
 
-        final int tenantId = VitamThreadUtils.getVitamSession().getTenantId();
+        try (BufferedConsumer<BulkSelectQueryResultOK> successReporter = createSuccessReporter(jsonLineWriter);
+            BufferedConsumer<BulkSelectQueryResultFailure> failureReporter = createFailureReporter(batchReportClient)) {
 
-        // Associate every query entry with its index position
-        Iterator<EntryWithIndex<JsonNode>> queryWithIndexIterator
-            = new CountingIterator<>(queryIterator);
+            BulkSelectQueryParallelProcessor bulkSelectQueryParallelProcessor =
+                new BulkSelectQueryParallelProcessor(
+                    metadataClient, internalActionKeysRetriever, threadPoolSize, threadPoolQueueSize, batchSize,
+                    successReporter, failureReporter, createAccessContractRestrictionConverter(accessContractModel));
 
-        // Group entries for bulk processing
-        Iterator<List<EntryWithIndex<JsonNode>>> queriesBulkIterator =
-            Iterators.partition(queryWithIndexIterator, batchSize);
-
-        try (BulkSelectQueryParallelProcessor bulkSelectQueryParallelProcessor = new BulkSelectQueryParallelProcessor(
-            PREPARE_BULK_ATOMIC_UPDATE_UNIT_LIST_PLUGIN_NAME, processId, tenantId,
-            metadataClient, batchReportClient, internalActionKeysRetriever, accessContractModel, jsonLineWriter)) {
-
-            // Process in thread pool. Any exception aborts execution
-            AtomicBoolean fatalErrorOccurred = new AtomicBoolean(false);
-            AtomicBoolean koErrorOccurred = new AtomicBoolean(false);
-            ThreadPoolExecutor executor =
-                ExecutorUtils.createScalableBatchExecutorService(threadPoolSize, threadPoolQueueSize);
-
-            while (queriesBulkIterator.hasNext() && !fatalErrorOccurred.get()) {
-
-                final List<EntryWithIndex<JsonNode>> bulkQueriesToProcess = queriesBulkIterator.next();
-                executor.submit(() -> {
-
-                    VitamThreadUtils.getVitamSession().setTenantId(tenantId);
-
-                    if (fatalErrorOccurred.get() || koErrorOccurred.get()) {
-                        throw new CancellationException("Job cancelled");
-                    }
-
-                    try {
-                        bulkSelectQueryParallelProcessor.processBulkQueries(bulkQueriesToProcess);
-                    } catch (InvalidParseOperationException | IllegalArgumentException | MetaDataDocumentSizeException | InvalidCreateOperationException e) {
-                        koErrorOccurred.set(true);
-                        LOGGER.error("An error occurred during bulk select query execution", e);
-                    } catch (MetaDataExecutionException | MetaDataClientServerException | VitamClientInternalException | IOException | RuntimeException e) {
-                        fatalErrorOccurred.set(true);
-                        LOGGER.error("An unexpected error occurred during bulk select query execution", e);
-                    }
-                }, executor);
-            }
-
-            awaitExecutorTermination(executor);
-
-            if (koErrorOccurred.get()) {
-                throw new ProcessingStatusException(StatusCode.KO,
-                    "One or more KO errors occurred during bulk select query execution");
-            }
-
-            if (fatalErrorOccurred.get()) {
-                throw new ProcessingStatusException(StatusCode.FATAL,
-                    "One or more FATAL errors occurred during bulk select query execution");
-            }
+            bulkSelectQueryParallelProcessor.processQueries(queryIterator);
 
             final ItemStatus itemStatus = new ItemStatus(PREPARE_BULK_ATOMIC_UPDATE_UNIT_LIST_PLUGIN_NAME);
             if (bulkSelectQueryParallelProcessor.getNbOKs() > 0) {
@@ -266,21 +225,68 @@ public class PrepareBulkAtomicUpdate extends ActionHandler {
                 itemStatus.increment(StatusCode.WARNING, bulkSelectQueryParallelProcessor.getNbWarnings());
             }
             return itemStatus;
-
-        } catch (VitamClientInternalException | IOException e) {
-            throw new ProcessingStatusException(StatusCode.FATAL,
-                "An error occurred during bulk select query execution", e);
+        } catch (InvalidParseOperationException e) {
+            throw new ProcessingStatusException(StatusCode.KO, "Query processing failed with KO", e);
         }
     }
 
-    private void awaitExecutorTermination(ThreadPoolExecutor executor) throws ProcessingStatusException {
-        try {
-            executor.shutdown();
-            executor.awaitTermination(Long.MAX_VALUE, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new ProcessingStatusException(StatusCode.FATAL,
-                "Awaiting bulk atomic update jobs interrupted", e);
-        }
+    private static BufferedConsumer<BulkSelectQueryResultOK> createSuccessReporter(JsonLineWriter jsonLineWriter) {
+        return new BufferedConsumer<>(VitamConfiguration.getBatchSize(), (List<BulkSelectQueryResultOK> entries) -> {
+
+            List<JsonLineModel> lines = entries.stream()
+                .map(PrepareBulkAtomicUpdate::createJsonLineEntry)
+                .collect(Collectors.toList());
+
+            try {
+                jsonLineWriter.addEntries(lines);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        });
+    }
+
+    private static JsonLineModel createJsonLineEntry(BulkSelectQueryResultOK bulkSelectQueryResultOK) {
+        ObjectNode params = JsonHandler.createObjectNode();
+        params.set(ORIGIN_QUERY_KEY, bulkSelectQueryResultOK.getQuery());
+        params.put(QUERY_INDEX_KEY, bulkSelectQueryResultOK.getQueryIndex());
+        return new JsonLineModel(bulkSelectQueryResultOK.getUnitId(), null, params);
+    }
+
+    private static BufferedConsumer<BulkSelectQueryResultFailure> createFailureReporter(
+        BatchReportClient batchReportClient) {
+        int tenantId = VitamThreadUtils.getVitamSession().getTenantId();
+        String processId = VitamThreadUtils.getVitamSession().getRequestId();
+
+        return new BufferedConsumer<>(VitamConfiguration.getBatchSize(),
+            (List<BulkSelectQueryResultFailure> entries) -> {
+
+                List<BulkUpdateUnitMetadataReportEntry> bufferedReportEntries = entries.stream()
+                    .map(entry -> new BulkUpdateUnitMetadataReportEntry(
+                        tenantId, processId,
+                        Integer.toString(entry.getQueryIndex()),
+                        JsonHandler.unprettyPrint(entry.getQuery()),
+                        null,
+                        entry.getBulkUpdateUnitReportKey().name(),
+                        StatusCode.WARNING,
+                        String.format("%s.%s", PREPARE_BULK_ATOMIC_UPDATE_UNIT_LIST_PLUGIN_NAME, StatusCode.WARNING),
+                        entry.getMessage())
+                    ).collect(Collectors.toList());
+
+                try {
+                    ReportBody<BulkUpdateUnitMetadataReportEntry> reportBody = new ReportBody<>();
+                    reportBody.setProcessId(processId);
+                    reportBody.setReportType(ReportType.BULK_UPDATE_UNIT);
+                    reportBody.setEntries(new ArrayList<>(bufferedReportEntries));
+                    batchReportClient.appendReportEntries(reportBody);
+                } catch (VitamClientInternalException e) {
+                    throw new VitamRuntimeException(e);
+                }
+            });
+    }
+
+    private static QueryRestrictionConverter createAccessContractRestrictionConverter(
+        AccessContractModel accessContractModel) {
+        return originalQuery -> AccessContractRestrictionHelper
+            .applyAccessContractRestrictionForUnitForSelect(originalQuery, accessContractModel);
     }
 }

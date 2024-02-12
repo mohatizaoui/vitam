@@ -53,3 +53,32 @@ traits:
       200:
         description: get selected project
         type: CollectTypes.ProjectResponse
+
+  CollectBulkAtomicUpdateResponse:
+    description: Response model for Bulk Atomic Update for collect metadata units
+    is: [ StandardTraits.StandardOptionalHeader, StandardTraits.AccessContractHeader, StandardTraits.StandardHeader202, StandardTraits.StandardHeader400,
+      StandardTraits.StandardHeader401, StandardTraits.StandardHeader403, StandardTraits.StandardHeader500 ]
+    body:
+      application/json:
+        description: Requête permettant de mettre à jour unitairement les métadonnées descriptives de plusieurs unités d'archives d'une transaction.
+        type: CollectTypes.BulkAtomicUpdateRequest
+        examples:
+          BulkAtomicUpdate: !include examples/CollectBulkAtomicUpdateRequest.json
+    responses:
+      202:
+        description: La requête a été traitée par le serveur.
+        body:
+          application/json:
+            description: Le statut OK/KO de chaque requête de mise à jour.
+            examples:
+              BulkAtomicUpdate: !include examples/CollectBulkAtomicUpdateResponse.json
+      400:
+        description: La validation de la requête a échoué.
+        body:
+          application/json:
+            description: Informations sur l'échec de l'opération.
+      500:
+        description: Erreur technique lors du traitement de la requête.
+        body:
+          application/json:
+            description: Informations sur l'échec de l'opération.

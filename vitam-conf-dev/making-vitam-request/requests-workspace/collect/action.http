@@ -143,6 +143,34 @@ X-Tenant-Id: {{tenant}}
 < /path_tometadata/metadata.csv
 
 
+### Bulk atomic update of unit descriptive metadata of a transaction
+POST {{url-collect}}/collect-external/v1/transactions/{{transaction-id}}/units/bulk
+Accept: application/json
+Content-Type: application/json
+X-Tenant-Id: {{tenant}}
+
+{
+  "threshold": 100,
+  "queries": [
+    {
+      "$query": [
+        { "$eq": { "ArchivalAgencyArchiveUnitIdentifier": "Value1" } }
+      ],
+      "$action": [
+        { "$set": { "Title": "Nouveau titre" } }
+      ]
+    },
+    {
+      "$query": [
+        { "$eq": { "#id": "some_unit_guid" } }
+      ],
+      "$action": [
+        { "$unset": [ "EndDate" ] },
+        { "$set": { "Description": "Description mise à jour" } }
+      ]
+    }
+  ]
+}
 
 ### Récupérer une transaction
 GET  {{url-collect}}/collect-external/v1/transactions/{{transaction-id}}

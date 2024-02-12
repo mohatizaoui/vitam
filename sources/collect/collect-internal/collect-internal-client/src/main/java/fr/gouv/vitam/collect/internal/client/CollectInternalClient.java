@@ -27,6 +27,7 @@
 package fr.gouv.vitam.collect.internal.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import fr.gouv.vitam.collect.common.dto.BulkAtomicUpdateResult;
 import fr.gouv.vitam.collect.common.dto.CriteriaProjectDto;
 import fr.gouv.vitam.collect.common.dto.ProjectDto;
 import fr.gouv.vitam.collect.common.dto.TransactionDto;
@@ -364,5 +365,8 @@ public interface CollectInternalClient extends MockOrRestClient {
         throws VitamClientException;
 
     RequestResponse<JsonNode> getTransactionsToAutomaticallyIngest() throws VitamClientException;
+
+    RequestResponseOK<BulkAtomicUpdateResult> bulkAtomicUpdateUnits(String transactionId, JsonNode updateQueriesJson)
+        throws VitamClientException;
 }
 

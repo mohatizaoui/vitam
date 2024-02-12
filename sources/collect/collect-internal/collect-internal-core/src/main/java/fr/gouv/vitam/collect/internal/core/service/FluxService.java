@@ -32,8 +32,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.google.common.collect.Iterators;
 import fr.gouv.culture.archivesdefrance.seda.v2.LevelType;
-import fr.gouv.vitam.collect.common.exception.CollectInternalClientInvalidRequestException;
 import fr.gouv.vitam.collect.common.exception.CollectInternalException;
+import fr.gouv.vitam.collect.common.exception.CollectInternalInvalidRequestException;
 import fr.gouv.vitam.collect.common.exception.CsvParseInternalException;
 import fr.gouv.vitam.collect.internal.core.common.ProjectModel;
 import fr.gouv.vitam.collect.internal.core.helpers.CsvHelper;
@@ -202,9 +202,9 @@ public class FluxService {
         }
     }
 
-    private void checkNonEmptyBinary(ArchiveEntry entry) throws CollectInternalClientInvalidRequestException {
+    private void checkNonEmptyBinary(ArchiveEntry entry) throws CollectInternalInvalidRequestException {
         if (!entry.isDirectory() && entry.getSize() == 0L) {
-            throw new CollectInternalClientInvalidRequestException(
+            throw new CollectInternalInvalidRequestException(
                 "Cannot upload empty file '" + entry.getName() + "'");
         }
     }

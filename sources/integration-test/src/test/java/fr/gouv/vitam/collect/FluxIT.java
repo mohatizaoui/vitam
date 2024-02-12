@@ -29,6 +29,8 @@ package fr.gouv.vitam.collect;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Sets;
+import fr.gouv.vitam.collect.common.dto.BulkAtomicUpdateResult;
+import fr.gouv.vitam.collect.common.dto.BulkAtomicUpdateStatus;
 import fr.gouv.vitam.collect.common.dto.MetadataUnitUp;
 import fr.gouv.vitam.collect.common.dto.ProjectDto;
 import fr.gouv.vitam.collect.common.dto.TransactionDto;
@@ -46,6 +48,7 @@ import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.VitamRuleRunner;
 import fr.gouv.vitam.common.VitamServerRunner;
 import fr.gouv.vitam.common.client.VitamContext;
+import fr.gouv.vitam.common.database.builder.query.QueryHelper;
 import fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper;
 import fr.gouv.vitam.common.database.builder.request.multiple.SelectMultiQuery;
 import fr.gouv.vitam.common.elasticsearch.ElasticsearchRule;
@@ -67,6 +70,7 @@ import fr.gouv.vitam.workspace.rest.WorkspaceMain;
 import net.javacrumbs.jsonunit.JsonAssert;
 import net.javacrumbs.jsonunit.core.Option;
 import org.assertj.core.api.Assertions;
+import org.assertj.core.groups.Tuple;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -82,6 +86,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static fr.gouv.vitam.collect.CollectTestHelper.closeTransaction;
 import static fr.gouv.vitam.collect.CollectTestHelper.createProject;
@@ -613,5 +619,116 @@ public class FluxIT extends VitamRuleRunner {
 
         assertThat(vitamClientException.getLocalizedMessage())
             .contains("Unable to find transaction Id or invalid status");
+    }
+
+    @Test
+    public void testBulkAtomicUpdateTransactionUnits() throws Exception {
+
+        // Given
+        try (CollectExternalClient client = CollectExternalClientFactory.getInstance().getClient()) {
+            ProjectDto projectDto = initProjectData();
+
+            final RequestResponse<JsonNode> projectResponse = client.initProject(vitamContext, projectDto);
+            Assertions.assertThat(projectResponse.getStatus()).isEqualTo(200);
+
+            ProjectDto projectDtoResult =
+                JsonHandler.getFromJsonNode(((RequestResponseOK<JsonNode>) projectResponse).getFirstResult(),
+                    ProjectDto.class);
+
+            TransactionDto transactiondto = initTransaction();
+
+            RequestResponse<JsonNode> transactionResponse =
+                client.initTransaction(vitamContext, transactiondto, projectDtoResult.getId());
+            Assertions.assertThat(transactionResponse.getStatus()).isEqualTo(200);
+
+            RequestResponseOK<JsonNode> requestResponseOK = (RequestResponseOK<JsonNode>) transactionResponse;
+            TransactionDto transactionDtoResult =
+                JsonHandler.getFromJsonNode(requestResponseOK.getFirstResult(), TransactionDto.class);
+
+            try (InputStream inputStream = PropertiesUtils.getResourceAsStream("collect/SimpleTreeZip.zip")) {
+                RequestResponse<JsonNode> response =
+                    client.uploadZipToTransaction(vitamContext, transactionDtoResult.getId(), inputStream);
+                assertThat(response.getStatus()).isEqualTo(200);
+            }
+
+            // When
+            JsonNode updateQueriesJson = JsonHandler.getFromInputStream(
+                PropertiesUtils.getResourceAsStream("collect/BulkAtomicUpdateTransactionUnits.json"));
+
+            RequestResponseOK<BulkAtomicUpdateResult> unitsByTransaction =
+                client.bulkAtomicUpdateUnits(vitamContext, transactionDtoResult.getId(), updateQueriesJson);
+
+            // Then
+            assertThat(unitsByTransaction.getResults()).hasSize(6);
+
+            SelectMultiQuery selectMultiQuery = new SelectMultiQuery();
+            selectMultiQuery.addQueries(QueryHelper.exists("#id"));
+            selectMultiQuery.addUsedProjection("#id", "Title", "Description", "#opi");
+            ObjectNode selectAllQuery = selectMultiQuery.getFinalSelect();
+
+            RequestResponseOK<JsonNode> selectedUnits = (RequestResponseOK<JsonNode>)
+                client.getUnitsByTransaction(vitamContext, transactionDtoResult.getId(), selectAllQuery);
+            Map<String, JsonNode> unitsByTitle = selectedUnits.getResults().stream()
+                .collect(Collectors.toMap(unit -> unit.get("Title").asText(), unit -> unit));
+
+            assertThat(unitsByTitle).hasSize(4);
+            assertThat(unitsByTitle.get("UnitA").get("Description").asText()).isEqualTo("Description A");
+            assertThat(unitsByTitle.get("UnitB").get("Description").asText()).isEqualTo("Description B");
+            assertThat(unitsByTitle.get("UnitC").get("Description").asText()).isEqualTo("Description C");
+            assertThat(unitsByTitle.get("UnitD").get("#opi").asText()).isEqualTo(transactionDtoResult.getId());
+
+            assertThat(unitsByTransaction.getResults())
+                .extracting(BulkAtomicUpdateResult::getUpdatedUnitId, BulkAtomicUpdateResult::getStatus)
+                .containsExactly(
+                    Tuple.tuple(unitsByTitle.get("UnitA").get("#id").asText(), BulkAtomicUpdateStatus.OK),
+                    Tuple.tuple(unitsByTitle.get("UnitB").get("#id").asText(), BulkAtomicUpdateStatus.OK),
+                    Tuple.tuple(unitsByTitle.get("UnitC").get("#id").asText(), BulkAtomicUpdateStatus.OK),
+                    Tuple.tuple(null, BulkAtomicUpdateStatus.KO),
+                    Tuple.tuple(null, BulkAtomicUpdateStatus.KO),
+                    Tuple.tuple(null, BulkAtomicUpdateStatus.KO)
+                );
+        }
+    }
+
+    @Test
+    public void testBulkAtomicUpdateTransactionUnitsWithExceededThreshold() throws Exception {
+
+        // Given
+        try (CollectExternalClient client = CollectExternalClientFactory.getInstance().getClient()) {
+            ProjectDto projectDto = initProjectData();
+
+            final RequestResponse<JsonNode> projectResponse = client.initProject(vitamContext, projectDto);
+            Assertions.assertThat(projectResponse.getStatus()).isEqualTo(200);
+
+            ProjectDto projectDtoResult =
+                JsonHandler.getFromJsonNode(((RequestResponseOK<JsonNode>) projectResponse).getFirstResult(),
+                    ProjectDto.class);
+
+            TransactionDto transactiondto = initTransaction();
+
+            RequestResponse<JsonNode> transactionResponse =
+                client.initTransaction(vitamContext, transactiondto, projectDtoResult.getId());
+            Assertions.assertThat(transactionResponse.getStatus()).isEqualTo(200);
+
+            RequestResponseOK<JsonNode> requestResponseOK = (RequestResponseOK<JsonNode>) transactionResponse;
+            TransactionDto transactionDtoResult =
+                JsonHandler.getFromJsonNode(requestResponseOK.getFirstResult(), TransactionDto.class);
+
+            try (InputStream inputStream = PropertiesUtils.getResourceAsStream("collect/SimpleTreeZip.zip")) {
+                RequestResponse<JsonNode> response =
+                    client.uploadZipToTransaction(vitamContext, transactionDtoResult.getId(), inputStream);
+                assertThat(response.getStatus()).isEqualTo(200);
+            }
+
+            // When
+            JsonNode updateQueriesJson = JsonHandler.getFromInputStream(
+                PropertiesUtils.getResourceAsStream("collect/BulkAtomicUpdateTransactionUnitsThreshold.json"));
+
+            assertThatThrownBy(() ->
+                client.bulkAtomicUpdateUnits(vitamContext, transactionDtoResult.getId(), updateQueriesJson))
+                // Then
+                .isInstanceOf(CollectExternalClientInvalidRequestException.class)
+                .hasMessage("Too many update queries. Threshold exceeded.");
+        }
     }
 }

@@ -504,7 +504,8 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
     @Test
     public void generateAndSendSip_ko_digest_i_null() throws Exception {
         when(transactionService.findTransaction("1")).thenReturn(Optional.of(new TransactionModel()));
-        when(transactionService.findOneAndReplace(eq(TransactionStatus.READY), any(TransactionModel.class))).thenReturn(true);
+        when(transactionService.findOneAndReplace(eq(TransactionStatus.READY), any(TransactionModel.class))).thenReturn(
+            true);
         doNothing().when(transactionService).isTransactionContentEmpty(any());
         when(sipService.generateSip(any())).thenReturn(null);
         given()
@@ -717,21 +718,23 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
         transactionModel.setId("txId");
         transactionModel.setProjectId("prId");
         when(transactionService.findTransaction("txId"))
-                .thenReturn(Optional.of(transactionModel));
+            .thenReturn(Optional.of(transactionModel));
         when(transactionService.checkStatus(any(TransactionModel.class), eq(TransactionStatus.OPEN))).thenReturn(true);
-        doThrow(new CollectInternalException("Mapping for File not found, expected one of [Content.DescriptionLevel, Content.Title]"))
-                .when(fluxService).processStream(any(), eq("prId"), eq("txId"));
+        doThrow(new CollectInternalException(
+            "Mapping for File not found, expected one of [Content.DescriptionLevel, Content.Title]"))
+            .when(fluxService).processStream(any(), eq("prId"), eq("txId"));
         try (final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(TRANSACTION_ZIP_PATH)) {
             given()
-                    .contentType("application/zip")
-                    .accept(ContentType.JSON)
-                    .header(GlobalDataRest.X_TENANT_ID, TENANT)
-                    .body(resourceAsStream)
-                    .when()
-                    .post(TRANSACTIONS + "/txId/upload")
-                    .then()
-                    .statusCode(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode())
-                    .body("message", CoreMatchers.equalTo("Mapping for File not found, expected one of [Content.DescriptionLevel, Content.Title]"));
+                .contentType("application/zip")
+                .accept(ContentType.JSON)
+                .header(GlobalDataRest.X_TENANT_ID, TENANT)
+                .body(resourceAsStream)
+                .when()
+                .post(TRANSACTIONS + "/txId/upload")
+                .then()
+                .statusCode(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode())
+                .body("message", CoreMatchers.equalTo(
+                    "Mapping for File not found, expected one of [Content.DescriptionLevel, Content.Title]"));
         }
     }
 
@@ -760,7 +763,7 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
         // Given
         TransactionInternalResource transactionInternalResource =
             new TransactionInternalResource(transactionService, sipService, metadataService, fluxService,
-                projectService);
+                projectService, bulkAtomicUpdateMetadataService);
 
         final ProjectDto projectDto = new ProjectDto();
         String PROJECT_ID = "PROJECT_ID";
