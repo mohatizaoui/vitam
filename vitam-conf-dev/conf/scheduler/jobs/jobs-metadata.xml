@@ -61,7 +61,7 @@
                 <group>Metadata</group>
                 <job-name>PersistentIdentifierReconstructionJob</job-name>
                 <job-group>Metadata</job-group>
-                <cron-expression>0 0 0 1 1 ? 2020</cron-expression>
+                <cron-expression>0 * * * * ?</cron-expression>
             </cron>
         </trigger>
     </schedule>
