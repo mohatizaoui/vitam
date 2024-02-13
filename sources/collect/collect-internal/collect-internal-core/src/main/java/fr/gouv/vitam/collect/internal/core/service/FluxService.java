@@ -38,10 +38,10 @@ import fr.gouv.vitam.collect.common.exception.CsvParseInternalException;
 import fr.gouv.vitam.collect.internal.core.common.ProjectModel;
 import fr.gouv.vitam.collect.internal.core.helpers.CsvHelper;
 import fr.gouv.vitam.collect.internal.core.helpers.MetadataHelper;
+import fr.gouv.vitam.collect.internal.core.helpers.TempWorkspace;
 import fr.gouv.vitam.collect.internal.core.repository.MetadataRepository;
 import fr.gouv.vitam.collect.internal.core.repository.ProjectRepository;
 import fr.gouv.vitam.common.CommonMediaType;
-import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.format.identification.model.FormatIdentifierResponse;
@@ -64,7 +64,6 @@ import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.input.CountingInputStream;
 import org.apache.commons.lang3.StringUtils;
@@ -89,7 +88,6 @@ import java.util.Spliterators;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import static fr.gouv.vitam.collect.internal.core.helpers.CollectHelper.writeToTemporaryFile;
 import static fr.gouv.vitam.collect.internal.core.helpers.MetadataHelper.STATIC_ATTACHMENT;
 import static fr.gouv.vitam.collect.internal.core.helpers.MetadataHelper.findUnitParent;
 import static fr.gouv.vitam.common.mapping.mapper.VitamObjectMapper.buildSerializationObjectMapper;
@@ -99,7 +97,7 @@ public class FluxService {
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(FluxService.class);
 
     private static final int BULK_SIZE = 1000;
-    private final static String METADATA = "Metadata";
+    private final static String TRANSFORMED_METADATA_JSONL_FILE = "transformed_metadata.jsonl";
     private static final String TITLE = "Title";
     static final String METADATA_CSV_FILE = "metadata.csv";
 
@@ -125,14 +123,16 @@ public class FluxService {
         }
         ProjectModel projectModel = projectById.get();
 
-        final InputStream inputStreamClosable = StreamUtils.getRemainingReadOnCloseInputStream(inputStreamObject);
-        try (final ArchiveInputStream archiveInputStream = new VitamArchiveStreamFactory().createArchiveInputStream(
-            CommonMediaType.ZIP_TYPE, inputStreamClosable)) {
+        try (
+            final TempWorkspace tempWorkspace = new TempWorkspace();
+            final InputStream inputStreamClosable = StreamUtils.getRemainingReadOnCloseInputStream(inputStreamObject);
+            final ArchiveInputStream archiveInputStream = new VitamArchiveStreamFactory().createArchiveInputStream(
+                CommonMediaType.ZIP_TYPE, inputStreamClosable)) {
             ArchiveEntry entry;
             boolean isEmpty = true;
             Map<String, String> unitIds =
                 metadataService.prepareAttachmentUnits(projectModel, transactionId);
-            boolean isExtraMetadataExist = false;
+            File metadataCsvFile = null;
             // create entryInputStream to resolve the stream closed problem
             final ArchiveEntryInputStream entryInputStream = new ArchiveEntryInputStream(archiveInputStream);
             int maxLevel = -1;
@@ -150,13 +150,17 @@ public class FluxService {
                     }
                     path = FilenameUtils.normalizeNoEndSeparator(path);
                     if (!entry.isDirectory() && path.equals(METADATA_CSV_FILE)) {
-                        // save file in workspace
-                        collectService.pushStreamToWorkspace(transactionId, entryInputStream,
-                            METADATA_CSV_FILE);
-                        isExtraMetadataExist = true;
+
+                        if (metadataCsvFile != null) {
+                            throw new CollectInternalInvalidRequestException(
+                                "Cannot process zip upload for " + projectById + "/" + transactionId +
+                                    ". Multiple metadata update files");
+                        }
+
+                        metadataCsvFile = tempWorkspace.writeToFile(path, entryInputStream);
                     } else {
-                        maxLevel = createMetadata(transactionId, path, entryInputStream, entry.isDirectory(), maxLevel,
-                            unitIds, projectModel.getUnitUp() != null);
+                        maxLevel = createMetadata(tempWorkspace, transactionId, path, entryInputStream,
+                            entry.isDirectory(), maxLevel, unitIds, projectModel.getUnitUp() != null);
                     }
                     isEmpty = false;
                 }
@@ -167,29 +171,24 @@ public class FluxService {
                 throw new CollectInternalException("File is empty");
             }
 
-            if (isExtraMetadataExist) {
-                File metadataFile = PropertiesUtils.fileFromTmpFolder(
-                    METADATA + "_" + transactionId + VitamConstants.JSONL_EXTENSION);
-                try (InputStream is = collectService.getInputStreamFromWorkspace(transactionId,
-                    METADATA_CSV_FILE)) {
-                    CsvHelper.convertCsvToMetadataFile(is, metadataFile);
+            File tranformedMetadataFile = null;
+            if (metadataCsvFile != null) {
+                tranformedMetadataFile = tempWorkspace.getFile(TRANSFORMED_METADATA_JSONL_FILE);
+                try (InputStream is = new FileInputStream(metadataCsvFile)) {
+                    CsvHelper.convertCsvToMetadataFile(is, tranformedMetadataFile);
                 }
             }
 
-            Map<String, Set<String>> unitUps =
-                (isExtraMetadataExist) ? findUnitUps(projectModel, transactionId, unitIds) : new HashMap<>();
+            Map<String, Set<String>> unitUps = (tranformedMetadataFile != null) ?
+                findUnitUps(tranformedMetadataFile, projectModel, unitIds) : new HashMap<>();
 
-            bulkWriteUnits(maxLevel, unitUps, transactionId);
+            bulkWriteUnits(tempWorkspace, maxLevel, unitUps);
 
-            bulkWriteObjectGroups(transactionId);
+            bulkWriteObjectGroups(tempWorkspace);
 
-            if (isExtraMetadataExist) {
-                File metadataFile = PropertiesUtils.fileFromTmpFolder(
-                    METADATA + "_" + transactionId + VitamConstants.JSONL_EXTENSION);
-                try (InputStream is = new FileInputStream(metadataFile)) {
+            if (tranformedMetadataFile != null) {
+                try (InputStream is = new FileInputStream(tranformedMetadataFile)) {
                     metadataService.updateUnitsWithMetadataFile(transactionId, is);
-                } finally {
-                    FileUtils.deleteQuietly(metadataFile);
                 }
             }
         } catch (IOException | ArchiveException e) {
@@ -197,8 +196,6 @@ public class FluxService {
             throw new CollectInternalException("An error occurs when try to upload the ZIP: {}");
         } catch (InvalidParseOperationException | CsvParseInternalException e) {
             throw new CollectInternalException(e.getMessage(), e);
-        } finally {
-            cleanTemporaryFiles(transactionId);
         }
     }
 
@@ -209,29 +206,11 @@ public class FluxService {
         }
     }
 
-    private void cleanTemporaryFiles(String transactionId) {
-        File ogFile = PropertiesUtils.fileFromTmpFolder(
-            MetadataType.OBJECTGROUP.getName() + "_" + transactionId + VitamConstants.JSONL_EXTENSION);
-        FileUtils.deleteQuietly(ogFile);
-        for (int level = 0; ; level++) {
-            File file = PropertiesUtils.fileFromTmpFolder(
-                MetadataType.UNIT.getName() + "_" + level + "_" + transactionId + VitamConstants.JSONL_EXTENSION);
-
-            if (!file.exists()) {
-                // No more files...
-                return;
-            }
-            FileUtils.deleteQuietly(file);
-        }
-    }
-
-    private Map<String, Set<String>> findUnitUps(ProjectModel projectModel, String transactionId,
+    private Map<String, Set<String>> findUnitUps(File tranformedMetadataFile, ProjectModel projectModel,
         Map<String, String> unitIds) throws FileNotFoundException {
         if (projectModel.getUnitUps() != null) {
-            File metadataFile = PropertiesUtils.fileFromTmpFolder(
-                METADATA + "_" + transactionId + VitamConstants.JSONL_EXTENSION);
             try (JsonLineGenericIterator<JsonLineModel> iterator = new JsonLineGenericIterator<>(
-                new FileInputStream(metadataFile), new TypeReference<>() {
+                new FileInputStream(tranformedMetadataFile), new TypeReference<>() {
             })) {
                 return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator, Spliterator.ORDERED), false)
                     .filter(e -> StringUtils.countMatches(e.getId(), File.separator) == 0).map(e -> {
@@ -248,8 +227,9 @@ public class FluxService {
         }
     }
 
-    private int createMetadata(String transactionId, String path, InputStream entryInputStream, boolean isDirectory,
-        int maxLevel, Map<String, String> unitIds, boolean isAttachmentAuExist)
+    private int createMetadata(TempWorkspace tempWorkspace, String transactionId, String path,
+        InputStream entryInputStream, boolean isDirectory, int maxLevel, Map<String, String> unitIds,
+        boolean isAttachmentAuExist)
         throws IOException, CollectInternalException, InvalidParseOperationException {
         LevelType descriptionLevel = isDirectory ? LevelType.RECORD_GRP : LevelType.ITEM;
         String parentPath = FilenameUtils.getPathNoEndSeparator(path);
@@ -265,7 +245,8 @@ public class FluxService {
             parentUnit = unitIds.get(parentPath);
             if (parentUnit == null) {
                 LOGGER.debug("Creating implicit parent folder '{}'", parentPath);
-                createMetadata(transactionId, parentPath, null, true, maxLevel, unitIds, isAttachmentAuExist);
+                createMetadata(tempWorkspace, transactionId, parentPath, null, true, maxLevel, unitIds,
+                    isAttachmentAuExist);
             }
 
             parentUnit = unitIds.get(parentPath);
@@ -281,31 +262,32 @@ public class FluxService {
             String objectId = GUIDFactory.newGUID().getId();
             String newFilename = (Strings.isNullOrEmpty(extension)) ? objectId : objectId + "." + extension;
 
-            File file = writeToTemporaryFile(entryInputStream, extension);
+            File binaryFile = tempWorkspace.writeToFile(newFilename, entryInputStream);
             try {
-                Optional<FormatIdentifierResponse> formatIdentifierResponseOpt = collectService.detectFileFormat(file);
+                Optional<FormatIdentifierResponse> formatIdentifierResponseOpt =
+                    collectService.detectFileFormat(binaryFile);
                 Entry<String, Long> binaryInformations =
-                    writeObjectToWorkspace(transactionId, file, newFilename);
+                    writeObjectToWorkspace(transactionId, binaryFile, newFilename);
                 ObjectGroupResponse objectGroup =
                     MetadataHelper.createObjectGroup(transactionId, fileName, objectId, newFilename,
                         formatIdentifierResponseOpt, binaryInformations.getKey(), binaryInformations.getValue());
-                writeObjectGroupToTemporaryFile(objectGroup, transactionId);
+                writeObjectGroupToTemporaryFile(tempWorkspace, objectGroup);
                 unit.setOg(objectGroup.getId());
             } finally {
-                Files.deleteIfExists(file.toPath());
+                Files.deleteIfExists(binaryFile.toPath());
             }
         }
 
-        maxLevel = writeUnitToTemporaryFile(StringUtils.countMatches(path, File.separator), maxLevel, unit,
-            transactionId);
+        maxLevel =
+            writeUnitToTemporaryFile(tempWorkspace, StringUtils.countMatches(path, File.separator), maxLevel, unit);
         return maxLevel;
     }
 
-    private void bulkWriteUnits(int maxLevel, Map<String, Set<String>> unitUps, String transactionId)
-        throws FileNotFoundException {
+    private void bulkWriteUnits(TempWorkspace tempWorkspace, int maxLevel, Map<String, Set<String>> unitUps)
+        throws IOException {
         for (int level = 0; level <= maxLevel; level++) {
-            File unitFile = PropertiesUtils.fileFromTmpFolder(
-                MetadataType.UNIT.getName() + "_" + level + "_" + transactionId + VitamConstants.JSONL_EXTENSION);
+            File unitFile = tempWorkspace.getFile(
+                MetadataType.UNIT.getName() + "_" + level + VitamConstants.JSONL_EXTENSION);
             Iterator<ObjectNode> unitIterator =
                 new JsonLineGenericIterator<>(new FileInputStream(unitFile), new TypeReference<>() {
                 });
@@ -334,9 +316,9 @@ public class FluxService {
         return unit;
     }
 
-    private void bulkWriteObjectGroups(String transactionId) throws FileNotFoundException {
-        File ogFile = PropertiesUtils.fileFromTmpFolder(
-            MetadataType.OBJECTGROUP.getName() + "_" + transactionId + VitamConstants.JSONL_EXTENSION);
+    private void bulkWriteObjectGroups(TempWorkspace tempWorkspace) throws IOException {
+        File ogFile = tempWorkspace.getFile(
+            MetadataType.OBJECTGROUP.getName() + VitamConstants.JSONL_EXTENSION);
         JsonLineGenericIterator<ObjectNode> ogIterator =
             new JsonLineGenericIterator<>(new FileInputStream(ogFile), new TypeReference<>() {
             });
@@ -349,19 +331,18 @@ public class FluxService {
         });
     }
 
-    private void writeObjectGroupToTemporaryFile(Object objectGroup, String transactionId) throws IOException {
-        File file = PropertiesUtils.fileFromTmpFolder(
-            MetadataType.OBJECTGROUP.getName() + "_" + transactionId + VitamConstants.JSONL_EXTENSION);
+    private void writeObjectGroupToTemporaryFile(TempWorkspace tempWorkspace, Object objectGroup) throws IOException {
+        File file = tempWorkspace.getFile(MetadataType.OBJECTGROUP.getName() + VitamConstants.JSONL_EXTENSION);
         try (JsonLineWriter writer = new JsonLineWriter(new FileOutputStream(file, true), file.length() == 0)) {
             JsonNode objectGroupToSave = buildSerializationObjectMapper().convertValue(objectGroup, JsonNode.class);
             writer.addEntry(objectGroupToSave);
         }
     }
 
-    private int writeUnitToTemporaryFile(int level, int maxLevel, Object unit, String transactionId)
+    private int writeUnitToTemporaryFile(TempWorkspace tempWorkspace, int level, int maxLevel, Object unit)
         throws IOException {
-        File file = PropertiesUtils.fileFromTmpFolder(
-            MetadataType.UNIT.getName() + "_" + level + "_" + transactionId + VitamConstants.JSONL_EXTENSION);
+        File file = tempWorkspace.getFile(
+            MetadataType.UNIT.getName() + "_" + level + VitamConstants.JSONL_EXTENSION);
         try (JsonLineWriter writer = new JsonLineWriter(new FileOutputStream(file, true), file.length() == 0)) {
             JsonNode unitToSave = buildSerializationObjectMapper().convertValue(unit, JsonNode.class);
             writer.addEntry(unitToSave);
