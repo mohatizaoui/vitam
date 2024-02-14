@@ -13,7 +13,6 @@
       "Indexed": "true",
       "Cardinality": "ONE",
       "ShortName": "Algorithme",
-      "StringSize": "SHORT",
       "Origin": "INTERNAL",
       "SedaVersions": [
         "2.1",
@@ -46,7 +45,6 @@
         "2.3"
       ],
       "Cardinality": "ONE",
-      "StringSize": "SHORT",
       "ApiPath": "#graph_last_persisted_date"
     },
     {
@@ -67,7 +65,6 @@
         "2.3"
       ],
       "Cardinality": "ONE",
-      "StringSize": "SHORT",
       "ApiPath": "_nbc"
     }
   ],

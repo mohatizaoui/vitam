@@ -73,6 +73,16 @@ public enum OntologyErrorCode {
      */
     STP_IMPORT_ONTOLOGIES_NOT_AUTHORIZED_FOR_TENANT,
 
+    /**
+     * TypeDetail incompatible with ontology type
+     */
+    STP_IMPORT_ONTOLOGIES_INCOMPATIBLE_TYPES,
+
+    /**
+     * String size is forbidden for non STRING TypeDetail
+     */
+    STP_IMPORT_ONTOLOGIES_STRING_SIZE_FORBIDDEN,
+
 
     /**
      * Delete not authorized

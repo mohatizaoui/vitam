@@ -45,6 +45,8 @@ import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.administration.OntologyModel;
 import fr.gouv.vitam.common.model.administration.ProfileModel;
+import fr.gouv.vitam.common.model.administration.TypeDetail;
+import fr.gouv.vitam.common.model.administration.StringSize;
 import fr.gouv.vitam.common.mongo.MongoRule;
 import fr.gouv.vitam.common.server.application.configuration.DbConfigurationImpl;
 import fr.gouv.vitam.common.server.application.configuration.MongoDbNode;
@@ -53,6 +55,8 @@ import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.functional.administration.common.Ontology;
+import fr.gouv.vitam.functional.administration.common.OntologyErrorCode;
+import fr.gouv.vitam.functional.administration.common.ReportConstants;
 import fr.gouv.vitam.functional.administration.common.config.ElasticsearchFunctionalAdminIndexManager;
 import fr.gouv.vitam.functional.administration.common.server.ElasticsearchAccessFunctionalAdmin;
 import fr.gouv.vitam.functional.administration.common.server.FunctionalAdminCollections;
@@ -69,15 +73,24 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import javax.ws.rs.core.Response;
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static fr.gouv.vitam.common.guid.GUIDFactory.newRequestIdGUID;
+import static fr.gouv.vitam.common.model.administration.OntologyOrigin.EXTERNAL;
+import static fr.gouv.vitam.functional.administration.common.Ontology.TYPE_DETAIL;
+import static fr.gouv.vitam.functional.administration.common.Ontology.STRING_SIZE;
+import static fr.gouv.vitam.functional.administration.common.OntologyErrorCode.STP_IMPORT_ONTOLOGIES_INCOMPATIBLE_TYPES;
+import static fr.gouv.vitam.functional.administration.common.OntologyErrorCode.STP_IMPORT_ONTOLOGIES_MISSING_INFORMATION;
+import static fr.gouv.vitam.functional.administration.common.OntologyErrorCode.STP_IMPORT_ONTOLOGIES_STRING_SIZE_FORBIDDEN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -947,6 +960,90 @@ public class OntologyServiceImplTest {
         return models;
     }
 
+    private static void hasError(JsonNode errors, String identifier, OntologyErrorCode errorCode, String fieldName) {
+        assertThat(errors.has(identifier)).isTrue();
+        final JsonNode error = errors.get(identifier).get(0);
+        assertThat(error.get(ReportConstants.CODE).asText()).startsWith(
+            errorCode.name());
+        assertThat(error.get(ReportConstants.ADDITIONAL_INFORMATION).asText()).isEqualTo(
+            fieldName);
+    }
 
+    @Test
+    @RunWithCustomExecutor
+    public void givenMissingTypeDetailOrStringSizeThenKO() throws Exception {
+        VitamThreadUtils.getVitamSession().setTenantId(ADMIN_TENANT);
+        final File fileOntology =
+            PropertiesUtils.getResourceFile("ontology_ko_mandatory_typedetail_and_stringsize.json");
+        final List<OntologyModel> ontologyModelList =
+            JsonHandler.getFromFileAsTypeReference(fileOntology, listOfOntologyType);
+        final RequestResponse response = ontologyService.importOntologies(true, ontologyModelList);
 
+        final ArgumentCaptor<InputStream> inputStreamCaptor = ArgumentCaptor.forClass(InputStream.class);
+        verify(functionalBackupService, times(1)).saveFile(inputStreamCaptor.capture(), any(), any(), any(), any());
+
+        assertThat(response.isOk()).isFalse();
+
+        final JsonNode errors = JsonHandler.getFromInputStream(inputStreamCaptor.getValue()).get("error");
+
+        hasError(errors, "InternalMissingTypeDetail", STP_IMPORT_ONTOLOGIES_MISSING_INFORMATION, TYPE_DETAIL);
+        hasError(errors, "InternalMissingStringSize", STP_IMPORT_ONTOLOGIES_MISSING_INFORMATION, STRING_SIZE);
+        assertThat(errors.has("ExternalMissingTypeDetail")).isFalse();
+        assertThat(errors.has("ExternalMissingStringSize")).isFalse();
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void givenIncoherentFieldsThenKO() throws Exception {
+        VitamThreadUtils.getVitamSession().setTenantId(ADMIN_TENANT);
+        final File fileOntology = PropertiesUtils.getResourceFile("ontology_ko_incoherent_fields.json");
+        final List<OntologyModel> ontologyModelList =
+            JsonHandler.getFromFileAsTypeReference(fileOntology, listOfOntologyType);
+        final RequestResponse response = ontologyService.importOntologies(true, ontologyModelList);
+
+        final ArgumentCaptor<InputStream> inputStreamCaptor = ArgumentCaptor.forClass(InputStream.class);
+        verify(functionalBackupService, times(1)).saveFile(inputStreamCaptor.capture(), any(), any(), any(), any());
+
+        assertThat(response.isOk()).isFalse();
+
+        final JsonNode errors = JsonHandler.getFromInputStream(inputStreamCaptor.getValue()).get("error");
+
+        hasError(errors, "InternalDateNotCompatibleWithLong", STP_IMPORT_ONTOLOGIES_INCOMPATIBLE_TYPES, TYPE_DETAIL);
+        hasError(errors, "ExternalDateNotCompatibleWithLong", STP_IMPORT_ONTOLOGIES_INCOMPATIBLE_TYPES, TYPE_DETAIL);
+        hasError(errors, "InternalStringSizeForbiddenOnNonString", STP_IMPORT_ONTOLOGIES_STRING_SIZE_FORBIDDEN,
+            STRING_SIZE);
+        hasError(errors, "ExternalStringSizeForbiddenOnNonString", STP_IMPORT_ONTOLOGIES_STRING_SIZE_FORBIDDEN,
+            STRING_SIZE);
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void testComputeMissingAttributes() throws Exception {
+        // Given
+        VitamThreadUtils.getVitamSession().setTenantId(ADMIN_TENANT);
+        final File fileOntology = PropertiesUtils.getResourceFile("upgrade/ontology_in_database.json");
+        final List<OntologyModel> ontologyModelList =
+            JsonHandler.getFromFileAsTypeReference(fileOntology, listOfOntologyType);
+        final List<OntologyModel> originalExternals = ontologyModelList.stream()
+            .filter(ontologyModel -> EXTERNAL.equals(ontologyModel.getOrigin())).collect(
+                Collectors.toList());
+        assertThat(originalExternals).hasSize(3);
+        originalExternals.forEach(originalExternal -> assertThat(originalExternal.getTypeDetail()).isNull());
+        originalExternals.forEach(originalExternal -> assertThat(originalExternal.getStringSize()).isNull());
+
+        // When
+        ontologyService.importOntologies(true, ontologyModelList);
+        final List<Ontology> actualExternals = getExternalOntologies();
+
+        // Then
+        assertThat(actualExternals).hasSize(3);
+        actualExternals.forEach(actualExternal -> assertThat(actualExternal.getTypeDetail()).isNotNull());
+
+        final List<Ontology> actualStringExternals =
+            actualExternals.stream().filter(actualExternal -> TypeDetail.STRING.equals(actualExternal.getTypeDetail()))
+                .collect(
+                    Collectors.toList());
+        assertThat(actualStringExternals).hasSize(3);
+        actualStringExternals.forEach(actualStringExternal -> assertThat(actualStringExternal.getStringSize()).isEqualTo(StringSize.MEDIUM));
+    }
 }

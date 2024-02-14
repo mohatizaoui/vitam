@@ -4,6 +4,7 @@
     "ApiField": "MyField",
     "Origin": "INTERNAL",
     "Type": "DOUBLE",
+    "TypeDetail": "DOUBLE",
     "Description": "Extension au SEDA. Elément de type double"
   }
 ]

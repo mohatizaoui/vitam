@@ -4,6 +4,8 @@
     "ApiField": "MyField",
     "Origin": "INTERNAL",
     "Type": "TEXT",
+    "TypeDetail": "STRING",
+    "StringSize": "MEDIUM",
     "Description": "Extension au SEDA. Elément de type text"
   }
 ]

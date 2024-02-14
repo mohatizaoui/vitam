@@ -37,6 +37,7 @@ import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.database.builder.query.QueryHelper;
 import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
 import fr.gouv.vitam.common.database.builder.request.single.Delete;
+import fr.gouv.vitam.common.database.builder.request.single.Select;
 import fr.gouv.vitam.common.database.server.DbRequestResult;
 import fr.gouv.vitam.common.error.VitamCode;
 import fr.gouv.vitam.common.exception.BadRequestException;
@@ -53,9 +54,15 @@ import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.administration.OntologyModel;
+import fr.gouv.vitam.common.model.administration.TypeDetail;
+import fr.gouv.vitam.common.model.administration.schema.SchemaCategory;
 import fr.gouv.vitam.common.model.administration.schema.SchemaInputModel;
 import fr.gouv.vitam.common.model.administration.schema.SchemaModel;
+import fr.gouv.vitam.common.model.administration.schema.SchemaOrigin;
 import fr.gouv.vitam.common.model.administration.schema.SchemaResponse;
+import fr.gouv.vitam.common.model.administration.schema.SchemaTypeDetail;
+import fr.gouv.vitam.common.model.administration.schema.SchemaStringSizeType;
+import fr.gouv.vitam.common.model.administration.schema.SchemaType;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.functional.administration.common.exception.ReferentialException;
 import fr.gouv.vitam.functional.administration.common.exception.schema.SchemaImportValidationException;
@@ -79,8 +86,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static fr.gouv.vitam.functional.administration.core.schema.SchemaService.TenantScope.ALL_TENANTS;
 import static fr.gouv.vitam.functional.administration.core.schema.SchemaService.TenantScope.CURRENT_TENANT;
@@ -146,10 +155,7 @@ public class SchemaService {
     private List<SchemaResponse> findUnitExternalSchema(TenantScope tenantScope)
         throws InvalidParseOperationException, ReferentialException, InvalidCreateOperationException {
         LOGGER.info("retrieving unit external schema ");
-        List<SchemaModel> currentExternalSchemaList = loadCurrentExternalSchema(tenantScope);
-        List<SchemaResponse> schemaResponseList =
-            mapAndDecorateDbSchemaToExternalSchemaModel(currentExternalSchemaList);
-        return schemaResponseList;
+        return decorateSchema(mapSchemaDbEntityToModel(loadCurrentExternalSchema(tenantScope)));
     }
 
     /**
@@ -159,11 +165,11 @@ public class SchemaService {
      * @throws InvalidParseOperationException
      * @throws IOException
      */
-    public List<SchemaResponse> findUnitInternalSchema() throws InvalidParseOperationException, IOException {
+    public List<SchemaResponse> findUnitInternalSchema()
+        throws InvalidParseOperationException, IOException, ReferentialException {
         LOGGER.info("retrieving internal unit schema ");
         return loadUnitInternalSchema();
     }
-
 
     /**
      * Retrieve internal and external schema list
@@ -177,9 +183,10 @@ public class SchemaService {
     public List<SchemaResponse> findUnitSchema()
         throws InvalidParseOperationException, IOException, ReferentialException, InvalidCreateOperationException {
         LOGGER.info("retrieving internal and external unit schema ");
-        List<SchemaResponse> unitSchemaModels = new ArrayList<>(loadUnitInternalSchema());
-        unitSchemaModels.addAll(this.findUnitExternalSchema(INCLUDE_ADMIN_TENANT));
-        return unitSchemaModels;
+        return Stream.concat(
+            loadUnitInternalSchema().stream(),
+            findUnitExternalSchema(INCLUDE_ADMIN_TENANT).stream()
+        ).collect(Collectors.toList());
     }
 
     /**
@@ -261,38 +268,26 @@ public class SchemaService {
         }
     }
 
+    private List<SchemaResponse> mapSchemaDbEntityToModel(List<SchemaModel> currentExternalSchemaList) {
+        return currentExternalSchemaList.stream().map(schemaElt -> {
+            final SchemaResponse schemaResponse = new SchemaResponse();
+            schemaResponse.setPath(schemaElt.getPath());
+            schemaResponse.setShortName(schemaElt.getShortName());
+            schemaResponse.setCardinality(schemaElt.getCardinality());
+            schemaResponse.setTenant(schemaElt.getTenant());
+            schemaResponse.setCollection(schemaElt.getCollection());
+            schemaResponse.setDescription(schemaElt.getDescription());
+            schemaResponse.setCategory(SchemaCategory.OTHER);
 
-    /**
-     * Map the db schema entities to schema model and decorate with ontologies data
-     *
-     * @param currentExternalSchemaList
-     * @return
-     * @throws InvalidCreateOperationException
-     * @throws ReferentialException
-     * @throws InvalidParseOperationException
-     */
-    private List<SchemaResponse> mapAndDecorateDbSchemaToExternalSchemaModel(
-        List<SchemaModel> currentExternalSchemaList)
-        throws InvalidCreateOperationException, ReferentialException, InvalidParseOperationException {
-
-        Set<String> schemaEltsLeaves =
-            currentExternalSchemaList.stream().filter(schemaElt -> !Boolean.TRUE.equals(schemaElt.getObject()))
-                .map(schemaElt -> SchemaCommonService.extractLeafFromPath(schemaElt.getPath()))
-                .collect(Collectors.toSet());
-        Map<String, OntologyModel> mapOntologiesByIdentifier = new HashMap<>();
-        if (!CollectionUtils.isEmpty(schemaEltsLeaves)) {
-            RequestResponseOK<OntologyModel> ontologiesResponse =
-                ontologyService.findOntologies(
-                    SchemaCommonService.buildOntologyQueryDslByIdentifiers(schemaEltsLeaves));
-            List<OntologyModel> ontologylist = ontologiesResponse.getResults();
-            if (!CollectionUtils.isEmpty(ontologylist)) {
-                mapOntologiesByIdentifier = ontologylist.stream().collect(
-                    Collectors.toMap(OntologyModel::getIdentifier, ontologyModel -> ontologyModel));
+            final String pathLeaf = SchemaCommonService.extractLeafFromPath(schemaElt.getPath());
+            schemaResponse.setFieldName(pathLeaf);
+            schemaResponse.setOrigin(schemaElt.getOrigin());
+            if (Boolean.TRUE.equals(schemaElt.getObject())) {
+                schemaResponse.setType(SchemaType.OBJECT);
             }
-        }
-        List<SchemaResponse> externalSchemaResponse =
-            SchemaCommonService.mapSchemaDbEntityToModel(currentExternalSchemaList, mapOntologiesByIdentifier);
-        return externalSchemaResponse;
+            // If not an OBJECT, type will be defined from ontology
+            return schemaResponse;
+        }).collect(Collectors.toList());
     }
 
 
@@ -379,13 +374,43 @@ public class SchemaService {
         return ontologiesResponse.getResults();
     }
 
-    private List<SchemaResponse> loadUnitInternalSchema() throws IOException, InvalidParseOperationException {
+    private List<SchemaResponse> loadUnitInternalSchema()
+        throws IOException, InvalidParseOperationException, ReferentialException {
         LOGGER.info("loading internal schema from file vitam-unit-internal-schema.json ");
-        InputStream isUnitInternalSchema = PropertiesUtils.getResourceAsStream(VITAM_UNIT_INTERNAL_SCHEMA_JSON);
-        List<SchemaResponse> unitSchemaModels =
-            JsonHandler.getFromInputStreamAsTypeReference(isUnitInternalSchema, new TypeReference<>() {
-            });
-        return unitSchemaModels;
+        final InputStream unitInternalSchemaInputStream = PropertiesUtils.getResourceAsStream(VITAM_UNIT_INTERNAL_SCHEMA_JSON);
+        return decorateSchema(JsonHandler.getFromInputStreamAsTypeReference(unitInternalSchemaInputStream, new TypeReference<>() {
+        }));
+    }
+
+    private List<SchemaResponse> decorateSchema(List<SchemaResponse> unitSchemaResponses)
+        throws ReferentialException, InvalidParseOperationException {
+        final Map<String, OntologyModel> mapOntologiesByIdentifier = ontologyService
+            .findOntologies(new Select().getFinalSelect())
+            .getResults()
+            .stream().collect(Collectors.toMap(OntologyModel::getIdentifier, ontologyModel -> ontologyModel));
+
+        return unitSchemaResponses.stream().peek(unitSchema -> {
+            if (!SchemaType.OBJECT.equals(unitSchema.getType())) {
+                final OntologyModel ontologyElt = mapOntologiesByIdentifier.get(unitSchema.getFieldName());
+                if (ontologyElt == null) {
+                    final String message = String.format("No ontology found for path %s", unitSchema.getPath());
+                    LOGGER.error(message);
+                    throw new IllegalStateException(message);
+                }
+                final TypeDetail typeDetail = ontologyElt.getTypeDetail();
+                if (typeDetail == null) {
+                    final String message = String.format("Ontology %s has no TypeDetail", ontologyElt.getIdentifier());
+                    LOGGER.error(message);
+                    throw new IllegalStateException(message);
+                }
+                unitSchema.setTypeDetail(SchemaTypeDetail.valueOf(typeDetail.getType()));
+                Optional.ofNullable(ontologyElt.getStringSize()).ifPresent(
+                    stringSize -> unitSchema.setStringSize(SchemaStringSizeType.valueOf(stringSize.getSize())));
+                if (SchemaOrigin.EXTERNAL.equals(unitSchema.getOrigin()) && unitSchema.getType() == null) {
+                    unitSchema.setType(SchemaType.valueOf(ontologyElt.getType().getType()));
+                }
+            }
+        }).collect(Collectors.toList());
     }
 
     private InputStream loadObjectGroupInternalSchema() throws IOException {

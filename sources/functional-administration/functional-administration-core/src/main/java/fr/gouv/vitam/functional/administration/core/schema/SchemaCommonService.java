@@ -40,12 +40,9 @@ import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.common.model.MetadataType;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.administration.OntologyModel;
-import fr.gouv.vitam.common.model.administration.schema.SchemaCategory;
 import fr.gouv.vitam.common.model.administration.schema.SchemaInputModel;
 import fr.gouv.vitam.common.model.administration.schema.SchemaModel;
 import fr.gouv.vitam.common.model.administration.schema.SchemaOrigin;
-import fr.gouv.vitam.common.model.administration.schema.SchemaResponse;
-import fr.gouv.vitam.common.model.administration.schema.SchemaType;
 import fr.gouv.vitam.functional.administration.common.VitamErrorUtils;
 import fr.gouv.vitam.functional.administration.common.schema.Schema;
 import fr.gouv.vitam.functional.administration.core.format.model.FunctionalOperationModel;
@@ -54,7 +51,6 @@ import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -121,39 +117,6 @@ public class SchemaCommonService {
         }
         return schemaModelElementsBuilt;
     }
-
-    public static List<SchemaResponse> mapSchemaDbEntityToModel(List<SchemaModel> currentExternalSchemaList,
-        Map<String, OntologyModel> mapOntologiesByIdentifier) {
-        List<SchemaResponse> externalSchemaResponse = new ArrayList<>();
-        for (SchemaModel schemaElt : currentExternalSchemaList) {
-            //Common fields
-            SchemaResponse schemaResponse = new SchemaResponse();
-            schemaResponse.setPath(schemaElt.getPath());
-            schemaResponse.setShortName(schemaElt.getShortName());
-            schemaResponse.setCardinality(schemaElt.getCardinality());
-            schemaResponse.setTenant(schemaElt.getTenant());
-            schemaResponse.setCollection(schemaElt.getCollection());
-            schemaResponse.setDescription(schemaElt.getDescription());
-            schemaResponse.setCategory(SchemaCategory.OTHER);
-
-            String pathLeaf = SchemaCommonService.extractLeafFromPath(schemaElt.getPath());
-            schemaResponse.setFieldName(pathLeaf);
-            schemaResponse.setOrigin(schemaElt.getOrigin());
-            if (Boolean.TRUE.equals(schemaElt.getObject())) {
-                schemaResponse.setType(SchemaType.OBJECT);
-            } else {
-                OntologyModel ontologyElt = mapOntologiesByIdentifier.get(pathLeaf);
-                if (ontologyElt == null) {
-                    LOGGER.error(" no ontology found for path {} ", schemaElt.getPath());
-                    throw new IllegalStateException("no ontology found for path " + schemaElt.getPath());
-                }
-                schemaResponse.setType(SchemaType.valueOf(ontologyElt.getType().getType()));
-            }
-            externalSchemaResponse.add(schemaResponse);
-        }
-        return externalSchemaResponse;
-    }
-
 
     public static VitamError getVitamError(String vitamCode, String error, StatusCode statusCode) {
         return VitamErrorUtils.getVitamError(vitamCode, error, SCHEMA_COLLECTION, statusCode);

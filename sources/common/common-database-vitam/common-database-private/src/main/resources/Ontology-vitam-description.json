@@ -30,6 +30,18 @@
     "cardinality": "one"
   },
   {
+    "path": "TypeDetail",
+    "type": "keyword",
+    "cardinality": "one",
+    "indexed": true
+  },
+  {
+    "path": "StringSize",
+    "type": "keyword",
+    "cardinality": "one",
+    "indexed": true
+  },
+  {
     "path": "Origin",
     "type": "keyword",
     "indexed": true,

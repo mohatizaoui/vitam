@@ -5,6 +5,8 @@
     "SedaField": "OriginatingAgencyIdentifier",
     "Origin": "INTERNAL",
     "Type": "TEXT",
+    "TypeDetail": "STRING",
+    "StringSize": "MEDIUM",
     "Description": "Internal ontology update type",
     "ShortName": "Originating Agency Identifier",
     "Collections": [
@@ -20,6 +22,8 @@
     "SedaField": "Management",
     "Origin": "INTERNAL",
     "Type": "KEYWORD",
+    "TypeDetail": "STRING",
+    "StringSize": "MEDIUM",
     "Description": "Internal ontology create",
     "ShortName": "Originating Agency Identifier",
     "Collections": [

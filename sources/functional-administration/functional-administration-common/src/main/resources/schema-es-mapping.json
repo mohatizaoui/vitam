@@ -18,9 +18,6 @@
     "ShortName": {
       "type": "keyword"
     },
-    "StringSize": {
-      "type": "keyword"
-    },
     "Collection": {
       "type": "keyword"
     },

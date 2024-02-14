@@ -107,11 +107,11 @@ public class OntologyStep extends CommonStep {
     }
 
     @When("^je recherche le vocabulaire intitulé (.*)$")
-    public void searchOntologyByIdentifier(String identifer) throws VitamClientException {
+    public void searchOntologyByIdentifier(String identifier) throws VitamClientException {
         VitamContext vitamContext = new VitamContext(world.getTenantId());
         vitamContext.setApplicationSessionId(world.getApplicationSessionId());
         RequestResponse requestResponse =
-            world.getAdminClient().findOntologyById(vitamContext, identifer);
+            world.getAdminClient().findOntologyById(vitamContext, identifier);
         assertThat(requestResponse.isOk()).isTrue();
 
         ontologyModel = (OntologyModel) ((RequestResponseOK) requestResponse).getFirstResult();
@@ -120,6 +120,19 @@ public class OntologyStep extends CommonStep {
     @Then("^le type du vocabulaire est (.*)$")
     public void ontology_type_is(String type) {
         assertThat(ontologyModel.getType().name()).isEqualTo(type);
+    }
 
+    @Then("^le type détaillé du vocabulaire est (.*)$")
+    public void ontology_type_detail_is(String typeDetail) {
+        assertThat(ontologyModel.getTypeDetail().name()).isEqualTo(typeDetail);
+    }
+
+    @Then("^la taille de la chaîne de caractère du vocabulaire est (.*)$")
+    public void ontology_string_size_is(String stringSize) {
+        if ("indéfinie".equals(stringSize)) {
+            assertThat(ontologyModel.getStringSize()).isNull();
+        } else {
+            assertThat(ontologyModel.getStringSize().name()).isEqualTo(stringSize);
+        }
     }
 }

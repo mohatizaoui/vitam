@@ -698,6 +698,8 @@ public class WebApplicationResourceDeleteTest {
                 data1.put("LastUpdate", "2008-10-10");
                 data1.put("Origin", "EXTERNAL");
                 data1.put("Type", "TEXT");
+                data1.put("TypeDetail", "STRING");
+                data1.put("StringSize", "MEDIUM");
                 break;
             case AGENCIES:
                 data1.put("Name", "aName");

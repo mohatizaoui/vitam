@@ -4148,5 +4148,18 @@
     "Collections": [
       "Schema"
     ]
+  },
+  {
+    "Identifier": "MyExternal",
+    "ApiField": "MyExternal",
+    "Description": "MyExternal",
+    "Type": "KEYWORD",
+    "TypeDetail": "STRING",
+    "StringSize": "MEDIUM",
+    "Origin": "EXTERNAL",
+    "ShortName": "MyExternal",
+    "Collections": [
+      "Ontology"
+    ]
   }
 ]

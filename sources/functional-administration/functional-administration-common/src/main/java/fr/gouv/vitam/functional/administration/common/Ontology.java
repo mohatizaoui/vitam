@@ -30,10 +30,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import fr.gouv.vitam.common.database.server.mongodb.VitamDocument;
 import fr.gouv.vitam.common.model.administration.OntologyOrigin;
 import fr.gouv.vitam.common.model.administration.OntologyType;
+import fr.gouv.vitam.common.model.administration.TypeDetail;
+import fr.gouv.vitam.common.model.administration.StringSize;
 import org.bson.Document;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Defines an ontology collection. </BR>
@@ -90,6 +93,16 @@ public class Ontology extends VitamDocument<Ontology> {
      * the last update of ontology
      */
     public static final String LAST_UPDATE = "LastUpdate";
+
+    /**
+     * TypeDetail Tag
+     */
+    public static final String TYPE_DETAIL = "TypeDetail";
+
+    /**
+     * StringSize Tag
+     */
+    public static final String STRING_SIZE = "StringSize";
 
     /**
      * Empty Constructor
@@ -341,6 +354,36 @@ public class Ontology extends VitamDocument<Ontology> {
         return this;
     }
 
+    /**
+     * @return typeDetail of ontology
+     */
+    public TypeDetail getTypeDetail() {
+        return Optional.ofNullable(getString(TYPE_DETAIL)).map(TypeDetail::valueOf).orElse(null);
+    }
 
+    /**
+     * @param typeDetail to set
+     * @return this
+     */
+    public Ontology setTypeDetail(TypeDetail typeDetail) {
+        append(TYPE_DETAIL, typeDetail);
+        return this;
+    }
+
+    /**
+     * @return string size of ontology
+     */
+    public StringSize getStringSize() {
+        return Optional.ofNullable(getString(STRING_SIZE)).map(StringSize::valueOf).orElse(null);
+    }
+
+    /**
+     * @param stringSize to set
+     * @return this
+     */
+    public Ontology setStringSize(TypeDetail stringSize) {
+        append(STRING_SIZE, stringSize);
+        return this;
+    }
 
 }
