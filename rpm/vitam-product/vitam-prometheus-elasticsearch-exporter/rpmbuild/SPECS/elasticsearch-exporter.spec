@@ -1,5 +1,5 @@
 Name:    vitam-elasticsearch-exporter
-Version: 1.5.0
+Version: 1.7.0
 Release: 1%{?dist}
 Summary: Elasticsearch Exporter for Prometheus
 License: Apache License 2.0
