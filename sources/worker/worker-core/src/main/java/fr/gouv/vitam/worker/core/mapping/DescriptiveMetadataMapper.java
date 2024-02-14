@@ -44,6 +44,7 @@ import fr.gouv.vitam.common.LocalDateUtil;
 import fr.gouv.vitam.common.mapping.mapper.ElementMapper;
 import fr.gouv.vitam.common.model.unit.AdditionalProofType;
 import fr.gouv.vitam.common.model.unit.CodeKeywordType;
+import fr.gouv.vitam.common.model.unit.CoverageType;
 import fr.gouv.vitam.common.model.unit.CustodialHistoryModel;
 import fr.gouv.vitam.common.model.unit.DescriptiveMetadataModel;
 import fr.gouv.vitam.common.model.unit.DetachedSigningRoleType;
@@ -59,6 +60,7 @@ import fr.gouv.vitam.common.model.unit.SigningInformationTypeModel;
 import fr.gouv.vitam.common.model.unit.SigningRoleType;
 import fr.gouv.vitam.common.model.unit.TextByLang;
 import fr.gouv.vitam.common.model.unit.TimestampingInformationTypeModel;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -109,7 +111,7 @@ public class DescriptiveMetadataMapper {
         descriptiveMetadataModel.setOriginatingSystemIdReplyTo(metadataContentType.getOriginatingSystemIdReplyTo());
         descriptiveMetadataModel.setDateLitteral(metadataContentType.getDateLitteral());
 
-        descriptiveMetadataModel.setCoverage(metadataContentType.getCoverage());
+        descriptiveMetadataModel.setCoverage(mapCoverage(metadataContentType.getCoverage()));
         descriptiveMetadataModel.setCreatedDate(
             LocalDateUtil.transformIsoOffsetDateToIsoOffsetDateTime(metadataContentType.getCreatedDate()));
 
@@ -126,7 +128,7 @@ public class DescriptiveMetadataMapper {
 
         descriptiveMetadataModel.setDescriptionLanguage(metadataContentType.getDescriptionLanguage());
         descriptiveMetadataModel.setDescriptionLevel(mapLevelType(metadataContentType.getDescriptionLevel()));
-        descriptiveMetadataModel.setDocumentType(mapType(metadataContentType.getDocumentType()));
+        descriptiveMetadataModel.setDocumentType(mapTextType(metadataContentType.getDocumentType()));
         descriptiveMetadataModel.setEndDate(metadataContentType.getEndDate());
         descriptiveMetadataModel.setEvent(mapEvents(metadataContentType.getEvent()));
         descriptiveMetadataModel.setFilePlanPosition(metadataContentType.getFilePlanPosition());
@@ -171,7 +173,7 @@ public class DescriptiveMetadataMapper {
             LocalDateUtil.transformIsoOffsetDateToIsoOffsetDateTime(metadataContentType.getTransactedDate()));
         descriptiveMetadataModel.setTransferringAgencyArchiveUnitIdentifier(
             metadataContentType.getTransferringAgencyArchiveUnitIdentifier());
-        descriptiveMetadataModel.setType(mapType(metadataContentType.getType()));
+        descriptiveMetadataModel.setType(mapTextType(metadataContentType.getType()));
         descriptiveMetadataModel.setVersion(metadataContentType.getVersion());
         descriptiveMetadataModel.setWriter(metadataContentType.getWriter());
         descriptiveMetadataModel.setTransmitter(metadataContentType.getTransmitter());
@@ -193,7 +195,27 @@ public class DescriptiveMetadataMapper {
         return descriptiveMetadataModel;
     }
 
-    private String mapType(TextType textType) {
+    private CoverageType mapCoverage(fr.gouv.culture.archivesdefrance.seda.v2.CoverageType coverage) {
+        if (coverage == null) {
+            return null;
+        }
+        CoverageType coverageType = new CoverageType();
+        if (CollectionUtils.isNotEmpty(coverage.getSpatial())) {
+            coverageType.setSpatial(
+                coverage.getSpatial().stream().map(this::mapTextType).collect(Collectors.toList()));
+        }
+        if (CollectionUtils.isNotEmpty(coverage.getTemporal())) {
+            coverageType.setTemporal(
+                coverage.getTemporal().stream().map(this::mapTextType).collect(Collectors.toList()));
+        }
+        if (CollectionUtils.isNotEmpty(coverage.getJuridictional())) {
+            coverageType.setJuridictional(
+                coverage.getJuridictional().stream().map(this::mapTextType).collect(Collectors.toList()));
+        }
+        return coverageType;
+    }
+
+    private String mapTextType(TextType textType) {
         if (textType == null) {
             return null;
         }

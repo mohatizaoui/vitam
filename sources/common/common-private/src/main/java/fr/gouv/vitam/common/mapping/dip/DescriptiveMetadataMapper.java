@@ -28,6 +28,7 @@ package fr.gouv.vitam.common.mapping.dip;
 
 import fr.gouv.culture.archivesdefrance.seda.v2.AdditionalProofType;
 import fr.gouv.culture.archivesdefrance.seda.v2.CodeKeywordType;
+import fr.gouv.culture.archivesdefrance.seda.v2.CoverageType;
 import fr.gouv.culture.archivesdefrance.seda.v2.CustodialHistoryType;
 import fr.gouv.culture.archivesdefrance.seda.v2.DescriptiveMetadataContentType;
 import fr.gouv.culture.archivesdefrance.seda.v2.DetachedSigningRoleType;
@@ -108,7 +109,7 @@ public class DescriptiveMetadataMapper {
         dmc.getAny().addAll(
             TransformJsonTreeToListOfXmlElement.mapJsonToElement(metadataModel.getAny()));
 
-        dmc.setCoverage(metadataModel.getCoverage());
+        dmc.setCoverage(mapCoverage(metadataModel.getCoverage()));
         dmc.setCreatedDate(metadataModel.getCreatedDate());
 
         CustodialHistoryType custodialHistory = custodialHistoryMapper.map(metadataModel.getCustodialHistory());
@@ -239,6 +240,28 @@ public class DescriptiveMetadataMapper {
         fillHistory(historyListModel, dmc.getHistory());
 
         return dmc;
+    }
+
+    private static CoverageType mapCoverage(fr.gouv.vitam.common.model.unit.CoverageType coverage) {
+        if (coverage == null) {
+            return null;
+        }
+        CoverageType coverageType = new CoverageType();
+        if (CollectionUtils.isNotEmpty(coverage.getSpatial())) {
+            coverageType.getSpatial().addAll(coverage.getSpatial().stream().map(DescriptiveMetadataMapper::mapTextType)
+                .collect(Collectors.toList()));
+        }
+        if (CollectionUtils.isNotEmpty(coverage.getTemporal())) {
+            coverageType.getTemporal()
+                .addAll(coverage.getTemporal().stream().map(DescriptiveMetadataMapper::mapTextType)
+                    .collect(Collectors.toList()));
+        }
+        if (CollectionUtils.isNotEmpty(coverage.getJuridictional())) {
+            coverageType.getJuridictional()
+                .addAll(coverage.getJuridictional().stream().map(DescriptiveMetadataMapper::mapTextType)
+                    .collect(Collectors.toList()));
+        }
+        return coverageType;
     }
 
     private static TextType mapTextType(String value) {
