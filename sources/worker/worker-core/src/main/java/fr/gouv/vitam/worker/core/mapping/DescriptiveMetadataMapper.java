@@ -126,7 +126,7 @@ public class DescriptiveMetadataMapper {
 
         descriptiveMetadataModel.setDescriptionLanguage(metadataContentType.getDescriptionLanguage());
         descriptiveMetadataModel.setDescriptionLevel(mapLevelType(metadataContentType.getDescriptionLevel()));
-        descriptiveMetadataModel.setDocumentType(metadataContentType.getDocumentType());
+        descriptiveMetadataModel.setDocumentType(mapType(metadataContentType.getDocumentType()));
         descriptiveMetadataModel.setEndDate(metadataContentType.getEndDate());
         descriptiveMetadataModel.setEvent(mapEvents(metadataContentType.getEvent()));
         descriptiveMetadataModel.setFilePlanPosition(metadataContentType.getFilePlanPosition());
@@ -171,7 +171,7 @@ public class DescriptiveMetadataMapper {
             LocalDateUtil.transformIsoOffsetDateToIsoOffsetDateTime(metadataContentType.getTransactedDate()));
         descriptiveMetadataModel.setTransferringAgencyArchiveUnitIdentifier(
             metadataContentType.getTransferringAgencyArchiveUnitIdentifier());
-        descriptiveMetadataModel.setType(metadataContentType.getType());
+        descriptiveMetadataModel.setType(mapType(metadataContentType.getType()));
         descriptiveMetadataModel.setVersion(metadataContentType.getVersion());
         descriptiveMetadataModel.setWriter(metadataContentType.getWriter());
         descriptiveMetadataModel.setTransmitter(metadataContentType.getTransmitter());
@@ -191,6 +191,13 @@ public class DescriptiveMetadataMapper {
         }
 
         return descriptiveMetadataModel;
+    }
+
+    private String mapType(TextType textType) {
+        if (textType == null) {
+            return null;
+        }
+        return textType.getValue();
     }
 
     private static List<fr.gouv.vitam.common.model.unit.KeywordsType> mapKeywords(List<KeywordsType> keywords) {

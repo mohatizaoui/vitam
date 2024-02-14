@@ -126,7 +126,7 @@ public class DescriptiveMetadataMapper {
 
         dmc.setDescriptionLanguage(metadataModel.getDescriptionLanguage());
         dmc.setDescriptionLevel(mapLevelType(metadataModel.getDescriptionLevel()));
-        dmc.setDocumentType(metadataModel.getDocumentType());
+        dmc.setDocumentType(mapTextType(metadataModel.getDocumentType()));
         dmc.setEndDate(metadataModel.getEndDate());
         if (metadataModel.getEvent() != null) {
             dmc.getEvent().addAll(mapEvents(metadataModel.getEvent()));
@@ -224,7 +224,7 @@ public class DescriptiveMetadataMapper {
         dmc.getTitle().add(title);
 
         dmc.setTransactedDate(metadataModel.getTransactedDate());
-        dmc.setType(metadataModel.getType());
+        dmc.setType(mapTextType(metadataModel.getType()));
         dmc.setVersion(metadataModel.getVersion());
         if (metadataModel.getWriter() != null) {
             dmc.getWriter().addAll(metadataModel.getWriter());
@@ -239,6 +239,15 @@ public class DescriptiveMetadataMapper {
         fillHistory(historyListModel, dmc.getHistory());
 
         return dmc;
+    }
+
+    private static TextType mapTextType(String value) {
+        if (value == null) {
+            return null;
+        }
+        TextType textType = new TextType();
+        textType.setValue(value);
+        return textType;
     }
 
     private static List<fr.gouv.culture.archivesdefrance.seda.v2.KeywordsType> mapKeywords(
