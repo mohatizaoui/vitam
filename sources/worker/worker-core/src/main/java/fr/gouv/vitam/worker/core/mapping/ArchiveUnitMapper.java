@@ -43,6 +43,7 @@ import fr.gouv.culture.archivesdefrance.seda.v2.ManagementHistoryType;
 import fr.gouv.culture.archivesdefrance.seda.v2.ManagementType;
 import fr.gouv.culture.archivesdefrance.seda.v2.ReuseRuleType;
 import fr.gouv.culture.archivesdefrance.seda.v2.StorageRuleType;
+import fr.gouv.vitam.common.model.UnitType;
 import fr.gouv.vitam.common.model.logbook.LogbookEvent;
 import fr.gouv.vitam.common.model.unit.ArchiveUnitHistoryModel;
 import fr.gouv.vitam.common.model.unit.ArchiveUnitInternalModel;
@@ -98,7 +99,7 @@ public class ArchiveUnitMapper {
         archiveUnit.setOpi(operationId);
         archiveUnit.setOps(Collections.singletonList(operationId));
 
-        archiveUnit.setUnitType(unitType);
+        archiveUnit.setUnitType(UnitType.valueOf(unitType));
 
         IdentifierType archiveUnitProfile = archiveUnitType.getArchiveUnitProfile();
         if (archiveUnitProfile != null) {

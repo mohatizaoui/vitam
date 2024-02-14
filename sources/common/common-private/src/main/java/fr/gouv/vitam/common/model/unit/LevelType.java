@@ -24,47 +24,40 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.common.mapping.serializer;
+package fr.gouv.vitam.common.model.unit;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import fr.gouv.culture.archivesdefrance.seda.v2.LevelType;
+import com.fasterxml.jackson.annotation.JsonValue;
 
-import java.io.IOException;
+public enum LevelType {
 
-/**
- * Level Type Serializer
- */
-public class LevelTypeSerializer extends StdSerializer<LevelType> {
+    FONDS("Fonds"),
+    SUBFONDS("Subfonds"),
+    CLASS("Class"),
+    COLLECTION("Collection"),
+    SERIES("Series"),
+    SUBSERIES("Subseries"),
+    RECORD_GRP("RecordGrp"),
+    SUB_GRP("SubGrp"),
+    FILE("File"),
+    ITEM("Item"),
+    OTHER_LEVEL("OtherLevel");
+    private final String value;
 
-    /**
-     * constructor
-     */
-    public LevelTypeSerializer() {
-        this(null);
+    LevelType(String v) {
+        value = v;
     }
 
-    /**
-     * constructor
-     *
-     * @param type
-     */
-    public LevelTypeSerializer(Class<LevelType> type) {
-        super(type);
+    @JsonValue
+    public String value() {
+        return value;
     }
 
-    /**
-     * serialize
-     *
-     * @param levelType
-     * @param jgen
-     * @param provider
-     * @throws IOException
-     */
-    @Override
-    public void serialize(LevelType levelType, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException {
-        jgen.writeString(levelType.value());
+    public static LevelType fromValue(String v) {
+        for (LevelType c : LevelType.values()) {
+            if (c.value.equals(v)) {
+                return c;
+            }
+        }
+        throw new IllegalArgumentException(v);
     }
 }

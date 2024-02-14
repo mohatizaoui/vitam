@@ -28,6 +28,7 @@ package fr.gouv.vitam.common.model.unit;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import fr.gouv.vitam.common.model.UnitType;
 
 import java.util.List;
 
@@ -61,7 +62,7 @@ public class ArchiveUnitInternalModel {
     private String implementationVersion;
 
     @JsonProperty("_unitType")
-    private String unitType;
+    private UnitType unitType;
 
     @JsonProperty("_opi")
     private String opi;
@@ -159,11 +160,11 @@ public class ArchiveUnitInternalModel {
         this.implementationVersion = implementationVersion;
     }
 
-    public String getUnitType() {
+    public UnitType getUnitType() {
         return unitType;
     }
 
-    public ArchiveUnitInternalModel setUnitType(String unitType) {
+    public ArchiveUnitInternalModel setUnitType(UnitType unitType) {
         this.unitType = unitType;
         return this;
     }

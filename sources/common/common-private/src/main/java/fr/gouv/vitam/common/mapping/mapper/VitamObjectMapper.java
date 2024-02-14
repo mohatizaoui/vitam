@@ -35,18 +35,15 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import fr.gouv.culture.archivesdefrance.seda.v2.IdentifierType;
 import fr.gouv.culture.archivesdefrance.seda.v2.KeyType;
-import fr.gouv.culture.archivesdefrance.seda.v2.LevelType;
 import fr.gouv.culture.archivesdefrance.seda.v2.OrganizationDescriptiveMetadataType;
 import fr.gouv.culture.archivesdefrance.seda.v2.TextType;
 import fr.gouv.vitam.common.mapping.deserializer.IdentifierTypeDeserializer;
 import fr.gouv.vitam.common.mapping.deserializer.KeywordTypeDeserializer;
-import fr.gouv.vitam.common.mapping.deserializer.LevelTypeDeserializer;
 import fr.gouv.vitam.common.mapping.deserializer.OrganizationDescriptiveMetadataTypeDeserializer;
 import fr.gouv.vitam.common.mapping.deserializer.TextByLangDeserializer;
 import fr.gouv.vitam.common.mapping.deserializer.TextTypeDeSerializer;
 import fr.gouv.vitam.common.mapping.serializer.IdentifierTypeSerializer;
 import fr.gouv.vitam.common.mapping.serializer.KeywordTypeSerializer;
-import fr.gouv.vitam.common.mapping.serializer.LevelTypeSerializer;
 import fr.gouv.vitam.common.mapping.serializer.OrganizationDescriptiveMetadataTypeSerializer;
 import fr.gouv.vitam.common.mapping.serializer.TextByLangSerializer;
 import fr.gouv.vitam.common.mapping.serializer.TextTypeSerializer;
@@ -74,7 +71,6 @@ public class VitamObjectMapper {
         SimpleModule module = new SimpleModule();
 
         module.addDeserializer(TextByLang.class, new TextByLangDeserializer());
-        module.addDeserializer(LevelType.class, new LevelTypeDeserializer());
         module.addDeserializer(IdentifierType.class, new IdentifierTypeDeserializer());
         module.addDeserializer(OrganizationDescriptiveMetadataType.class,
             new OrganizationDescriptiveMetadataTypeDeserializer(deserializationObjectMapper));
@@ -92,7 +88,6 @@ public class VitamObjectMapper {
 
         SimpleModule module = new SimpleModule();
         module.addSerializer(TextType.class, new TextTypeSerializer());
-        module.addSerializer(LevelType.class, new LevelTypeSerializer());
         module.addSerializer(IdentifierType.class, new IdentifierTypeSerializer());
         module.addSerializer(OrganizationDescriptiveMetadataType.class,
             new OrganizationDescriptiveMetadataTypeSerializer());

@@ -45,6 +45,7 @@ import fr.gouv.vitam.common.model.unit.CustodialHistoryModel;
 import fr.gouv.vitam.common.model.unit.DescriptiveMetadataModel;
 import fr.gouv.vitam.common.model.unit.DetachedSigningRoleType;
 import fr.gouv.vitam.common.model.unit.EventTypeModel;
+import fr.gouv.vitam.common.model.unit.LevelType;
 import fr.gouv.vitam.common.model.unit.LinkingAgentIdentifierTypeModel;
 import fr.gouv.vitam.common.model.unit.ReferencedObjectTypeModel;
 import fr.gouv.vitam.common.model.unit.SignatureInformationExtendedModel;
@@ -120,7 +121,7 @@ public class DescriptiveMetadataMapper {
         }
 
         descriptiveMetadataModel.setDescriptionLanguage(metadataContentType.getDescriptionLanguage());
-        descriptiveMetadataModel.setDescriptionLevel(metadataContentType.getDescriptionLevel());
+        descriptiveMetadataModel.setDescriptionLevel(mapLevelType(metadataContentType.getDescriptionLevel()));
         descriptiveMetadataModel.setDocumentType(metadataContentType.getDocumentType());
         descriptiveMetadataModel.setEndDate(metadataContentType.getEndDate());
         descriptiveMetadataModel.setEvent(mapEvents(metadataContentType.getEvent()));
@@ -186,6 +187,13 @@ public class DescriptiveMetadataMapper {
         }
 
         return descriptiveMetadataModel;
+    }
+
+    private LevelType mapLevelType(fr.gouv.culture.archivesdefrance.seda.v2.LevelType descriptionLevel) {
+        if (descriptionLevel == null) {
+            return null;
+        }
+        return LevelType.fromValue(descriptionLevel.value());
     }
 
     private List<SignatureTypeModel> mapSignatures(List<SignatureType> signatures) {

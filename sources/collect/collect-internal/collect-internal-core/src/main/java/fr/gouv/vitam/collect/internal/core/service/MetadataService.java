@@ -34,7 +34,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Iterators;
-import fr.gouv.culture.archivesdefrance.seda.v2.LevelType;
 import fr.gouv.culture.archivesdefrance.seda.v2.UpdateOperationType;
 import fr.gouv.vitam.collect.common.dto.MetadataUnitUp;
 import fr.gouv.vitam.collect.common.exception.CollectInternalException;
@@ -65,6 +64,7 @@ import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.UnitType;
 import fr.gouv.vitam.common.model.VitamConstants;
 import fr.gouv.vitam.common.model.unit.ArchiveUnitModel;
+import fr.gouv.vitam.common.model.unit.LevelType;
 import fr.gouv.vitam.common.model.unit.ManagementModel;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.worker.core.distribution.JsonLineGenericIterator;
@@ -126,7 +126,7 @@ public class MetadataService {
         String unitId = GUIDFactory.newUnitGUID(VitamThreadUtils.getVitamSession().getTenantId()).getId();
         unitModel.setId(unitId);
         unitModel.setOpi(transactionModel.getId());
-        unitModel.setUnitType(UnitType.INGEST.name());
+        unitModel.setUnitType(UnitType.INGEST);
 
         Optional<ProjectModel> project = projectRepository.findProjectById(transactionModel.getProjectId());
 

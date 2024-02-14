@@ -32,6 +32,7 @@ import fr.gouv.culture.archivesdefrance.seda.v2.DescriptiveMetadataContentType;
 import fr.gouv.culture.archivesdefrance.seda.v2.DetachedSigningRoleType;
 import fr.gouv.culture.archivesdefrance.seda.v2.EventType;
 import fr.gouv.culture.archivesdefrance.seda.v2.ExtendedType;
+import fr.gouv.culture.archivesdefrance.seda.v2.LevelType;
 import fr.gouv.culture.archivesdefrance.seda.v2.LinkingAgentIdentifierType;
 import fr.gouv.culture.archivesdefrance.seda.v2.ManagementHistoryDataType;
 import fr.gouv.culture.archivesdefrance.seda.v2.ManagementHistoryType;
@@ -119,7 +120,7 @@ public class DescriptiveMetadataMapper {
         }
 
         dmc.setDescriptionLanguage(metadataModel.getDescriptionLanguage());
-        dmc.setDescriptionLevel(metadataModel.getDescriptionLevel());
+        dmc.setDescriptionLevel(mapLevelType(metadataModel.getDescriptionLevel()));
         dmc.setDocumentType(metadataModel.getDocumentType());
         dmc.setEndDate(metadataModel.getEndDate());
         if (metadataModel.getEvent() != null) {
@@ -233,6 +234,13 @@ public class DescriptiveMetadataMapper {
         fillHistory(historyListModel, dmc.getHistory());
 
         return dmc;
+    }
+
+    private LevelType mapLevelType(fr.gouv.vitam.common.model.unit.LevelType descriptionLevel) {
+        if (descriptionLevel == null) {
+            return null;
+        }
+        return LevelType.fromValue(descriptionLevel.value());
     }
 
     private static void checkSedaCompatibility(DescriptiveMetadataModel metadataModel,
