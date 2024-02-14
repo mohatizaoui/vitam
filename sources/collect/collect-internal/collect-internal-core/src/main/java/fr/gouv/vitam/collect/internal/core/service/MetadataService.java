@@ -49,6 +49,7 @@ import fr.gouv.vitam.common.database.builder.query.BooleanQuery;
 import fr.gouv.vitam.common.database.builder.query.QueryHelper;
 import fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper;
 import fr.gouv.vitam.common.database.builder.query.action.SetAction;
+import fr.gouv.vitam.common.database.builder.query.action.UnsetAction;
 import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
 import fr.gouv.vitam.common.database.builder.request.multiple.SelectMultiQuery;
 import fr.gouv.vitam.common.database.builder.request.multiple.UpdateMultiQuery;
@@ -75,7 +76,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -213,11 +213,11 @@ public class MetadataService {
             try {
                 updated = true;
                 List<JsonLineModel> next = iterator.next();
-                Map<String, JsonNode> unitsIdByURI =
-                    next.stream().map(e -> new AbstractMap.SimpleEntry<>(e.getId(), e.getParams()))
-                        .collect(Collectors.toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
+                Map<String, JsonNode> unitContentToSetByURI =
+                    next.stream()
+                        .collect(Collectors.toMap(JsonLineModel::getId, JsonLineModel::getParams));
                 // update unit with list
-                final List<JsonNode> updateMultiQueries = convertToQuery(unitsIdByURI, unitIdsByURI);
+                final List<JsonNode> updateMultiQueries = convertToQuery(unitContentToSetByURI, unitIdsByURI);
                 final RequestResponse<JsonNode> result = metadataRepository.atomicBulkUpdate(updateMultiQueries);
 
                 final boolean thereIsError =
@@ -268,10 +268,10 @@ public class MetadataService {
         }
     }
 
-    private List<JsonNode> convertToQuery(Map<String, JsonNode> unitsByURI, Map<String, String> unitIdsByURI)
+    private List<JsonNode> convertToQuery(Map<String, JsonNode> unitContentToSetByURI, Map<String, String> unitIdsByURI)
         throws InvalidCreateOperationException, InvalidParseOperationException, CollectInternalException {
         List<JsonNode> listQueries = new ArrayList<>();
-        for (Map.Entry<String, JsonNode> unit : unitsByURI.entrySet()) {
+        for (Map.Entry<String, JsonNode> unit : unitContentToSetByURI.entrySet()) {
             Optional<String> first = unitIdsByURI.keySet().stream().filter(e -> e.endsWith(unit.getKey())).findFirst();
             if (first.isEmpty()) {
                 throw new CollectInternalException("Cannot find unit with path " + unit.getKey());
@@ -279,8 +279,24 @@ public class MetadataService {
             String unitId = unitIdsByURI.get(first.get());
             UpdateMultiQuery query = new UpdateMultiQuery();
             query.addRoots(unitId);
-            final Map<String, JsonNode> metadataMap = JsonHelper.jsonToMap(unit.getValue());
-            query.addActions(new SetAction(metadataMap));
+
+            Map<String, JsonNode> fieldsToSet = new HashMap<>();
+            List<String> fieldsToUnset = new ArrayList<>();
+
+            unit.getValue().fields().forEachRemaining(e -> {
+                if (e.getValue().isNull()) {
+                    fieldsToUnset.add(e.getKey());
+                } else {
+                    fieldsToSet.put(e.getKey(), e.getValue());
+                }
+            });
+
+            if (!fieldsToSet.isEmpty()) {
+                query.addActions(new SetAction(fieldsToSet));
+            }
+            if (!fieldsToUnset.isEmpty()) {
+                query.addActions(new UnsetAction(fieldsToUnset.toArray(String[]::new)));
+            }
             listQueries.add(query.getFinalUpdate());
         }
         return listQueries;
