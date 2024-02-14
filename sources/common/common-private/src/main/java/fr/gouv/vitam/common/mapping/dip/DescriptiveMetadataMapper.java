@@ -32,6 +32,7 @@ import fr.gouv.culture.archivesdefrance.seda.v2.DescriptiveMetadataContentType;
 import fr.gouv.culture.archivesdefrance.seda.v2.DetachedSigningRoleType;
 import fr.gouv.culture.archivesdefrance.seda.v2.EventType;
 import fr.gouv.culture.archivesdefrance.seda.v2.ExtendedType;
+import fr.gouv.culture.archivesdefrance.seda.v2.GpsType;
 import fr.gouv.culture.archivesdefrance.seda.v2.LevelType;
 import fr.gouv.culture.archivesdefrance.seda.v2.LinkingAgentIdentifierType;
 import fr.gouv.culture.archivesdefrance.seda.v2.ManagementHistoryDataType;
@@ -51,10 +52,10 @@ import fr.gouv.vitam.common.model.unit.DescriptiveMetadataModel;
 import fr.gouv.vitam.common.model.unit.EventTypeModel;
 import fr.gouv.vitam.common.model.unit.LinkingAgentIdentifierTypeModel;
 import fr.gouv.vitam.common.model.unit.ReferencedObjectTypeModel;
+import fr.gouv.vitam.common.model.unit.SignatureDescriptionTypeModel;
 import fr.gouv.vitam.common.model.unit.SignatureInformationExtendedModel;
 import fr.gouv.vitam.common.model.unit.SignatureTypeModel;
 import fr.gouv.vitam.common.model.unit.SignedObjectDigestModel;
-import fr.gouv.vitam.common.model.unit.SignatureDescriptionTypeModel;
 import fr.gouv.vitam.common.model.unit.SigningInformationTypeModel;
 import fr.gouv.vitam.common.model.unit.TimestampingInformationTypeModel;
 import fr.gouv.vitam.common.utils.SupportedSedaVersions;
@@ -126,7 +127,7 @@ public class DescriptiveMetadataMapper {
         if (metadataModel.getEvent() != null) {
             dmc.getEvent().addAll(mapEvents(metadataModel.getEvent()));
         }
-        dmc.setGps(metadataModel.getGps());
+        dmc.setGps(mapGps(metadataModel.getGps()));
         dmc.setOriginatingAgency(metadataModel.getOriginatingAgency());
         if (metadataModel.getPersistentIdentifier() != null) {
             dmc.getPersistentIdentifier().addAll(metadataModel.getPersistentIdentifier());
@@ -234,6 +235,22 @@ public class DescriptiveMetadataMapper {
         fillHistory(historyListModel, dmc.getHistory());
 
         return dmc;
+    }
+
+    private GpsType mapGps(fr.gouv.vitam.common.model.unit.GpsType gps) {
+        if (gps == null) {
+            return null;
+        }
+        GpsType result = new GpsType();
+        result.setGpsVersionID(gps.getGpsVersionID());
+        result.setGpsAltitude(gps.getGpsAltitude());
+        result.setGpsAltitudeRef(gps.getGpsAltitudeRef());
+        result.setGpsLatitude(gps.getGpsLatitude());
+        result.setGpsLatitudeRef(gps.getGpsLatitudeRef());
+        result.setGpsLongitude(gps.getGpsLongitude());
+        result.setGpsLongitudeRef(gps.getGpsLongitudeRef());
+        result.setGpsDateStamp(gps.getGpsDateStamp());
+        return result;
     }
 
     private LevelType mapLevelType(fr.gouv.vitam.common.model.unit.LevelType descriptionLevel) {

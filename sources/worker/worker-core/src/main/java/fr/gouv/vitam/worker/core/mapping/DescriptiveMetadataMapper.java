@@ -29,6 +29,7 @@ package fr.gouv.vitam.worker.core.mapping;
 import fr.gouv.culture.archivesdefrance.seda.v2.DescriptiveMetadataContentType;
 import fr.gouv.culture.archivesdefrance.seda.v2.EventType;
 import fr.gouv.culture.archivesdefrance.seda.v2.ExtendedType;
+import fr.gouv.culture.archivesdefrance.seda.v2.GpsType;
 import fr.gouv.culture.archivesdefrance.seda.v2.LinkingAgentIdentifierType;
 import fr.gouv.culture.archivesdefrance.seda.v2.MessageDigestBinaryObjectType;
 import fr.gouv.culture.archivesdefrance.seda.v2.ReferencedObjectType;
@@ -48,10 +49,10 @@ import fr.gouv.vitam.common.model.unit.EventTypeModel;
 import fr.gouv.vitam.common.model.unit.LevelType;
 import fr.gouv.vitam.common.model.unit.LinkingAgentIdentifierTypeModel;
 import fr.gouv.vitam.common.model.unit.ReferencedObjectTypeModel;
+import fr.gouv.vitam.common.model.unit.SignatureDescriptionTypeModel;
 import fr.gouv.vitam.common.model.unit.SignatureInformationExtendedModel;
 import fr.gouv.vitam.common.model.unit.SignatureTypeModel;
 import fr.gouv.vitam.common.model.unit.SignedObjectDigestModel;
-import fr.gouv.vitam.common.model.unit.SignatureDescriptionTypeModel;
 import fr.gouv.vitam.common.model.unit.SigningInformationTypeModel;
 import fr.gouv.vitam.common.model.unit.SigningRoleType;
 import fr.gouv.vitam.common.model.unit.TextByLang;
@@ -126,7 +127,7 @@ public class DescriptiveMetadataMapper {
         descriptiveMetadataModel.setEndDate(metadataContentType.getEndDate());
         descriptiveMetadataModel.setEvent(mapEvents(metadataContentType.getEvent()));
         descriptiveMetadataModel.setFilePlanPosition(metadataContentType.getFilePlanPosition());
-        descriptiveMetadataModel.setGps(metadataContentType.getGps());
+        descriptiveMetadataModel.setGps(mapGps(metadataContentType.getGps()));
         descriptiveMetadataModel.setKeyword(metadataContentType.getKeyword());
         descriptiveMetadataModel.setLanguage(metadataContentType.getLanguage());
         descriptiveMetadataModel.setOriginatingAgency(metadataContentType.getOriginatingAgency());
@@ -187,6 +188,21 @@ public class DescriptiveMetadataMapper {
         }
 
         return descriptiveMetadataModel;
+    }
+
+    private static fr.gouv.vitam.common.model.unit.GpsType mapGps(GpsType gps) {
+        if (gps == null) {
+            return null;
+        }
+        return new fr.gouv.vitam.common.model.unit.GpsType()
+            .setGpsVersionID(gps.getGpsVersionID())
+            .setGpsAltitude(gps.getGpsAltitude())
+            .setGpsAltitudeRef(gps.getGpsAltitudeRef())
+            .setGpsLatitude(gps.getGpsLatitude())
+            .setGpsLatitudeRef(gps.getGpsLatitudeRef())
+            .setGpsLongitude(gps.getGpsLongitude())
+            .setGpsLongitudeRef(gps.getGpsLongitudeRef())
+            .setGpsDateStamp(gps.getGpsDateStamp());
     }
 
     private LevelType mapLevelType(fr.gouv.culture.archivesdefrance.seda.v2.LevelType descriptionLevel) {
