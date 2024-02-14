@@ -30,6 +30,7 @@ import fr.gouv.culture.archivesdefrance.seda.v2.DescriptiveMetadataContentType;
 import fr.gouv.culture.archivesdefrance.seda.v2.EventType;
 import fr.gouv.culture.archivesdefrance.seda.v2.ExtendedType;
 import fr.gouv.culture.archivesdefrance.seda.v2.GpsType;
+import fr.gouv.culture.archivesdefrance.seda.v2.KeywordsType;
 import fr.gouv.culture.archivesdefrance.seda.v2.LinkingAgentIdentifierType;
 import fr.gouv.culture.archivesdefrance.seda.v2.MessageDigestBinaryObjectType;
 import fr.gouv.culture.archivesdefrance.seda.v2.ReferencedObjectType;
@@ -42,6 +43,7 @@ import fr.gouv.culture.archivesdefrance.seda.v2.TimestampingInformationType;
 import fr.gouv.vitam.common.LocalDateUtil;
 import fr.gouv.vitam.common.mapping.mapper.ElementMapper;
 import fr.gouv.vitam.common.model.unit.AdditionalProofType;
+import fr.gouv.vitam.common.model.unit.CodeKeywordType;
 import fr.gouv.vitam.common.model.unit.CustodialHistoryModel;
 import fr.gouv.vitam.common.model.unit.DescriptiveMetadataModel;
 import fr.gouv.vitam.common.model.unit.DetachedSigningRoleType;
@@ -58,6 +60,7 @@ import fr.gouv.vitam.common.model.unit.SigningRoleType;
 import fr.gouv.vitam.common.model.unit.TextByLang;
 import fr.gouv.vitam.common.model.unit.TimestampingInformationTypeModel;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -128,7 +131,7 @@ public class DescriptiveMetadataMapper {
         descriptiveMetadataModel.setEvent(mapEvents(metadataContentType.getEvent()));
         descriptiveMetadataModel.setFilePlanPosition(metadataContentType.getFilePlanPosition());
         descriptiveMetadataModel.setGps(mapGps(metadataContentType.getGps()));
-        descriptiveMetadataModel.setKeyword(metadataContentType.getKeyword());
+        descriptiveMetadataModel.setKeyword(mapKeywords(metadataContentType.getKeyword()));
         descriptiveMetadataModel.setLanguage(metadataContentType.getLanguage());
         descriptiveMetadataModel.setOriginatingAgency(metadataContentType.getOriginatingAgency());
         descriptiveMetadataModel
@@ -188,6 +191,24 @@ public class DescriptiveMetadataMapper {
         }
 
         return descriptiveMetadataModel;
+    }
+
+    private static List<fr.gouv.vitam.common.model.unit.KeywordsType> mapKeywords(List<KeywordsType> keywords) {
+        List<fr.gouv.vitam.common.model.unit.KeywordsType> result = new ArrayList<>();
+        for (KeywordsType sedaKeyword : keywords) {
+            fr.gouv.vitam.common.model.unit.KeywordsType keyword = new fr.gouv.vitam.common.model.unit.KeywordsType();
+            if (sedaKeyword.getKeywordContent() != null) {
+                keyword.setKeywordContent(sedaKeyword.getKeywordContent().getValue());
+            }
+            if (sedaKeyword.getKeywordReference() != null) {
+                keyword.setKeywordReference(sedaKeyword.getKeywordReference().getValue());
+            }
+            if (sedaKeyword.getKeywordType() != null) {
+                keyword.setKeywordType(CodeKeywordType.fromValue(sedaKeyword.getKeywordType().getValue().value()));
+            }
+            result.add(keyword);
+        }
+        return result;
     }
 
     private static fr.gouv.vitam.common.model.unit.GpsType mapGps(GpsType gps) {

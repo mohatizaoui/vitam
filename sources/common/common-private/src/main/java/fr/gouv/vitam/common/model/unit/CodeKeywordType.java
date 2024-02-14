@@ -24,34 +24,39 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.common.mapping.deserializer;
+package fr.gouv.vitam.common.model.unit;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonNode;
-import fr.gouv.culture.archivesdefrance.seda.v2.CodeKeywordType;
-import fr.gouv.culture.archivesdefrance.seda.v2.KeyType;
+import com.fasterxml.jackson.annotation.JsonValue;
 
-import java.io.IOException;
+public enum CodeKeywordType {
 
-/**
- * Deserialize a (json, xml, string) representation to LevelType
- * To be registered in jackson objectMapper
- */
-public class KeywordTypeDeserializer extends JsonDeserializer<KeyType> {
-    /**
-     * @param jp (json, xml, string) representation
-     * @param ctxt
-     * @return a keyword type
-     * @throws IOException
-     */
-    @Override
-    public KeyType deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-        JsonNode node = jp.getCodec().readTree(jp);
-        KeyType keywordType = new KeyType();
-        keywordType.setValue(CodeKeywordType.fromValue(node.asText()));
-        return keywordType;
+    CORPNAME("corpname"),
+    FAMNAME("famname"),
+    GEOGNAME("geogname"),
+    NAME("name"),
+    OCCUPATION("occupation"),
+    PERSNAME("persname"),
+    SUBJECT("subject"),
+    GENREFORM("genreform"),
+    FUNCTION("function");
+    private final String value;
+
+    CodeKeywordType(String v) {
+        value = v;
+    }
+
+    @JsonValue
+    public String value() {
+        return value;
+    }
+
+    public static CodeKeywordType fromValue(String v) {
+        for (CodeKeywordType c : CodeKeywordType.values()) {
+            if (c.value.equals(v)) {
+                return c;
+            }
+        }
+        throw new IllegalArgumentException(v);
     }
 
 }

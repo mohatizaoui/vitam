@@ -27,12 +27,15 @@
 package fr.gouv.vitam.common.mapping.dip;
 
 import fr.gouv.culture.archivesdefrance.seda.v2.AdditionalProofType;
+import fr.gouv.culture.archivesdefrance.seda.v2.CodeKeywordType;
 import fr.gouv.culture.archivesdefrance.seda.v2.CustodialHistoryType;
 import fr.gouv.culture.archivesdefrance.seda.v2.DescriptiveMetadataContentType;
 import fr.gouv.culture.archivesdefrance.seda.v2.DetachedSigningRoleType;
 import fr.gouv.culture.archivesdefrance.seda.v2.EventType;
 import fr.gouv.culture.archivesdefrance.seda.v2.ExtendedType;
 import fr.gouv.culture.archivesdefrance.seda.v2.GpsType;
+import fr.gouv.culture.archivesdefrance.seda.v2.IdentifierType;
+import fr.gouv.culture.archivesdefrance.seda.v2.KeyType;
 import fr.gouv.culture.archivesdefrance.seda.v2.LevelType;
 import fr.gouv.culture.archivesdefrance.seda.v2.LinkingAgentIdentifierType;
 import fr.gouv.culture.archivesdefrance.seda.v2.ManagementHistoryDataType;
@@ -50,6 +53,7 @@ import fr.gouv.vitam.common.exception.ExportException;
 import fr.gouv.vitam.common.model.unit.ArchiveUnitHistoryModel;
 import fr.gouv.vitam.common.model.unit.DescriptiveMetadataModel;
 import fr.gouv.vitam.common.model.unit.EventTypeModel;
+import fr.gouv.vitam.common.model.unit.KeywordsType;
 import fr.gouv.vitam.common.model.unit.LinkingAgentIdentifierTypeModel;
 import fr.gouv.vitam.common.model.unit.ReferencedObjectTypeModel;
 import fr.gouv.vitam.common.model.unit.SignatureDescriptionTypeModel;
@@ -194,7 +198,7 @@ public class DescriptiveMetadataMapper {
         }
 
         if (metadataModel.getKeyword() != null && !metadataModel.getKeyword().isEmpty()) {
-            dmc.getKeyword().addAll(metadataModel.getKeyword());
+            dmc.getKeyword().addAll(mapKeywords(metadataModel.getKeyword()));
         }
 
         dmc.setReceivedDate(metadataModel.getReceivedDate());
@@ -235,6 +239,32 @@ public class DescriptiveMetadataMapper {
         fillHistory(historyListModel, dmc.getHistory());
 
         return dmc;
+    }
+
+    private static List<fr.gouv.culture.archivesdefrance.seda.v2.KeywordsType> mapKeywords(
+        List<KeywordsType> keywords) {
+        List<fr.gouv.culture.archivesdefrance.seda.v2.KeywordsType> result = new ArrayList<>();
+        for (KeywordsType keyword : keywords) {
+            fr.gouv.culture.archivesdefrance.seda.v2.KeywordsType sedaKeyword =
+                new fr.gouv.culture.archivesdefrance.seda.v2.KeywordsType();
+            if (keyword.getKeywordContent() != null) {
+                TextType content = new TextType();
+                content.setValue(keyword.getKeywordContent());
+                sedaKeyword.setKeywordContent(content);
+            }
+            if (keyword.getKeywordReference() != null) {
+                IdentifierType identifier = new IdentifierType();
+                identifier.setValue(keyword.getKeywordReference());
+                sedaKeyword.setKeywordReference(identifier);
+            }
+            if (keyword.getKeywordType() != null) {
+                KeyType keyType = new KeyType();
+                keyType.setValue(CodeKeywordType.fromValue(keyword.getKeywordType().value()));
+                sedaKeyword.setKeywordType(keyType);
+            }
+            result.add(sedaKeyword);
+        }
+        return result;
     }
 
     private GpsType mapGps(fr.gouv.vitam.common.model.unit.GpsType gps) {

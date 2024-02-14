@@ -34,16 +34,13 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import fr.gouv.culture.archivesdefrance.seda.v2.IdentifierType;
-import fr.gouv.culture.archivesdefrance.seda.v2.KeyType;
 import fr.gouv.culture.archivesdefrance.seda.v2.OrganizationDescriptiveMetadataType;
 import fr.gouv.culture.archivesdefrance.seda.v2.TextType;
 import fr.gouv.vitam.common.mapping.deserializer.IdentifierTypeDeserializer;
-import fr.gouv.vitam.common.mapping.deserializer.KeywordTypeDeserializer;
 import fr.gouv.vitam.common.mapping.deserializer.OrganizationDescriptiveMetadataTypeDeserializer;
 import fr.gouv.vitam.common.mapping.deserializer.TextByLangDeserializer;
 import fr.gouv.vitam.common.mapping.deserializer.TextTypeDeSerializer;
 import fr.gouv.vitam.common.mapping.serializer.IdentifierTypeSerializer;
-import fr.gouv.vitam.common.mapping.serializer.KeywordTypeSerializer;
 import fr.gouv.vitam.common.mapping.serializer.OrganizationDescriptiveMetadataTypeSerializer;
 import fr.gouv.vitam.common.mapping.serializer.TextByLangSerializer;
 import fr.gouv.vitam.common.mapping.serializer.TextTypeSerializer;
@@ -75,7 +72,6 @@ public class VitamObjectMapper {
         module.addDeserializer(OrganizationDescriptiveMetadataType.class,
             new OrganizationDescriptiveMetadataTypeDeserializer(deserializationObjectMapper));
         module.addDeserializer(TextType.class, new TextTypeDeSerializer());
-        module.addDeserializer(KeyType.class, new KeywordTypeDeserializer());
 
         deserializationObjectMapper.registerModule(module);
     }
@@ -93,7 +89,6 @@ public class VitamObjectMapper {
             new OrganizationDescriptiveMetadataTypeSerializer());
         module.addSerializer(XMLGregorianCalendar.class, new XMLGregorianCalendarSerializer());
         module.addSerializer(TextByLang.class, new TextByLangSerializer());
-        module.addSerializer(KeyType.class, new KeywordTypeSerializer());
 
         serializationObjectMapper.registerModule(module);
         JavaTimeModule module1 = new JavaTimeModule();

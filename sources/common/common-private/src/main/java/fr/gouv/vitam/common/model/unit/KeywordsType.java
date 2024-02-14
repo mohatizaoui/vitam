@@ -24,51 +24,47 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.common.mapping.serializer;
+package fr.gouv.vitam.common.model.unit;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import fr.gouv.culture.archivesdefrance.seda.v2.KeyType;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.io.IOException;
+public class KeywordsType {
 
-import static java.util.Objects.isNull;
+    @JsonProperty("KeywordContent")
+    private String keywordContent;
+    @JsonProperty("KeywordReference")
+    private String keywordReference;
+    @JsonProperty("KeywordType")
+    private CodeKeywordType keywordType;
 
-/**
- * textType serializer
- */
-public class KeywordTypeSerializer extends StdSerializer<KeyType> {
-
-    /**
-     * default constructor
-     */
-    public KeywordTypeSerializer() {
-        this(null);
+    public KeywordsType() {
+        // Empty constructor for deserialization
     }
 
-    /**
-     * constructor
-     *
-     * @param type
-     */
-    public KeywordTypeSerializer(Class<KeyType> type) {
-        super(type);
+    public String getKeywordContent() {
+        return keywordContent;
     }
 
-    /**
-     * @param keywordType
-     * @param jgen
-     * @param provider
-     * @throws IOException
-     */
-    @Override
-    public void serialize(KeyType keywordType, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException {
-        if (isNull(keywordType.getValue())) {
-            jgen.writeNull();
-            return;
-        }
-        jgen.writeString(keywordType.getValue().value());
+    public KeywordsType setKeywordContent(String keywordContent) {
+        this.keywordContent = keywordContent;
+        return this;
+    }
+
+    public String getKeywordReference() {
+        return keywordReference;
+    }
+
+    public KeywordsType setKeywordReference(String keywordReference) {
+        this.keywordReference = keywordReference;
+        return this;
+    }
+
+    public CodeKeywordType getKeywordType() {
+        return keywordType;
+    }
+
+    public KeywordsType setKeywordType(CodeKeywordType keywordType) {
+        this.keywordType = keywordType;
+        return this;
     }
 }
