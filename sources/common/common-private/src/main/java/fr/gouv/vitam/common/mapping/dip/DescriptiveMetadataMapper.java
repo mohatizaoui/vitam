@@ -28,6 +28,7 @@ package fr.gouv.vitam.common.mapping.dip;
 
 import fr.gouv.culture.archivesdefrance.seda.v2.AdditionalProofType;
 import fr.gouv.culture.archivesdefrance.seda.v2.CodeKeywordType;
+import fr.gouv.culture.archivesdefrance.seda.v2.CodeType;
 import fr.gouv.culture.archivesdefrance.seda.v2.CoverageType;
 import fr.gouv.culture.archivesdefrance.seda.v2.CustodialHistoryType;
 import fr.gouv.culture.archivesdefrance.seda.v2.DescriptiveMetadataContentType;
@@ -405,8 +406,17 @@ public class DescriptiveMetadataMapper {
         result.setValidator(signatureType.getValidator());
         result.setReferencedObject(mapReferencedObject(signatureType.getReferencedObject()));
         // Not supported in R11
-        result.setMasterdata(signatureType.getMasterdata());
+        result.setMasterdata(mapCodeType(signatureType.getMasterdata()));
         return result;
+    }
+
+    private static CodeType mapCodeType(String value) {
+        if(value == null) {
+            return null;
+        }
+        CodeType codeType = new CodeType();
+        codeType.setValue(value);
+        return codeType;
     }
 
     private ReferencedObjectType mapReferencedObject(ReferencedObjectTypeModel referencedObject) {

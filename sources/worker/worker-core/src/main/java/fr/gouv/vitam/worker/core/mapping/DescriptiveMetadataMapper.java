@@ -26,6 +26,7 @@
  */
 package fr.gouv.vitam.worker.core.mapping;
 
+import fr.gouv.culture.archivesdefrance.seda.v2.CodeType;
 import fr.gouv.culture.archivesdefrance.seda.v2.DescriptiveMetadataContentType;
 import fr.gouv.culture.archivesdefrance.seda.v2.EventType;
 import fr.gouv.culture.archivesdefrance.seda.v2.ExtendedType;
@@ -306,7 +307,14 @@ public class DescriptiveMetadataMapper {
             .setValidator(signatureType.getValidator())
             .setReferencedObject(mapReferencedObject(signatureType.getReferencedObject()))
             // Not supported in R11
-            .setMasterdata(signatureType.getMasterdata());
+            .setMasterdata(getCodeType(signatureType.getMasterdata()));
+    }
+
+    private static String getCodeType(CodeType codeType) {
+        if(codeType == null) {
+            return null;
+        }
+        return codeType.getValue();
     }
 
     private ReferencedObjectTypeModel mapReferencedObject(ReferencedObjectType referencedObject) {
