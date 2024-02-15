@@ -64,6 +64,7 @@ import fr.gouv.vitam.common.model.unit.SignatureInformationExtendedModel;
 import fr.gouv.vitam.common.model.unit.SignatureTypeModel;
 import fr.gouv.vitam.common.model.unit.SignedObjectDigestModel;
 import fr.gouv.vitam.common.model.unit.SigningInformationTypeModel;
+import fr.gouv.vitam.common.model.unit.TextByLang;
 import fr.gouv.vitam.common.model.unit.TimestampingInformationTypeModel;
 import fr.gouv.vitam.common.utils.SupportedSedaVersions;
 import org.apache.commons.collections4.CollectionUtils;
@@ -72,6 +73,8 @@ import org.w3c.dom.Element;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -119,7 +122,7 @@ public class DescriptiveMetadataMapper {
         dmc.setCustodialHistory(custodialHistory);
 
         if (metadataModel.getDescription_() != null) {
-            dmc.getDescription().addAll(metadataModel.getDescription_().getTextTypes());
+            dmc.getDescription().addAll(mapTextByLang(metadataModel.getDescription_()));
         }
 
         if (metadataModel.getDescription() != null) {
@@ -220,7 +223,7 @@ public class DescriptiveMetadataMapper {
         }
 
         if (metadataModel.getTitle_() != null) {
-            dmc.getTitle().addAll(metadataModel.getTitle_().getTextTypes());
+            dmc.getTitle().addAll(mapTextByLang(metadataModel.getTitle_()));
         }
 
         TextType title = new TextType();
@@ -243,6 +246,20 @@ public class DescriptiveMetadataMapper {
         fillHistory(historyListModel, dmc.getHistory());
 
         return dmc;
+    }
+
+    private Collection<? extends TextType> mapTextByLang(TextByLang textByLang) {
+        if (textByLang == null || textByLang.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return textByLang.getTextByLang().entrySet()
+            .stream().map(entry -> {
+                TextType textType = new TextType();
+                textType.setLang(entry.getKey());
+                textType.setValue(entry.getValue());
+                return textType;
+            })
+            .collect(Collectors.toList());
     }
 
     private OrganizationType mapOrganizationType(fr.gouv.vitam.common.model.unit.OrganizationType organization) {

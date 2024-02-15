@@ -26,17 +26,20 @@
  */
 package fr.gouv.vitam.common.model.unit;
 
-import fr.gouv.culture.archivesdefrance.seda.v2.TextType;
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+import fr.gouv.vitam.common.ParametersChecker;
+import org.apache.commons.collections4.MapUtils;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * TextByLang class
  */
 public class TextByLang {
 
-    private List<TextType> textTypes;
+    private Map<String, String> textByLang;
 
     /**
      * Default Constructor
@@ -45,24 +48,23 @@ public class TextByLang {
         // nothing
     }
 
-    /**
-     * Constructor
-     *
-     * @param textTypes the textTypes list
-     */
-    public TextByLang(List<TextType> textTypes) {
-        this.textTypes = textTypes.stream().filter(t -> t.getLang() != null).collect(Collectors.toList());
+    @JsonAnyGetter
+    public Map<String, String> getTextByLang() {
+        return textByLang;
     }
 
-    /**
-     * @return the text types as a list
-     */
-    public List<TextType> getTextTypes() {
-        return textTypes;
+    @JsonAnySetter
+    public TextByLang setTextByLang(String lang, String text) {
+        ParametersChecker.checkParameter("Missing lang: " + lang);
+        ParametersChecker.checkParameter("Missing text: " + text);
+        if (textByLang == null) {
+            this.textByLang = new HashMap<>();
+        }
+        this.textByLang.put(lang, text);
+        return this;
     }
 
-    public boolean isNotEmpty() {
-        return !textTypes.isEmpty();
+    public boolean isEmpty() {
+        return MapUtils.isEmpty(this.textByLang);
     }
-
 }

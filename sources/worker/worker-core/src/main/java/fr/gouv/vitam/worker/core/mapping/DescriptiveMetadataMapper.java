@@ -122,11 +122,7 @@ public class DescriptiveMetadataMapper {
         descriptiveMetadataModel.setCustodialHistory(custodialHistoryModel);
 
         descriptiveMetadataModel.setDescription(findDefaultTextType(metadataContentType.getDescription()));
-        TextByLang description_ = new TextByLang(metadataContentType.getDescription());
-
-        if (description_.isNotEmpty()) {
-            descriptiveMetadataModel.setDescription_(description_);
-        }
+        descriptiveMetadataModel.setDescription_(mapTextByLang(metadataContentType.getDescription()));
 
         descriptiveMetadataModel.setDescriptionLanguage(metadataContentType.getDescriptionLanguage());
         descriptiveMetadataModel.setDescriptionLevel(mapLevelType(metadataContentType.getDescriptionLevel()));
@@ -166,10 +162,7 @@ public class DescriptiveMetadataMapper {
         descriptiveMetadataModel.setTag(metadataContentType.getTag());
 
         descriptiveMetadataModel.setTitle(findDefaultTextType(metadataContentType.getTitle()));
-        TextByLang title_ = new TextByLang(metadataContentType.getTitle());
-        if (title_.isNotEmpty()) {
-            descriptiveMetadataModel.setTitle_(title_);
-        }
+        descriptiveMetadataModel.setTitle_(mapTextByLang(metadataContentType.getTitle()));
 
         descriptiveMetadataModel.setTransactedDate(
             LocalDateUtil.transformIsoOffsetDateToIsoOffsetDateTime(metadataContentType.getTransactedDate()));
@@ -195,6 +188,23 @@ public class DescriptiveMetadataMapper {
         }
 
         return descriptiveMetadataModel;
+    }
+
+    private TextByLang mapTextByLang(List<TextType> textTypeList) {
+        if (CollectionUtils.isEmpty(textTypeList)) {
+            return null;
+        }
+        Map<String, String> collect = textTypeList.stream()
+            .filter(entry -> entry.getLang() != null)
+            .collect(Collectors.toMap(TextType::getLang, TextType::getValue));
+        if (collect.isEmpty()) {
+            return null;
+        }
+        TextByLang textByLang = new TextByLang();
+        for (Map.Entry<String, String> stringStringEntry : collect.entrySet()) {
+            textByLang.setTextByLang(stringStringEntry.getKey(), stringStringEntry.getValue());
+        }
+        return textByLang;
     }
 
     private OrganizationType mapOrganizationType(

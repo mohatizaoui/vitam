@@ -28,7 +28,6 @@ package fr.gouv.vitam.common.mapping.dip;
 
 import fr.gouv.culture.archivesdefrance.seda.v2.CustodialHistoryItemType;
 import fr.gouv.culture.archivesdefrance.seda.v2.DescriptiveMetadataContentType;
-import fr.gouv.culture.archivesdefrance.seda.v2.TextType;
 import fr.gouv.vitam.common.model.unit.CustodialHistoryModel;
 import fr.gouv.vitam.common.model.unit.DataObjectReference;
 import fr.gouv.vitam.common.model.unit.DescriptiveMetadataModel;
@@ -40,12 +39,10 @@ import org.mockito.InjectMocks;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
-import javax.xml.datatype.DatatypeConfigurationException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
@@ -62,10 +59,8 @@ public class DescriptiveMetadataMapperTest {
         // Given
         DescriptiveMetadataModel descriptiveMetadataModel = new DescriptiveMetadataModel();
         descriptiveMetadataModel.setTitle("titre_default");
-        TextType textType_fr = new TextType();
-        textType_fr.setLang("en");
-        textType_fr.setValue("title");
-        TextByLang title_ = new TextByLang(singletonList(textType_fr));
+        TextByLang title_ = new TextByLang()
+            .setTextByLang("en", "title");
 
         descriptiveMetadataModel.setTitle_(title_);
 
@@ -86,10 +81,8 @@ public class DescriptiveMetadataMapperTest {
         // Given
         DescriptiveMetadataModel descriptiveMetadataModel = new DescriptiveMetadataModel();
         descriptiveMetadataModel.setDescription("description_default");
-        TextType textType_fr = new TextType();
-        textType_fr.setLang("en");
-        textType_fr.setValue("description");
-        TextByLang description_ = new TextByLang(singletonList(textType_fr));
+        TextByLang description_ = new TextByLang()
+            .setTextByLang("en", "description");
 
         descriptiveMetadataModel.setDescription_(description_);
 

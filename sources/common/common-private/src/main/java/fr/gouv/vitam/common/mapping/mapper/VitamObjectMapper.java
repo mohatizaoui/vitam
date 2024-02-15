@@ -34,12 +34,9 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import fr.gouv.culture.archivesdefrance.seda.v2.TextType;
-import fr.gouv.vitam.common.mapping.deserializer.TextByLangDeserializer;
 import fr.gouv.vitam.common.mapping.deserializer.TextTypeDeSerializer;
-import fr.gouv.vitam.common.mapping.serializer.TextByLangSerializer;
 import fr.gouv.vitam.common.mapping.serializer.TextTypeSerializer;
 import fr.gouv.vitam.common.mapping.serializer.XMLGregorianCalendarSerializer;
-import fr.gouv.vitam.common.model.unit.TextByLang;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
@@ -61,7 +58,6 @@ public class VitamObjectMapper {
 
         SimpleModule module = new SimpleModule();
 
-        module.addDeserializer(TextByLang.class, new TextByLangDeserializer());
         module.addDeserializer(TextType.class, new TextTypeDeSerializer());
 
         deserializationObjectMapper.registerModule(module);
@@ -76,7 +72,6 @@ public class VitamObjectMapper {
         SimpleModule module = new SimpleModule();
         module.addSerializer(TextType.class, new TextTypeSerializer());
         module.addSerializer(XMLGregorianCalendar.class, new XMLGregorianCalendarSerializer());
-        module.addSerializer(TextByLang.class, new TextByLangSerializer());
 
         serializationObjectMapper.registerModule(module);
         JavaTimeModule module1 = new JavaTimeModule();
