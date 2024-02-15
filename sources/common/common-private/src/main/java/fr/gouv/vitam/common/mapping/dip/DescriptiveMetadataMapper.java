@@ -565,7 +565,7 @@ public class DescriptiveMetadataMapper {
     private EventType mapEvent(EventTypeModel event) {
         EventType eventType = new EventType();
         eventType.setEventDateTime(event.getEventDateTime());
-        eventType.setEventDetail(event.getEventDetail());
+        eventType.setEventDetail(mapTextType(event.getEventDetail()));
         eventType.setEventDetailData(event.getEventDetailData());
         eventType.setEventIdentifier(event.getEventIdentifier());
         eventType.setEventType(event.getEventType());

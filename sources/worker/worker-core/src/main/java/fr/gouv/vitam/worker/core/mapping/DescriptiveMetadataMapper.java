@@ -447,7 +447,7 @@ public class DescriptiveMetadataMapper {
     private EventTypeModel mapEvent(EventType event) {
         return new EventTypeModel()
             .setEventDateTime(event.getEventDateTime())
-            .setEventDetail(event.getEventDetail())
+            .setEventDetail(mapTextType(event.getEventDetail()))
             .setEventDetailData(event.getEventDetailData())
             .setEventIdentifier(event.getEventIdentifier())
             .setEventType(event.getEventType())
