@@ -24,45 +24,38 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.common.mapping.serializer;
+package fr.gouv.vitam.common.model.unit;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import fr.gouv.culture.archivesdefrance.seda.v2.IdentifierType;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.io.IOException;
+import java.util.Map;
 
-/**
- * Identifier Type Serializer
- */
-public class IdentifierTypeSerializer extends StdSerializer<IdentifierType> {
+public class OrganizationType {
 
-    /**
-     * constructor
-     */
-    public IdentifierTypeSerializer() {
-        this(null);
+    @JsonProperty("Identifier")
+    private String identifier;
+    @JsonProperty("OrganizationDescriptiveMetadata")
+    private Map<String, Object> organizationDescriptiveMetadata;
+
+    public OrganizationType() {
     }
 
-    /**
-     * constructor
-     */
-    public IdentifierTypeSerializer(Class<IdentifierType> type) {
-        super(type);
+    public String getIdentifier() {
+        return identifier;
     }
 
-    /**
-     * serialize IdentifierType
-     *
-     * @param identifierType
-     * @param gen
-     * @param provider
-     * @throws IOException
-     */
-    @Override
-    public void serialize(IdentifierType identifierType, JsonGenerator gen, SerializerProvider provider)
-        throws IOException {
-        gen.writeString(identifierType.getValue());
+    public OrganizationType setIdentifier(String identifier) {
+        this.identifier = identifier;
+        return this;
+    }
+
+    public Map<String, Object> getOrganizationDescriptiveMetadata() {
+        return organizationDescriptiveMetadata;
+    }
+
+    public OrganizationType setOrganizationDescriptiveMetadata(
+        Map<String, Object> organizationDescriptiveMetadata) {
+        this.organizationDescriptiveMetadata = organizationDescriptiveMetadata;
+        return this;
     }
 }

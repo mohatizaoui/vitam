@@ -51,6 +51,7 @@ import fr.gouv.vitam.common.model.unit.DetachedSigningRoleType;
 import fr.gouv.vitam.common.model.unit.EventTypeModel;
 import fr.gouv.vitam.common.model.unit.LevelType;
 import fr.gouv.vitam.common.model.unit.LinkingAgentIdentifierTypeModel;
+import fr.gouv.vitam.common.model.unit.OrganizationType;
 import fr.gouv.vitam.common.model.unit.ReferencedObjectTypeModel;
 import fr.gouv.vitam.common.model.unit.SignatureDescriptionTypeModel;
 import fr.gouv.vitam.common.model.unit.SignatureInformationExtendedModel;
@@ -64,6 +65,7 @@ import org.apache.commons.collections.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -135,7 +137,7 @@ public class DescriptiveMetadataMapper {
         descriptiveMetadataModel.setGps(mapGps(metadataContentType.getGps()));
         descriptiveMetadataModel.setKeyword(mapKeywords(metadataContentType.getKeyword()));
         descriptiveMetadataModel.setLanguage(metadataContentType.getLanguage());
-        descriptiveMetadataModel.setOriginatingAgency(metadataContentType.getOriginatingAgency());
+        descriptiveMetadataModel.setOriginatingAgency(mapOrganizationType(metadataContentType.getOriginatingAgency()));
         descriptiveMetadataModel
             .setOriginatingAgencyArchiveUnitIdentifier(metadataContentType.getOriginatingAgencyArchiveUnitIdentifier());
         descriptiveMetadataModel.setOriginatingSystemId(metadataContentType.getOriginatingSystemId());
@@ -159,7 +161,7 @@ public class DescriptiveMetadataMapper {
         descriptiveMetadataModel
             .setStartDate(LocalDateUtil.transformIsoOffsetDateToIsoOffsetDateTime(metadataContentType.getStartDate()));
         descriptiveMetadataModel.setStatus(metadataContentType.getStatus());
-        descriptiveMetadataModel.setSubmissionAgency(metadataContentType.getSubmissionAgency());
+        descriptiveMetadataModel.setSubmissionAgency(mapOrganizationType(metadataContentType.getSubmissionAgency()));
         descriptiveMetadataModel.setSystemId(metadataContentType.getSystemId());
         descriptiveMetadataModel.setTag(metadataContentType.getTag());
 
@@ -193,6 +195,23 @@ public class DescriptiveMetadataMapper {
         }
 
         return descriptiveMetadataModel;
+    }
+
+    private OrganizationType mapOrganizationType(
+        fr.gouv.culture.archivesdefrance.seda.v2.OrganizationType organizationType) {
+        if (organizationType == null) {
+            return null;
+        }
+        OrganizationType organization = new OrganizationType();
+        if (organizationType.getIdentifier() != null) {
+            organization.setIdentifier(organizationType.getIdentifier().getValue());
+        }
+        if (organizationType.getOrganizationDescriptiveMetadata() != null) {
+            Map<String, Object> organizationDescriptiveMetadata =
+                ElementMapper.toMap(organizationType.getOrganizationDescriptiveMetadata().getAny());
+            organization.setOrganizationDescriptiveMetadata(organizationDescriptiveMetadata);
+        }
+        return organization;
     }
 
     private CoverageType mapCoverage(fr.gouv.culture.archivesdefrance.seda.v2.CoverageType coverage) {

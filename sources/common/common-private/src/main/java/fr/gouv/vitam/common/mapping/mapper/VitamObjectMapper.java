@@ -33,15 +33,9 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import fr.gouv.culture.archivesdefrance.seda.v2.IdentifierType;
-import fr.gouv.culture.archivesdefrance.seda.v2.OrganizationDescriptiveMetadataType;
 import fr.gouv.culture.archivesdefrance.seda.v2.TextType;
-import fr.gouv.vitam.common.mapping.deserializer.IdentifierTypeDeserializer;
-import fr.gouv.vitam.common.mapping.deserializer.OrganizationDescriptiveMetadataTypeDeserializer;
 import fr.gouv.vitam.common.mapping.deserializer.TextByLangDeserializer;
 import fr.gouv.vitam.common.mapping.deserializer.TextTypeDeSerializer;
-import fr.gouv.vitam.common.mapping.serializer.IdentifierTypeSerializer;
-import fr.gouv.vitam.common.mapping.serializer.OrganizationDescriptiveMetadataTypeSerializer;
 import fr.gouv.vitam.common.mapping.serializer.TextByLangSerializer;
 import fr.gouv.vitam.common.mapping.serializer.TextTypeSerializer;
 import fr.gouv.vitam.common.mapping.serializer.XMLGregorianCalendarSerializer;
@@ -68,9 +62,6 @@ public class VitamObjectMapper {
         SimpleModule module = new SimpleModule();
 
         module.addDeserializer(TextByLang.class, new TextByLangDeserializer());
-        module.addDeserializer(IdentifierType.class, new IdentifierTypeDeserializer());
-        module.addDeserializer(OrganizationDescriptiveMetadataType.class,
-            new OrganizationDescriptiveMetadataTypeDeserializer(deserializationObjectMapper));
         module.addDeserializer(TextType.class, new TextTypeDeSerializer());
 
         deserializationObjectMapper.registerModule(module);
@@ -84,9 +75,6 @@ public class VitamObjectMapper {
 
         SimpleModule module = new SimpleModule();
         module.addSerializer(TextType.class, new TextTypeSerializer());
-        module.addSerializer(IdentifierType.class, new IdentifierTypeSerializer());
-        module.addSerializer(OrganizationDescriptiveMetadataType.class,
-            new OrganizationDescriptiveMetadataTypeSerializer());
         module.addSerializer(XMLGregorianCalendar.class, new XMLGregorianCalendarSerializer());
         module.addSerializer(TextByLang.class, new TextByLangSerializer());
 

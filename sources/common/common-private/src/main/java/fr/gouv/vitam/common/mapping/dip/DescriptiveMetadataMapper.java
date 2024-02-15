@@ -42,6 +42,8 @@ import fr.gouv.culture.archivesdefrance.seda.v2.LinkingAgentIdentifierType;
 import fr.gouv.culture.archivesdefrance.seda.v2.ManagementHistoryDataType;
 import fr.gouv.culture.archivesdefrance.seda.v2.ManagementHistoryType;
 import fr.gouv.culture.archivesdefrance.seda.v2.MessageDigestBinaryObjectType;
+import fr.gouv.culture.archivesdefrance.seda.v2.OrganizationDescriptiveMetadataType;
+import fr.gouv.culture.archivesdefrance.seda.v2.OrganizationType;
 import fr.gouv.culture.archivesdefrance.seda.v2.ReferencedObjectType;
 import fr.gouv.culture.archivesdefrance.seda.v2.SignatureDescriptionType;
 import fr.gouv.culture.archivesdefrance.seda.v2.SignatureType;
@@ -65,6 +67,7 @@ import fr.gouv.vitam.common.model.unit.SigningInformationTypeModel;
 import fr.gouv.vitam.common.model.unit.TimestampingInformationTypeModel;
 import fr.gouv.vitam.common.utils.SupportedSedaVersions;
 import org.apache.commons.collections4.CollectionUtils;
+import org.w3c.dom.Element;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -133,7 +136,7 @@ public class DescriptiveMetadataMapper {
             dmc.getEvent().addAll(mapEvents(metadataModel.getEvent()));
         }
         dmc.setGps(mapGps(metadataModel.getGps()));
-        dmc.setOriginatingAgency(metadataModel.getOriginatingAgency());
+        dmc.setOriginatingAgency(mapOrganizationType(metadataModel.getOriginatingAgency()));
         if (metadataModel.getPersistentIdentifier() != null) {
             dmc.getPersistentIdentifier().addAll(metadataModel.getPersistentIdentifier());
         }
@@ -210,7 +213,7 @@ public class DescriptiveMetadataMapper {
         dmc.setSource(metadataModel.getSource());
         dmc.setStartDate(metadataModel.getStartDate());
         dmc.setStatus(metadataModel.getStatus());
-        dmc.setSubmissionAgency(metadataModel.getSubmissionAgency());
+        dmc.setSubmissionAgency(mapOrganizationType(metadataModel.getSubmissionAgency()));
 
         if (metadataModel.getTag() != null) {
             dmc.getTag().addAll(metadataModel.getTag());
@@ -240,6 +243,24 @@ public class DescriptiveMetadataMapper {
         fillHistory(historyListModel, dmc.getHistory());
 
         return dmc;
+    }
+
+    private OrganizationType mapOrganizationType(fr.gouv.vitam.common.model.unit.OrganizationType organization) {
+        if (organization == null) {
+            return null;
+        }
+        OrganizationType organizationType = new OrganizationType();
+        organizationType.setIdentifier(mapIdentifier(organization.getIdentifier()));
+
+        if (organization.getOrganizationDescriptiveMetadata() != null) {
+            List<Element> elements = TransformJsonTreeToListOfXmlElement.mapJsonToElement(
+                organization.getOrganizationDescriptiveMetadata());
+            OrganizationDescriptiveMetadataType organizationDescriptiveMetadataType =
+                new OrganizationDescriptiveMetadataType();
+            organizationDescriptiveMetadataType.getAny().addAll(elements);
+            organizationType.setOrganizationDescriptiveMetadata(organizationDescriptiveMetadataType);
+        }
+        return organizationType;
     }
 
     private static CoverageType mapCoverage(fr.gouv.vitam.common.model.unit.CoverageType coverage) {
@@ -284,11 +305,7 @@ public class DescriptiveMetadataMapper {
                 content.setValue(keyword.getKeywordContent());
                 sedaKeyword.setKeywordContent(content);
             }
-            if (keyword.getKeywordReference() != null) {
-                IdentifierType identifier = new IdentifierType();
-                identifier.setValue(keyword.getKeywordReference());
-                sedaKeyword.setKeywordReference(identifier);
-            }
+            sedaKeyword.setKeywordReference(mapIdentifier(keyword.getKeywordReference()));
             if (keyword.getKeywordType() != null) {
                 KeyType keyType = new KeyType();
                 keyType.setValue(CodeKeywordType.fromValue(keyword.getKeywordType().value()));
@@ -297,6 +314,15 @@ public class DescriptiveMetadataMapper {
             result.add(sedaKeyword);
         }
         return result;
+    }
+
+    private static IdentifierType mapIdentifier(String value) {
+        if (value == null) {
+            return null;
+        }
+        IdentifierType identifier = new IdentifierType();
+        identifier.setValue(value);
+        return identifier;
     }
 
     private GpsType mapGps(fr.gouv.vitam.common.model.unit.GpsType gps) {
