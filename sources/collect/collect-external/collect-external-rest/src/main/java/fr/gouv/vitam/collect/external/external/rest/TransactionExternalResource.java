@@ -71,6 +71,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
 
+import static fr.gouv.vitam.common.CommonMediaType.TEXT_CSV;
 import static fr.gouv.vitam.common.model.ProcessAction.RESUME;
 import static fr.gouv.vitam.logbook.common.parameters.Contexts.DEFAULT_WORKFLOW;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.TRANSACTION_ABORT;
@@ -78,6 +79,8 @@ import static fr.gouv.vitam.utils.SecurityProfilePermissions.TRANSACTION_CLOSE;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.TRANSACTION_ID_DELETE;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.TRANSACTION_ID_READ;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.TRANSACTION_ID_UNITS_BULK_UPDATE;
+import static fr.gouv.vitam.utils.SecurityProfilePermissions.TRANSACTION_ID_UNITS_METADATA_CSV_UPDATE;
+import static fr.gouv.vitam.utils.SecurityProfilePermissions.TRANSACTION_ID_UNITS_METADATA_JSONL_UPDATE;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.TRANSACTION_ID_UNITS_UPDATE;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.TRANSACTION_REOPEN;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.TRANSACTION_SEND;
@@ -313,20 +316,58 @@ public class TransactionExternalResource extends ApplicationStatusResource {
         }
     }
 
-
     @Path("/{transactionId}/units")
     @PUT
     @Consumes(APPLICATION_OCTET_STREAM)
     @Produces(APPLICATION_JSON)
-    @Secured(permission = TRANSACTION_ID_UNITS_UPDATE, description = "Mettre à jour les unités archivistiques")
+    @Secured(permission = TRANSACTION_ID_UNITS_UPDATE, description = "Mettre à jour les unités archivistiques via fichier CSV de métadonnées (déprécié)")
+    @Deprecated(forRemoval = true, since = "Vitam 7.1")
     public Response updateUnits(@PathParam("transactionId") String transactionId, InputStream inputStream) {
+        LOGGER.warn("Deprecated API (/collect-external/v1/transactions/{transactionId}/units). " +
+            "Will be removed in next releases.");
+        return updateUnitsWithMetadataCsv(transactionId, inputStream);
+    }
+
+    @Path("/{transactionId}/units/metadata/csv")
+    @PUT
+    @Consumes(TEXT_CSV)
+    @Produces(APPLICATION_JSON)
+    @Secured(permission = TRANSACTION_ID_UNITS_METADATA_CSV_UPDATE, description = "Mettre à jour les unités archivistiques via fichier CSV de métadonnées")
+    public Response updateUnitsWithMetadataCsv(@PathParam("transactionId") String transactionId,
+        InputStream metadataCsvInputStream) {
         try (CollectInternalClient client = collectInternalClientFactory.getClient()) {
             SanityChecker.checkParameter(transactionId);
-            ParametersChecker.checkParameter("You must supply a file!", inputStream);
-            final RequestResponse<JsonNode> response = client.updateUnits(transactionId, inputStream);
+            ParametersChecker.checkParameter("You must supply a file!", metadataCsvInputStream);
+            final RequestResponse<JsonNode> response =
+                client.updateUnitsWithCsvMetadata(transactionId, metadataCsvInputStream);
             return Response.status(OK).entity(response).build();
-        } catch (InvalidParseOperationException | IllegalArgumentException e) {
-            LOGGER.error(PREDICATES_FAILED_EXCEPTION, e);
+        } catch (InvalidParseOperationException | IllegalArgumentException |
+                 CollectInternalClientInvalidRequestException e) {
+            LOGGER.error("Bad request: " + e.getLocalizedMessage(), e);
+            return CollectRequestResponse.toVitamError(BAD_REQUEST, e.getLocalizedMessage());
+        } catch (final VitamClientException e) {
+            LOGGER.error("Error when updating units   ", e);
+            return CollectRequestResponse.toVitamError(INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
+        }
+    }
+
+    @Path("/{transactionId}/units/metadata/jsonl")
+    @PUT
+    @Consumes(APPLICATION_OCTET_STREAM)
+    @Produces(APPLICATION_JSON)
+    @Secured(permission = TRANSACTION_ID_UNITS_METADATA_JSONL_UPDATE, description = "Mettre à jour les unités archivistiques via fichier JSON-Lines de métadonnées")
+    public Response updateUnitsWithMetadataJsonl(@PathParam("transactionId") String transactionId,
+        InputStream metadataJsonlInputStream) {
+        try (CollectInternalClient client = collectInternalClientFactory.getClient()) {
+
+            SanityChecker.checkParameter(transactionId);
+            ParametersChecker.checkParameter("You must supply a file!", metadataJsonlInputStream);
+            final RequestResponse<JsonNode> response =
+                client.updateUnitsWithJsonlMetadata(transactionId, metadataJsonlInputStream);
+            return Response.status(OK).entity(response).build();
+        } catch (InvalidParseOperationException | IllegalArgumentException |
+                 CollectInternalClientInvalidRequestException e) {
+            LOGGER.error("Bad request: " + e.getLocalizedMessage(), e);
             return CollectRequestResponse.toVitamError(BAD_REQUEST, e.getLocalizedMessage());
         } catch (final VitamClientException e) {
             LOGGER.error("Error when updating units   ", e);

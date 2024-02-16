@@ -49,6 +49,7 @@ import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
 
+import static fr.gouv.vitam.common.CommonMediaType.TEXT_CSV_MEDIATYPE;
 import static fr.gouv.vitam.common.client.VitamRequestBuilder.delete;
 import static fr.gouv.vitam.common.client.VitamRequestBuilder.get;
 import static fr.gouv.vitam.common.client.VitamRequestBuilder.post;
@@ -65,6 +66,8 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
     private static final String TRANSACTION_PATH = "/transactions";
     private static final String PROJECT_PATH = "/projects";
     private static final String UNITS_PATH = "/units";
+    private static final String UNITS_METADATA_CSV_PATH = "/units/metadata/csv";
+    private static final String UNITS_METADATA_JSONL_PATH = "/units/metadata/jsonl";
     private static final String OBJECTS_PATH = "/objects";
     private static final String BINARY_PATH = "/binary";
 
@@ -415,13 +418,27 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
     }
 
     @Override
-    public RequestResponseOK<JsonNode> updateUnits(String transactionId, InputStream is)
-        throws VitamClientException {
+    public RequestResponseOK<JsonNode> updateUnitsWithCsvMetadata(String transactionId,
+        InputStream metadataCsvInputStream) throws VitamClientException {
         try (Response response = make(
-            put().withPath(TRANSACTION_PATH + "/" + transactionId + UNITS_PATH)
-                .withBody(is)
-                .withJsonAccept()
-                .withOctetContentType())) {
+            put().withPath(TRANSACTION_PATH + "/" + transactionId + UNITS_METADATA_CSV_PATH)
+                .withBody(metadataCsvInputStream)
+                .withContentType(TEXT_CSV_MEDIATYPE)
+                .withJsonAccept())) {
+            check(response);
+            RequestResponse<JsonNode> result = RequestResponse.parseFromResponse(response, JsonNode.class);
+            return (RequestResponseOK<JsonNode>) result;
+        }
+    }
+
+    @Override
+    public RequestResponseOK<JsonNode> updateUnitsWithJsonlMetadata(String transactionId,
+        InputStream metadataJsonlInputStream) throws VitamClientException {
+        try (Response response = make(
+            put().withPath(TRANSACTION_PATH + "/" + transactionId + UNITS_METADATA_JSONL_PATH)
+                .withBody(metadataJsonlInputStream)
+                .withOctetContentType()
+                .withJsonAccept())) {
             check(response);
             RequestResponse<JsonNode> result = RequestResponse.parseFromResponse(response, JsonNode.class);
             return (RequestResponseOK<JsonNode>) result;
@@ -553,7 +570,8 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
     }
 
     @Override
-    public RequestResponseOK<BulkAtomicUpdateResult> bulkAtomicUpdateUnits(String transactionId, JsonNode updateQueriesJson)
+    public RequestResponseOK<BulkAtomicUpdateResult> bulkAtomicUpdateUnits(String transactionId,
+        JsonNode updateQueriesJson)
         throws VitamClientException {
         VitamRequestBuilder request = post()
             .withPath(TRANSACTION_PATH + "/" + transactionId + UNITS_BULK)

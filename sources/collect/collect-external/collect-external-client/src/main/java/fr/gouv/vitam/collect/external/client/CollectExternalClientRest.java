@@ -50,6 +50,7 @@ import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
 
+import static fr.gouv.vitam.common.CommonMediaType.TEXT_CSV_MEDIATYPE;
 import static fr.gouv.vitam.common.client.VitamRequestBuilder.delete;
 import static fr.gouv.vitam.common.client.VitamRequestBuilder.get;
 import static fr.gouv.vitam.common.client.VitamRequestBuilder.post;
@@ -66,6 +67,8 @@ public class CollectExternalClientRest extends DefaultClient implements CollectE
     private static final String TRANSACTION_PATH = "/transactions";
     private static final String PROJECT_PATH = "/projects";
     private static final String UNITS_PATH = "/units";
+    private static final String UNITS_METADATA_CSV_PATH = "/units/metadata/csv";
+    private static final String UNITS_METADATA_JSONL_PATH = "/units/metadata/jsonl";
     private static final String OBJECTS_PATH = "/objects";
     private static final String BINARY_PATH = "/binary";
 
@@ -431,14 +434,28 @@ public class CollectExternalClientRest extends DefaultClient implements CollectE
     }
 
     @Override
-    public RequestResponse<JsonNode> updateUnits(VitamContext vitamContext, String transactionId, InputStream is)
-        throws VitamClientException {
+    public RequestResponse<JsonNode> updateUnitsWithCsvMetadata(VitamContext vitamContext, String transactionId,
+        InputStream metadataCsvInputStream) throws VitamClientException {
         try (Response response = make(
-            put().withPath(TRANSACTION_PATH + "/" + transactionId + UNITS_PATH)
+            put().withPath(TRANSACTION_PATH + "/" + transactionId + UNITS_METADATA_CSV_PATH)
                 .withHeaders(vitamContext.getHeaders())
-                .withBody(is)
-                .withJsonAccept()
-                .withOctetContentType())) {
+                .withBody(metadataCsvInputStream)
+                .withContentType(TEXT_CSV_MEDIATYPE)
+                .withJsonAccept())) {
+            check(response);
+            return RequestResponse.parseFromResponse(response, JsonNode.class);
+        }
+    }
+
+    @Override
+    public RequestResponse<JsonNode> updateUnitsWithJsonlMetadata(VitamContext vitamContext, String transactionId,
+        InputStream metadataJsonlInputStream) throws VitamClientException {
+        try (Response response = make(
+            put().withPath(TRANSACTION_PATH + "/" + transactionId + UNITS_METADATA_JSONL_PATH)
+                .withHeaders(vitamContext.getHeaders())
+                .withBody(metadataJsonlInputStream)
+                .withOctetContentType()
+                .withJsonAccept())) {
             check(response);
             return RequestResponse.parseFromResponse(response, JsonNode.class);
         }

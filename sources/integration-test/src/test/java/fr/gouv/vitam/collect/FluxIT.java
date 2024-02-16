@@ -493,7 +493,7 @@ public class FluxIT extends VitamRuleRunner {
 
             try (InputStream inputStream = PropertiesUtils.getResourceAsStream(METADATA_FILE)) {
                 RequestResponse<JsonNode> response =
-                    client.updateUnits(vitamContext, transactionDtoResult.getId(), inputStream);
+                    client.updateUnitsWithCsvMetadata(vitamContext, transactionDtoResult.getId(), inputStream);
                 Assert.assertTrue(response.isOk());
             }
 

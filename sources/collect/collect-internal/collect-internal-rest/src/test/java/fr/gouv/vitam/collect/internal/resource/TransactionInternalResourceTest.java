@@ -50,6 +50,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Optional;
 
+import static fr.gouv.vitam.common.CommonMediaType.TEXT_CSV;
 import static io.restassured.RestAssured.given;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
@@ -546,12 +547,12 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
         when(transactionService.checkStatus(any(TransactionModel.class), eq(TransactionStatus.OPEN))).thenReturn(false);
         try (final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(TRANSACTION_ZIP_PATH)) {
             given()
-                .contentType(ContentType.BINARY)
+                .contentType(TEXT_CSV)
                 .accept(ContentType.JSON)
                 .header(GlobalDataRest.X_TENANT_ID, TENANT)
-                .body(resourceAsStream)
+                .body(resourceAsStream.readAllBytes())
                 .when()
-                .put(TRANSACTIONS + "/1/units")
+                .put(TRANSACTIONS + "/1/units/metadata/csv")
                 .then()
                 .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
         }
@@ -562,12 +563,12 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
         when(transactionService.findTransaction("1")).thenReturn(Optional.empty());
         try (final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(TRANSACTION_ZIP_PATH)) {
             given()
-                .contentType(ContentType.BINARY)
+                .contentType(TEXT_CSV)
                 .accept(ContentType.JSON)
                 .header(GlobalDataRest.X_TENANT_ID, TENANT)
-                .body(resourceAsStream)
+                .body(resourceAsStream.readAllBytes())
                 .when()
-                .put(TRANSACTIONS + "/1/units")
+                .put(TRANSACTIONS + "/1/units/metadata/csv")
                 .then()
                 .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
         }
@@ -578,12 +579,12 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
         when(transactionService.findTransaction("1")).thenThrow(new CollectInternalException("error"));
         try (final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(TRANSACTION_ZIP_PATH)) {
             given()
-                .contentType(ContentType.BINARY)
+                .contentType(TEXT_CSV)
                 .accept(ContentType.JSON)
                 .header(GlobalDataRest.X_TENANT_ID, TENANT)
-                .body(resourceAsStream)
+                .body(resourceAsStream.readAllBytes())
                 .when()
-                .put(TRANSACTIONS + "/1/units")
+                .put(TRANSACTIONS + "/1/units/metadata/csv")
                 .then()
                 .statusCode(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
         }
@@ -594,12 +595,12 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
         when(transactionService.findTransaction("1")).thenThrow(new IllegalArgumentException("error"));
         try (final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(TRANSACTION_ZIP_PATH)) {
             given()
-                .contentType(ContentType.BINARY)
+                .contentType(TEXT_CSV)
                 .accept(ContentType.JSON)
                 .header(GlobalDataRest.X_TENANT_ID, TENANT)
-                .body(resourceAsStream)
+                .body(resourceAsStream.readAllBytes())
                 .when()
-                .put(TRANSACTIONS + "/1/units")
+                .put(TRANSACTIONS + "/1/units/metadata/csv")
                 .then()
                 .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
         }
@@ -740,19 +741,19 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
 
     @Test
     @RunWithCustomExecutor
-    public void should_throw_error_when_update_units_using_empty_stream() {
+    public void should_throw_error_when_update_units_using_empty_stream() throws Exception {
         // Given
         final InputStream resourceAsStream = new ByteArrayInputStream(new byte[0]);
         when(transactionService.checkStatus(any(), eq(TransactionStatus.OPEN))).thenReturn(true);
 
         // When - Then
         given()
-            .contentType(ContentType.BINARY)
+            .contentType(TEXT_CSV)
             .accept(ContentType.JSON)
             .header(GlobalDataRest.X_TENANT_ID, TENANT)
-            .body(resourceAsStream)
+            .body(resourceAsStream.readAllBytes())
             .when()
-            .put(TRANSACTIONS + "/1/units")
+            .put(TRANSACTIONS + "/1/units/metadata/csv")
             .then()
             .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
     }

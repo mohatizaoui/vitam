@@ -37,11 +37,14 @@ import com.google.common.collect.Iterators;
 import fr.gouv.culture.archivesdefrance.seda.v2.UpdateOperationType;
 import fr.gouv.vitam.collect.common.dto.MetadataUnitUp;
 import fr.gouv.vitam.collect.common.exception.CollectInternalException;
+import fr.gouv.vitam.collect.common.exception.CollectInternalServerSideException;
 import fr.gouv.vitam.collect.internal.core.common.ProjectModel;
 import fr.gouv.vitam.collect.internal.core.common.TransactionModel;
 import fr.gouv.vitam.collect.internal.core.helpers.CsvHelper;
 import fr.gouv.vitam.collect.internal.core.helpers.JsonHelper;
+import fr.gouv.vitam.collect.internal.core.helpers.JsonlMetadataFileParser;
 import fr.gouv.vitam.collect.internal.core.helpers.MetadataHelper;
+import fr.gouv.vitam.collect.internal.core.helpers.TempWorkspace;
 import fr.gouv.vitam.collect.internal.core.repository.MetadataRepository;
 import fr.gouv.vitam.collect.internal.core.repository.ProjectRepository;
 import fr.gouv.vitam.common.PropertiesUtils;
@@ -177,7 +180,7 @@ public class MetadataService {
         metadataRepository.saveArchiveUnit(objectNode);
     }
 
-    public void updateUnits(TransactionModel transaction, InputStream is) throws CollectInternalException {
+    public void updateUnitsWithMetadataCsv(TransactionModel transaction, InputStream is) throws CollectInternalException {
         String requestId = VitamThreadUtils.getVitamSession().getRequestId();
         File file = PropertiesUtils.fileFromTmpFolder("metadata_" + requestId + VitamConstants.JSONL_EXTENSION);
         try {
@@ -189,6 +192,25 @@ public class MetadataService {
             throw new CollectInternalException(e);
         } finally {
             FileUtils.deleteQuietly(file);
+        }
+    }
+
+    public void updateUnitsWithJsonlMetadata(TransactionModel transaction, InputStream metadataJsonlInputStream)
+        throws CollectInternalException {
+
+        try (TempWorkspace tempWorkspace = new TempWorkspace()) {
+
+            File jsonlMetadataFile = tempWorkspace.writeToFile("metadata.jsonl", metadataJsonlInputStream);
+
+            File transformedMetadataFile = tempWorkspace.getFile("transformed_metadata.jsonl");
+            JsonlMetadataFileParser jsonlMetadataFileParser = new JsonlMetadataFileParser();
+            jsonlMetadataFileParser.process(jsonlMetadataFile, transformedMetadataFile);
+
+            try (InputStream sanityStream = new FileInputStream(transformedMetadataFile)) {
+                updateUnitsWithMetadataFile(transaction.getId(), sanityStream);
+            }
+        } catch (IOException e) {
+            throw new CollectInternalServerSideException(e);
         }
     }
 

@@ -162,7 +162,8 @@ public class CollectTestHelper {
             final String data = PropertiesUtils.getResourceAsString(resourcePath);
             assertThat(data.length()).isGreaterThan(0);
 
-            final RequestResponse<JsonNode> response = client.updateUnits(vitamContext, transactionId, is);
+            final RequestResponse<JsonNode> response =
+                client.updateUnitsWithCsvMetadata(vitamContext, transactionId, is);
 
             if (!response.isOk()) {
                 throw new RuntimeException("Something wrong with archive upload");
