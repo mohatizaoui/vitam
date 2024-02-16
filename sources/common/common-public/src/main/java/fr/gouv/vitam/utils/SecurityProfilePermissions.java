@@ -194,6 +194,7 @@ public enum SecurityProfilePermissions {
     JOB_READ("job:read"),
     UNIT_SCHEMA_READ("schema:unit:read"),
     UNIT_SCHEMA_CREATE("schema:unit:create"),
+    UNIT_SCHEMA_DELETE("schema:unit:delete"),
     OBJECTGROUP_SCHEMA_READ("schema:objectgroup:read");
 
 

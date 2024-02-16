@@ -683,4 +683,10 @@ public class AdminManagementClientMock extends AbstractMockClient implements Adm
     public Status importUnitExternalSchema(List<SchemaInputModel> externalSchemaInputList) {
         throw new IllegalStateException(CANNOT_BE_USED);
     }
+
+    @Override
+    public Status deleteUnitExternalSchemas(List<String> paths)
+        throws InvalidParseOperationException, AdminManagementClientServerException {
+        throw new IllegalStateException(CANNOT_BE_USED);
+    }
 }

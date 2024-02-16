@@ -79,6 +79,7 @@ import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
+import java.util.List;
 
 import static fr.gouv.vitam.access.external.api.AccessExtAPI.ACCESSION_REGISTERS_API;
 import static fr.gouv.vitam.access.external.api.AccessExtAPI.ACCESSION_REGISTERS_DETAIL;
@@ -1250,6 +1251,27 @@ public class AdminExternalClientRest extends DefaultClient implements AdminExter
             .withPath(AdminCollections.UNIT_SCHEMA.getName())
             .withHeaders(vitamContext.getHeaders())
             .withBody(externalSchema, "The input schema json is mandatory")
+            .withJson();
+        try (Response response = make(request)) {
+            check(response);
+            return new RequestResponseOK<Void>()
+                .setHttpCode(OK.getStatusCode())
+                .addHeader(X_REQUEST_ID, response.getHeaderString(X_REQUEST_ID));
+        } catch (AdminExternalClientException e) {
+            LOGGER.error(e);
+            return e.getVitamError();
+        } catch (VitamClientInternalException e) {
+            throw new AccessExternalClientException(e);
+        }
+    }
+
+    @Override
+    public RequestResponse<Void> deleteUnitExternalSchemas(VitamContext vitamContext, List<String> externalSchemaPaths)
+        throws InvalidParseOperationException, AccessExternalClientException {
+        VitamRequestBuilder request = delete()
+            .withPath(AdminCollections.UNIT_SCHEMA.getName())
+            .withHeaders(vitamContext.getHeaders())
+            .withBody(externalSchemaPaths, "external schema paths is mandatory")
             .withJson();
         try (Response response = make(request)) {
             check(response);

@@ -51,6 +51,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -124,5 +126,21 @@ public class SchemaStep extends CommonStep {
         assertThat(schemaWithPaths).isNotNull();
         assertThat(schemaWithPaths).isNotEmpty();
 
+    }
+
+    @Then("^je supprime le schema dont le path est (.*)$")
+    public void schema_should_be_deleted(String path)
+        throws InvalidParseOperationException, AccessExternalClientException {
+        VitamContext vitamContext = new VitamContext(world.getTenantId());
+        vitamContext.setApplicationSessionId(world.getApplicationSessionId());
+        RequestResponse<Void> requestResponse =
+            world.getAdminClient().deleteUnitExternalSchemas(vitamContext, Collections.singletonList((path)));
+
+        String httpCode = String.valueOf(requestResponse.getHttpCode());
+        ObjectNode responseCode = JsonHandler.createObjectNode();
+        responseCode.put("Code", httpCode);
+        List<JsonNode> result = new ArrayList<>();
+        result.add(responseCode);
+        world.setResults(result);
     }
 }

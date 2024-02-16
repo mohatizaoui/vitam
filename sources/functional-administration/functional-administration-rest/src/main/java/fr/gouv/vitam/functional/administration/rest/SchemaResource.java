@@ -27,7 +27,9 @@
 package fr.gouv.vitam.functional.administration.rest;
 
 import fr.gouv.vitam.common.ParametersChecker;
+import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
+import fr.gouv.vitam.common.exception.BadRequestException;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
@@ -35,6 +37,7 @@ import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.administration.schema.SchemaInputModel;
 import fr.gouv.vitam.common.model.administration.schema.SchemaModel;
 import fr.gouv.vitam.common.model.administration.schema.SchemaResponse;
+import fr.gouv.vitam.common.parameter.ParameterHelper;
 import fr.gouv.vitam.functional.administration.common.exception.ReferentialException;
 import fr.gouv.vitam.functional.administration.core.schema.SchemaService;
 import fr.gouv.vitam.functional.administration.utils.ResponseErrorUtils;
@@ -42,6 +45,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -137,6 +141,30 @@ public class SchemaResource {
             } else {
                 return Response.accepted(uri.getRequestUri().normalize()).entity(requestResponse).build();
             }
+        } catch (Exception exp) {
+            LOGGER.error("Unexpected server error {}", exp);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                .entity(ResponseErrorUtils.getErrorEntity(Response.Status.INTERNAL_SERVER_ERROR, exp.getMessage(),
+                    FUNCTIONAL_ADMINISTRATION_MODULE)).build();
+        }
+    }
+
+    @Path(UNIT_SCHEMA_URI)
+    @DELETE
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteUnitExternalSchemas(List<String> paths) {
+        ParametersChecker.checkParameter("The unit external schema paths list is mandatory", paths);
+
+        try {
+            Integer tenantId = ParameterHelper.getTenantParameter();
+            schemaService.checkAndDeleteExternalSchemaElementsByPaths(paths, tenantId.equals(VitamConfiguration.getAdminTenant()));
+            return Response.status(Response.Status.OK).build();
+        } catch (BadRequestException exp){
+            LOGGER.error("Bad Request Error {}", exp);
+            return Response.status(Response.Status.BAD_REQUEST)
+                .entity(ResponseErrorUtils.getErrorEntity(Response.Status.BAD_REQUEST, exp.getMessage(),
+                    FUNCTIONAL_ADMINISTRATION_MODULE)).build();
         } catch (Exception exp) {
             LOGGER.error("Unexpected server error {}", exp);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)

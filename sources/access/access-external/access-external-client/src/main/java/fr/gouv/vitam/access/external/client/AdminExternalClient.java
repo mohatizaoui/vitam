@@ -64,6 +64,7 @@ import fr.gouv.vitam.logbook.common.parameters.LogbookOperationParameters;
 
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
+import java.util.List;
 
 /**
  * Admin External Client Interface
@@ -996,6 +997,17 @@ public interface AdminExternalClient extends BasicClient, OperationStatusClient 
      * @throws AccessExternalClientException
      */
     RequestResponse<Void> importUnitExternalSchema(VitamContext vitamContext, InputStream externalSchema)
+        throws InvalidParseOperationException, AccessExternalClientException;
+
+    /**
+     * Delete unit external schema
+     * @param vitamContext
+     * @param externalSchemaPaths
+     * @return
+     * @throws InvalidParseOperationException
+     * @throws AccessExternalClientException
+     */
+    RequestResponse<Void> deleteUnitExternalSchemas(VitamContext vitamContext, List<String> externalSchemaPaths)
         throws InvalidParseOperationException, AccessExternalClientException;
 
     /**

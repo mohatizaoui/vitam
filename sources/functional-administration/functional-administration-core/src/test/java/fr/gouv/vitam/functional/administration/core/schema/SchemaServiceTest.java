@@ -32,6 +32,7 @@ import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
 import fr.gouv.vitam.common.database.server.DbRequestResult;
 import fr.gouv.vitam.common.database.server.mongodb.VitamMongoCursor;
+import fr.gouv.vitam.common.exception.BadRequestException;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.exception.VitamException;
 import fr.gouv.vitam.common.json.JsonHandler;
@@ -78,9 +79,12 @@ import static fr.gouv.vitam.common.guid.GUIDFactory.newRequestIdGUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class SchemaServiceTest {
@@ -391,5 +395,86 @@ public class SchemaServiceTest {
         assertNotNull(importingResponse);
         assertEquals(importingResponse.getStatus(), HttpStatus.SC_CREATED);
 
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void checkAndDeleteExternalSchemaElementsByPaths_ok() throws Exception {
+        VitamThreadUtils.getVitamSession().setTenantId(ADMIN_TENANT);
+
+        setUpMockedFindDocumentsResponse("schema/external-schema-to-delete-ok.json");
+
+        List<String> pathsToDelete = List.of("Invoice.Provider.BirthDate");
+
+        schemaService.checkAndDeleteExternalSchemaElementsByPaths(pathsToDelete, true);
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void checkAndDeleteExternalSchemaElementsByPaths_nok() throws Exception {
+        VitamThreadUtils.getVitamSession().setTenantId(ADMIN_TENANT);
+
+        setUpMockedFindDocumentsResponse("schema/external-schema-to-delete-ok.json");
+
+        List<String> pathsToDelete = List.of("Invoice");
+
+        assertThrows(BadRequestException.class, () -> schemaService.checkAndDeleteExternalSchemaElementsByPaths(pathsToDelete, true));
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void checkAndDeleteExternalSchemaElementsByPaths_nonExistingPaths() throws Exception {
+        VitamThreadUtils.getVitamSession().setTenantId(ADMIN_TENANT);
+
+        setUpMockedFindDocumentsResponse("schema/external-schema-to-delete-ok.json");
+
+        List<String> pathsToDelete = List.of("Invoice.Provider.BirthDate", "NonExistingPath");
+
+        assertThrows(BadRequestException.class, () -> schemaService.checkAndDeleteExternalSchemaElementsByPaths(pathsToDelete, true));
+
+        verify(mongoDbAccessAdminMocked, times(0)).deleteDocument(any(), any());
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void checkAndDeleteExternalSchemaElementsByPaths_currentTenantOnly() throws Exception {
+        VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
+
+        setUpMockedFindDocumentsResponse("schema/external-schema-to-delete-one-tenant.json");
+
+        List<String> pathsToDelete = List.of("Invoice.Provider");
+
+        schemaService.checkAndDeleteExternalSchemaElementsByPaths(pathsToDelete, false);
+
+        verify(mongoDbAccessAdminMocked, times(1)).deleteDocument(any(), any());
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void checkAndDeleteExternalSchemaElementsByPaths_allTenant() throws Exception {
+        VitamThreadUtils.getVitamSession().setTenantId(ADMIN_TENANT);
+
+        setUpMockedFindDocumentsResponse("schema/external-schema-to-delete-multi-tenant.json");
+
+        List<String> pathsToDelete = List.of("Invoice");
+
+        assertThrows(BadRequestException.class, () -> schemaService.checkAndDeleteExternalSchemaElementsByPaths(pathsToDelete, true));
+    }
+
+    private void setUpMockedFindDocumentsResponse(String filePath)
+        throws IOException, InvalidParseOperationException, ReferentialException {
+        final File fileExternalSchema = PropertiesUtils.getResourceFile(filePath);
+        final List<SchemaModel> schemaModelList =
+            JsonHandler.getFromFileAsTypeReference(fileExternalSchema, new TypeReference<>() {
+            });
+        DbRequestResult dbRequestResult = mock(DbRequestResult.class);
+        final RequestResponseOK response = new RequestResponseOK<>();
+        response.addAllResults(schemaModelList);
+
+        when(dbRequestResult.getCount()).thenReturn(Long.valueOf(schemaModelList.size()));
+        when(dbRequestResult.getTotal()).thenReturn(Long.valueOf(schemaModelList.size()));
+        when(dbRequestResult.getRequestResponseOK(any(), any(), any())).thenReturn(response);
+        when(mongoDbAccessAdminMocked.findDocumentsWithoutRestrictionOnCurrentTenant(any(), any()))
+            .thenReturn(dbRequestResult);
     }
 }

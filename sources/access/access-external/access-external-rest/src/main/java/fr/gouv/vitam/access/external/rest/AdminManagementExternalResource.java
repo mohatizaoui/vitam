@@ -36,6 +36,7 @@ import fr.gouv.vitam.access.internal.client.AccessInternalClientFactory;
 import fr.gouv.vitam.access.internal.common.exception.AccessInternalClientNotFoundException;
 import fr.gouv.vitam.access.internal.common.exception.AccessInternalClientServerException;
 import fr.gouv.vitam.common.GlobalDataRest;
+import fr.gouv.vitam.common.ParametersChecker;
 import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.alert.AlertService;
@@ -232,6 +233,7 @@ import static fr.gouv.vitam.utils.SecurityProfilePermissions.TRACEABILITYCHECKS_
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.TRACEABILITYLINKEDCHECKS_CREATE;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.TRACEABILITY_ID_READ;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.UNIT_SCHEMA_CREATE;
+import static fr.gouv.vitam.utils.SecurityProfilePermissions.UNIT_SCHEMA_DELETE;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.UNIT_SCHEMA_READ;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.WORKFLOWS_READ;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
@@ -3171,6 +3173,36 @@ public class AdminManagementExternalResource extends ApplicationStatusResource {
         }
     }
 
+    @Path(UNIT_SCHEMA)
+    @DELETE
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
+    @Secured(permission = UNIT_SCHEMA_DELETE, description = "Supprimer un ou plusieurs schémas liés à des unités archivistiques")
+    public Response deleteUnitExternalSchema(List<String> paths) {
+        ParametersChecker.checkParameter("Missing paths", paths);
+        try (AdminManagementClient client = adminManagementClientFactory.getClient()) {
+            Status status = client.deleteUnitExternalSchemas(paths);
+            return Response.status(status).build();
+        } catch (ReferentialException e) {
+            LOGGER.error(e);
+            return VitamCodeHelper.toVitamError(VitamCode.ADMIN_EXTERNAL_BAD_REQUEST, e.getMessage())
+                .toResponse();
+        } catch (InvalidParseOperationException e) {
+            LOGGER.error(e);
+            VitamError error = new VitamError(VitamCode.ACCESS_EXTERNAL_INVALID_JSON.getItem())
+                .setMessage(VitamCode.ACCESS_EXTERNAL_INVALID_JSON.getMessage())
+                .setState(StatusCode.KO.name())
+                .setCode(VitamCodeHelper.getCode(VitamCode.ACCESS_EXTERNAL_INVALID_JSON))
+                .setContext(ACCESS_EXTERNAL_MODULE)
+                .setDescription(VitamCode.ACCESS_EXTERNAL_INVALID_JSON.getMessage());
+            return Response.status(BAD_REQUEST)
+                .entity(error).build();
+        } catch (final Exception e) {
+            LOGGER.error(e);
+            return VitamCodeHelper.toVitamError(VitamCode.ADMIN_EXTERNAL_INTERNAL_SERVER_ERROR, e.getMessage())
+                .toResponse();
+        }
+    }
 
     @Path(UNIT_SCHEMA)
     @POST
