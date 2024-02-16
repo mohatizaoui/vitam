@@ -33,9 +33,13 @@ import fr.gouv.vitam.access.internal.core.AccessInternalModuleImpl;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.exception.VitamRuntimeException;
 import fr.gouv.vitam.common.json.JsonHandler;
+import fr.gouv.vitam.common.model.identifier.PurgedCollectionType;
 import fr.gouv.vitam.common.model.identifier.PurgedPersistentIdentifier;
 
+import javax.annotation.Nullable;
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.stream.Collectors;
 
 public class PurgedPersistentIdentifierSearchService {
     private final AccessInternalModule accessInternalModule;
@@ -48,12 +52,15 @@ public class PurgedPersistentIdentifierSearchService {
         this(new AccessInternalModuleImpl());
     }
 
-    public Collection<PurgedPersistentIdentifier> search(final String persistentIdentifier) {
+    public Collection<PurgedPersistentIdentifier> search(final String persistentIdentifier, @Nullable
+    PurgedCollectionType type) {
         try {
             return JsonHandler.getFromJsonNode(
-                accessInternalModule.selectPurgedPersistentIdentifier(persistentIdentifier),
-                new TypeReference<>() {
-                });
+                    accessInternalModule.selectPurgedPersistentIdentifier(persistentIdentifier, type),
+                    new TypeReference<Collection<PurgedPersistentIdentifier>>() {
+                    }).stream()
+                .sorted(Comparator.comparing(PurgedPersistentIdentifier::getOperationLastPersistentDate))
+                .collect(Collectors.toList());
         } catch (InvalidParseOperationException e) {
             throw new VitamRuntimeException("Something wrong with persistent identifier search parsing or mapping",
                 e);

@@ -658,18 +658,19 @@ public class AccessStep extends CommonStep {
     @When("^je recherche l'objet ayant l'identifiant pérenne (.*)$")
     public void get_object_by_persistent_identifier(String persistentIdentifier) throws Throwable {
         JsonNode queryJSON = JsonHandler.getFromString(world.getQuery());
-        Response response = world.getAccessClient().getObjectByObjectPersistentIdentifier(
+        try (Response response = world.getAccessClient().getObjectByObjectPersistentIdentifier(
             new VitamContext(world.getTenantId()).setAccessContract(world.getContractId())
                 .setApplicationSessionId(world.getApplicationSessionId()),
-            queryJSON, persistentIdentifier);
-        if (response.getStatus() == Status.OK.getStatusCode()) {
-            ArrayNode arrayNodeResults = response.readEntity(ArrayNode.class);
-            List<JsonNode> results = StreamSupport.stream(arrayNodeResults.spliterator(), false)
-                .collect(Collectors.toList());
-            world.setResults(results);
-        } else {
-            VitamError vitamError = (VitamError) requestResponse;
-            Fail.fail("request getObjectByObjectPersistentIdentifier return an error: " + vitamError.getCode());
+            queryJSON, persistentIdentifier).toResponse()) {
+            if (response.getStatus() == Status.OK.getStatusCode()) {
+                ArrayNode arrayNodeResults = response.readEntity(ArrayNode.class);
+                List<JsonNode> results = StreamSupport.stream(arrayNodeResults.spliterator(), false)
+                    .collect(Collectors.toList());
+                world.setResults(results);
+            } else {
+                VitamError vitamError = (VitamError) requestResponse;
+                Fail.fail("request getObjectByObjectPersistentIdentifier return an error: " + vitamError.getCode());
+            }
         }
     }
 

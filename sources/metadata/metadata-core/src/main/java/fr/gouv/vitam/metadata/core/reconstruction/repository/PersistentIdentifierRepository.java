@@ -31,11 +31,12 @@ import fr.gouv.vitam.metadata.api.exception.MetaDataExecutionException;
 import fr.gouv.vitam.metadata.core.reconstruction.model.PurgedPersistentIdentifier;
 import org.bson.Document;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 public interface PersistentIdentifierRepository {
 
-    List<PurgedPersistentIdentifier> findByPersistentIdentifierAndTenant(String persistentIdentifier, Integer tenant)
+    List<PurgedPersistentIdentifier> findByPersistentIdentifierAndTenant(String persistentIdentifier, Integer tenant, @Nullable String type)
         throws DatabaseException;
 
     void insert(List<Document> purgedPersistentIdentifiers) throws MetaDataExecutionException;

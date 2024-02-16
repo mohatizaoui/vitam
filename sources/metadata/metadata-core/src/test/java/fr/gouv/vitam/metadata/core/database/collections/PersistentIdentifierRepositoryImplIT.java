@@ -33,6 +33,7 @@ import fr.gouv.vitam.common.database.server.mongodb.MongoDbAccess;
 import fr.gouv.vitam.common.database.server.mongodb.VitamDocument;
 import fr.gouv.vitam.common.elasticsearch.ElasticsearchRule;
 import fr.gouv.vitam.common.guid.GUIDFactory;
+import fr.gouv.vitam.common.model.identifier.PurgedCollectionType;
 import fr.gouv.vitam.common.model.unit.PersistentIdentifierModel;
 import fr.gouv.vitam.common.mongo.MongoRule;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
@@ -53,13 +54,12 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 
 import static fr.gouv.vitam.common.database.server.mongodb.VitamDocument.VERSION;
+import static fr.gouv.vitam.common.model.identifier.PurgedCollectionType.OBJECT;
+import static fr.gouv.vitam.common.model.identifier.PurgedCollectionType.UNIT;
 import static fr.gouv.vitam.metadata.core.database.collections.MetadataCollections.OBJECTGROUP;
-import static fr.gouv.vitam.metadata.core.database.collections.MetadataCollections.UNIT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.groups.Tuple.tuple;
@@ -98,7 +98,7 @@ public class PersistentIdentifierRepositoryImplIT {
     public void setUp() {
         MongoDbAccessMetadataImpl mongoDbAccess =
             new MongoDbAccessMetadataImpl(mongoRule.getMongoClient(), mongoRule.getMongoDatabase().getName(), true,
-                esClient, UNIT, OBJECTGROUP);
+                esClient, MetadataCollections.UNIT, OBJECTGROUP);
         persistentIdentifierRepository = new PersistentIdentifierRepositoryImpl(mongoDbAccess, PREFIX);
     }
 
@@ -108,24 +108,30 @@ public class PersistentIdentifierRepositoryImplIT {
         VitamThreadUtils.getVitamSession().setTenantId(0);
 
         // Given
-        String id1 = GUIDFactory.newUnitGUID(TENANT_ID).toString();
-        String id2 = GUIDFactory.newUnitGUID(TENANT_ID).toString();
-        Document purgedPersistentIdentifierDocument1 = createPurgedPersistentIdentifier(id1);
-        Document purgedPersistentIdentifierDocument2 = createPurgedPersistentIdentifier(id2);
+        final String id1 = GUIDFactory.newUnitGUID(TENANT_ID).toString();
+        final String id2 = GUIDFactory.newUnitGUID(TENANT_ID).toString();
+        final Document purgedPersistentIdentifierDocument1 = createPurgedPersistentIdentifier(id1, OBJECT);
+        final Document purgedPersistentIdentifierDocument2 = createPurgedPersistentIdentifier(id2, OBJECT);
         persistentIdentifierRepository
             .insert(Lists.newArrayList(purgedPersistentIdentifierDocument1, purgedPersistentIdentifierDocument2));
 
         // When
-        List<PurgedPersistentIdentifier> results =
-            persistentIdentifierRepository.findByPersistentIdentifierAndTenant(ARK_PREFIX + id1, TENANT_ID);
+        final List<PurgedPersistentIdentifier> resultsObjectFilter =
+            persistentIdentifierRepository.findByPersistentIdentifierAndTenant(ARK_PREFIX + id1, TENANT_ID, OBJECT.getValue());
+        final List<PurgedPersistentIdentifier> resultsUnitFilter =
+            persistentIdentifierRepository.findByPersistentIdentifierAndTenant(ARK_PREFIX + id1, TENANT_ID, UNIT.getValue());
+        final List<PurgedPersistentIdentifier> resultNoFilter =
+            persistentIdentifierRepository.findByPersistentIdentifierAndTenant(ARK_PREFIX + id1, TENANT_ID, null);
 
         // Then
-        Iterator<PurgedPersistentIdentifier> iterator = results.iterator();
-        assertThat(iterator.hasNext()).isTrue();
-        PurgedPersistentIdentifier purgedPersistentIdentifier = iterator.next();
-        assertThat(purgedPersistentIdentifier.getId()).isEqualTo(purgedPersistentIdentifierDocument1.get("_id"));
-        assertThat(purgedPersistentIdentifier.getLastPersistentDate()).isNotEmpty();
-        assertThat(iterator.hasNext()).isFalse();
+        assertThat(resultsObjectFilter.size()).isEqualTo(1);
+        final PurgedPersistentIdentifier result1 = resultsObjectFilter.get(0);
+        assertThat(result1.getId()).isEqualTo(purgedPersistentIdentifierDocument1.get("_id"));
+        assertThat(result1.getLastPersistentDate()).isNotEmpty();
+
+        assertThat(resultsUnitFilter.size()).isEqualTo(0);
+
+        assertThat(resultNoFilter.size()).isEqualTo(1);
     }
 
     @Test
@@ -136,8 +142,8 @@ public class PersistentIdentifierRepositoryImplIT {
         // Given
         String id1 = GUIDFactory.newUnitGUID(TENANT_ID).toString();
         String id2 = GUIDFactory.newUnitGUID(TENANT_ID).toString();
-        Document purgedPersistentIdentifierDocument1 = createPurgedPersistentIdentifier(id1);
-        Document purgedPersistentIdentifierDocument2 = createPurgedPersistentIdentifier(id2);
+        Document purgedPersistentIdentifierDocument1 = createPurgedPersistentIdentifier(id1, OBJECT);
+        Document purgedPersistentIdentifierDocument2 = createPurgedPersistentIdentifier(id2, OBJECT);
 
         // When
         persistentIdentifierRepository
@@ -162,9 +168,9 @@ public class PersistentIdentifierRepositoryImplIT {
         String id1 = GUIDFactory.newUnitGUID(TENANT_ID).toString();
         String id2 = GUIDFactory.newUnitGUID(TENANT_ID).toString();
         String id3 = GUIDFactory.newUnitGUID(TENANT_ID).toString();
-        Document purgedPersistentIdentifierDocument1 = createPurgedPersistentIdentifier(id1);
-        Document purgedPersistentIdentifierDocument2 = createPurgedPersistentIdentifier(id2);
-        Document purgedPersistentIdentifierDocument3 = createPurgedPersistentIdentifier(id3);
+        Document purgedPersistentIdentifierDocument1 = createPurgedPersistentIdentifier(id1, OBJECT);
+        Document purgedPersistentIdentifierDocument2 = createPurgedPersistentIdentifier(id2, OBJECT);
+        Document purgedPersistentIdentifierDocument3 = createPurgedPersistentIdentifier(id3, OBJECT);
 
 
         // When
@@ -189,9 +195,9 @@ public class PersistentIdentifierRepositoryImplIT {
         // Given
         String id1 = GUIDFactory.newUnitGUID(TENANT_ID).toString();
         String id3 = GUIDFactory.newUnitGUID(TENANT_ID).toString();
-        Document purgedPersistentIdentifierDocument1 = createPurgedPersistentIdentifier(id1);
-        Document purgedPersistentIdentifierDocument2 = createPurgedPersistentIdentifier(id1);
-        Document purgedPersistentIdentifierDocument3 = createPurgedPersistentIdentifier(id3);
+        Document purgedPersistentIdentifierDocument1 = createPurgedPersistentIdentifier(id1, OBJECT);
+        Document purgedPersistentIdentifierDocument2 = createPurgedPersistentIdentifier(id1, OBJECT);
+        Document purgedPersistentIdentifierDocument3 = createPurgedPersistentIdentifier(id3, OBJECT);
 
         // When
         assertThatCode(() -> persistentIdentifierRepository
@@ -201,8 +207,7 @@ public class PersistentIdentifierRepositoryImplIT {
             .doesNotThrowAnyException();
     }
 
-    private Document createPurgedPersistentIdentifier(String id) {
-
+    private Document createPurgedPersistentIdentifier(String id, PurgedCollectionType type) {
         PersistentIdentifierModel persistentIdentifierModel = new PersistentIdentifierModel();
         persistentIdentifierModel.setPersistentIdentifierContent(ARK_PREFIX + id);
         persistentIdentifierModel.setPersistentIdentifierOrigin("ark");
@@ -215,7 +220,7 @@ public class PersistentIdentifierRepositoryImplIT {
             .setTenant(0)
             .setPersistentIdentifier(persistentIdentifierModels)
             .setVersion(0)
-            .setType("Object")
+            .setType(type.getValue())
             .setOperationId("operationId")
             .setOperationType("EliminationAction")
             .build();

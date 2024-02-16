@@ -28,11 +28,13 @@ package fr.gouv.vitam.access.internal.client;
 
 
 import com.fasterxml.jackson.databind.JsonNode;
+import fr.gouv.vitam.access.internal.common.exception.AccessInternalClientNotFoundException;
 import fr.gouv.vitam.access.internal.common.exception.AccessInternalClientServerException;
 import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.client.AbstractMockClient;
 import fr.gouv.vitam.common.client.ClientMockResultHelper;
 import fr.gouv.vitam.common.exception.AccessUnauthorizedException;
+import fr.gouv.vitam.common.exception.BadRequestException;
 import fr.gouv.vitam.common.exception.ExpectationFailedClientException;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.exception.VitamClientException;
@@ -82,6 +84,13 @@ class AccessInternalClientMock extends AbstractMockClient implements AccessInter
         throws InvalidParseOperationException {
         return new RequestResponseOK().addResult(JsonHandler.getFromString(
             "{$hint: {'total':'1'},$context:{$query: {$eq: {\"Title\" : \"Archive1\" }}, $projection: {}, $filter: {}}, $result:[{'#id': '1', 'Title': 'Archive 1', 'DescriptionLevel': 'Archive Mock'}]}")).toResponse();
+    }
+
+    @Override
+    public RequestResponse<JsonNode> selectObjectsByObjectPersistentIdentifier(String persistentIdentifier, JsonNode selectQuery)
+        throws InvalidParseOperationException, AccessInternalClientServerException,
+        AccessInternalClientNotFoundException, AccessUnauthorizedException, BadRequestException {
+        return null;
     }
 
     @Override

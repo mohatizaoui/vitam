@@ -35,6 +35,7 @@ import fr.gouv.vitam.access.internal.common.exception.AccessInternalUnavailableD
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.exception.UpdatePermissionException;
 import fr.gouv.vitam.common.exception.VitamDBException;
+import fr.gouv.vitam.common.model.identifier.PurgedCollectionType;
 import fr.gouv.vitam.common.model.storage.AccessRequestReference;
 import fr.gouv.vitam.common.model.storage.StatusByAccessRequest;
 import fr.gouv.vitam.metadata.api.exception.MetaDataNotFoundException;
@@ -42,6 +43,7 @@ import fr.gouv.vitam.metadata.api.exception.MetadataScrollLimitExceededException
 import fr.gouv.vitam.metadata.api.exception.MetadataScrollThresholdExceededException;
 import fr.gouv.vitam.storage.engine.common.exception.StorageNotFoundException;
 
+import javax.annotation.Nullable;
 import javax.ws.rs.core.Response;
 import java.text.ParseException;
 import java.util.List;
@@ -68,12 +70,13 @@ public interface AccessInternalModule {
      * select purged persistent identifier
      *
      * @param persistentIdentifier as String
+     * @param type Purged collection type
      * @return the result of the select on persistent identifier
      * @throws IllegalArgumentException if json query is null
      * @throws InvalidParseOperationException Throw if parameter is not correct
      * @throws AccessInternalExecutionException Throw if error occurs when retrieve data from database
      */
-    JsonNode selectPurgedPersistentIdentifier(String persistentIdentifier)
+    JsonNode selectPurgedPersistentIdentifier(String persistentIdentifier, @Nullable PurgedCollectionType type)
         throws InvalidParseOperationException, AccessInternalException;
 
     /**

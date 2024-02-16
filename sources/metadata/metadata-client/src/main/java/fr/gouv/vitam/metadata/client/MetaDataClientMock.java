@@ -46,6 +46,7 @@ import fr.gouv.vitam.common.model.GraphComputeResponse;
 import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.common.model.identifier.PurgedCollectionType;
 import fr.gouv.vitam.common.model.massupdate.RuleActions;
 import fr.gouv.vitam.metadata.api.exception.MetaDataClientServerException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataDocumentSizeException;
@@ -59,6 +60,7 @@ import fr.gouv.vitam.metadata.api.model.ReconstructionRequestItem;
 import fr.gouv.vitam.metadata.api.model.ReconstructionResponseItem;
 import fr.gouv.vitam.metadata.api.model.UnitPerOriginatingAgency;
 
+import javax.annotation.Nullable;
 import javax.ws.rs.core.Response;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -250,7 +252,8 @@ public class MetaDataClientMock extends AbstractMockClient implements MetaDataCl
     }
 
     @Override
-    public JsonNode getPurgedPersistentIdentifiers(String persistentIdentifier){
+    public JsonNode getPurgedPersistentIdentifiers(String persistentIdentifier, @Nullable PurgedCollectionType type)
+        throws MetaDataNotFoundException, InvalidParseOperationException, MetaDataClientServerException {
         throw new IllegalStateException("Should never be called");
     }
 

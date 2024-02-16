@@ -501,12 +501,9 @@ public class AccessExternalIT extends VitamRuleRunner {
         return accessExternalClient.selectObjects(vitamContext, select.getFinalSelect());
     }
 
-
-
     @RunWithCustomExecutor
     @Test
     public void selectUnitsByUnitArkIdentifier() throws Exception {
-
         final String arkIdentifier = "ark:/22567/001a957db5eadaac";
         // given
         VitamContext vitamContext = new VitamContext(TENANT_ID)
@@ -519,15 +516,12 @@ public class AccessExternalIT extends VitamRuleRunner {
                 new SelectMultiQuery().getFinalSelectById(), arkIdentifier);
 
         // THEN
-
         assertTrue(result.isOk());
         List<JsonNode> resultUnit = ((RequestResponseOK<JsonNode>) result).getResults();
         assertNotNull(resultUnit);
-        assertEquals(resultUnit.size(), 1);
-        assertEquals(resultUnit.get(0).get("Title").asText(), "monSIP");
+        assertEquals(1, resultUnit.size());
+        assertEquals("monSIP", resultUnit.get(0).get("Title").asText());
         assertThat(resultUnit).isNotEmpty();
-
-
     }
 
     /**
@@ -536,7 +530,6 @@ public class AccessExternalIT extends VitamRuleRunner {
     @RunWithCustomExecutor
     @Test
     public void selectUnitsByNotFoundPersistentIdentifierType() throws Exception {
-
         final String arkIdentifier = "poi:/22567/001a957db5eadaac";
         // given
         VitamContext vitamContext = new VitamContext(TENANT_ID)
@@ -549,19 +542,15 @@ public class AccessExternalIT extends VitamRuleRunner {
                 new SelectMultiQuery().getFinalSelectById(), arkIdentifier);
 
         // THEN
-
         assertTrue(result.isOk());
         List<JsonNode> resultUnit = ((RequestResponseOK<JsonNode>) result).getResults();
         assertNotNull(resultUnit);
         assertThat(resultUnit).isEmpty();
-
     }
-
 
     @RunWithCustomExecutor
     @Test
     public void selectUnitsByNotFoundPersistentIdentifier() throws Exception {
-
         final String arkIdentifier = "ark:/22567/001a95sdfdsadaac";
         // given
         VitamContext vitamContext = new VitamContext(TENANT_ID)
@@ -574,33 +563,26 @@ public class AccessExternalIT extends VitamRuleRunner {
                 new SelectMultiQuery().getFinalSelectById(), arkIdentifier);
 
         // THEN
-
         assertTrue(result.isOk());
         List<JsonNode> resultUnit = ((RequestResponseOK<JsonNode>) result).getResults();
         assertNotNull(resultUnit);
         assertThat(resultUnit).isEmpty();
-
-
     }
-
 
     @RunWithCustomExecutor
     @Test
     public void selectObjectsByUnitArkIdentifierOnly() throws Exception {
-
         final String arkIdentifier = "ark:/22567/001a957db5eadaac";
         // given
         VitamContext vitamContext = new VitamContext(TENANT_ID)
             .setApplicationSessionId(APPLICATION_SESSION_ID)
             .setAccessContract(ACCESS_CONTRACT);
 
-
         // WHEN
         Response result =
             accessExternalClient.getObjectByUnitPersistentIdentifier(vitamContext, arkIdentifier, null, null);
 
         // THEN
-
         assertEquals(result.getStatus(), 200);
         assertNotNull(result.getEntity());
     }
@@ -608,20 +590,17 @@ public class AccessExternalIT extends VitamRuleRunner {
     @RunWithCustomExecutor
     @Test
     public void selectObjectsByUnitArkIdentifierAndQualifier() throws Exception {
-
         final String arkIdentifier = "ark:/22567/001a957db5eadaac";
         // given
         VitamContext vitamContext = new VitamContext(TENANT_ID)
             .setApplicationSessionId(APPLICATION_SESSION_ID)
             .setAccessContract(ACCESS_CONTRACT);
 
-
         // WHEN
         Response result =
             accessExternalClient.getObjectByUnitPersistentIdentifier(vitamContext, arkIdentifier, "BinaryMaster", null);
 
         // THEN
-
         assertEquals(result.getStatus(), 200);
         assertNotNull(result.getEntity());
     }
@@ -629,20 +608,17 @@ public class AccessExternalIT extends VitamRuleRunner {
     @RunWithCustomExecutor
     @Test
     public void selectObjectsByUnitArkIdentifierAndQualifierAndVersion() throws Exception {
-
         final String arkIdentifier = "ark:/22567/001a957db5eadaac";
         // given
         VitamContext vitamContext = new VitamContext(TENANT_ID)
             .setApplicationSessionId(APPLICATION_SESSION_ID)
             .setAccessContract(ACCESS_CONTRACT);
 
-
         // WHEN
         Response result =
             accessExternalClient.getObjectByUnitPersistentIdentifier(vitamContext, arkIdentifier, "BinaryMaster", "1");
 
         // THEN
-
         assertEquals(result.getStatus(), 200);
         assertNotNull(result.getEntity());
     }
@@ -650,7 +626,6 @@ public class AccessExternalIT extends VitamRuleRunner {
     @RunWithCustomExecutor
     @Test
     public void selectObjectsByNotFoundPersistentIdentifier() throws Exception {
-
         final String arkIdentifier = "ark:/22567/001a95sdfdsadaac";
         // given
         VitamContext vitamContext = new VitamContext(TENANT_ID)
@@ -663,15 +638,11 @@ public class AccessExternalIT extends VitamRuleRunner {
                 new SelectMultiQuery().getFinalSelectById(), arkIdentifier);
 
         // THEN
-
         assertTrue(result.isOk());
         List<JsonNode> resultUnit = ((RequestResponseOK<JsonNode>) result).getResults();
         assertNotNull(resultUnit);
         assertThat(resultUnit).isEmpty();
-
     }
-
-
 
     @RunWithCustomExecutor
     @Test

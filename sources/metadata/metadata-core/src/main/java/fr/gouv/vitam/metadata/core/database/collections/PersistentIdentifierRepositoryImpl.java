@@ -26,6 +26,7 @@
  */
 package fr.gouv.vitam.metadata.core.database.collections;
 
+import com.google.common.collect.Lists;
 import com.mongodb.ErrorCategory;
 import com.mongodb.MongoBulkWriteException;
 import com.mongodb.MongoException;
@@ -36,7 +37,6 @@ import com.mongodb.client.model.BulkWriteOptions;
 import com.mongodb.client.model.InsertOneModel;
 import fr.gouv.vitam.common.LocalDateUtil;
 import fr.gouv.vitam.common.ParametersChecker;
-import fr.gouv.vitam.common.database.server.mongodb.VitamDocument;
 import fr.gouv.vitam.common.exception.DatabaseException;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.logging.VitamLogger;
@@ -47,6 +47,7 @@ import fr.gouv.vitam.metadata.core.reconstruction.repository.PersistentIdentifie
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -80,10 +81,16 @@ public class PersistentIdentifierRepositoryImpl implements PersistentIdentifierR
 
     @Override
     public List<PurgedPersistentIdentifier> findByPersistentIdentifierAndTenant(String persistentIdentifier,
-        Integer tenant) throws DatabaseException {
+        Integer tenant, @Nullable String type) throws DatabaseException {
         ParametersChecker.checkParameter(ALL_PARAMS_REQUIRED, persistentIdentifier, tenant);
-        Bson query = and(eq("persistentIdentifier.PersistentIdentifierContent", persistentIdentifier),
-            eq(VitamDocument.TENANT_ID, tenant));
+        final List<Bson> filters = Lists.newArrayList(
+            eq("persistentIdentifier.PersistentIdentifierContent", persistentIdentifier),
+            eq(TENANT_ID, tenant)
+        );
+        if (type != null) {
+            filters.add(eq("type", type));
+        }
+        final Bson query = and(filters);
         try {
             List<PurgedPersistentIdentifier> result = new ArrayList<>();
             final FindIterable<Document> documents = purgedPersistentIdentifierCollection.find(query);

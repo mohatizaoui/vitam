@@ -631,10 +631,43 @@ documentation:
         description: "Internal Server Error."
       401:
         description: "Unauthorized."
-      301:
-        description: "Units moved to another system."
-      410:
-        description: "Units eliminated"
+    headers:
+      X_ACCESS_CONTRAT_ID:
+        description: "The contract name"
+        type: string
+        required: true
+        example: "ACC-0001"
+      X_TENANT_ID:
+        description: "The tenant id"
+        type: string
+        required: true
+        example: "1"
+
+/objects/byobjectspersistentidentifier/{persistentIdentifier}:
+  displayName: Retourne la liste des objets correspondants à l'identifiant pérenne fourni en entrée.
+  description: |
+    Requête qui retourne la liste des objets correspondants à l'identifiant pérenne fourni en entrée. La requête utilise le langage de requête (DSL) de Vitam en entrée pour filter et retourner que les informations demandées en cas de succès.
+  get:
+    uriParameters:
+        persistentIdentifier:
+          description: "L'identifiant pérenne des objets"
+          type: string
+          example: "ark:/22567/001a957db5eadaac_binary_master"
+          required: true
+    Permissions requises:
+      - objects:objectsbypersistentidentifier:id:read
+    responses:
+      200:
+        description: "Renvoie les objets correspondants à l'identifiant pérenne fourni."
+        body:
+          application/json:
+          example: !include libraries/examples/object-persistence-identifier-search.json
+      404:
+        description: "Not found."
+      500:
+        description: "Internal Server Error."
+      401:
+        description: "Unauthorized."
     headers:
       X_ACCESS_CONTRAT_ID:
         description: "The contract name"

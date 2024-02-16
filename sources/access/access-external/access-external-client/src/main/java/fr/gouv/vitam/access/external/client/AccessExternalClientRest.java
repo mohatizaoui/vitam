@@ -569,7 +569,7 @@ class AccessExternalClientRest extends DefaultClient implements AccessExternalCl
     }
 
     @Override
-    public Response getObjectByObjectPersistentIdentifier(VitamContext vitamContext, JsonNode selectQuery,
+    public RequestResponse<JsonNode> getObjectByObjectPersistentIdentifier(VitamContext vitamContext, JsonNode selectQuery,
         String persistentIdentifier) throws VitamClientException {
         ParametersChecker.checkParameter("Persistent identifier should not be empty", persistentIdentifier);
 
@@ -587,7 +587,7 @@ class AccessExternalClientRest extends DefaultClient implements AccessExternalCl
                     "Object unavailable for immediate access. Access Request required");
             }
             check(response);
-            return response;
+            return RequestResponse.parseFromResponse(response, JsonNode.class);
         } finally {
             if (response != null && SUCCESSFUL != response.getStatusInfo().getFamily()) {
                 response.close();

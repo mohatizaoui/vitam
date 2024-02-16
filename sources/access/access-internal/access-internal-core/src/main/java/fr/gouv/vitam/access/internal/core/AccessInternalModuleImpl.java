@@ -148,6 +148,7 @@ import fr.gouv.vitam.workspace.common.CompressInformation;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.apache.commons.lang3.BooleanUtils;
 
+import javax.annotation.Nullable;
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -368,13 +369,13 @@ public class AccessInternalModuleImpl implements AccessInternalModule {
      * @param persistentIdentifier as String persistent identifier
      */
     @Override
-    public JsonNode selectPurgedPersistentIdentifier(String persistentIdentifier)
+    public JsonNode selectPurgedPersistentIdentifier(String persistentIdentifier, @Nullable PurgedCollectionType type)
         throws InvalidParseOperationException, AccessInternalException {
         LOGGER.debug("DEBUG: purged persistent identifiers {}", persistentIdentifier);
 
         try (MetaDataClient metaDataClient = metaDataClientFactory.getClient()) {
             SanityChecker.checkParameter(persistentIdentifier);
-            return metaDataClient.getPurgedPersistentIdentifiers(persistentIdentifier);
+            return metaDataClient.getPurgedPersistentIdentifiers(persistentIdentifier, type);
         } catch (MetaDataNotFoundException | MetaDataClientServerException e) {
             throw new AccessInternalException("metadata error : ", e);
         }

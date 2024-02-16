@@ -168,6 +168,30 @@ class AccessInternalClientRest extends DefaultClient implements AccessInternalCl
     }
 
     @Override
+    public RequestResponse<JsonNode> selectObjectsByObjectPersistentIdentifier(String persistentIdentifier, JsonNode selectQuery)
+        throws InvalidParseOperationException,
+        AccessInternalClientServerException, AccessInternalClientNotFoundException, AccessUnauthorizedException,
+        BadRequestException {
+        Response response = null;
+        try {
+            response =
+                make(get().withBefore(CHECK_REQUEST_ID).withPath(OBJECTS + PERSISTENT_IDENTIFIER + persistentIdentifier)
+                    .withBody(selectQuery, BLANK_DSL).withJson());
+            check(response);
+            return RequestResponse.parseFromResponse(response);
+        } catch (VitamClientInternalException | PreconditionFailedClientException |
+                 ExpectationFailedClientException e) {
+            throw new AccessInternalClientServerException(e);
+        } catch (ForbiddenClientException e) {
+            throw new BadRequestException(e);
+        } catch (NoWritingPermissionException e) {
+            throw new InvalidParseOperationException(e);
+        } catch (BadRequestException e) {
+            return RequestResponse.parseVitamError(response);
+        }
+    }
+
+    @Override
     public Response streamUnits(JsonNode selectQuery)
         throws AccessInternalClientServerException, ExpectationFailedClientException, AccessUnauthorizedException {
         Response response = null;

@@ -27,29 +27,36 @@
 package fr.gouv.vitam.access.internal.core.identifier.query;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import fr.gouv.vitam.common.model.identifier.PurgedCollectionType;
 import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
 import fr.gouv.vitam.common.database.builder.request.multiple.SelectMultiQuery;
 import fr.gouv.vitam.common.database.parser.request.multiple.SelectParserMultiple;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.exception.VitamRuntimeException;
+import fr.gouv.vitam.common.model.identifier.PurgedCollectionType;
+
+import javax.annotation.Nullable;
 
 import static fr.gouv.vitam.common.database.builder.query.QueryHelper.and;
+import static fr.gouv.vitam.common.database.builder.query.QueryHelper.eq;
 import static fr.gouv.vitam.common.database.builder.query.QueryHelper.nestedSearch;
-import static fr.gouv.vitam.common.database.builder.query.QueryHelper.search;
 import static fr.gouv.vitam.common.database.utils.AccessContractRestrictionHelper.applyAccessContractRestrictionForObjectGroupForSelect;
 import static fr.gouv.vitam.common.database.utils.AccessContractRestrictionHelper.applyAccessContractRestrictionForUnitForSelect;
 import static fr.gouv.vitam.common.thread.VitamThreadUtils.getVitamSession;
 
 public class PersistentIdentifierMultiQueryFactory {
     public static SelectMultiQuery createSelectMultiQuery(final PurgedCollectionType purgedCollectionType,
-        final String persistentIdentifier) {
+        final String persistentIdentifier, @Nullable JsonNode selectQuery) {
         if (purgedCollectionType == PurgedCollectionType.UNIT) {
-            return createUnitSelectMultiQuery(persistentIdentifier);
+            return createUnitSelectMultiQuery(persistentIdentifier, selectQuery);
         } else if (purgedCollectionType == PurgedCollectionType.OBJECT) {
-            return createObjectSelectMultiQuery(persistentIdentifier);
+            return createObjectSelectMultiQuery(persistentIdentifier, selectQuery);
         }
         throw new IllegalStateException("Purged collection type not supported");
+    }
+
+    public static SelectMultiQuery createSelectMultiQuery(final PurgedCollectionType purgedCollectionType,
+        final String persistentIdentifier) {
+        return createSelectMultiQuery(purgedCollectionType, persistentIdentifier, null);
     }
 
     private static SelectMultiQuery jsonNodeToSelectMultiQuery(final JsonNode jsonNode)
@@ -59,10 +66,14 @@ public class PersistentIdentifierMultiQueryFactory {
         return selectParserMultiple.getRequest();
     }
 
-    private static SelectMultiQuery createUnitSelectMultiQuery(final String persistentIdentifier) {
+    private static SelectMultiQuery createUnitSelectMultiQuery(final String persistentIdentifier, @Nullable JsonNode selectQuery) {
         try {
-            final SelectMultiQuery multiQuery = (SelectMultiQuery) new SelectMultiQuery().setQuery(
-                search("PersistentIdentifier.PersistentIdentifierContent", persistentIdentifier));
+            final SelectParserMultiple query = new SelectParserMultiple();
+            if (selectQuery != null) {
+                query.parse(selectQuery);
+            }
+            final SelectMultiQuery multiQuery = (SelectMultiQuery) query.getRequest().addQueries(
+                eq("PersistentIdentifier.PersistentIdentifierContent", persistentIdentifier));
             final JsonNode finalMultiQueryWithRestrictions =
                 applyAccessContractRestrictionForUnitForSelect(multiQuery.getFinalSelect(),
                     getVitamSession().getContract());
@@ -72,11 +83,15 @@ public class PersistentIdentifierMultiQueryFactory {
         }
     }
 
-    private static SelectMultiQuery createObjectSelectMultiQuery(final String persistentIdentifier) {
+    private static SelectMultiQuery createObjectSelectMultiQuery(final String persistentIdentifier, @Nullable JsonNode selectQuery) {
         try {
-            final SelectMultiQuery multiQuery = (SelectMultiQuery) new SelectMultiQuery().setQuery(
+            final SelectParserMultiple query = new SelectParserMultiple();
+            if (selectQuery != null) {
+                query.parse(selectQuery);
+            }
+            final SelectMultiQuery multiQuery = (SelectMultiQuery) query.getRequest().addQueries(
                 nestedSearch("#qualifiers.versions", and().add(
-                    search("#qualifiers.versions.PersistentIdentifier.PersistentIdentifierContent",
+                    eq("#qualifiers.versions.PersistentIdentifier.PersistentIdentifierContent",
                         persistentIdentifier)).getCurrentQuery()));
             final JsonNode finalMultiQueryWithRestrictions =
                 applyAccessContractRestrictionForObjectGroupForSelect(multiQuery.getFinalSelect(),
