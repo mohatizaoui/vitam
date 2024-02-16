@@ -20,6 +20,8 @@
     - vitam_main_dashboard
     - vitam_elasticsearch_dashboard
     - vitam_standard_dashboard
+    - vitam_monitoring_machine
+    - vitam_global_overview
 
 - name: Set the correct data source name in the dashboard for prometheus
   replace:
