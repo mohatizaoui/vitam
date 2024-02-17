@@ -13,7 +13,7 @@
 {% if logback_rolling_policy|lower == "true" %}
   <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-      <fileNamePattern>{{ vitam_folder_log }}/{{ vitam_struct.vitam_component }}.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+      <fileNamePattern>{{ vitam_folder_log }}/{{ vitam_struct.vitam_component }}.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
       <maxFileSize>{{ vitam_struct.logback_max_file_size | default(logback_max_file_size) }}</maxFileSize>
       <maxHistory>{{ vitam_struct.logback_total_size_cap.file.history_days | default(logback_total_size_cap.file.history_days) }}</maxHistory>
       <totalSizeCap>{{ vitam_struct.logback_total_size_cap.file.totalsize | default(logback_total_size_cap.file.totalsize) }}</totalSizeCap>
@@ -31,7 +31,7 @@
 {% if logback_rolling_policy|lower == "true" %}
   <appender name="SECURITY" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-      <fileNamePattern>{{ vitam_folder_log }}/{{ vitam_struct.vitam_component }}_security.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+      <fileNamePattern>{{ vitam_folder_log }}/{{ vitam_struct.vitam_component }}_security.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
       <maxFileSize>{{ vitam_struct.logback_max_file_size | default(logback_max_file_size) }}</maxFileSize>
       <maxHistory>{{ vitam_struct.logback_total_size_cap.security.history_days | default(logback_total_size_cap.security.history_days) }}</maxHistory>
       <totalSizeCap>{{ vitam_struct.logback_total_size_cap.security.totalsize | default(logback_total_size_cap.security.totalsize) }}</totalSizeCap>
@@ -51,7 +51,7 @@
   {% if logback_rolling_policy|lower == "true" %}
   <appender name="OFFERSYNC" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-      <fileNamePattern>{{ vitam_folder_log }}/{{ vitam_struct.vitam_component }}_offer_sync.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+      <fileNamePattern>{{ vitam_folder_log }}/{{ vitam_struct.vitam_component }}_offer_sync.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
       <maxFileSize>{{ vitam_struct.logback_max_file_size | default(logback_max_file_size) }}</maxFileSize>
       <maxHistory>{{ vitam_struct.logback_total_size_cap.offersync.history_days }}</maxHistory>
       <totalSizeCap>{{ vitam_struct.logback_total_size_cap.offersync.totalsize }}</totalSizeCap>
@@ -70,7 +70,7 @@
   {% if logback_rolling_policy|lower == "true" %}
   <appender name="OFFERDIFF" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-      <fileNamePattern>{{ vitam_folder_log }}/{{ vitam_struct.vitam_component }}_offer_diff.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+      <fileNamePattern>{{ vitam_folder_log }}/{{ vitam_struct.vitam_component }}_offer_diff.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
       <maxFileSize>{{ vitam_struct.logback_max_file_size | default(logback_max_file_size) }}</maxFileSize>
       <maxHistory>{{ vitam_struct.logback_total_size_cap.offerdiff.history_days }}</maxHistory>
       <totalSizeCap>{{ vitam_struct.logback_total_size_cap.offerdiff.totalsize }}</totalSizeCap>
@@ -91,7 +91,7 @@
   {% if logback_rolling_policy|lower == "true" %}
   <appender name="OFFER_TAPE" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-      <fileNamePattern>{{ vitam_folder_log }}/{{ vitam_struct.vitam_component }}_offer_tape.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+      <fileNamePattern>{{ vitam_folder_log }}/{{ vitam_struct.vitam_component }}_offer_tape.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
       <maxFileSize>{{ vitam_struct.logback_max_file_size | default(logback_max_file_size) }}</maxFileSize>
       <maxHistory>{{ vitam_struct.logback_total_size_cap.offer_tape.history_days }}</maxHistory>
       <totalSizeCap>{{ vitam_struct.logback_total_size_cap.offer_tape.totalsize }}</totalSizeCap>
@@ -110,7 +110,7 @@
   {% if logback_rolling_policy|lower == "true" %}
   <appender name="OFFER_TAPE_BACKUP" class="ch.qos.logback.core.rolling.RollingFileAppender">
     <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-      <fileNamePattern>{{ vitam_folder_log }}/{{ vitam_struct.vitam_component }}_tape_backup.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+      <fileNamePattern>{{ vitam_folder_log }}/{{ vitam_struct.vitam_component }}_tape_backup.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
       <maxFileSize>{{ vitam_struct.logback_max_file_size | default(logback_max_file_size) }}</maxFileSize>
       <maxHistory>{{ vitam_struct.logback_total_size_cap.offer_tape_backup.history_days }}</maxHistory>
       <totalSizeCap>{{ vitam_struct.logback_total_size_cap.offer_tape_backup.totalsize }}</totalSizeCap>

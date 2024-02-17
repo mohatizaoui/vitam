@@ -116,11 +116,10 @@
 8:-XX:+PrintGCApplicationStoppedTime
 8:-Xloggc:/var/log/elasticsearch/gc.log
 8:-XX:+UseGCLogFileRotation
-8:-XX:NumberOfGCLogFiles=32
-8:-XX:GCLogFileSize=64m
+8:-XX:NumberOfGCLogFiles=8
+8:-XX:GCLogFileSize=32m
 
 # JDK 9+ GC logging
-9-:-Xlog:gc*,gc+age=trace,safepoint:file={{ elasticsearch_log_dir }}/gc.log:utctime,pid,tags:filecount=32,filesize=64m
-
+9-:-Xlog:gc*,gc+age=trace,safepoint:file={{ elasticsearch_log_dir }}/gc.log:utctime,pid,tags:filecount=8,filesize=32m
 
 -Djna.tmpdir={{ vitam_defaults.folder.root_path }}/tmp/{{ composant.cluster_name }}

@@ -1,9 +1,11 @@
 ---
-# defaults file for common
-memory_opts: -Xms512m -Xmx512m
-gc_opts: "-Xlog:gc*,gc+age=trace,safepoint:file={{ vitam_folder_log }}/gc.log:utctime,pid,tags:filecount=32,filesize=64m"
-jmx_exporter_opts: ""
-java_opts: ""
+
+default_memory_opts: "-Xms128m -Xmx512m"
+memory_opts: "{{ vitam_defaults.jvm_opts.memory | default(default_memory_opts) }}"
+default_gc_opts: "-Xlog:gc*,gc+age=trace,safepoint:file={{ vitam_folder_log }}/gc.log:utctime,pid,tags:filecount=8,filesize=32m"
+gc_opts: "{{ vitam_defaults.jvm_opts.gc | default(default_gc_opts) }}"
+java_opts: "{{ vitam_defaults.jvm_opts.java | default('') }}"
+jmx_exporter_opts: "{{ vitam_defaults.jmx_exporter | default('') }}"
 
 default_jvm_log: "{{ vitam_defaults.jvm_log | default(false) }}"
 jvm_log: "{{ vitam_struct.jvm_log | default(default_jvm_log) }}"

@@ -66,7 +66,7 @@
 #-XX:HeapDumpPath=${LOGSTASH_HOME}/heapdump.hprof
 
 # JDK 9+ GC logging
--Xlog:gc*,gc+age=trace,safepoint:file={{ logstash_log_dir }}/gc.log:utctime,pid,tags:filecount=32,filesize=64m
+-Xlog:gc*,gc+age=trace,safepoint:file={{ logstash_log_dir }}/gc.log:utctime,pid,tags:filecount=8,filesize=16m
 
 # Prevent from exploit in old log4j2 versions <2.17.1
 -Dlog4j2.formatMsgNoLookups=true
