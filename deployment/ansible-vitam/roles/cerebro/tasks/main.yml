@@ -1,5 +1,20 @@
 ---
 
+- name: Install openjdk headless for debian 12
+  package:
+    name:
+      - openjdk-17-jre-headless
+    state: latest
+  register: result
+  retries: "{{ packages_install_retries_number }}"
+  until: result is succeeded
+  delay: "{{ packages_install_retries_delay }}"
+  when:
+   - ansible_distribution == 'Debian'
+   - ansible_distribution_version == '12'
+  tags:
+    - update_package_vitam
+
 - name: Install vitam-elasticsearch-cerebro package
   package:
     name:
