@@ -27,7 +27,6 @@
 package fr.gouv.vitam.functionaltest.cucumber.step;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Iterables;
 import cucumber.api.DataTable;
@@ -95,8 +94,6 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import static fr.gouv.vitam.access.external.api.AdminCollections.AGENCIES;
 import static fr.gouv.vitam.access.external.api.AdminCollections.FORMATS;
@@ -658,19 +655,16 @@ public class AccessStep extends CommonStep {
     @When("^je recherche l'objet ayant l'identifiant pérenne (.*)$")
     public void get_object_by_persistent_identifier(String persistentIdentifier) throws Throwable {
         JsonNode queryJSON = JsonHandler.getFromString(world.getQuery());
-        try (Response response = world.getAccessClient().getObjectByObjectPersistentIdentifier(
+        RequestResponse<JsonNode> requestResponse = world.getAccessClient().getObjectByObjectPersistentIdentifier(
             new VitamContext(world.getTenantId()).setAccessContract(world.getContractId())
                 .setApplicationSessionId(world.getApplicationSessionId()),
-            queryJSON, persistentIdentifier).toResponse()) {
-            if (response.getStatus() == Status.OK.getStatusCode()) {
-                ArrayNode arrayNodeResults = response.readEntity(ArrayNode.class);
-                List<JsonNode> results = StreamSupport.stream(arrayNodeResults.spliterator(), false)
-                    .collect(Collectors.toList());
-                world.setResults(results);
-            } else {
-                VitamError vitamError = (VitamError) requestResponse;
-                Fail.fail("request getObjectByObjectPersistentIdentifier return an error: " + vitamError.getCode());
-            }
+            queryJSON, persistentIdentifier);
+        if (requestResponse.isOk()) {
+            RequestResponseOK<JsonNode> requestResponseOK = (RequestResponseOK<JsonNode>) requestResponse;
+            world.setResults(requestResponseOK.getResults());
+        } else {
+            VitamError vitamError = (VitamError) requestResponse;
+            Fail.fail("request getObjectByObjectPersistentIdentifier return an error: " + vitamError.getCode());
         }
     }
 
