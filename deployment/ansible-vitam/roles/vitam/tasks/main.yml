@@ -13,6 +13,7 @@
   when:
     - ansible_os_family == "Debian"
     - disable_internet_repositories_install == false
+    - ansible_distribution_version | int  < 12
 
 - name: "install openjdk only when Debian"
   apt:
@@ -25,6 +26,20 @@
   when:
     - ansible_os_family == "Debian"
     - disable_internet_repositories_install == true
+    - ansible_distribution_version | int  < 12
+
+- name: "install openjdk17 only when Debian 12"
+  apt:
+    name: openjdk-17-jre-headless
+    state: latest
+  register: result
+  retries: "{{ packages_install_retries_number }}"
+  until: result is succeeded
+  delay: "{{ packages_install_retries_delay }}"
+  when:
+    - ansible_os_family == "Debian"
+    - disable_internet_repositories_install == true
+    - ansible_distribution_version  == "12"
 
 - include_tasks: tape_offer.yml
   when: vitam_struct.vitam_component == "offer"

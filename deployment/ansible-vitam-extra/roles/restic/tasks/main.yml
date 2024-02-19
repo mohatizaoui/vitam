@@ -9,6 +9,14 @@
     state: latest
   when: ansible_os_family == "RedHat"
 
+- name: Install cron if necessary for Debian
+  package:
+    name:
+      - cron
+  when:
+    - ansible_distribution == 'Debian'
+    - ansible_distribution_version == '12'
+
 - name: Check that the restic directories exist
   file:
     path: "{{ vitam_defaults.folder.root_path | default('/vitam') }}/{{ item }}/restic"
