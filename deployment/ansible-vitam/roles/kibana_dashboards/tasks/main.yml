@@ -35,6 +35,18 @@
   when: (groups[group_var]|length <= composant.replica) and (groups[group_var]|length>1)
   tags: load_kibana
 
+
+- name: Change visualization and dashboard files when rsyslog is used
+  copy:
+    src: "{{item.path}}/{{item.src_file}}"
+    dest: "{{item.path}}/{{item.dest_file}}"
+    remote_src: no
+  with_items:
+    - { src_file: "rsyslog-vitam-type-logback.json", dest_file: "vitam-type-logback.json", path: "{{ role_path }}/files/log/search/" }
+    - { src_file: "rsyslog-Composants-Vitam.json", dest_file: "Composants-Vitam.json", path: "{{ role_path }}/files/log/dashboard/" }
+  tags: load_kibana
+  when: syslog.name | default('filebeat') != "filebeat"
+
 # We have a specific task for index pattern to add the "*" at the end of the url
 - name: load index templates for Kibana
   run_once: true

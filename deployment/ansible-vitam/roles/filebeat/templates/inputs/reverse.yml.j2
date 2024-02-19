@@ -1,0 +1,22 @@
+#jinja2: lstrip_blocks: True
+
+#
+# REVERSE APACHE
+#
+- type: log
+  id: "{{ vitam_site_name }}-apache-access"
+  paths:
+    - "{{ filebeat.apache_access_path | default(apache_log_path + '/access_log') }}"
+  fields:
+    kind: access
+    vitam_component: apache
+    source: reverse
+
+- type: log
+  id: "{{ vitam_site_name }}-apache-error"
+  paths:
+    - "{{ filebeat.apache_error_path | default(apache_log_path + '/error_log') }}"
+  fields:
+    kind: error
+    vitam_component: apache
+    source: reverse

@@ -1,6 +1,6 @@
-
 output
 {
+
     # todo: check if drop exists (which module set it, etc...)
     if "_grokparsefailure" not in [tags] and "drop" not in [tags]
     {
@@ -20,7 +20,7 @@ output
 
             }
         }
-        else if [vitam_component] =~ "elasticsearch-log" or [vitam_component] =~ "logstash" or [logger] =~ "curator" or [logger] =~ "systemd"  {% if syslog.name =="syslog-ng" %} or [logger] =~ "syslog-ng" {% endif %} or [logger] =~ "kernel" or [logger] =~ "yum"  or [logger] =~ "usermgmt"
+        else if [vitam_component] =~ "elasticsearch-log" or [vitam_component] =~ "logstash" or [logger] =~ "curator" or [logger] =~ "systemd"  {% if syslog.name | default('filebeat') == "syslog-ng" %} or [logger] =~ "syslog-ng" {% endif %} or [logger] =~ "kernel" or [logger] =~ "yum"  or [logger] =~ "usermgmt"
         {
             elasticsearch
             {
@@ -56,4 +56,5 @@ output
     #       codec => rubydebug
     #     }
     # }
+
 }

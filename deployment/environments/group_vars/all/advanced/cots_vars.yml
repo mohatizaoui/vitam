@@ -265,8 +265,12 @@ kibana:
         replica: 1
 
 syslog:
-    # value can be syslog-ng or rsyslog
-    name: "rsyslog"
+    # value can be syslog-ng, rsyslog or filebeat (default)
+    name: "filebeat"
+
+filebeat:
+    # apache_access_path:
+    # apache_error_path:
 
 cerebro:
     baseuri: "cerebro"

@@ -31,10 +31,18 @@ filter
             overwrite => [ "vitam_component" ]
         }
     }
-
     else if [input] == "logstash" {
         mutate {
             add_field => { "vitam_component" => "logstash" }
+        }
+    }
+    else if [agent][type] == "filebeat" {
+        mutate {
+        rename => {
+                    "[fields][vitam_component]" => "vitam_component"
+                    "[host][hostname]" => "hostname"
+                    "[fields][kind]"=> "log_type"
+                }
         }
     }
 
@@ -42,7 +50,14 @@ filter
     # Let's parse the message depending on the program sending it
     # --------------------------------------------------
 
-    if [vitam_component] =~ "mongo" {
+    if [vitam_component] =~ "httpd" {
+        grok {
+           match => { "message" => "%{COMMONAPACHELOG}?%{GREEDYDATA:message}" }
+        }
+         mutate { add_field => [ "logger", "reverse" ] }
+    }
+
+    else if [vitam_component] =~ "mongo" {
         # Drop mongo (I)nformational log, for Verbosity Level of 0, if mongodb.drop_info_log is defined to true
         {% if mongodb.drop_info_log==true %}
         if [message] =~ ".*\s+[ID]\s+.*" {
@@ -132,7 +147,7 @@ filter
             target => [ "@timestamp" ]
         }
     }
-{% if syslog.name == 'syslog-ng' %}
+{% if syslog.name | default('filebeat') == 'syslog-ng' %}
     else if [vitam_component] =~ "systemd" or  [vitam_component] =~ "sudo" or [vitam_component] =~ "ansible" {
         grok {
             break_on_match => false
@@ -308,8 +323,8 @@ filter
             target => [ "@timestamp" ]
         }
     }
-    # kernel part
 
+    # kernel part
     if [facility_label] =~ "kernel"  {
         grok {
             break_on_match => false

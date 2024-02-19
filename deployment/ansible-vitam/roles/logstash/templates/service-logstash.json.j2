@@ -7,8 +7,8 @@
     "tags": ["logstash"],
     "checks": [
       {
-        "notes": "Syslog tcp port opened",
-        "tcp": "{{ ip_admin }}:{{ logstash.port }}",
+        "notes": "Logstash Input TCP port opened",
+        "tcp": "{{ ip_admin }}:{{ logstash.port | default(10514) }}",
         "interval": "{{ logstash.check_consul }}s"
       }
     ]

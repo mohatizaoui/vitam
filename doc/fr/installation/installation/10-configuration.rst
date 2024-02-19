@@ -103,7 +103,7 @@ La configuration s'effectue dans le fichier |repertoire_inventory|``group_vars/a
      :language: yaml
      :linenos:
 
-Dans le cas du choix du :term:`COTS` d'envoi des messages syslog dans logastsh, il est possible de choisir entre ``syslog-ng`` et ``rsyslog``. Il faut alors modifier la valeur de la directive ``syslog.name``; la valeur par défaut est ``rsyslog``.
+Dans le cas du choix du :term:`COTS` d'envoi des messages syslog dans logstash, il est possible de choisir entre ``filebeat``, ``syslog-ng`` et ``rsyslog``. Il faut alors modifier la valeur de la directive ``syslog.name``; la valeur par défaut est ``filebeat``.
 
 .. note:: si vous décommentez et renseignez les valeurs dans le bloc ``external_siem``, les messages seront envoyés (par ``syslog`` ou ``syslog-ng``, selon votre choix de déploiement) dans un :term:`SIEM` externe à la solution logicielle :term:`VITAM`, aux valeurs indiquées dans le bloc ; il n'est alors pas nécessaire de renseigner de partitions pour les groupes ansible ``[hosts_logstash]`` et ``[hosts_elasticsearch_log]``.
 
