@@ -37,6 +37,7 @@ import com.google.common.collect.Iterators;
 import fr.gouv.culture.archivesdefrance.seda.v2.UpdateOperationType;
 import fr.gouv.vitam.collect.common.dto.MetadataUnitUp;
 import fr.gouv.vitam.collect.common.exception.CollectInternalException;
+import fr.gouv.vitam.collect.common.exception.CollectInternalInvalidRequestException;
 import fr.gouv.vitam.collect.common.exception.CollectInternalServerSideException;
 import fr.gouv.vitam.collect.internal.core.common.ProjectModel;
 import fr.gouv.vitam.collect.internal.core.common.TransactionModel;
@@ -296,7 +297,7 @@ public class MetadataService {
         for (Map.Entry<String, JsonNode> unit : unitContentToSetByURI.entrySet()) {
             Optional<String> first = unitIdsByURI.keySet().stream().filter(e -> e.endsWith(unit.getKey())).findFirst();
             if (first.isEmpty()) {
-                throw new CollectInternalException("Cannot find unit with path " + unit.getKey());
+                throw new CollectInternalInvalidRequestException("Cannot find unit with path " + unit.getKey());
             }
             String unitId = unitIdsByURI.get(first.get());
             UpdateMultiQuery query = new UpdateMultiQuery();

@@ -89,6 +89,7 @@ public class MetadataServiceTest {
     private static final String UNITS_WITH_GRAPH_PATH = "streamZip/units_with_graph.json";
     private static final String QUERIES_PATH = "streamZip/queries.json";
     private static final String METADATA_CSV_FILE = "update/metadata.csv";
+    private static final String METADATA_JSONL_FILE = "update/metadata_update.jsonl";
     private static final String UNIT_FILE = "collect_unit.json";
     private static final String UNIT_UP = "UNIT_UP";
 
@@ -364,5 +365,38 @@ public class MetadataServiceTest {
         metadataService.selectUnitsByTransactionId(JsonHandler.createObjectNode(), TRANSACTION_ID);
         // Then
         verify(metadataRepository).selectUnits(any(JsonNode.class), eq(TRANSACTION_ID));
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void testUpdateUnitsWithJsonlMetadata() throws Exception {
+        VitamThreadUtils.getVitamSession().setRequestId(GUIDFactory.newRequestIdGUID(0).getId());
+        AtomicReference<List<JsonNode>> requestReference = new AtomicReference<>();
+
+        final List<JsonNode> unitsJson =
+            JsonHandler.getFromFileAsTypeReference(PropertiesUtils.getResourceFile(UNITS_WITH_GRAPH_PATH),
+                new TypeReference<>() {
+                });
+
+        when(metadataRepository.atomicBulkUpdate(any())).thenAnswer((e) -> {
+            final List<JsonNode> argument = e.getArgument(0);
+            requestReference.set(argument);
+            return new RequestResponseOK<>().addAllResults(List.of(JsonHandler.toJsonNode(
+                new RequestResponseOK<>().addResult(JsonHandler.createObjectNode().put("#status", "OK")))));
+        });
+
+        when(metadataRepository.selectUnits(any(SelectMultiQuery.class), any())).thenReturn(
+            new ScrollSpliterator<>(mock(SelectMultiQuery.class),
+                (query) -> new RequestResponseOK<JsonNode>().addAllResults(new ArrayList<>(unitsJson)), 0, 0));
+
+        // When
+        try (InputStream is = PropertiesUtils.getResourceAsStream(METADATA_JSONL_FILE)) {
+            metadataService.updateUnitsWithJsonlMetadata(transactionModel, is);
+        }
+
+        final JsonNode expectedQueries =
+            JsonHandler.getFromFile(PropertiesUtils.getResourceFile("streamZip/queries_with_set_and_unset.json"));
+
+        JsonAssert.assertJsonEquals(JsonHandler.toJsonNode(requestReference.get()), expectedQueries);
     }
 }

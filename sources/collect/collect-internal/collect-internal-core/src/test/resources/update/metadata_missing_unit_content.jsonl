@@ -1,0 +1,2 @@
+{ "File": "File", "UnitContent": { "DescriptionLevel": "Collection", "Title": "File", "Description": "Ceci est un versement de bulletins de paie", "StartDate": "2023-01-01", "EndDate": "2023-01-31", "Tag": [ "Paie", "Bulletin" ] } }
+{ "File": "File/BP_123456_20230131.pdf" }

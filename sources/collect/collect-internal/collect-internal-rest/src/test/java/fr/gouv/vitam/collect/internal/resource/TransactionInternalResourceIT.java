@@ -54,6 +54,7 @@ import java.util.Optional;
 
 import static fr.gouv.vitam.common.CommonMediaType.TEXT_CSV;
 import static io.restassured.RestAssured.given;
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static javax.ws.rs.core.Response.Status.OK;
 import static org.mockito.ArgumentMatchers.any;
@@ -450,7 +451,7 @@ public class TransactionInternalResourceIT extends CollectInternalResourceBaseIT
                     .when()
                     .put("transactions/" + transaction.getId() + "/units/metadata/csv")
                     .then()
-                    .statusCode(INTERNAL_SERVER_ERROR.getStatusCode())
+                    .statusCode(BAD_REQUEST.getStatusCode())
                     .body("message", Matchers.containsString("Cannot find unit with path no-dir"));
             } catch (FileNotFoundException e) {
                 Assert.fail(String.format("File not found on %s: %s", metadataResourcePath, e.getLocalizedMessage()));
