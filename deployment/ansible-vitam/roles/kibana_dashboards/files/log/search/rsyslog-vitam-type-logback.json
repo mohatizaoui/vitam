@@ -8,9 +8,7 @@
   },
   "description": "",
   "columns": [
-    "hostname",
     "vitam_component",
-    "log_type",
     "log_level",
     "log_message"
   ],

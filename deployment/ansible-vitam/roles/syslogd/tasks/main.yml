@@ -1,7 +1,7 @@
 ---
 
 - include_tasks: rsyslog.yml
-  when: syslog.name == "rsyslog"
+  when: syslog.name | default('filebeat') == "rsyslog"
 
 - include_tasks: syslogng.yml
-  when: syslog.name == "syslog-ng"
+  when: syslog.name | default('filebeat') == "syslog-ng"

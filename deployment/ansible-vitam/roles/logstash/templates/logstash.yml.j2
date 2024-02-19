@@ -199,3 +199,7 @@ path.logs: {{ logstash_log_dir }}
 #
 # Where to find custom plugins
 # path.plugins: []
+
+{% if syslog.name | default('filebeat') == "filebeat" %}
+pipeline.ecs_compatibility: disabled
+{% endif %}
