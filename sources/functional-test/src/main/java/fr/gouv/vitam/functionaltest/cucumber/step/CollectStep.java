@@ -425,7 +425,7 @@ public class CollectStep extends CommonStep {
 
                 if (status.equals(myTransactionDto.getStatus())) {
                     return true;
-                } else if (stopWatch.getTime(TimeUnit.MINUTES) >= 1) {
+                } else if (stopWatch.getTime(TimeUnit.MINUTES) >= 10) {
                     return false;
                 }
 
@@ -463,7 +463,7 @@ public class CollectStep extends CommonStep {
 
     public void verifyStatus(String status) throws Exception {
 
-        boolean processTimeout = waitTransaction(status, 3, 300_000L,
+        boolean processTimeout = waitTransaction(status, 100, 5_000L,
             TimeUnit.MILLISECONDS);
         if (!processTimeout) {
             fail("Sip processing not finished : operation (" + world.getOperationId() + "). Timeout exceeded.");
@@ -498,17 +498,29 @@ public class CollectStep extends CommonStep {
         }
     }
 
-    @When("^j'envoie un fichier de mise à jour (.*)$")
+    @When("^j'envoie un fichier de mise à jour CSV (.*)$")
     public void should_upload_metadata_csv(String arboFileName) throws Exception {
 
         try (InputStream inputStream =
             Files.newInputStream(Paths.get(world.getBaseDirectory(), arboFileName))) {
             RequestResponse<JsonNode> response = world.getCollectExternalClient()
-                .updateUnits(new VitamContext(world.getTenantId()), world.getTransactionId(), inputStream);
+                .updateUnitsWithCsvMetadata(new VitamContext(world.getTenantId()), world.getTransactionId(),
+                    inputStream);
             Assertions.assertThat(response.getStatus()).isEqualTo(200);
         }
     }
 
+    @When("^j'envoie un fichier de mise à jour JSONL (.*)$")
+    public void should_upload_metadata_jsonl(String arboFileName) throws Exception {
+
+        try (InputStream inputStream =
+            Files.newInputStream(Paths.get(world.getBaseDirectory(), arboFileName))) {
+            RequestResponse<JsonNode> response = world.getCollectExternalClient()
+                .updateUnitsWithJsonlMetadata(new VitamContext(world.getTenantId()), world.getTransactionId(),
+                    inputStream);
+            Assertions.assertThat(response.getStatus()).isEqualTo(200);
+        }
+    }
 
     @When("^je constate que des métadonnées correspondent au fichier json (.+)$")
     public void json_metadata_are_for_particular_result(String filename) throws Throwable {

@@ -24,33 +24,47 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.common.mapping.deserializer;
+package fr.gouv.vitam.common.model.unit;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonNode;
-import fr.gouv.culture.archivesdefrance.seda.v2.TextType;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.io.IOException;
+public class KeywordsType {
 
-public class TextTypeDeSerializer extends JsonDeserializer<TextType> {
+    @JsonProperty("KeywordContent")
+    private String keywordContent;
+    @JsonProperty("KeywordReference")
+    private String keywordReference;
+    @JsonProperty("KeywordType")
+    private CodeKeywordType keywordType;
 
-    /**
-     * Convert json, xml, string to TextType
-     *
-     * @param jp (json, xml, string) representation
-     * @param ctxt
-     * @return the TextType
-     * @throws java.io.IOException
-     */
-    @Override
-    public TextType deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-        JsonNode node = jp.getCodec().readTree(jp);
+    public KeywordsType() {
+        // Empty constructor for deserialization
+    }
 
-        TextType textType = new TextType();
-        textType.setValue(node.asText());
+    public String getKeywordContent() {
+        return keywordContent;
+    }
 
-        return textType;
+    public KeywordsType setKeywordContent(String keywordContent) {
+        this.keywordContent = keywordContent;
+        return this;
+    }
+
+    public String getKeywordReference() {
+        return keywordReference;
+    }
+
+    public KeywordsType setKeywordReference(String keywordReference) {
+        this.keywordReference = keywordReference;
+        return this;
+    }
+
+    public CodeKeywordType getKeywordType() {
+        return keywordType;
+    }
+
+    public KeywordsType setKeywordType(CodeKeywordType keywordType) {
+        this.keywordType = keywordType;
+        return this;
     }
 }

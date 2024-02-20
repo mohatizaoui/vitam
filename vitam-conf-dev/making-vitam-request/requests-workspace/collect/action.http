@@ -83,6 +83,14 @@ X-Tenant-Id: {{tenant}}
 
 < ./SimpleTreeZipWithCSV.zip
 
+### upload a zip + jsonl to project without transaction
+POST {{url-collect}}/collect-external/v1/projects/{{project-id}}/upload
+Accept: application/json
+Content-Type: application/zip
+X-Tenant-Id: {{tenant}}
+
+< ./SimpleTreeZipWithJSONL.zip
+
 ### Récuperation d'une unité archivistique pas dsl query
 GET {{url-collect}}/collect-external/v1/transactions/{{transaction-id}}/units
 accept: application/json
@@ -134,14 +142,29 @@ Content-Length: 143
 {
 }
 
-### Mise à jour des metadonnées par un fichier csv
+### Mise à jour des metadonnées d'une transaction par un fichier csv (**API dépréciée depuis la 7.1**)
 PUT {{url-collect}}/collect-external/v1/transactions/{{transaction-id}}/units
 Accept: application/json
 Content-Type: application/octet-stream
 X-Tenant-Id: {{tenant}}
 
-< /path_tometadata/metadata.csv
+< /path_to_metadata/metadata.csv
 
+### Mise à jour des metadonnées d'une transaction par un fichier csv
+PUT {{url-collect}}/collect-external/v1/transactions/{{transaction-id}}/units/metadata/csv
+Accept: application/json
+Content-Type: text/csv
+X-Tenant-Id: {{tenant}}
+
+< /path_to_metadata/metadata.csv
+
+### Mise à jour des metadonnées d'une transaction par un fichier JSONL
+PUT {{url-collect}}/collect-external/v1/transactions/{{transaction-id}}/units/metadata/jsonl
+Accept: application/json
+Content-Type: application/octet-stream
+X-Tenant-Id: {{tenant}}
+
+< /path_to_metadata/metadata.jsonl
 
 ### Bulk atomic update of unit descriptive metadata of a transaction
 POST {{url-collect}}/collect-external/v1/transactions/{{transaction-id}}/units/bulk

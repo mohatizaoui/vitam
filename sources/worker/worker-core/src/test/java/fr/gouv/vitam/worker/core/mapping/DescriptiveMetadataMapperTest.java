@@ -30,6 +30,7 @@ import fr.gouv.culture.archivesdefrance.seda.v2.DescriptiveMetadataContentType;
 import fr.gouv.culture.archivesdefrance.seda.v2.TextType;
 import fr.gouv.vitam.common.model.unit.DescriptiveMetadataModel;
 import fr.gouv.vitam.common.model.unit.PersistentIdentifierModel;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -37,7 +38,6 @@ import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
 
 public class DescriptiveMetadataMapperTest {
 
@@ -61,10 +61,9 @@ public class DescriptiveMetadataMapperTest {
 
         // Then
         assertThat(descriptiveMetadataModel.getTitle()).isNull();
-        assertThat(descriptiveMetadataModel.getTitle_().getTextTypes())
+        assertThat(descriptiveMetadataModel.getTitle_().getTextByLang())
             .hasSize(1)
-            .extracting("lang", "value")
-            .contains(tuple("fr", "titre"));
+            .containsExactly(new ImmutablePair<>("fr", "titre"));
     }
 
 
@@ -114,10 +113,9 @@ public class DescriptiveMetadataMapperTest {
 
         // Then
         assertThat(descriptiveMetadataModel.getDescription()).isNull();
-        assertThat(descriptiveMetadataModel.getDescription_().getTextTypes())
+        assertThat(descriptiveMetadataModel.getDescription_().getTextByLang())
             .hasSize(1)
-            .extracting("lang", "value")
-            .contains(tuple("fr", "description"));
+            .containsExactly(new ImmutablePair<>("fr", "description"));
     }
 
     @Test
@@ -138,6 +136,7 @@ public class DescriptiveMetadataMapperTest {
         assertThat(descriptiveMetadataModel.getPersistentIdentifier()).isNotNull();
         assertThat(descriptiveMetadataModel.getPersistentIdentifier()).hasSize(1);
         assertThat(
-            descriptiveMetadataModel.getPersistentIdentifier().get(0)).isEqualToComparingFieldByField(persistentIdentifierModel);
+            descriptiveMetadataModel.getPersistentIdentifier().get(0)).isEqualToComparingFieldByField(
+            persistentIdentifierModel);
     }
 }

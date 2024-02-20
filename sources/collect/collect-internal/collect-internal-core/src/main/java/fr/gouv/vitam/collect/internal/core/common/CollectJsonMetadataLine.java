@@ -24,45 +24,53 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.common.mapping.serializer;
+package fr.gouv.vitam.collect.internal.core.common;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import fr.gouv.culture.archivesdefrance.seda.v2.IdentifierType;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import java.io.IOException;
+public class CollectJsonMetadataLine {
 
-/**
- * Identifier Type Serializer
- */
-public class IdentifierTypeSerializer extends StdSerializer<IdentifierType> {
+    public static final String FILE_FIELD = "File";
+    public static final String SELECTOR_FIELD = "Selector";
+    public static final String UNIT_CONTENT_FIELD = "UnitContent";
 
-    /**
-     * constructor
-     */
-    public IdentifierTypeSerializer() {
-        this(null);
+    @JsonProperty(FILE_FIELD)
+    private String file;
+    @JsonProperty(SELECTOR_FIELD)
+    private CollectJsonMetadataSelector selector;
+    @JsonProperty(UNIT_CONTENT_FIELD)
+    private ObjectNode unitContent;
+
+    public CollectJsonMetadataLine() {
+        // Empty constructor for serialization
     }
 
-    /**
-     * constructor
-     */
-    public IdentifierTypeSerializer(Class<IdentifierType> type) {
-        super(type);
+    public String getFile() {
+        return file;
     }
 
-    /**
-     * serialize IdentifierType
-     *
-     * @param identifierType
-     * @param gen
-     * @param provider
-     * @throws IOException
-     */
-    @Override
-    public void serialize(IdentifierType identifierType, JsonGenerator gen, SerializerProvider provider)
-        throws IOException {
-        gen.writeString(identifierType.getValue());
+    public CollectJsonMetadataLine setFile(String file) {
+        this.file = file;
+        return this;
+    }
+
+    public CollectJsonMetadataSelector getSelector() {
+        return selector;
+    }
+
+    public CollectJsonMetadataLine setSelector(
+        CollectJsonMetadataSelector selector) {
+        this.selector = selector;
+        return this;
+    }
+
+    public ObjectNode getUnitContent() {
+        return unitContent;
+    }
+
+    public CollectJsonMetadataLine setUnitContent(ObjectNode unitContent) {
+        this.unitContent = unitContent;
+        return this;
     }
 }

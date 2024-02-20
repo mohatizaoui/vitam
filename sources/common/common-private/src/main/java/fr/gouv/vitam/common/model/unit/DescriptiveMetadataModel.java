@@ -30,13 +30,7 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import fr.gouv.culture.archivesdefrance.seda.v2.CoverageType;
-import fr.gouv.culture.archivesdefrance.seda.v2.GpsType;
-import fr.gouv.culture.archivesdefrance.seda.v2.KeywordsType;
-import fr.gouv.culture.archivesdefrance.seda.v2.LevelType;
-import fr.gouv.culture.archivesdefrance.seda.v2.OrganizationType;
 import fr.gouv.culture.archivesdefrance.seda.v2.RelatedObjectReferenceType;
-import fr.gouv.culture.archivesdefrance.seda.v2.TextType;
 
 import java.util.HashMap;
 import java.util.List;
@@ -85,10 +79,10 @@ public class DescriptiveMetadataModel {
     private CustodialHistoryModel custodialHistory;
 
     @JsonProperty("Type")
-    private TextType type;
+    private String type;
 
     @JsonProperty("DocumentType")
-    private TextType documentType;
+    private String documentType;
 
     @JsonProperty("Language")
     private List<String> language;
@@ -296,19 +290,19 @@ public class DescriptiveMetadataModel {
         this.custodialHistory = custodialHistory;
     }
 
-    public TextType getType() {
+    public String getType() {
         return type;
     }
 
-    public void setType(TextType type) {
+    public void setType(String type) {
         this.type = type;
     }
 
-    public TextType getDocumentType() {
+    public String getDocumentType() {
         return documentType;
     }
 
-    public void setDocumentType(TextType documentType) {
+    public void setDocumentType(String documentType) {
         this.documentType = documentType;
     }
 

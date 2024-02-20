@@ -27,7 +27,6 @@
 package fr.gouv.vitam.common.model.unit;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import fr.gouv.culture.archivesdefrance.seda.v2.CodeType;
 
 import java.util.List;
 
@@ -37,11 +36,11 @@ import java.util.List;
 public class SignatureTypeModel {
 
     @JsonProperty("Signer")
-    protected List<ValidatorOrSignerModel> signer;
+    private List<ValidatorOrSignerModel> signer;
     @JsonProperty("Validator")
-    protected ValidatorOrSignerModel validator;
+    private ValidatorOrSignerModel validator;
     @JsonProperty("Masterdata")
-    protected CodeType masterdata;
+    private String masterdata;
     @JsonProperty("ReferencedObject")
     protected ReferencedObjectTypeModel referencedObject;
 
@@ -66,11 +65,11 @@ public class SignatureTypeModel {
         return this;
     }
 
-    public CodeType getMasterdata() {
+    public String getMasterdata() {
         return masterdata;
     }
 
-    public SignatureTypeModel setMasterdata(CodeType masterdata) {
+    public SignatureTypeModel setMasterdata(String masterdata) {
         this.masterdata = masterdata;
         return this;
     }

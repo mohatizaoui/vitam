@@ -340,10 +340,39 @@ public interface CollectExternalClient extends MockOrRestClient {
     RequestResponse<JsonNode> updateTransaction(VitamContext vitamContext,
         TransactionDto transactionDto) throws VitamClientException;
 
+    /**
+     * Update transaction units using CSV metadata file.
+     * Defaults to updateUnitsWithCsvMetadata() method.
+     *
+     * @return RequestResponse<JsonNode>
+     * @throws VitamClientException exception occurs when parse operation failed
+     * @deprecated Use updateUnitsWithCsvMetadata() or updateUnitsWithJsonlMetadata() instead.
+     */
+    @Deprecated(forRemoval = true, since = "Vitam 7.1")
+    default RequestResponse<JsonNode> updateUnits(VitamContext vitamContext, String transactionId, InputStream is)
+        throws VitamClientException {
+        return this.updateUnitsWithCsvMetadata(vitamContext, transactionId, is);
+    }
 
+    /**
+     * Update transaction units using CSV metadata file
+     * Consumes a csv file (text/csv).
+     *
+     * @return RequestResponse<JsonNode>
+     * @throws VitamClientException exception occurs when parse operation failed
+     */
+    RequestResponse<JsonNode> updateUnitsWithCsvMetadata(VitamContext vitamContext, String transactionId,
+        InputStream metadataCsvInputStream) throws VitamClientException;
 
-    RequestResponse<JsonNode> updateUnits(VitamContext vitamContext, String transactionId, InputStream is)
-        throws VitamClientException;
+    /**
+     * Update transaction units using JSON-Lines (jsonl) metadata file
+     * Consumes an JSON-Lines file (application/octet-stream).
+     *
+     * @return RequestResponse<JsonNode>
+     * @throws VitamClientException exception occurs when parse operation failed
+     */
+    RequestResponse<JsonNode> updateUnitsWithJsonlMetadata(VitamContext vitamContext, String transactionId,
+        InputStream metadataJsonlInputStream) throws VitamClientException;
 
     RequestResponse<JsonNode> selectUnitsWithInheritedRules(VitamContext vitamContext, String transactionId,
         JsonNode selectQuery)

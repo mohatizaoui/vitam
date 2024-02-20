@@ -35,6 +35,7 @@ import fr.gouv.vitam.collect.common.dto.ObjectDto;
 import fr.gouv.vitam.collect.common.dto.ProjectDto;
 import fr.gouv.vitam.collect.common.dto.TransactionDto;
 import fr.gouv.vitam.collect.common.exception.CollectRequestResponse;
+import fr.gouv.vitam.collect.internal.client.exceptions.CollectInternalClientInvalidRequestException;
 import fr.gouv.vitam.collect.internal.client.exceptions.CollectInternalClientNotFoundException;
 import fr.gouv.vitam.common.CommonMediaType;
 import fr.gouv.vitam.common.exception.VitamClientException;
@@ -45,8 +46,8 @@ import fr.gouv.vitam.common.server.application.junit.ResteasyTestApplication;
 import fr.gouv.vitam.common.serverv2.VitamServerTestRunner;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.NullInputStream;
-import org.assertj.core.api.Assertions;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -64,12 +65,18 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
+import static fr.gouv.vitam.common.CommonMediaType.TEXT_CSV;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -110,21 +117,21 @@ public class CollectInternalClientRestTest extends ResteasyTestApplication {
     public void initProject() throws Exception {
         Mockito.when(mock.get()).thenReturn(Response.ok().build());
         final RequestResponse<JsonNode> response = client.initProject(new ProjectDto());
-        Assertions.assertThat(response).isNotNull();
+        assertThat(response).isNotNull();
     }
 
     @Test
     public void updateProject() throws Exception {
         Mockito.when(mock.put()).thenReturn(Response.ok().build());
         final RequestResponse<JsonNode> response = client.updateProject(new ProjectDto());
-        Assertions.assertThat(response).isNotNull();
+        assertThat(response).isNotNull();
     }
 
     @Test
     public void getProjectById() throws Exception {
         Mockito.when(mock.get()).thenReturn(Response.ok().build());
         final RequestResponse<JsonNode> response = client.getProjectById("PROJECT_ID");
-        Assertions.assertThat(response).isNotNull();
+        assertThat(response).isNotNull();
     }
 
     @Test
@@ -132,7 +139,7 @@ public class CollectInternalClientRestTest extends ResteasyTestApplication {
         Mockito.when(mock.get()).thenReturn(Response.ok().build());
         final RequestResponse<JsonNode> response =
             client.getTransactionById("TRANSACTION_ID");
-        Assertions.assertThat(response).isNotNull();
+        assertThat(response).isNotNull();
     }
 
     @Test
@@ -140,14 +147,14 @@ public class CollectInternalClientRestTest extends ResteasyTestApplication {
         Mockito.when(mock.get()).thenReturn(Response.ok().build());
         final RequestResponse<JsonNode> response =
             client.getTransactionByProjectId("PROJECT_ID");
-        Assertions.assertThat(response).isNotNull();
+        assertThat(response).isNotNull();
     }
 
     @Test
     public void deleteProjectById() throws Exception {
         Mockito.when(mock.delete()).thenReturn(Response.ok().build());
         final RequestResponse<JsonNode> response = client.deleteProjectById("PROJECT_ID");
-        Assertions.assertThat(response).isNotNull();
+        assertThat(response).isNotNull();
     }
 
     @Test
@@ -155,14 +162,14 @@ public class CollectInternalClientRestTest extends ResteasyTestApplication {
         Mockito.when(mock.delete()).thenReturn(Response.ok().build());
         final RequestResponse<JsonNode> response =
             client.deleteTransactionById("TRANSACTION_ID");
-        Assertions.assertThat(response).isNotNull();
+        assertThat(response).isNotNull();
     }
 
     @Test
     public void getProjects() throws Exception {
         Mockito.when(mock.get()).thenReturn(Response.ok().build());
         final RequestResponse<JsonNode> response = client.getProjects();
-        Assertions.assertThat(response).isNotNull();
+        assertThat(response).isNotNull();
     }
 
     @Test
@@ -177,7 +184,7 @@ public class CollectInternalClientRestTest extends ResteasyTestApplication {
     public void uploadZipToProjectOK() throws Exception {
         Mockito.when(mock.post()).thenReturn(Response.ok(new RequestResponseOK<>().addResult("RESULT")).build());
         final String result = client.uploadZipToProject("PR_ID", new NullInputStream(100));
-        Assertions.assertThat(result).isEqualTo("RESULT");
+        assertThat(result).isEqualTo("RESULT");
     }
 
     @Test
@@ -202,9 +209,45 @@ public class CollectInternalClientRestTest extends ResteasyTestApplication {
     public void bulkAtomicUpdateTransactionUnits() throws Exception {
         RequestResponseOK<BulkAtomicUpdateResult> response =
             client.bulkAtomicUpdateUnits("transactionId", JsonHandler.createObjectNode());
-        Assertions.assertThat(response.getResults()).hasSize(1);
-        Assertions.assertThat(response.getResults().get(0).getStatus()).isEqualTo(BulkAtomicUpdateStatus.OK);
-        Assertions.assertThat(response.getResults().get(0).getUpdatedUnitId()).isEqualTo("unitId");
+        assertThat(response.getResults()).hasSize(1);
+        assertThat(response.getResults().get(0).getStatus()).isEqualTo(BulkAtomicUpdateStatus.OK);
+        assertThat(response.getResults().get(0).getUpdatedUnitId()).isEqualTo("unitId");
+    }
+
+    @Test
+    public void updateUnitsWithMetadataCsv_OK() throws Exception {
+        RequestResponse<JsonNode> response =
+            client.updateUnitsWithCsvMetadata("transactionId",
+                new ByteArrayInputStream("CSV_REQ".getBytes(StandardCharsets.UTF_8)));
+        assertThat(response.isOk()).isTrue();
+        assertThat(((RequestResponseOK<JsonNode>) response).getResults()).isEmpty();
+    }
+
+    @Test
+    public void updateUnitsWithMetadataCsv_KO() {
+        assertThatThrownBy(() ->
+            client.updateUnitsWithCsvMetadata("transactionId",
+                new ByteArrayInputStream("CSV_REQ_BAD".getBytes(StandardCharsets.UTF_8)))
+        ).isInstanceOf(CollectInternalClientInvalidRequestException.class)
+            .hasMessage("BAD !");
+    }
+
+    @Test
+    public void updateUnitsWithMetadataJsonl_OK() throws Exception {
+        RequestResponse<JsonNode> response =
+            client.updateUnitsWithJsonlMetadata("transactionId",
+                new ByteArrayInputStream("JSONL_REQ".getBytes(StandardCharsets.UTF_8)));
+        assertThat(response.isOk()).isTrue();
+        assertThat(((RequestResponseOK<JsonNode>) response).getResults()).isEmpty();
+    }
+
+    @Test
+    public void updateUnitsWithMetadataJsonl_KO() {
+        assertThatThrownBy(() ->
+            client.updateUnitsWithJsonlMetadata("transactionId",
+                new ByteArrayInputStream("JSONL_REQ_BAD".getBytes(StandardCharsets.UTF_8)))
+        ).isInstanceOf(CollectInternalClientInvalidRequestException.class)
+            .hasMessage("BAD !");
     }
 
     @Path("/collect-internal/v1")
@@ -261,14 +304,29 @@ public class CollectInternalClientRestTest extends ResteasyTestApplication {
             return expectedResponse.get();
         }
 
-        @Path("/transactions/{transactionId}/units")
+        @Path("/transactions/{transactionId}/units/metadata/csv")
         @PUT
-        @Consumes(MediaType.APPLICATION_JSON)
-        @Produces(MediaType.APPLICATION_JSON)
-        public Response updateUnits(@PathParam("transactionId") String transactionId, InputStream is) {
-            return expectedResponse.get();
+        @Consumes(TEXT_CSV)
+        @Produces(APPLICATION_JSON)
+        public Response updateUnitsWithMetadataCsv(@PathParam("transactionId") String transactionId,
+            InputStream metadataCsvInputStream) throws Exception {
+            if (!"CSV_REQ".equals(IOUtils.toString(metadataCsvInputStream, StandardCharsets.UTF_8))) {
+                return CollectRequestResponse.toVitamError(BAD_REQUEST, "BAD !");
+            }
+            return Response.ok(new RequestResponseOK<>()).build();
         }
 
+        @Path("/transactions/{transactionId}/units/metadata/jsonl")
+        @PUT
+        @Consumes(APPLICATION_OCTET_STREAM)
+        @Produces(APPLICATION_JSON)
+        public Response updateUnitsWithMetadataJsonl(@PathParam("transactionId") String transactionId,
+            InputStream metadataJsonlInputStream) throws Exception {
+            if (!"JSONL_REQ".equals(IOUtils.toString(metadataJsonlInputStream, StandardCharsets.UTF_8))) {
+                return CollectRequestResponse.toVitamError(BAD_REQUEST, "BAD !");
+            }
+            return Response.ok(new RequestResponseOK<>()).build();
+        }
 
         @Path("/projects")
         @POST
@@ -367,7 +425,7 @@ public class CollectInternalClientRestTest extends ResteasyTestApplication {
 
         @Path("/units/{unitId}/objects/{usage}/{version}/binary")
         @POST
-        @Consumes(MediaType.APPLICATION_OCTET_STREAM)
+        @Consumes(APPLICATION_OCTET_STREAM)
         @Produces(MediaType.APPLICATION_JSON)
         public Response upload(@PathParam("unitId") String unitId, @PathParam("usage") String usageString,
             @PathParam("version") Integer version, InputStream uploadedInputStream) {
@@ -376,7 +434,7 @@ public class CollectInternalClientRestTest extends ResteasyTestApplication {
 
         @Path("/units/{unitId}/objects/{usage}/{version}/binary")
         @GET
-        @Produces(MediaType.APPLICATION_OCTET_STREAM)
+        @Produces(APPLICATION_OCTET_STREAM)
         public Response download(@PathParam("unitId") String unitId, @PathParam("usage") String usageString,
             @PathParam("version") Integer version) {
             return expectedResponse.get();

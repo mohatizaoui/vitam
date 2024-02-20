@@ -24,34 +24,48 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.common.mapping.deserializer;
+package fr.gouv.vitam.common.model.unit;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonNode;
-import fr.gouv.culture.archivesdefrance.seda.v2.CodeKeywordType;
-import fr.gouv.culture.archivesdefrance.seda.v2.KeyType;
+import javax.xml.bind.annotation.XmlElement;
+import java.util.List;
 
-import java.io.IOException;
+public class CoverageType {
 
-/**
- * Deserialize a (json, xml, string) representation to LevelType
- * To be registered in jackson objectMapper
- */
-public class KeywordTypeDeserializer extends JsonDeserializer<KeyType> {
-    /**
-     * @param jp (json, xml, string) representation
-     * @param ctxt
-     * @return a keyword type
-     * @throws IOException
-     */
-    @Override
-    public KeyType deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-        JsonNode node = jp.getCodec().readTree(jp);
-        KeyType keywordType = new KeyType();
-        keywordType.setValue(CodeKeywordType.fromValue(node.asText()));
-        return keywordType;
+    @XmlElement(name = "Spatial")
+    private List<String> spatial;
+    @XmlElement(name = "Temporal")
+    private List<String> temporal;
+    @XmlElement(name = "Juridictional")
+    private List<String> juridictional;
+
+    public CoverageType() {
+        // Empty constructor for deserialization
     }
 
+    public List<String> getSpatial() {
+        return spatial;
+    }
+
+    public CoverageType setSpatial(List<String> spatial) {
+        this.spatial = spatial;
+        return this;
+    }
+
+    public List<String> getTemporal() {
+        return temporal;
+    }
+
+    public CoverageType setTemporal(List<String> temporal) {
+        this.temporal = temporal;
+        return this;
+    }
+
+    public List<String> getJuridictional() {
+        return juridictional;
+    }
+
+    public CoverageType setJuridictional(List<String> juridictional) {
+        this.juridictional = juridictional;
+        return this;
+    }
 }

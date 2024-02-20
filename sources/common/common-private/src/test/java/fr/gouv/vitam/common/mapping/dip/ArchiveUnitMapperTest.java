@@ -30,10 +30,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.gouv.culture.archivesdefrance.seda.v2.ArchiveUnitType;
-import fr.gouv.culture.archivesdefrance.seda.v2.IdentifierType;
 import fr.gouv.culture.archivesdefrance.seda.v2.ManagementType;
-import fr.gouv.culture.archivesdefrance.seda.v2.OrganizationDescriptiveMetadataType;
-import fr.gouv.culture.archivesdefrance.seda.v2.OrganizationType;
 import fr.gouv.culture.archivesdefrance.seda.v2.RuleIdType;
 import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.SedaConstants;
@@ -41,12 +38,12 @@ import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.mapping.mapper.VitamObjectMapper;
 import fr.gouv.vitam.common.model.unit.ArchiveUnitModel;
 import fr.gouv.vitam.common.model.unit.DescriptiveMetadataModel;
+import fr.gouv.vitam.common.model.unit.OrganizationType;
 import fr.gouv.vitam.common.model.unit.RuleCategoryModel;
 import fr.gouv.vitam.common.model.unit.RuleModel;
 import fr.gouv.vitam.common.utils.SupportedSedaVersions;
 import org.junit.Assert;
 import org.junit.Test;
-import org.w3c.dom.Element;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -270,16 +267,8 @@ public class ArchiveUnitMapperTest {
 
         OrganizationType organizationType = new OrganizationType();
 
-        IdentifierType identifierType = new IdentifierType();
-        identifierType.setValue("Identifier");
-
-        List<Element> elements = TransformJsonTreeToListOfXmlElement.mapJsonToElement(map);
-        OrganizationDescriptiveMetadataType organizationDescriptiveMetadataType =
-            new OrganizationDescriptiveMetadataType();
-        organizationDescriptiveMetadataType.getAny().addAll(elements);
-
-        organizationType.setIdentifier(identifierType);
-        organizationType.setOrganizationDescriptiveMetadata(organizationDescriptiveMetadataType);
+        organizationType.setIdentifier("Identifier");
+        organizationType.setOrganizationDescriptiveMetadata(map);
 
         return organizationType;
     }

@@ -24,44 +24,38 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.common.mapping.deserializer;
+package fr.gouv.vitam.common.model.unit;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import fr.gouv.culture.archivesdefrance.seda.v2.OrganizationDescriptiveMetadataType;
-import fr.gouv.vitam.common.mapping.dip.TransformJsonTreeToListOfXmlElement;
-import org.w3c.dom.Element;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
-public class OrganizationDescriptiveMetadataTypeDeserializer
-    extends JsonDeserializer<OrganizationDescriptiveMetadataType> {
-    private static final TypeReference<Map<String, Object>> REFERENCE = new TypeReference<Map<String, Object>>() {
-    };
+public class OrganizationType {
 
-    private ObjectMapper objectMapper;
+    @JsonProperty("Identifier")
+    private String identifier;
+    @JsonProperty("OrganizationDescriptiveMetadata")
+    private Map<String, Object> organizationDescriptiveMetadata;
 
-    public OrganizationDescriptiveMetadataTypeDeserializer(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
+    public OrganizationType() {
     }
 
-    @Override
-    public OrganizationDescriptiveMetadataType deserialize(JsonParser jp, DeserializationContext ctxt)
-        throws IOException {
-        JsonNode node = jp.getCodec().readTree(jp);
+    public String getIdentifier() {
+        return identifier;
+    }
 
-        Map<String, Object> map = objectMapper.convertValue(node, REFERENCE);
-        List<Element> elements = TransformJsonTreeToListOfXmlElement.mapJsonToElement(map);
-        OrganizationDescriptiveMetadataType organizationDescriptiveMetadataType =
-            new OrganizationDescriptiveMetadataType();
-        organizationDescriptiveMetadataType.getAny().addAll(elements);
-        return organizationDescriptiveMetadataType;
+    public OrganizationType setIdentifier(String identifier) {
+        this.identifier = identifier;
+        return this;
+    }
+
+    public Map<String, Object> getOrganizationDescriptiveMetadata() {
+        return organizationDescriptiveMetadata;
+    }
+
+    public OrganizationType setOrganizationDescriptiveMetadata(
+        Map<String, Object> organizationDescriptiveMetadata) {
+        this.organizationDescriptiveMetadata = organizationDescriptiveMetadata;
+        return this;
     }
 }

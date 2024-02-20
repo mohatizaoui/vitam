@@ -26,16 +26,9 @@
  */
 package fr.gouv.vitam.access.internal.rest;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.annotations.VisibleForTesting;
-import fr.gouv.culture.archivesdefrance.seda.v2.IdentifierType;
-import fr.gouv.culture.archivesdefrance.seda.v2.LevelType;
 import fr.gouv.vitam.access.internal.api.AccessInternalModule;
 import fr.gouv.vitam.access.internal.api.AccessInternalResource;
 import fr.gouv.vitam.access.internal.common.exception.AccessInternalExecutionException;
@@ -70,9 +63,6 @@ import fr.gouv.vitam.common.i18n.VitamLogbookMessages;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
-import fr.gouv.vitam.common.mapping.deserializer.IdentifierTypeDeserializer;
-import fr.gouv.vitam.common.mapping.deserializer.LevelTypeDeserializer;
-import fr.gouv.vitam.common.mapping.deserializer.TextByLangDeserializer;
 import fr.gouv.vitam.common.model.DeleteGotVersionsRequest;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.PreservationRequest;
@@ -93,7 +83,6 @@ import fr.gouv.vitam.common.model.massupdate.RuleActions;
 import fr.gouv.vitam.common.model.revertupdate.RevertUpdateOptions;
 import fr.gouv.vitam.common.model.storage.AccessRequestReference;
 import fr.gouv.vitam.common.model.storage.StatusByAccessRequest;
-import fr.gouv.vitam.common.model.unit.TextByLang;
 import fr.gouv.vitam.common.parameter.ParameterHelper;
 import fr.gouv.vitam.common.security.SanityChecker;
 import fr.gouv.vitam.common.server.application.HttpHeaderHelper;
@@ -1862,24 +1851,6 @@ public class AccessInternalResourceImpl extends ApplicationStatusResource implem
         if (result != null && result.has(RequestResponseOK.TAG_CONTEXT)) {
             ((ObjectNode) result).set(RequestResponseOK.TAG_CONTEXT, queryDsl);
         }
-    }
-
-    private ObjectMapper buildObjectMapper() {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setPropertyNamingStrategy(PropertyNamingStrategy.UPPER_CAMEL_CASE);
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-        mapper.enable(SerializationFeature.INDENT_OUTPUT);
-
-        SimpleModule module = new SimpleModule();
-
-        module.addDeserializer(TextByLang.class, new TextByLangDeserializer());
-        module.addDeserializer(LevelType.class, new LevelTypeDeserializer());
-        module.addDeserializer(IdentifierType.class, new IdentifierTypeDeserializer());
-
-        mapper.registerModule(module);
-
-        return mapper;
     }
 
     /**

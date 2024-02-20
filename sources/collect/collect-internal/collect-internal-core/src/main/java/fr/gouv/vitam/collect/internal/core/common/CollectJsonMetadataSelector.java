@@ -24,51 +24,36 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.common.mapping.serializer;
+package fr.gouv.vitam.collect.internal.core.common;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import fr.gouv.culture.archivesdefrance.seda.v2.KeyType;
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.databind.node.ValueNode;
+import fr.gouv.vitam.common.ParametersChecker;
 
-import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
-import static java.util.Objects.isNull;
+public class CollectJsonMetadataSelector {
+    private final Map<String, ValueNode> entries = new HashMap<>();
 
-/**
- * textType serializer
- */
-public class KeywordTypeSerializer extends StdSerializer<KeyType> {
-
-    /**
-     * default constructor
-     */
-    public KeywordTypeSerializer() {
-        this(null);
+    @JsonAnyGetter
+    public Map<String, ValueNode> getEntries() {
+        return entries;
     }
 
-    /**
-     * constructor
-     *
-     * @param type
-     */
-    public KeywordTypeSerializer(Class<KeyType> type) {
-        super(type);
-    }
-
-    /**
-     * @param keywordType
-     * @param jgen
-     * @param provider
-     * @throws IOException
-     */
-    @Override
-    public void serialize(KeyType keywordType, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException {
-        if (isNull(keywordType.getValue())) {
-            jgen.writeNull();
-            return;
+    @JsonAnySetter
+    public void setSelector(String key, ValueNode value) {
+        ParametersChecker.checkParameter("Null value", value);
+        if (!value.isLong() &&
+            !value.isInt() &&
+            !value.isShort() &&
+            !value.isDouble() &&
+            !value.isFloat() &&
+            !value.isBoolean() &&
+            !value.isTextual()) {
+            throw new IllegalArgumentException("Invalid value type " + value);
         }
-        jgen.writeString(keywordType.getValue().value());
+        entries.put(key, value);
     }
 }

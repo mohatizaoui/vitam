@@ -29,7 +29,6 @@ package fr.gouv.vitam.collect.internal.core.helpers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Strings;
-import fr.gouv.culture.archivesdefrance.seda.v2.LevelType;
 import fr.gouv.vitam.collect.common.dto.MetadataUnitUp;
 import fr.gouv.vitam.common.LocalDateUtil;
 import fr.gouv.vitam.common.VitamConfiguration;
@@ -50,6 +49,7 @@ import fr.gouv.vitam.common.model.objectgroup.QualifiersModel;
 import fr.gouv.vitam.common.model.objectgroup.VersionsModel;
 import fr.gouv.vitam.common.model.unit.ArchiveUnitModel;
 import fr.gouv.vitam.common.model.unit.DescriptiveMetadataModel;
+import fr.gouv.vitam.common.model.unit.LevelType;
 import fr.gouv.vitam.common.parameter.ParameterHelper;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 
@@ -88,7 +88,7 @@ public class MetadataHelper {
 
         unitInternalModel.setId(id);
         unitInternalModel.setOpi(transactionId);
-        unitInternalModel.setUnitType(UnitType.INGEST.name());
+        unitInternalModel.setUnitType(UnitType.INGEST);
 
         DescriptiveMetadataModel description = new DescriptiveMetadataModel();
         description.setTitle(title);

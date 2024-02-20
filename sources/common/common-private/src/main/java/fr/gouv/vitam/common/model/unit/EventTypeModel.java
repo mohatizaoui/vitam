@@ -27,7 +27,6 @@
 package fr.gouv.vitam.common.model.unit;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import fr.gouv.culture.archivesdefrance.seda.v2.TextType;
 
 import java.util.List;
 
@@ -46,7 +45,7 @@ public class EventTypeModel {
     private String eventDateTime;
 
     @JsonProperty("evTypeDetail")
-    private TextType eventDetail;
+    private String eventDetail;
 
     @JsonProperty("outcome")
     private String outcome;
@@ -105,11 +104,11 @@ public class EventTypeModel {
         return this;
     }
 
-    public TextType getEventDetail() {
+    public String getEventDetail() {
         return eventDetail;
     }
 
-    public EventTypeModel setEventDetail(TextType eventDetail) {
+    public EventTypeModel setEventDetail(String eventDetail) {
         this.eventDetail = eventDetail;
         return this;
     }

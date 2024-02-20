@@ -31,12 +31,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.google.common.collect.Iterators;
-import fr.gouv.culture.archivesdefrance.seda.v2.LevelType;
 import fr.gouv.vitam.collect.common.exception.CollectInternalException;
 import fr.gouv.vitam.collect.common.exception.CollectInternalInvalidRequestException;
+import fr.gouv.vitam.collect.common.exception.CollectInternalServerSideException;
 import fr.gouv.vitam.collect.common.exception.CsvParseInternalException;
 import fr.gouv.vitam.collect.internal.core.common.ProjectModel;
 import fr.gouv.vitam.collect.internal.core.helpers.CsvHelper;
+import fr.gouv.vitam.collect.internal.core.helpers.JsonlMetadataFileParser;
 import fr.gouv.vitam.collect.internal.core.helpers.MetadataHelper;
 import fr.gouv.vitam.collect.internal.core.helpers.TempWorkspace;
 import fr.gouv.vitam.collect.internal.core.repository.MetadataRepository;
@@ -53,6 +54,7 @@ import fr.gouv.vitam.common.model.MetadataType;
 import fr.gouv.vitam.common.model.VitamConstants;
 import fr.gouv.vitam.common.model.objectgroup.ObjectGroupResponse;
 import fr.gouv.vitam.common.model.unit.ArchiveUnitModel;
+import fr.gouv.vitam.common.model.unit.LevelType;
 import fr.gouv.vitam.common.storage.compress.ArchiveEntryInputStream;
 import fr.gouv.vitam.common.storage.compress.VitamArchiveStreamFactory;
 import fr.gouv.vitam.common.stream.StreamUtils;
@@ -100,6 +102,7 @@ public class FluxService {
     private final static String TRANSFORMED_METADATA_JSONL_FILE = "transformed_metadata.jsonl";
     private static final String TITLE = "Title";
     static final String METADATA_CSV_FILE = "metadata.csv";
+    static final String METADATA_JSONL_FILE = "metadata.jsonl";
 
     private final CollectService collectService;
     private final MetadataService metadataService;
@@ -132,7 +135,8 @@ public class FluxService {
             boolean isEmpty = true;
             Map<String, String> unitIds =
                 metadataService.prepareAttachmentUnits(projectModel, transactionId);
-            File metadataCsvFile = null;
+            File metadataFile = null;
+            boolean isCsvMetadataFile = false;
             // create entryInputStream to resolve the stream closed problem
             final ArchiveEntryInputStream entryInputStream = new ArchiveEntryInputStream(archiveInputStream);
             int maxLevel = -1;
@@ -149,15 +153,16 @@ public class FluxService {
                         continue;
                     }
                     path = FilenameUtils.normalizeNoEndSeparator(path);
-                    if (!entry.isDirectory() && path.equals(METADATA_CSV_FILE)) {
+                    if (!entry.isDirectory() && (path.equals(METADATA_JSONL_FILE) || path.equals(METADATA_CSV_FILE))) {
 
-                        if (metadataCsvFile != null) {
+                        if (metadataFile != null) {
                             throw new CollectInternalInvalidRequestException(
-                                "Cannot process zip upload for " + projectById + "/" + transactionId +
-                                    ". Multiple metadata update files");
+                                "Cannot process zip upload for " + projectById.get().getId() + "/" + transactionId +
+                                    ". Multiple metadata update files found.");
                         }
 
-                        metadataCsvFile = tempWorkspace.writeToFile(path, entryInputStream);
+                        metadataFile = tempWorkspace.writeToFile(path, entryInputStream);
+                        isCsvMetadataFile = path.equals(METADATA_CSV_FILE);
                     } else {
                         maxLevel = createMetadata(tempWorkspace, transactionId, path, entryInputStream,
                             entry.isDirectory(), maxLevel, unitIds, projectModel.getUnitUp() != null);
@@ -171,23 +176,24 @@ public class FluxService {
                 throw new CollectInternalException("File is empty");
             }
 
-            File tranformedMetadataFile = null;
-            if (metadataCsvFile != null) {
-                tranformedMetadataFile = tempWorkspace.getFile(TRANSFORMED_METADATA_JSONL_FILE);
-                try (InputStream is = new FileInputStream(metadataCsvFile)) {
-                    CsvHelper.convertCsvToMetadataFile(is, tranformedMetadataFile);
+            File transformedMetadataFile = null;
+            if (metadataFile != null) {
+                if (isCsvMetadataFile) {
+                    transformedMetadataFile = csvMetadataToTransformedMetadataFile(tempWorkspace, metadataFile);
+                } else {
+                    transformedMetadataFile = jsonlMetadataToTransformedMetadataFile(tempWorkspace, metadataFile);
                 }
             }
 
-            Map<String, Set<String>> unitUps = (tranformedMetadataFile != null) ?
-                findUnitUps(tranformedMetadataFile, projectModel, unitIds) : new HashMap<>();
+            Map<String, Set<String>> unitUps = (transformedMetadataFile != null) ?
+                findUnitUps(transformedMetadataFile, projectModel, unitIds) : new HashMap<>();
 
             bulkWriteUnits(tempWorkspace, maxLevel, unitUps);
 
             bulkWriteObjectGroups(tempWorkspace);
 
-            if (tranformedMetadataFile != null) {
-                try (InputStream is = new FileInputStream(tranformedMetadataFile)) {
+            if (transformedMetadataFile != null) {
+                try (InputStream is = new FileInputStream(transformedMetadataFile)) {
                     metadataService.updateUnitsWithMetadataFile(transactionId, is);
                 }
             }
@@ -196,6 +202,34 @@ public class FluxService {
             throw new CollectInternalException("An error occurs when try to upload the ZIP: {}");
         } catch (InvalidParseOperationException | CsvParseInternalException e) {
             throw new CollectInternalException(e.getMessage(), e);
+        }
+    }
+
+    private static File csvMetadataToTransformedMetadataFile(TempWorkspace tempWorkspace, File metadataFile)
+        throws CollectInternalServerSideException {
+        try {
+            File tranformedMetadataFile = tempWorkspace.getFile(TRANSFORMED_METADATA_JSONL_FILE);
+
+            try (InputStream is = new FileInputStream(metadataFile)) {
+                CsvHelper.convertCsvToMetadataFile(is, tranformedMetadataFile);
+            }
+            return tranformedMetadataFile;
+        } catch (IOException e) {
+            throw new CollectInternalServerSideException(
+                "An internal error occurred during csv metadata file processing", e);
+        }
+    }
+
+    private File jsonlMetadataToTransformedMetadataFile(TempWorkspace tempWorkspace, File jsonlMetadataFile)
+        throws CollectInternalException {
+        try {
+            File transformedMetadataFile = tempWorkspace.getFile(TRANSFORMED_METADATA_JSONL_FILE);
+            JsonlMetadataFileParser jsonlMetadataFileParser = new JsonlMetadataFileParser();
+            jsonlMetadataFileParser.process(jsonlMetadataFile, transformedMetadataFile);
+            return transformedMetadataFile;
+        } catch (IOException e) {
+            throw new CollectInternalServerSideException(
+                "An internal error occurred during jsonl metadata file processing", e);
         }
     }
 

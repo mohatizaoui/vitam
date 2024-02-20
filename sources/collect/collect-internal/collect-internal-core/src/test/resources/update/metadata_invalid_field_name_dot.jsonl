@@ -1,0 +1,1 @@
+{ "File": "File", "UnitContent": { "Description.Level": "Collection", "Title": "File", "Description": "Ceci est un versement de bulletins de paie", "StartDate": "2023-01-01", "EndDate": "2023-01-31", "Tag": [ "Paie", "Bulletin" ] } }

@@ -6,8 +6,8 @@
  * This software is a computer program whose purpose is to implement a digital archiving back-office system managing
  * high volumetry securely and efficiently.
  *
- * This software is governed by the CeCILL 2.1 license under French law and abiding by the rules of distribution of free
- * software. You can use, modify and/ or redistribute the software under the terms of the CeCILL 2.1 license as
+ * This software is governed by the CeCILL-C license under French law and abiding by the rules of distribution of free
+ * software. You can use, modify and/ or redistribute the software under the terms of the CeCILL-C license as
  * circulated by CEA, CNRS and INRIA at the following URL "https://cecill.info".
  *
  * As a counterpart to the access to the source code and rights to copy, modify and redistribute granted by the license,
@@ -21,50 +21,22 @@
  * software's suitability as regards their requirements in conditions enabling the security of their systems and/or data
  * to be ensured and, more generally, to use and operate it in the same conditions as regards security.
  *
- * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
+ * The fact that you are presently reading this means that you have had knowledge of the CeCILL-C license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.common.mapping.serializer;
+package fr.gouv.vitam.collect.common.exception;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import fr.gouv.culture.archivesdefrance.seda.v2.LevelType;
+public class CollectInternalServerSideException extends CollectInternalException {
 
-import java.io.IOException;
-
-/**
- * Level Type Serializer
- */
-public class LevelTypeSerializer extends StdSerializer<LevelType> {
-
-    /**
-     * constructor
-     */
-    public LevelTypeSerializer() {
-        this(null);
+    public CollectInternalServerSideException(String message, Throwable cause) {
+        super(message, cause);
     }
 
-    /**
-     * constructor
-     *
-     * @param type
-     */
-    public LevelTypeSerializer(Class<LevelType> type) {
-        super(type);
+    public CollectInternalServerSideException(Throwable cause) {
+        super(cause);
     }
 
-    /**
-     * serialize
-     *
-     * @param levelType
-     * @param jgen
-     * @param provider
-     * @throws IOException
-     */
-    @Override
-    public void serialize(LevelType levelType, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException {
-        jgen.writeString(levelType.value());
+    public CollectInternalServerSideException(String message) {
+        super(message);
     }
 }

@@ -26,8 +26,12 @@
  */
 package fr.gouv.vitam.collect.external.external.rest;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import fr.gouv.vitam.collect.common.exception.CollectInternalInvalidRequestException;
 import fr.gouv.vitam.collect.internal.client.CollectInternalClient;
 import fr.gouv.vitam.collect.internal.client.CollectInternalClientFactory;
+import fr.gouv.vitam.collect.internal.client.exceptions.CollectInternalClientInvalidRequestException;
+import fr.gouv.vitam.collect.internal.client.exceptions.CollectInternalClientNotFoundException;
 import fr.gouv.vitam.common.GlobalDataRest;
 import fr.gouv.vitam.common.client.VitamClientFactory;
 import fr.gouv.vitam.common.exception.VitamApplicationServerException;
@@ -40,6 +44,7 @@ import fr.gouv.vitam.common.server.application.junit.ResteasyTestApplication;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
 import io.restassured.RestAssured;
+import io.restassured.config.EncoderConfig;
 import io.restassured.http.ContentType;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -51,6 +56,8 @@ import org.mockito.Mockito;
 import javax.ws.rs.core.Response;
 import java.util.Set;
 
+import static fr.gouv.vitam.common.CommonMediaType.TEXT_CSV;
+import static fr.gouv.vitam.common.CommonMediaType.TEXT_CSV_MEDIATYPE;
 import static io.restassured.RestAssured.given;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -198,5 +205,101 @@ public class TransactionExternalResourceTest extends ResteasyTestApplication {
             .post("/transactions//units")
             .then().log().all()
             .statusCode(Response.Status.NOT_FOUND.getStatusCode());
+    }
+
+    @Test
+    public void updateUnitsCsvDeprecated_BadRequest() throws Exception {
+
+        doThrow(new CollectInternalClientInvalidRequestException("Error"))
+            .when(collectInternalClient).updateUnitsWithCsvMetadata(eq("myTx"), any());
+        given()
+            .accept(ContentType.JSON)
+            .contentType(ContentType.BINARY)
+            .header(GlobalDataRest.X_TENANT_ID, "0")
+            .body("CSV_REQ".getBytes())
+            .when().log().all()
+            .put("/transactions/myTx/units")
+            .then().log().all()
+            .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void updateUnitsCsvDeprecated_OK() throws Exception {
+
+        doReturn(new RequestResponseOK<JsonNode>())
+            .when(collectInternalClient).updateUnitsWithCsvMetadata(eq("myTx"), any());
+        given()
+            .accept(ContentType.JSON)
+            .contentType(ContentType.BINARY)
+            .header(GlobalDataRest.X_TENANT_ID, "0")
+            .body("CSV_REQ".getBytes())
+            .when().log().all()
+            .put("/transactions/myTx/units")
+            .then().log().all()
+            .statusCode(Response.Status.OK.getStatusCode());
+    }
+
+    @Test
+    public void updateUnitsCsv_BadRequest() throws Exception {
+
+        doThrow(new CollectInternalClientInvalidRequestException("Error"))
+            .when(collectInternalClient).updateUnitsWithCsvMetadata(eq("myTx"), any());
+        given()
+            .accept(ContentType.JSON)
+            .contentType(TEXT_CSV)
+            .header(GlobalDataRest.X_TENANT_ID, "0")
+            .body("CSV_REQ")
+            .when().log().all()
+            .put("/transactions/myTx/units/metadata/csv")
+            .then().log().all()
+            .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void updateUnitsCsv_OK() throws Exception {
+
+        doReturn(new RequestResponseOK<JsonNode>())
+            .when(collectInternalClient).updateUnitsWithCsvMetadata(eq("myTx"), any());
+        given()
+            .accept(ContentType.JSON)
+            .contentType(TEXT_CSV)
+            .header(GlobalDataRest.X_TENANT_ID, "0")
+            .body("CSV_REQ")
+            .when().log().all()
+            .put("/transactions/myTx/units/metadata/csv")
+            .then().log().all()
+            .statusCode(Response.Status.OK.getStatusCode());
+    }
+
+    @Test
+    public void updateUnitsJsonl_BadRequest() throws Exception {
+
+        doThrow(new CollectInternalClientInvalidRequestException("Error"))
+            .when(collectInternalClient).updateUnitsWithJsonlMetadata(eq("myTx"), any());
+        given()
+            .accept(ContentType.JSON)
+            .contentType(ContentType.BINARY)
+            .header(GlobalDataRest.X_TENANT_ID, "0")
+            .body("JSONL_REQ".getBytes())
+            .when().log().all()
+            .put("/transactions/myTx/units/metadata/jsonl")
+            .then().log().all()
+            .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    @Test
+    public void updateUnitsJsonl_OK() throws Exception {
+
+        doReturn(new RequestResponseOK<JsonNode>())
+            .when(collectInternalClient).updateUnitsWithCsvMetadata(eq("myTx"), any());
+        given()
+            .accept(ContentType.JSON)
+            .contentType(ContentType.BINARY)
+            .header(GlobalDataRest.X_TENANT_ID, "0")
+            .body("JSONL_REQ".getBytes())
+            .when().log().all()
+            .put("/transactions/myTx/units/metadata/jsonl")
+            .then().log().all()
+            .statusCode(Response.Status.OK.getStatusCode());
     }
 }

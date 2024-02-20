@@ -50,11 +50,14 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Optional;
 
+import static fr.gouv.vitam.common.CommonMediaType.TEXT_CSV;
 import static io.restassured.RestAssured.given;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class TransactionInternalResourceTest extends CollectInternalResourceBaseTest {
@@ -541,68 +544,165 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
     }
 
     @Test
-    public void updateUnits_ko_with_status_not_open() throws Exception {
-        when(transactionService.findTransaction("1")).thenReturn(Optional.of(new TransactionModel()));
+    public void updateUnitsCsv_ko_with_status_not_open() throws Exception {
+        when(transactionService.findTransaction("TxId")).thenReturn(Optional.of(new TransactionModel()));
         when(transactionService.checkStatus(any(TransactionModel.class), eq(TransactionStatus.OPEN))).thenReturn(false);
-        try (final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(TRANSACTION_ZIP_PATH)) {
-            given()
-                .contentType(ContentType.BINARY)
-                .accept(ContentType.JSON)
-                .header(GlobalDataRest.X_TENANT_ID, TENANT)
-                .body(resourceAsStream)
-                .when()
-                .put(TRANSACTIONS + "/1/units")
-                .then()
-                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+        given()
+            .contentType(TEXT_CSV)
+            .accept(ContentType.JSON)
+            .header(GlobalDataRest.X_TENANT_ID, TENANT)
+            .body("CSV_REQ")
+            .when()
+            .put(TRANSACTIONS + "/TxId/units/metadata/csv")
+            .then()
+            .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+        verify(metadataService, never()).updateUnitsWithMetadataCsv(any(), any());
     }
 
     @Test
-    public void updateUnits_ko_with_not_found_transaction() throws Exception {
-        when(transactionService.findTransaction("1")).thenReturn(Optional.empty());
-        try (final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(TRANSACTION_ZIP_PATH)) {
-            given()
-                .contentType(ContentType.BINARY)
-                .accept(ContentType.JSON)
-                .header(GlobalDataRest.X_TENANT_ID, TENANT)
-                .body(resourceAsStream)
-                .when()
-                .put(TRANSACTIONS + "/1/units")
-                .then()
-                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+    public void updateUnitsCsv_ko_with_not_found_transaction() throws Exception {
+        when(transactionService.findTransaction("TxId")).thenReturn(Optional.empty());
+        given()
+            .contentType(TEXT_CSV)
+            .accept(ContentType.JSON)
+            .header(GlobalDataRest.X_TENANT_ID, TENANT)
+            .body("CSV_REQ")
+            .when()
+            .put(TRANSACTIONS + "/TxId/units/metadata/csv")
+            .then()
+            .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+        verify(metadataService, never()).updateUnitsWithMetadataCsv(any(), any());
     }
 
     @Test
-    public void updateUnits_ko_with_collect_error() throws Exception {
-        when(transactionService.findTransaction("1")).thenThrow(new CollectInternalException("error"));
-        try (final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(TRANSACTION_ZIP_PATH)) {
-            given()
-                .contentType(ContentType.BINARY)
-                .accept(ContentType.JSON)
-                .header(GlobalDataRest.X_TENANT_ID, TENANT)
-                .body(resourceAsStream)
-                .when()
-                .put(TRANSACTIONS + "/1/units")
-                .then()
-                .statusCode(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
-        }
+    public void updateUnitsCsv_ko_with_collect_error() throws Exception {
+        when(transactionService.findTransaction("TxId")).thenThrow(new CollectInternalException("error"));
+        given()
+            .contentType(TEXT_CSV)
+            .accept(ContentType.JSON)
+            .header(GlobalDataRest.X_TENANT_ID, TENANT)
+            .body("CSV_REQ")
+            .when()
+            .put(TRANSACTIONS + "/TxId/units/metadata/csv")
+            .then()
+            .statusCode(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
+        verify(metadataService, never()).updateUnitsWithMetadataCsv(any(), any());
     }
 
     @Test
-    public void updateUnits_ko_with_parsing_error() throws Exception {
-        when(transactionService.findTransaction("1")).thenThrow(new IllegalArgumentException("error"));
-        try (final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(TRANSACTION_ZIP_PATH)) {
-            given()
-                .contentType(ContentType.BINARY)
-                .accept(ContentType.JSON)
-                .header(GlobalDataRest.X_TENANT_ID, TENANT)
-                .body(resourceAsStream)
-                .when()
-                .put(TRANSACTIONS + "/1/units")
-                .then()
-                .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
-        }
+    public void updateUnitsCsv_ko_with_parsing_error() throws Exception {
+        when(transactionService.findTransaction("TxId")).thenThrow(new IllegalArgumentException("error"));
+        given()
+            .contentType(TEXT_CSV)
+            .accept(ContentType.JSON)
+            .header(GlobalDataRest.X_TENANT_ID, TENANT)
+            .body("CSV_REQ")
+            .when()
+            .put(TRANSACTIONS + "/TxId/units/metadata/csv")
+            .then()
+            .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+        verify(metadataService, never()).updateUnitsWithMetadataCsv(any(), any());
+    }
+
+    @Test
+    public void updateUnitsCsv_OK() throws Exception {
+        TransactionModel transactionModel = new TransactionModel();
+        transactionModel.setId("TxId");
+        transactionModel.setProjectId("PrId");
+        when(transactionService.findTransaction("TxId")).thenReturn(Optional.of(transactionModel));
+        when(transactionService.checkStatus(eq(transactionModel), eq(TransactionStatus.OPEN))).thenReturn(true);
+        when(projectService.findProject("PrId")).thenReturn(Optional.of(new ProjectDto()));
+        given()
+            .contentType(TEXT_CSV)
+            .accept(ContentType.JSON)
+            .header(GlobalDataRest.X_TENANT_ID, TENANT)
+            .body("CSV_REQ")
+            .when()
+            .put(TRANSACTIONS + "/TxId/units/metadata/csv")
+            .then()
+            .statusCode(Response.Status.OK.getStatusCode());
+        verify(metadataService).updateUnitsWithMetadataCsv(eq(transactionModel), any());
+    }
+
+    @Test
+    public void updateUnitsJsonl_ko_with_status_not_open() throws Exception {
+        when(transactionService.findTransaction("TxId")).thenReturn(Optional.of(new TransactionModel()));
+        when(transactionService.checkStatus(any(TransactionModel.class), eq(TransactionStatus.OPEN))).thenReturn(false);
+        given()
+            .contentType(ContentType.BINARY)
+            .accept(ContentType.JSON)
+            .header(GlobalDataRest.X_TENANT_ID, TENANT)
+            .body("JSONL_REQ".getBytes())
+            .when()
+            .put(TRANSACTIONS + "/TxId/units/metadata/jsonl")
+            .then()
+            .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+        verify(metadataService, never()).updateUnitsWithJsonlMetadata(any(), any());
+    }
+
+    @Test
+    public void updateUnitsJsonl_ko_with_not_found_transaction() throws Exception {
+        when(transactionService.findTransaction("TxId")).thenReturn(Optional.empty());
+        given()
+            .contentType(ContentType.BINARY)
+            .accept(ContentType.JSON)
+            .header(GlobalDataRest.X_TENANT_ID, TENANT)
+            .body("JSONL_REQ".getBytes())
+            .when()
+            .put(TRANSACTIONS + "/TxId/units/metadata/jsonl")
+            .then()
+            .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+        verify(metadataService, never()).updateUnitsWithJsonlMetadata(any(), any());
+    }
+
+    @Test
+    public void updateUnitsJsonl_ko_with_collect_error() throws Exception {
+        when(transactionService.findTransaction("TxId")).thenThrow(new CollectInternalException("error"));
+        given()
+            .contentType(ContentType.BINARY)
+            .accept(ContentType.JSON)
+            .header(GlobalDataRest.X_TENANT_ID, TENANT)
+            .body("JSONL_REQ".getBytes())
+            .when()
+            .put(TRANSACTIONS + "/TxId/units/metadata/jsonl")
+            .then()
+            .statusCode(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
+        verify(metadataService, never()).updateUnitsWithJsonlMetadata(any(), any());
+    }
+
+    @Test
+    public void updateUnitsJsonl_ko_with_parsing_error() throws Exception {
+        when(transactionService.findTransaction("TxId")).thenThrow(new IllegalArgumentException("error"));
+        given()
+            .contentType(ContentType.BINARY)
+            .accept(ContentType.JSON)
+            .header(GlobalDataRest.X_TENANT_ID, TENANT)
+            .body("JSONL_REQ".getBytes())
+            .when()
+            .put(TRANSACTIONS + "/TxId/units/metadata/jsonl")
+            .then()
+            .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+        verify(metadataService, never()).updateUnitsWithJsonlMetadata(any(), any());
+    }
+
+    @Test
+    public void updateUnitsJsonl_OK() throws Exception {
+        TransactionModel transactionModel = new TransactionModel();
+        transactionModel.setId("TxId");
+        transactionModel.setProjectId("PrId");
+        when(transactionService.findTransaction("TxId")).thenReturn(Optional.of(transactionModel));
+        when(transactionService.checkStatus(eq(transactionModel), eq(TransactionStatus.OPEN))).thenReturn(true);
+        when(projectService.findProject("PrId")).thenReturn(Optional.of(new ProjectDto()));
+        given()
+            .contentType(ContentType.BINARY)
+            .accept(ContentType.JSON)
+            .header(GlobalDataRest.X_TENANT_ID, TENANT)
+            .body("JSONL_REQ".getBytes())
+            .when()
+            .put(TRANSACTIONS + "/TxId/units/metadata/jsonl")
+            .then()
+            .statusCode(Response.Status.OK.getStatusCode());
+        verify(metadataService).updateUnitsWithJsonlMetadata(eq(transactionModel), any());
     }
 
     @Test
@@ -740,19 +840,19 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
 
     @Test
     @RunWithCustomExecutor
-    public void should_throw_error_when_update_units_using_empty_stream() {
+    public void should_throw_error_when_update_units_using_empty_stream() throws Exception {
         // Given
         final InputStream resourceAsStream = new ByteArrayInputStream(new byte[0]);
         when(transactionService.checkStatus(any(), eq(TransactionStatus.OPEN))).thenReturn(true);
 
         // When - Then
         given()
-            .contentType(ContentType.BINARY)
+            .contentType(TEXT_CSV)
             .accept(ContentType.JSON)
             .header(GlobalDataRest.X_TENANT_ID, TENANT)
-            .body(resourceAsStream)
+            .body(resourceAsStream.readAllBytes())
             .when()
-            .put(TRANSACTIONS + "/1/units")
+            .put(TRANSACTIONS + "/1/units/metadata/csv")
             .then()
             .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
     }

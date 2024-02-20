@@ -27,15 +27,24 @@
 package fr.gouv.vitam.common.mapping.dip;
 
 import fr.gouv.culture.archivesdefrance.seda.v2.AdditionalProofType;
+import fr.gouv.culture.archivesdefrance.seda.v2.CodeKeywordType;
+import fr.gouv.culture.archivesdefrance.seda.v2.CodeType;
+import fr.gouv.culture.archivesdefrance.seda.v2.CoverageType;
 import fr.gouv.culture.archivesdefrance.seda.v2.CustodialHistoryType;
 import fr.gouv.culture.archivesdefrance.seda.v2.DescriptiveMetadataContentType;
 import fr.gouv.culture.archivesdefrance.seda.v2.DetachedSigningRoleType;
 import fr.gouv.culture.archivesdefrance.seda.v2.EventType;
 import fr.gouv.culture.archivesdefrance.seda.v2.ExtendedType;
+import fr.gouv.culture.archivesdefrance.seda.v2.GpsType;
+import fr.gouv.culture.archivesdefrance.seda.v2.IdentifierType;
+import fr.gouv.culture.archivesdefrance.seda.v2.KeyType;
+import fr.gouv.culture.archivesdefrance.seda.v2.LevelType;
 import fr.gouv.culture.archivesdefrance.seda.v2.LinkingAgentIdentifierType;
 import fr.gouv.culture.archivesdefrance.seda.v2.ManagementHistoryDataType;
 import fr.gouv.culture.archivesdefrance.seda.v2.ManagementHistoryType;
 import fr.gouv.culture.archivesdefrance.seda.v2.MessageDigestBinaryObjectType;
+import fr.gouv.culture.archivesdefrance.seda.v2.OrganizationDescriptiveMetadataType;
+import fr.gouv.culture.archivesdefrance.seda.v2.OrganizationType;
 import fr.gouv.culture.archivesdefrance.seda.v2.ReferencedObjectType;
 import fr.gouv.culture.archivesdefrance.seda.v2.SignatureDescriptionType;
 import fr.gouv.culture.archivesdefrance.seda.v2.SignatureType;
@@ -48,20 +57,25 @@ import fr.gouv.vitam.common.exception.ExportException;
 import fr.gouv.vitam.common.model.unit.ArchiveUnitHistoryModel;
 import fr.gouv.vitam.common.model.unit.DescriptiveMetadataModel;
 import fr.gouv.vitam.common.model.unit.EventTypeModel;
+import fr.gouv.vitam.common.model.unit.KeywordsType;
 import fr.gouv.vitam.common.model.unit.LinkingAgentIdentifierTypeModel;
 import fr.gouv.vitam.common.model.unit.ReferencedObjectTypeModel;
+import fr.gouv.vitam.common.model.unit.SignatureDescriptionTypeModel;
 import fr.gouv.vitam.common.model.unit.SignatureInformationExtendedModel;
 import fr.gouv.vitam.common.model.unit.SignatureTypeModel;
 import fr.gouv.vitam.common.model.unit.SignedObjectDigestModel;
-import fr.gouv.vitam.common.model.unit.SignatureDescriptionTypeModel;
 import fr.gouv.vitam.common.model.unit.SigningInformationTypeModel;
+import fr.gouv.vitam.common.model.unit.TextByLang;
 import fr.gouv.vitam.common.model.unit.TimestampingInformationTypeModel;
 import fr.gouv.vitam.common.utils.SupportedSedaVersions;
 import org.apache.commons.collections4.CollectionUtils;
+import org.w3c.dom.Element;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -102,14 +116,14 @@ public class DescriptiveMetadataMapper {
         dmc.getAny().addAll(
             TransformJsonTreeToListOfXmlElement.mapJsonToElement(metadataModel.getAny()));
 
-        dmc.setCoverage(metadataModel.getCoverage());
+        dmc.setCoverage(mapCoverage(metadataModel.getCoverage()));
         dmc.setCreatedDate(metadataModel.getCreatedDate());
 
         CustodialHistoryType custodialHistory = custodialHistoryMapper.map(metadataModel.getCustodialHistory());
         dmc.setCustodialHistory(custodialHistory);
 
         if (metadataModel.getDescription_() != null) {
-            dmc.getDescription().addAll(metadataModel.getDescription_().getTextTypes());
+            dmc.getDescription().addAll(mapTextByLang(metadataModel.getDescription_()));
         }
 
         if (metadataModel.getDescription() != null) {
@@ -119,14 +133,14 @@ public class DescriptiveMetadataMapper {
         }
 
         dmc.setDescriptionLanguage(metadataModel.getDescriptionLanguage());
-        dmc.setDescriptionLevel(metadataModel.getDescriptionLevel());
-        dmc.setDocumentType(metadataModel.getDocumentType());
+        dmc.setDescriptionLevel(mapLevelType(metadataModel.getDescriptionLevel()));
+        dmc.setDocumentType(mapTextType(metadataModel.getDocumentType()));
         dmc.setEndDate(metadataModel.getEndDate());
         if (metadataModel.getEvent() != null) {
             dmc.getEvent().addAll(mapEvents(metadataModel.getEvent()));
         }
-        dmc.setGps(metadataModel.getGps());
-        dmc.setOriginatingAgency(metadataModel.getOriginatingAgency());
+        dmc.setGps(mapGps(metadataModel.getGps()));
+        dmc.setOriginatingAgency(mapOrganizationType(metadataModel.getOriginatingAgency()));
         if (metadataModel.getPersistentIdentifier() != null) {
             dmc.getPersistentIdentifier().addAll(metadataModel.getPersistentIdentifier());
         }
@@ -192,7 +206,7 @@ public class DescriptiveMetadataMapper {
         }
 
         if (metadataModel.getKeyword() != null && !metadataModel.getKeyword().isEmpty()) {
-            dmc.getKeyword().addAll(metadataModel.getKeyword());
+            dmc.getKeyword().addAll(mapKeywords(metadataModel.getKeyword()));
         }
 
         dmc.setReceivedDate(metadataModel.getReceivedDate());
@@ -203,14 +217,14 @@ public class DescriptiveMetadataMapper {
         dmc.setSource(metadataModel.getSource());
         dmc.setStartDate(metadataModel.getStartDate());
         dmc.setStatus(metadataModel.getStatus());
-        dmc.setSubmissionAgency(metadataModel.getSubmissionAgency());
+        dmc.setSubmissionAgency(mapOrganizationType(metadataModel.getSubmissionAgency()));
 
         if (metadataModel.getTag() != null) {
             dmc.getTag().addAll(metadataModel.getTag());
         }
 
         if (metadataModel.getTitle_() != null) {
-            dmc.getTitle().addAll(metadataModel.getTitle_().getTextTypes());
+            dmc.getTitle().addAll(mapTextByLang(metadataModel.getTitle_()));
         }
 
         TextType title = new TextType();
@@ -218,7 +232,7 @@ public class DescriptiveMetadataMapper {
         dmc.getTitle().add(title);
 
         dmc.setTransactedDate(metadataModel.getTransactedDate());
-        dmc.setType(metadataModel.getType());
+        dmc.setType(mapTextType(metadataModel.getType()));
         dmc.setVersion(metadataModel.getVersion());
         if (metadataModel.getWriter() != null) {
             dmc.getWriter().addAll(metadataModel.getWriter());
@@ -233,6 +247,123 @@ public class DescriptiveMetadataMapper {
         fillHistory(historyListModel, dmc.getHistory());
 
         return dmc;
+    }
+
+    private Collection<? extends TextType> mapTextByLang(TextByLang textByLang) {
+        if (textByLang == null || textByLang.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return textByLang.getTextByLang().entrySet()
+            .stream().map(entry -> {
+                TextType textType = new TextType();
+                textType.setLang(entry.getKey());
+                textType.setValue(entry.getValue());
+                return textType;
+            })
+            .collect(Collectors.toList());
+    }
+
+    private OrganizationType mapOrganizationType(fr.gouv.vitam.common.model.unit.OrganizationType organization) {
+        if (organization == null) {
+            return null;
+        }
+        OrganizationType organizationType = new OrganizationType();
+        organizationType.setIdentifier(mapIdentifier(organization.getIdentifier()));
+
+        if (organization.getOrganizationDescriptiveMetadata() != null) {
+            List<Element> elements = TransformJsonTreeToListOfXmlElement.mapJsonToElement(
+                organization.getOrganizationDescriptiveMetadata());
+            OrganizationDescriptiveMetadataType organizationDescriptiveMetadataType =
+                new OrganizationDescriptiveMetadataType();
+            organizationDescriptiveMetadataType.getAny().addAll(elements);
+            organizationType.setOrganizationDescriptiveMetadata(organizationDescriptiveMetadataType);
+        }
+        return organizationType;
+    }
+
+    private static CoverageType mapCoverage(fr.gouv.vitam.common.model.unit.CoverageType coverage) {
+        if (coverage == null) {
+            return null;
+        }
+        CoverageType coverageType = new CoverageType();
+        if (CollectionUtils.isNotEmpty(coverage.getSpatial())) {
+            coverageType.getSpatial().addAll(coverage.getSpatial().stream().map(DescriptiveMetadataMapper::mapTextType)
+                .collect(Collectors.toList()));
+        }
+        if (CollectionUtils.isNotEmpty(coverage.getTemporal())) {
+            coverageType.getTemporal()
+                .addAll(coverage.getTemporal().stream().map(DescriptiveMetadataMapper::mapTextType)
+                    .collect(Collectors.toList()));
+        }
+        if (CollectionUtils.isNotEmpty(coverage.getJuridictional())) {
+            coverageType.getJuridictional()
+                .addAll(coverage.getJuridictional().stream().map(DescriptiveMetadataMapper::mapTextType)
+                    .collect(Collectors.toList()));
+        }
+        return coverageType;
+    }
+
+    private static TextType mapTextType(String value) {
+        if (value == null) {
+            return null;
+        }
+        TextType textType = new TextType();
+        textType.setValue(value);
+        return textType;
+    }
+
+    private static List<fr.gouv.culture.archivesdefrance.seda.v2.KeywordsType> mapKeywords(
+        List<KeywordsType> keywords) {
+        List<fr.gouv.culture.archivesdefrance.seda.v2.KeywordsType> result = new ArrayList<>();
+        for (KeywordsType keyword : keywords) {
+            fr.gouv.culture.archivesdefrance.seda.v2.KeywordsType sedaKeyword =
+                new fr.gouv.culture.archivesdefrance.seda.v2.KeywordsType();
+            if (keyword.getKeywordContent() != null) {
+                TextType content = new TextType();
+                content.setValue(keyword.getKeywordContent());
+                sedaKeyword.setKeywordContent(content);
+            }
+            sedaKeyword.setKeywordReference(mapIdentifier(keyword.getKeywordReference()));
+            if (keyword.getKeywordType() != null) {
+                KeyType keyType = new KeyType();
+                keyType.setValue(CodeKeywordType.fromValue(keyword.getKeywordType().value()));
+                sedaKeyword.setKeywordType(keyType);
+            }
+            result.add(sedaKeyword);
+        }
+        return result;
+    }
+
+    private static IdentifierType mapIdentifier(String value) {
+        if (value == null) {
+            return null;
+        }
+        IdentifierType identifier = new IdentifierType();
+        identifier.setValue(value);
+        return identifier;
+    }
+
+    private GpsType mapGps(fr.gouv.vitam.common.model.unit.GpsType gps) {
+        if (gps == null) {
+            return null;
+        }
+        GpsType result = new GpsType();
+        result.setGpsVersionID(gps.getGpsVersionID());
+        result.setGpsAltitude(gps.getGpsAltitude());
+        result.setGpsAltitudeRef(gps.getGpsAltitudeRef());
+        result.setGpsLatitude(gps.getGpsLatitude());
+        result.setGpsLatitudeRef(gps.getGpsLatitudeRef());
+        result.setGpsLongitude(gps.getGpsLongitude());
+        result.setGpsLongitudeRef(gps.getGpsLongitudeRef());
+        result.setGpsDateStamp(gps.getGpsDateStamp());
+        return result;
+    }
+
+    private LevelType mapLevelType(fr.gouv.vitam.common.model.unit.LevelType descriptionLevel) {
+        if (descriptionLevel == null) {
+            return null;
+        }
+        return LevelType.fromValue(descriptionLevel.value());
     }
 
     private static void checkSedaCompatibility(DescriptiveMetadataModel metadataModel,
@@ -275,8 +406,17 @@ public class DescriptiveMetadataMapper {
         result.setValidator(signatureType.getValidator());
         result.setReferencedObject(mapReferencedObject(signatureType.getReferencedObject()));
         // Not supported in R11
-        result.setMasterdata(signatureType.getMasterdata());
+        result.setMasterdata(mapCodeType(signatureType.getMasterdata()));
         return result;
+    }
+
+    private static CodeType mapCodeType(String value) {
+        if(value == null) {
+            return null;
+        }
+        CodeType codeType = new CodeType();
+        codeType.setValue(value);
+        return codeType;
     }
 
     private ReferencedObjectType mapReferencedObject(ReferencedObjectTypeModel referencedObject) {
@@ -435,7 +575,7 @@ public class DescriptiveMetadataMapper {
     private EventType mapEvent(EventTypeModel event) {
         EventType eventType = new EventType();
         eventType.setEventDateTime(event.getEventDateTime());
-        eventType.setEventDetail(event.getEventDetail());
+        eventType.setEventDetail(mapTextType(event.getEventDetail()));
         eventType.setEventDetailData(event.getEventDetailData());
         eventType.setEventIdentifier(event.getEventIdentifier());
         eventType.setEventType(event.getEventType());

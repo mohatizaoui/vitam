@@ -34,15 +34,18 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Iterators;
-import fr.gouv.culture.archivesdefrance.seda.v2.LevelType;
 import fr.gouv.culture.archivesdefrance.seda.v2.UpdateOperationType;
 import fr.gouv.vitam.collect.common.dto.MetadataUnitUp;
 import fr.gouv.vitam.collect.common.exception.CollectInternalException;
+import fr.gouv.vitam.collect.common.exception.CollectInternalInvalidRequestException;
+import fr.gouv.vitam.collect.common.exception.CollectInternalServerSideException;
 import fr.gouv.vitam.collect.internal.core.common.ProjectModel;
 import fr.gouv.vitam.collect.internal.core.common.TransactionModel;
 import fr.gouv.vitam.collect.internal.core.helpers.CsvHelper;
 import fr.gouv.vitam.collect.internal.core.helpers.JsonHelper;
+import fr.gouv.vitam.collect.internal.core.helpers.JsonlMetadataFileParser;
 import fr.gouv.vitam.collect.internal.core.helpers.MetadataHelper;
+import fr.gouv.vitam.collect.internal.core.helpers.TempWorkspace;
 import fr.gouv.vitam.collect.internal.core.repository.MetadataRepository;
 import fr.gouv.vitam.collect.internal.core.repository.ProjectRepository;
 import fr.gouv.vitam.common.PropertiesUtils;
@@ -50,6 +53,7 @@ import fr.gouv.vitam.common.database.builder.query.BooleanQuery;
 import fr.gouv.vitam.common.database.builder.query.QueryHelper;
 import fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper;
 import fr.gouv.vitam.common.database.builder.query.action.SetAction;
+import fr.gouv.vitam.common.database.builder.query.action.UnsetAction;
 import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
 import fr.gouv.vitam.common.database.builder.request.multiple.SelectMultiQuery;
 import fr.gouv.vitam.common.database.builder.request.multiple.UpdateMultiQuery;
@@ -65,6 +69,7 @@ import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.UnitType;
 import fr.gouv.vitam.common.model.VitamConstants;
 import fr.gouv.vitam.common.model.unit.ArchiveUnitModel;
+import fr.gouv.vitam.common.model.unit.LevelType;
 import fr.gouv.vitam.common.model.unit.ManagementModel;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.worker.core.distribution.JsonLineGenericIterator;
@@ -75,7 +80,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -126,7 +130,7 @@ public class MetadataService {
         String unitId = GUIDFactory.newUnitGUID(VitamThreadUtils.getVitamSession().getTenantId()).getId();
         unitModel.setId(unitId);
         unitModel.setOpi(transactionModel.getId());
-        unitModel.setUnitType(UnitType.INGEST.name());
+        unitModel.setUnitType(UnitType.INGEST);
 
         Optional<ProjectModel> project = projectRepository.findProjectById(transactionModel.getProjectId());
 
@@ -177,7 +181,7 @@ public class MetadataService {
         metadataRepository.saveArchiveUnit(objectNode);
     }
 
-    public void updateUnits(TransactionModel transaction, InputStream is) throws CollectInternalException {
+    public void updateUnitsWithMetadataCsv(TransactionModel transaction, InputStream is) throws CollectInternalException {
         String requestId = VitamThreadUtils.getVitamSession().getRequestId();
         File file = PropertiesUtils.fileFromTmpFolder("metadata_" + requestId + VitamConstants.JSONL_EXTENSION);
         try {
@@ -189,6 +193,25 @@ public class MetadataService {
             throw new CollectInternalException(e);
         } finally {
             FileUtils.deleteQuietly(file);
+        }
+    }
+
+    public void updateUnitsWithJsonlMetadata(TransactionModel transaction, InputStream metadataJsonlInputStream)
+        throws CollectInternalException {
+
+        try (TempWorkspace tempWorkspace = new TempWorkspace()) {
+
+            File jsonlMetadataFile = tempWorkspace.writeToFile("metadata.jsonl", metadataJsonlInputStream);
+
+            File transformedMetadataFile = tempWorkspace.getFile("transformed_metadata.jsonl");
+            JsonlMetadataFileParser jsonlMetadataFileParser = new JsonlMetadataFileParser();
+            jsonlMetadataFileParser.process(jsonlMetadataFile, transformedMetadataFile);
+
+            try (InputStream sanityStream = new FileInputStream(transformedMetadataFile)) {
+                updateUnitsWithMetadataFile(transaction.getId(), sanityStream);
+            }
+        } catch (IOException e) {
+            throw new CollectInternalServerSideException(e);
         }
     }
 
@@ -213,11 +236,11 @@ public class MetadataService {
             try {
                 updated = true;
                 List<JsonLineModel> next = iterator.next();
-                Map<String, JsonNode> unitsIdByURI =
-                    next.stream().map(e -> new AbstractMap.SimpleEntry<>(e.getId(), e.getParams()))
-                        .collect(Collectors.toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
+                Map<String, JsonNode> unitContentToSetByURI =
+                    next.stream()
+                        .collect(Collectors.toMap(JsonLineModel::getId, JsonLineModel::getParams));
                 // update unit with list
-                final List<JsonNode> updateMultiQueries = convertToQuery(unitsIdByURI, unitIdsByURI);
+                final List<JsonNode> updateMultiQueries = convertToQuery(unitContentToSetByURI, unitIdsByURI);
                 final RequestResponse<JsonNode> result = metadataRepository.atomicBulkUpdate(updateMultiQueries);
 
                 final boolean thereIsError =
@@ -268,19 +291,35 @@ public class MetadataService {
         }
     }
 
-    private List<JsonNode> convertToQuery(Map<String, JsonNode> unitsByURI, Map<String, String> unitIdsByURI)
+    private List<JsonNode> convertToQuery(Map<String, JsonNode> unitContentToSetByURI, Map<String, String> unitIdsByURI)
         throws InvalidCreateOperationException, InvalidParseOperationException, CollectInternalException {
         List<JsonNode> listQueries = new ArrayList<>();
-        for (Map.Entry<String, JsonNode> unit : unitsByURI.entrySet()) {
+        for (Map.Entry<String, JsonNode> unit : unitContentToSetByURI.entrySet()) {
             Optional<String> first = unitIdsByURI.keySet().stream().filter(e -> e.endsWith(unit.getKey())).findFirst();
             if (first.isEmpty()) {
-                throw new CollectInternalException("Cannot find unit with path " + unit.getKey());
+                throw new CollectInternalInvalidRequestException("Cannot find unit with path " + unit.getKey());
             }
             String unitId = unitIdsByURI.get(first.get());
             UpdateMultiQuery query = new UpdateMultiQuery();
             query.addRoots(unitId);
-            final Map<String, JsonNode> metadataMap = JsonHelper.jsonToMap(unit.getValue());
-            query.addActions(new SetAction(metadataMap));
+
+            Map<String, JsonNode> fieldsToSet = new HashMap<>();
+            List<String> fieldsToUnset = new ArrayList<>();
+
+            unit.getValue().fields().forEachRemaining(e -> {
+                if (e.getValue().isNull()) {
+                    fieldsToUnset.add(e.getKey());
+                } else {
+                    fieldsToSet.put(e.getKey(), e.getValue());
+                }
+            });
+
+            if (!fieldsToSet.isEmpty()) {
+                query.addActions(new SetAction(fieldsToSet));
+            }
+            if (!fieldsToUnset.isEmpty()) {
+                query.addActions(new UnsetAction(fieldsToUnset.toArray(String[]::new)));
+            }
             listQueries.add(query.getFinalUpdate());
         }
         return listQueries;

@@ -169,6 +169,8 @@ public enum SecurityProfilePermissions {
     TRANSACTION_SEND("transaction:send"),
     TRANSACTION_ID_UNITS("transaction:id:units"),
     TRANSACTION_ID_UNITS_UPDATE("transaction:id:units:update"),
+    TRANSACTION_ID_UNITS_METADATA_CSV_UPDATE("transaction:id:units:metadata:csv:update"),
+    TRANSACTION_ID_UNITS_METADATA_JSONL_UPDATE("transaction:id:units:metadata:jsonl:update"),
     TRANSACTION_ID_UNITS_BULK_UPDATE("transaction:id:units:bulk:update"),
     TRANSACTION_UNIT_CREATE("transaction:unit:create"),
     TRANSACTION_UNIT_READ("transaction:unit:read"),
