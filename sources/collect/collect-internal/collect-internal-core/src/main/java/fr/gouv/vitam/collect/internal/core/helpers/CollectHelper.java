@@ -30,10 +30,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.google.common.base.Strings;
 import com.google.common.collect.ListMultimap;
+import fr.gouv.vitam.collect.common.dto.BatchDto;
 import fr.gouv.vitam.collect.common.dto.ProjectDto;
 import fr.gouv.vitam.collect.common.dto.TransactionDto;
 import fr.gouv.vitam.collect.common.enums.TransactionStatus;
 import fr.gouv.vitam.collect.common.exception.CollectInternalException;
+import fr.gouv.vitam.collect.internal.core.common.Batch;
 import fr.gouv.vitam.collect.internal.core.common.ManifestContext;
 import fr.gouv.vitam.collect.internal.core.common.ProjectModel;
 import fr.gouv.vitam.collect.internal.core.common.ProjectStatus;
@@ -61,6 +63,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper.id;
 
@@ -189,6 +192,14 @@ public class CollectHelper {
             transactionDto.setLegalStatus(transactionModel.getManifestContext().getLegalStatus());
             transactionDto.setVitamOperationId(transactionModel.getVitamOperationId());
             transactionDto.setAutomaticIngest(transactionModel.getAutomaticIngest());
+        }
+
+        List<Batch> batches = transactionModel.getBatches();
+        if (batches != null) {
+            List<BatchDto> batchDtos =
+                batches.stream().map(batch -> new BatchDto(batch.getBatchId(), batch.getBatchStatus().name())).collect(
+                    Collectors.toList());
+            transactionDto.setBatches(batchDtos);
         }
         return transactionDto;
     }

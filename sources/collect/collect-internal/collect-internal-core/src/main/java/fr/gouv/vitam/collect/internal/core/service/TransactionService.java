@@ -36,6 +36,10 @@ import fr.gouv.vitam.collect.common.dto.ProjectDto;
 import fr.gouv.vitam.collect.common.dto.TransactionDto;
 import fr.gouv.vitam.collect.common.enums.TransactionStatus;
 import fr.gouv.vitam.collect.common.exception.CollectInternalException;
+import fr.gouv.vitam.collect.common.exception.CollectInternalInvalidRequestException;
+import fr.gouv.vitam.collect.common.exception.CollectRequestResponse;
+import fr.gouv.vitam.collect.internal.core.common.Batch;
+import fr.gouv.vitam.collect.internal.core.common.BatchStatus;
 import fr.gouv.vitam.collect.internal.core.common.ManifestContext;
 import fr.gouv.vitam.collect.internal.core.common.TransactionModel;
 import fr.gouv.vitam.collect.internal.core.helpers.CollectHelper;
@@ -61,8 +65,10 @@ import fr.gouv.vitam.common.model.QueryProjection;
 import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.common.model.administration.DataObjectVersionType;
 import fr.gouv.vitam.common.model.logbook.LogbookOperation;
 import fr.gouv.vitam.common.model.processing.ProcessDetail;
+import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.ingest.internal.client.IngestInternalClient;
 import fr.gouv.vitam.ingest.internal.client.IngestInternalClientFactory;
 import fr.gouv.vitam.logbook.common.exception.LogbookClientException;
@@ -73,6 +79,8 @@ import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
 import org.apache.commons.collections.CollectionUtils;
 
+import javax.ws.rs.core.Response;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -89,6 +97,7 @@ import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
 import static fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper.id;
 import static fr.gouv.vitam.common.json.JsonHandler.getFromJsonNodeList;
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 
 public class TransactionService {
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(TransactionService.class);
@@ -103,22 +112,26 @@ public class TransactionService {
         StatusCode.OK.name(), TransactionStatus.ACK_OK,
         StatusCode.KO.name(), TransactionStatus.ACK_KO,
         StatusCode.WARNING.name(), TransactionStatus.ACK_WARNING);
+    private static final int MAX_RETRY = 3;
 
     private final TransactionRepository transactionRepository;
     private final MetadataRepository metadataRepository;
     private final ProjectService projectService;
+    private final FluxService fluxService;
     private final WorkspaceClientFactory workspaceCollectClientFactory;
     private final AccessInternalClientFactory accessInternalClientFactory;
 
     private final IngestInternalClientFactory ingestInternalClientFactory;
 
     public TransactionService(TransactionRepository transactionRepository, ProjectService projectService,
-        MetadataRepository metadataRepository, WorkspaceClientFactory workspaceCollectClientFactory,
+        MetadataRepository metadataRepository, FluxService fluxService,
+        WorkspaceClientFactory workspaceCollectClientFactory,
         AccessInternalClientFactory accessInternalClientFactory,
         IngestInternalClientFactory ingestInternalClientFactory) {
         this.transactionRepository = transactionRepository;
         this.projectService = projectService;
         this.metadataRepository = metadataRepository;
+        this.fluxService = fluxService;
         this.workspaceCollectClientFactory = workspaceCollectClientFactory;
         this.accessInternalClientFactory = accessInternalClientFactory;
         this.ingestInternalClientFactory = ingestInternalClientFactory;
@@ -150,41 +163,6 @@ public class TransactionService {
     public void deleteTransaction(String id) throws CollectInternalException {
         deleteTransactionContent(id);
         transactionRepository.deleteTransaction(id);
-    }
-
-    public void deleteTransactionContent(String id) throws CollectInternalException {
-        try (WorkspaceClient workspaceClient = workspaceCollectClientFactory.getClient()) {
-            if (workspaceClient.isExistingContainer(id)) {
-                workspaceClient.deleteContainer(id, true);
-            }
-        } catch (ContentAddressableStorageException e) {
-            LOGGER.error("Error when trying to delete stream from workspace: {} ", e);
-            throw new CollectInternalException("Error when trying to delete stream from workspace: " + e);
-        }
-
-        try {
-            final SelectMultiQuery request = new SelectMultiQuery();
-            QueryProjection queryProjection = new QueryProjection();
-            queryProjection.setFields(Map.of(VitamFieldsHelper.id(), 1, VitamFieldsHelper.object(), 1));
-            request.setProjection(JsonHandler.toJsonNode(queryProjection));
-            final ScrollSpliterator<JsonNode> scrollRequest = metadataRepository.selectUnits(request, id);
-            Iterator<List<JsonNode>> iterator =
-                Iterators.partition(new SpliteratorIterator<>(scrollRequest), VitamConfiguration.getBatchSize());
-
-            while (iterator.hasNext()) {
-                List<JsonNode> units = iterator.next();
-                final List<String> idObjectGroups =
-                    units.stream().map(e -> e.get(VitamFieldsHelper.object())).filter(Objects::nonNull)
-                        .map(JsonNode::asText).collect(Collectors.toList());
-                metadataRepository.deleteObjectGroups(idObjectGroups);
-                final List<String> idUnits =
-                    units.stream().map(e -> e.get(VitamFieldsHelper.id())).map(JsonNode::asText)
-                        .collect(Collectors.toList());
-                metadataRepository.deleteUnits(idUnits);
-            }
-        } catch (InvalidParseOperationException e) {
-            throw new CollectInternalException(e);
-        }
     }
 
     /**
@@ -253,7 +231,6 @@ public class TransactionService {
 
     public boolean findOneAndReplace(TransactionStatus transactionStatus,
         TransactionModel transactionModel) throws InvalidParseOperationException {
-
         return transactionRepository.findOneAndReplace(transactionStatus, transactionModel);
     }
 
@@ -520,5 +497,243 @@ public class TransactionService {
             LOGGER.error(e.getLocalizedMessage());
             throw new CollectInternalException(e);
         }
+    }
+
+
+    public void deleteTransactionContent(String transactionId) throws CollectInternalException {
+        try (WorkspaceClient workspaceClient = workspaceCollectClientFactory.getClient()) {
+            if (workspaceClient.isExistingContainer(transactionId)) {
+                workspaceClient.deleteContainer(transactionId, true);
+            }
+        } catch (ContentAddressableStorageException e) {
+            throw new CollectInternalException("Error when trying to delete stream from workspace: ", e);
+        }
+
+        try {
+            final SelectMultiQuery request = new SelectMultiQuery();
+            QueryProjection queryProjection = new QueryProjection();
+            queryProjection.setFields(Map.of(VitamFieldsHelper.id(), 1, VitamFieldsHelper.object(), 1));
+            request.setProjection(JsonHandler.toJsonNode(queryProjection));
+            final ScrollSpliterator<JsonNode> scrollRequest = metadataRepository.selectUnits(request, transactionId);
+            Iterator<List<JsonNode>> iterator =
+                Iterators.partition(new SpliteratorIterator<>(scrollRequest), VitamConfiguration.getBatchSize());
+
+            while (iterator.hasNext()) {
+                List<JsonNode> units = iterator.next();
+                final List<String> idObjectGroups =
+                    units.stream().map(e -> e.get(VitamFieldsHelper.object())).filter(Objects::nonNull)
+                        .map(JsonNode::asText).collect(Collectors.toList());
+                metadataRepository.deleteObjectGroups(idObjectGroups);
+                final List<String> idUnits =
+                    units.stream().map(e -> e.get(VitamFieldsHelper.id())).map(JsonNode::asText)
+                        .collect(Collectors.toList());
+                metadataRepository.deleteUnits(idUnits);
+            }
+        } catch (InvalidParseOperationException e) {
+            throw new CollectInternalException(e);
+        }
+    }
+
+    private void purgeFailedUploadSilently(TransactionModel transactionModel) {
+
+        String batchId = VitamThreadUtils.getVitamSession().getRequestId();
+        Batch batch = new Batch();
+        batch.setBatchId(batchId);
+        batch.setBatchStatus(BatchStatus.KO);
+        Optional<TransactionModel> optionalTransactionModel;
+
+        try {
+            optionalTransactionModel = traceTransaction(batch, transactionModel);
+            if (optionalTransactionModel.isEmpty()) {
+                return;
+            }
+        } catch (CollectInternalException e) {
+            LOGGER.info("unable to Update Transaction :", e);
+            return;
+        }
+
+        TransactionModel newTransactionModel = optionalTransactionModel.get();
+        try {
+            purgeByBatchId(batchId, newTransactionModel);
+        } catch (CollectInternalException e) {
+            LOGGER.error("unable to purge uploaded content :", e);
+            return;
+        }
+
+        try {
+            batch.setBatchStatus(BatchStatus.PURGED);
+            optionalTransactionModel = traceTransaction(batch, newTransactionModel);
+
+        } catch (CollectInternalException e) {
+            LOGGER.info("unable to Update Transaction :", e);
+        }
+
+    }
+
+
+    private Optional<TransactionModel> traceTransaction(Batch batch, TransactionModel transactionModel)
+        throws CollectInternalException {
+        String errorMsg = "concurrency problem: The transaction was deleted by someone else";
+
+        List<Batch> batches = Optional.ofNullable(transactionModel.getBatches()).orElse(new ArrayList<>());
+        batches.add(batch);
+        transactionModel.setBatches(batches);
+
+        int retryCount = 0;
+        while (retryCount < MAX_RETRY) {
+            if (updateTransaction(transactionModel)) {
+                return Optional.of(transactionModel);
+            }
+            LOGGER.info("Failed to update transaction with the provided model. Retrying with findTransaction...");
+            Optional<TransactionModel> optionalTransaction =
+                transactionRepository.findTransaction(transactionModel.getId());
+
+            if (optionalTransaction.isEmpty()) {
+                LOGGER.error(errorMsg);
+                return Optional.empty();
+            }
+
+            TransactionModel retrievedTransaction = optionalTransaction.get();
+            retrievedTransaction.setBatches(transactionModel.getBatches());
+            if (updateTransaction(retrievedTransaction)) {
+                return Optional.of(retrievedTransaction);
+            }
+            retryCount++;
+        }
+        LOGGER.info(errorMsg);
+        return Optional.empty();
+    }
+
+    private boolean updateTransaction(TransactionModel transactionModel) {
+        try {
+            return transactionRepository.findOneAndReplace(transactionModel);
+        } catch (InvalidParseOperationException e) {
+            LOGGER.error("Unable to update transaction: ", e);
+            return false;
+        }
+    }
+
+    public void purgeByBatchId(String batchId, TransactionModel transactionModel)
+        throws CollectInternalException {
+        String transactionId = transactionModel.getId();
+        purgeObjectAndWorkspace(batchId, transactionId);
+        purgeUnits(batchId, transactionId);
+
+    }
+
+    private void purgeObjectAndWorkspace(String batchId, String transactionId)
+        throws CollectInternalException {
+        Iterator<List<JsonNode>> selectObjectIterator;
+        try {
+            final Select select = buildSelectWithBatchId(batchId);
+            final SelectMultiQuery selectObjectRequest = new SelectMultiQuery();
+            selectObjectRequest.setQuery(select.getQuery());
+            // Scroll through object groups
+            final ScrollSpliterator<JsonNode> selectObjectScrollRequest =
+                metadataRepository.selectObjectGroups(selectObjectRequest, transactionId);
+            selectObjectIterator = Iterators
+                .partition(new SpliteratorIterator<>(selectObjectScrollRequest), VitamConfiguration.getBatchSize());
+        } catch (InvalidCreateOperationException e) {
+            throw new CollectInternalException("Invalid operation during object creation : ", e);
+        }
+        while (selectObjectIterator.hasNext()) {
+            List<JsonNode> objectsGroup = selectObjectIterator.next();
+            purgeWorkspace(objectsGroup, transactionId);
+            deleteGots(objectsGroup);
+        }
+
+    }
+
+    private void purgeWorkspace(List<JsonNode> objects, String transactionId) throws CollectInternalException {
+        for (JsonNode object : objects) {
+            for (JsonNode qualifier : object.get(VitamFieldsHelper.qualifiers())) {
+                if (!DataObjectVersionType.PHYSICAL_MASTER.getName().equals(qualifier.get("qualifier").textValue())) {
+                    for (JsonNode version : qualifier.get("versions")) {
+                        try (WorkspaceClient workspaceClient = workspaceCollectClientFactory.getClient()) {
+                            String uri = version.get("Uri").textValue();
+                            if (workspaceClient.isExistingContainer(transactionId) &&
+                                workspaceClient.isExistingObject(transactionId, uri)) {
+                                workspaceClient.deleteObject(transactionId, uri);
+                            }
+                        } catch (ContentAddressableStorageException e) {
+                            throw new CollectInternalException(
+                                "Error when trying to delete stream from workspace: ", e);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void deleteGots(List<JsonNode> objects) throws CollectInternalException {
+        final List<String> idObjectGroups =
+            objects.stream().map(object -> object.get(VitamFieldsHelper.id()).textValue()).collect(Collectors.toList());
+        metadataRepository.deleteObjectGroups(idObjectGroups);
+    }
+
+    private void purgeUnits(String batchId, String transactionId)
+        throws CollectInternalException {
+        try {
+            final Select select = buildSelectWithBatchId(batchId);
+            final SelectMultiQuery request = new SelectMultiQuery();
+            request.setQuery(select.getQuery());
+            request.addUsedProjection(VitamFieldsHelper.id());
+
+            // Scroll through units
+            final ScrollSpliterator<JsonNode> scrollRequest = metadataRepository.selectUnits(request, transactionId);
+            Iterator<List<JsonNode>> iterator =
+                Iterators.partition(new SpliteratorIterator<>(scrollRequest), VitamConfiguration.getBatchSize());
+
+            while (iterator.hasNext()) {
+                List<JsonNode> units = iterator.next();
+                // Collect unit ids
+                final List<String> idUnits =
+                    units.stream().map(e -> e.get(VitamFieldsHelper.id()).asText()).collect(Collectors.toList());
+                metadataRepository.deleteUnits(idUnits);
+            }
+        } catch (InvalidCreateOperationException | InvalidParseOperationException e) {
+            throw new CollectInternalException("Invalid operation during unit creation : ", e);
+        }
+    }
+
+
+    private Select buildSelectWithBatchId(String batchId)
+        throws InvalidCreateOperationException {
+        final Select select = new Select();
+        select.setQuery(QueryHelper.eq((VitamFieldsHelper.batchId()), batchId));
+        return select;
+    }
+
+
+    public Response uploadTransactionZip(InputStream inputStreamObject, TransactionModel transactionModel)
+        throws CollectInternalException {
+        try {
+
+            fluxService.processStream(
+                inputStreamObject, transactionModel.getProjectId(), transactionModel.getId());
+            return Response.ok().build();
+        } catch (CollectInternalInvalidRequestException e) {
+            LOGGER.error("An error occurs when try to upload the ZIP: {}", e);
+            return CollectRequestResponse.toVitamError(BAD_REQUEST, e.getLocalizedMessage());
+        } catch (CollectInternalException e) {
+            purgeFailedUploadSilently( transactionModel);
+            throw e;
+        }
+    }
+
+    public boolean changeTransactionToSendingIfBatchesNotKo(TransactionModel transaction)
+        throws InvalidParseOperationException, CollectInternalException {
+        boolean hasBatchKo = transaction.getBatches() != null && transaction.getBatches()
+            .stream()
+            .anyMatch(batch -> BatchStatus.KO.equals(batch.getBatchStatus()));
+        if (hasBatchKo) {
+            throw new CollectInternalException("impossible to generate the sip: this transaction has at least one KO batch");
+        }
+
+        transaction.setStatus(TransactionStatus.SENDING);
+
+        transaction.setLastUpdate(LocalDateUtil.now().toString());
+        return  findOneAndReplace(TransactionStatus.READY, transaction);
+
     }
 }

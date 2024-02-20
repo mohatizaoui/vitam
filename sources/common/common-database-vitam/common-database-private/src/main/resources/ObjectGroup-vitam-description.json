@@ -120,6 +120,12 @@
     "cardinality": "one"
   },
   {
+    "path": "_batchId",
+    "type": "keyword",
+    "indexed": true,
+    "cardinality": "one"
+  },
+  {
     "path": "_ops",
     "type": "keyword",
     "indexed": true,

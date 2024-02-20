@@ -37,7 +37,6 @@ import fr.gouv.vitam.collect.common.exception.CollectRequestResponse;
 import fr.gouv.vitam.collect.internal.core.common.TransactionModel;
 import fr.gouv.vitam.collect.internal.core.helpers.CollectHelper;
 import fr.gouv.vitam.collect.internal.core.service.BulkAtomicUpdateMetadataService;
-import fr.gouv.vitam.collect.internal.core.service.FluxService;
 import fr.gouv.vitam.collect.internal.core.service.MetadataService;
 import fr.gouv.vitam.collect.internal.core.service.ProjectService;
 import fr.gouv.vitam.collect.internal.core.service.SipService;
@@ -107,17 +106,15 @@ public class TransactionInternalResource {
     private final TransactionService transactionService;
     private final MetadataService metadataService;
     private final SipService sipService;
-    private final FluxService fluxService;
     private final ProjectService projectService;
     private final BulkAtomicUpdateMetadataService bulkAtomicUpdateMetadataService;
 
     public TransactionInternalResource(TransactionService transactionService, SipService sipService,
-        MetadataService metadataService, FluxService fluxService, ProjectService projectService,
+        MetadataService metadataService, ProjectService projectService,
         BulkAtomicUpdateMetadataService bulkAtomicUpdateMetadataService) {
         this.transactionService = transactionService;
         this.sipService = sipService;
         this.metadataService = metadataService;
-        this.fluxService = fluxService;
         this.projectService = projectService;
         this.bulkAtomicUpdateMetadataService = bulkAtomicUpdateMetadataService;
     }
@@ -336,12 +333,7 @@ public class TransactionInternalResource {
             }
 
             transaction = transactionModel.get();
-            transaction.setStatus(TransactionStatus.SENDING);
-            transaction.setLastUpdate(LocalDateUtil.now().toString());
-            boolean updatedDocument =
-                transactionService
-                    .findOneAndReplace(TransactionStatus.READY, transaction);
-
+            boolean updatedDocument = transactionService.changeTransactionToSendingIfBatchesNotKo(transaction);
             if (!updatedDocument) {
                 LOGGER.error(STATUS_NOT_ALLOWED);
                 return Response.status(BAD_REQUEST).build();
@@ -401,7 +393,6 @@ public class TransactionInternalResource {
             } finally {
                 FileUtils.deleteQuietly(file);
             }
-
             return Response.ok(new RequestResponseOK<>()).build();
         } catch (IllegalArgumentException | InvalidParseOperationException | CollectInternalInvalidRequestException e) {
             LOGGER.error("An error occurs when try to update metadata : {}", e);
@@ -441,25 +432,32 @@ public class TransactionInternalResource {
     @Produces(APPLICATION_JSON)
     public Response uploadTransactionZip(@PathParam("transactionId") String transactionId,
         InputStream inputStreamObject) {
+
         try {
             ParametersChecker.checkParameter("You must supply a file!", inputStreamObject);
             Optional<TransactionModel> transactionModel = transactionService.findTransaction(transactionId);
+
             if (transactionModel.isEmpty() ||
                 !transactionService.checkStatus(transactionModel.get(), TransactionStatus.OPEN)) {
                 LOGGER.error(TRANSACTION_NOT_FOUND_OR_INVALID_STATUS);
                 return CollectRequestResponse.toVitamError(NOT_FOUND, TRANSACTION_NOT_FOUND_OR_INVALID_STATUS);
             }
-            fluxService.processStream(
-                inputStreamObject, transactionModel.get().getProjectId(), transactionModel.get().getId());
-            return Response.ok().build();
-        } catch (CollectInternalInvalidRequestException | IllegalArgumentException e) {
+
+            return transactionService.uploadTransactionZip(inputStreamObject, transactionModel.get());
+
+        } catch (IllegalArgumentException e) {
             LOGGER.error("An error occurs when try to upload the ZIP: {}", e);
             return CollectRequestResponse.toVitamError(BAD_REQUEST, e.getLocalizedMessage());
         } catch (CollectInternalException e) {
             LOGGER.error("An error occurs when try to upload the ZIP: {}", e);
             return CollectRequestResponse.toVitamError(INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
+
         }
+
+
     }
+
+
 
     @Path("/{transactionId}/status/{transactionStatus}")
     @PUT

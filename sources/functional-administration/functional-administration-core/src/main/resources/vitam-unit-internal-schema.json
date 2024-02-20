@@ -11689,5 +11689,23 @@
     "Category": "OTHER",
     "ApiPath": "#validComputedInheritedRules",
     "ShortName": "validComputedInheritedRules"
+  },
+  {
+    "FieldName": "_batchId",
+    "Type": "KEYWORD",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_batchId",
+    "ApiField": "#batchId",
+    "Collection": "Unit",
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "Category": "OTHER",
+    "ApiPath": "#batchId",
+    "ShortName": "batch identifier"
   }
 ]

@@ -88,6 +88,7 @@ public class ArchiveUnitInternalModel {
     @JsonProperty("_managementContractId")
     private String managementContractId;
 
+
     /**
      * Constructor
      */

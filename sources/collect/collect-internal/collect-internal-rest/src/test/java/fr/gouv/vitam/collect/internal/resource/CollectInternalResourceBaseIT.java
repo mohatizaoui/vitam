@@ -151,7 +151,7 @@ public class CollectInternalResourceBaseIT {
                 final ProjectInternalResource projectInternalResource =
                     new ProjectInternalResource(projectService, fluxService, transactionService, metadataService);
                 final TransactionInternalResource transactionInternalResource =
-                    new TransactionInternalResource(transactionService, sipService, metadataService, fluxService,
+                    new TransactionInternalResource(transactionService, sipService, metadataService,
                         projectService, bulkAtomicUpdateMetadataService);
                 final CollectMetadataInternalResource collectMetadataInternalResource =
                     new CollectMetadataInternalResource(metadataService, collectService, transactionService);

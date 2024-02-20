@@ -89,6 +89,7 @@ public class ArchiveUnitModel {
     @JsonProperty("#managementContractId")
     private String managementContractId;
 
+
     /**
      * Constructor
      */
@@ -239,4 +240,5 @@ public class ArchiveUnitModel {
     public void setManagementContractId(String managementContractId) {
         this.managementContractId = managementContractId;
     }
+
 }

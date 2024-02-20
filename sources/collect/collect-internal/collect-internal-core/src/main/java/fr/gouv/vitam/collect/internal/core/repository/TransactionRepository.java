@@ -35,9 +35,11 @@ import com.mongodb.client.model.BulkWriteOptions;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOneModel;
 import com.mongodb.client.model.UpdateOptions;
+import com.mongodb.client.result.UpdateResult;
 import fr.gouv.vitam.collect.common.enums.TransactionStatus;
 import fr.gouv.vitam.collect.common.exception.CollectInternalException;
 import fr.gouv.vitam.collect.internal.core.common.TransactionModel;
+import fr.gouv.vitam.common.LocalDateUtil;
 import fr.gouv.vitam.common.database.server.mongodb.BsonHelper;
 import fr.gouv.vitam.common.database.server.mongodb.MongoDbAccess;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
@@ -45,10 +47,13 @@ import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -63,6 +68,7 @@ public class TransactionRepository {
 
     public static final String TRANSACTION_COLLECTION = "Transaction";
     public static final String ID = "_id";
+    public static final String VERSION = "_v";
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(TransactionRepository.class);
     public static final String TENANT_ID = "_tenant";
     public static final String CREATION_DATE = "context.CreationDate";
@@ -90,6 +96,7 @@ public class TransactionRepository {
     public void createTransaction(TransactionModel transactionModel) throws CollectInternalException {
         LOGGER.debug("Transaction to create: {}", transactionModel);
         try {
+            transactionModel.setVersion(0);
             String transactionModelAsString = JsonHandler.writeAsString(transactionModel);
             transactionCollection.insertOne(Document.parse(transactionModelAsString));
         } catch (InvalidParseOperationException e) {
@@ -106,25 +113,35 @@ public class TransactionRepository {
     public void replaceTransaction(TransactionModel transactionModel) throws CollectInternalException {
         LOGGER.debug("Transaction to replace: {}", transactionModel);
         try {
+            int atomicVersion = transactionModel.getVersion();
+            transactionModel.setVersion(atomicVersion + 1);
             String transactionModelAsString = JsonHandler.writeAsString(transactionModel);
-            final Bson condition = and(eq(ID, transactionModel.getId()));
-            transactionCollection.replaceOne(condition, Document.parse(transactionModelAsString));
+            final Bson condition =
+                and(eq(ID, transactionModel.getId()), eq(VERSION, atomicVersion));
+            UpdateResult result = transactionCollection.replaceOne(condition, Document.parse(transactionModelAsString));
+
+            if (result.getModifiedCount() == 0) {
+                throw new CollectInternalException(
+                    "concurrency problem: the transaction was modified by another service");
+            }
         } catch (InvalidParseOperationException e) {
-            throw new CollectInternalException("Error when replacing transaction: " + e);
+            throw new CollectInternalException("Error when replacing transaction: ", e);
         }
 
     }
 
 
 
-    public UpdateOneModel<Document> getUpdateOneModel(TransactionModel transactionModel) {
-        // FIXME : update date?
+    private UpdateOneModel<Document> getUpdateOneModel(TransactionModel transactionModel) {
+        transactionModel.setLastUpdate(LocalDateUtil.now().toString());
         Document documentToUpdate =
-            new Document().append(SET, new BasicDBObject(STATUS, transactionModel.getStatus().name()));
-        return new UpdateOneModel<>(eq(ID, transactionModel.getId()), documentToUpdate,
-            new UpdateOptions().upsert(true)
-        );
+            new Document().append(SET, new BasicDBObject(STATUS, transactionModel.getStatus().name()))
+                .append(SET, new BasicDBObject(VERSION, transactionModel.getVersion() + 1));
 
+        return new UpdateOneModel<>(and(eq(ID, transactionModel.getId())
+            , eq(VERSION, transactionModel.getVersion())), documentToUpdate,
+            new UpdateOptions()
+        );
     }
 
     /**
@@ -140,7 +157,8 @@ public class TransactionRepository {
 
         List<UpdateOneModel<Document>> listUpdate = new ArrayList<>();
         for (TransactionModel item : transactionsModel) {
-            listUpdate.add(getUpdateOneModel((item)));
+            item.setVersion(item.getVersion() + 1);
+            listUpdate.add(getUpdateOneModel(item));
         }
         transactionCollection.bulkWrite(listUpdate, options);
 
@@ -271,12 +289,29 @@ public class TransactionRepository {
 
     public boolean findOneAndReplace(TransactionStatus transactionStatus,
         TransactionModel transactionModel) throws InvalidParseOperationException {
+      return  findOneAndReplace(Collections.singletonList(eq(STATUS, transactionStatus.toString())), transactionModel);
+    }
+
+    public boolean findOneAndReplace( TransactionModel transactionModel) throws InvalidParseOperationException {
+      return findOneAndReplace(new ArrayList<>(),transactionModel);
+    }
+
+    public boolean findOneAndReplace( List<Bson> additionalFilters,TransactionModel transactionModel) throws InvalidParseOperationException {
         Integer tenantId = VitamThreadUtils.getVitamSession().getTenantId();
-        Bson filter = Filters.and(
-            Filters.eq(ID, transactionModel.getId()),
-            Filters.eq(TENANT_ID, tenantId),
-            Filters.eq(STATUS, transactionStatus.toString())
-        );
+        int atomicVersion = transactionModel.getVersion();
+        transactionModel.setVersion(atomicVersion + 1);
+
+        final List<Bson> filters = new ArrayList<>();
+        filters.add(eq(ID, transactionModel.getId()));
+        filters.add(eq(TENANT_ID, tenantId));
+        filters.add(eq(VERSION, atomicVersion));
+
+        if (CollectionUtils.isNotEmpty(additionalFilters)) {
+            filters.addAll(additionalFilters);
+        }
+
+        Bson filter = Filters.and(filters);
+
 
         String transactionModelAsString = JsonHandler.writeAsString(transactionModel);
         Document documentToUpdate = Document.parse(transactionModelAsString);
@@ -284,4 +319,6 @@ public class TransactionRepository {
         Document updatedDocument = transactionCollection.findOneAndReplace(filter, documentToUpdate);
         return (updatedDocument != null);
     }
+
+
 }

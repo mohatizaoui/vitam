@@ -30,6 +30,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Strings;
 import fr.gouv.vitam.collect.common.dto.MetadataUnitUp;
+import fr.gouv.vitam.collect.internal.core.common.CollectArchiveUnitModel;
 import fr.gouv.vitam.common.LocalDateUtil;
 import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.database.builder.query.InQuery;
@@ -84,11 +85,12 @@ public class MetadataHelper {
     public static ArchiveUnitModel createUnit(String transactionId, LevelType descriptionLevel, String title,
         String unitParent) {
         String id = GUIDFactory.newUnitGUID(VitamThreadUtils.getVitamSession().getTenantId()).getId();
-        ArchiveUnitModel unitInternalModel = new ArchiveUnitModel();
+        CollectArchiveUnitModel unitInternalModel = new CollectArchiveUnitModel();
 
         unitInternalModel.setId(id);
         unitInternalModel.setOpi(transactionId);
         unitInternalModel.setUnitType(UnitType.INGEST);
+        unitInternalModel.setBatchId(VitamThreadUtils.getVitamSession().getRequestId());
 
         DescriptiveMetadataModel description = new DescriptiveMetadataModel();
         description.setTitle(title);
@@ -138,6 +140,7 @@ public class MetadataHelper {
         ObjectGroupResponse dbObjectGroupModel = new ObjectGroupResponse();
         dbObjectGroupModel.setId(GUIDFactory.newObjectGroupGUID(ParameterHelper.getTenantParameter()).getId());
         dbObjectGroupModel.setOpi(transactionId);
+        dbObjectGroupModel.setBatchId(VitamThreadUtils.getVitamSession().getRequestId());
         dbObjectGroupModel.setFileInfo(fileInfoModel);
         dbObjectGroupModel.setNbc(1);
         dbObjectGroupModel.setQualifiers(Collections.singletonList(qualifiersModel));

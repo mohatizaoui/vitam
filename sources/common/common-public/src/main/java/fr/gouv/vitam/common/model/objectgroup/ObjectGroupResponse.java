@@ -49,6 +49,7 @@ public class ObjectGroupResponse {
     public static final String NB_OBJECTS = "#nbobjects";
     public static final String OPERATIONS = "#operations";
     public static final String OPI = "#opi";
+    public static final String BATCH_ID = "#batchId";
     public static final String ORIGINATING_AGENCY = "#originating_agency";
     public static final String ORIGINATING_AGENCIES = "#originating_agencies";
     public static final String VERSION = "#version";
@@ -81,6 +82,9 @@ public class ObjectGroupResponse {
 
     @JsonProperty(OPI)
     private String opi;
+
+    @JsonProperty(BATCH_ID)
+    private String batchId;
 
     @JsonProperty(ORIGINATING_AGENCY)
     private String originatingAgency;
@@ -208,6 +212,14 @@ public class ObjectGroupResponse {
 
     public void setOpi(String opi) {
         this.opi = opi;
+    }
+
+    public String getBatchId() {
+        return batchId;
+    }
+
+    public void setBatchId(String batchId) {
+        this.batchId = batchId;
     }
 
     @JsonIgnore

@@ -29,6 +29,7 @@ package fr.gouv.vitam.collect.internal.core.common;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import fr.gouv.vitam.collect.common.enums.TransactionStatus;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -65,6 +66,12 @@ public class TransactionModel {
 
     @JsonProperty("AutomaticIngest")
     private Boolean automaticIngest;
+
+    @JsonProperty("Batches")
+    private List<Batch> batches;
+
+    @JsonProperty("_v")
+    private int version;
 
     public TransactionModel() {
     }
@@ -161,6 +168,18 @@ public class TransactionModel {
     public void setAutomaticIngest(Boolean automaticIngest) {
         this.automaticIngest = automaticIngest;
     }
+
+    public List<Batch> getBatches() {
+        return batches;
+    }
+
+    public void setBatches(List<Batch> batches) {
+        this.batches = batches;
+    }
+
+    public int getVersion() { return version; }
+
+    public void setVersion(Integer version) { this.version = version; }
 
     @Override
     public boolean equals(Object o) {

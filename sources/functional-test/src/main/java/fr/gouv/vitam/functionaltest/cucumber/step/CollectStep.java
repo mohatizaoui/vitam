@@ -543,6 +543,7 @@ public class CollectStep extends CommonStep {
             JsonAssert.when(Option.IGNORING_ARRAY_ORDER).whenIgnoringPaths(
                 List.of("[*]." + VitamFieldsHelper.initialOperation(),
                     "[*]." + VitamFieldsHelper.id(),
+                    "[*]." + VitamFieldsHelper.batchId(),
                     "[*]." + VitamFieldsHelper.unitups(),
                     "[*]." + VitamFieldsHelper.object(),
                     "[*]." + VitamFieldsHelper.allunitups(),
@@ -561,7 +562,6 @@ public class CollectStep extends CommonStep {
 
     @When("^je constate qu'une AU ainsi qu'un GOT sont créés")
     public void should_find_au() throws Exception {
-
         RequestResponse<JsonNode> requestResponse = world.getCollectExternalClient()
             .getUnitsByTransaction(new VitamContext(world.getTenantId()), world.getTransactionId(),
                 new SelectMultiQuery().getFinalSelect());

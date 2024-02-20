@@ -32,6 +32,8 @@ import fr.gouv.vitam.collect.common.dto.TransactionDto;
 import fr.gouv.vitam.collect.common.enums.TransactionStatus;
 import fr.gouv.vitam.collect.common.exception.CollectInternalException;
 import fr.gouv.vitam.collect.internal.core.common.TransactionModel;
+import fr.gouv.vitam.collect.internal.core.service.TransactionService;
+import fr.gouv.vitam.collect.internal.resource.utils.ReflectionTestUtils;
 import fr.gouv.vitam.collect.internal.rest.TransactionInternalResource;
 import fr.gouv.vitam.common.CommonMediaType;
 import fr.gouv.vitam.common.GlobalDataRest;
@@ -510,6 +512,7 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
         when(transactionService.findOneAndReplace(eq(TransactionStatus.READY), any(TransactionModel.class))).thenReturn(
             true);
         doNothing().when(transactionService).isTransactionContentEmpty(any());
+        when(transactionService.changeTransactionToSendingIfBatchesNotKo(any())).thenReturn(true);
         when(sipService.generateSip(any())).thenReturn(null);
         given()
             .header(GlobalDataRest.X_TENANT_ID, TENANT)
@@ -712,7 +715,16 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
         when(transactionService.findTransaction("1")).thenReturn(Optional.of(transactionModel));
         when(transactionService.checkStatus(any(TransactionModel.class), eq(TransactionStatus.OPEN))).thenReturn(true);
         when(projectService.findProject("1")).thenReturn(Optional.of(new ProjectDto()));
+
         try (final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(TRANSACTION_ZIP_PATH)) {
+
+
+            ReflectionTestUtils.setField(TransactionService.class, transactionService, "fluxService", fluxService);
+
+
+
+            when(transactionService.uploadTransactionZip(any(), any())).thenCallRealMethod();
+
             given()
                 .contentType("application/zip")
                 .accept(ContentType.JSON)
@@ -797,8 +809,8 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
         transactionModel.setProjectId("prId");
         when(transactionService.findTransaction("txId")).thenReturn(Optional.of(transactionModel));
         when(transactionService.checkStatus(any(TransactionModel.class), eq(TransactionStatus.OPEN))).thenReturn(true);
-        doThrow(new CollectInternalException("error")).when(fluxService)
-            .processStream(any(), eq("prId"), eq("txId"));
+        doThrow(new CollectInternalException("error")).when(transactionService)
+            .uploadTransactionZip(any(), any());
         try (final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(TRANSACTION_ZIP_PATH)) {
             given()
                 .contentType("application/zip")
@@ -822,7 +834,7 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
         when(transactionService.checkStatus(any(TransactionModel.class), eq(TransactionStatus.OPEN))).thenReturn(true);
         doThrow(new CollectInternalException(
             "Mapping for File not found, expected one of [Content.DescriptionLevel, Content.Title]"))
-            .when(fluxService).processStream(any(), eq("prId"), eq("txId"));
+            .when(transactionService).uploadTransactionZip(any(), any());
         try (final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(TRANSACTION_ZIP_PATH)) {
             given()
                 .contentType("application/zip")
@@ -862,7 +874,7 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
         // TODO to redo to follow the model of the other tests
         // Given
         TransactionInternalResource transactionInternalResource =
-            new TransactionInternalResource(transactionService, sipService, metadataService, fluxService,
+            new TransactionInternalResource(transactionService, sipService, metadataService,
                 projectService, bulkAtomicUpdateMetadataService);
 
         final ProjectDto projectDto = new ProjectDto();
@@ -881,6 +893,9 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
             PropertiesUtils.getResourceAsStream("streamZip/transaction.zip");
 
         when(transactionService.checkStatus(any(), eq(TransactionStatus.OPEN))).thenReturn(true);
+        ReflectionTestUtils.setField(TransactionService.class, transactionService, "fluxService", fluxService);
+        when(transactionService.uploadTransactionZip(inputStreamZip, transactionModel)).thenCallRealMethod();
+
 
         // When
         Response result = transactionInternalResource.uploadTransactionZip(TRANSACTION_ID, inputStreamZip);

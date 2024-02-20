@@ -302,6 +302,9 @@
     "_opi": {
       "type": "keyword"
     },
+    "_batchId": {
+      "type": "keyword"
+    },
     "_sp": {
       "type": "keyword"
     },
