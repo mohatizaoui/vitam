@@ -1,0 +1,22 @@
+---
+
+- name: "prometheus-mongoc-exporter - restart service"
+  systemd:
+    name: vitam-mongoc-exporter
+    state: restarted
+    daemon_reload: yes
+
+- name: "prometheus-mongod-exporter - restart service"
+  systemd:
+    name: vitam-mongod-exporter
+    state: restarted
+    daemon_reload: yes
+
+- name: "prometheus-mongodb-exporter - reload mongodb configuration"
+  systemd:
+    name: vitam-mongodb
+    state: reloaded
+
+- name: daemon reload
+  systemd:
+    daemon_reload: yes

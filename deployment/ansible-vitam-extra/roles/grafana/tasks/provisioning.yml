@@ -23,6 +23,8 @@
     - vitam_monitoring_machine
     - vitam_global_overview
     - vitam_blackbox_dashboard
+    - vitam_mongodb_dashboard
+    - vitam_mongodb_global_overview
 
 - name: Set the correct data source name in the dashboard for prometheus
   replace:

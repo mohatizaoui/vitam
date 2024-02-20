@@ -1,0 +1,24 @@
+---
+
+- name: Remove vitam-mongodb-exporter package
+  package:
+    name: vitam-mongodb-exporter
+    state: absent
+  register: result
+  retries: "{{ packages_install_retries_number | default(1) }}"
+  until: result is succeeded
+  delay: "{{ packages_install_retries_delay | default(10) }}"
+
+- name: Remove systemd service file for mongoc_exporter
+  file:
+    path: "{{ '/lib/systemd/system' if ansible_distribution == 'Debian' else '/usr/lib/systemd/system' }}/vitam-mongoc-exporter.service"
+    state: absent
+    notify: daemon reload
+  when: inventory_hostname in groups['hosts_mongoc_data'] or inventory_hostname in groups['hosts_mongoc_offer']
+
+- name: Remove systemd service file for mongod_exporter
+  file:
+    path: "{{ '/lib/systemd/system' if ansible_distribution == 'Debian' else '/usr/lib/systemd/system' }}/vitam-mongod-exporter.service"
+    state: absent
+    notify: daemon reload
+  when: inventory_hostname in groups['hosts_mongod_data'] or inventory_hostname in groups['hosts_mongod_offer']
