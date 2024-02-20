@@ -1,0 +1,16 @@
+{
+  "service": {
+    "name": "blackbox_exporter",
+    "port": {{ prometheus.blackbox_exporter.port | default(9115) }},
+    "address": "{{ ip_admin }}",
+    "tags": ["monitor", "prometheus","blackbox-exporter","vitam-blackbox-exporter"],
+    "checks": [
+        {
+          "name": "Prometheus blackbox_exporter : TCP check",
+          "notes": "Status blackbox_exporter",
+          "tcp": "{{ ip_admin }}:{{ prometheus.blackbox_exporter.port | default(9115) }}",
+          "interval": "{{ prometheus.check_consul | default(10) }}s"
+        }
+    ]
+  }
+}

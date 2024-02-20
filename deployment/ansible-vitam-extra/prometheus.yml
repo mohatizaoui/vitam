@@ -28,3 +28,11 @@
   roles:
     - prometheus-elasticsearch-exporter
   tags: [prometheus, prometheus-exporter]
+
+### PROMETHEUS BLACKBOX EXPORTER INSTALLATION OR UNINSTALL ###
+- hosts: hosts_prometheus
+  gather_facts: no
+  any_errors_fatal: true
+  roles:
+    - prometheus-blackbox-exporter
+  tags: [prometheus, prometheus-exporter]
