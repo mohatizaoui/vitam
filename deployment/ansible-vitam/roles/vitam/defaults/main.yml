@@ -28,17 +28,17 @@ metricslevel: "{{ vitam_defaults.metricslevel | default('DEBUG') }}"
 metricsinterval: "{{ vitam_defaults.metricsinterval | default(3) }}"
 metricsunit: "{{ vitam_defaults.metricsunit | default('MINUTES') }}"
 
-access_retention_days: "{{ vitam_defaults.access_retention_days | default(30) }}"
+access_retention_days: "{{ vitam_defaults.access_retention_days | default(365) }}"
 access_total_size_cap: "{{ vitam_defaults.access_total_size_cap | default('5GB') }}"
 
 logback_rolling_policy: "{{ vitam_struct.logback_rolling_policy | default(true) }}"
 logback_max_file_size: "{{ vitam_defaults.logback_max_file_size | default('10MB') }}"
 logback_total_size_cap:
   file:
-    history_days: "{{ vitam_defaults.logback_total_size_cap.file.history_days | default(30) }}"
+    history_days: "{{ vitam_defaults.logback_total_size_cap.file.history_days | default(365) }}"
     totalsize: "{{ vitam_defaults.logback_total_size_cap.file.totalsize | default('5GB') }}"
   security:
-    history_days: "{{ vitam_defaults.logback_total_size_cap.security.history_days | default(30) }}"
+    history_days: "{{ vitam_defaults.logback_total_size_cap.security.history_days | default(365) }}"
     totalsize: "{{ vitam_defaults.logback_total_size_cap.security.totalsize | default('5GB') }}"
 
 reconstruction:
