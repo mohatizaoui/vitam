@@ -25,10 +25,7 @@ elasticsearch:
         indices_fielddata_cache_size: '30%' # related to https://www.elastic.co/guide/en/elasticsearch/reference/7.6/modules-fielddata.html
         indices_breaker_fielddata_limit: '40%' # related to https://www.elastic.co/guide/en/elasticsearch/reference/7.6/circuit-breaker.html#fielddata-circuit-breaker
         dynamic_timeout: 30s
-        # default index template
-        index_templates:
-            packetbeat:
-                shards: 5
+        # log configuration
         log_appenders:
             root:
                 log_level: "info"
@@ -37,7 +34,7 @@ elasticsearch:
                 max_total_log_size: "2GB"
             deprecation_rolling:
                 max_log_file_size: "10MB"
-                max_files: "10"
+                max_files: "20"
                 log_level: "warn"
             index_search_slowlog_rolling:
                 log_level: "warn"
@@ -70,8 +67,7 @@ elasticsearch:
         indices_fielddata_cache_size: '30%' # related to https://www.elastic.co/guide/en/elasticsearch/reference/6.5/modules-fielddata.html
         indices_breaker_fielddata_limit: '40%' # related to https://www.elastic.co/guide/en/elasticsearch/reference/6.5/circuit-breaker.html#fielddata-circuit-breaker
         dynamic_timeout: 30s
-        # default index template
-        index_templates:
+        # log configuration
         log_appenders:
             root:
                 log_level: "info"
@@ -80,7 +76,7 @@ elasticsearch:
                 max_total_log_size: "5GB"
             deprecation_rolling:
                 max_log_file_size: "10MB"
-                max_files: "10"
+                max_files: "20"
                 log_level: "warn"
             index_search_slowlog_rolling:
                 log_level: "warn"
