@@ -26,7 +26,8 @@ cots_list:
   - cerebro
   - grafana
   - kibana
-  - logstash
   - prometheus
   - alertmanager
   - restic
+#  - logstash
+
