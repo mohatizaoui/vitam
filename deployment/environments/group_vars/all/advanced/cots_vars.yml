@@ -33,23 +33,15 @@ elasticsearch:
             root:
                 log_level: "info"
             rolling:
-                max_log_file_size: "100MB"
-                max_total_log_size: "5GB"
-                max_files: "50"
+                max_log_file_size: "10MB"
+                max_total_log_size: "2GB"
             deprecation_rolling:
-                max_log_file_size: "100MB"
-                max_total_log_size: "1GB"
+                max_log_file_size: "10MB"
                 max_files: "10"
                 log_level: "warn"
             index_search_slowlog_rolling:
-                max_log_file_size: "100MB"
-                max_total_log_size: "1GB"
-                max_files: "10"
                 log_level: "warn"
             index_indexing_slowlog_rolling:
-                max_log_file_size: "100MB"
-                max_total_log_size: "1GB"
-                max_files: "10"
                 log_level: "warn"
         # By default, is commented. Should be uncommented if ansible computes badly vCPUs number ;  values are associated vCPUs numbers ; please adapt to your configuration
         # thread_pool:
@@ -84,23 +76,15 @@ elasticsearch:
             root:
                 log_level: "info"
             rolling:
-                max_log_file_size: "100MB"
+                max_log_file_size: "10MB"
                 max_total_log_size: "5GB"
-                max_files: "50"
             deprecation_rolling:
-                max_log_file_size: "100MB"
-                max_total_log_size: "5GB"
-                max_files: "50"
+                max_log_file_size: "10MB"
+                max_files: "10"
                 log_level: "warn"
             index_search_slowlog_rolling:
-                max_log_file_size: "100MB"
-                max_total_log_size: "5GB"
-                max_files: "50"
                 log_level: "warn"
             index_indexing_slowlog_rolling:
-                max_log_file_size: "100MB"
-                max_total_log_size: "5GB"
-                max_files: "50"
                 log_level: "warn"
         # By default, is commented. Should be uncommented if ansible computes badly vCPUs number ;  values are associated vCPUs numbers ; please adapt to your configuration
         # thread_pool:
@@ -139,11 +123,11 @@ logstash:
     # workers_number: 4
     log_appenders:
         rolling:
-            max_log_file_size: "100MB"
-            max_total_log_size: "5GB"
+            max_log_file_size: "10MB"
+            max_total_log_size: "2GB"
         json_rolling:
-            max_log_file_size: "100MB"
-            max_total_log_size: "5GB"
+            max_log_file_size: "10MB"
+            max_total_log_size: "2GB"
 
 # Prometheus params
 prometheus:
