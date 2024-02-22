@@ -70,8 +70,8 @@ import fr.gouv.vitam.common.model.administration.ArchiveUnitProfileModel;
 import fr.gouv.vitam.common.model.administration.OntologyModel;
 import fr.gouv.vitam.common.model.administration.OntologyOrigin;
 import fr.gouv.vitam.common.model.administration.OntologyType;
-import fr.gouv.vitam.common.model.administration.TypeDetail;
 import fr.gouv.vitam.common.model.administration.StringSize;
+import fr.gouv.vitam.common.model.administration.TypeDetail;
 import fr.gouv.vitam.common.parameter.ParameterHelper;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.functional.administration.common.ArchiveUnitProfile;
@@ -91,6 +91,7 @@ import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
@@ -120,9 +121,9 @@ import static fr.gouv.vitam.common.model.administration.OntologyModel.TAG_DESCRI
 import static fr.gouv.vitam.common.model.administration.OntologyModel.TAG_IDENTIFIER;
 import static fr.gouv.vitam.common.model.administration.OntologyModel.TAG_SEDAFIELD;
 import static fr.gouv.vitam.common.model.administration.OntologyModel.TAG_SHORT_NAME;
-import static fr.gouv.vitam.common.model.administration.OntologyModel.TAG_TYPE_DETAIL;
 import static fr.gouv.vitam.common.model.administration.OntologyModel.TAG_STRING_SIZE;
 import static fr.gouv.vitam.common.model.administration.OntologyModel.TAG_TYPE;
+import static fr.gouv.vitam.common.model.administration.OntologyModel.TAG_TYPE_DETAIL;
 import static fr.gouv.vitam.functional.administration.common.ReportConstants.ADDITIONAL_INFORMATION;
 import static fr.gouv.vitam.functional.administration.common.ReportConstants.CODE;
 import static fr.gouv.vitam.functional.administration.common.ReportConstants.ERROR;
@@ -887,10 +888,20 @@ public class OntologyServiceImpl implements OntologyService {
         }
 
         for (OntologyModel ontology : toUpdate) {
+            final OntologyModel currentOntology = currentOntologiesMap.get(ontology.getIdentifier());
             ontology.setTenant(ParameterHelper.getTenantParameter());
-            ontology.setId(currentOntologiesMap.get(ontology.getIdentifier()).getId());
+            ontology.setId(currentOntology.getId());
 
-            updateOntology(ontology);
+            ontology.setDescription(ofNullable(ontology.getDescription()).orElse(""));
+            ontology.setApiField(ofNullable(ontology.getApiField()).orElse(""));
+            ontology.setSedaField(ofNullable(ontology.getSedaField()).orElse(""));
+            ontology.setShortName(ofNullable(ontology.getShortName()).orElse(""));
+
+            final boolean ontologyHasChanged =
+                !EqualsBuilder.reflectionEquals(ontology, currentOntology, "version", "creationdate", "lastupdate");
+            if (ontologyHasChanged) {
+                updateOntology(ontology);
+            }
         }
     }
 
@@ -907,17 +918,16 @@ public class OntologyServiceImpl implements OntologyService {
     private void updateOntology(OntologyModel ontologyModel)
         throws InvalidCreateOperationException, ReferentialException, InvalidParseOperationException,
         SchemaValidationException, BadRequestException {
-        // FIXME use bulk create instead like LogbookMongoDbAccessImpl.
         final UpdateParserSingle updateParser = new UpdateParserSingle(new VarNameAdapter());
         final Update updateOntologies = new Update();
         updateOntologies.setQuery(eq(TAG_IDENTIFIER, ontologyModel.getIdentifier()));
         updateOntologies.addActions(
-            new SetAction(TAG_DESCRIPTION, ofNullable(ontologyModel.getDescription()).orElse("")),
+            new SetAction(TAG_DESCRIPTION, ontologyModel.getDescription()),
             new SetAction(LAST_UPDATE, LocalDateUtil.getFormattedDateForMongo(LocalDateUtil.now())),
-            new SetAction(TAG_APIFIELD, ofNullable(ontologyModel.getApiField()).orElse("")),
-            new SetAction(TAG_SEDAFIELD, ofNullable(ontologyModel.getSedaField()).orElse("")),
+            new SetAction(TAG_APIFIELD, ontologyModel.getApiField()),
+            new SetAction(TAG_SEDAFIELD, ontologyModel.getSedaField()),
             new SetAction(TAG_TYPE, ontologyModel.getType().toString()),
-            new SetAction(TAG_SHORT_NAME, ofNullable(ontologyModel.getShortName()).orElse("")),
+            new SetAction(TAG_SHORT_NAME, ontologyModel.getShortName()),
             new SetAction(TAG_COLLECTIONS, ofNullable(ontologyModel.getCollections()).orElse(new ArrayList<>())),
             new SetAction(TAG_TYPE_DETAIL, ontologyModel.getTypeDetail().toString()),
             ontologyModel.getStringSize() == null
