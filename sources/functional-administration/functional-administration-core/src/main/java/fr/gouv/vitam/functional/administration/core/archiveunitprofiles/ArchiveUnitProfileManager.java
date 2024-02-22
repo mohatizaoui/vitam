@@ -140,7 +140,7 @@ public class ArchiveUnitProfileManager {
     public void logValidationError(String eventType, String objectId, String errorsDetails,
         String KOEventType)
         throws VitamException {
-        LOGGER.error("There validation errors on the input file {}", errorsDetails);
+        LOGGER.error("There are validation errors on the input file {}", errorsDetails);
         final GUID eipId = GUIDFactory.newOperationLogbookGUID(ParameterHelper.getTenantParameter());
         final LogbookOperationParameters logbookParameters = LogbookParameterHelper
             .newLogbookOperationParameters(eipId, eventType, eip, LogbookTypeProcess.MASTERDATA,
@@ -218,7 +218,7 @@ public class ArchiveUnitProfileManager {
      * @throws VitamException
      */
     public void logFatalError(String eventType, String objectId, String errorsDetails) throws VitamException {
-        LOGGER.error("There validation errors on the input file {}", errorsDetails);
+        LOGGER.error("There are validation errors on the input file {}", errorsDetails);
         final GUID eipId = GUIDFactory.newOperationLogbookGUID(ParameterHelper.getTenantParameter());
         final LogbookOperationParameters logbookParameters = LogbookParameterHelper
             .newLogbookOperationParameters(eipId, eventType, eip, LogbookTypeProcess.MASTERDATA,

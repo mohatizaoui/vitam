@@ -111,7 +111,7 @@ public class BackupLogbookManager {
      * @throws VitamException
      */
     public void logError(GUID logbookOperationMasterId, String eventType, String errorsDetails) throws VitamException {
-        LOGGER.error("There validation errors on the input file {}", errorsDetails);
+        LOGGER.error("There are validation errors on the input file {}", errorsDetails);
 
         final GUID eipId = GUIDFactory.newOperationLogbookGUID(ParameterHelper.getTenantParameter());
         final LogbookOperationParameters logbookParameters = LogbookParameterHelper
