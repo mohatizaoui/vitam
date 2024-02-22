@@ -1025,7 +1025,7 @@ public class MetaDataImpl {
         if (unitsScrollDate != null) {
             final LocalDate unitsScrollLocalDate =
                 LocalDateUtil.parseMongoFormattedDate(unitsScrollDate.getValue(String.class)).toLocalDate();
-            if (unitsScrollLocalDate.isBefore(LocalDate.now())) {
+            if (unitsScrollLocalDate.isBefore(LocalDateUtil.now().toLocalDate())) {
                 // reset
                 snapshotCollection.updateOne(unitsScrollNumberFilter, set(MetadataSnapshot.VALUE, 0));
                 return;
