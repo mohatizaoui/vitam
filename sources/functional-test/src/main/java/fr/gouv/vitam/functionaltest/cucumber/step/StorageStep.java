@@ -27,10 +27,10 @@
 package fr.gouv.vitam.functionaltest.cucumber.step;
 
 
-import cucumber.api.DataTable;
-import cucumber.api.java.en.Given;
-import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
+import io.cucumber.datatable.DataTable;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
 import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.accesslog.AccessLogUtils;
 import fr.gouv.vitam.common.collection.CloseableIterator;
@@ -188,7 +188,7 @@ public class StorageStep extends CommonStep {
      */
     @Then("^le fichier est bien stocké dans les strategies suivantes")
     public void the_sip_is_stored_in_offers(DataTable dataTable) throws StorageException {
-        List<List<String>> raws = dataTable.raw();
+        List<List<String>> raws = dataTable.cells();
         for (List<String> raw : raws.subList(1, raws.size())) {
             responseStatus = null;
             String strategy = raw.get(1);
@@ -199,7 +199,7 @@ public class StorageStep extends CommonStep {
 
     @Then("^je verifie que toutes ces strategies contiennent des fichiers")
     public void list_srategy(DataTable dataTable) throws StorageException, StorageServerClientException {
-        List<List<String>> raws = dataTable.raw();
+        List<List<String>> raws = dataTable.cells();
         for (List<String> raw : raws.subList(1, raws.size())) {
             String strategy = raw.get(1);
             try (CloseableIterator<ObjectEntry> result = container_has_files(strategy)) {

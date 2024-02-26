@@ -27,9 +27,9 @@
 package fr.gouv.vitam.functionaltest.cucumber.step;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import cucumber.api.java.en.Given;
-import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
 import fr.gouv.vitam.collect.common.dto.ProjectDto;
 import fr.gouv.vitam.collect.common.dto.TransactionDto;
 import fr.gouv.vitam.common.FileUtil;

@@ -28,8 +28,8 @@ package fr.gouv.vitam.functionaltest.cucumber.step;
 
 
 import com.fasterxml.jackson.databind.JsonNode;
-import cucumber.api.java.en.Given;
-import cucumber.api.java.en.Then;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
 import fr.gouv.vitam.common.GlobalDataRest;
 import fr.gouv.vitam.common.client.VitamContext;
 import fr.gouv.vitam.common.guid.GUID;

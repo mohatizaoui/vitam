@@ -29,7 +29,6 @@ package fr.gouv.vitam.functionaltest.cucumber.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Iterables;
-import cucumber.api.DataTable;
 import fr.gouv.vitam.access.external.client.AccessExternalClient;
 import fr.gouv.vitam.common.client.VitamContext;
 import fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper;
@@ -42,6 +41,7 @@ import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
+import io.cucumber.datatable.DataTable;
 import org.assertj.core.api.Fail;
 
 import java.util.List;
@@ -81,7 +81,7 @@ public class AccessService {
         SelectMultiQuery searchQuery = new SelectMultiQuery();
         searchQuery.addQueries(
             and().add(match(TITLE, "\"" + auTitle + "\"")).add(in(VitamFieldsHelper.operations(), operationId)));
-        RequestResponse requestResponse =
+        RequestResponse<JsonNode> requestResponse =
             accessClient.selectUnits(
                 new VitamContext(tenantId).setAccessContract(contractId)
                     .setApplicationSessionId(applicationSessionId),
@@ -96,7 +96,7 @@ public class AccessService {
                 auId = firstJsonNode.get(VitamFieldsHelper.id()).textValue();
             }
         } else {
-            VitamError vitamError = (VitamError) requestResponse;
+            VitamError<?> vitamError = (VitamError<?>) requestResponse;
             Fail.fail("request selectUnit return an error: " + vitamError.getCode());
         }
         return auId;
@@ -108,7 +108,6 @@ public class AccessService {
      * @param results all results
      * @param resultNumber index of result
      * @param dataTable expected datas
-     * @throws Throwable
      */
     public void checkResultsForParticularData(List<JsonNode> results, int resultNumber, DataTable dataTable)
         throws Throwable {
@@ -118,7 +117,7 @@ public class AccessService {
     }
 
     public void checkResultsForParticularData(JsonNode jsonNode, DataTable dataTable) throws Throwable {
-        List<List<String>> raws = dataTable.raw();
+        List<List<String>> raws = dataTable.cells();
 
         for (List<String> raw : raws) {
             String key = raw.get(0);
@@ -141,7 +140,7 @@ public class AccessService {
                 resultValue = resultValue.replace("\n", "").replace("\\n", "");
             }
             // String resultExpected = transformToGuid(raw.get(1));
-            String resultExpected = new String(raw.get(1));
+            String resultExpected = raw.get(1);
             if (null != resultExpected) {
                 resultExpected = resultExpected.replace("\n", "").replace("\\n", "");
             }
@@ -151,21 +150,21 @@ public class AccessService {
             } else {
                 if (isArray) {
                     Set<String> resultArray =
-                        JsonHandler.getFromStringAsTypeReference(resultValue, new TypeReference<Set<String>>() {
+                        JsonHandler.getFromStringAsTypeReference(resultValue, new TypeReference<>() {
                         });
 
                     Set<String> expectedrray =
-                        JsonHandler.getFromStringAsTypeReference(resultExpected, new TypeReference<Set<String>>() {
+                        JsonHandler.getFromStringAsTypeReference(resultExpected, new TypeReference<>() {
                         });
                     assertThat(resultArray).isEqualTo(expectedrray);
                 } else {
                     Set<Set<String>> resultArray =
-                        JsonHandler.getFromStringAsTypeReference(resultValue, new TypeReference<Set<Set<String>>>() {
+                        JsonHandler.getFromStringAsTypeReference(resultValue, new TypeReference<>() {
                         });
 
                     Set<Set<String>> expectedrray =
                         JsonHandler
-                            .getFromStringAsTypeReference(resultExpected, new TypeReference<Set<Set<String>>>() {
+                            .getFromStringAsTypeReference(resultExpected, new TypeReference<>() {
                             });
 
                     assertThat(expectedrray).isEqualTo(resultArray);
@@ -181,9 +180,8 @@ public class AccessService {
      * @param lastJsonNode result
      * @param key key of search value
      * @return json if found
-     * @throws Throwable
      */
-    private String getResultValue(JsonNode lastJsonNode, String key) throws Throwable {
+    private String getResultValue(JsonNode lastJsonNode, String key) {
         // String rawCopy = transformToGuid(raw);
         String rawCopy = new String(key);
         String[] paths = rawCopy.split("\\.");
@@ -191,7 +189,7 @@ public class AccessService {
             if (lastJsonNode != null) {
                 if (lastJsonNode.isArray()) {
                     try {
-                        int value = Integer.valueOf(path);
+                        int value = Integer.parseInt(path);
                         lastJsonNode = lastJsonNode.get(value);
                     } catch (NumberFormatException e) {
                         LOGGER.warn(e);

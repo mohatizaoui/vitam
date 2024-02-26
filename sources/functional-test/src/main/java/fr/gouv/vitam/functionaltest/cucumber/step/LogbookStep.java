@@ -28,8 +28,8 @@ package fr.gouv.vitam.functionaltest.cucumber.step;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Iterables;
-import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
 import fr.gouv.vitam.common.client.VitamContext;
 import fr.gouv.vitam.common.database.builder.request.configuration.BuilderToken.PROJECTIONARGS;
 import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
@@ -52,6 +52,7 @@ import org.assertj.core.api.AutoCloseableSoftAssertions;
 import org.assertj.core.api.Fail;
 import org.assertj.core.api.SoftAssertionError;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -256,14 +257,15 @@ public class LogbookStep extends CommonStep {
     /**
      * check if the status is valid for a list of event type according to logbook
      *
-     * @param eventNames list of event
+     * @param eventNamesStr list of event
      * @param eventStatus status of event
      * @throws VitamClientException
      * @throws InvalidParseOperationException
      */
     @Then("^le[s]? statut[s]? (?:de l'événement|des événements) (.*) (?:est|sont) (.*)$")
-    public void the_status_are(List<String> eventNames, String eventStatus)
+    public void the_status_are(String eventNamesStr, String eventStatus)
         throws VitamClientException, InvalidParseOperationException {
+        List<String> eventNames = Arrays.asList(eventNamesStr.split(",\\s?"));
         if (requestResponse.isOk()) {
             if (isRequestResponseLifecycle) {
                 the_logbook_lifecycle_status_are(eventNames, eventStatus);

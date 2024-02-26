@@ -27,9 +27,6 @@
 package fr.gouv.vitam.functionaltest.cucumber.step;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import cucumber.api.DataTable;
-import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
 import fr.gouv.vitam.common.client.VitamContext;
 import fr.gouv.vitam.common.error.VitamError;
 import fr.gouv.vitam.common.json.JsonHandler;
@@ -37,6 +34,9 @@ import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.administration.AccessionRegisterDetailModel;
 import fr.gouv.vitam.common.model.administration.AccessionRegisterSummaryModel;
+import io.cucumber.datatable.DataTable;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
 import org.assertj.core.api.Fail;
 
 import static org.assertj.core.api.Assertions.assertThat;

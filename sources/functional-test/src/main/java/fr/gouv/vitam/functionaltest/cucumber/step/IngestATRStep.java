@@ -26,8 +26,8 @@
  */
 package fr.gouv.vitam.functionaltest.cucumber.step;
 
-import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
 import fr.gouv.vitam.common.client.VitamContext;
 import fr.gouv.vitam.common.exception.VitamClientException;
 import fr.gouv.vitam.common.external.client.IngestCollection;
@@ -110,9 +110,9 @@ public class IngestATRStep extends CommonStep {
      * @param values values
      */
     @Then("^le fichier ATR contient (?:la|les) valeur[s]? (.*)$")
-    public void atr_contains_value(List<String> values) throws IOException {
+    public void atr_contains_value(String values) throws IOException {
         String atr = FileUtils.readFileToString(world.getAtrFile().toFile(), StandardCharsets.UTF_8);
-        for (String value : values) {
+        for (String value : values.split(",\\s?")) {
             if (!StringUtils.contains(atr, value)) {
                 LOGGER.error(String.format("%s value was not found in ATR", value));
                 fail(String.format("%s value was not found in ATR", value));
