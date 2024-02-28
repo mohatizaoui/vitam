@@ -1,0 +1,61 @@
+{
+  "httpCode": 0,
+  "$hits": {
+    "total": 1,
+    "offset": 0,
+    "limit": 10000,
+    "size": 1
+  },
+  "$results": [
+    {
+      "#id": "aeaqaaaaaaeaaaabaa2okamn6rmxmeyaaaaq"
+    }
+  ],
+  "$facetResults": [],
+  "$context": {
+    "$roots": [],
+    "$query": [
+      {
+        "$and": [
+          {
+            "$or": [
+              {
+                "$in": {
+                  "#originating_agencies": [
+                    "Service_producteur",
+                    "FRAN_NP_005568",
+                    "FR_ORG_AGEN",
+                    "RATP",
+                    "FRAN_NP_009913"
+                  ]
+                }
+              },
+              {
+                "$eq": {
+                  "#unitType": "HOLDING_UNIT"
+                }
+              }
+            ]
+          },
+          {
+            "$in": {
+              "#id": [
+                "aeaqaaaaaaeaaaabaa2okamn6rmxmeyaaaaq"
+              ]
+            }
+          }
+        ],
+        "$depth": 1000
+      }
+    ],
+    "$filter": {
+      "$limit": 10000
+    },
+    "$projection": {
+      "$fields": {
+        "#id": 1
+      }
+    },
+    "$facets": []
+  }
+}

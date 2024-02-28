@@ -49,14 +49,18 @@ import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.accesslog.AccessLogInfoModel;
 import fr.gouv.vitam.common.accesslog.AccessLogUtils;
 import fr.gouv.vitam.common.collection.CloseableIterator;
+import fr.gouv.vitam.common.database.builder.query.InQuery;
+import fr.gouv.vitam.common.database.builder.query.QueryHelper;
 import fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper;
 import fr.gouv.vitam.common.database.builder.query.action.Action;
 import fr.gouv.vitam.common.database.builder.query.action.SetAction;
 import fr.gouv.vitam.common.database.builder.query.action.UpdateActionHelper;
+import fr.gouv.vitam.common.database.builder.request.configuration.BuilderToken;
 import fr.gouv.vitam.common.database.builder.request.configuration.BuilderToken.UPDATEACTION;
 import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
 import fr.gouv.vitam.common.database.builder.request.multiple.SelectMultiQuery;
 import fr.gouv.vitam.common.database.builder.request.multiple.UpdateMultiQuery;
+import fr.gouv.vitam.common.database.builder.request.single.Select;
 import fr.gouv.vitam.common.database.parser.request.multiple.RequestParserHelper;
 import fr.gouv.vitam.common.database.parser.request.multiple.RequestParserMultiple;
 import fr.gouv.vitam.common.database.parser.request.multiple.SelectParserMultiple;
@@ -171,6 +175,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static fr.gouv.vitam.access.internal.core.DslParserHelper.getValueForUpdateDsl;
+import static fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper.id;
+import static fr.gouv.vitam.common.database.utils.AccessContractRestrictionHelper.applyAccessContractRestrictionForUnitForSelect;
+import static fr.gouv.vitam.common.thread.VitamThreadUtils.getVitamSession;
 import static fr.gouv.vitam.functional.administration.common.utils.ArchiveUnitUpdateUtils.computeEndDate;
 
 /**
@@ -639,7 +646,7 @@ public class AccessInternalModuleImpl implements AccessInternalModule {
     @Override
     public Response getObject(String persistentIdentifier)
         throws MetaDataNotFoundException, StorageNotFoundException,
-        AccessInternalUnavailableDataFromAsyncOfferException, AccessInternalExecutionException {
+        AccessInternalException {
         final SelectMultiQuery selectMultiQuery =
             PersistentIdentifierMultiQueryFactory.createSelectMultiQuery(PurgedCollectionType.OBJECT,
                 persistentIdentifier);
@@ -655,8 +662,36 @@ public class AccessInternalModuleImpl implements AccessInternalModule {
         final ObjectGroupResponse objectGroupResponse = optionalObjectGroupResponse.get();
         final VersionsModel versionsModel =
             PersistentIdentifierHelper.findVersion(objectGroupResponse, persistentIdentifier).orElseThrow();
-        final String archiveUnitId = objectGroupResponse.getUp().get(0);
-        return this.getObject(archiveUnitId, versionsModel);
+        final List<String> archiveUnitIds = objectGroupResponse.getUp();
+        return this.getObject(findFirstAccessibleArchiveUnitId(archiveUnitIds), versionsModel);
+    }
+
+    protected String findFirstAccessibleArchiveUnitId(List<String> archiveUnitIds)
+        throws AccessInternalException, MetaDataNotFoundException {
+
+        if (archiveUnitIds == null || archiveUnitIds.isEmpty()) {
+            throw new IllegalArgumentException("Archive unit ID list cannot be empty.");
+        }
+
+        Select select = new Select();
+        try {
+            InQuery inQuery = QueryHelper.in(id(), archiveUnitIds.toArray(new String[0]));
+            select.setQuery(inQuery);
+            select.addProjection(JsonHandler.createObjectNode().set(BuilderToken.PROJECTION.FIELDS.exactToken(),
+                JsonHandler.createObjectNode().put(BuilderToken.PROJECTIONARGS.ID.exactToken(), 1)));
+            final JsonNode unitResult =
+                selectUnit(applyAccessContractRestrictionForUnitForSelect(select.getFinalSelect(),
+                    getVitamSession().getContract()));
+
+            if (unitResult.get("$results").isNull() || unitResult.get("$results").isEmpty()) {
+                throw new MetaDataNotFoundException("No results found for the provided archive unit IDs.");
+            }
+
+            JsonNode unit = unitResult.get("$results").get(0);
+            return unit.get("#id").asText();
+        } catch (InvalidParseOperationException | InvalidCreateOperationException e) {
+            throw new AccessInternalException("Error creating or parsing query: " + e.getMessage(), e);
+        }
     }
 
     // FIXME: Ugly hack to handle version injection.
