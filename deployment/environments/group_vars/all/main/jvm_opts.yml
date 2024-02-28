@@ -1,100 +1,105 @@
 
 ---
 
-# Default values if unset
-# jvm_opts.memory: "-Xms512m -Xmx512m"
-# gc: "-Xlog:gc*,gc+age=trace,safepoint:file={{ vitam_folder_log }}/gc.log:utctime,pid,tags:filecount=32,filesize=64m"
-# java: ""
+## JVM configuration for Vitam components
 
+### Global default configuration, act as default values if they are set
+# vitam_defaults:
+#     jvm_opts:
+#         memory: "-Xms128m -Xmx512m"
+#         gc: "-Xlog:gc*,gc+age=trace,safepoint:file={{ vitam_folder_log }}/gc.log:utctime,pid,tags:filecount=8,filesize=32m"
+#         java: ""
+
+### Specific configuration for each components
 vitam:
     accessinternal:
         jvm_opts:
-            # memory: "-Xms512m -Xmx512m"
+            # memory: "-Xms128m -Xmx512m"
             # gc: ""
             # java: ""
     accessexternal:
         jvm_opts:
-            # memory: "-Xms512m -Xmx512m"
+            # memory: "-Xms128m -Xmx512m"
             # gc: ""
             # java: ""
     elastickibanainterceptor:
         jvm_opts:
-            # memory: "-Xms512m -Xmx512m"
+            # memory: "-Xms128m -Xmx512m"
             # gc: ""
             # java: ""
     batchreport:
           jvm_opts:
-              # memory: "-Xms512m -Xmx512m"
+              # memory: "-Xms128m -Xmx512m"
               # gc: ""
               # java: ""
     ingestinternal:
         jvm_opts:
-            # memory: "-Xms512m -Xmx512m"
+            # memory: "-Xms128m -Xmx512m"
             # gc: ""
             # java: ""
     ingestexternal:
         jvm_opts:
-            # memory: "-Xms512m -Xmx512m"
+            # memory: "-Xms128m -Xmx512m"
             # gc: ""
             # java: ""
     metadata:
         jvm_opts:
-            # memory: "-Xms512m -Xmx512m"
+            # memory: "-Xms128m -Xmx512m"
             # gc: ""
             # java: ""
     ihm_demo:
         jvm_opts:
-            # memory: "-Xms512m -Xmx512m"
+            # memory: "-Xms128m -Xmx512m"
             # gc: ""
             # java: ""
     ihm_recette:
         jvm_opts:
-            # memory: "-Xms512m -Xmx512m"
+            # memory: "-Xms128m -Xmx512m"
             # gc: ""
             # java: ""
     logbook:
         jvm_opts:
-            # memory: "-Xms512m -Xmx512m"
+            # memory: "-Xms128m -Xmx512m"
             # gc: ""
             # java: ""
     workspace:
         jvm_opts:
-            # memory: "-Xms512m -Xmx512m"
+            # memory: "-Xms128m -Xmx512m"
             # gc: ""
             # java: ""
     processing:
         jvm_opts:
-            # memory: "-Xms512m -Xmx512m"
+            # memory: "-Xms128m -Xmx512m"
             # gc: ""
             # java: ""
     worker:
         jvm_opts:
-            # memory: "-Xms512m -Xmx512m"
+            # memory: "-Xms128m -Xmx512m"
             # gc: ""
             # java: ""
     storageengine:
         jvm_opts:
-            # memory: "-Xms512m -Xmx512m"
+            # memory: "-Xms128m -Xmx512m"
             # gc: ""
             # java: ""
     storageofferdefault:
         jvm_opts:
-            # memory: "-Xms512m -Xmx512m"
+            # memory: "-Xms128m -Xmx512m"
             # gc: ""
             # java: ""
     functional_administration:
         jvm_opts:
-            # memory: "-Xms512m -Xmx512m"
+            # memory: "-Xms128m -Xmx512m"
             # gc: ""
             # java: ""
     scheduler:
         jvm_opts:
-            # memory: "-Xms512m -Xmx512m"
+            # memory: "-Xms128m -Xmx512m"
             # gc: ""
             # java: ""
     security_internal:
         jvm_opts:
-            # memory: "-Xms512m -Xmx512m"
+            # memory: "-Xms128m -Xmx512m"
             # gc: ""
             # java: ""
     library:
@@ -104,21 +109,21 @@ vitam:
             # java: ""
     collect_internal:
         jvm_opts:
-            # memory: "-Xms512m -Xmx512m"
+            # memory: "-Xms128m -Xmx512m"
             # gc: ""
             # java: ""
     collect_external:
         jvm_opts:
-            # memory: "-Xms512m -Xmx512m"
+            # memory: "-Xms128m -Xmx512m"
             # gc: ""
             # java: ""
     metadata_collect:
         jvm_opts:
-            # memory: "-Xms512m -Xmx512m"
+            # memory: "-Xms128m -Xmx512m"
             # gc: ""
             # java: ""
     workspace_collect:
         jvm_opts:
-            # memory: "-Xms512m -Xmx512m"
+            # memory: "-Xms128m -Xmx512m"
             # gc: ""
             # java: ""

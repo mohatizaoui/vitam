@@ -25,31 +25,20 @@ elasticsearch:
         indices_fielddata_cache_size: '30%' # related to https://www.elastic.co/guide/en/elasticsearch/reference/7.6/modules-fielddata.html
         indices_breaker_fielddata_limit: '40%' # related to https://www.elastic.co/guide/en/elasticsearch/reference/7.6/circuit-breaker.html#fielddata-circuit-breaker
         dynamic_timeout: 30s
-        # default index template
-        index_templates:
-            packetbeat:
-                shards: 5
+        # log configuration
         log_appenders:
             root:
                 log_level: "info"
             rolling:
-                max_log_file_size: "100MB"
-                max_total_log_size: "5GB"
-                max_files: "50"
+                max_log_file_size: "10MB"
+                max_total_log_size: "2GB"
             deprecation_rolling:
-                max_log_file_size: "100MB"
-                max_total_log_size: "1GB"
-                max_files: "10"
+                max_log_file_size: "10MB"
+                max_files: "20"
                 log_level: "warn"
             index_search_slowlog_rolling:
-                max_log_file_size: "100MB"
-                max_total_log_size: "1GB"
-                max_files: "10"
                 log_level: "warn"
             index_indexing_slowlog_rolling:
-                max_log_file_size: "100MB"
-                max_total_log_size: "1GB"
-                max_files: "10"
                 log_level: "warn"
         # By default, is commented. Should be uncommented if ansible computes badly vCPUs number ;  values are associated vCPUs numbers ; please adapt to your configuration
         # thread_pool:
@@ -78,29 +67,20 @@ elasticsearch:
         indices_fielddata_cache_size: '30%' # related to https://www.elastic.co/guide/en/elasticsearch/reference/6.5/modules-fielddata.html
         indices_breaker_fielddata_limit: '40%' # related to https://www.elastic.co/guide/en/elasticsearch/reference/6.5/circuit-breaker.html#fielddata-circuit-breaker
         dynamic_timeout: 30s
-        # default index template
-        index_templates:
+        # log configuration
         log_appenders:
             root:
                 log_level: "info"
             rolling:
-                max_log_file_size: "100MB"
+                max_log_file_size: "10MB"
                 max_total_log_size: "5GB"
-                max_files: "50"
             deprecation_rolling:
-                max_log_file_size: "100MB"
-                max_total_log_size: "5GB"
-                max_files: "50"
+                max_log_file_size: "10MB"
+                max_files: "20"
                 log_level: "warn"
             index_search_slowlog_rolling:
-                max_log_file_size: "100MB"
-                max_total_log_size: "5GB"
-                max_files: "50"
                 log_level: "warn"
             index_indexing_slowlog_rolling:
-                max_log_file_size: "100MB"
-                max_total_log_size: "5GB"
-                max_files: "50"
                 log_level: "warn"
         # By default, is commented. Should be uncommented if ansible computes badly vCPUs number ;  values are associated vCPUs numbers ; please adapt to your configuration
         # thread_pool:
@@ -139,11 +119,11 @@ logstash:
     # workers_number: 4
     log_appenders:
         rolling:
-            max_log_file_size: "100MB"
-            max_total_log_size: "5GB"
+            max_log_file_size: "10MB"
+            max_total_log_size: "2GB"
         json_rolling:
-            max_log_file_size: "100MB"
-            max_total_log_size: "5GB"
+            max_log_file_size: "10MB"
+            max_total_log_size: "2GB"
 
 # Prometheus params
 prometheus:
@@ -152,7 +132,7 @@ prometheus:
     prometheus_config_file_target_directory: # Set path where "prometheus.yml" file will be generated. Example: /tmp/
     server:
         port: 9090
-        tsdb_retention_time: "7d"
+        tsdb_retention_time: "15d"
         tsdb_retention_size: "5GB"
     node_exporter:
         enabled: true
