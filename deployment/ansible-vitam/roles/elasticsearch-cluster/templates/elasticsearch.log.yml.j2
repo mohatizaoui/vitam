@@ -21,12 +21,14 @@ cluster.name: {{ composant.cluster_name }}
 # Use a descriptive name for the node:
 #
 node.name: {{ inventory_hostname }}
-# TODO: Better handling of this as we have to modify wich nodes are requested by logstash / kibana
-node.master: {{ is_master|default('true') }}
-node.data: {{ is_data|default('true') }}
-node.ingest: {{ is_ingest|default('false') }}
-node.ml: false
+
+# https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-node.html#node-roles
+# node.roles: [master, data, data_content, data_hot, data_warm, data_cold, data_frozen, ingest, ml, remote_cluster_client, transform]
+node.roles: {{ elasticsearch_roles | default(['master', 'data']) }}
+
+# https://www.elastic.co/guide/en/elasticsearch/reference/current/ml-settings.html
 xpack.ml.enabled: false
+
 #
 # Add custom attributes to the node:
 #
@@ -142,7 +144,6 @@ node.attr.rack_id: {{ is_balancing|default(vitam_site_name) }}
 {% endif %}
 
 # Related to https://www.elastic.co/guide/en/elasticsearch/reference/current/ilm-settings.html
-xpack.ilm.enabled: false
 indices.lifecycle.history_index_enabled: true
 
 indices.breaker.total.use_real_memory: false
