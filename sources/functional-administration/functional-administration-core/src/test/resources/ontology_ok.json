@@ -5,6 +5,8 @@
     "SedaField": "OriginatingAgencyIdentifier",
     "Origin": "INTERNAL",
     "Type": "KEYWORD",
+    "TypeDetail": "STRING",
+    "StringSize": "MEDIUM",
     "ShortName": "Originating Agency Identifier",
     "Collections": [
       "Unit",
@@ -19,6 +21,8 @@
     "ApiField": "#management",
     "Origin": "INTERNAL",
     "Type": "KEYWORD",
+    "TypeDetail": "STRING",
+    "StringSize": "MEDIUM",
     "ShortName": "Originating Agency Identifier",
     "Description": "Internal ontology sample",
     "CreationDate": "2016-12-10T00:00:00.000",

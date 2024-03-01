@@ -66,12 +66,6 @@ public class Schema extends VitamDocument<Schema> {
      */
     public static final String TAG_PATH = "Path";
 
-
-    /**
-     * StringSize tag for string fields: short, medium, and large
-     */
-    public static final String TAG_STRING_SIZE = "StringSize";
-
     /**
      * pathCardinality tag
      */
@@ -279,27 +273,6 @@ public class Schema extends VitamDocument<Schema> {
     }
 
     /**
-     * The schema stringSize
-     *
-     * @return the stringSize of the schema
-     */
-    public String getStringSize() {
-        return getString(TAG_STRING_SIZE);
-    }
-
-    /**
-     * Set or change the schema stringSize
-     *
-     * @param stringSize
-     * @return this
-     */
-    public Schema setStringSize(String stringSize) {
-        append(TAG_STRING_SIZE, stringSize);
-        return this;
-    }
-
-
-    /**
      * @return creation date of schema elt
      */
     public String getCreationdate() {
@@ -330,5 +303,4 @@ public class Schema extends VitamDocument<Schema> {
         append(LAST_UPDATE, lastupdate);
         return this;
     }
-
 }

@@ -4,6 +4,7 @@
     "ApiField": "MyField",
     "Origin": "INTERNAL",
     "Type": "LONG",
+    "TypeDetail": "LONG",
     "Description": "Extension au SEDA. Elément de type long"
   }
 ]

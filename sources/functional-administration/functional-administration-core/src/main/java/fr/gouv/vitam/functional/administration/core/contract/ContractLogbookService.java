@@ -94,7 +94,7 @@ public class ContractLogbookService {
      */
     public void logValidationError(final String errorsDetails, final String eventType, final String KOEventType)
         throws VitamException {
-        LOGGER.error("There validation errors on the input file {}", errorsDetails);
+        LOGGER.error("There are validation errors on the input file {}", errorsDetails);
         final GUID eipUsage = GUIDFactory.newOperationLogbookGUID(ParameterHelper.getTenantParameter());
         final LogbookOperationParameters logbookParameters = LogbookParameterHelper.newLogbookOperationParameters(
             eipUsage, eventType, eip, LogbookTypeProcess.MASTERDATA, StatusCode.KO,
@@ -111,7 +111,7 @@ public class ContractLogbookService {
      * @throws VitamException
      */
     public void logFatalError(final String errorsDetails, final String eventType) throws VitamException {
-        LOGGER.error("There validation errors on the input file {}", errorsDetails);
+        LOGGER.error("There are validation errors on the input file {}", errorsDetails);
         final GUID eipUsage = GUIDFactory.newOperationLogbookGUID(ParameterHelper.getTenantParameter());
         final LogbookOperationParameters logbookParameters = LogbookParameterHelper.newLogbookOperationParameters(
             eipUsage, eventType, eip, LogbookTypeProcess.MASTERDATA, StatusCode.FATAL,

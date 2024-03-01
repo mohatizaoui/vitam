@@ -1,9 +1,0 @@
-[
-  {
-    "Identifier": "MyField",
-    "ApiField": "MyField",
-    "Origin": "INTERNAL",
-    "Type": "ENUM",
-    "Description": "Extension au SEDA. Elément de type text"
-  }
-]

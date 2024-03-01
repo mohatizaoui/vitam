@@ -40,7 +40,6 @@ import fr.gouv.vitam.common.exception.VitamClientException;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
-import fr.gouv.vitam.common.model.administration.schema.SchemaModel;
 import fr.gouv.vitam.common.model.administration.schema.SchemaOrigin;
 import fr.gouv.vitam.common.model.administration.schema.SchemaResponse;
 
@@ -51,10 +50,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -67,7 +65,8 @@ public class SchemaStep extends CommonStep {
 
     private Path fileName;
 
-    private List<SchemaModel> schemaModels;
+    private List<SchemaResponse> unitSchemas;
+    private SchemaResponse unitSchema;
 
     /**
      * define a schema file
@@ -104,7 +103,7 @@ public class SchemaStep extends CommonStep {
 
 
 
-    @When("^je recupère le schema $")
+    @When("^je recupère le schema$")
     public void searchSchemaByPath() throws VitamClientException {
         VitamContext vitamContext = new VitamContext(world.getTenantId());
         vitamContext.setApplicationSessionId(world.getApplicationSessionId());
@@ -112,20 +111,41 @@ public class SchemaStep extends CommonStep {
             world.getAdminClient().getUnitSchema(vitamContext);
         assertThat(requestResponse.isOk()).isTrue();
 
-        schemaModels = ((RequestResponseOK) requestResponse).getResults();
+        unitSchemas = ((RequestResponseOK) requestResponse).getResults();
     }
 
     @Then("^le schema doit contenir le path (.*)$")
     public void schema_should_contains_path(String path) {
-        assertThat(schemaModels).isNull();
-        assertThat(schemaModels).isNotEmpty();
-        List<SchemaModel> schemaWithPaths =
-            schemaModels.stream().filter(schemaModel -> SchemaOrigin.EXTERNAL.equals(schemaModel.getOrigin()))
-                .filter(schemaModel -> path.equals(schemaModel.getPath())).collect(
-                    Collectors.toList());
-        assertThat(schemaWithPaths).isNotNull();
-        assertThat(schemaWithPaths).isNotEmpty();
+        doSearchSchema(path);
+    }
 
+    @When("^je cherche le schema ayant le path (.*)$")
+    public void search_schema(String path) {
+        unitSchema = doSearchSchema(path);
+    }
+
+    private SchemaResponse doSearchSchema(String path) {
+        assertThat(unitSchemas).isNotEmpty();
+        final Optional<SchemaResponse> schemaResponse =
+            unitSchemas.stream().filter(unitSchema -> SchemaOrigin.EXTERNAL.equals(unitSchema.getOrigin()) &&
+                    path.equals(unitSchema.getPath()))
+                .findFirst();
+        assertThat(schemaResponse).isPresent();
+        return schemaResponse.get();
+    }
+
+    @Then("^le type détaillé du schema est (.*)$")
+    public void schema_should_have_type_detail(String typeDetail) {
+        assertThat(unitSchema.getTypeDetail().name()).isEqualTo(typeDetail);
+    }
+
+    @Then("^la taille de la chaîne de caractère du schema est (.*)$")
+    public void schema_should_have_string_size(String stringSize) {
+        if ("indéfinie".equals(stringSize)) {
+            assertThat(unitSchema.getStringSize()).isNull();
+        } else {
+            assertThat(unitSchema.getStringSize().name()).isEqualTo(stringSize);
+        }
     }
 
     @Then("^je supprime le schema dont le path est (.*)$")

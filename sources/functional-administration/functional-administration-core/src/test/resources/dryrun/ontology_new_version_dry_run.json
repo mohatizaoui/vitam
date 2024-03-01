@@ -4,6 +4,7 @@
     "SedaField": "AcquiredDate",
     "Description": "Mapping : unit-es-mapping.json. Références : ARKMS.DateAcquired",
     "Type": "DATE",
+    "TypeDetail": "DATETIME",
     "Origin": "INTERNAL",
     "ShortName": "Date de numérisation",
     "Collections": [
@@ -26,6 +27,7 @@
     "SedaField": "BirthDate",
     "Description": "Mapping : unit-es-mapping.json",
     "Type": "DATE",
+    "TypeDetail": "DATETIME",
     "Origin": "INTERNAL",
     "ShortName": "Date de naissance",
     "Collections": [
@@ -37,6 +39,8 @@
     "SedaField": "BirthName",
     "Description": "Mapping : unit-es-mapping.json",
     "Type": "TEXT",
+    "TypeDetail": "STRING",
+    "StringSize": "MEDIUM",
     "Origin": "INTERNAL",
     "ShortName": "Nom de naissance",
     "Collections": [
@@ -48,6 +52,7 @@
     "SedaField": "Address",
     "Description": "Mapping : unit-es-mapping.json , This is field already exists as external in database",
     "Type": "LONG",
+    "TypeDetail": "LONG",
     "Origin": "INTERNAL",
     "ShortName": "Addresse",
     "Collections": [

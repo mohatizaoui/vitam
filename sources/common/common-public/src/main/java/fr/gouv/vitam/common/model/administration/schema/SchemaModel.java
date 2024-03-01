@@ -64,12 +64,6 @@ public class SchemaModel {
 
     public static final String TAG_PATH = "Path";
 
-
-    /**
-     * StringSize tag for string fields: short, medium, and large
-     */
-    public static final String TAG_STRING_TYPE_SIZE = "StringSize";
-
     /**
      * pathCardinality tag
      */
@@ -150,10 +144,6 @@ public class SchemaModel {
     @JsonProperty(TAG_PATH)
     private String path;
 
-
-    @JsonProperty(TAG_STRING_TYPE_SIZE)
-    private SchemaStringSizeType stringSize;
-
     public Integer getTenant() {
         return tenant;
     }
@@ -218,14 +208,6 @@ public class SchemaModel {
         this.path = path;
     }
 
-    public SchemaStringSizeType getStringSize() {
-        return stringSize;
-    }
-
-    public void setStringSize(SchemaStringSizeType stringSize) {
-        this.stringSize = stringSize;
-    }
-
     public String getId() {
         return id;
     }
@@ -267,7 +249,6 @@ public class SchemaModel {
             ", creationdate='" + creationdate + '\'' +
             ", lastupdate='" + lastupdate + '\'' +
             ", path='" + path + '\'' +
-            ", stringSize=" + stringSize +
             '}';
     }
 }

@@ -13,7 +13,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "AcquiredDate",
     "SedaField": "AcquiredDate",
@@ -31,7 +30,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee",
     "ShortName": "Destinataire"
@@ -48,7 +46,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.Activity",
     "SedaField": "Activity",
@@ -66,7 +63,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.BirthDate",
     "SedaField": "BirthDate",
@@ -84,7 +80,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.BirthName",
     "SedaField": "BirthName",
@@ -102,7 +97,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.BirthPlace",
     "ShortName": "Lieu de naissance"
@@ -119,7 +113,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.BirthPlace.Address",
     "SedaField": "Address",
@@ -137,7 +130,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.BirthPlace.City",
     "SedaField": "City",
@@ -155,7 +147,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.BirthPlace.Country",
     "SedaField": "Country",
@@ -173,7 +164,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.BirthPlace.Geogname",
     "SedaField": "Geogname",
@@ -191,7 +181,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.BirthPlace.PostalCode",
     "SedaField": "PostalCode",
@@ -209,7 +198,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.BirthPlace.Region",
     "SedaField": "Region",
@@ -227,7 +215,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.Corpname",
     "SedaField": "Corpname",
@@ -245,7 +232,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.DeathDate",
     "SedaField": "DeathDate",
@@ -263,7 +249,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.DeathPlace",
     "ShortName": "Lieu de décès "
@@ -280,7 +265,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.DeathPlace.Address",
     "SedaField": "Address",
@@ -298,7 +282,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.DeathPlace.City",
     "SedaField": "City",
@@ -316,7 +299,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.DeathPlace.Country",
     "SedaField": "Country",
@@ -334,7 +316,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.DeathPlace.Geogname",
     "SedaField": "Geogname",
@@ -352,7 +333,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.DeathPlace.PostalCode",
     "SedaField": "PostalCode",
@@ -370,7 +350,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.DeathPlace.Region",
     "SedaField": "Region",
@@ -388,7 +367,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.FirstName",
     "SedaField": "FirstName",
@@ -408,28 +386,10 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.FullName",
     "SedaField": "FullName",
     "ShortName": "Nom / Nom + Prénom"
-  },
-  {
-    "FieldName": "Fullpname",
-    "Type": "TEXT",
-    "Origin": "INTERNAL",
-    "Cardinality": "ONE",
-    "Indexed": true,
-    "Path": "Addressee.Fullpname",
-    "ApiField": "Fullpname",
-    "Collection": "Unit",
-    "SedaVersions": [
-      "2.1"
-    ],
-    "StringSize": "SHORT",
-    "Category": "DESCRIPTION",
-    "ApiPath": "Addressee.Fullpname",
-    "ShortName": "Nom complet"
   },
   {
     "FieldName": "Function",
@@ -443,7 +403,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.Function",
     "SedaField": "Function",
@@ -461,7 +420,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.Gender",
     "SedaField": "Gender",
@@ -479,7 +437,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.GivenName",
     "SedaField": "GivenName",
@@ -497,7 +454,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.Identifier",
     "SedaField": "Identifier",
@@ -515,7 +471,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.Mandate",
     "SedaField": "Mandate",
@@ -533,7 +488,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.Nationality",
     "SedaField": "Nationality",
@@ -551,7 +505,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.Position",
     "SedaField": "Position",
@@ -569,7 +522,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.Role",
     "SedaField": "Role",
@@ -587,7 +539,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Agent",
     "ShortName": "Agent"
@@ -604,7 +555,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.Activity",
     "SedaField": "Activity",
@@ -622,7 +572,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.BirthDate",
     "SedaField": "BirthDate",
@@ -640,7 +589,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.BirthName",
     "SedaField": "BirthName",
@@ -658,7 +606,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.BirthPlace",
     "ShortName": "Lieu de naissance"
@@ -675,7 +622,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.BirthPlace.Address",
     "SedaField": "Address",
@@ -693,7 +639,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.BirthPlace.City",
     "SedaField": "City",
@@ -711,7 +656,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.BirthPlace.Country",
     "SedaField": "Country",
@@ -729,7 +673,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.BirthPlace.Geogname",
     "SedaField": "Geogname",
@@ -747,7 +690,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.BirthPlace.PostalCode",
     "SedaField": "PostalCode",
@@ -765,7 +707,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.BirthPlace.Region",
     "SedaField": "Region",
@@ -783,7 +724,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.Corpname",
     "SedaField": "Corpname",
@@ -801,7 +741,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.DeathDate",
     "SedaField": "DeathDate",
@@ -819,7 +758,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.DeathPlace",
     "ShortName": "Lieu de décès "
@@ -836,7 +774,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.DeathPlace.Address",
     "SedaField": "Address",
@@ -854,7 +791,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.DeathPlace.City",
     "SedaField": "City",
@@ -872,7 +808,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.DeathPlace.Country",
     "SedaField": "Country",
@@ -890,7 +825,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.DeathPlace.Geogname",
     "SedaField": "Geogname",
@@ -908,7 +842,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.DeathPlace.PostalCode",
     "SedaField": "PostalCode",
@@ -926,7 +859,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.DeathPlace.Region",
     "SedaField": "Region",
@@ -944,7 +876,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.FirstName",
     "SedaField": "FirstName",
@@ -962,7 +893,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.FullName",
     "SedaField": "FullName",
@@ -980,7 +910,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.Function",
     "SedaField": "Function",
@@ -998,7 +927,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.Gender",
     "SedaField": "Gender",
@@ -1016,7 +944,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.GivenName",
     "SedaField": "GivenName",
@@ -1034,7 +961,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.Identifier",
     "SedaField": "Identifier",
@@ -1052,7 +978,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.Mandate",
     "SedaField": "Mandate",
@@ -1070,7 +995,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.Nationality",
     "SedaField": "Nationality",
@@ -1088,7 +1012,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.Position",
     "SedaField": "Position",
@@ -1106,7 +1029,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.Role",
     "SedaField": "Role",
@@ -1126,7 +1048,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "ArchivalAgencyArchiveUnitIdentifier",
     "SedaField": "ArchivalAgencyArchiveUnitIdentifier",
@@ -1146,7 +1067,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "ArchiveUnitProfile",
     "SedaField": "ArchiveUnitProfile",
@@ -1164,7 +1084,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent",
     "ShortName": "Titulaire des droits"
@@ -1181,7 +1100,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.Activity",
     "SedaField": "Activity",
@@ -1199,7 +1117,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.BirthDate",
     "SedaField": "BirthDate",
@@ -1217,7 +1134,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.BirthName",
     "SedaField": "BirthName",
@@ -1235,7 +1151,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.BirthPlace",
     "ShortName": "Lieu de naissance"
@@ -1252,7 +1167,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.BirthPlace.Address",
     "SedaField": "Address",
@@ -1270,7 +1184,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.BirthPlace.City",
     "SedaField": "City",
@@ -1288,7 +1201,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.BirthPlace.Country",
     "SedaField": "Country",
@@ -1306,7 +1218,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.BirthPlace.Geogname",
     "SedaField": "Geogname",
@@ -1324,7 +1235,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.BirthPlace.PostalCode",
     "SedaField": "PostalCode",
@@ -1342,7 +1252,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.BirthPlace.Region",
     "SedaField": "Region",
@@ -1360,7 +1269,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.Corpname",
     "SedaField": "Corpname",
@@ -1378,7 +1286,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.DeathDate",
     "SedaField": "DeathDate",
@@ -1396,7 +1303,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.DeathPlace",
     "ShortName": "Lieu de décès "
@@ -1413,7 +1319,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.DeathPlace.Address",
     "SedaField": "Address",
@@ -1431,7 +1336,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.DeathPlace.City",
     "SedaField": "City",
@@ -1449,7 +1353,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.DeathPlace.Country",
     "SedaField": "Country",
@@ -1467,7 +1370,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.DeathPlace.Geogname",
     "SedaField": "Geogname",
@@ -1485,7 +1387,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.DeathPlace.PostalCode",
     "SedaField": "PostalCode",
@@ -1503,7 +1404,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.DeathPlace.Region",
     "SedaField": "Region",
@@ -1521,7 +1421,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.FirstName",
     "SedaField": "FirstName",
@@ -1539,7 +1438,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.FullName",
     "SedaField": "FullName",
@@ -1557,7 +1455,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.Function",
     "SedaField": "Function",
@@ -1575,7 +1472,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.Gender",
     "SedaField": "Gender",
@@ -1593,7 +1489,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.GivenName",
     "SedaField": "GivenName",
@@ -1611,7 +1506,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.Identifier",
     "SedaField": "Identifier",
@@ -1629,7 +1523,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.Mandate",
     "SedaField": "Mandate",
@@ -1647,7 +1540,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.Nationality",
     "SedaField": "Nationality",
@@ -1665,7 +1557,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.Position",
     "SedaField": "Position",
@@ -1683,7 +1574,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.Role",
     "SedaField": "Role",
@@ -1701,7 +1591,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Coverage",
     "ShortName": "Couverture(s)"
@@ -1718,7 +1607,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Coverage.Juridictional",
     "SedaField": "Juridictional",
@@ -1736,7 +1624,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Coverage.Spatial",
     "SedaField": "Spatial",
@@ -1754,7 +1641,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Coverage.Temporal",
     "SedaField": "Temporal",
@@ -1774,7 +1660,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "CreatedDate",
     "SedaField": "CreatedDate",
@@ -1794,7 +1679,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "CustodialHistory",
     "ShortName": "CustodialHistory"
@@ -1811,7 +1695,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "CustodialHistory.CustodialHistoryFile",
     "ShortName": "Référence à un journal externe"
@@ -1828,7 +1711,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "CustodialHistory.CustodialHistoryFile.DataObjectGroupReferenceId",
     "SedaField": "DataObjectGroupReferenceId",
@@ -1846,7 +1728,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "CustodialHistory.CustodialHistoryFile.DataObjectReferenceId",
     "SedaField": "DataObjectReferenceId",
@@ -1864,7 +1745,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "CustodialHistory.CustodialHistoryItem",
     "SedaField": "CustodialHistoryItem",
@@ -1884,7 +1764,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "DateLitteral",
     "SedaField": "DateLitteral",
@@ -1904,7 +1783,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Description",
     "SedaField": "Description",
@@ -1924,7 +1802,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "DescriptionLanguage",
     "SedaField": "DescriptionLanguage",
@@ -1942,7 +1819,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "DescriptionLevel",
     "SedaField": "DescriptionLevel",
@@ -1962,27 +1838,9 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "Description_",
     "ShortName": "Description_"
-  },
-  {
-    "FieldName": "*",
-    "Type": "TEXT",
-    "Origin": "INTERNAL",
-    "Cardinality": "MANY",
-    "Indexed": true,
-    "Path": "Description_.*",
-    "ApiField": "*",
-    "Collection": "Unit",
-    "SedaVersions": [
-      "2.1"
-    ],
-    "StringSize": "SHORT",
-    "Category": "OTHER",
-    "ApiPath": "Description_.*",
-    "ShortName": "Description [langue]"
   },
   {
     "FieldName": "DocumentType",
@@ -1998,7 +1856,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "DocumentType",
     "SedaField": "DocumentType",
@@ -2018,7 +1875,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "EndDate",
     "SedaField": "EndDate",
@@ -2036,7 +1892,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Event",
     "ShortName": "Événement"
@@ -2053,7 +1908,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Event.evDateTime",
     "SedaField": "EventDateTime",
@@ -2073,7 +1927,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Event.evDetData",
     "SedaField": "eventDetailData",
@@ -2091,7 +1944,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Event.evId",
     "SedaField": "EventIdentifier",
@@ -2109,7 +1961,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Event.evType",
     "SedaField": "EventType",
@@ -2127,7 +1978,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Event.evTypeDetail",
     "SedaField": "EventDetail",
@@ -2145,7 +1995,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Event.evTypeProc",
     "SedaField": "EventTypeCode",
@@ -2163,7 +2012,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Event.outDetail",
     "SedaField": "OutcomeDetail",
@@ -2181,7 +2029,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Event.outMessg",
     "SedaField": "OutcomeDetailMessage",
@@ -2199,7 +2046,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Event.outcome",
     "SedaField": "Outcome",
@@ -2219,7 +2065,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "FilePlanPosition",
     "SedaField": "FilePlanPosition",
@@ -2237,7 +2082,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Gps",
     "ShortName": "Coordonnées GPS"
@@ -2254,7 +2098,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Gps.GpsAltitude",
     "SedaField": "GpsAltitude",
@@ -2272,7 +2115,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Gps.GpsAltitudeRef",
     "SedaField": "GpsAltitudeRef",
@@ -2290,7 +2132,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Gps.GpsDateStamp",
     "SedaField": "GpsDateStamp",
@@ -2308,7 +2149,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Gps.GpsLatitude",
     "SedaField": "GpsLatitude",
@@ -2326,7 +2166,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Gps.GpsLatitudeRef",
     "SedaField": "GpsLatitudeRef",
@@ -2344,7 +2183,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Gps.GpsLongitude",
     "SedaField": "GpsLongitude",
@@ -2362,7 +2200,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Gps.GpsLongitudeRef",
     "SedaField": "GpsLongitudeRef",
@@ -2380,7 +2217,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Gps.GpsVersionID",
     "SedaField": "GpsVersionID",
@@ -2400,7 +2236,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Keyword",
     "ShortName": "Keyword"
@@ -2419,7 +2254,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Keyword.KeywordContent",
     "SedaField": "KeywordContent",
@@ -2439,7 +2273,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Keyword.KeywordReference",
     "SedaField": "KeywordReference",
@@ -2459,7 +2292,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Keyword.KeywordType",
     "SedaField": "KeywordType",
@@ -2479,7 +2311,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Language",
     "SedaField": "Language",
@@ -2498,7 +2329,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "LinkingAgentIdentifier",
     "ShortName": "LinkingAgentIdentifier"
@@ -2517,7 +2347,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "LinkingAgentIdentifier.LinkingAgentIdentifierType",
     "SedaField": "LinkingAgentIdentifierType",
@@ -2536,7 +2365,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "LinkingAgentIdentifier.LinkingAgentIdentifierValue",
     "SedaField": "LinkingAgentIdentifierValue",
@@ -2555,7 +2383,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "LinkingAgentIdentifier.LinkingAgentRole",
     "SedaField": "LinkingAgentRole",
@@ -2575,7 +2402,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "OriginatingAgency",
     "SedaField": "OriginatingAgencyIdentifier",
@@ -2595,7 +2421,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "OriginatingAgency.Identifier",
     "SedaField": "Identifier",
@@ -2615,7 +2440,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "OriginatingAgency.OrganizationDescriptiveMetadata",
     "ShortName": "OrganizationDescriptiveMetadata"
@@ -2634,7 +2458,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "OriginatingAgencyArchiveUnitIdentifier",
     "SedaField": "OriginatingAgencyArchiveUnitIdentifier",
@@ -2654,7 +2477,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "OriginatingSystemId",
     "SedaField": "OriginatingSystemId",
@@ -2674,7 +2496,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "OriginatingSystemIdReplyTo",
     "SedaField": "OriginatingSystemIdReplyTo",
@@ -2693,7 +2514,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "PersistentIdentifier",
     "ShortName": "PersistentIdentifier"
@@ -2711,7 +2531,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "PersistentIdentifier.PersistentIdentifierContent",
     "SedaField": "PersistentIdentifierContent",
@@ -2730,7 +2549,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "PersistentIdentifier.PersistentIdentifierOrigin",
     "SedaField": "PersistentIdentifierOrigin",
@@ -2749,7 +2567,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "PersistentIdentifier.PersistentIdentifierReference",
     "SedaField": "PersistentIdentifierReference",
@@ -2768,7 +2585,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "PersistentIdentifier.PersistentIdentifierType",
     "SedaField": "PersistentIdentifierType",
@@ -2788,7 +2604,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "ReceivedDate",
     "SedaField": "ReceivedDate",
@@ -2806,7 +2621,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient",
     "ShortName": "Destinataire pour information"
@@ -2823,7 +2637,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.Activity",
     "SedaField": "Activity",
@@ -2841,7 +2654,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.BirthDate",
     "SedaField": "BirthDate",
@@ -2859,7 +2671,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.BirthName",
     "SedaField": "BirthName",
@@ -2877,7 +2688,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.BirthPlace",
     "ShortName": "Lieu de naissance"
@@ -2894,7 +2704,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.BirthPlace.Address",
     "SedaField": "Address",
@@ -2912,7 +2721,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.BirthPlace.City",
     "SedaField": "City",
@@ -2930,7 +2738,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.BirthPlace.Country",
     "SedaField": "Country",
@@ -2948,7 +2755,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.BirthPlace.Geogname",
     "SedaField": "Geogname",
@@ -2966,7 +2772,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.BirthPlace.PostalCode",
     "SedaField": "PostalCode",
@@ -2984,7 +2789,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.BirthPlace.Region",
     "SedaField": "Region",
@@ -3002,7 +2806,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.Corpname",
     "SedaField": "Corpname",
@@ -3020,7 +2823,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.DeathDate",
     "SedaField": "DeathDate",
@@ -3038,7 +2840,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.DeathPlace",
     "ShortName": "Lieu de décès "
@@ -3055,7 +2856,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.DeathPlace.Address",
     "SedaField": "Address",
@@ -3073,7 +2873,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.DeathPlace.City",
     "SedaField": "City",
@@ -3091,7 +2890,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.DeathPlace.Country",
     "SedaField": "Country",
@@ -3109,7 +2907,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.DeathPlace.Geogname",
     "SedaField": "Geogname",
@@ -3127,7 +2924,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.DeathPlace.PostalCode",
     "SedaField": "PostalCode",
@@ -3145,7 +2941,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.DeathPlace.Region",
     "SedaField": "Region",
@@ -3163,7 +2958,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.FirstName",
     "SedaField": "FirstName",
@@ -3181,7 +2975,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.FullName",
     "SedaField": "FullName",
@@ -3199,7 +2992,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.Function",
     "SedaField": "Function",
@@ -3217,7 +3009,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.Gender",
     "SedaField": "Gender",
@@ -3235,7 +3026,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.GivenName",
     "SedaField": "GivenName",
@@ -3253,7 +3043,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.Identifier",
     "SedaField": "Identifier",
@@ -3271,7 +3060,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.Mandate",
     "SedaField": "Mandate",
@@ -3289,7 +3077,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.Nationality",
     "SedaField": "Nationality",
@@ -3307,7 +3094,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.Position",
     "SedaField": "Position",
@@ -3325,7 +3111,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.Role",
     "SedaField": "Role",
@@ -3345,7 +3130,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "RegisteredDate",
     "SedaField": "RegisteredDate",
@@ -3365,7 +3149,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference",
     "ShortName": "RelatedObjectReference"
@@ -3384,7 +3167,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.IsPartOf",
     "ShortName": "IsPartOf"
@@ -3403,7 +3185,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.IsPartOf.ArchiveUnitRefId",
     "SedaField": "ArchiveUnitRefId",
@@ -3423,7 +3204,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.IsPartOf.DataObjectReference",
     "ShortName": "DataObjectReference"
@@ -3442,7 +3222,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.IsPartOf.DataObjectReference.DataObjectGroupReferenceId",
     "SedaField": "DataObjectGroupReferenceId",
@@ -3462,7 +3241,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.IsPartOf.DataObjectReference.DataObjectReferenceId",
     "SedaField": "DataObjectReferenceId",
@@ -3482,7 +3260,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.IsPartOf.ExternalReference",
     "SedaField": "ExternalReference",
@@ -3502,7 +3279,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.IsPartOf.RepositoryArchiveUnitPID",
     "SedaField": "RepositoryArchiveUnitPID",
@@ -3522,7 +3298,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.IsPartOf.RepositoryObjectPID",
     "SedaField": "RepositoryObjectPID",
@@ -3542,7 +3317,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.IsVersionOf",
     "ShortName": "IsVersionOf"
@@ -3561,7 +3335,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.IsVersionOf.ArchiveUnitRefId",
     "SedaField": "ArchiveUnitRefId",
@@ -3581,7 +3354,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.IsVersionOf.DataObjectReference",
     "ShortName": "DataObjectReference"
@@ -3600,7 +3372,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.IsVersionOf.DataObjectReference.DataObjectGroupReferenceId",
     "SedaField": "DataObjectGroupReferenceId",
@@ -3620,7 +3391,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.IsVersionOf.DataObjectReference.DataObjectReferenceId",
     "SedaField": "DataObjectReferenceId",
@@ -3640,7 +3410,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.IsVersionOf.ExternalReference",
     "SedaField": "ExternalReference",
@@ -3660,7 +3429,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.IsVersionOf.RepositoryArchiveUnitPID",
     "SedaField": "RepositoryArchiveUnitPID",
@@ -3680,7 +3448,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.IsVersionOf.RepositoryObjectPID",
     "SedaField": "RepositoryObjectPID",
@@ -3700,7 +3467,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.References",
     "ShortName": "References"
@@ -3719,7 +3485,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.References.ArchiveUnitRefId",
     "SedaField": "ArchiveUnitRefId",
@@ -3739,7 +3504,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.References.DataObjectReference",
     "ShortName": "DataObjectReference"
@@ -3758,7 +3522,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.References.DataObjectReference.DataObjectGroupReferenceId",
     "SedaField": "DataObjectGroupReferenceId",
@@ -3778,7 +3541,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.References.DataObjectReference.DataObjectReferenceId",
     "SedaField": "DataObjectReferenceId",
@@ -3798,7 +3560,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.References.ExternalReference",
     "SedaField": "ExternalReference",
@@ -3818,7 +3579,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.References.RepositoryArchiveUnitPID",
     "SedaField": "RepositoryArchiveUnitPID",
@@ -3838,7 +3598,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.References.RepositoryObjectPID",
     "SedaField": "RepositoryObjectPID",
@@ -3858,7 +3617,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.Replaces",
     "ShortName": "Replaces"
@@ -3877,7 +3635,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.Replaces.ArchiveUnitRefId",
     "SedaField": "ArchiveUnitRefId",
@@ -3897,7 +3654,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.Replaces.DataObjectReference",
     "ShortName": "DataObjectReference"
@@ -3916,7 +3672,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.Replaces.DataObjectReference.DataObjectGroupReferenceId",
     "SedaField": "DataObjectGroupReferenceId",
@@ -3936,7 +3691,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.Replaces.DataObjectReference.DataObjectReferenceId",
     "SedaField": "DataObjectReferenceId",
@@ -3956,7 +3710,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.Replaces.ExternalReference",
     "SedaField": "ExternalReference",
@@ -3976,7 +3729,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.Replaces.RepositoryArchiveUnitPID",
     "SedaField": "RepositoryArchiveUnitPID",
@@ -3996,7 +3748,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.Replaces.RepositoryObjectPID",
     "SedaField": "RepositoryObjectPID",
@@ -4016,7 +3767,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.Requires",
     "ShortName": "Requires"
@@ -4035,7 +3785,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.Requires.ArchiveUnitRefId",
     "SedaField": "ArchiveUnitRefId",
@@ -4055,7 +3804,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.Requires.DataObjectReference",
     "ShortName": "DataObjectReference"
@@ -4074,7 +3822,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.Requires.DataObjectReference.DataObjectGroupReferenceId",
     "SedaField": "DataObjectGroupReferenceId",
@@ -4094,7 +3841,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.Requires.DataObjectReference.DataObjectReferenceId",
     "SedaField": "DataObjectReferenceId",
@@ -4114,7 +3860,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.Requires.ExternalReference",
     "SedaField": "ExternalReference",
@@ -4134,7 +3879,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.Requires.RepositoryArchiveUnitPID",
     "SedaField": "RepositoryArchiveUnitPID",
@@ -4154,7 +3898,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.Requires.RepositoryObjectPID",
     "SedaField": "RepositoryObjectPID",
@@ -4172,7 +3915,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Sender",
     "ShortName": "Expéditeur"
@@ -4189,7 +3931,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.Activity",
     "SedaField": "Activity",
@@ -4207,7 +3948,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.BirthDate",
     "SedaField": "BirthDate",
@@ -4225,7 +3965,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.BirthName",
     "SedaField": "BirthName",
@@ -4243,7 +3982,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.BirthPlace",
     "ShortName": "Lieu de naissance"
@@ -4260,7 +3998,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.BirthPlace.Address",
     "SedaField": "Address",
@@ -4278,7 +4015,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.BirthPlace.City",
     "SedaField": "City",
@@ -4296,7 +4032,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.BirthPlace.Country",
     "SedaField": "Country",
@@ -4314,7 +4049,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.BirthPlace.Geogname",
     "SedaField": "Geogname",
@@ -4332,7 +4066,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.BirthPlace.PostalCode",
     "SedaField": "PostalCode",
@@ -4350,7 +4083,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.BirthPlace.Region",
     "SedaField": "Region",
@@ -4368,7 +4100,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.Corpname",
     "SedaField": "Corpname",
@@ -4386,7 +4117,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.DeathDate",
     "SedaField": "DeathDate",
@@ -4404,7 +4134,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.DeathPlace",
     "ShortName": "Lieu de décès "
@@ -4421,7 +4150,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.DeathPlace.Address",
     "SedaField": "Address",
@@ -4439,7 +4167,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.DeathPlace.City",
     "SedaField": "City",
@@ -4457,7 +4184,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.DeathPlace.Country",
     "SedaField": "Country",
@@ -4475,7 +4201,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.DeathPlace.Geogname",
     "SedaField": "Geogname",
@@ -4493,7 +4218,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.DeathPlace.PostalCode",
     "SedaField": "PostalCode",
@@ -4511,7 +4235,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.DeathPlace.Region",
     "SedaField": "Region",
@@ -4529,7 +4252,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.FirstName",
     "SedaField": "FirstName",
@@ -4547,7 +4269,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.FullName",
     "SedaField": "FullName",
@@ -4565,7 +4286,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.Function",
     "SedaField": "Function",
@@ -4583,7 +4303,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.Gender",
     "SedaField": "Gender",
@@ -4601,7 +4320,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.GivenName",
     "SedaField": "GivenName",
@@ -4619,7 +4337,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.Identifier",
     "SedaField": "Identifier",
@@ -4637,7 +4354,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.Mandate",
     "SedaField": "Mandate",
@@ -4655,7 +4371,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.Nationality",
     "SedaField": "Nationality",
@@ -4673,7 +4388,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.Position",
     "SedaField": "Position",
@@ -4691,7 +4405,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.Role",
     "SedaField": "Role",
@@ -4711,7 +4424,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SentDate",
     "SedaField": "SentDate",
@@ -4730,7 +4442,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature",
     "ShortName": "Signature"
@@ -4748,7 +4459,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Masterdata",
     "ShortName": "Référentiel des personnes et des organisations"
@@ -4766,7 +4476,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.ReferencedObject",
     "ShortName": "Référence à l'objet signé "
@@ -4784,7 +4493,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.ReferencedObject.SignedObjectDigest",
     "ShortName": "Empreinte de l'objet signé "
@@ -4803,7 +4511,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.ReferencedObject.SignedObjectDigest.Algorithm",
     "SedaField": "Algorithm",
@@ -4823,7 +4530,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.ReferencedObject.SignedObjectDigest.MessageDigest",
     "SedaField": "MessageDigest",
@@ -4842,7 +4548,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.ReferencedObject.SignedObjectId",
     "SedaField": "SignedObjectId",
@@ -4861,7 +4566,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Signer",
     "ShortName": "Signataire"
@@ -4879,7 +4583,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Signer.Activity",
     "SedaField": "Activity",
@@ -4898,7 +4601,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Signer.BirthDate",
     "SedaField": "BirthDate",
@@ -4917,7 +4619,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Signer.BirthName",
     "SedaField": "BirthName",
@@ -4936,7 +4637,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Signer.BirthPlace",
     "ShortName": "Lieu de naissance"
@@ -4954,7 +4654,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Signer.BirthPlace.Address",
     "SedaField": "Address",
@@ -4973,7 +4672,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Signer.BirthPlace.City",
     "SedaField": "City",
@@ -4992,7 +4690,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Signer.BirthPlace.Country",
     "SedaField": "Country",
@@ -5011,7 +4708,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Signer.BirthPlace.Geogname",
     "SedaField": "Geogname",
@@ -5030,7 +4726,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Signer.BirthPlace.PostalCode",
     "SedaField": "PostalCode",
@@ -5049,7 +4744,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Signer.BirthPlace.Region",
     "SedaField": "Region",
@@ -5068,7 +4762,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Signer.Corpname",
     "SedaField": "Corpname",
@@ -5087,7 +4780,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Signer.DeathDate",
     "SedaField": "DeathDate",
@@ -5106,7 +4798,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Signer.DeathPlace",
     "ShortName": "Lieu de décès "
@@ -5124,7 +4815,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Signer.DeathPlace.Address",
     "SedaField": "Address",
@@ -5143,7 +4833,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Signer.DeathPlace.City",
     "SedaField": "City",
@@ -5162,7 +4851,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Signer.DeathPlace.Country",
     "SedaField": "Country",
@@ -5181,7 +4869,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Signer.DeathPlace.Geogname",
     "SedaField": "Geogname",
@@ -5200,7 +4887,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Signer.DeathPlace.PostalCode",
     "SedaField": "PostalCode",
@@ -5219,7 +4905,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Signer.DeathPlace.Region",
     "SedaField": "Region",
@@ -5238,7 +4923,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Signer.FirstName",
     "SedaField": "FirstName",
@@ -5258,29 +4942,10 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Signer.FullName",
     "SedaField": "FullName",
     "ShortName": "Nom / Nom + Prénom"
-  },
-  {
-    "FieldName": "Fullpname",
-    "Type": "TEXT",
-    "Origin": "INTERNAL",
-    "Cardinality": "ONE",
-    "Indexed": true,
-    "Path": "Signature.Signer.Fullpname",
-    "ApiField": "Fullpname",
-    "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2"
-    ],
-    "StringSize": "SHORT",
-    "Category": "DESCRIPTION",
-    "ApiPath": "Signature.Signer.Fullpname",
-    "ShortName": "Nom complet"
   },
   {
     "FieldName": "Function",
@@ -5295,7 +4960,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Signer.Function",
     "SedaField": "Function",
@@ -5314,7 +4978,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Signer.Gender",
     "SedaField": "Gender",
@@ -5333,7 +4996,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Signer.GivenName",
     "SedaField": "GivenName",
@@ -5352,7 +5014,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Signer.Identifier",
     "SedaField": "Identifier",
@@ -5371,7 +5032,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Signer.Mandate",
     "SedaField": "Mandate",
@@ -5390,7 +5050,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Signer.Nationality",
     "SedaField": "Nationality",
@@ -5409,7 +5068,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Signer.Position",
     "SedaField": "Position",
@@ -5428,7 +5086,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Signer.Role",
     "SedaField": "Role",
@@ -5447,7 +5104,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Signer.SigningTime",
     "SedaField": "SigningTime",
@@ -5466,7 +5122,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator",
     "ShortName": "Validateur"
@@ -5484,7 +5139,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.Activity",
     "SedaField": "Activity",
@@ -5503,7 +5157,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.BirthDate",
     "SedaField": "BirthDate",
@@ -5522,7 +5175,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.BirthName",
     "SedaField": "BirthName",
@@ -5541,7 +5193,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.BirthPlace",
     "ShortName": "Lieu de naissance"
@@ -5559,7 +5210,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.BirthPlace.Address",
     "SedaField": "Address",
@@ -5578,7 +5228,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.BirthPlace.City",
     "SedaField": "City",
@@ -5597,7 +5246,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.BirthPlace.Country",
     "SedaField": "Country",
@@ -5616,7 +5264,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.BirthPlace.Geogname",
     "SedaField": "Geogname",
@@ -5635,7 +5282,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.BirthPlace.PostalCode",
     "SedaField": "PostalCode",
@@ -5654,7 +5300,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.BirthPlace.Region",
     "SedaField": "Region",
@@ -5673,7 +5318,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.Corpname",
     "SedaField": "Corpname",
@@ -5692,7 +5336,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.DeathDate",
     "SedaField": "DeathDate",
@@ -5711,7 +5354,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.DeathPlace",
     "ShortName": "Lieu de décès "
@@ -5729,7 +5371,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.DeathPlace.Address",
     "SedaField": "Address",
@@ -5748,7 +5389,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.DeathPlace.City",
     "SedaField": "City",
@@ -5767,7 +5407,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.DeathPlace.Country",
     "SedaField": "Country",
@@ -5786,7 +5425,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.DeathPlace.Geogname",
     "SedaField": "Geogname",
@@ -5805,7 +5443,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.DeathPlace.PostalCode",
     "SedaField": "PostalCode",
@@ -5824,7 +5461,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.DeathPlace.Region",
     "SedaField": "Region",
@@ -5843,7 +5479,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.FirstName",
     "SedaField": "FirstName",
@@ -5863,29 +5498,10 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.FullName",
     "SedaField": "FullName",
     "ShortName": "Nom / Nom + Prénom"
-  },
-  {
-    "FieldName": "Fullpname",
-    "Type": "TEXT",
-    "Origin": "INTERNAL",
-    "Cardinality": "ONE",
-    "Indexed": true,
-    "Path": "Signature.Validator.Fullpname",
-    "ApiField": "Fullpname",
-    "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2"
-    ],
-    "StringSize": "SHORT",
-    "Category": "DESCRIPTION",
-    "ApiPath": "Signature.Validator.Fullpname",
-    "ShortName": "Nom complet"
   },
   {
     "FieldName": "Function",
@@ -5900,7 +5516,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.Function",
     "SedaField": "Function",
@@ -5919,7 +5534,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.Gender",
     "SedaField": "Gender",
@@ -5938,7 +5552,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.GivenName",
     "SedaField": "GivenName",
@@ -5957,7 +5570,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.Identifier",
     "SedaField": "Identifier",
@@ -5976,7 +5588,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.Mandate",
     "SedaField": "Mandate",
@@ -5995,7 +5606,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.Nationality",
     "SedaField": "Nationality",
@@ -6014,7 +5624,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.Position",
     "SedaField": "Position",
@@ -6033,7 +5642,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.Role",
     "SedaField": "Role",
@@ -6052,7 +5660,6 @@
       "2.1",
       "2.2"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.ValidationTime",
     "SedaField": "ValidationTime",
@@ -6070,7 +5677,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation",
     "ShortName": "Informations sur la signature"
@@ -6087,7 +5693,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.AdditionalProof",
     "ShortName": "Preuve complémentaire"
@@ -6104,7 +5709,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.AdditionalProof.AdditionalProofInformation",
     "SedaField": "AdditionalProofInformation",
@@ -6122,7 +5726,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.DetachedSigningRole",
     "SedaField": "DetachedSigningRole",
@@ -6142,7 +5745,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.Extended",
     "ShortName": "Extended"
@@ -6159,7 +5761,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription",
     "ShortName": "Signature"
@@ -6176,7 +5777,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Signer",
     "ShortName": "Signataire"
@@ -6193,7 +5793,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Signer.Activity",
     "SedaField": "Activity",
@@ -6211,7 +5810,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Signer.BirthDate",
     "SedaField": "BirthDate",
@@ -6229,7 +5827,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Signer.BirthName",
     "SedaField": "BirthName",
@@ -6247,7 +5844,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Signer.BirthPlace",
     "ShortName": "Lieu de naissance"
@@ -6264,7 +5860,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Signer.BirthPlace.Address",
     "SedaField": "Address",
@@ -6282,7 +5877,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Signer.BirthPlace.City",
     "SedaField": "City",
@@ -6300,7 +5894,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Signer.BirthPlace.Country",
     "SedaField": "Country",
@@ -6318,7 +5911,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Signer.BirthPlace.Geogname",
     "SedaField": "Geogname",
@@ -6336,7 +5928,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Signer.BirthPlace.PostalCode",
     "SedaField": "PostalCode",
@@ -6354,7 +5945,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Signer.BirthPlace.Region",
     "SedaField": "Region",
@@ -6372,7 +5962,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Signer.Corpname",
     "SedaField": "Corpname",
@@ -6390,7 +5979,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Signer.DeathDate",
     "SedaField": "DeathDate",
@@ -6408,7 +5996,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Signer.DeathPlace",
     "ShortName": "Lieu de décès "
@@ -6425,7 +6012,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Signer.DeathPlace.Address",
     "SedaField": "Address",
@@ -6443,7 +6029,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Signer.DeathPlace.City",
     "SedaField": "City",
@@ -6461,7 +6046,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Signer.DeathPlace.Country",
     "SedaField": "Country",
@@ -6479,7 +6063,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Signer.DeathPlace.Geogname",
     "SedaField": "Geogname",
@@ -6497,7 +6080,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Signer.DeathPlace.PostalCode",
     "SedaField": "PostalCode",
@@ -6515,7 +6097,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Signer.DeathPlace.Region",
     "SedaField": "Region",
@@ -6533,7 +6114,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Signer.FirstName",
     "SedaField": "FirstName",
@@ -6553,28 +6133,10 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Signer.FullName",
     "SedaField": "FullName",
     "ShortName": "Nom / Nom + Prénom"
-  },
-  {
-    "FieldName": "Fullpname",
-    "Type": "TEXT",
-    "Origin": "INTERNAL",
-    "Cardinality": "ONE",
-    "Indexed": true,
-    "Path": "SigningInformation.SignatureDescription.Signer.Fullpname",
-    "ApiField": "Fullpname",
-    "Collection": "Unit",
-    "SedaVersions": [
-      "2.3"
-    ],
-    "StringSize": "SHORT",
-    "Category": "DESCRIPTION",
-    "ApiPath": "SigningInformation.SignatureDescription.Signer.Fullpname",
-    "ShortName": "Nom complet"
   },
   {
     "FieldName": "Function",
@@ -6588,7 +6150,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Signer.Function",
     "SedaField": "Function",
@@ -6606,7 +6167,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Signer.Gender",
     "SedaField": "Gender",
@@ -6624,7 +6184,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Signer.GivenName",
     "SedaField": "GivenName",
@@ -6642,7 +6201,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Signer.Identifier",
     "SedaField": "Identifier",
@@ -6660,7 +6218,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Signer.Mandate",
     "SedaField": "Mandate",
@@ -6678,7 +6235,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Signer.Nationality",
     "SedaField": "Nationality",
@@ -6696,7 +6252,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Signer.Position",
     "SedaField": "Position",
@@ -6714,7 +6269,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Signer.Role",
     "SedaField": "Role",
@@ -6732,7 +6286,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Signer.SigningTime",
     "SedaField": "SigningTime",
@@ -6752,28 +6305,10 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.SigningType",
     "SedaField": "SigningType",
     "ShortName": "SigningType"
-  },
-  {
-    "FieldName": "SignningType",
-    "Type": "KEYWORD",
-    "Origin": "INTERNAL",
-    "Cardinality": "ONE",
-    "Indexed": true,
-    "Path": "SigningInformation.SignatureDescription.SignningType",
-    "ApiField": "SignningType",
-    "Collection": "Unit",
-    "SedaVersions": [
-      "2.3"
-    ],
-    "StringSize": "SHORT",
-    "Category": "DESCRIPTION",
-    "ApiPath": "SigningInformation.SignatureDescription.SignningType",
-    "ShortName": "Type de signature"
   },
   {
     "FieldName": "Validator",
@@ -6787,7 +6322,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator",
     "ShortName": "Validateur"
@@ -6804,7 +6338,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator.Activity",
     "SedaField": "Activity",
@@ -6822,7 +6355,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator.BirthDate",
     "SedaField": "BirthDate",
@@ -6840,7 +6372,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator.BirthName",
     "SedaField": "BirthName",
@@ -6858,7 +6389,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator.BirthPlace",
     "ShortName": "Lieu de naissance"
@@ -6875,7 +6405,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator.BirthPlace.Address",
     "SedaField": "Address",
@@ -6893,7 +6422,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator.BirthPlace.City",
     "SedaField": "City",
@@ -6911,7 +6439,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator.BirthPlace.Country",
     "SedaField": "Country",
@@ -6929,7 +6456,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator.BirthPlace.Geogname",
     "SedaField": "Geogname",
@@ -6947,7 +6473,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator.BirthPlace.PostalCode",
     "SedaField": "PostalCode",
@@ -6965,7 +6490,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator.BirthPlace.Region",
     "SedaField": "Region",
@@ -6983,7 +6507,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator.Corpname",
     "SedaField": "Corpname",
@@ -7001,7 +6524,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator.DeathDate",
     "SedaField": "DeathDate",
@@ -7019,7 +6541,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator.DeathPlace",
     "ShortName": "Lieu de décès "
@@ -7036,7 +6557,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator.DeathPlace.Address",
     "SedaField": "Address",
@@ -7054,7 +6574,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator.DeathPlace.City",
     "SedaField": "City",
@@ -7072,7 +6591,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator.DeathPlace.Country",
     "SedaField": "Country",
@@ -7090,7 +6608,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator.DeathPlace.Geogname",
     "SedaField": "Geogname",
@@ -7108,7 +6625,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator.DeathPlace.PostalCode",
     "SedaField": "PostalCode",
@@ -7126,7 +6642,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator.DeathPlace.Region",
     "SedaField": "Region",
@@ -7144,7 +6659,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator.FirstName",
     "SedaField": "FirstName",
@@ -7164,28 +6678,10 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator.FullName",
     "SedaField": "FullName",
     "ShortName": "Nom / Nom + Prénom"
-  },
-  {
-    "FieldName": "Fullpname",
-    "Type": "TEXT",
-    "Origin": "INTERNAL",
-    "Cardinality": "ONE",
-    "Indexed": true,
-    "Path": "SigningInformation.SignatureDescription.Validator.Fullpname",
-    "ApiField": "Fullpname",
-    "Collection": "Unit",
-    "SedaVersions": [
-      "2.3"
-    ],
-    "StringSize": "SHORT",
-    "Category": "DESCRIPTION",
-    "ApiPath": "SigningInformation.SignatureDescription.Validator.Fullpname",
-    "ShortName": "Nom complet"
   },
   {
     "FieldName": "Function",
@@ -7199,7 +6695,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator.Function",
     "SedaField": "Function",
@@ -7217,7 +6712,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator.Gender",
     "SedaField": "Gender",
@@ -7235,7 +6729,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator.GivenName",
     "SedaField": "GivenName",
@@ -7253,7 +6746,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator.Identifier",
     "SedaField": "Identifier",
@@ -7271,7 +6763,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator.Mandate",
     "SedaField": "Mandate",
@@ -7289,7 +6780,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator.Nationality",
     "SedaField": "Nationality",
@@ -7307,7 +6797,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator.Position",
     "SedaField": "Position",
@@ -7325,7 +6814,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator.Role",
     "SedaField": "Role",
@@ -7343,7 +6831,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator.ValidationTime",
     "SedaField": "ValidationTime",
@@ -7361,7 +6848,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignedDocumentReferenceId",
     "ShortName": "Référence du document signé"
@@ -7378,7 +6864,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SigningRole",
     "SedaField": "SigningRole",
@@ -7396,7 +6881,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.TimestampingInformation",
     "ShortName": "Information d'horodatage"
@@ -7413,7 +6897,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.TimestampingInformation.AdditionalTimestampingInformation",
     "SedaField": "AdditionalTimestampingInformation",
@@ -7431,7 +6914,6 @@
     "SedaVersions": [
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.TimestampingInformation.TimeStamp",
     "SedaField": "TimeStamp",
@@ -7451,7 +6933,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Source",
     "SedaField": "Source",
@@ -7471,7 +6952,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "StartDate",
     "SedaField": "StartDate",
@@ -7491,7 +6971,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Status",
     "SedaField": "Status",
@@ -7511,7 +6990,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SubmissionAgency",
     "SedaField": "SubmissionAgencyIdentifier",
@@ -7531,7 +7009,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SubmissionAgency.Identifier",
     "SedaField": "Identifier",
@@ -7551,7 +7028,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SubmissionAgency.OrganizationDescriptiveMetadata",
     "ShortName": "OrganizationDescriptiveMetadata"
@@ -7570,7 +7046,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "SystemId",
     "SedaField": "SystemId",
@@ -7590,7 +7065,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Tag",
     "SedaField": "Tag",
@@ -7610,7 +7084,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "TextContent",
     "SedaField": "TextContent",
@@ -7630,30 +7103,10 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Title",
     "SedaField": "Title",
     "ShortName": "Intitulé"
-  },
-  {
-    "FieldName": "keyword",
-    "Type": "KEYWORD",
-    "Origin": "INTERNAL",
-    "Cardinality": "ONE",
-    "Indexed": true,
-    "Path": "Title.keyword",
-    "ApiField": "keyword",
-    "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
-    "StringSize": "SHORT",
-    "Category": "DESCRIPTION",
-    "ApiPath": "Title.keyword",
-    "ShortName": "keyword"
   },
   {
     "FieldName": "Title_",
@@ -7669,7 +7122,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "Title_",
     "ShortName": "Title_"
@@ -7688,7 +7140,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "TransactedDate",
     "SedaField": "TransactedDate",
@@ -7708,7 +7159,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "TransferringAgencyArchiveUnitIdentifier",
     "SedaField": "TransferringAgencyArchiveUnitIdentifier",
@@ -7726,7 +7176,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter",
     "ShortName": "Emetteur"
@@ -7743,7 +7192,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.Activity",
     "SedaField": "Activity",
@@ -7761,7 +7209,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.BirthDate",
     "SedaField": "BirthDate",
@@ -7779,7 +7226,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.BirthName",
     "SedaField": "BirthName",
@@ -7797,7 +7243,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.BirthPlace",
     "ShortName": "Lieu de naissance"
@@ -7814,7 +7259,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.BirthPlace.Address",
     "SedaField": "Address",
@@ -7832,7 +7276,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.BirthPlace.City",
     "SedaField": "City",
@@ -7850,7 +7293,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.BirthPlace.Country",
     "SedaField": "Country",
@@ -7868,7 +7310,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.BirthPlace.Geogname",
     "SedaField": "Geogname",
@@ -7886,7 +7327,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.BirthPlace.PostalCode",
     "SedaField": "PostalCode",
@@ -7904,7 +7344,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.BirthPlace.Region",
     "SedaField": "Region",
@@ -7922,7 +7361,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.Corpname",
     "SedaField": "Corpname",
@@ -7940,7 +7378,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.DeathDate",
     "SedaField": "DeathDate",
@@ -7958,7 +7395,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.DeathPlace",
     "ShortName": "Lieu de décès "
@@ -7975,7 +7411,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.DeathPlace.Address",
     "SedaField": "Address",
@@ -7993,7 +7428,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.DeathPlace.City",
     "SedaField": "City",
@@ -8011,7 +7445,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.DeathPlace.Country",
     "SedaField": "Country",
@@ -8029,7 +7462,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.DeathPlace.Geogname",
     "SedaField": "Geogname",
@@ -8047,7 +7479,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.DeathPlace.PostalCode",
     "SedaField": "PostalCode",
@@ -8065,7 +7496,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.DeathPlace.Region",
     "SedaField": "Region",
@@ -8083,7 +7513,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.FirstName",
     "SedaField": "FirstName",
@@ -8101,7 +7530,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.FullName",
     "SedaField": "FullName",
@@ -8119,7 +7547,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.Function",
     "SedaField": "Function",
@@ -8137,7 +7564,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.Gender",
     "SedaField": "Gender",
@@ -8155,7 +7581,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.GivenName",
     "SedaField": "GivenName",
@@ -8173,7 +7598,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.Identifier",
     "SedaField": "Identifier",
@@ -8191,7 +7615,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.Mandate",
     "SedaField": "Mandate",
@@ -8209,7 +7632,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.Nationality",
     "SedaField": "Nationality",
@@ -8227,7 +7649,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.Position",
     "SedaField": "Position",
@@ -8245,7 +7666,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.Role",
     "SedaField": "Role",
@@ -8265,7 +7685,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Type",
     "SedaField": "Type",
@@ -8285,7 +7704,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Version",
     "SedaField": "Version",
@@ -8303,7 +7721,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Writer",
     "ShortName": "Rédacteur"
@@ -8320,7 +7737,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.Activity",
     "SedaField": "Activity",
@@ -8338,7 +7754,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.BirthDate",
     "SedaField": "BirthDate",
@@ -8356,7 +7771,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.BirthName",
     "SedaField": "BirthName",
@@ -8374,7 +7788,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.BirthPlace",
     "ShortName": "Lieu de naissance"
@@ -8391,7 +7804,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.BirthPlace.Address",
     "SedaField": "Address",
@@ -8409,7 +7821,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.BirthPlace.City",
     "SedaField": "City",
@@ -8427,7 +7838,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.BirthPlace.Country",
     "SedaField": "Country",
@@ -8445,7 +7855,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.BirthPlace.Geogname",
     "SedaField": "Geogname",
@@ -8463,7 +7872,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.BirthPlace.PostalCode",
     "SedaField": "PostalCode",
@@ -8481,7 +7889,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.BirthPlace.Region",
     "SedaField": "Region",
@@ -8499,7 +7906,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.Corpname",
     "SedaField": "Corpname",
@@ -8517,7 +7923,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.DeathDate",
     "SedaField": "DeathDate",
@@ -8535,7 +7940,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.DeathPlace",
     "ShortName": "Lieu de décès "
@@ -8552,7 +7956,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.DeathPlace.Address",
     "SedaField": "Address",
@@ -8570,7 +7973,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.DeathPlace.City",
     "SedaField": "City",
@@ -8588,7 +7990,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.DeathPlace.Country",
     "SedaField": "Country",
@@ -8606,7 +8007,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.DeathPlace.Geogname",
     "SedaField": "Geogname",
@@ -8624,7 +8024,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.DeathPlace.PostalCode",
     "SedaField": "PostalCode",
@@ -8642,7 +8041,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.DeathPlace.Region",
     "SedaField": "Region",
@@ -8660,7 +8058,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.FirstName",
     "SedaField": "FirstName",
@@ -8678,7 +8075,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.FullName",
     "SedaField": "FullName",
@@ -8696,7 +8092,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.Function",
     "SedaField": "Function",
@@ -8714,7 +8109,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.Gender",
     "SedaField": "Gender",
@@ -8732,7 +8126,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.GivenName",
     "SedaField": "GivenName",
@@ -8750,7 +8143,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.Identifier",
     "SedaField": "Identifier",
@@ -8768,7 +8160,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.Mandate",
     "SedaField": "Mandate",
@@ -8786,7 +8177,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.Nationality",
     "SedaField": "Nationality",
@@ -8804,7 +8194,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.Position",
     "SedaField": "Position",
@@ -8822,7 +8211,6 @@
     "SedaVersions": [
       "2.1"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.Role",
     "SedaField": "Role",
@@ -8842,7 +8230,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#approximate_creation_date",
     "ShortName": "_acd"
@@ -8861,7 +8248,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#approximate_update_date",
     "ShortName": "_aud"
@@ -8880,7 +8266,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#atomic_version",
     "ShortName": "Version"
@@ -8899,7 +8284,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules",
     "ShortName": "_computedInheritedRules"
@@ -8918,7 +8302,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.AccessRule",
     "ShortName": "AccessRule"
@@ -8937,7 +8320,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.AccessRule.EndDates",
     "ShortName": "EndDates"
@@ -8956,7 +8338,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.AccessRule.InheritanceOrigin",
     "ShortName": "InheritanceOrigin"
@@ -8975,7 +8356,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.AccessRule.InheritedRuleIds",
     "ShortName": "InheritedRuleIds"
@@ -8994,7 +8374,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.AccessRule.MaxEndDate",
     "ShortName": "MaxEndDate"
@@ -9013,7 +8392,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.AccessRule.Rules",
     "ShortName": "Rules"
@@ -9032,7 +8410,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.AccessRule.Rules.EndDate",
     "SedaField": "EndDate",
@@ -9052,7 +8429,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.AccessRule.Rules.Rule",
     "SedaField": "Rule",
@@ -9072,7 +8448,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.AppraisalRule",
     "ShortName": "AppraisalRule"
@@ -9091,7 +8466,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.AppraisalRule.EndDates",
     "ShortName": "EndDates"
@@ -9110,7 +8484,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.AppraisalRule.FinalAction",
     "SedaField": "FinalAction",
@@ -9130,7 +8503,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.AppraisalRule.InheritanceOrigin",
     "ShortName": "InheritanceOrigin"
@@ -9149,7 +8521,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.AppraisalRule.InheritedRuleIds",
     "ShortName": "InheritedRuleIds"
@@ -9168,7 +8539,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.AppraisalRule.MaxEndDate",
     "ShortName": "MaxEndDate"
@@ -9187,7 +8557,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.AppraisalRule.Rules",
     "ShortName": "Rules"
@@ -9206,7 +8575,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.AppraisalRule.Rules.EndDate",
     "SedaField": "EndDate",
@@ -9226,7 +8594,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.AppraisalRule.Rules.Rule",
     "SedaField": "Rule",
@@ -9246,7 +8613,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.ClassificationRule",
     "ShortName": "ClassificationRule"
@@ -9265,7 +8631,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.ClassificationRule.EndDates",
     "ShortName": "EndDates"
@@ -9284,7 +8649,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.ClassificationRule.InheritanceOrigin",
     "ShortName": "InheritanceOrigin"
@@ -9303,7 +8667,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.ClassificationRule.InheritedRuleIds",
     "ShortName": "InheritedRuleIds"
@@ -9322,7 +8685,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.ClassificationRule.MaxEndDate",
     "ShortName": "MaxEndDate"
@@ -9341,7 +8703,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.ClassificationRule.Rules",
     "ShortName": "Rules"
@@ -9360,7 +8721,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.ClassificationRule.Rules.EndDate",
     "SedaField": "EndDate",
@@ -9380,7 +8740,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.ClassificationRule.Rules.Rule",
     "SedaField": "Rule",
@@ -9400,7 +8759,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.DisseminationRule",
     "ShortName": "DisseminationRule"
@@ -9419,7 +8777,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.DisseminationRule.EndDates",
     "ShortName": "EndDates"
@@ -9438,7 +8795,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.DisseminationRule.InheritanceOrigin",
     "ShortName": "InheritanceOrigin"
@@ -9457,7 +8813,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.DisseminationRule.InheritedRuleIds",
     "ShortName": "InheritedRuleIds"
@@ -9476,7 +8831,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.DisseminationRule.MaxEndDate",
     "ShortName": "MaxEndDate"
@@ -9495,7 +8849,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.DisseminationRule.Rules",
     "ShortName": "Rules"
@@ -9514,7 +8867,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.DisseminationRule.Rules.EndDate",
     "SedaField": "EndDate",
@@ -9534,7 +8886,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.DisseminationRule.Rules.Rule",
     "SedaField": "Rule",
@@ -9554,7 +8905,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.HoldRule",
     "ShortName": "HoldRule"
@@ -9573,7 +8923,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.HoldRule.EndDates",
     "ShortName": "EndDates"
@@ -9592,7 +8941,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.HoldRule.InheritanceOrigin",
     "ShortName": "InheritanceOrigin"
@@ -9611,7 +8959,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.HoldRule.InheritedRuleIds",
     "ShortName": "InheritedRuleIds"
@@ -9630,7 +8977,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.HoldRule.MaxEndDate",
     "ShortName": "MaxEndDate"
@@ -9649,7 +8995,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.HoldRule.Rules",
     "ShortName": "Rules"
@@ -9668,7 +9013,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.HoldRule.Rules.EndDate",
     "SedaField": "EndDate",
@@ -9688,7 +9032,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.HoldRule.Rules.Rule",
     "SedaField": "Rule",
@@ -9708,7 +9051,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.NeedAuthorization",
     "SedaField": "NeedAuthorization",
@@ -9728,7 +9070,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.ReuseRule",
     "ShortName": "ReuseRule"
@@ -9747,7 +9088,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.ReuseRule.EndDates",
     "ShortName": "EndDates"
@@ -9766,7 +9106,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.ReuseRule.InheritanceOrigin",
     "ShortName": "InheritanceOrigin"
@@ -9785,7 +9124,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.ReuseRule.InheritedRuleIds",
     "ShortName": "InheritedRuleIds"
@@ -9804,7 +9142,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.ReuseRule.MaxEndDate",
     "ShortName": "MaxEndDate"
@@ -9823,7 +9160,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.ReuseRule.Rules",
     "ShortName": "Rules"
@@ -9842,7 +9178,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.ReuseRule.Rules.EndDate",
     "SedaField": "EndDate",
@@ -9862,7 +9197,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.ReuseRule.Rules.Rule",
     "SedaField": "Rule",
@@ -9882,7 +9216,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.StorageRule",
     "ShortName": "StorageRule"
@@ -9901,7 +9234,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.StorageRule.EndDates",
     "ShortName": "EndDates"
@@ -9920,7 +9252,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.StorageRule.FinalAction",
     "SedaField": "FinalAction",
@@ -9940,7 +9271,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.StorageRule.InheritanceOrigin",
     "ShortName": "InheritanceOrigin"
@@ -9959,7 +9289,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.StorageRule.InheritedRuleIds",
     "ShortName": "InheritedRuleIds"
@@ -9978,7 +9307,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.StorageRule.MaxEndDate",
     "ShortName": "MaxEndDate"
@@ -9997,7 +9325,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.StorageRule.Rules",
     "ShortName": "Rules"
@@ -10016,7 +9343,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.StorageRule.Rules.EndDate",
     "SedaField": "EndDate",
@@ -10036,7 +9362,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.StorageRule.Rules.Rule",
     "SedaField": "Rule",
@@ -10056,7 +9381,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.indexationDate",
     "ShortName": "indexationDate"
@@ -10075,7 +9399,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#computedInheritedRules.inheritedRulesAPIOutput",
     "ShortName": "inheritedRulesAPIOutput"
@@ -10094,7 +9417,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#elimination",
     "ShortName": "_elimination"
@@ -10113,7 +9435,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#elimination.DestroyableOriginatingAgencies",
     "ShortName": "DestroyableOriginatingAgencies"
@@ -10132,7 +9453,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#elimination.ExtendedInfo",
     "ShortName": "ExtendedInfo"
@@ -10151,7 +9471,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#elimination.ExtendedInfo.ExtendedInfoDetails",
     "ShortName": "ExtendedInfoDetails"
@@ -10170,7 +9489,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#elimination.ExtendedInfo.ExtendedInfoDetails.DestroyableOriginatingAgencies",
     "ShortName": "DestroyableOriginatingAgencies"
@@ -10189,7 +9507,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#elimination.ExtendedInfo.ExtendedInfoDetails.HoldRuleIds",
     "ShortName": "HoldRuleIds"
@@ -10208,7 +9525,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#elimination.ExtendedInfo.ExtendedInfoDetails.NonDestroyableOriginatingAgencies",
     "ShortName": "NonDestroyableOriginatingAgencies"
@@ -10227,7 +9543,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#elimination.ExtendedInfo.ExtendedInfoDetails.OriginatingAgenciesInConflict",
     "ShortName": "OriginatingAgenciesInConflict"
@@ -10246,7 +9561,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#elimination.ExtendedInfo.ExtendedInfoDetails.ParentUnitId",
     "ShortName": "ParentUnitId"
@@ -10265,7 +9579,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#elimination.ExtendedInfo.ExtendedInfoType",
     "ShortName": "ExtendedInfoType"
@@ -10284,7 +9597,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#elimination.GlobalStatus",
     "ShortName": "GlobalStatus"
@@ -10303,7 +9615,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#elimination.NonDestroyableOriginatingAgencies",
     "ShortName": "NonDestroyableOriginatingAgencies"
@@ -10322,7 +9633,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#elimination.OperationId",
     "ShortName": "OperationId"
@@ -10341,7 +9651,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#graph_last_persisted_date",
     "ShortName": "_glpd"
@@ -10360,7 +9669,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#graph",
     "ShortName": "_graph"
@@ -10379,7 +9687,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#history",
     "ShortName": "_history"
@@ -10398,7 +9705,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#history.data",
     "ShortName": "data"
@@ -10417,7 +9723,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#history.data.#management",
     "ShortName": "_mgt"
@@ -10436,7 +9741,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#history.data.#management.ClassificationRule",
     "ShortName": "ClassificationRule"
@@ -10455,7 +9759,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#history.data.#management.ClassificationRule.ClassificationAudience",
     "SedaField": "ClassificationAudience",
@@ -10475,7 +9778,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#history.data.#management.ClassificationRule.ClassificationLevel",
     "SedaField": "ClassificationLevel",
@@ -10495,7 +9797,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#history.data.#management.ClassificationRule.ClassificationOwner",
     "SedaField": "ClassificationOwner",
@@ -10515,7 +9816,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#history.data.#management.ClassificationRule.ClassificationReassessingDate",
     "SedaField": "ClassificationReassessingDate",
@@ -10535,7 +9835,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#history.data.#management.ClassificationRule.Inheritance",
     "ShortName": "Inheritance"
@@ -10554,7 +9853,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#history.data.#management.ClassificationRule.Inheritance.PreventInheritance",
     "SedaField": "PreventInheritance",
@@ -10574,7 +9872,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#history.data.#management.ClassificationRule.Inheritance.PreventRulesId",
     "SedaField": "RefNonRuleId",
@@ -10594,7 +9891,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#history.data.#management.ClassificationRule.NeedReassessingAuthorization",
     "SedaField": "NeedReassessingAuthorization",
@@ -10614,7 +9910,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#history.data.#management.ClassificationRule.Rules",
     "ShortName": "Rules"
@@ -10633,7 +9928,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#history.data.#management.ClassificationRule.Rules.EndDate",
     "SedaField": "EndDate",
@@ -10653,7 +9947,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#history.data.#management.ClassificationRule.Rules.Rule",
     "SedaField": "Rule",
@@ -10673,7 +9966,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#history.data.#management.ClassificationRule.Rules.StartDate",
     "SedaField": "StartDate",
@@ -10693,7 +9985,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#history.data.#version",
     "ShortName": "Version"
@@ -10712,7 +10003,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#history.ud",
     "ShortName": "Dernière modification"
@@ -10731,7 +10021,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#id",
     "ShortName": "Identifiant du groupe d'objets"
@@ -10750,7 +10039,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#implementationVersion",
     "ShortName": "_implementationVersion"
@@ -10769,7 +10057,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#max",
     "ShortName": "Profondeur maximale"
@@ -10788,7 +10075,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management",
     "ShortName": "_mgt"
@@ -10807,7 +10093,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.AccessRule",
     "ShortName": "AccessRule"
@@ -10826,7 +10111,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.AccessRule.Inheritance",
     "ShortName": "Inheritance"
@@ -10845,7 +10129,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.AccessRule.Inheritance.PreventInheritance",
     "SedaField": "PreventInheritance",
@@ -10865,7 +10148,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.AccessRule.Inheritance.PreventRulesId",
     "SedaField": "RefNonRuleId",
@@ -10885,7 +10167,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.AccessRule.Rules",
     "ShortName": "Rules"
@@ -10904,7 +10185,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.AccessRule.Rules.EndDate",
     "SedaField": "EndDate",
@@ -10924,7 +10204,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.AccessRule.Rules.Rule",
     "SedaField": "Rule",
@@ -10944,7 +10223,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.AccessRule.Rules.StartDate",
     "SedaField": "StartDate",
@@ -10964,7 +10242,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.AppraisalRule",
     "ShortName": "AppraisalRule"
@@ -10983,7 +10260,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.AppraisalRule.FinalAction",
     "SedaField": "FinalAction",
@@ -11003,7 +10279,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.AppraisalRule.Inheritance",
     "ShortName": "Inheritance"
@@ -11022,7 +10297,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.AppraisalRule.Inheritance.PreventInheritance",
     "SedaField": "PreventInheritance",
@@ -11042,7 +10316,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.AppraisalRule.Inheritance.PreventRulesId",
     "SedaField": "RefNonRuleId",
@@ -11062,7 +10335,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.AppraisalRule.Rules",
     "ShortName": "Rules"
@@ -11081,7 +10353,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.AppraisalRule.Rules.EndDate",
     "SedaField": "EndDate",
@@ -11101,7 +10372,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.AppraisalRule.Rules.Rule",
     "SedaField": "Rule",
@@ -11121,7 +10391,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.AppraisalRule.Rules.StartDate",
     "SedaField": "StartDate",
@@ -11141,7 +10410,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.ClassificationRule",
     "ShortName": "ClassificationRule"
@@ -11160,7 +10428,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.ClassificationRule.ClassificationAudience",
     "SedaField": "ClassificationAudience",
@@ -11180,7 +10447,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.ClassificationRule.ClassificationLevel",
     "SedaField": "ClassificationLevel",
@@ -11200,7 +10466,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.ClassificationRule.ClassificationOwner",
     "SedaField": "ClassificationOwner",
@@ -11220,7 +10485,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.ClassificationRule.ClassificationReassessingDate",
     "SedaField": "ClassificationReassessingDate",
@@ -11240,7 +10504,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.ClassificationRule.Inheritance",
     "ShortName": "Inheritance"
@@ -11259,7 +10522,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.ClassificationRule.Inheritance.PreventInheritance",
     "SedaField": "PreventInheritance",
@@ -11279,7 +10541,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.ClassificationRule.Inheritance.PreventRulesId",
     "SedaField": "RefNonRuleId",
@@ -11299,7 +10560,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.ClassificationRule.NeedReassessingAuthorization",
     "SedaField": "NeedReassessingAuthorization",
@@ -11319,7 +10579,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.ClassificationRule.Rules",
     "ShortName": "Rules"
@@ -11338,7 +10597,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.ClassificationRule.Rules.EndDate",
     "SedaField": "EndDate",
@@ -11358,7 +10616,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.ClassificationRule.Rules.Rule",
     "SedaField": "Rule",
@@ -11378,7 +10635,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.ClassificationRule.Rules.StartDate",
     "SedaField": "StartDate",
@@ -11398,7 +10654,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.DisseminationRule",
     "ShortName": "DisseminationRule"
@@ -11417,7 +10672,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.DisseminationRule.Inheritance",
     "ShortName": "Inheritance"
@@ -11436,7 +10690,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.DisseminationRule.Inheritance.PreventInheritance",
     "SedaField": "PreventInheritance",
@@ -11456,7 +10709,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.DisseminationRule.Inheritance.PreventRulesId",
     "SedaField": "RefNonRuleId",
@@ -11476,7 +10728,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.DisseminationRule.Rules",
     "ShortName": "Rules"
@@ -11495,7 +10746,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.DisseminationRule.Rules.EndDate",
     "SedaField": "EndDate",
@@ -11515,7 +10765,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.DisseminationRule.Rules.Rule",
     "SedaField": "Rule",
@@ -11535,7 +10784,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.DisseminationRule.Rules.StartDate",
     "SedaField": "StartDate",
@@ -11555,7 +10803,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.HoldRule",
     "ShortName": "HoldRule"
@@ -11574,7 +10821,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.HoldRule.Inheritance",
     "ShortName": "Inheritance"
@@ -11593,7 +10839,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.HoldRule.Inheritance.PreventInheritance",
     "SedaField": "PreventInheritance",
@@ -11613,7 +10858,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.HoldRule.Inheritance.PreventRulesId",
     "SedaField": "RefNonRuleId",
@@ -11633,7 +10877,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.HoldRule.Rules",
     "ShortName": "Rules"
@@ -11652,7 +10895,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.HoldRule.Rules.EndDate",
     "SedaField": "EndDate",
@@ -11672,7 +10914,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.HoldRule.Rules.HoldEndDate",
     "SedaField": "HoldEndDate",
@@ -11692,7 +10933,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.HoldRule.Rules.HoldOwner",
     "SedaField": "HoldOwner",
@@ -11712,7 +10952,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.HoldRule.Rules.HoldReason",
     "SedaField": "HoldReason",
@@ -11732,7 +10971,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.HoldRule.Rules.HoldReassessingDate",
     "SedaField": "HoldReassessingDate",
@@ -11752,7 +10990,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.HoldRule.Rules.PreventRearrangement",
     "SedaField": "PreventRearrangement",
@@ -11772,7 +11009,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.HoldRule.Rules.Rule",
     "SedaField": "Rule",
@@ -11792,7 +11028,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.HoldRule.Rules.StartDate",
     "SedaField": "StartDate",
@@ -11812,7 +11047,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.NeedAuthorization",
     "SedaField": "NeedAuthorization",
@@ -11832,7 +11066,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.ReuseRule",
     "ShortName": "ReuseRule"
@@ -11851,7 +11084,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.ReuseRule.Inheritance",
     "ShortName": "Inheritance"
@@ -11870,7 +11102,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.ReuseRule.Inheritance.PreventInheritance",
     "SedaField": "PreventInheritance",
@@ -11890,7 +11121,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.ReuseRule.Inheritance.PreventRulesId",
     "SedaField": "RefNonRuleId",
@@ -11910,7 +11140,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.ReuseRule.Rules",
     "ShortName": "Rules"
@@ -11929,7 +11158,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.ReuseRule.Rules.EndDate",
     "SedaField": "EndDate",
@@ -11949,7 +11177,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.ReuseRule.Rules.Rule",
     "SedaField": "Rule",
@@ -11969,7 +11196,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.ReuseRule.Rules.StartDate",
     "SedaField": "StartDate",
@@ -11989,7 +11215,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.StorageRule",
     "ShortName": "StorageRule"
@@ -12008,7 +11233,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.StorageRule.FinalAction",
     "SedaField": "FinalAction",
@@ -12028,7 +11252,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.StorageRule.Inheritance",
     "ShortName": "Inheritance"
@@ -12047,7 +11270,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.StorageRule.Inheritance.PreventInheritance",
     "SedaField": "PreventInheritance",
@@ -12067,7 +11289,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.StorageRule.Inheritance.PreventRulesId",
     "SedaField": "RefNonRuleId",
@@ -12087,7 +11308,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.StorageRule.Rules",
     "ShortName": "Rules"
@@ -12106,7 +11326,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.StorageRule.Rules.EndDate",
     "SedaField": "EndDate",
@@ -12126,7 +11345,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.StorageRule.Rules.Rule",
     "SedaField": "Rule",
@@ -12146,7 +11364,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "MANAGEMENT",
     "ApiPath": "#management.StorageRule.Rules.StartDate",
     "SedaField": "StartDate",
@@ -12166,7 +11383,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#min",
     "ShortName": "Profondeur minimale"
@@ -12185,7 +11401,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#object",
     "ShortName": "Identifiant du groupe d’objets"
@@ -12204,7 +11419,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#opi",
     "ShortName": "Opération initiale"
@@ -12223,7 +11437,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#operations",
     "ShortName": "Opérations"
@@ -12242,7 +11455,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#opts",
     "ShortName": "Opérations de transfert"
@@ -12261,7 +11473,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#sedaVersion",
     "ShortName": "_sedaVersion"
@@ -12278,7 +11489,6 @@
     "SedaVersions": [
       "INTERNE"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "#originating_agency",
     "SedaField": "OriginatingAgencyIdentifier",
@@ -12296,7 +11506,6 @@
     "SedaVersions": [
       "INTERNE"
     ],
-    "StringSize": "SHORT",
     "Category": "DESCRIPTION",
     "ApiPath": "#originating_agencies",
     "ShortName": "Services producteurs liés à l’unité archivistique"
@@ -12315,7 +11524,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#storage",
     "ShortName": "_storage"
@@ -12334,7 +11542,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#storage.#nbc",
     "ShortName": "Nombre d’objets"
@@ -12353,7 +11560,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#storage.offerIds",
     "ShortName": "offerIds"
@@ -12372,7 +11578,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#storage.strategyId",
     "ShortName": "strategyId"
@@ -12391,7 +11596,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#tenant",
     "ShortName": "Tenant"
@@ -12410,7 +11614,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#uds",
     "ShortName": "_uds"
@@ -12429,7 +11632,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#unitType",
     "ShortName": "Type d'unité archivistique"
@@ -12448,7 +11650,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#unitups",
     "ShortName": "Identifiant(s) des unités archivistiques parentes (parents immédiats)"
@@ -12467,7 +11668,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#allunitups",
     "ShortName": "Identifiant(s) des unités archivistiques parentes"
@@ -12486,7 +11686,6 @@
       "2.2",
       "2.3"
     ],
-    "StringSize": "SHORT",
     "Category": "OTHER",
     "ApiPath": "#validComputedInheritedRules",
     "ShortName": "validComputedInheritedRules"

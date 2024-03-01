@@ -1,0 +1,36 @@
+[
+  {
+    "Identifier": "InternalDateNotCompatibleWithLong",
+    "ApiField": "InternalDateNotCompatibleWithLong",
+    "Origin": "INTERNAL",
+    "Type": "DATE",
+    "TypeDetail": "LONG",
+    "Description": "InternalDateNotCompatibleWithLong"
+  },
+  {
+    "Identifier": "ExternalDateNotCompatibleWithLong",
+    "ApiField": "ExternalDateNotCompatibleWithLong",
+    "Origin": "EXTERNAL",
+    "Type": "DATE",
+    "TypeDetail": "LONG",
+    "Description": "ExternalDateNotCompatibleWithLong"
+  },
+  {
+    "Identifier": "InternalStringSizeForbiddenOnNonString",
+    "ApiField": "InternalStringSizeForbiddenOnNonString",
+    "Origin": "INTERNAL",
+    "Type": "DATE",
+    "TypeDetail": "DATETIME",
+    "StringSize": "MEDIUM",
+    "Description": "InternalStringSizeForbiddenOnNonString"
+  },
+  {
+    "Identifier": "ExternalStringSizeForbiddenOnNonString",
+    "ApiField": "ExternalStringSizeForbiddenOnNonString",
+    "Origin": "EXTERNAL",
+    "Type": "DATE",
+    "TypeDetail": "DATETIME",
+    "StringSize": "MEDIUM",
+    "Description": "ExternalStringSizeForbiddenOnNonString"
+  }
+]

@@ -166,7 +166,7 @@ class LogbookAgenciesImportManager {
      * @throws VitamException thrown if the logbook could not be updated
      */
     public void logError(GUID eip, String errorsDetails, String subEvenType) throws VitamException {
-        LOGGER.error("There validation errors on the input file {}", errorsDetails);
+        LOGGER.error("There are validation errors on the input file {}", errorsDetails);
 
         // create logbook parameters
         final LogbookOperationParameters logbookParameters = LogbookParameterHelper

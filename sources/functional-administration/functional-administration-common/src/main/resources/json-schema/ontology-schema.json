@@ -56,6 +56,26 @@
         "ENUM"
       ]
     },
+    "TypeDetail": {
+      "type": "string",
+      "enum": [
+        "STRING",
+        "ENUM",
+        "DATETIME",
+        "DATE",
+        "LONG",
+        "DOUBLE",
+        "BOOLEAN"
+      ]
+    },
+    "StringSize": {
+      "type": "string",
+      "enum": [
+        "SHORT",
+        "MEDIUM",
+        "LARGE"
+      ]
+    },
     "Origin": {
       "type": "string",
       "enum": [
@@ -115,6 +135,7 @@
     "Identifier",
     "Origin",
     "Type",
+    "TypeDetail",
     "CreationDate",
     "LastUpdate"
   ]

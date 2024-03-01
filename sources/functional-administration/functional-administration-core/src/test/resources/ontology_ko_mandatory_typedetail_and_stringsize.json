@@ -1,0 +1,32 @@
+[
+  {
+    "Identifier": "InternalMissingTypeDetail",
+    "ApiField": "InternalMissingTypeDetail",
+    "Origin": "INTERNAL",
+    "Type": "BOOLEAN",
+    "Description": "InternalMissingTypeDetail"
+  },
+  {
+    "Identifier": "InternalMissingStringSize",
+    "ApiField": "InternalMissingStringSize",
+    "Origin": "INTERNAL",
+    "Type": "KEYWORD",
+    "TypeDetail": "STRING",
+    "Description": "InternalMissingStringSize"
+  },
+  {
+    "Identifier": "ExternalMissingTypeDetail",
+    "ApiField": "ExternalMissingTypeDetail",
+    "Origin": "EXTERNAL",
+    "Type": "BOOLEAN",
+    "Description": "ExternalMissingTypeDetail"
+  },
+  {
+    "Identifier": "ExternalMissingStringSize",
+    "ApiField": "ExternalMissingStringSize",
+    "Origin": "EXTERNAL",
+    "Type": "KEYWORD",
+    "TypeDetail": "STRING",
+    "Description": "ExternalMissingStringSize"
+  }
+]

@@ -60,11 +60,6 @@ public class SchemaInputModel {
     public static final String TAG_PATH_CARDINALITY = "Cardinality";
 
     /**
-     * StringSize tag
-     */
-    public static final String TAG_STRING_SIZE_CARDINALITY = "StringSize";
-
-    /**
      * The schema elt description
      */
     @JsonProperty(TAG_DESCRIPTION)
@@ -77,9 +72,6 @@ public class SchemaInputModel {
     @JsonProperty(value = TAG_PATH_CARDINALITY, required = true)
     private SchemaCardinality cardinality;
 
-
-    @JsonProperty(TAG_STRING_SIZE_CARDINALITY)
-    private SchemaStringSizeType stringSize;
     /**
      * is object flag to specify that the element is object
      */
@@ -115,14 +107,6 @@ public class SchemaInputModel {
 
     public void setCardinality(SchemaCardinality cardinality) {
         this.cardinality = cardinality;
-    }
-
-    public SchemaStringSizeType getStringSize() {
-        return stringSize;
-    }
-
-    public void setStringSize(SchemaStringSizeType stringSize) {
-        this.stringSize = stringSize;
     }
 
     public Boolean isObject() {

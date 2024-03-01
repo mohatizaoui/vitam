@@ -90,6 +90,17 @@ public class OntologyModel {
      * Collections Tag
      */
     public static final String TAG_COLLECTIONS = "Collections";
+
+    /**
+     * TypeDetail Tag
+     */
+    public static final String TAG_TYPE_DETAIL = "TypeDetail";
+
+    /**
+     * StringSize Tag
+     */
+    public static final String TAG_STRING_SIZE = "StringSize";
+
     /**
      * unique id
      */
@@ -155,6 +166,12 @@ public class OntologyModel {
 
     @JsonProperty(TAG_COLLECTIONS)
     private List<String> collections;
+
+    @JsonProperty(TAG_TYPE_DETAIL)
+    private TypeDetail typeDetail;
+
+    @JsonProperty(TAG_STRING_SIZE)
+    private StringSize stringSize;
 
     /**
      * Constructor without fields use for jackson
@@ -281,6 +298,22 @@ public class OntologyModel {
         return this;
     }
 
+    public TypeDetail getTypeDetail() {
+        return typeDetail;
+    }
+
+    public void setTypeDetail(TypeDetail typeDetail) {
+        this.typeDetail = typeDetail;
+    }
+
+    public StringSize getStringSize() {
+        return stringSize;
+    }
+
+    public void setStringSize(StringSize stringSize) {
+        this.stringSize = stringSize;
+    }
+
     @Override
     public String toString() {
         return "OntologyModel{" +
@@ -289,6 +322,8 @@ public class OntologyModel {
             ", apiField='" + apiField + '\'' +
             ", description='" + description + '\'' +
             ", type=" + type +
+            ", typeDetail='" + typeDetail + '\'' +
+            ", stringSize='" + stringSize + '\'' +
             ", origin=" + origin +
             ", creationdate='" + creationdate + '\'' +
             ", lastupdate='" + lastupdate + '\'' +

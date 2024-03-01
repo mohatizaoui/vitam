@@ -92,6 +92,11 @@ public class SchemaResponse {
     public static final String TAG_STRING_TYPE_SIZE = "StringSize";
 
     /**
+     * TypeDetail tag
+     */
+    public static final String TAG_TYPE_DETAIL = "TypeDetail";
+
+    /**
      * pathCardinality tag
      */
     public static final String TAG_PATH_CARDINALITY = "Cardinality";
@@ -160,6 +165,9 @@ public class SchemaResponse {
 
     @JsonProperty(TAG_STRING_TYPE_SIZE)
     private SchemaStringSizeType stringSize;
+
+    @JsonProperty(TAG_TYPE_DETAIL)
+    private SchemaTypeDetail typeDetail;
 
     /**
      * Constructor without fields use for jackson
@@ -274,6 +282,14 @@ public class SchemaResponse {
 
     public void setStringSize(SchemaStringSizeType stringSize) {
         this.stringSize = stringSize;
+    }
+
+    public SchemaTypeDetail getTypeDetail() {
+        return typeDetail;
+    }
+
+    public void setTypeDetail(SchemaTypeDetail typeDetail) {
+        this.typeDetail = typeDetail;
     }
 
     public Integer getTenant() {

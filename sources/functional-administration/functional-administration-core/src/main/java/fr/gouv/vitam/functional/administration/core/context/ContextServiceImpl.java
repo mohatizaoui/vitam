@@ -739,7 +739,7 @@ public class ContextServiceImpl implements ContextService {
          * @throws VitamException
          */
         private void logFatalError(String errorsDetails) throws VitamException {
-            LOGGER.error("There validation errors on the input file {}", errorsDetails);
+            LOGGER.error("There are validation errors on the input file {}", errorsDetails);
             final GUID eipUsage = GUIDFactory.newOperationLogbookGUID(ParameterHelper.getTenantParameter());
             final LogbookOperationParameters logbookParameters = LogbookParameterHelper
                 .newLogbookOperationParameters(eipUsage, CONTEXTS_IMPORT_EVENT, eip, LogbookTypeProcess.MASTERDATA,
@@ -750,7 +750,7 @@ public class ContextServiceImpl implements ContextService {
         }
 
         private void logValidationError(String errorsDetails, String action, String KOEventType) throws VitamException {
-            LOGGER.error("There validation errors on the input file {}", errorsDetails);
+            LOGGER.error("There are validation errors on the input file {}", errorsDetails);
             final GUID eipUsage = GUIDFactory.newOperationLogbookGUID(ParameterHelper.getTenantParameter());
             final LogbookOperationParameters logbookParameters = LogbookParameterHelper
                 .newLogbookOperationParameters(eipUsage, action, eip, LogbookTypeProcess.MASTERDATA,

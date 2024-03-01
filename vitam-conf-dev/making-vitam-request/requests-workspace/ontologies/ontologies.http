@@ -1,0 +1,23 @@
+# Configuration
+@tenant = 1
+@access-contract = ContratTNR
+
+### Import des ontologies internes
+POST {{url-access}}/admin-external/v1/ontologies
+Accept: application/json
+Content-Type: application/json
+X-Tenant-Id: {{tenant}}
+X-Access-Contract-Id: {{access-contract}}
+#Force-Update: true
+
+< ../../../../deployment/environments/ontology/VitamOntology.json
+
+### Import des ontologies internes + externes
+POST {{url-access}}/admin-external/v1/ontologies
+Accept: application/json
+Content-Type: application/json
+X-Tenant-Id: {{tenant}}
+X-Access-Contract-Id: {{access-contract}}
+#Force-Update: true
+
+< ./VitamOntologyAndExternal.json

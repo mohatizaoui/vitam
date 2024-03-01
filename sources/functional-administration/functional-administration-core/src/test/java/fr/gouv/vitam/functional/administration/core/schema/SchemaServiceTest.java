@@ -27,7 +27,6 @@
 package fr.gouv.vitam.functional.administration.core.schema;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
 import fr.gouv.vitam.common.database.server.DbRequestResult;
@@ -35,8 +34,6 @@ import fr.gouv.vitam.common.database.server.mongodb.VitamMongoCursor;
 import fr.gouv.vitam.common.exception.BadRequestException;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.exception.VitamException;
-import fr.gouv.vitam.common.json.JsonHandler;
-import fr.gouv.vitam.common.model.DatabaseCursor;
 import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.administration.OntologyModel;
@@ -45,9 +42,9 @@ import fr.gouv.vitam.common.model.administration.schema.SchemaInputModel;
 import fr.gouv.vitam.common.model.administration.schema.SchemaModel;
 import fr.gouv.vitam.common.model.administration.schema.SchemaOrigin;
 import fr.gouv.vitam.common.model.administration.schema.SchemaResponse;
+import fr.gouv.vitam.common.model.administration.schema.SchemaTypeDetail;
+import fr.gouv.vitam.common.model.administration.schema.SchemaStringSizeType;
 import fr.gouv.vitam.common.model.administration.schema.SchemaType;
-import fr.gouv.vitam.common.mongo.MongoRule;
-import fr.gouv.vitam.common.server.application.configuration.MongoDbNode;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -69,13 +66,15 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static fr.gouv.vitam.common.PropertiesUtils.getResourceFile;
 import static fr.gouv.vitam.common.guid.GUIDFactory.newRequestIdGUID;
+import static fr.gouv.vitam.common.json.JsonHandler.getFromFileAsTypeReference;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -90,15 +89,9 @@ import static org.mockito.Mockito.when;
 public class SchemaServiceTest {
     private static final Integer TENANT_ID = 2;
     private static final Integer ADMIN_TENANT = 1;
-
-    private static final String DATABASE_HOST = "localhost";
-
     private static final FunctionalBackupService functionalBackupService = Mockito.mock(FunctionalBackupService.class);
-
-    private static MongoDbAccessAdminImpl mongoDbAccessAdminMocked = Mockito.mock(MongoDbAccessAdminImpl.class);
-
+    private static final MongoDbAccessAdminImpl mongoDbAccessAdminMocked = Mockito.mock(MongoDbAccessAdminImpl.class);
     private static final OntologyService ontologyService = Mockito.mock(OntologyServiceImpl.class);
-    private static DatabaseCursor databaseCursor = mock(DatabaseCursor.class);
     private static SchemaService schemaService;
 
     @Rule
@@ -107,11 +100,8 @@ public class SchemaServiceTest {
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-
         VitamConfiguration.setAdminTenant(ADMIN_TENANT);
         VitamConfiguration.setTenants(List.of(ADMIN_TENANT));
-        final List<MongoDbNode> nodes = new ArrayList<>();
-        nodes.add(new MongoDbNode(DATABASE_HOST, MongoRule.getDataBasePort()));
 
         LogbookOperationsClientFactory.changeMode(null);
 
@@ -120,39 +110,47 @@ public class SchemaServiceTest {
 
     @AfterClass
     public static void tearDownAfterClass() {
-
     }
 
     @Before
-    public void setUp() {
+    public void setUp() throws FileNotFoundException, InvalidParseOperationException, ReferentialException {
         String operationId = newRequestIdGUID(TENANT_ID).toString();
 
         VitamThreadUtils.getVitamSession().setRequestId(operationId);
+
+        final RequestResponseOK<OntologyModel> mockedOntologies = new RequestResponseOK<OntologyModel>
+            ().addAllResults(
+            getFromFileAsTypeReference(getResourceFile("schema/ok-ontologies.json"),
+                new TypeReference<>() {
+                }));
+        when(ontologyService.findOntologies(any())).thenReturn(mockedOntologies);
     }
 
     @Test
     @RunWithCustomExecutor
     public void should_return_unit_internal_schema()
-        throws IOException, InvalidParseOperationException {
+        throws IOException, InvalidParseOperationException, ReferentialException {
         VitamThreadUtils.getVitamSession().setTenantId(ADMIN_TENANT);
-        List<SchemaResponse> internalSchema = schemaService.findUnitInternalSchema();
 
-        assertNotNull(internalSchema);
+        final List<SchemaResponse> internalSchema = schemaService.findUnitInternalSchema();
         assertThat(internalSchema).isNotEmpty();
-        Optional<SchemaResponse> addressBirthPlaceAdressSchemaEltOpt =
+
+        final Optional<SchemaResponse> addressBirthPlaceAddressSchemaEltOpt =
             internalSchema.stream().filter(schemaElt -> "Addressee.BirthPlace.Address".equals(schemaElt.getPath()))
                 .findAny();
 
-        assertThat(addressBirthPlaceAdressSchemaEltOpt).isPresent();
-        SchemaResponse addressBirthPlaceAdressSchemaElt = addressBirthPlaceAdressSchemaEltOpt.get();
+        assertThat(addressBirthPlaceAddressSchemaEltOpt).isPresent();
+        final SchemaResponse addressBirthPlaceAddressSchemaElt = addressBirthPlaceAddressSchemaEltOpt.get();
 
-        assertEquals(addressBirthPlaceAdressSchemaElt.getType(), SchemaType.TEXT);
-        assertEquals(addressBirthPlaceAdressSchemaElt.getSedaField(), "Address");
-        assertEquals(addressBirthPlaceAdressSchemaElt.getCollection(), "Unit");
-        assertEquals(addressBirthPlaceAdressSchemaElt.getCardinality(), SchemaCardinality.ONE);
-        assertThat(addressBirthPlaceAdressSchemaElt.getSedaVersions().contains("2.1"));
-        assertThat(addressBirthPlaceAdressSchemaElt.getSedaVersions().contains("2.2"));
-        assertThat(addressBirthPlaceAdressSchemaElt.getSedaVersions().contains("2.3"));
+        assertEquals(addressBirthPlaceAddressSchemaElt.getType(), SchemaType.TEXT);
+        assertEquals(addressBirthPlaceAddressSchemaElt.getSedaField(), "Address");
+        assertEquals(addressBirthPlaceAddressSchemaElt.getCollection(), "Unit");
+        assertEquals(addressBirthPlaceAddressSchemaElt.getCardinality(), SchemaCardinality.ONE);
+        assertThat(addressBirthPlaceAddressSchemaElt.getSedaVersions()).contains("2.1");
+        assertThat(addressBirthPlaceAddressSchemaElt.getSedaVersions()).doesNotContain("2.2");
+        assertThat(addressBirthPlaceAddressSchemaElt.getSedaVersions()).doesNotContain("2.3");
+        assertThat(addressBirthPlaceAddressSchemaElt.getTypeDetail()).isEqualTo(SchemaTypeDetail.STRING);
+        assertThat(addressBirthPlaceAddressSchemaElt.getStringSize()).isEqualTo(SchemaStringSizeType.SHORT);
     }
 
     @Test
@@ -160,49 +158,44 @@ public class SchemaServiceTest {
     public void should_return_object_group_internal_schema()
         throws IOException, InvalidParseOperationException {
         VitamThreadUtils.getVitamSession().setTenantId(ADMIN_TENANT);
-        List<SchemaResponse> internalSchema = schemaService.findObjectGroupInternalSchema();
+        final List<SchemaResponse> internalSchema = schemaService.findObjectGroupInternalSchema();
 
         // THEN
-        assertNotNull(internalSchema);
         assertThat(internalSchema).isNotEmpty();
-        assertNotNull(internalSchema);
-        assertThat(internalSchema).isNotEmpty();
-        Optional<SchemaResponse> algorithSchemaEltOpt =
+
+        final Optional<SchemaResponse> algorithSchemaEltOpt =
             internalSchema.stream().filter(
                     schemaElt -> "_qualifiers.versions.Algorithm".equals(schemaElt.getPath()))
                 .findAny();
         assertThat(algorithSchemaEltOpt).isPresent();
-        SchemaResponse algorithSchemaElt = algorithSchemaEltOpt.get();
 
+        final SchemaResponse algorithSchemaElt = algorithSchemaEltOpt.get();
         assertEquals(algorithSchemaElt.getType(), SchemaType.KEYWORD);
         assertEquals(algorithSchemaElt.getSedaField(), "Algorithm");
         assertEquals(algorithSchemaElt.getPath(), "_qualifiers.versions.Algorithm");
         assertEquals(algorithSchemaElt.getApiPath(), "#qualifiers.versions.Algorithm");
         assertEquals(algorithSchemaElt.getCollection(), "ObjectGroup");
         assertEquals(algorithSchemaElt.getCardinality(), SchemaCardinality.ONE);
-        assertThat(algorithSchemaElt.getSedaVersions().contains("2.1"));
-        assertThat(algorithSchemaElt.getSedaVersions().contains("2.2"));
-        assertThat(algorithSchemaElt.getSedaVersions().contains("2.3"));
+        assertThat(algorithSchemaElt.getSedaVersions()).contains("2.1");
+        assertThat(algorithSchemaElt.getSedaVersions()).contains("2.2");
+        assertThat(algorithSchemaElt.getSedaVersions()).contains("2.3");
 
-
-        Optional<SchemaResponse> persistentIdentifierContentSchemaEltOpt =
+        final Optional<SchemaResponse> persistentIdentifierContentSchemaEltOpt =
             internalSchema.stream()
                 .filter(schemaElt -> "_qualifiers.versions.PersistentIdentifier.PersistentIdentifierContent".equals(
                     schemaElt.getPath()))
                 .findAny();
         assertThat(persistentIdentifierContentSchemaEltOpt).isPresent();
-        SchemaResponse persistentIdentifierContentElt = persistentIdentifierContentSchemaEltOpt.get();
 
+        final SchemaResponse persistentIdentifierContentElt = persistentIdentifierContentSchemaEltOpt.get();
         assertEquals(persistentIdentifierContentElt.getType(), SchemaType.KEYWORD);
         assertEquals(persistentIdentifierContentElt.getSedaField(), "PersistentIdentifierContent");
         assertEquals(persistentIdentifierContentElt.getCollection(), "ObjectGroup");
         assertEquals(persistentIdentifierContentElt.getCardinality(), SchemaCardinality.ONE);
-        assertThat(persistentIdentifierContentElt.getSedaVersions().contains("2.2"));
-        assertThat(persistentIdentifierContentElt.getSedaVersions().contains("2.3"));
-        assertThat(!persistentIdentifierContentElt.getSedaVersions().contains("2.1"));
-
+        assertThat(persistentIdentifierContentElt.getSedaVersions()).contains("2.2");
+        assertThat(persistentIdentifierContentElt.getSedaVersions()).contains("2.3");
+        assertThat(persistentIdentifierContentElt.getSedaVersions()).doesNotContain("2.1");
     }
-
 
     @Test
     @RunWithCustomExecutor
@@ -210,24 +203,10 @@ public class SchemaServiceTest {
         throws IOException, InvalidParseOperationException, ReferentialException, InvalidCreateOperationException {
         VitamThreadUtils.getVitamSession().setTenantId(ADMIN_TENANT);
 
-        final File fileExternalSchema = PropertiesUtils.getResourceFile("schema/external-schema-db-ok.json");
+        final File fileExternalSchema = getResourceFile("schema/external-schema-db-ok.json");
         final List<Schema> schemaModelList =
-            JsonHandler.getFromFileAsTypeReference(fileExternalSchema, new TypeReference<>() {
+            getFromFileAsTypeReference(fileExternalSchema, new TypeReference<>() {
             });
-
-
-        final File ontologyFile = PropertiesUtils.getResourceFile("schema/ok-ontologies.json");
-
-        final List<OntologyModel> ontologyModelList =
-            JsonHandler.getFromFileAsTypeReference(ontologyFile, new TypeReference<>() {
-            });
-
-
-        RequestResponseOK<OntologyModel> ontologyResponse = new RequestResponseOK<OntologyModel>
-            ().addAllResults(ontologyModelList);
-        when(ontologyService.findOntologies(any())).thenReturn(ontologyResponse);
-
-
 
         VitamMongoCursor cursor = mock(VitamMongoCursor.class);
         when(cursor.hasNext())
@@ -248,75 +227,73 @@ public class SchemaServiceTest {
 
 
 
-        List<SchemaResponse> unitSchema = schemaService.findUnitSchema();
-
-        assertNotNull(unitSchema);
+        final List<SchemaResponse> unitSchema = schemaService.findUnitSchema();
         assertThat(unitSchema).isNotEmpty();
-        Optional<SchemaResponse> addressBirthPlaceAdressSchemaEltOpt =
+
+        final Optional<SchemaResponse> addressBirthPlaceAddressSchemaEltOpt =
             unitSchema.stream().filter(schemaElt -> "Addressee.BirthPlace.Address".equals(schemaElt.getPath()))
                 .findAny();
+        assertThat(addressBirthPlaceAddressSchemaEltOpt).isPresent();
 
-        assertThat(addressBirthPlaceAdressSchemaEltOpt).isPresent();
-        SchemaResponse addressBirthPlaceAdressSchemaElt = addressBirthPlaceAdressSchemaEltOpt.get();
+        final SchemaResponse addressBirthPlaceAddressSchemaElt = addressBirthPlaceAddressSchemaEltOpt.get();
+        assertEquals(addressBirthPlaceAddressSchemaElt.getType(), SchemaType.TEXT);
+        assertEquals(addressBirthPlaceAddressSchemaElt.getOrigin(), SchemaOrigin.INTERNAL);
+        assertEquals(addressBirthPlaceAddressSchemaElt.getSedaField(), "Address");
+        assertEquals(addressBirthPlaceAddressSchemaElt.getCollection(), "Unit");
+        assertEquals(addressBirthPlaceAddressSchemaElt.getCardinality(), SchemaCardinality.ONE);
+        assertThat(addressBirthPlaceAddressSchemaElt.getSedaVersions()).contains("2.1");
+        assertThat(addressBirthPlaceAddressSchemaElt.getSedaVersions()).doesNotContain("2.2");
+        assertThat(addressBirthPlaceAddressSchemaElt.getSedaVersions()).doesNotContain("2.3");
+        assertThat(addressBirthPlaceAddressSchemaElt.getTypeDetail()).isEqualTo(SchemaTypeDetail.STRING);
+        assertThat(addressBirthPlaceAddressSchemaElt.getStringSize()).isEqualTo(SchemaStringSizeType.SHORT);
 
-        assertEquals(addressBirthPlaceAdressSchemaElt.getType(), SchemaType.TEXT);
-        assertEquals(addressBirthPlaceAdressSchemaElt.getSedaField(), "Address");
-        assertEquals(addressBirthPlaceAdressSchemaElt.getCollection(), "Unit");
-        assertEquals(addressBirthPlaceAdressSchemaElt.getCardinality(), SchemaCardinality.ONE);
-        assertThat(addressBirthPlaceAdressSchemaElt.getSedaVersions().contains("2.1"));
-        assertThat(addressBirthPlaceAdressSchemaElt.getSedaVersions().contains("2.2"));
-        assertThat(addressBirthPlaceAdressSchemaElt.getSedaVersions().contains("2.3"));
 
-
-
-        Optional<SchemaResponse> birthDateSchemaEltOpt =
+        final Optional<SchemaResponse> birthDateSchemaEltOpt =
             unitSchema.stream().filter(schemaElt -> "Invoice.Provider.BirthDate".equals(schemaElt.getPath()))
                 .findAny();
-
         assertThat(birthDateSchemaEltOpt).isPresent();
-        SchemaResponse birthDateSchemaElt = birthDateSchemaEltOpt.get();
 
+        final SchemaResponse birthDateSchemaElt = birthDateSchemaEltOpt.get();
         assertEquals(birthDateSchemaElt.getType(), SchemaType.DATE);
         assertEquals(birthDateSchemaElt.getOrigin(), SchemaOrigin.EXTERNAL);
+        assertThat(birthDateSchemaElt.getTypeDetail()).isEqualTo(SchemaTypeDetail.DATETIME);
+        assertThat(birthDateSchemaElt.getStringSize()).isNull();
 
 
-        Optional<SchemaResponse> invoiceSchemaEltOpt =
+        final Optional<SchemaResponse> invoiceSchemaEltOpt =
             unitSchema.stream().filter(schemaElt -> "Invoice".equals(schemaElt.getPath()))
                 .findAny();
-
         assertThat(invoiceSchemaEltOpt).isPresent();
-        SchemaResponse invoiceSchemaElt = invoiceSchemaEltOpt.get();
 
+        final SchemaResponse invoiceSchemaElt = invoiceSchemaEltOpt.get();
         assertEquals(invoiceSchemaElt.getType(), SchemaType.OBJECT);
         assertEquals(invoiceSchemaElt.getCardinality(), SchemaCardinality.MANY);
         assertEquals(invoiceSchemaElt.getOrigin(), SchemaOrigin.EXTERNAL);
     }
-
-
 
     @Test
     @RunWithCustomExecutor
     public void should_failed_when_validation_failed() throws IOException, VitamException {
         VitamThreadUtils.getVitamSession().setTenantId(ADMIN_TENANT);
         final File fileInputSchema =
-            PropertiesUtils.getResourceFile("schema/external-schema-ok.json");
+            getResourceFile("schema/external-schema-ok.json");
         final List<SchemaInputModel> schemaModelInputList =
-            JsonHandler.getFromFileAsTypeReference(fileInputSchema, new TypeReference<>() {
+            getFromFileAsTypeReference(fileInputSchema, new TypeReference<>() {
             });
 
-        final File fileExternalSchema = PropertiesUtils.getResourceFile("schema/external-schema-db-ok.json");
-        final List<Schema> schemaModelList =
-            JsonHandler.getFromFileAsTypeReference(fileExternalSchema, new TypeReference<>() {
+        final File fileExternalSchema = getResourceFile("schema/external-schema-db-ok.json");
+        final List<SchemaModel> schemaModelList =
+            getFromFileAsTypeReference(fileExternalSchema, new TypeReference<>() {
             });
 
         DbRequestResult dbRequestResult = mock(DbRequestResult.class);
         final RequestResponseOK response = new RequestResponseOK<>();
         response.addAllResults(schemaModelList);
 
-        final File ontologyFile = PropertiesUtils.getResourceFile("schema/ok-ontologies.json");
+        final File ontologyFile = getResourceFile("schema/ok-ontologies.json");
 
         final List<OntologyModel> ontologyModelList =
-            JsonHandler.getFromFileAsTypeReference(ontologyFile, new TypeReference<>() {
+            getFromFileAsTypeReference(ontologyFile, new TypeReference<>() {
             });
 
 
@@ -334,46 +311,41 @@ public class SchemaServiceTest {
             dbRequestResult);
 
 
-
-        RequestResponse<SchemaModel> importingResponse =
-            schemaService.importExternalSchemaElements(schemaModelInputList);
-
+        final RequestResponse<SchemaModel> importingResponse = schemaService.importExternalSchemaElements(schemaModelInputList);
         assertNotNull(importingResponse);
         assertEquals(importingResponse.getStatus(), HttpStatus.SC_BAD_REQUEST);
 
     }
-
 
     @Test
     @RunWithCustomExecutor
     public void should_success_when_validation_success() throws IOException, VitamException {
         VitamThreadUtils.getVitamSession().setTenantId(ADMIN_TENANT);
         final File fileInputSchema =
-            PropertiesUtils.getResourceFile("schema/external-schema-ok.json");
+            getResourceFile("schema/external-schema-ok.json");
         final List<SchemaInputModel> schemaModelInputList =
-            JsonHandler.getFromFileAsTypeReference(fileInputSchema, new TypeReference<>() {
+            getFromFileAsTypeReference(fileInputSchema, new TypeReference<>() {
             });
 
-        final File fileExternalSchema = PropertiesUtils.getResourceFile("schema/external-schema-db-ok.json");
+        final File fileExternalSchema = getResourceFile("schema/external-schema-db-ok.json");
         final List<Schema> schemaModelList =
-            JsonHandler.getFromFileAsTypeReference(fileExternalSchema, new TypeReference<>() {
+            getFromFileAsTypeReference(fileExternalSchema, new TypeReference<>() {
             });
 
         DbRequestResult dbRequestResult = mock(DbRequestResult.class);
         final RequestResponseOK response = new RequestResponseOK<>();
         response.addAllResults(Collections.emptyList());
 
-        final File ontologyFile = PropertiesUtils.getResourceFile("schema/ok-ontologies.json");
+        final File ontologyFile = getResourceFile("schema/ok-ontologies.json");
 
         final List<OntologyModel> ontologyModelList =
-            JsonHandler.getFromFileAsTypeReference(ontologyFile, new TypeReference<>() {
+            getFromFileAsTypeReference(ontologyFile, new TypeReference<>() {
             });
 
 
-        RequestResponseOK<OntologyModel> ontologyResponse = new RequestResponseOK<OntologyModel>
+        final RequestResponseOK<OntologyModel> ontologyResponse = new RequestResponseOK<OntologyModel>
             ().addAllResults(ontologyModelList);
         when(ontologyService.findOntologies(any())).thenReturn(ontologyResponse);
-
 
         when(dbRequestResult.getCount()).thenReturn(Long.valueOf(schemaModelList.size()));
         when(dbRequestResult.getTotal()).thenReturn(Long.valueOf(schemaModelList.size()));
@@ -388,13 +360,10 @@ public class SchemaServiceTest {
         when(mongoDbAccessAdminMocked.insertDocument(any(), Mockito.eq(FunctionalAdminCollections.SCHEMA))).thenReturn(
             dbRequestResult);
 
-
-        RequestResponse<SchemaModel> importingResponse =
+        final RequestResponse<SchemaModel> importingResponse =
             schemaService.importExternalSchemaElements(schemaModelInputList);
-
         assertNotNull(importingResponse);
         assertEquals(importingResponse.getStatus(), HttpStatus.SC_CREATED);
-
     }
 
     @Test
@@ -463,9 +432,9 @@ public class SchemaServiceTest {
 
     private void setUpMockedFindDocumentsResponse(String filePath)
         throws IOException, InvalidParseOperationException, ReferentialException {
-        final File fileExternalSchema = PropertiesUtils.getResourceFile(filePath);
+        final File fileExternalSchema = getResourceFile(filePath);
         final List<SchemaModel> schemaModelList =
-            JsonHandler.getFromFileAsTypeReference(fileExternalSchema, new TypeReference<>() {
+            getFromFileAsTypeReference(fileExternalSchema, new TypeReference<>() {
             });
         DbRequestResult dbRequestResult = mock(DbRequestResult.class);
         final RequestResponseOK response = new RequestResponseOK<>();

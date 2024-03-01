@@ -49,14 +49,6 @@
     "Description": {
       "type": "string"
     },
-    "StringSize": {
-      "type": "string",
-      "enum": [
-        "SHORT",
-        "MEDIUM",
-        "LARGE"
-      ]
-    },
     "Origin": {
       "type": "string",
       "enum": [

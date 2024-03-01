@@ -559,7 +559,7 @@ public class SecurityProfileService implements VitamAutoCloseable {
          * @param eventType
          */
         private void logValidationError(final String errorsDetails, String eventType) throws VitamException {
-            LOGGER.error("There validation errors on the input file {}", errorsDetails);
+            LOGGER.error("There are validation errors on the input file {}", errorsDetails);
             final GUID eipId = GUIDFactory.newOperationLogbookGUID(ParameterHelper.getTenantParameter());
             final LogbookOperationParameters logbookParameters = LogbookParameterHelper
                 .newLogbookOperationParameters(eipId, eventType, eip, LogbookTypeProcess.MASTERDATA,
@@ -577,7 +577,7 @@ public class SecurityProfileService implements VitamAutoCloseable {
          * @throws VitamException
          */
         private void logFatalError(String errorsDetails, String eventCode) throws VitamException {
-            LOGGER.error("There validation errors on the input file {}", errorsDetails);
+            LOGGER.error("There are validation errors on the input file {}", errorsDetails);
             final GUID eipId = GUIDFactory.newOperationLogbookGUID(ParameterHelper.getTenantParameter());
             final LogbookOperationParameters logbookParameters = LogbookParameterHelper
                 .newLogbookOperationParameters(eipId, eventCode, eip, LogbookTypeProcess.MASTERDATA,
