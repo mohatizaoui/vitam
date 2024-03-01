@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-ICU_VERSION="7.17.8"
+ICU_VERSION="7.17.18"
 WORKING_FOLDER=$(dirname $0)
 
 if [ ! -d ${WORKING_FOLDER}/target ]; then

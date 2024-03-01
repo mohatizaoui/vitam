@@ -585,7 +585,7 @@
           }
         ]
       },
-      "pluginVersion": "10.3.1",
+      "pluginVersion": "10.3.3",
       "targets": [
         {
           "datasource": {

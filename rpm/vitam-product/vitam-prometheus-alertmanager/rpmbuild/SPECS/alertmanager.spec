@@ -1,5 +1,5 @@
 Name:    vitam-alertmanager
-Version: 0.26.0
+Version: 0.27.0
 Release: 1%{?dist}
 Summary: Prometheus Alertmanager.
 License: Apache License 2.0
