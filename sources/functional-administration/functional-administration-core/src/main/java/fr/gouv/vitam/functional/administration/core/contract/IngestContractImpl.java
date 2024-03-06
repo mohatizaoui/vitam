@@ -587,17 +587,21 @@ public class IngestContractImpl implements ContractService<IngestContractModel> 
 
             final JsonNode signaturePolicyNode = queryDsl.findValue(IngestContractModel.TAG_SIGNATURE_POLICY);
             if (signaturePolicyNode != null) {
-                SignaturePolicy signaturePolicy =
-                    JsonHandler.getFromJsonNode(signaturePolicyNode, SignaturePolicy.class);
-                if (validationService.isInvalidSignaturePolicy(signaturePolicy)) {
-                    error.addToErrors(getVitamError(VitamCode.CONTRACT_VALIDATION_ERROR.getItem(),
-                        GenericRejectionCause
-                            .rejectInconsistentContract(ingestContractModel.getName(),
-                                "The fields declaredSignature, declaredTimestamp, or declaredAdditionalProof are not authorized due to the signature policy")
-                            .getReason()).setMessage(UPDATE_CONTRACT_BAD_REQUEST));
+                try {
+                    SignaturePolicy signaturePolicy =
+                            JsonHandler.getFromJsonNode(signaturePolicyNode, SignaturePolicy.class);
+                    if (validationService.isInvalidSignaturePolicy(signaturePolicy)) {
+                        error.addToErrors(getVitamError(VitamCode.CONTRACT_VALIDATION_ERROR.getItem(),
+                                GenericRejectionCause
+                                        .rejectInconsistentContract(ingestContractModel.getName(),
+                                                "The fields declaredSignature, declaredTimestamp, or declaredAdditionalProof are not authorized due to the signature policy")
+                                        .getReason()).setMessage(UPDATE_CONTRACT_BAD_REQUEST));
+                    }
+                    validationService.validSignatureObject(signaturePolicy);
+                    queryDsl = addValidatedSignatureToQueryDsl(queryDsl, signaturePolicy);
+                } catch (InvalidParseOperationException e) {
+                    throw new SchemaValidationException("Update process failure for the entry contract: incorrect value entered in the SignaturePolicy field: expected values: [ALLOWED, MANDATORY, FORBIDDEN]", e.getCause());
                 }
-                validationService.validSignatureObject(signaturePolicy);
-                queryDsl = addValidatedSignatureToQueryDsl(queryDsl, signaturePolicy);
             }
 
 
