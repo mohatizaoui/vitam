@@ -150,7 +150,7 @@ public interface AccessInternalModule {
      */
     Response getObject(String persistentIdentifier)
         throws MetaDataNotFoundException, StorageNotFoundException,
-        AccessInternalUnavailableDataFromAsyncOfferException, AccessInternalExecutionException;
+        AccessInternalException;
 
     /**
      * Retrieve all accessLog by the concatenation of all accesslog files as InputStream

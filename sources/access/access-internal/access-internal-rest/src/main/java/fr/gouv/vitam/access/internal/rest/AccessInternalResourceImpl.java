@@ -31,6 +31,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.annotations.VisibleForTesting;
 import fr.gouv.vitam.access.internal.api.AccessInternalModule;
 import fr.gouv.vitam.access.internal.api.AccessInternalResource;
+import fr.gouv.vitam.access.internal.common.exception.AccessInternalException;
 import fr.gouv.vitam.access.internal.common.exception.AccessInternalExecutionException;
 import fr.gouv.vitam.access.internal.common.exception.AccessInternalIllegalOperationException;
 import fr.gouv.vitam.access.internal.common.exception.AccessInternalRuleExecutionException;
@@ -412,8 +413,7 @@ public class AccessInternalResourceImpl extends ApplicationStatusResource implem
                 return responseBuilder.entity(optionalPurgedPersistentIdentifier.get()).build();
             }
             throw new PersistentIdentifierNotFoundException();
-        } catch (AccessInternalUnavailableDataFromAsyncOfferException | StorageNotFoundException |
-                 AccessInternalExecutionException e) {
+        } catch (StorageNotFoundException | AccessInternalException e) {
             LOGGER.error(e);
             return Response.status(INTERNAL_SERVER_ERROR).entity(getErrorEntity(INTERNAL_SERVER_ERROR, e.getMessage()))
                 .build();

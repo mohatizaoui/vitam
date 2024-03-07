@@ -123,6 +123,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
@@ -185,7 +186,17 @@ public class AccessInternalModuleImplTest {
     private static final String SAMPLE_OBJECTGROUP_FILENAME = "sample_objectGroup_document.json";
     private static JsonNode sampleObjectGroup;
     private static final String METADATA_GOT_BY_ID = "metadata_got_by_id_result.json";
+    private static final String SELECT_ONE_UNIT_ID = "select_one_unit_id_result.json";
+    private static final String SELECT_FIRST_UNIT_ID = "select_first_unit_id_result.json";
+    private static final String SELECT_LAST_UNIT_ID = "select_last_unit_id_result.json";
+    private static final String SELECT_NO_UNIT_ID = "select_no_unit_id_result.json";
+
     private static JsonNode metadataObjectGroupResponse;
+
+    private static JsonNode selectOneUnitIdResponse;
+    private static JsonNode responseWithFirstValidId;
+    private static JsonNode responseWithLastValidId;
+    private static JsonNode emptyValidIdResponse;
 
     private static final String ACCESS_CONTRACT_NO_PERMISSION = "access_contract_no_update_allowed.json";
     private static final String ACCESS_CONTRACT_NO_WRITING_RESTRICTED_DESC = "access_contract_no_update_desc_mgt.json";
@@ -290,6 +301,11 @@ public class AccessInternalModuleImplTest {
         serverPort = junitHelper.findAvailablePort();
         sampleObjectGroup = JsonHandler.getFromFile(PropertiesUtils.findFile(SAMPLE_OBJECTGROUP_FILENAME));
         metadataObjectGroupResponse = JsonHandler.getFromFile(PropertiesUtils.findFile(METADATA_GOT_BY_ID));
+        selectOneUnitIdResponse = JsonHandler.getFromFile(PropertiesUtils.findFile(SELECT_ONE_UNIT_ID));
+        responseWithFirstValidId = JsonHandler.getFromFile(PropertiesUtils.findFile(SELECT_FIRST_UNIT_ID));
+        responseWithLastValidId = JsonHandler.getFromFile(PropertiesUtils.findFile(SELECT_LAST_UNIT_ID));;
+        emptyValidIdResponse = JsonHandler.getFromFile(PropertiesUtils.findFile(SELECT_NO_UNIT_ID));
+
         updateQuery.addActions(new SetAction("name", "test"));
     }
 
@@ -958,6 +974,7 @@ public class AccessInternalModuleImplTest {
     private void setAccessLogInfoInVitamSession() {
         AccessContractModel contract = new AccessContractModel();
         contract.setAccessLog(ActivationStatus.ACTIVE);
+        contract.setEveryOriginatingAgency(Boolean.FALSE);
         VitamThreadUtils.getVitamSession().setContract(contract);
     }
 
@@ -1397,9 +1414,9 @@ public class AccessInternalModuleImplTest {
     private CloseableIterator<ObjectEntry> getMockedResponseForListContainer() {
 
         return CloseableIteratorUtils.toCloseableIterator(Arrays.asList(
-                new ObjectEntry("0_s_a_l_20180810040000000_20180810080000000_id.log", 0L),
-                new ObjectEntry("0_s_a_l_20180810090000000_20180810150000000_id.log", 0L),
-                new ObjectEntry("0_s_a_l_20180810160000000_20180810190000000_id.log", 0L))
+            new ObjectEntry("0_s_a_l_20180810040000000_20180810080000000_id.log", 0L),
+            new ObjectEntry("0_s_a_l_20180810090000000_20180810150000000_id.log", 0L),
+            new ObjectEntry("0_s_a_l_20180810160000000_20180810190000000_id.log", 0L))
             .iterator());
     }
 
@@ -1473,7 +1490,7 @@ public class AccessInternalModuleImplTest {
         // When
         // Then
         Assertions.assertThatCode(
-                () -> accessModuleImpl.checkClassificationLevel(fromStringToJson(updateClassificationLevel)))
+            () -> accessModuleImpl.checkClassificationLevel(fromStringToJson(updateClassificationLevel)))
             .hasMessageContaining("Classification Level is not in the list of allowed values");
     }
 
@@ -1493,7 +1510,7 @@ public class AccessInternalModuleImplTest {
         // When
         // Then
         Assertions.assertThatCode(
-                () -> accessModuleImpl.checkClassificationLevel(fromStringToJson(updateClassificationLevel)))
+            () -> accessModuleImpl.checkClassificationLevel(fromStringToJson(updateClassificationLevel)))
             .doesNotThrowAnyException();
     }
 
@@ -1558,7 +1575,7 @@ public class AccessInternalModuleImplTest {
             .when(metaDataClient).selectObjectGrouptbyId(any(), eq("MyGotId"));
         doReturn(Optional.of("MyAccessRequestId"))
             .when(storageClient).createAccessRequestIfRequired("default", null, DataCategory.OBJECT,
-                List.of("aeaaaaaaaahofq3oab6a4al5zlugftaaaaaq"));
+            List.of("aeaaaaaaaahofq3oab6a4al5zlugftaaaaaq"));
 
         // When
         Optional<AccessRequestReference> objectAccessRequest =
@@ -1585,7 +1602,7 @@ public class AccessInternalModuleImplTest {
             .when(metaDataClient).selectObjectGrouptbyId(any(), eq("MyGotId"));
         doReturn(Optional.empty())
             .when(storageClient).createAccessRequestIfRequired("default", null, DataCategory.OBJECT,
-                List.of("aeaaaaaaaahofq3oab6a4al5zlugftaaaaaq"));
+            List.of("aeaaaaaaaahofq3oab6a4al5zlugftaaaaaq"));
 
         // When
         Optional<AccessRequestReference> objectAccessRequest =
@@ -1626,7 +1643,7 @@ public class AccessInternalModuleImplTest {
             .when(metaDataClient).selectObjectGrouptbyId(any(), eq("MyGotId"));
         doThrow(new StorageServerClientException("prb"))
             .when(storageClient).createAccessRequestIfRequired("default", null, DataCategory.OBJECT,
-                List.of("aeaaaaaaaahofq3oab6a4al5zlugftaaaaaq"));
+            List.of("aeaaaaaaaahofq3oab6a4al5zlugftaaaaaq"));
 
         // When / Then
         assertThatThrownBy(() -> accessModuleImpl.createObjectAccessRequestIfRequired("MyGotId", "BinaryMaster", 1))
@@ -1711,10 +1728,10 @@ public class AccessInternalModuleImplTest {
                 .getStorageStrategyId(),
             StatusByAccessRequest::getAccessRequestStatus
         ).containsExactlyInAnyOrderElementsOf(Stream.concat(
-                IntStream.range(0, 1234)
-                    .mapToObj(i -> tuple("accessRequestId1-" + i, "async_strategy1", AccessRequestStatus.READY)),
-                IntStream.range(0, 1234)
-                    .mapToObj(i -> tuple("accessRequestId2-" + i, "async_strategy2", AccessRequestStatus.READY))
+            IntStream.range(0, 1234)
+                .mapToObj(i -> tuple("accessRequestId1-" + i, "async_strategy1", AccessRequestStatus.READY)),
+            IntStream.range(0, 1234)
+                .mapToObj(i -> tuple("accessRequestId2-" + i, "async_strategy2", AccessRequestStatus.READY))
             ).collect(Collectors.toList())
         );
 
@@ -1736,7 +1753,7 @@ public class AccessInternalModuleImplTest {
 
         doThrow(new StorageIllegalOperationClientException("sync offer"))
             .when(storageClient).checkAccessRequestStatuses("async_strategy1", null,
-                List.of("accessRequestId1"), false);
+            List.of("accessRequestId1"), false);
 
         // When / Then
         assertThatThrownBy(() -> accessModuleImpl.checkAccessRequestStatuses(List.of(accessRequest1)))
@@ -1753,7 +1770,7 @@ public class AccessInternalModuleImplTest {
 
         doThrow(new StorageServerClientException("error"))
             .when(storageClient).checkAccessRequestStatuses("async_strategy1", null,
-                List.of("accessRequestId1"), false);
+            List.of("accessRequestId1"), false);
 
         // When / Then
         assertThatThrownBy(() -> accessModuleImpl.checkAccessRequestStatuses(List.of(accessRequest1)))
@@ -1814,4 +1831,85 @@ public class AccessInternalModuleImplTest {
         assertThat(accessModuleImpl.streamObjects(query).getStatus())
             .isEqualTo(200);
     }
+
+    @Test
+    public void selectOneUnitIdThrowsIllegalArgumentExceptionWhenListIsNull() {
+        List<String> archiveUnitIds = null;
+
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
+            accessModuleImpl.findFirstAccessibleArchiveUnitId(archiveUnitIds));
+
+        assertTrue(thrown.getMessage().contains("Archive unit ID list cannot be empty."));
+    }
+
+    @Test
+    public void selectOneUnitIdThrowsIllegalArgumentExceptionWhenListIsEmpty() {
+
+        List<String> archiveUnitIds = new ArrayList<>();
+
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
+            accessModuleImpl.findFirstAccessibleArchiveUnitId(archiveUnitIds));
+
+        assertTrue(thrown.getMessage().contains("Archive unit ID list cannot be empty."));
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void testSelectOneUnitIdReturnsValidId() throws Exception {
+        List<String> archiveUnitIds = Arrays.asList("aeaqaaaaaaeaaaabaa2okamn6rmxmeyaaaaq");
+        when(metaDataClient.selectUnits(any())).thenReturn(selectOneUnitIdResponse);
+        setAccessLogInfoInVitamSession();
+        String actualId = accessModuleImpl.findFirstAccessibleArchiveUnitId(archiveUnitIds);
+        assertEquals("aeaqaaaaaaeaaaabaa2okamn6rmxmeyaaaaq", actualId);
+    }
+
+
+    @Test
+    @RunWithCustomExecutor
+    public void testSelectOneUnitIdReturnsValidIdwithMultipleCases() throws Exception {
+        List<String> archiveUnitIds = Arrays.asList("aeaqaaaaaaeaaaabaa2okamn6rmxmeyaaaaq");
+        when(metaDataClient.selectUnits(any(JsonNode.class))).thenReturn(selectOneUnitIdResponse);
+        setAccessLogInfoInVitamSession();
+        String actualId = accessModuleImpl.findFirstAccessibleArchiveUnitId(archiveUnitIds);
+        assertEquals("aeaqaaaaaaeaaaabaa2okamn6rmxmeyaaaaq", actualId);
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void testFindFirstAccessibleArchiveUnitIdWithOneValidIdFirst() throws Exception {
+        List<String> archiveUnitIds = Arrays.asList("aeaqaaaaaaeaaaabaa2okamn6rmxmeyaaaaq", "aeaqaaaaaaeaaaacaa2okamn6rmxmeyaaaaq", "aeaqaaaaaaeaaaadaa2okamn6rmxmeyaaaaq");
+
+        when(metaDataClient.selectUnits(any(JsonNode.class))).thenReturn(responseWithFirstValidId);
+        setAccessLogInfoInVitamSession();
+
+        String actualId = accessModuleImpl.findFirstAccessibleArchiveUnitId(archiveUnitIds);
+
+        assertEquals("aeaqaaaaaaeaaaabaa2okamn6rmxmeyaaaaq", actualId);
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void testFindFirstAccessibleArchiveUnitIdWithOneValidIdLast() throws Exception {
+        List<String> archiveUnitIds = Arrays.asList("aeaqaaaaaaeaaaacaa2okamn6rmxmeyaaaaq", "aeaqaaaaaaeaaaadaa2okamn6rmxmeyaaaaq", "aeaqaaaaaaeaaaabaa2okamn6rmxmeyaaaaq");
+
+        when(metaDataClient.selectUnits(any(JsonNode.class))).thenReturn(responseWithLastValidId);
+        setAccessLogInfoInVitamSession();
+
+        String actualId = accessModuleImpl.findFirstAccessibleArchiveUnitId(archiveUnitIds);
+
+        assertEquals("aeaqaaaaaaeaaaabaa2okamn6rmxmeyaaaaq", actualId);
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void testFindFirstAccessibleArchiveUnitIdWithNoValidIds() throws Exception {
+        List<String> archiveUnitIds = Arrays.asList("aeaqaaaaaaeaaaacaa2okamn6rmxmeyaaaaq", "aeaqaaaaaaeaaaadaa2okamn6rmxmeyaaaaq", "aeaqaaaaaaeaaaeaa2okamn6rmxmeyaaaaq");
+
+        when(metaDataClient.selectUnits(any(JsonNode.class))).thenReturn(emptyValidIdResponse);
+        setAccessLogInfoInVitamSession();
+
+        assertThrows(MetaDataNotFoundException.class, () -> accessModuleImpl.findFirstAccessibleArchiveUnitId(archiveUnitIds));
+    }
+
 }
+
