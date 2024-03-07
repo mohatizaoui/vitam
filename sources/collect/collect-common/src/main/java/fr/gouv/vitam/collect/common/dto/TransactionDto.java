@@ -31,6 +31,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -73,6 +74,8 @@ public class TransactionDto implements Serializable {
     @JsonProperty(value = "VitamOperationId") private String vitamOperationId;
 
     @JsonProperty(value = "AutomaticIngest") private Boolean automaticIngest;
+
+    @JsonProperty(value = "Batches") private List<BatchDto> batches;
 
 
     public TransactionDto() {
@@ -256,6 +259,15 @@ public class TransactionDto implements Serializable {
 
     public void setAutomaticIngest(Boolean automaticIngest) {
         this.automaticIngest = automaticIngest;
+    }
+
+    public List<BatchDto> getBatches() {
+        return batches;
+    }
+
+
+    public void setBatches(List<BatchDto> batches) {
+        this.batches = batches;
     }
 
     @Override

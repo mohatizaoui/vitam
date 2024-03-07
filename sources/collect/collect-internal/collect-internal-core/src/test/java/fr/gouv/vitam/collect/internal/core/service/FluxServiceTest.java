@@ -177,12 +177,14 @@ public class FluxServiceTest {
 
         JsonAssert.assertJsonEquals(units.values(), expectedUnits, JsonAssert.when(Option.IGNORING_ARRAY_ORDER)
             .whenIgnoringPaths(List.of("[*]." + VitamFieldsHelper.id(), "[*]." + VitamFieldsHelper.unitups(),
-                "[*]." + VitamFieldsHelper.object())));
+                "[*]." + VitamFieldsHelper.object(),
+                "[*]." + VitamFieldsHelper.batchId())));
 
         final JsonNode expectedGots = JsonHandler.getFromFile(PropertiesUtils.getResourceFile(OBJECTGROUPS_PATH));
 
         JsonAssert.assertJsonEquals(JsonHandler.toJsonNode(objectGroups.values()), expectedGots,
             JsonAssert.when(Option.IGNORING_ARRAY_ORDER).whenIgnoringPaths(List.of("[*]." + VitamFieldsHelper.id(),
+                "[*]." + VitamFieldsHelper.batchId(),
                 "[*]." + VitamFieldsHelper.qualifiers() + "[*]." + TAG_VERSIONS + "[*]." + VitamFieldsHelper.id(),
                 "[*]." + TAG_FILE_INFO + "." + FileInfoModel.LAST_MODIFIED,
                 "[*]." + VitamFieldsHelper.qualifiers() + "[*]." + TAG_VERSIONS + "[*]." + TAG_FILE_INFO + "." +
@@ -334,13 +336,15 @@ public class FluxServiceTest {
         final JsonNode expectedUnits = JsonHandler.getFromFile(
             PropertiesUtils.getResourceFile("json/01_expected_units.json"));
         JsonAssert.assertJsonEquals(units.values(), expectedUnits, JsonAssert.when(Option.IGNORING_ARRAY_ORDER)
-            .whenIgnoringPaths(List.of("[*]." + VitamFieldsHelper.id(), "[*]." + VitamFieldsHelper.unitups(),
+            .whenIgnoringPaths(List.of("[*]." + VitamFieldsHelper.id(), "[*]." + VitamFieldsHelper.batchId(),
+                "[*]." + VitamFieldsHelper.unitups(),
                 "[*]." + VitamFieldsHelper.object())));
 
         final JsonNode expectedGots = JsonHandler.getFromFile(
             PropertiesUtils.getResourceFile("json/01_expected_got.json"));
         JsonAssert.assertJsonEquals(JsonHandler.toJsonNode(objectGroups.values()), expectedGots,
             JsonAssert.when(Option.IGNORING_ARRAY_ORDER).whenIgnoringPaths(List.of("[*]." + VitamFieldsHelper.id(),
+                "[*]." + VitamFieldsHelper.batchId(),
                 "[*]." + VitamFieldsHelper.qualifiers() + "[*]." + TAG_VERSIONS + "[*]." + VitamFieldsHelper.id(),
                 "[*]." + TAG_FILE_INFO + "." + FileInfoModel.LAST_MODIFIED,
                 "[*]." + VitamFieldsHelper.qualifiers() + "[*]." + TAG_VERSIONS + "[*]." + TAG_FILE_INFO + "." +

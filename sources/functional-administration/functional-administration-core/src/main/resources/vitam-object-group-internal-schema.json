@@ -1848,5 +1848,23 @@
     ],
     "StringSize": "SHORT",
     "ShortName": "Version"
+  },
+  {
+    "FieldName": "_batchId",
+    "Type": "KEYWORD",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_batchId",
+    "ApiPath": "#batchId",
+    "ApiField": "#batchId",
+    "Collection": "ObjectGroup",
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "StringSize": "SHORT",
+    "ShortName": "batch identifier"
   }
 ]

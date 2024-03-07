@@ -31,14 +31,10 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.gouv.vitam.collect.common.exception.CollectInternalException;
 import fr.gouv.vitam.common.ParametersChecker;
 import fr.gouv.vitam.common.VitamConfiguration;
-import fr.gouv.vitam.common.database.builder.query.InQuery;
-import fr.gouv.vitam.common.database.builder.query.Query;
-import fr.gouv.vitam.common.database.builder.query.QueryHelper;
 import fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper;
 import fr.gouv.vitam.common.database.builder.request.configuration.BuilderToken;
 import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
 import fr.gouv.vitam.common.database.builder.request.multiple.InsertMultiQuery;
-import fr.gouv.vitam.common.database.builder.request.multiple.RequestMultiple;
 import fr.gouv.vitam.common.database.builder.request.multiple.SelectMultiQuery;
 import fr.gouv.vitam.common.database.builder.request.multiple.UpdateMultiQuery;
 import fr.gouv.vitam.common.database.parser.request.multiple.RequestParserHelper;
@@ -64,7 +60,6 @@ import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 
 import javax.annotation.Nonnull;
 import javax.ws.rs.ProcessingException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -72,8 +67,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static fr.gouv.vitam.collect.internal.core.helpers.MetadataHelper.applyTransactionToQuery;
-import static fr.gouv.vitam.common.database.builder.query.QueryHelper.and;
-import static fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper.initialOperation;
 
 public class MetadataRepository {
 
@@ -112,6 +105,18 @@ public class MetadataRepository {
         }, VitamConfiguration.getElasticSearchScrollTimeoutInMilliseconds(),
             VitamConfiguration.getElasticSearchScrollLimit());
 
+    }
+
+    public ScrollSpliterator<JsonNode> selectObjectGroups(SelectMultiQuery request, @Nonnull String transactionId) {
+        return new ScrollSpliterator<>(request, query -> {
+            try {
+                return JsonHandler.getFromJsonNode(selectObjectGroups(request.getFinalSelect(), transactionId),
+                    RequestResponseOK.class, JsonNode.class);
+            } catch (CollectInternalException | InvalidParseOperationException e) {
+                throw new IllegalStateException(e);
+            }
+        }, VitamConfiguration.getElasticSearchScrollTimeoutInMilliseconds(),
+            VitamConfiguration.getElasticSearchScrollLimit());
     }
 
     public JsonNode selectUnitById(String unitId) throws CollectInternalException {

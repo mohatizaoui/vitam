@@ -108,15 +108,16 @@ public class BusinessApplication extends ConfigurationApplication {
             // Services
             MetadataService metadataService = new MetadataService(metadataRepository, projectRepository);
             ProjectService projectService = new ProjectService(projectRepository);
-            TransactionService transactionService =
-                new TransactionService(transactionRepository, projectService, metadataRepository,
-                    workspaceCollectClientFactory, accessInternalClientFactory, ingestInternalClientFactory);
-            SipService sipService = new SipService(workspaceCollectClientFactory, metadataRepository);
             CollectService collectService =
                 new CollectService(metadataRepository, workspaceCollectClientFactory,
                     FormatIdentifierFactory.getInstance());
             FluxService fluxService = new FluxService(collectService, metadataService, projectRepository,
                 metadataRepository);
+            TransactionService transactionService =
+                new TransactionService(transactionRepository, projectService, metadataRepository,
+                    fluxService, workspaceCollectClientFactory, accessInternalClientFactory, ingestInternalClientFactory);
+            SipService sipService = new SipService(workspaceCollectClientFactory, metadataRepository);
+
             BulkAtomicUpdateMetadataService bulkAtomicUpdateMetadataService =
                 new BulkAtomicUpdateMetadataService(metadataRepository, metadataCollectClientFactory,
                     configuration);
@@ -124,7 +125,7 @@ public class BusinessApplication extends ConfigurationApplication {
             // Resources
             final TransactionInternalResource transactionInternalResource =
                 new TransactionInternalResource(transactionService, sipService,
-                    metadataService, fluxService, projectService, bulkAtomicUpdateMetadataService);
+                    metadataService, projectService, bulkAtomicUpdateMetadataService);
             final ProjectInternalResource projectInternalResource =
                 new ProjectInternalResource(projectService, fluxService, transactionService, metadataService);
             final CollectMetadataInternalResource collectMetadataInternalResource =

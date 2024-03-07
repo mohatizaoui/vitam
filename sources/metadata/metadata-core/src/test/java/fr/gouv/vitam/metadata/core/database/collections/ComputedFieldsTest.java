@@ -77,7 +77,11 @@ public class ComputedFieldsTest {
             MetadataDocument.OPS, MetadataDocument.OPI, MetadataDocument.ORIGINATING_AGENCY, VitamDocument.ID,
             VitamDocument.VERSION, VitamDocument.TENANT_ID, VitamDocument.SCORE, VitamDocument.SEDAVERSION,
             VitamDocument.IMPLEMENTATIONVERSION, MetadataDocument.ATOMIC_VERSION,
-            MetadataDocument.APPROXIMATE_CREATION_DATE, MetadataDocument.APPROXIMATE_UPDATE_DATE, ObjectGroup.MANAGEMENT_CONTRACT_ID_VERSION, MetadataDocument.MANAGEMENT_CONTRACT_ID);
+            MetadataDocument.APPROXIMATE_CREATION_DATE, MetadataDocument.APPROXIMATE_UPDATE_DATE, ObjectGroup.MANAGEMENT_CONTRACT_ID_VERSION,
+            MetadataDocument.MANAGEMENT_CONTRACT_ID);
+
+    private static final List<String> collectOnlyFields = Arrays.asList( MetadataDocument.BATCHID);
+
 
     @Test
     public void testUnitComputedFields() throws Exception {
@@ -95,6 +99,9 @@ public class ComputedFieldsTest {
             }
 
             String s = (String) field.get(null);
+            if (collectOnlyFields.contains(s)) {
+                continue;
+            }
             if (!expectedUnitComputedFields.contains(s) && !expectedUnitMainFields.contains(s)) {
                 Assert.fail("Unknown unit document field name " + field.getName() + "(" + s + ")");
             }
@@ -116,7 +123,11 @@ public class ComputedFieldsTest {
                 continue;
             }
 
+
             String s = (String) field.get(null);
+            if (collectOnlyFields.contains(s)) {
+                continue;
+            }
             if (!expectedGotComputedFields.contains(s) && !expectedGotMainFields.contains(s)) {
                 Assert.fail("Unknown got document field name " + field.getName() + "(" + s + ")");
             }

@@ -759,7 +759,10 @@ public abstract class BuilderToken {
         VALID_COMPUTED_INHERITED_RULES("validComputedInheritedRules"),
         APPROXIMATE_CREATION_DATE("approximate_creation_date"),
         APPROXIMATE_UPDATE_DATE("approximate_update_date"),
-
+        /**
+         * Unit or GOT's batch identifier
+         */
+        BATCHID("batchId"),
         OPERATION_TRANSFERS("opts");
 
 

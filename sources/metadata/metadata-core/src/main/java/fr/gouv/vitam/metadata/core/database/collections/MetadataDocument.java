@@ -116,6 +116,8 @@ public abstract class MetadataDocument<E> extends VitamDocument<E> {
      */
     public static final String APPROXIMATE_UPDATE_DATE = "_aud";
 
+    public static final String BATCHID = "_batchId";
+
     /**
      * Quick projection for ID and ObjectGroup Only
      */
