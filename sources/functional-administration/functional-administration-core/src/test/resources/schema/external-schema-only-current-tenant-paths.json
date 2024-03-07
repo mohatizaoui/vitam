@@ -1,0 +1,22 @@
+[
+  {
+    "IsObject": true,
+    "Cardinality": "MANY",
+    "Path": "Invoice",
+    "ShortName": "Facture",
+    "Origin": "EXTERNAL",
+    "CreationDate": "2024-01-25T17:01:11.764",
+    "_v": 1,
+    "_tenant": 1
+  },
+  {
+    "IsObject": true,
+    "Cardinality": "MANY",
+    "Origin": "EXTERNAL",
+    "Path": "Invoice.Provider",
+    "ShortName": "Provider",
+    "CreationDate": "2024-01-25T17:01:11.764",
+    "_v": 1,
+    "_tenant": 1
+  }
+]

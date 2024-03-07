@@ -60,9 +60,9 @@ import fr.gouv.vitam.common.model.administration.schema.SchemaInputModel;
 import fr.gouv.vitam.common.model.administration.schema.SchemaModel;
 import fr.gouv.vitam.common.model.administration.schema.SchemaOrigin;
 import fr.gouv.vitam.common.model.administration.schema.SchemaResponse;
-import fr.gouv.vitam.common.model.administration.schema.SchemaTypeDetail;
 import fr.gouv.vitam.common.model.administration.schema.SchemaStringSizeType;
 import fr.gouv.vitam.common.model.administration.schema.SchemaType;
+import fr.gouv.vitam.common.model.administration.schema.SchemaTypeDetail;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.functional.administration.common.exception.ReferentialException;
 import fr.gouv.vitam.functional.administration.common.exception.schema.SchemaImportValidationException;
@@ -442,6 +442,13 @@ public class SchemaService {
     public void checkAndDeleteExternalSchemaElementsByPaths(List<String> pathsToDelete, boolean includeAllTenant)
         throws InvalidCreateOperationException, ReferentialException, InvalidParseOperationException,
         BadRequestException {
+        
+        List<String> nonExistingPaths = getNonExistingPaths(pathsToDelete);
+        
+        if (!nonExistingPaths.isEmpty()) {
+            throw new BadRequestException(
+                "Some paths cannot be deleted because they do not exist: " + nonExistingPaths);
+        }
 
         final List<SchemaModel> unitExternalSchemas =
             loadCurrentExternalSchema(includeAllTenant ? ALL_TENANTS : CURRENT_TENANT);
@@ -449,15 +456,6 @@ public class SchemaService {
         List<String> existingPaths = unitExternalSchemas.stream()
             .map(SchemaModel::getPath)
             .collect(Collectors.toList());
-
-        List<String> nonExistingPaths = pathsToDelete.stream()
-            .filter(pathToDelete -> !existingPaths.contains(pathToDelete))
-            .collect(Collectors.toList());
-
-        if (!nonExistingPaths.isEmpty()) {
-            throw new BadRequestException(
-                "Some paths cannot be deleted because they do not exist: " + nonExistingPaths);
-        }
 
         List<String> nonDeletablePaths = pathsToDelete.stream()
             .filter(pathToDelete -> existingPaths.stream().anyMatch(
@@ -470,6 +468,23 @@ public class SchemaService {
             LOGGER.debug("All selected paths are deletable.");
             deleteExternalSchemaElementsByPaths(pathsToDelete);
         }
+    }
+
+    private List<String> getNonExistingPaths(List<String> pathsToDelete)
+        throws InvalidCreateOperationException, ReferentialException, InvalidParseOperationException {
+
+        final List<SchemaModel> unitExternalSchemas =
+            loadCurrentExternalSchema(CURRENT_TENANT);
+
+        List<String> existingPaths = unitExternalSchemas.stream()
+            .map(SchemaModel::getPath)
+            .collect(Collectors.toList());
+
+        List<String> nonExistingPaths = pathsToDelete.stream()
+            .filter(pathToDelete -> !existingPaths.contains(pathToDelete))
+            .collect(Collectors.toList());
+
+        return nonExistingPaths;
     }
 
     private void deleteExternalSchemaElementsByPaths(List<String> schemaPathsToDelete)

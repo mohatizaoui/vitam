@@ -42,9 +42,9 @@ import fr.gouv.vitam.common.model.administration.schema.SchemaInputModel;
 import fr.gouv.vitam.common.model.administration.schema.SchemaModel;
 import fr.gouv.vitam.common.model.administration.schema.SchemaOrigin;
 import fr.gouv.vitam.common.model.administration.schema.SchemaResponse;
-import fr.gouv.vitam.common.model.administration.schema.SchemaTypeDetail;
 import fr.gouv.vitam.common.model.administration.schema.SchemaStringSizeType;
 import fr.gouv.vitam.common.model.administration.schema.SchemaType;
+import fr.gouv.vitam.common.model.administration.schema.SchemaTypeDetail;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -80,6 +80,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -357,7 +358,7 @@ public class SchemaServiceTest {
         when(mongoDbAccessAdminMocked.findDocumentsWithoutRestrictionOnCurrentTenant(any(), any())).thenReturn(
             dbRequestResult);
 
-        when(mongoDbAccessAdminMocked.insertDocument(any(), Mockito.eq(FunctionalAdminCollections.SCHEMA))).thenReturn(
+        when(mongoDbAccessAdminMocked.insertDocument(any(), eq(FunctionalAdminCollections.SCHEMA))).thenReturn(
             dbRequestResult);
 
         final RequestResponse<SchemaModel> importingResponse =
@@ -428,6 +429,20 @@ public class SchemaServiceTest {
         List<String> pathsToDelete = List.of("Invoice");
 
         assertThrows(BadRequestException.class, () -> schemaService.checkAndDeleteExternalSchemaElementsByPaths(pathsToDelete, true));
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void checkAndDeleteExternalSchemaElementsUsedOnMultipleTenant() throws Exception {
+        VitamThreadUtils.getVitamSession().setTenantId(ADMIN_TENANT);
+        VitamConfiguration.setTenants(List.of(1, 4));
+
+        setUpMockedFindDocumentsResponse("schema/external-schema-only-current-tenant-paths.json");
+
+        List<String> pathsToDelete = List.of("Invoice", "Invoice.Provider", "Invoice.Provider.BirthDate");
+
+        assertThrows(BadRequestException.class,
+            () -> schemaService.checkAndDeleteExternalSchemaElementsByPaths(pathsToDelete, true));
     }
 
     private void setUpMockedFindDocumentsResponse(String filePath)
