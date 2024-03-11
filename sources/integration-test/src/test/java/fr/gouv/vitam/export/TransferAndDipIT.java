@@ -89,7 +89,6 @@ import fr.gouv.vitam.worker.core.plugin.transfer.reply.SaveAtrPlugin;
 import fr.gouv.vitam.worker.core.plugin.transfer.reply.VerifyAtrPlugin;
 import fr.gouv.vitam.worker.server.rest.WorkerMain;
 import fr.gouv.vitam.workspace.rest.WorkspaceMain;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.apache.commons.io.IOUtils;
@@ -1159,7 +1158,19 @@ public class TransferAndDipIT extends VitamRuleRunner {
         should_only_include_selected_usages_and_versions_in_DIP(
             ingestOpId,
             Map.of(),
-            Map.of()
+            Map.of(),
+            true
+        );
+
+        should_only_include_selected_usages_and_versions_in_DIP(
+            ingestOpId,
+            Map.of(),
+            Map.of(
+                BINARY_MASTER, Set.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11),
+                PHYSICAL_MASTER, Set.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11),
+                DISSEMINATION, Set.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11)
+            ),
+            false
         );
 
         should_only_include_selected_usages_and_versions_in_DIP(
@@ -1265,7 +1276,13 @@ public class TransferAndDipIT extends VitamRuleRunner {
 
     private void should_only_include_selected_usages_and_versions_in_DIP(String ingestOpId,
         Map<DataObjectVersionType, Set<QualifierVersion>> dataObjectVersions,
-        Map<DataObjectVersionType, Set<Integer>> expected)
+        Map<DataObjectVersionType, Set<Integer>> expected) throws Exception {
+        should_only_include_selected_usages_and_versions_in_DIP(ingestOpId, dataObjectVersions, expected, false);
+    }
+
+    private void should_only_include_selected_usages_and_versions_in_DIP(String ingestOpId,
+        Map<DataObjectVersionType, Set<QualifierVersion>> dataObjectVersions,
+        Map<DataObjectVersionType, Set<Integer>> expected, boolean exportWithoutObjects)
         throws Exception {
         SelectMultiQuery select = new SelectMultiQuery();
         select.setQuery(QueryHelper.in(VitamFieldsHelper.operations(), ingestOpId));
@@ -1275,6 +1292,7 @@ public class TransferAndDipIT extends VitamRuleRunner {
             new DataObjectVersions(dataObjectVersions),
             select.getFinalSelect(),
             true,
+            exportWithoutObjects,
             null,
             SupportedSedaVersions.SEDA_2_3.getVersion()
         );
@@ -1287,7 +1305,7 @@ public class TransferAndDipIT extends VitamRuleRunner {
         String exportOperationId = exportDIP(exportRequest);
 
         // Then
-        VitamTestHelper.verifyOperation(exportOperationId, MapUtils.isEmpty(dataObjectVersions) ? WARNING : OK);
+        VitamTestHelper.verifyOperation(exportOperationId, exportWithoutObjects ? WARNING : OK);
 
         String manifest = getManifestString(getDip(exportOperationId));
 

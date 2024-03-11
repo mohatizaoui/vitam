@@ -271,6 +271,7 @@ public class CreateManifest extends ActionHandler {
 
             Map<String, JsonNode> idBinaryWithFileName = new HashMap<>();
             boolean exportWithLogBookLFC = exportRequest.isExportWithLogBookLFC();
+            boolean exportWithoutObjects = exportRequest.isExportWithoutObjects();
 
             final Map<DataObjectVersionType, Set<QualifierVersion>> dataObjectVersions =
                 DataObjectVersionToPatternsConvertor.computeDataObjectVersionsPatterns(
@@ -300,11 +301,11 @@ public class CreateManifest extends ActionHandler {
                         logbookLifeCyclesClient.selectObjectGroupLifeCycleById(id, new Select().getFinalSelect());
 
                     ObjectGroupResponse objectGroup = objectMapper.treeToValue(object, ObjectGroupResponse.class);
-                    keepOnlySelectedQualifiers(objectGroup, dataObjectVersions, accessContractModel);
+                    keepOnlySelectedQualifiers(objectGroup, dataObjectVersions, accessContractModel,exportWithoutObjects);
 
                     JsonNode currentObject = JsonHandler.toJsonNode(objectGroup);
                     Stream<LogbookLifeCycleObjectGroup> logbookLifeCycleObjectGroupStream =
-                        (exportRequest.isExportWithLogBookLFC()) ?
+                        exportWithLogBookLFC ?
                             RequestResponseOK.getFromJsonNode(selectObjectGroupLifeCycleById)
                                 .getResults()
                                 .stream()
@@ -354,6 +355,7 @@ public class CreateManifest extends ActionHandler {
                     .map(LogbookLifeCycleUnit::new)
                     .orElse(null);
                 // If we export no GOT, we exclude object groups
+
                 final Map<String, String> filteredOgs = MapUtils.isEmpty(idBinaryWithFileName) ? Map.of() : ogs;
                 unit = manifestBuilder.writeArchiveUnitWithLFC(archiveUnitModel, multimap, filteredOgs, logbookLFC);
 
@@ -453,16 +455,17 @@ public class CreateManifest extends ActionHandler {
     }
 
     private void keepOnlySelectedQualifiers(ObjectGroupResponse objectGroup,
-        Map<DataObjectVersionType, Set<QualifierVersion>> dataObjectVersions, AccessContractModel accessContract) {
+        Map<DataObjectVersionType, Set<QualifierVersion>> dataObjectVersions, AccessContractModel accessContract
+        , boolean exportWithoutObjects) {
         final List<QualifiersModel> qualifiers = objectGroup.getQualifiers();
 
         if (Boolean.FALSE.equals(accessContract.isEveryDataObjectVersion())) {
             qualifiers.removeIf(qualifier -> !accessContract.getDataObjectVersion().contains(qualifier.getQualifier()));
         }
 
-        if (dataObjectVersions.isEmpty()) {
+        if(exportWithoutObjects){
             qualifiers.clear();
-        } else {
+        } else if (!dataObjectVersions.isEmpty()) {
             qualifiers.removeIf(
                 qualifier -> !dataObjectVersions.containsKey(DataObjectVersionType.fromName(qualifier.getQualifier())));
 

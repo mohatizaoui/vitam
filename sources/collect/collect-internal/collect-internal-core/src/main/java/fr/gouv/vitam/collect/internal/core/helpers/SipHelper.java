@@ -73,6 +73,7 @@ public class SipHelper {
         exportRequest.setDslRequest(exportSelect.getFinalSelect());
 
         exportRequest.setExportWithLogBookLFC(false);
+        exportRequest.setExportWithoutObjects(false);
         exportRequest.setExportType(ExportType.MinimalArchiveDeliveryRequestReply);
 
         exportRequest.setExportRequestParameters(exportRequestParameters);

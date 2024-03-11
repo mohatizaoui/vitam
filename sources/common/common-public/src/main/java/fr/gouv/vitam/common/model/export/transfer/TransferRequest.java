@@ -49,6 +49,9 @@ public class TransferRequest {
     @JsonProperty("sedaVersion")
     private String sedaVersion;
 
+    @JsonProperty("transferWithoutObject")
+    private boolean transferWithoutObjects;
+
 
     public TransferRequest() {
     }
@@ -110,5 +113,13 @@ public class TransferRequest {
 
     public void setSedaVersion(String sedaVersion) {
         this.sedaVersion = sedaVersion;
+    }
+
+    public boolean isTransferWithoutObjects() {
+        return transferWithoutObjects;
+    }
+
+    public void setTransferWithoutObjects(boolean transferWithoutObjects) {
+        this.transferWithoutObjects = transferWithoutObjects;
     }
 }
