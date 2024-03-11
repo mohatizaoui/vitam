@@ -1,0 +1,15 @@
+---
+prometheus_mongodb_exporter_tmp_path:    "{{ vitam_defaults.folder.root_path | default('/vitam') }}/tmp/mongodb_exporter"
+prometheus_mongodb_exporter_config_path: "{{ vitam_defaults.folder.root_path | default('/vitam') }}/conf/mongodb_exporter"
+prometheus_mongodb_exporter_db_path:     "{{ vitam_defaults.folder.root_path | default('/vitam') }}/data/mongodb_exporter"
+prometheus_mongodb_exporter_app_path:    "{{ vitam_defaults.folder.root_path | default('/vitam') }}/app/mongodb_exporter"
+prometheus_mongodb_exporter_bin_path:    "{{ vitam_defaults.folder.root_path | default('/vitam') }}/bin/mongodb_exporter"
+
+service_at_boot: "{{ vitam_defaults.services.at_boot | default(false) }}"
+
+vitamdbadmin: "{{ mongodb[mongo_cluster_name].localadmin.user }}"
+vitamdbpassword: "{{ mongodb[mongo_cluster_name].localadmin.password }}"
+
+
+web.listen-address-mongoc: "{{ prometheus.mongodb_exporter.port_mongoc | default('9216') }}"
+web.listen-address-mongod: "{{ prometheus.mongodb_exporter.port_mongod | default('9217') }}"

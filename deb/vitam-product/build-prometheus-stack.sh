@@ -1,12 +1,14 @@
 #!/bin/bash
 set -e
 WORKING_FOLDER=$(dirname $0)
+
 PROMETHEUS_VERSION="2.50.1"
 PROMETHEUS_NODE_EXPORTER_VERSION="1.7.0"
 PROMETHEUS_CONSUL_EXPORTER_VERSION="0.11.0"
 PROMETHEUS_ELASTICSEARCH_EXPORTER_VERSION="1.7.0"
 PROMETHEUS_ALERTMANAGER_VERSION="0.27.0"
 PROMETHEUS_BLACKBOX_EXPORTER_VERSION="0.24.0"
+PROMETHEUS_MONGODB_EXPORTER_VERSION="0.40.0"
 
 PROMETHEUS_URL=https://github.com/prometheus/prometheus/releases/download/v${PROMETHEUS_VERSION}/prometheus-${PROMETHEUS_VERSION}.linux-amd64.tar.gz
 PROMETHEUS_NODE_EXPORTER_URL=https://github.com/prometheus/node_exporter/releases/download/v${PROMETHEUS_NODE_EXPORTER_VERSION}/node_exporter-${PROMETHEUS_NODE_EXPORTER_VERSION}.linux-amd64.tar.gz
@@ -14,6 +16,7 @@ PROMETHEUS_CONSUL_EXPORTER_URL=https://github.com/prometheus/consul_exporter/rel
 PROMETHEUS_ELASTICSEARCH_EXPORTER_URL=https://github.com/prometheus-community/elasticsearch_exporter/releases/download/v${PROMETHEUS_ELASTICSEARCH_EXPORTER_VERSION}/elasticsearch_exporter-${PROMETHEUS_ELASTICSEARCH_EXPORTER_VERSION}.linux-amd64.tar.gz
 PROMETHEUS_ALERTMANAGER_URL=https://github.com/prometheus/alertmanager/releases/download/v${PROMETHEUS_ALERTMANAGER_VERSION}/alertmanager-${PROMETHEUS_ALERTMANAGER_VERSION}.linux-amd64.tar.gz
 PROMETHEUS_BLACKBOX_EXPORTER_URL=https://github.com/prometheus/blackbox_exporter/releases/download/v${PROMETHEUS_BLACKBOX_EXPORTER_VERSION}/blackbox_exporter-${PROMETHEUS_BLACKBOX_EXPORTER_VERSION}.linux-amd64.tar.gz
+PROMETHEUS_MONGODB_EXPORTER_URL=https://github.com/percona/mongodb_exporter/releases/download/v${PROMETHEUS_MONGODB_EXPORTER_VERSION}/mongodb_exporter-${PROMETHEUS_MONGODB_EXPORTER_VERSION}.linux-amd64.tar.gz
 
 if [ ! -d ${WORKING_FOLDER}/target ]; then
 	mkdir ${WORKING_FOLDER}/target
@@ -232,7 +235,6 @@ rm -rf ${WORKING_FOLDER}/vitam-prometheus-blackbox-exporter/vitam
 mkdir -p ${WORKING_FOLDER}/vitam-prometheus-blackbox-exporter/vitam/app/${PACKAGE_NAME}
 mkdir -p ${WORKING_FOLDER}/vitam-prometheus-blackbox-exporter/vitam/bin/${PACKAGE_NAME}
 
-
 pushd ${WORKING_FOLDER}/sources/
 echo "Repertoire courant: $(pwd)"
 echo "Récupérer ${PACKAGE_NAME}-${PACKAGE_VERSION}.linux-amd64.tar.gz"
@@ -255,5 +257,40 @@ popd
 pushd ${WORKING_FOLDER}
 
 dpkg-deb --build vitam-prometheus-blackbox-exporter ${WORKING_FOLDER}/target
+
+popd
+
+#########################
+## Prometheus mongodb_exporter
+#########################
+PACKAGE_NAME=mongodb_exporter
+PACKAGE_VERSION=${PROMETHEUS_MONGODB_EXPORTER_VERSION}
+PACKAGE_URL=${PROMETHEUS_MONGODB_EXPORTER_URL}
+
+rm -rf ${WORKING_FOLDER}/vitam-prometheus-mongodb-exporter/vitam
+
+mkdir -p ${WORKING_FOLDER}/vitam-prometheus-mongodb-exporter/vitam/app/${PACKAGE_NAME}
+mkdir -p ${WORKING_FOLDER}/vitam-prometheus-mongodb-exporter/vitam/bin/${PACKAGE_NAME}
+
+pushd ${WORKING_FOLDER}/sources/
+echo "Repertoire courant: $(pwd)"
+echo "Récupérer ${PACKAGE_NAME}-${PACKAGE_VERSION}.linux-amd64.tar.gz"
+if [ ! -f ${PACKAGE_NAME}-${PACKAGE_VERSION}.linux-amd64.tar.gz ]; then
+	curl -L -k --max-time 120 ${PACKAGE_URL} -o ${PACKAGE_NAME}-${PACKAGE_VERSION}.linux-amd64.tar.gz
+fi
+
+tar xzf ${PACKAGE_NAME}-${PACKAGE_VERSION}.linux-amd64.tar.gz --strip 1 -C ../vitam-prometheus-mongodb-exporter/vitam/bin/${PACKAGE_NAME}/
+
+popd
+
+pushd ${WORKING_FOLDER}/vitam-prometheus-mongodb-exporter/vitam/bin/${PACKAGE_NAME}/
+echo "Install files ..."
+
+mv -f LICENSE ../../app/${PACKAGE_NAME}/LICENSE
+
+popd
+pushd ${WORKING_FOLDER}
+
+dpkg-deb --build vitam-prometheus-mongodb-exporter ${WORKING_FOLDER}/target
 
 popd

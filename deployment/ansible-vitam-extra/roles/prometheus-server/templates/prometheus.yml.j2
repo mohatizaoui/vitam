@@ -292,8 +292,6 @@ scrape_configs:
 {% endfor %}
 {% endif %}
 
-
-
 {% if (groups['hosts_scheduler']|length >0) %}
   - job_name: vitam-scheduler
     metrics_path: {{ prometheus.metrics_path | default('/admin/v1/metrics') }}
@@ -338,4 +336,62 @@ scrape_configs:
 {% for target in prometheus.blackbox_exporter.targets %}
       - {{ target }}
 {% endfor %}
+{% endif %}
+
+{% if prometheus.mongodb_exporter.enabled | default(true) | bool %}
+{% if (groups['hosts_mongoc_data']|length >0) %}
+  - job_name: vitam-mongoc-data
+    metrics_path: /metrics
+    static_configs:
+{% for host in groups['hosts_mongoc_data'] %}
+    - targets:
+      - {{ hostvars[host]['ip_admin'] }}:{{ prometheus.mongodb_exporter.port_mongoc | default(9216) }}
+      labels:
+        hostname: "{{ host.split(".")[0] }}"
+        service_name: vitam-mongoc-data
+        cluster: {{ hostvars[host]['mongo_cluster_name'] }}
+{% endfor %}
+{% endif %}
+
+{% if (groups['hosts_mongod_data']|length >0) %}
+  - job_name: vitam-mongod-data
+    metrics_path: /metrics
+    static_configs:
+{% for host in groups['hosts_mongod_data'] %}
+    - targets:
+      - {{ hostvars[host]['ip_admin'] }}:{{ prometheus.mongodb_exporter.port_mongod | default(9217) }}
+      labels:
+        hostname: "{{ host.split(".")[0] }}"
+        service_name: vitam-mongod-data
+        cluster: {{ hostvars[host]['mongo_cluster_name'] }}
+{% endfor %}
+{% endif %}
+
+{% if (groups['hosts_mongoc_offer']|length >0) %}
+  - job_name: vitam-mongoc-offer
+    metrics_path: /metrics
+    static_configs:
+{% for host in groups['hosts_mongoc_offer'] %}
+    - targets:
+      - {{ hostvars[host]['ip_admin'] }}:{{ prometheus.mongodb_exporter.port_mongoc | default(9216) }}
+      labels:
+        hostname: "{{ host.split(".")[0] }}"
+        service_name: vitam-mongoc-offer
+        cluster: {{ hostvars[host]['mongo_cluster_name'] }}
+{% endfor %}
+{% endif %}
+
+{% if (groups['hosts_mongod_offer']|length >0) %}
+  - job_name: vitam-mongod-offer
+    metrics_path: /metrics
+    static_configs:
+{% for host in groups['hosts_mongod_data'] %}
+    - targets:
+      - {{ hostvars[host]['ip_admin'] }}:{{ prometheus.mongodb_exporter.port_mongod | default(9217) }}
+      labels:
+        hostname: "{{ host.split(".")[0] }}"
+        service_name: vitam-mongod-offer
+        cluster: {{ hostvars[host]['mongo_cluster_name'] }}
+{% endfor %}
+{% endif %}
 {% endif %}

@@ -1,0 +1,7 @@
+---
+
+- include_tasks: prometheus_mongodb_exporter_enabled.yml
+  when: prometheus.mongodb_exporter.enabled | default(true) | bool == true
+
+- include_tasks: prometheus_mongodb_exporter_disabled.yml
+  when: prometheus.mongodb_exporter.enabled | default(true) | bool == false

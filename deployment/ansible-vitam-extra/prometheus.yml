@@ -36,3 +36,11 @@
   roles:
     - prometheus-blackbox-exporter
   tags: [prometheus, prometheus-exporter]
+
+### PROMETHEUS MONGODB EXPORTER INSTALLATION OR UNINSTALL ###
+- hosts: hosts_mongoc_offer,hosts_mongod_offer,hosts_mongoc_data,hosts_mongod_data
+  gather_facts: no
+  any_errors_fatal: true
+  roles:
+    - prometheus-mongodb-exporter
+  tags: [prometheus, prometheus-exporter]
