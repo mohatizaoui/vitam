@@ -37,28 +37,28 @@ public class BatchDto {
     @JsonProperty("BatchStatus")
     private BatchStatusDto batchStatus;
 
-    public String getBatchId() {
-        return batchId;
+    public BatchDto(String batchId, BatchStatusDto batchStatus) {
+        this.batchId = batchId;
+        this.batchStatus = batchStatus;
     }
 
-    public String getBatchStatus() {
-        return batchStatus.name();
+    public BatchDto() {
+    }
+
+    public String getBatchId() {
+        return batchId;
     }
 
     public void setBatchId(String batchId) {
         this.batchId = batchId;
     }
 
-    public void setBatchStatus(String batchStatus) {
-        this.batchStatus = BatchStatusDto.valueOf(batchStatus);
+    public BatchStatusDto getBatchStatus() {
+        return batchStatus;
     }
 
-    public BatchDto(String batchId, String batchStatus) {
-        this.batchId = batchId;
-        this.batchStatus = BatchStatusDto.valueOf(batchStatus);
-    }
-
-    public BatchDto() {
+    public void setBatchStatus(BatchStatusDto batchStatus) {
+        this.batchStatus = batchStatus;
     }
 
 }
