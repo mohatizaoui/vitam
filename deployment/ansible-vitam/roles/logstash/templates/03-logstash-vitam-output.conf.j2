@@ -4,7 +4,7 @@ output
     # todo: check if drop exists (which module set it, etc...)
     if "_grokparsefailure" not in [tags] and "drop" not in [tags]
     {
-        if [logger] =~ "logback" or [logger] =~ "mongo" or [vitam_component] =~ "elasticsearch-data" or [logger] =~ "consul"  or [vitam_component] =~ "clamd" or [logger] =~ "kibana" or [logger] =~ "cerebro"
+        if [logger] =~ "logback" or [logger] =~ "mongo" or [vitam_component] =~ "elasticsearch-data" or [logger] =~ "consul"  or [logger] =~ "clamd" or [logger] =~ "kibana" or [logger] =~ "cerebro" or [logger] =~ "reverse"
         {
             elasticsearch
             {

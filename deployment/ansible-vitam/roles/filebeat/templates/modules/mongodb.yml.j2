@@ -1,0 +1,40 @@
+#jinja2: lstrip_blocks: True
+
+{% if inventory_hostname in groups['hosts_mongos_offer'] or inventory_hostname in groups['hosts_mongos_data'] %}
+- module: mongodb
+  log:
+    enabled: true
+    var.paths:
+      - "{{ vitam_defaults.folder.root_path }}/log/mongos/mongo*.log"
+    input:
+      fields:
+        kind: log
+        vitam_component: '{% if inventory_hostname in groups["hosts_mongos_offer"] %}mongos_offer{% endif %}{% if inventory_hostname in groups["hosts_mongos_data"] %}mongos_data{% endif %}'
+        source: vitam
+{% endif %}
+
+{% if inventory_hostname in groups['hosts_mongoc_offer'] or inventory_hostname in groups['hosts_mongoc_data'] %}
+- module: mongodb
+  log:
+    enabled: true
+    var.paths:
+      - "{{ vitam_defaults.folder.root_path }}/log/mongoc/mongo*.log"
+    input:
+      fields:
+        kind: log
+        vitam_component: '{% if inventory_hostname in groups["hosts_mongoc_offer"] %}mongoc_offer{% endif %}{% if inventory_hostname in groups["hosts_mongoc_data"] %}mongoc_data{% endif %}'
+        source: vitam
+{% endif %}
+
+{% if inventory_hostname in groups['hosts_mongod_offer'] or inventory_hostname in groups['hosts_mongod_data'] %}
+- module: mongodb
+  log:
+    enabled: true
+    var.paths:
+      - "{{ vitam_defaults.folder.root_path }}/log/mongod/mongo*.log"
+    input:
+      fields:
+        kind: log
+        vitam_component: '{% if inventory_hostname in groups["hosts_mongod_offer"] %}mongod_offer{% endif %}{% if inventory_hostname in groups["hosts_mongod_data"] %}mongod_data{% endif %}'
+        source: vitam
+{% endif %}

@@ -5,7 +5,7 @@
 #
 # VITAM SERVICE : "{{ vitam_service  }}"
 #
-- type: log
+- type: filestream
   id: "{{ vitam_site_name }}-{{ vitam_service }}-access"
   paths:
     - "{{ vitam_defaults.folder.root_path }}/log/{{ vitam_service }}/accesslog-{{ vitam_service }}.*.log"
@@ -14,7 +14,7 @@
     vitam_component: "{{ vitam_service }}"
     source: vitam
 
-- type: log
+- type: filestream
   id: "{{ vitam_site_name }}-{{ vitam_service }}-security"
   paths:
     - "{{ vitam_defaults.folder.root_path }}/log/{{ vitam_service }}/{{ vitam_service }}_security.*.log"
@@ -23,7 +23,7 @@
     vitam_component: "{{ vitam_service }}"
     source: vitam
 
-- type: log
+- type: filestream
   id: "{{ vitam_site_name }}-{{ vitam_service }}-error"
   paths:
     - "{{ vitam_defaults.folder.root_path }}/log/{{ vitam_service }}/{{ vitam_service }}.*.log"
@@ -31,5 +31,22 @@
     kind: log
     vitam_component: "{{ vitam_service }}"
     source: vitam
+  processors:
+    - dissect:
+        tokenizer: '%{timestamp} [%{thread}] [%{request_id}] [%{tenant_id}] %{loglevel} %{logger} - %{message}'
+        field: "message"
+        target: ""
+    - drop_fields:
+        fields: ["timestamp","dissect.timestamp"]
+    - copy_fields:
+        fields:
+          - from: dissect.loglevel
+            to: loglevel
+  parsers:
+    - multiline:
+        type: pattern
+        pattern: '^\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2},\d{3}'
+        negate: true
+        match: after
 
 {% endfor %}

@@ -2,18 +2,10 @@
 
 input
 {
-{% if syslog.name | default('filebeat') == "filebeat" %}
-    beats {
-        add_field => [ "input", "filebeat" ]
-        port => "{{ logstash.port | default(10514) }}"
-        ecs_compatibility => "v8"
-    }
-{% else %}
     syslog {
         add_field => [ "input", "syslog" ]
         host => "{{ ip_admin }}"
         port => 10514
         codec => plain { charset=>"UTF-8" }
     }
-{% endif %}
 }
