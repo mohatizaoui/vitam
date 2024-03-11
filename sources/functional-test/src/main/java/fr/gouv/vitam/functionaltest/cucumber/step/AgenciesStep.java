@@ -28,10 +28,6 @@ package fr.gouv.vitam.functionaltest.cucumber.step;
 
 
 import com.fasterxml.jackson.databind.JsonNode;
-import cucumber.api.DataTable;
-import cucumber.api.java.en.Given;
-import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
 import fr.gouv.vitam.access.external.common.exception.AccessExternalClientException;
 import fr.gouv.vitam.common.GlobalDataRest;
 import fr.gouv.vitam.common.client.VitamContext;
@@ -41,6 +37,10 @@ import fr.gouv.vitam.common.exception.VitamClientException;
 import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.administration.AgenciesModel;
+import io.cucumber.datatable.DataTable;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
 
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
@@ -168,7 +168,7 @@ public class AgenciesStep extends CommonStep {
 
     @Then("^les métadonnées du service sont$")
     public void metadata_are(DataTable dataTable) throws Throwable {
-        List<List<String>> raws = dataTable.raw();
+        List<List<String>> raws = dataTable.cells();
         for (List<String> raw : raws) {
             String index = raw.get(0);
             String value = raw.get(1);

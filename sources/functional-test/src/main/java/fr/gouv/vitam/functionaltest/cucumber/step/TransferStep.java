@@ -28,9 +28,9 @@ package fr.gouv.vitam.functionaltest.cucumber.step;
 
 
 import com.fasterxml.jackson.databind.JsonNode;
-import cucumber.api.java.After;
-import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
+import io.cucumber.java.After;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
 import fr.gouv.vitam.access.external.client.VitamPoolingClient;
 import fr.gouv.vitam.common.GlobalDataRest;
 import fr.gouv.vitam.common.client.VitamContext;

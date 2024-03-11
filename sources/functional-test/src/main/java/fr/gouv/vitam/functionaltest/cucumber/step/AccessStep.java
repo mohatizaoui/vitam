@@ -29,9 +29,6 @@ package fr.gouv.vitam.functionaltest.cucumber.step;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Iterables;
-import cucumber.api.DataTable;
-import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
 import fr.gouv.vitam.access.external.api.AdminCollections;
 import fr.gouv.vitam.access.external.client.VitamPoolingClient;
 import fr.gouv.vitam.access.external.common.exception.AccessExternalClientException;
@@ -65,6 +62,9 @@ import fr.gouv.vitam.common.model.logbook.LogbookEventOperation;
 import fr.gouv.vitam.common.model.logbook.LogbookOperation;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.common.utils.JsonSorter;
+import io.cucumber.datatable.DataTable;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
 import net.javacrumbs.jsonunit.JsonAssert;
 import net.javacrumbs.jsonunit.core.Option;
 import org.apache.commons.io.IOUtils;
@@ -219,7 +219,7 @@ public class AccessStep extends CommonStep {
     private DataTable getTransformedDataTable(DataTable dataTable) throws Throwable {
         // Transform validation data
         List<List<String>> modifiedRaws = new ArrayList<>();
-        List<List<String>> raws = dataTable.raw();
+        List<List<String>> raws = dataTable.cells();
         for (List<String> raw : raws) {
             List<String> modifiedSubRaws = new ArrayList<>();
             for (String subRaw : raw) {
@@ -227,8 +227,7 @@ public class AccessStep extends CommonStep {
             }
             modifiedRaws.add(modifiedSubRaws);
         }
-        List<String> topCells = modifiedRaws.isEmpty() ? Collections.emptyList() : modifiedRaws.get(0);
-        return dataTable.toTable(modifiedRaws, topCells.toArray(new String[0]));
+        return DataTable.create(modifiedRaws);
     }
 
     /**
@@ -382,7 +381,7 @@ public class AccessStep extends CommonStep {
 
     @Then("^tous les résultats contiennent la propriété \"([^\"]*)\" dont la valeur est \"([^\"]*)\"$")
     public void results_contains_key_value(String fieldKey, String fieldValue) {
-        world.getResults().forEach(result-> {
+        world.getResults().forEach(result -> {
             assertThat(result.get(fieldKey).textValue()).isEqualTo(fieldValue);
         });
     }
@@ -610,12 +609,14 @@ public class AccessStep extends CommonStep {
     }
 
     @When("^je télécharge l'objet ayant le qualifier (.*) rattaché à une unité archivistique ayant l'identifiant pérenne (.*)$")
-    public void download_object_by_qualifier_and_persistent_identifier(String qualifier, String persistentIdentifier) throws Throwable {
+    public void download_object_by_qualifier_and_persistent_identifier(String qualifier, String persistentIdentifier)
+        throws Throwable {
         download_object_by_qualifier_and_version_persistent_identifier(qualifier, null, persistentIdentifier);
     }
 
     @When("^je télécharge l'objet ayant le qualifier (.*) et la version (.*) rattaché à une unité archivistique ayant l'identifiant pérenne (.*)$")
-    public void download_object_by_qualifier_and_version_persistent_identifier(String qualifier, String version, String persistentIdentifier) throws Throwable {
+    public void download_object_by_qualifier_and_version_persistent_identifier(String qualifier, String version,
+        String persistentIdentifier) throws Throwable {
         Response response = world.getAccessClient().getObjectByUnitPersistentIdentifier(
             new VitamContext(world.getTenantId()).setAccessContract(world.getContractId())
                 .setApplicationSessionId(world.getApplicationSessionId()),

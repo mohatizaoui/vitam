@@ -42,43 +42,15 @@
         </dependency>
 
         <dependency>
-            <groupId>info.cukes</groupId>
+            <groupId>io.cucumber</groupId>
             <artifactId>cucumber-java</artifactId>
-            <version>${cucumber-java.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>info.cukes</groupId>
-                    <artifactId>cucumber-html</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.thoughtworks.xstream</groupId>
-                    <artifactId>xstream</artifactId>
-                </exclusion>
-            </exclusions>
+            <version>${cucumber.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.thoughtworks.xstream</groupId>
-            <artifactId>xstream</artifactId>
-            <version>${xstream.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>info.cukes</groupId>
+            <groupId>io.cucumber</groupId>
             <artifactId>cucumber-picocontainer</artifactId>
-            <version>${cucumber-picocontainer.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>info.cukes</groupId>
-            <artifactId>cucumber-html</artifactId>
-            <version>${cucumber-html.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>info.cukes</groupId>
-            <artifactId>cucumber-junit</artifactId>
-            <version>${cucumber-junit.version}</version>
+            <version>${cucumber.version}</version>
         </dependency>
 
         <dependency>

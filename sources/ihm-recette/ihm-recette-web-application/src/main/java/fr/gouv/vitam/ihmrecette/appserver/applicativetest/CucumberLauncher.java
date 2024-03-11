@@ -26,18 +26,18 @@
  */
 package fr.gouv.vitam.ihmrecette.appserver.applicativetest;
 
-import cucumber.runtime.ClassFinder;
-import cucumber.runtime.Runtime;
-import cucumber.runtime.RuntimeOptions;
-import cucumber.runtime.io.MultiLoader;
-import cucumber.runtime.io.ResourceLoader;
-import cucumber.runtime.io.ResourceLoaderClassFinder;
 import fr.gouv.vitam.functionaltest.cucumber.report.VitamReporter;
+import io.cucumber.core.options.CommandlineOptionsParser;
+import io.cucumber.core.options.CucumberProperties;
+import io.cucumber.core.options.CucumberPropertiesParser;
+import io.cucumber.core.options.RuntimeOptions;
+import io.cucumber.core.runtime.Runtime;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Class to manage cucumber
@@ -60,16 +60,34 @@ public class CucumberLauncher {
      * @return status code
      * @throws IOException
      */
-    byte launchCucumberTest(List<String> arguments) throws IOException {
-        RuntimeOptions runtimeOptions = new RuntimeOptions(arguments);
+    Byte launchCucumberTest(List<String> arguments) throws IOException {
 
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 
-        ResourceLoader resourceLoader = new MultiLoader(classLoader);
-        ClassFinder classFinder = new ResourceLoaderClassFinder(resourceLoader, classLoader);
-        Runtime runtime = new Runtime(resourceLoader, classFinder, classLoader, runtimeOptions);
-        runtime.run();
-        return runtime.exitStatus();
+        RuntimeOptions propertiesFileOptions = new CucumberPropertiesParser()
+            .parse(CucumberProperties.fromPropertiesFile()).build();
+        RuntimeOptions environmentOptions = new CucumberPropertiesParser()
+            .parse(CucumberProperties.fromEnvironment()).build(propertiesFileOptions);
+        RuntimeOptions systemOptions = new CucumberPropertiesParser()
+            .parse(CucumberProperties.fromSystemProperties()).build(environmentOptions);
+        CommandlineOptionsParser commandlineOptionsParser = new CommandlineOptionsParser(System.out);
+        RuntimeOptions runtimeOptions = commandlineOptionsParser.parse(arguments.toArray(String[]::new))
+            .addDefaultGlueIfAbsent()
+            .addDefaultFeaturePathIfAbsent()
+            .addDefaultSummaryPrinterIfNotDisabled()
+            .enablePublishPlugin()
+            .build(systemOptions);
+        Optional<Byte> exitStatus = commandlineOptionsParser.exitStatus();
+        if (exitStatus.isPresent()) {
+            Byte result = exitStatus.get();
+            return result;
+        } else {
+            Runtime runtime = Runtime.builder().withRuntimeOptions(runtimeOptions).withClassLoader(() -> {
+                return classLoader;
+            }).build();
+            runtime.run();
+            return runtime.exitStatus();
+        }
     }
 
     /**
@@ -88,7 +106,7 @@ public class CucumberLauncher {
         arguments.add("-p");
 
         Path reportPath = tnrReportDirectory.resolve(reportName);
-        arguments.add(VitamReporter.class.getCanonicalName() + ":" + reportPath.toString());
+        arguments.add(VitamReporter.class.getCanonicalName() + ":" + reportPath);
         arguments.add(featurePath.toAbsolutePath().toString());
         return arguments;
     }

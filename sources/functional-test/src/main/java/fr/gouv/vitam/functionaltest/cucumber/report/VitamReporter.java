@@ -26,144 +26,93 @@
  */
 package fr.gouv.vitam.functionaltest.cucumber.report;
 
-import fr.gouv.vitam.common.LocalDateUtil;
 import fr.gouv.vitam.common.json.JsonHandler;
-import gherkin.formatter.Formatter;
-import gherkin.formatter.NiceAppendable;
-import gherkin.formatter.Reporter;
-import gherkin.formatter.model.Background;
-import gherkin.formatter.model.Examples;
-import gherkin.formatter.model.Feature;
-import gherkin.formatter.model.Match;
-import gherkin.formatter.model.Result;
-import gherkin.formatter.model.Scenario;
-import gherkin.formatter.model.ScenarioOutline;
-import gherkin.formatter.model.Step;
+import io.cucumber.core.exception.CucumberException;
+import io.cucumber.core.gherkin.Feature;
+import io.cucumber.plugin.ConcurrentEventListener;
+import io.cucumber.plugin.event.EventPublisher;
+import io.cucumber.plugin.event.Node;
+import io.cucumber.plugin.event.Result;
+import io.cucumber.plugin.event.TestCase;
+import io.cucumber.plugin.event.TestCaseFinished;
+import io.cucumber.plugin.event.TestCaseStarted;
+import io.cucumber.plugin.event.TestRunFinished;
+import io.cucumber.plugin.event.TestRunStarted;
+import io.cucumber.plugin.event.TestSourceParsed;
+import io.cucumber.plugin.event.WriteEvent;
 
-import java.time.Instant;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
-public class VitamReporter implements Reporter, Formatter {
+public class VitamReporter implements ConcurrentEventListener {
 
-    private NiceAppendable output;
-    private Reports reports = new Reports();
-    private Report report = new Report();
-    private Feature currentFeature;
-    private Queue<Step> steps = new LinkedList<>();
+    private final PrintStream out;
+    private Reports reports = null;
+    private Report report = null;
+    private Map<URI, String> featureNames = new HashMap<>();
 
-    public VitamReporter(Appendable appendable) {
-        output = new NiceAppendable(appendable);
+    public VitamReporter(OutputStream out) {
+        this.out = new PrintStream(out, false, StandardCharsets.UTF_8);
     }
 
     @Override
-    public void syntaxError(String s, String s1, List<String> list, String s2, Integer integer) {
-        String out = String.format("syntaxError(): s=%s, s1=%s, list=%s, s2=%s, integer=%s", s, s1, list, s2, integer);
-        System.out.println(out);
+    public void setEventPublisher(EventPublisher publisher) {
+        publisher.registerHandlerFor(TestSourceParsed.class, this::sourceParsed);
+        publisher.registerHandlerFor(TestRunStarted.class, this::runStarted);
+        publisher.registerHandlerFor(TestRunFinished.class, this::runFinished);
+        publisher.registerHandlerFor(TestCaseFinished.class, this::caseFinished);
+        publisher.registerHandlerFor(TestCaseStarted.class, this::caseStarted);
+        publisher.registerHandlerFor(WriteEvent.class, this::writeEvent);
     }
 
-    @Override
-    public void uri(String s) {
-    }
-
-    @Override
-    public void feature(Feature feature) {
-        System.out.println("\n\n########\nFEATURE: " + feature.getName() + " - " + feature.getId());
-        currentFeature = feature;
-        steps.clear();
-    }
-
-    @Override
-    public void scenarioOutline(ScenarioOutline scenarioOutline) {
-    }
-
-    @Override
-    public void examples(Examples examples) {
-    }
-
-    @Override
-    public void startOfScenarioLifeCycle(Scenario scenario) {
-        report.setStart(LocalDateUtil.now());
-    }
-
-    @Override
-    public void background(Background background) {
-    }
-
-    @Override
-    public void scenario(Scenario scenario) {
-        System.out.println("- SCENARIO: " + scenario.getName() + " (line: " + scenario.getLine() + ")");
-        report = new Report();
-        report.setDescription(scenario.getName());
-        report.setFeature(currentFeature.getName());
-        report.setTags(scenario.getTags().stream().map(tag -> tag.getName().substring(1, tag.getName().length()))
-            .collect(Collectors.toList()));
-        currentFeature.getTags().stream().map(tag -> tag.getName().substring(1, tag.getName().length()))
-            .forEach(tagName -> report.addTag(tagName));
-        reports.add(report);
-        steps.clear();
-    }
-
-    @Override
-    public void step(Step step) {
-        steps.add(step);
-    }
-
-    @Override
-    public void endOfScenarioLifeCycle(Scenario scenario) {
-        report.setEnd(LocalDateUtil.now());
-    }
-
-    @Override
-    public void done() {
-        System.out.println("##### DONE ####");
-        reports.setEnd(LocalDateUtil.now());
-        output.append(JsonHandler.prettyPrint(reports));
-    }
-
-    @Override
-    public void close() {
-        output.close();
-    }
-
-    @Override
-    public void eof() {
-    }
-
-    @Override
-    public void before(Match match, Result result) {
-    }
-
-    @Override
-    public void result(Result result) {
-
-        Step step = steps.poll();
-        System.out.printf("  * - %s - %s%s%n", Instant.now(), result.getStatus().toUpperCase(),
-            step != null ? " - " + step.getName() + " (line: " + step.getLine() + ")" : "");
-
-        if (!result.getStatus().equals(Result.PASSED) && !result.getStatus().equals(Result.SKIPPED.getStatus())) {
-            report.addError(result.getErrorMessage());
-            reports.add(report);
+    private void sourceParsed(TestSourceParsed event) {
+        if (event.getNodes().size() != 1) {
+            throw new CucumberException("There should be exactly one root node");
         }
+        Node rootNode = event.getNodes().iterator().next();
+        if (!(rootNode instanceof Feature)) {
+            throw new CucumberException("Root node should be a feature");
+        }
+        Feature feature = (Feature) rootNode;
+        featureNames.put(feature.getUri(), feature.getName().orElse(""));
     }
 
-    @Override
-    public void after(Match match, Result result) {
+    private void runStarted(TestRunStarted event) {
+        reports = new Reports();
     }
 
-    @Override
-    public void match(Match match) {
+    private void runFinished(TestRunFinished event) {
+        reports.setEnd(LocalDateTime.ofInstant(event.getInstant(), ZoneOffset.UTC));
+        out.print(JsonHandler.prettyPrint(reports));
     }
 
-    @Override
-    public void embedding(String s, byte[] bytes) {
+    private void caseStarted(TestCaseStarted event) {
+        report = new Report();
+        report.setStart(LocalDateTime.ofInstant(event.getInstant(), ZoneOffset.UTC));
+        report.setFeature(featureNames.get(event.getTestCase().getUri()));
     }
 
-    @Override
-    public void write(String operationId) {
-        report.setOperationId(operationId);
+    private void caseFinished(TestCaseFinished event) {
+        TestCase testCase = event.getTestCase();
+        report.setDescription(testCase.getName());
+        report.setTags(testCase.getTags().stream().map(tag -> tag.substring(1)).collect(Collectors.toList()));
+        report.setEnd(LocalDateTime.ofInstant(event.getInstant(), ZoneOffset.UTC));
+        Result result = event.getResult();
+        Throwable error = result.getError();
+        if (error != null) {
+            report.addError(error.toString());
+        }
+        reports.add(report);
     }
 
+    private void writeEvent(WriteEvent writeEvent) {
+        report.setOperationId(writeEvent.getText());
+    }
 }

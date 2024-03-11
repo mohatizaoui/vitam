@@ -27,7 +27,7 @@
 package fr.gouv.vitam.functionaltest.cucumber.step;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import cucumber.api.java.en.When;
+import io.cucumber.java.en.When;
 import fr.gouv.vitam.common.GlobalDataRest;
 import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper;

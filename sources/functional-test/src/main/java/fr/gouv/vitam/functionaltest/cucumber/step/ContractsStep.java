@@ -30,10 +30,6 @@ package fr.gouv.vitam.functionaltest.cucumber.step;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import cucumber.api.DataTable;
-import cucumber.api.java.en.Given;
-import cucumber.api.java.en.Then;
-import cucumber.api.java.en.When;
 import fr.gouv.vitam.access.external.api.AdminCollections;
 import fr.gouv.vitam.access.external.client.AdminExternalClient;
 import fr.gouv.vitam.access.external.common.exception.AccessExternalClientException;
@@ -55,6 +51,10 @@ import fr.gouv.vitam.common.model.administration.IngestContractModel;
 import fr.gouv.vitam.common.model.administration.ManagementContractModel;
 import fr.gouv.vitam.common.model.administration.PermissionModel;
 import fr.gouv.vitam.ingest.external.api.exception.IngestExternalException;
+import io.cucumber.datatable.DataTable;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -62,6 +62,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -398,7 +399,7 @@ public class ContractsStep extends CommonStep {
 
     @Then("^les métadonnées du contrat sont$")
     public void metadata_are(DataTable dataTable) throws Throwable {
-        List<List<String>> raws = dataTable.raw();
+        List<List<String>> raws = dataTable.cells();
         for (List<String> raw : raws) {
             String index = raw.get(0);
             String value = raw.get(1);
@@ -473,10 +474,10 @@ public class ContractsStep extends CommonStep {
      * @throws Exception
      */
     @Then("^le[s]? contract[s]? (.*) de type (.*) (?:définie|définies) dans le fichier (.*)$")
-    public void verify_contrat_or_import(List<String> contractNames, String type, String fileName)
+    public void verify_contrat_or_import(String contractNames, String type, String fileName)
         throws Exception {
         boolean shouldImport = false;
-        for (String contractName : contractNames) {
+        for (String contractName : contractNames.split(",\\s?")) {
             JsonNode jsonNode = retriveContract(type, contractName);
             if (jsonNode == null) {
                 shouldImport = true;

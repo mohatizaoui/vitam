@@ -27,10 +27,10 @@
 package fr.gouv.vitam.functionaltest.cucumber.step;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import cucumber.api.Scenario;
-import cucumber.api.java.After;
-import cucumber.api.java.Before;
-import cucumber.api.java.en.Given;
+import io.cucumber.java.After;
+import io.cucumber.java.Before;
+import io.cucumber.java.Scenario;
+import io.cucumber.java.en.Given;
 import fr.gouv.vitam.access.external.client.AccessExternalClient;
 import fr.gouv.vitam.access.external.client.AccessExternalClientFactory;
 import fr.gouv.vitam.access.external.client.AdminExternalClient;
@@ -70,6 +70,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class World {
 
@@ -443,7 +444,9 @@ public class World {
      */
     @After
     public void writeOperationId(Scenario scenario) {
-        scenario.write(operationId);
+        if (!Objects.isNull(operationId)) {
+            scenario.log(operationId);
+        }
     }
 
     /**
