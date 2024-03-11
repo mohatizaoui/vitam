@@ -31,6 +31,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.google.common.base.Strings;
 import com.google.common.collect.ListMultimap;
 import fr.gouv.vitam.collect.common.dto.BatchDto;
+import fr.gouv.vitam.collect.common.dto.BatchStatusDto;
 import fr.gouv.vitam.collect.common.dto.ProjectDto;
 import fr.gouv.vitam.collect.common.dto.TransactionDto;
 import fr.gouv.vitam.collect.common.enums.TransactionStatus;
@@ -197,8 +198,9 @@ public class CollectHelper {
         List<Batch> batches = transactionModel.getBatches();
         if (batches != null) {
             List<BatchDto> batchDtos =
-                batches.stream().map(batch -> new BatchDto(batch.getBatchId(), batch.getBatchStatus().name())).collect(
-                    Collectors.toList());
+                batches.stream()
+                    .map(batch -> new BatchDto(batch.getBatchId(), BatchStatusDto.valueOf(batch.getBatchStatus().name())))
+                    .collect(Collectors.toList());
             transactionDto.setBatches(batchDtos);
         }
         return transactionDto;
