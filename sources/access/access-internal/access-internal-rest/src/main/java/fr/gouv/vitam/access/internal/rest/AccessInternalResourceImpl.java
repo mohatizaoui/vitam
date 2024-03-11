@@ -537,6 +537,7 @@ public class AccessInternalResourceImpl extends ApplicationStatusResource implem
         exportRequest.setDataObjectVersionToExport(new DataObjectVersions(Set.of()));
         exportRequest.setDslRequest(dslRequest);
         exportRequest.setExportWithLogBookLFC(false);
+        exportRequest.setExportWithoutObjects(false);
         exportRequest.setExportType(ExportType.MinimalArchiveDeliveryRequestReply);
 
         return exportByRequest(exportRequest, false);

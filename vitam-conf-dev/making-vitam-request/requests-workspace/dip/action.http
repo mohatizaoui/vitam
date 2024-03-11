@@ -133,6 +133,7 @@ X-Access-Contract-Id: {{access-contract}}
         ]
     },
   "exportWithLogBookLFC": true,
+  "exportWithoutObjects": false,
   "dslRequest": {
         "$query": [
             {

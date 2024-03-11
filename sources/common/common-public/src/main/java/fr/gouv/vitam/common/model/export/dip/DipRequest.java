@@ -40,9 +40,11 @@ public class DipRequest {
     @JsonProperty("dipRequestParameters")
     private DipRequestParameters dipRequestParameters;
 
-
     @JsonProperty("exportWithLogBookLFC")
     private boolean exportWithLogBookLFC;
+
+    @JsonProperty("exportWithoutObjects")
+    private boolean exportWithoutObjects;
 
     @JsonProperty("maxSizeThreshold")
     private Long maxSizeThreshold;
@@ -104,6 +106,14 @@ public class DipRequest {
 
     public void setExportWithLogBookLFC(boolean exportWithLogBookLFC) {
         this.exportWithLogBookLFC = exportWithLogBookLFC;
+    }
+
+    public boolean isExportWithoutObjects() {
+        return exportWithoutObjects;
+    }
+
+    public void setExportWithoutObjects(boolean exportWithoutObjects) {
+        this.exportWithoutObjects = exportWithoutObjects;
     }
 
     public JsonNode getDslRequest() {
