@@ -38,8 +38,6 @@ filebeat.config.inputs:
 # Override for custom indexes
 #
 setup.ilm.enabled: false
-setup.template.name: "filebeat"
-setup.template.pattern: "filebeat-*"
 setup.template.enabled: false
 setup.template.overwrite: true
 
@@ -49,6 +47,7 @@ setup.template.overwrite: true
 output.logstash:
   # The Logstash hosts
   hosts: [{% for item in groups['hosts_logstash'] %}"{{ hostvars[item]['ip_admin'] }}:{{ logstash.port | default(10514) }}"{% if not loop.last %},{% endif %}{% endfor %}]
+  compression_level: {{ filebeat.compression_level | default(3) }}
 
 #
 # Processors

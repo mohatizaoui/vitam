@@ -8,35 +8,35 @@
 #
 #  antivirus "{{ composant_name }}"
 #
-- type: log
+- type: filestream
   id: "{{ vitam_site_name }}-{{ composant_name }}-error"
   paths:
     - "{{ vitam_defaults.folder.root_path }}/log/{{ composant_name }}/*.log"
   fields:
     kind: log
-    vitam_component: "clamd"
+    vitam_component: clamd
     source: vitam
 
-- type: log
+- type: filestream
   id: "{{ vitam_site_name }}-antivirus-scan"
   paths:
     - "{{ vitam_defaults.folder.root_path }}/log/{{ composant_name }}/clamd.scan"
   fields:
     kind: scan
-    vitam_component: "clamd"
+    vitam_component: clamd
     source: vitam
 
 {% else  %}
 #
 #  antivirus "{{ composant_name }}"
 #
-- type: log
+- type: filestream
   id: "{{ vitam_site_name }}-{{ composant_name }}-error"
   paths:
     - "{{ vitam_defaults.folder.root_path }}/log/{{ composant_name }}/*.log"
   fields:
     kind: log
-    vitam_component: "avast"
+    vitam_component: avast
     source: vitam
 
 {% endif %}

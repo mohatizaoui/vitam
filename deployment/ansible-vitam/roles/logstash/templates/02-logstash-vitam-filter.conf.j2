@@ -36,25 +36,17 @@ filter
             add_field => { "vitam_component" => "logstash" }
         }
     }
-    else if [agent][type] == "filebeat" {
-        mutate {
-        rename => {
-                    "[fields][vitam_component]" => "vitam_component"
-                    "[host][hostname]" => "hostname"
-                    "[fields][kind]"=> "log_type"
-                }
-        }
-    }
 
     # --------------------------------------------------
     # Let's parse the message depending on the program sending it
     # --------------------------------------------------
 
-    if [vitam_component] =~ "httpd" {
+    if [vitam_component] =~ "apache" {
         grok {
-           match => { "message" => "%{COMMONAPACHELOG}?%{GREEDYDATA:message}" }
+           match => { "message" => "%{COMMONAPACHELOG}?%{GREEDYDATA:log_message}" }
         }
-         mutate { add_field => [ "logger", "reverse" ] }
+        mutate { add_field => [ "log_level", "-" ] }
+        mutate { add_field => [ "logger", "reverse" ] }
     }
 
     else if [vitam_component] =~ "mongo" {
@@ -75,6 +67,7 @@ filter
         mutate { add_field => [ "date_msg", "%{+YYYY}-%{+MM}-%{jour} %{hr}:%{mn}:%{sec}" ] }
         mutate { replace => { timestamp => "%{date_msg}" } }
         # TODO review : either don't use the local variable date_msg, or unset it here.
+        mutate { add_field => [ "log_level", "-" ] }
         mutate { add_field => [ "logger", "mongo" ] }
         date {
             match => [ "timestamp" , "yyyy-MM-dd HH:mm:ss" ]
@@ -147,7 +140,7 @@ filter
             target => [ "@timestamp" ]
         }
     }
-{% if syslog.name | default('filebeat') == 'syslog-ng' %}
+{% if syslog.name == 'syslog-ng' %}
     else if [vitam_component] =~ "systemd" or  [vitam_component] =~ "sudo" or [vitam_component] =~ "ansible" {
         grok {
             break_on_match => false
@@ -256,12 +249,13 @@ filter
         }
     }
     else if [vitam_component] =~ "logstash" {
+
         json {
             source => "message"
         }
 
-        if [level]     { mutate { rename => { "level"     => "log_level"          } } }
         if [message]   { mutate { rename => { "message"   => "log_message"        } } }
+        if [level]     { mutate { rename => { "level"     => "log_level"          } } }
         if [error]     { mutate { rename => { "error"     => "logstash_error"     } } }
         if [backtrace] { mutate { rename => { "backtrace" => "logstash_backtrace" } } }
         if [file]      { mutate { rename => { "file"      => "logstash_file"      } } }
@@ -297,6 +291,10 @@ filter
              match => [
                  "log_message",
                  "\[%{GREEDYDATA:component}\]%{SPACE}STP_%{GREEDYDATA:stepName}\,%{GREEDYDATA:taskName}\,%{GREEDYDATA:treatmentName}\,%{NUMBER:time}"
+             ]
+             match => [
+                 "message",
+                  "%{COMMONAPACHELOG}?%{GREEDYDATA:log_message}"
              ]
 
              overwrite => [ "timestamp" ]

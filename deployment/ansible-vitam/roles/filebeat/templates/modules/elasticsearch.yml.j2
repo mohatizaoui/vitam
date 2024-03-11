@@ -1,0 +1,62 @@
+#jinja2: lstrip_blocks: True
+
+- module: elasticsearch
+  server:
+    enabled: true
+    var.paths:
+      {% if inventory_hostname in groups['hosts_elasticsearch_data'] %}
+      - "{{ vitam_defaults.folder.root_path }}/log/elasticsearch-data/elasticsearch-data.log"
+      {% endif %}
+      {% if inventory_hostname in groups['hosts_elasticsearch_log'] %}
+      - "{{ vitam_defaults.folder.root_path }}/log/elasticsearch-log/elasticsearch-log.log"
+      {% endif %}
+    input:
+      fields:
+        kind: server
+        vitam_component: '{% if inventory_hostname in groups["hosts_elasticsearch_data"] %}elasticsearch-data{% else %}elasticsearch-log{% endif %}'
+        source: vitam
+
+  audit:
+    enabled: true
+    var.paths:
+      {% if inventory_hostname in groups['hosts_elasticsearch_data'] %}
+      - "{{ vitam_defaults.folder.root_path }}/log/elasticsearch-data/elasticsearch-data_audit.log"
+      {% endif %}
+      {% if inventory_hostname in groups['hosts_elasticsearch_log'] %}
+      - "{{ vitam_defaults.folder.root_path }}/log/elasticsearch-log/elasticsearch-log_audit.log"
+      {% endif %}
+    input:
+      fields:
+        kind: audit
+        vitam_component: '{% if inventory_hostname in groups["hosts_elasticsearch_data"] %}elasticsearch-data{% else %}elasticsearch-log{% endif %}'
+        source: vitam
+
+  slowlog:
+    enabled: true
+    var.paths:
+      {% if inventory_hostname in groups['hosts_elasticsearch_data'] %}
+      - "{{ vitam_defaults.folder.root_path }}/log/elasticsearch-data/elasticsearch-data_*_slowlog.log"
+      {% endif %}
+      {% if inventory_hostname in groups['hosts_elasticsearch_log'] %}
+      - "{{ vitam_defaults.folder.root_path }}/log/elasticsearch-log/elasticsearch-log_*_slowlog.log"
+      {% endif %}
+    input:
+      fields:
+        kind: slowlog
+        vitam_component: '{% if inventory_hostname in groups["hosts_elasticsearch_data"] %}elasticsearch-data{% else %}elasticsearch-log{% endif %}'
+        source: vitam
+
+  deprecation:
+    enabled: true
+    var.paths:
+      {% if inventory_hostname in groups['hosts_elasticsearch_data'] %}
+      - "{{ vitam_defaults.folder.root_path }}/log/elasticsearch-data/elasticsearch-data_deprecation.log"
+      {% endif %}
+      {% if inventory_hostname in groups['hosts_elasticsearch_log'] %}
+      - "{{ vitam_defaults.folder.root_path }}/log/elasticsearch-log/elasticsearch-log_deprecation.log"
+      {% endif %}
+    input:
+      fields:
+        kind: deprecation
+        vitam_component: '{% if inventory_hostname in groups["hosts_elasticsearch_data"] %}elasticsearch-data{% else %}elasticsearch-log{% endif %}'
+        source: vitam

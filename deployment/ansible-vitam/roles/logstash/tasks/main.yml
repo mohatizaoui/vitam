@@ -58,25 +58,58 @@
   notify:
     - "logstash - restart service"
 
-- name: configure logstash parser
-  template:
-    src: "{{ item }}.j2"
-    dest: "{{ logstash_conf_dir }}/{{ item }}"
-    owner: "{{ logstash.user }}"
-    group: "{{ vitam_defaults.users.group }}"
-    mode: "{{ vitam_defaults.folder.conf_permission }}"
-  with_items:
-    - "01-logstash-vitam-input.conf"
-    - "02-logstash-vitam-filter.conf"
-    - "03-logstash-vitam-output.conf"
-  notify:
-    - "logstash - restart service"
+- block:
+
+  - name: remove filebeat logstash configuration if it exists
+    file:
+      path: "{{ logstash_conf_dir }}/filebeat-to-logstash.conf"
+      state: absent
+
+  - name: configure logstash parser
+    template:
+      src: "{{ item }}.j2"
+      dest: "{{ logstash_conf_dir }}/{{ item }}"
+      owner: "{{ logstash.user }}"
+      group: "{{ vitam_defaults.users.group }}"
+      mode: "{{ vitam_defaults.folder.conf_permission }}"
+    with_items:
+      - "01-logstash-vitam-input.conf"
+      - "02-logstash-vitam-filter.conf"
+      - "03-logstash-vitam-output.conf"
+    notify:
+      - "logstash - restart service"
+
+  when:  syslog.name | default('filebeat') != 'filebeat'
+
+- block:
+
+  - name: remove rsyslog logstash configuration if it exists
+    file:
+      path: "{{ logstash_conf_dir }}/{{ item }}"
+      state: absent
+    with_items:
+      - "01-logstash-vitam-input.conf"
+      - "02-logstash-vitam-filter.conf"
+      - "03-logstash-vitam-output.conf"
+
+  - name: configure logstash parser when filebeat
+    template:
+      src: "filebeat-to-logstash.conf.j2"
+      dest: "{{ logstash_conf_dir }}/filebeat-to-logstash.conf"
+      owner: "{{ logstash.user }}"
+      group: "{{ vitam_defaults.users.group }}"
+      mode: "{{ vitam_defaults.folder.conf_permission }}"
+    notify:
+      - "logstash - restart service"
+
+  when:  syslog.name | default('filebeat') == 'filebeat'
 
 - name: add vitam patterns conf
   template:
     src: "vitam-patterns.j2"
     dest: "/usr/share/logstash/vendor/bundle/jruby/2.5.0/gems/logstash-patterns-core-{{ logstash_patterns_core_version }}/patterns/vitam"
     owner: "{{ logstash.user }}"
+  when:  syslog.name | default('filebeat') != 'filebeat'
   notify:
     - "logstash - restart service"
 

@@ -255,10 +255,6 @@ syslog:
     # value can be syslog-ng, rsyslog or filebeat (default)
     name: "filebeat"
 
-filebeat:
-    # apache_access_path:
-    # apache_error_path:
-
 cerebro:
     baseuri: "cerebro"
     port: 9000

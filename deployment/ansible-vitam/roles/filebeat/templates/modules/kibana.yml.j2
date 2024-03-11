@@ -1,0 +1,18 @@
+#jinja2: lstrip_blocks: True
+
+- module: kibana
+  log:
+    enabled: true
+    input:
+      fields:
+        kind: log
+        vitam_component: '{% if inventory_hostname in groups["hosts_kibana_data"] %}kibana-data{% else %}kibana-log{% endif %}'
+        source: vitam
+
+  audit:
+    enabled: true
+    input:
+      fields:
+        kind: audit
+        vitam_component: '{% if inventory_hostname in groups["hosts_kibana_data"] %}kibana-data{% else %}kibana-log{% endif %}'
+        source: vitam

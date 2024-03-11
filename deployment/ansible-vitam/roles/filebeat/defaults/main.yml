@@ -6,7 +6,6 @@ filebeat_processors:
         when.not.contains.tags: forwarded
     - add_cloud_metadata: ~
     - add_docker_metadata: ~
-    - add_kubernetes_metadata: ~
 
 filebeat_log:
   level: INFO
@@ -14,20 +13,9 @@ filebeat_log:
   filename: filebeat.log
   keepfiles: 7
 
-apache_log_path: "{{ '/var/log/apache2' if ansible_distribution == 'Debian' else '/var/log/httpd' }}"
-
 cots_list:
-  - mongoc-data
-  - mongos-data
-  - mongoc-offer
-  - mongos-offer
-  - elasticsearch-data
-  - elasticsearch-log
   - cerebro
   - grafana
   - kibana
   - prometheus
   - alertmanager
-  - restic
-#  - logstash
-
