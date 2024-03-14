@@ -1929,7 +1929,7 @@
     ]
   },
   "timezone": "browser",
-  "title": "Vitam mongodb dashboard",
+  "title": "Vitam MongoDB Dashboard",
   "uid": "vitam_mongodb_dashboard",
   "version": 1,
   "weekStart": ""
