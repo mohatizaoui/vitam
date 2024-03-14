@@ -134,9 +134,12 @@ public class TransactionRepository {
 
     private UpdateOneModel<Document> getUpdateOneModel(TransactionModel transactionModel) {
         transactionModel.setLastUpdate(LocalDateUtil.now().toString());
-        Document documentToUpdate =
-            new Document().append(SET, new BasicDBObject(STATUS, transactionModel.getStatus().name()))
-                .append(SET, new BasicDBObject(VERSION, transactionModel.getVersion() + 1));
+        Document documentToUpdate = new Document().append(
+            SET,
+            new BasicDBObject()
+                .append(STATUS, transactionModel.getStatus().name())
+                .append(VERSION, transactionModel.getVersion() + 1)
+        );
 
         return new UpdateOneModel<>(and(eq(ID, transactionModel.getId())
             , eq(VERSION, transactionModel.getVersion())), documentToUpdate,
@@ -157,7 +160,6 @@ public class TransactionRepository {
 
         List<UpdateOneModel<Document>> listUpdate = new ArrayList<>();
         for (TransactionModel item : transactionsModel) {
-            item.setVersion(item.getVersion() + 1);
             listUpdate.add(getUpdateOneModel(item));
         }
         transactionCollection.bulkWrite(listUpdate, options);

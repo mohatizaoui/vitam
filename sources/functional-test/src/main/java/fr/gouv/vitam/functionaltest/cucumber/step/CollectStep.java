@@ -425,7 +425,7 @@ public class CollectStep extends CommonStep {
 
                 if (status.equals(myTransactionDto.getStatus())) {
                     return true;
-                } else if (stopWatch.getTime(TimeUnit.MINUTES) >= 10) {
+                } else if (stopWatch.getTime(TimeUnit.MINUTES) > 15) {
                     return false;
                 }
 
