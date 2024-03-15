@@ -65,6 +65,7 @@ import fr.gouv.vitam.common.utils.JsonSorter;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import io.cucumber.java.fr.Etantdonné;
 import net.javacrumbs.jsonunit.JsonAssert;
 import net.javacrumbs.jsonunit.core.Option;
 import org.apache.commons.io.IOUtils;
@@ -1320,8 +1321,8 @@ public class AccessStep extends CommonStep {
         assertThat(operationId).as(format("%s not found for request", X_REQUEST_ID)).isNotNull();
     }
 
-    @When("^que l'ingest date d'au moins (\\d+) secondes$")
-    public void wait_old_ingest_for_lfc_traceability(int duration) {
+    @Etantdonné("l'ingest date d'au moins {int} secondes")
+    public void wait_old_ingest_for_lfc_traceability(Integer duration) {
         runInVitamThread(() -> {
             VitamThreadUtils.getVitamSession().setTenantId(world.getTenantId());
 
@@ -1356,6 +1357,8 @@ public class AccessStep extends CommonStep {
             }
         });
     }
+
+
 
     @When("^je lance l'opération de reclassification$")
     public void reclassification() throws Exception {
