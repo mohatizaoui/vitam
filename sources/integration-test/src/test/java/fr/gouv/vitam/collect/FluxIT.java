@@ -428,9 +428,7 @@ public class FluxIT extends VitamRuleRunner {
             TransactionDto transactionDtoResultAfterUpload =
                 JsonHandler.getFromJsonNode(requestResponseOKAfterUpload.getFirstResult(), TransactionDto.class);
 
-
-
-            assertThat(transactionDtoResultAfterUpload.getBatches()).isNotEmpty();
+            assertThat(transactionDtoResultAfterUpload.getBatches()).hasSize(1);
 
             new SelectMultiQuery().addUsedProjection("#id", "Title").getFinalSelect();
 

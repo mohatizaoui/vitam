@@ -541,9 +541,11 @@ public class TransactionService {
         batch.setBatchId(batchId);
         batch.setBatchStatus(BatchStatus.KO);
         Optional<TransactionModel> optionalTransactionModel;
-
+        List<Batch> batches;
         try {
-            optionalTransactionModel = traceTransaction(batch, transactionModel);
+            batches = Optional.ofNullable(transactionModel.getBatches()).orElse(new ArrayList<>());
+            batches.add(batch);
+            optionalTransactionModel = traceTransaction(batches, transactionModel);
             if (optionalTransactionModel.isEmpty()) {
                 return;
             }
@@ -562,7 +564,7 @@ public class TransactionService {
 
         try {
             batch.setBatchStatus(BatchStatus.PURGED);
-            optionalTransactionModel = traceTransaction(batch, newTransactionModel);
+            traceTransaction(batches, newTransactionModel);
 
         } catch (CollectInternalException e) {
             LOGGER.info("unable to Update Transaction :", e);
@@ -571,12 +573,11 @@ public class TransactionService {
     }
 
 
-    private Optional<TransactionModel> traceTransaction(Batch batch, TransactionModel transactionModel)
+    private Optional<TransactionModel> traceTransaction(List<Batch> batches , TransactionModel transactionModel)
         throws CollectInternalException {
         String errorMsg = "concurrency problem: The transaction was deleted by someone else";
 
-        List<Batch> batches = Optional.ofNullable(transactionModel.getBatches()).orElse(new ArrayList<>());
-        batches.add(batch);
+
         transactionModel.setBatches(batches);
 
         int retryCount = 0;
