@@ -2226,7 +2226,7 @@
     "FieldName": "Keyword",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "Cardinality": "ONE",
+    "Cardinality": "MANY",
     "Indexed": true,
     "Path": "Keyword",
     "ApiField": "Keyword",
