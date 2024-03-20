@@ -529,17 +529,16 @@ public class OntologyServiceImpl implements OntologyService {
         throws VitamException, IOException {
         VitamError vitamError = null;
         if (!errors.isEmpty()) {
-            String errorsDetails =
-                errors.entrySet().stream().map(c -> c.getKey() + " : " + c.getValue().get(0).getMessage())
-                    .collect(Collectors.joining(","));
+            String errorsDetails = errors.entrySet().stream()
+                .map(c -> c.getKey() + ": " + c.getValue().get(0).getMessage())
+                .collect(Collectors.joining("; "));
             InputStream errorStream = generateErrorReport(errors, StatusCode.OK, eip);
             backupReport(errorStream, eip);
             manager.logValidationError(ONTOLOGY_IMPORT_EVENT, null, errorsDetails);
-
-            vitamError =
-                getVitamError(VitamCode.ONTOLOGY_IMPORT_ERROR.getItem(), "Global import ontology error",
-                    StatusCode.KO)
-                    .setHttpCode(Response.Status.BAD_REQUEST.getStatusCode());
+            vitamError = getVitamError(VitamCode.ONTOLOGY_IMPORT_ERROR.getItem(),
+                errorsDetails,
+                StatusCode.KO)
+                .setHttpCode(Response.Status.BAD_REQUEST.getStatusCode());
         }
         return vitamError;
     }
@@ -1061,7 +1060,6 @@ public class OntologyServiceImpl implements OntologyService {
             eip + ".json");
         stream.close();
     }
-
 
 
 }
