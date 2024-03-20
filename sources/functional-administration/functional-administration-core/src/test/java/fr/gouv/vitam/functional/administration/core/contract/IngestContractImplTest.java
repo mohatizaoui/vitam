@@ -1251,6 +1251,66 @@ public class IngestContractImplTest {
 
     @Test
     @RunWithCustomExecutor
+    public void should_retrieve_vitam_error_when_invalid_parse_operation_exception() throws Exception {
+        // Given
+        VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
+        final String documentName = "aName";
+        // Create document
+        final File fileContracts = PropertiesUtils.getResourceFile("referential_contracts_ok.json");
+
+        final List<IngestContractModel> ingestModelList =
+            JsonHandler.getFromFileAsTypeReference(fileContracts, new TypeReference<>() {
+            });
+        final RequestResponse<IngestContractModel> response = ingestContractService.createContracts(ingestModelList);
+        RequestResponseOK<IngestContractModel> responseCast = (RequestResponseOK<IngestContractModel>) response;
+        assertThat(responseCast.getResults()).hasSize(2);
+
+
+        final SelectParserSingle parser = new SelectParserSingle(new SingleVarNameAdapter());
+        final Select select = new Select();
+        parser.parse(select.getFinalSelect());
+        parser.addCondition(QueryHelper.eq("Name", documentName));
+        final JsonNode queryDsl = parser.getRequest().getFinalSelect();
+        responseCast = ingestContractService.findContracts(queryDsl);
+        assertThat(responseCast.getResults()).isNotEmpty();
+        for (final IngestContractModel ingestContractModel : responseCast.getResults()) {
+            assertThat(ActivationStatus.ACTIVE.equals(ingestContractModel.getStatus())).isTrue();
+        }
+        final String identifier = responseCast.getResults().get(0).getIdentifier();
+        // When
+        // Test update for ingest contract With Empty List
+        final String now = LocalDateUtil.now().toString();
+        final UpdateParserSingle updateParser = new UpdateParserSingle(new SingleVarNameAdapter());
+        final ObjectNode signedDocumentNode = JsonHandler.createObjectNode();
+        signedDocumentNode.put("SignedDocument", "ALLOWED");
+        signedDocumentNode.put("DeclaredSignature","TOTO");
+        final ObjectNode signaturePolicyNode = JsonHandler.createObjectNode();
+        signaturePolicyNode.set("SignaturePolicy", signedDocumentNode);
+        final SetAction setActionSignaturePolicy =
+            UpdateActionHelper.set(signaturePolicyNode);
+        final SetAction setActionStatusInactive =
+            UpdateActionHelper.set("Status", ActivationStatus.INACTIVE.toString());
+        final SetAction setActionDesactivationDateInactive = UpdateActionHelper.set("DeactivationDate", now);
+        final SetAction setActionLastUpdateInactive = UpdateActionHelper.set("LastUpdate", now);
+
+        final Update update = new Update();
+        update.setQuery(QueryHelper.eq("Identifier", identifier));
+        update.addActions(setActionSignaturePolicy, setActionStatusInactive, setActionDesactivationDateInactive,
+            setActionLastUpdateInactive);
+        updateParser.parse(update.getFinalUpdate());
+        JsonNode queryDslForUpdate = updateParser.getRequest().getFinalUpdate();
+
+        // Then
+        RequestResponse<IngestContractModel> ingestContractModelRequestResponse =
+            ingestContractService.updateContract(ingestModelList.get(0).getIdentifier(), queryDslForUpdate);
+        assertThat(ingestContractModelRequestResponse.getHttpCode()).isEqualTo(400);
+        VitamError vitamError =
+            JsonHandler.getFromJsonNode(ingestContractModelRequestResponse.toJsonNode(), VitamError.class);
+        assertThat(vitamError.getDescription()).isEqualTo("Update ingest contract error > Update process failure for the entry contract: incorrect value entered in the SignaturePolicy field: expected values: [ALLOWED, MANDATORY, FORBIDDEN]");
+    }
+
+    @Test
+    @RunWithCustomExecutor
     public void givenIngestContractsTestManagementContractIdOK() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
         when(managementContractService.findByIdentifier(any())).thenReturn(new ManagementContractModel());
