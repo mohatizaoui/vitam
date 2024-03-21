@@ -28,7 +28,9 @@
     "ApiField": "Addressee",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee",
@@ -44,7 +46,9 @@
     "ApiField": "Activity",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.Activity",
@@ -61,7 +65,9 @@
     "ApiField": "BirthDate",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.BirthDate",
@@ -78,7 +84,9 @@
     "ApiField": "BirthName",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.BirthName",
@@ -95,7 +103,9 @@
     "ApiField": "BirthPlace",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.BirthPlace",
@@ -111,12 +121,14 @@
     "ApiField": "Address",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.BirthPlace.Address",
     "SedaField": "Address",
-    "ShortName": "Addresse"
+    "ShortName": "Adresse"
   },
   {
     "FieldName": "City",
@@ -128,7 +140,9 @@
     "ApiField": "City",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.BirthPlace.City",
@@ -145,7 +159,9 @@
     "ApiField": "Country",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.BirthPlace.Country",
@@ -162,12 +178,14 @@
     "ApiField": "Geogname",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.BirthPlace.Geogname",
     "SedaField": "Geogname",
-    "ShortName": "Nom géographique"
+    "ShortName": "Nom de lieu"
   },
   {
     "FieldName": "PostalCode",
@@ -179,7 +197,9 @@
     "ApiField": "PostalCode",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.BirthPlace.PostalCode",
@@ -196,7 +216,9 @@
     "ApiField": "Region",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.BirthPlace.Region",
@@ -213,12 +235,14 @@
     "ApiField": "Corpname",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.Corpname",
     "SedaField": "Corpname",
-    "ShortName": "Nom d'une entité"
+    "ShortName": "Nom de l'entité"
   },
   {
     "FieldName": "DeathDate",
@@ -230,12 +254,14 @@
     "ApiField": "DeathDate",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.DeathDate",
     "SedaField": "DeathDate",
-    "ShortName": "Date de décès"
+    "ShortName": "date de décès"
   },
   {
     "FieldName": "DeathPlace",
@@ -247,11 +273,13 @@
     "ApiField": "DeathPlace",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.DeathPlace",
-    "ShortName": "Lieu de décès "
+    "ShortName": "Lieu de décès"
   },
   {
     "FieldName": "Address",
@@ -263,12 +291,14 @@
     "ApiField": "Address",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.DeathPlace.Address",
     "SedaField": "Address",
-    "ShortName": "Addresse"
+    "ShortName": "Adresse"
   },
   {
     "FieldName": "City",
@@ -280,7 +310,9 @@
     "ApiField": "City",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.DeathPlace.City",
@@ -297,7 +329,9 @@
     "ApiField": "Country",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.DeathPlace.Country",
@@ -314,12 +348,14 @@
     "ApiField": "Geogname",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.DeathPlace.Geogname",
     "SedaField": "Geogname",
-    "ShortName": "Nom géographique"
+    "ShortName": "Nom de lieu"
   },
   {
     "FieldName": "PostalCode",
@@ -331,7 +367,9 @@
     "ApiField": "PostalCode",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.DeathPlace.PostalCode",
@@ -348,7 +386,9 @@
     "ApiField": "Region",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.DeathPlace.Region",
@@ -365,7 +405,9 @@
     "ApiField": "FirstName",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.FirstName",
@@ -389,7 +431,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.FullName",
     "SedaField": "FullName",
-    "ShortName": "Nom / Nom + Prénom"
+    "ShortName": "Nom complet"
   },
   {
     "FieldName": "Function",
@@ -401,7 +443,9 @@
     "ApiField": "Function",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.Function",
@@ -418,7 +462,9 @@
     "ApiField": "Gender",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.Gender",
@@ -435,7 +481,9 @@
     "ApiField": "GivenName",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.GivenName",
@@ -452,7 +500,9 @@
     "ApiField": "Identifier",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.Identifier",
@@ -469,12 +519,14 @@
     "ApiField": "Mandate",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.Mandate",
     "SedaField": "Mandate",
-    "ShortName": "Mandat octroyé à la personne"
+    "ShortName": "Droits"
   },
   {
     "FieldName": "Nationality",
@@ -486,12 +538,14 @@
     "ApiField": "Nationality",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.Nationality",
     "SedaField": "Nationality",
-    "ShortName": "Nationalité"
+    "ShortName": "nationalité"
   },
   {
     "FieldName": "Position",
@@ -503,12 +557,14 @@
     "ApiField": "Position",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.Position",
     "SedaField": "Position",
-    "ShortName": "Intitulé du poste"
+    "ShortName": "Position"
   },
   {
     "FieldName": "Role",
@@ -520,12 +576,14 @@
     "ApiField": "Role",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.Role",
     "SedaField": "Role",
-    "ShortName": "Droits"
+    "ShortName": "Rôle"
   },
   {
     "FieldName": "Agent",
@@ -537,7 +595,9 @@
     "ApiField": "Agent",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Agent",
@@ -553,7 +613,9 @@
     "ApiField": "Activity",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.Activity",
@@ -570,7 +632,9 @@
     "ApiField": "BirthDate",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.BirthDate",
@@ -587,7 +651,9 @@
     "ApiField": "BirthName",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.BirthName",
@@ -604,7 +670,9 @@
     "ApiField": "BirthPlace",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.BirthPlace",
@@ -620,12 +688,14 @@
     "ApiField": "Address",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.BirthPlace.Address",
     "SedaField": "Address",
-    "ShortName": "Addresse"
+    "ShortName": "Adresse"
   },
   {
     "FieldName": "City",
@@ -637,7 +707,9 @@
     "ApiField": "City",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.BirthPlace.City",
@@ -654,7 +726,9 @@
     "ApiField": "Country",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.BirthPlace.Country",
@@ -671,12 +745,14 @@
     "ApiField": "Geogname",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.BirthPlace.Geogname",
     "SedaField": "Geogname",
-    "ShortName": "Nom géographique"
+    "ShortName": "Nom de lieu"
   },
   {
     "FieldName": "PostalCode",
@@ -688,7 +764,9 @@
     "ApiField": "PostalCode",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.BirthPlace.PostalCode",
@@ -705,7 +783,9 @@
     "ApiField": "Region",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.BirthPlace.Region",
@@ -722,12 +802,14 @@
     "ApiField": "Corpname",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.Corpname",
     "SedaField": "Corpname",
-    "ShortName": "Nom d'une entité"
+    "ShortName": "Nom de l'entité"
   },
   {
     "FieldName": "DeathDate",
@@ -739,12 +821,14 @@
     "ApiField": "DeathDate",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.DeathDate",
     "SedaField": "DeathDate",
-    "ShortName": "Date de décès"
+    "ShortName": "date de décès"
   },
   {
     "FieldName": "DeathPlace",
@@ -756,11 +840,13 @@
     "ApiField": "DeathPlace",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.DeathPlace",
-    "ShortName": "Lieu de décès "
+    "ShortName": "Lieu de décès"
   },
   {
     "FieldName": "Address",
@@ -772,12 +858,14 @@
     "ApiField": "Address",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.DeathPlace.Address",
     "SedaField": "Address",
-    "ShortName": "Addresse"
+    "ShortName": "Adresse"
   },
   {
     "FieldName": "City",
@@ -789,7 +877,9 @@
     "ApiField": "City",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.DeathPlace.City",
@@ -806,7 +896,9 @@
     "ApiField": "Country",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.DeathPlace.Country",
@@ -823,12 +915,14 @@
     "ApiField": "Geogname",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.DeathPlace.Geogname",
     "SedaField": "Geogname",
-    "ShortName": "Nom géographique"
+    "ShortName": "Nom de lieu"
   },
   {
     "FieldName": "PostalCode",
@@ -840,7 +934,9 @@
     "ApiField": "PostalCode",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.DeathPlace.PostalCode",
@@ -857,7 +953,9 @@
     "ApiField": "Region",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.DeathPlace.Region",
@@ -874,7 +972,9 @@
     "ApiField": "FirstName",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.FirstName",
@@ -891,12 +991,14 @@
     "ApiField": "FullName",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.FullName",
     "SedaField": "FullName",
-    "ShortName": "Nom / Nom + Prénom"
+    "ShortName": "Nom complet"
   },
   {
     "FieldName": "Function",
@@ -908,7 +1010,9 @@
     "ApiField": "Function",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.Function",
@@ -925,7 +1029,9 @@
     "ApiField": "Gender",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.Gender",
@@ -942,7 +1048,9 @@
     "ApiField": "GivenName",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.GivenName",
@@ -959,7 +1067,9 @@
     "ApiField": "Identifier",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.Identifier",
@@ -976,12 +1086,14 @@
     "ApiField": "Mandate",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.Mandate",
     "SedaField": "Mandate",
-    "ShortName": "Mandat octroyé à la personne"
+    "ShortName": "Droits"
   },
   {
     "FieldName": "Nationality",
@@ -993,12 +1105,14 @@
     "ApiField": "Nationality",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.Nationality",
     "SedaField": "Nationality",
-    "ShortName": "Nationalité"
+    "ShortName": "nationalité"
   },
   {
     "FieldName": "Position",
@@ -1010,12 +1124,14 @@
     "ApiField": "Position",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.Position",
     "SedaField": "Position",
-    "ShortName": "Intitulé du poste"
+    "ShortName": "Position"
   },
   {
     "FieldName": "Role",
@@ -1027,12 +1143,14 @@
     "ApiField": "Role",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.Role",
     "SedaField": "Role",
-    "ShortName": "Droits"
+    "ShortName": "Rôle"
   },
   {
     "FieldName": "ArchivalAgencyArchiveUnitIdentifier",
@@ -1051,7 +1169,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "ArchivalAgencyArchiveUnitIdentifier",
     "SedaField": "ArchivalAgencyArchiveUnitIdentifier",
-    "ShortName": "Identifiant métier (Service d'archives)"
+    "ShortName": "Identifiant attribué par le service d'archives"
   },
   {
     "FieldName": "ArchiveUnitProfile",
@@ -1082,7 +1200,9 @@
     "ApiField": "AuthorizedAgent",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent",
@@ -1098,7 +1218,9 @@
     "ApiField": "Activity",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.Activity",
@@ -1115,7 +1237,9 @@
     "ApiField": "BirthDate",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.BirthDate",
@@ -1132,7 +1256,9 @@
     "ApiField": "BirthName",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.BirthName",
@@ -1149,7 +1275,9 @@
     "ApiField": "BirthPlace",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.BirthPlace",
@@ -1165,12 +1293,14 @@
     "ApiField": "Address",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.BirthPlace.Address",
     "SedaField": "Address",
-    "ShortName": "Addresse"
+    "ShortName": "Adresse"
   },
   {
     "FieldName": "City",
@@ -1182,7 +1312,9 @@
     "ApiField": "City",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.BirthPlace.City",
@@ -1199,7 +1331,9 @@
     "ApiField": "Country",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.BirthPlace.Country",
@@ -1216,12 +1350,14 @@
     "ApiField": "Geogname",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.BirthPlace.Geogname",
     "SedaField": "Geogname",
-    "ShortName": "Nom géographique"
+    "ShortName": "Nom de lieu"
   },
   {
     "FieldName": "PostalCode",
@@ -1233,7 +1369,9 @@
     "ApiField": "PostalCode",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.BirthPlace.PostalCode",
@@ -1250,7 +1388,9 @@
     "ApiField": "Region",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.BirthPlace.Region",
@@ -1267,12 +1407,14 @@
     "ApiField": "Corpname",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.Corpname",
     "SedaField": "Corpname",
-    "ShortName": "Nom d'une entité"
+    "ShortName": "Nom de l'entité"
   },
   {
     "FieldName": "DeathDate",
@@ -1284,12 +1426,14 @@
     "ApiField": "DeathDate",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.DeathDate",
     "SedaField": "DeathDate",
-    "ShortName": "Date de décès"
+    "ShortName": "date de décès"
   },
   {
     "FieldName": "DeathPlace",
@@ -1301,11 +1445,13 @@
     "ApiField": "DeathPlace",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.DeathPlace",
-    "ShortName": "Lieu de décès "
+    "ShortName": "Lieu de décès"
   },
   {
     "FieldName": "Address",
@@ -1317,12 +1463,14 @@
     "ApiField": "Address",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.DeathPlace.Address",
     "SedaField": "Address",
-    "ShortName": "Addresse"
+    "ShortName": "Adresse"
   },
   {
     "FieldName": "City",
@@ -1334,7 +1482,9 @@
     "ApiField": "City",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.DeathPlace.City",
@@ -1351,7 +1501,9 @@
     "ApiField": "Country",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.DeathPlace.Country",
@@ -1368,12 +1520,14 @@
     "ApiField": "Geogname",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.DeathPlace.Geogname",
     "SedaField": "Geogname",
-    "ShortName": "Nom géographique"
+    "ShortName": "Nom de lieu"
   },
   {
     "FieldName": "PostalCode",
@@ -1385,7 +1539,9 @@
     "ApiField": "PostalCode",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.DeathPlace.PostalCode",
@@ -1402,7 +1558,9 @@
     "ApiField": "Region",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.DeathPlace.Region",
@@ -1419,7 +1577,9 @@
     "ApiField": "FirstName",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.FirstName",
@@ -1436,12 +1596,14 @@
     "ApiField": "FullName",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.FullName",
     "SedaField": "FullName",
-    "ShortName": "Nom / Nom + Prénom"
+    "ShortName": "Nom complet"
   },
   {
     "FieldName": "Function",
@@ -1453,7 +1615,9 @@
     "ApiField": "Function",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.Function",
@@ -1470,7 +1634,9 @@
     "ApiField": "Gender",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.Gender",
@@ -1487,7 +1653,9 @@
     "ApiField": "GivenName",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.GivenName",
@@ -1504,7 +1672,9 @@
     "ApiField": "Identifier",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.Identifier",
@@ -1521,12 +1691,14 @@
     "ApiField": "Mandate",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.Mandate",
     "SedaField": "Mandate",
-    "ShortName": "Mandat octroyé à la personne"
+    "ShortName": "Droits"
   },
   {
     "FieldName": "Nationality",
@@ -1538,12 +1710,14 @@
     "ApiField": "Nationality",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.Nationality",
     "SedaField": "Nationality",
-    "ShortName": "Nationalité"
+    "ShortName": "nationalité"
   },
   {
     "FieldName": "Position",
@@ -1555,12 +1729,14 @@
     "ApiField": "Position",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.Position",
     "SedaField": "Position",
-    "ShortName": "Intitulé du poste"
+    "ShortName": "Position"
   },
   {
     "FieldName": "Role",
@@ -1572,12 +1748,14 @@
     "ApiField": "Role",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.Role",
     "SedaField": "Role",
-    "ShortName": "Droits"
+    "ShortName": "Rôle"
   },
   {
     "FieldName": "Coverage",
@@ -1589,7 +1767,9 @@
     "ApiField": "Coverage",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Coverage",
@@ -1605,12 +1785,14 @@
     "ApiField": "Juridictional",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Coverage.Juridictional",
     "SedaField": "Juridictional",
-    "ShortName": "Couverture administrative"
+    "ShortName": "Couverture juridictionnelle"
   },
   {
     "FieldName": "Spatial",
@@ -1622,12 +1804,14 @@
     "ApiField": "Spatial",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Coverage.Spatial",
     "SedaField": "Spatial",
-    "ShortName": "Couverture géographique"
+    "ShortName": "Couverture spatiale"
   },
   {
     "FieldName": "Temporal",
@@ -1639,7 +1823,9 @@
     "ApiField": "Temporal",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Coverage.Temporal",
@@ -1681,7 +1867,7 @@
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "CustodialHistory",
-    "ShortName": "CustodialHistory"
+    "ShortName": "Historique de la conservation"
   },
   {
     "FieldName": "CustodialHistoryFile",
@@ -1693,7 +1879,9 @@
     "ApiField": "CustodialHistoryFile",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "CustodialHistory.CustodialHistoryFile",
@@ -1709,7 +1897,9 @@
     "ApiField": "DataObjectGroupReferenceId",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "CustodialHistory.CustodialHistoryFile.DataObjectGroupReferenceId",
@@ -1726,12 +1916,14 @@
     "ApiField": "DataObjectReferenceId",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "CustodialHistory.CustodialHistoryFile.DataObjectReferenceId",
     "SedaField": "DataObjectReferenceId",
-    "ShortName": "Référence à un objet ou à un groupe d'objets interne(s)"
+    "ShortName": "Référence à un objet"
   },
   {
     "FieldName": "CustodialHistoryItem",
@@ -1743,12 +1935,14 @@
     "ApiField": "CustodialHistoryItem",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "CustodialHistory.CustodialHistoryItem",
     "SedaField": "CustodialHistoryItem",
-    "ShortName": "Historique de propriété, de responsabilité et de conservation"
+    "ShortName": "Détail"
   },
   {
     "FieldName": "DateLitteral",
@@ -1760,14 +1954,13 @@
     "ApiField": "DateLitteral",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1",
       "2.2",
       "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "DateLitteral",
     "SedaField": "DateLitteral",
-    "ShortName": "DateLitteral"
+    "ShortName": "Date textuelle"
   },
   {
     "FieldName": "Description",
@@ -1805,7 +1998,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "DescriptionLanguage",
     "SedaField": "DescriptionLanguage",
-    "ShortName": "Langue des descriptions"
+    "ShortName": "Langue de la description"
   },
   {
     "FieldName": "DescriptionLevel",
@@ -1817,12 +2010,14 @@
     "ApiField": "DescriptionLevel",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "DescriptionLevel",
     "SedaField": "DescriptionLevel",
-    "ShortName": "Niveau de description"
+    "ShortName": "Niveau de description *"
   },
   {
     "FieldName": "Description_",
@@ -1890,7 +2085,9 @@
     "ApiField": "Event",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Event",
@@ -1906,7 +2103,9 @@
     "ApiField": "evDateTime",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Event.evDateTime",
@@ -1930,7 +2129,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Event.evDetData",
     "SedaField": "eventDetailData",
-    "ShortName": "Détails techniques"
+    "ShortName": "Message technique détaillant l'événement"
   },
   {
     "FieldName": "evId",
@@ -1942,12 +2141,14 @@
     "ApiField": "evId",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Event.evId",
     "SedaField": "EventIdentifier",
-    "ShortName": "Identifiant de l'événement"
+    "ShortName": "Identifiant"
   },
   {
     "FieldName": "evType",
@@ -1959,12 +2160,14 @@
     "ApiField": "evType",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Event.evType",
     "SedaField": "EventType",
-    "ShortName": "Type d'opération"
+    "ShortName": "Type"
   },
   {
     "FieldName": "evTypeDetail",
@@ -1976,12 +2179,14 @@
     "ApiField": "evTypeDetail",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Event.evTypeDetail",
     "SedaField": "EventDetail",
-    "ShortName": "Détail"
+    "ShortName": "Détail de l’événement"
   },
   {
     "FieldName": "evTypeProc",
@@ -1993,12 +2198,14 @@
     "ApiField": "evTypeProc",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Event.evTypeProc",
     "SedaField": "EventTypeCode",
-    "ShortName": "Catégorie d'opération"
+    "ShortName": "Code"
   },
   {
     "FieldName": "outDetail",
@@ -2010,12 +2217,14 @@
     "ApiField": "outDetail",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Event.outDetail",
     "SedaField": "OutcomeDetail",
-    "ShortName": "Code technique"
+    "ShortName": "Détail sur le résultat"
   },
   {
     "FieldName": "outMessg",
@@ -2027,12 +2236,14 @@
     "ApiField": "outMessg",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Event.outMessg",
     "SedaField": "OutcomeDetailMessage",
-    "ShortName": "Message"
+    "ShortName": "Description détaillée de l'événement"
   },
   {
     "FieldName": "outcome",
@@ -2044,12 +2255,86 @@
     "ApiField": "outcome",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Event.outcome",
     "SedaField": "Outcome",
-    "ShortName": "Statut"
+    "ShortName": "Résultat"
+  },
+  {
+    "FieldName": "LinkingAgentIdentifier",
+    "Type": "OBJECT",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "Event.LinkingAgentIdentifier",
+    "ApiField": "LinkingAgentIdentifier",
+    "Collection": "Unit",
+    "SedaVersions": [
+      "2.2",
+      "2.3"
+    ],
+    "Category": "DESCRIPTION",
+    "ApiPath": "Event.LinkingAgentIdentifier",
+    "SedaField": "LinkingAgentIdentifier",
+    "ShortName": "Agent"
+  },
+  {
+    "FieldName": "LinkingAgentIdentifierType",
+    "Type": "KEYWORD",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "Event.LinkingAgentIdentifier.LinkingAgentIdentifierType",
+    "ApiField": "LinkingAgentIdentifierType",
+    "Collections": "Unit",
+    "SedaVersions": [
+      "2.2",
+      "2.3"
+    ],
+    "Category": "DESCRIPTION",
+    "ApiPath": "Event.LinkingAgentIdentifier.LinkingAgentIdentifierType",
+    "SedaField": "LinkingAgentIdentifierType",
+    "ShortName": "Identifiant"
+  },
+  {
+    "FieldName": "LinkingAgentIdentifierValue",
+    "Type": "TEXT",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "Event.LinkingAgentIdentifier.LinkingAgentIdentifierValue",
+    "ApiField": "LinkingAgentIdentifierValue",
+    "Collections": "Unit",
+    "SedaVersions": [
+      "2.2",
+      "2.3"
+    ],
+    "Category": "DESCRIPTION",
+    "ApiPath": "Event.LinkingAgentIdentifier.LinkingAgentIdentifierValue",
+    "SedaField": "LinkingAgentIdentifierValue",
+    "ShortName": "Valeur"
+  },
+  {
+    "FieldName": "LinkingAgentRole",
+    "Type": "KEYWORD",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "Event.LinkingAgentIdentifier.LinkingAgentRole",
+    "ApiField": "LinkingAgentRole",
+    "Collections": "Unit",
+    "SedaVersions": [
+      "2.2",
+      "2.3"
+    ],
+    "Category": "DESCRIPTION",
+    "ApiPath": "Event.LinkingAgentIdentifier.LinkingAgentRole",
+    "SedaField": "LinkingAgentRole",
+    "ShortName": "Rôle"
   },
   {
     "FieldName": "FilePlanPosition",
@@ -2080,7 +2365,9 @@
     "ApiField": "Gps",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Gps",
@@ -2096,7 +2383,9 @@
     "ApiField": "GpsAltitude",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Gps.GpsAltitude",
@@ -2113,12 +2402,14 @@
     "ApiField": "GpsAltitudeRef",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Gps.GpsAltitudeRef",
     "SedaField": "GpsAltitudeRef",
-    "ShortName": "Niveau de la mer"
+    "ShortName": "Référence de l’altitude"
   },
   {
     "FieldName": "GpsDateStamp",
@@ -2130,12 +2421,14 @@
     "ApiField": "GpsDateStamp",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Gps.GpsDateStamp",
     "SedaField": "GpsDateStamp",
-    "ShortName": "Heure et date"
+    "ShortName": "Heure et date de la position"
   },
   {
     "FieldName": "GpsLatitude",
@@ -2147,7 +2440,9 @@
     "ApiField": "GpsLatitude",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Gps.GpsLatitude",
@@ -2164,12 +2459,14 @@
     "ApiField": "GpsLatitudeRef",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Gps.GpsLatitudeRef",
     "SedaField": "GpsLatitudeRef",
-    "ShortName": "Référence"
+    "ShortName": "Référence de la latitude"
   },
   {
     "FieldName": "GpsLongitude",
@@ -2181,7 +2478,9 @@
     "ApiField": "GpsLongitude",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Gps.GpsLongitude",
@@ -2198,12 +2497,14 @@
     "ApiField": "GpsLongitudeRef",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Gps.GpsLongitudeRef",
     "SedaField": "GpsLongitudeRef",
-    "ShortName": "Référence"
+    "ShortName": "Référence de la longitude"
   },
   {
     "FieldName": "GpsVersionID",
@@ -2238,7 +2539,7 @@
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Keyword",
-    "ShortName": "Keyword"
+    "ShortName": "Mot-clé"
   },
   {
     "FieldName": "KeywordContent",
@@ -2257,7 +2558,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Keyword.KeywordContent",
     "SedaField": "KeywordContent",
-    "ShortName": "Mot clé"
+    "ShortName": "Valeur du mot-clé"
   },
   {
     "FieldName": "KeywordReference",
@@ -2276,7 +2577,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Keyword.KeywordReference",
     "SedaField": "KeywordReference",
-    "ShortName": "Référence"
+    "ShortName": "Référence du mot-clé"
   },
   {
     "FieldName": "KeywordType",
@@ -2295,7 +2596,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Keyword.KeywordType",
     "SedaField": "KeywordType",
-    "ShortName": "Type"
+    "ShortName": "Type de mot-clé"
   },
   {
     "FieldName": "Language",
@@ -2314,7 +2615,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Language",
     "SedaField": "Language",
-    "ShortName": "Langue des documents"
+    "ShortName": "Langue"
   },
   {
     "FieldName": "LinkingAgentIdentifier",
@@ -2424,7 +2725,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "OriginatingAgency.Identifier",
     "SedaField": "Identifier",
-    "ShortName": "Identifiant"
+    "ShortName": "Identifiant du service producteur"
   },
   {
     "FieldName": "OrganizationDescriptiveMetadata",
@@ -2461,7 +2762,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "OriginatingAgencyArchiveUnitIdentifier",
     "SedaField": "OriginatingAgencyArchiveUnitIdentifier",
-    "ShortName": "Identifiant métier (Service producteur)"
+    "ShortName": "Identifiant attribué par le service producteur"
   },
   {
     "FieldName": "OriginatingSystemId",
@@ -2480,7 +2781,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "OriginatingSystemId",
     "SedaField": "OriginatingSystemId",
-    "ShortName": "Identifiant système (Service producteur)"
+    "ShortName": "Identifiant attribué par le système d'origine"
   },
   {
     "FieldName": "OriginatingSystemIdReplyTo",
@@ -2492,14 +2793,13 @@
     "ApiField": "OriginatingSystemIdReplyTo",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1",
       "2.2",
       "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "OriginatingSystemIdReplyTo",
     "SedaField": "OriginatingSystemIdReplyTo",
-    "ShortName": "OriginatingSystemIdReplyTo"
+    "ShortName": "Réponse au message en référence"
   },
   {
     "FieldName": "PersistentIdentifier",
@@ -2511,12 +2811,11 @@
     "ApiField": "PersistentIdentifier",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.2",
       "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "PersistentIdentifier",
-    "ShortName": "PersistentIdentifier"
+    "ShortName": "Identifiant pérenne"
   },
   {
     "FieldName": "PersistentIdentifierContent",
@@ -2528,13 +2827,12 @@
     "ApiField": "PersistentIdentifierContent",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.2",
       "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "PersistentIdentifier.PersistentIdentifierContent",
     "SedaField": "PersistentIdentifierContent",
-    "ShortName": "PersistentIdentifierContent"
+    "ShortName": "Identifiant"
   },
   {
     "FieldName": "PersistentIdentifierOrigin",
@@ -2546,13 +2844,12 @@
     "ApiField": "PersistentIdentifierOrigin",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.2",
       "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "PersistentIdentifier.PersistentIdentifierOrigin",
     "SedaField": "PersistentIdentifierOrigin",
-    "ShortName": "PersistentIdentifierOrigin"
+    "ShortName": "Origine"
   },
   {
     "FieldName": "PersistentIdentifierReference",
@@ -2564,13 +2861,12 @@
     "ApiField": "PersistentIdentifierReference",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.2",
       "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "PersistentIdentifier.PersistentIdentifierReference",
     "SedaField": "PersistentIdentifierReference",
-    "ShortName": "PersistentIdentifierReference"
+    "ShortName": "Référence"
   },
   {
     "FieldName": "PersistentIdentifierType",
@@ -2582,13 +2878,12 @@
     "ApiField": "PersistentIdentifierType",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.2",
       "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "PersistentIdentifier.PersistentIdentifierType",
     "SedaField": "PersistentIdentifierType",
-    "ShortName": "PersistentIdentifierType"
+    "ShortName": "Type*"
   },
   {
     "FieldName": "ReceivedDate",
@@ -2619,7 +2914,9 @@
     "ApiField": "Recipient",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient",
@@ -2635,7 +2932,9 @@
     "ApiField": "Activity",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.Activity",
@@ -2652,7 +2951,9 @@
     "ApiField": "BirthDate",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.BirthDate",
@@ -2669,7 +2970,9 @@
     "ApiField": "BirthName",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.BirthName",
@@ -2686,7 +2989,9 @@
     "ApiField": "BirthPlace",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.BirthPlace",
@@ -2702,12 +3007,14 @@
     "ApiField": "Address",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.BirthPlace.Address",
     "SedaField": "Address",
-    "ShortName": "Addresse"
+    "ShortName": "Adresse"
   },
   {
     "FieldName": "City",
@@ -2719,7 +3026,9 @@
     "ApiField": "City",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.BirthPlace.City",
@@ -2736,7 +3045,9 @@
     "ApiField": "Country",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.BirthPlace.Country",
@@ -2753,12 +3064,14 @@
     "ApiField": "Geogname",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.BirthPlace.Geogname",
     "SedaField": "Geogname",
-    "ShortName": "Nom géographique"
+    "ShortName": "Nom de lieu"
   },
   {
     "FieldName": "PostalCode",
@@ -2770,7 +3083,9 @@
     "ApiField": "PostalCode",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.BirthPlace.PostalCode",
@@ -2787,7 +3102,9 @@
     "ApiField": "Region",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.BirthPlace.Region",
@@ -2804,12 +3121,14 @@
     "ApiField": "Corpname",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.Corpname",
     "SedaField": "Corpname",
-    "ShortName": "Nom d'une entité"
+    "ShortName": "Nom de l'entité"
   },
   {
     "FieldName": "DeathDate",
@@ -2821,12 +3140,14 @@
     "ApiField": "DeathDate",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.DeathDate",
     "SedaField": "DeathDate",
-    "ShortName": "Date de décès"
+    "ShortName": "date de décès"
   },
   {
     "FieldName": "DeathPlace",
@@ -2838,11 +3159,13 @@
     "ApiField": "DeathPlace",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.DeathPlace",
-    "ShortName": "Lieu de décès "
+    "ShortName": "Lieu de décès"
   },
   {
     "FieldName": "Address",
@@ -2854,12 +3177,14 @@
     "ApiField": "Address",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.DeathPlace.Address",
     "SedaField": "Address",
-    "ShortName": "Addresse"
+    "ShortName": "Adresse"
   },
   {
     "FieldName": "City",
@@ -2871,7 +3196,9 @@
     "ApiField": "City",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.DeathPlace.City",
@@ -2888,7 +3215,9 @@
     "ApiField": "Country",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.DeathPlace.Country",
@@ -2905,12 +3234,14 @@
     "ApiField": "Geogname",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.DeathPlace.Geogname",
     "SedaField": "Geogname",
-    "ShortName": "Nom géographique"
+    "ShortName": "Nom de lieu"
   },
   {
     "FieldName": "PostalCode",
@@ -2922,7 +3253,9 @@
     "ApiField": "PostalCode",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.DeathPlace.PostalCode",
@@ -2939,7 +3272,9 @@
     "ApiField": "Region",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.DeathPlace.Region",
@@ -2956,7 +3291,9 @@
     "ApiField": "FirstName",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.FirstName",
@@ -2973,12 +3310,14 @@
     "ApiField": "FullName",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.FullName",
     "SedaField": "FullName",
-    "ShortName": "Nom / Nom + Prénom"
+    "ShortName": "Nom complet"
   },
   {
     "FieldName": "Function",
@@ -2990,7 +3329,9 @@
     "ApiField": "Function",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.Function",
@@ -3007,7 +3348,9 @@
     "ApiField": "Gender",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.Gender",
@@ -3024,7 +3367,9 @@
     "ApiField": "GivenName",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.GivenName",
@@ -3041,7 +3386,9 @@
     "ApiField": "Identifier",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.Identifier",
@@ -3058,12 +3405,14 @@
     "ApiField": "Mandate",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.Mandate",
     "SedaField": "Mandate",
-    "ShortName": "Mandat octroyé à la personne"
+    "ShortName": "Droits"
   },
   {
     "FieldName": "Nationality",
@@ -3075,12 +3424,14 @@
     "ApiField": "Nationality",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.Nationality",
     "SedaField": "Nationality",
-    "ShortName": "Nationalité"
+    "ShortName": "nationalité"
   },
   {
     "FieldName": "Position",
@@ -3092,12 +3443,14 @@
     "ApiField": "Position",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.Position",
     "SedaField": "Position",
-    "ShortName": "Intitulé du poste"
+    "ShortName": "Position"
   },
   {
     "FieldName": "Role",
@@ -3109,12 +3462,14 @@
     "ApiField": "Role",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.Role",
     "SedaField": "Role",
-    "ShortName": "Droits"
+    "ShortName": "Rôle"
   },
   {
     "FieldName": "RegisteredDate",
@@ -3133,7 +3488,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "RegisteredDate",
     "SedaField": "RegisteredDate",
-    "ShortName": "Date d'enregistrement"
+    "ShortName": "Date d’enregistrement"
   },
   {
     "FieldName": "RelatedObjectReference",
@@ -3151,7 +3506,7 @@
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference",
-    "ShortName": "RelatedObjectReference"
+    "ShortName": "Référence(s)"
   },
   {
     "FieldName": "IsPartOf",
@@ -3169,7 +3524,7 @@
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.IsPartOf",
-    "ShortName": "IsPartOf"
+    "ShortName": "Est une partie de"
   },
   {
     "FieldName": "ArchiveUnitRefId",
@@ -3188,7 +3543,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.IsPartOf.ArchiveUnitRefId",
     "SedaField": "ArchiveUnitRefId",
-    "ShortName": "Référence à une ArchiveUnit interne"
+    "ShortName": "Unité"
   },
   {
     "FieldName": "DataObjectReference",
@@ -3206,7 +3561,7 @@
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.IsPartOf.DataObjectReference",
-    "ShortName": "DataObjectReference"
+    "ShortName": "Objet"
   },
   {
     "FieldName": "DataObjectGroupReferenceId",
@@ -3225,7 +3580,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.IsPartOf.DataObjectReference.DataObjectGroupReferenceId",
     "SedaField": "DataObjectGroupReferenceId",
-    "ShortName": "Référence à un groupe d'objets"
+    "ShortName": "ID du groupe d'objets"
   },
   {
     "FieldName": "DataObjectReferenceId",
@@ -3244,7 +3599,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.IsPartOf.DataObjectReference.DataObjectReferenceId",
     "SedaField": "DataObjectReferenceId",
-    "ShortName": "Référence à un objet ou à un groupe d'objets interne(s)"
+    "ShortName": "ID de l'objet"
   },
   {
     "FieldName": "ExternalReference",
@@ -3263,7 +3618,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.IsPartOf.ExternalReference",
     "SedaField": "ExternalReference",
-    "ShortName": "Référence à un objet externe, présent ni dans le message, ni dans le SAE"
+    "ShortName": "Unité déjà archivée"
   },
   {
     "FieldName": "RepositoryArchiveUnitPID",
@@ -3282,7 +3637,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.IsPartOf.RepositoryArchiveUnitPID",
     "SedaField": "RepositoryArchiveUnitPID",
-    "ShortName": "Référence à une ArchiveUnit déjà conservée"
+    "ShortName": "Objet déjà archivé"
   },
   {
     "FieldName": "RepositoryObjectPID",
@@ -3301,7 +3656,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.IsPartOf.RepositoryObjectPID",
     "SedaField": "RepositoryObjectPID",
-    "ShortName": "Référence à un objet ou à un groupe d'objets déjà conservé(s)"
+    "ShortName": "Référence externe"
   },
   {
     "FieldName": "IsVersionOf",
@@ -3319,7 +3674,7 @@
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.IsVersionOf",
-    "ShortName": "IsVersionOf"
+    "ShortName": "Est une version de"
   },
   {
     "FieldName": "ArchiveUnitRefId",
@@ -3338,7 +3693,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.IsVersionOf.ArchiveUnitRefId",
     "SedaField": "ArchiveUnitRefId",
-    "ShortName": "Référence à une ArchiveUnit interne"
+    "ShortName": "Unité"
   },
   {
     "FieldName": "DataObjectReference",
@@ -3356,7 +3711,7 @@
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.IsVersionOf.DataObjectReference",
-    "ShortName": "DataObjectReference"
+    "ShortName": "Objet"
   },
   {
     "FieldName": "DataObjectGroupReferenceId",
@@ -3375,7 +3730,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.IsVersionOf.DataObjectReference.DataObjectGroupReferenceId",
     "SedaField": "DataObjectGroupReferenceId",
-    "ShortName": "Référence à un groupe d'objets"
+    "ShortName": "ID du groupe d'objets"
   },
   {
     "FieldName": "DataObjectReferenceId",
@@ -3394,7 +3749,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.IsVersionOf.DataObjectReference.DataObjectReferenceId",
     "SedaField": "DataObjectReferenceId",
-    "ShortName": "Référence à un objet ou à un groupe d'objets interne(s)"
+    "ShortName": "ID de l'objet"
   },
   {
     "FieldName": "ExternalReference",
@@ -3413,7 +3768,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.IsVersionOf.ExternalReference",
     "SedaField": "ExternalReference",
-    "ShortName": "Référence à un objet externe, présent ni dans le message, ni dans le SAE"
+    "ShortName": "Référence externe"
   },
   {
     "FieldName": "RepositoryArchiveUnitPID",
@@ -3432,7 +3787,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.IsVersionOf.RepositoryArchiveUnitPID",
     "SedaField": "RepositoryArchiveUnitPID",
-    "ShortName": "Référence à une ArchiveUnit déjà conservée"
+    "ShortName": "Unité déjà archivée"
   },
   {
     "FieldName": "RepositoryObjectPID",
@@ -3451,7 +3806,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.IsVersionOf.RepositoryObjectPID",
     "SedaField": "RepositoryObjectPID",
-    "ShortName": "Référence à un objet ou à un groupe d'objets déjà conservé(s)"
+    "ShortName": "Objet déjà archivé"
   },
   {
     "FieldName": "References",
@@ -3619,7 +3974,7 @@
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.Replaces",
-    "ShortName": "Replaces"
+    "ShortName": "Remplace"
   },
   {
     "FieldName": "ArchiveUnitRefId",
@@ -3638,7 +3993,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.Replaces.ArchiveUnitRefId",
     "SedaField": "ArchiveUnitRefId",
-    "ShortName": "Référence à une ArchiveUnit interne"
+    "ShortName": "Unité"
   },
   {
     "FieldName": "DataObjectReference",
@@ -3656,7 +4011,7 @@
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.Replaces.DataObjectReference",
-    "ShortName": "DataObjectReference"
+    "ShortName": "Objet"
   },
   {
     "FieldName": "DataObjectGroupReferenceId",
@@ -3675,7 +4030,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.Replaces.DataObjectReference.DataObjectGroupReferenceId",
     "SedaField": "DataObjectGroupReferenceId",
-    "ShortName": "Référence à un groupe d'objets"
+    "ShortName": "ID du groupe d'objets"
   },
   {
     "FieldName": "DataObjectReferenceId",
@@ -3694,7 +4049,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.Replaces.DataObjectReference.DataObjectReferenceId",
     "SedaField": "DataObjectReferenceId",
-    "ShortName": "Référence à un objet ou à un groupe d'objets interne(s)"
+    "ShortName": "ID de l'objet"
   },
   {
     "FieldName": "ExternalReference",
@@ -3713,7 +4068,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.Replaces.ExternalReference",
     "SedaField": "ExternalReference",
-    "ShortName": "Référence à un objet externe, présent ni dans le message, ni dans le SAE"
+    "ShortName": "Unité déjà archivée"
   },
   {
     "FieldName": "RepositoryArchiveUnitPID",
@@ -3732,7 +4087,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.Replaces.RepositoryArchiveUnitPID",
     "SedaField": "RepositoryArchiveUnitPID",
-    "ShortName": "Référence à une ArchiveUnit déjà conservée"
+    "ShortName": "Objet déjà archivé"
   },
   {
     "FieldName": "RepositoryObjectPID",
@@ -3751,7 +4106,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.Replaces.RepositoryObjectPID",
     "SedaField": "RepositoryObjectPID",
-    "ShortName": "Référence à un objet ou à un groupe d'objets déjà conservé(s)"
+    "ShortName": "Référence externe"
   },
   {
     "FieldName": "Requires",
@@ -3769,7 +4124,7 @@
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.Requires",
-    "ShortName": "Requires"
+    "ShortName": "Requiert"
   },
   {
     "FieldName": "ArchiveUnitRefId",
@@ -3788,7 +4143,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.Requires.ArchiveUnitRefId",
     "SedaField": "ArchiveUnitRefId",
-    "ShortName": "Référence à une ArchiveUnit interne"
+    "ShortName": "Unité"
   },
   {
     "FieldName": "DataObjectReference",
@@ -3806,7 +4161,7 @@
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.Requires.DataObjectReference",
-    "ShortName": "DataObjectReference"
+    "ShortName": "Objet"
   },
   {
     "FieldName": "DataObjectGroupReferenceId",
@@ -3825,7 +4180,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.Requires.DataObjectReference.DataObjectGroupReferenceId",
     "SedaField": "DataObjectGroupReferenceId",
-    "ShortName": "Référence à un groupe d'objets"
+    "ShortName": "ID du groupe d'objets"
   },
   {
     "FieldName": "DataObjectReferenceId",
@@ -3844,7 +4199,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.Requires.DataObjectReference.DataObjectReferenceId",
     "SedaField": "DataObjectReferenceId",
-    "ShortName": "Référence à un objet ou à un groupe d'objets interne(s)"
+    "ShortName": "ID de l'objet"
   },
   {
     "FieldName": "ExternalReference",
@@ -3863,7 +4218,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.Requires.ExternalReference",
     "SedaField": "ExternalReference",
-    "ShortName": "Référence à un objet externe, présent ni dans le message, ni dans le SAE"
+    "ShortName": "Unité déjà archivée"
   },
   {
     "FieldName": "RepositoryArchiveUnitPID",
@@ -3882,7 +4237,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.Requires.RepositoryArchiveUnitPID",
     "SedaField": "RepositoryArchiveUnitPID",
-    "ShortName": "Référence à une ArchiveUnit déjà conservée"
+    "ShortName": "Objet déjà archivé"
   },
   {
     "FieldName": "RepositoryObjectPID",
@@ -3901,7 +4256,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "RelatedObjectReference.Requires.RepositoryObjectPID",
     "SedaField": "RepositoryObjectPID",
-    "ShortName": "Référence à un objet ou à un groupe d'objets déjà conservé(s)"
+    "ShortName": "Référence externe"
   },
   {
     "FieldName": "Sender",
@@ -3913,7 +4268,9 @@
     "ApiField": "Sender",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Sender",
@@ -3929,7 +4286,9 @@
     "ApiField": "Activity",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.Activity",
@@ -3946,7 +4305,9 @@
     "ApiField": "BirthDate",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.BirthDate",
@@ -3963,7 +4324,9 @@
     "ApiField": "BirthName",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.BirthName",
@@ -3980,7 +4343,9 @@
     "ApiField": "BirthPlace",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.BirthPlace",
@@ -3996,12 +4361,14 @@
     "ApiField": "Address",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.BirthPlace.Address",
     "SedaField": "Address",
-    "ShortName": "Addresse"
+    "ShortName": "Adresse"
   },
   {
     "FieldName": "City",
@@ -4013,7 +4380,9 @@
     "ApiField": "City",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.BirthPlace.City",
@@ -4030,7 +4399,9 @@
     "ApiField": "Country",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.BirthPlace.Country",
@@ -4047,12 +4418,14 @@
     "ApiField": "Geogname",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.BirthPlace.Geogname",
     "SedaField": "Geogname",
-    "ShortName": "Nom géographique"
+    "ShortName": "Nom de lieu"
   },
   {
     "FieldName": "PostalCode",
@@ -4064,7 +4437,9 @@
     "ApiField": "PostalCode",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.BirthPlace.PostalCode",
@@ -4081,7 +4456,9 @@
     "ApiField": "Region",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.BirthPlace.Region",
@@ -4098,12 +4475,14 @@
     "ApiField": "Corpname",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.Corpname",
     "SedaField": "Corpname",
-    "ShortName": "Nom d'une entité"
+    "ShortName": "Nom de l'entité"
   },
   {
     "FieldName": "DeathDate",
@@ -4115,12 +4494,14 @@
     "ApiField": "DeathDate",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.DeathDate",
     "SedaField": "DeathDate",
-    "ShortName": "Date de décès"
+    "ShortName": "date de décès"
   },
   {
     "FieldName": "DeathPlace",
@@ -4132,11 +4513,13 @@
     "ApiField": "DeathPlace",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.DeathPlace",
-    "ShortName": "Lieu de décès "
+    "ShortName": "Lieu de décès"
   },
   {
     "FieldName": "Address",
@@ -4148,12 +4531,14 @@
     "ApiField": "Address",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.DeathPlace.Address",
     "SedaField": "Address",
-    "ShortName": "Addresse"
+    "ShortName": "Adresse"
   },
   {
     "FieldName": "City",
@@ -4165,7 +4550,9 @@
     "ApiField": "City",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.DeathPlace.City",
@@ -4182,7 +4569,9 @@
     "ApiField": "Country",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.DeathPlace.Country",
@@ -4199,12 +4588,14 @@
     "ApiField": "Geogname",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.DeathPlace.Geogname",
     "SedaField": "Geogname",
-    "ShortName": "Nom géographique"
+    "ShortName": "Nom de lieu"
   },
   {
     "FieldName": "PostalCode",
@@ -4216,7 +4607,9 @@
     "ApiField": "PostalCode",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.DeathPlace.PostalCode",
@@ -4233,7 +4626,9 @@
     "ApiField": "Region",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.DeathPlace.Region",
@@ -4250,7 +4645,9 @@
     "ApiField": "FirstName",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.FirstName",
@@ -4267,12 +4664,14 @@
     "ApiField": "FullName",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.FullName",
     "SedaField": "FullName",
-    "ShortName": "Nom / Nom + Prénom"
+    "ShortName": "Nom complet"
   },
   {
     "FieldName": "Function",
@@ -4284,7 +4683,9 @@
     "ApiField": "Function",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.Function",
@@ -4301,7 +4702,9 @@
     "ApiField": "Gender",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.Gender",
@@ -4318,7 +4721,9 @@
     "ApiField": "GivenName",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.GivenName",
@@ -4335,7 +4740,9 @@
     "ApiField": "Identifier",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.Identifier",
@@ -4352,12 +4759,14 @@
     "ApiField": "Mandate",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.Mandate",
     "SedaField": "Mandate",
-    "ShortName": "Mandat octroyé à la personne"
+    "ShortName": "Droits"
   },
   {
     "FieldName": "Nationality",
@@ -4369,12 +4778,14 @@
     "ApiField": "Nationality",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.Nationality",
     "SedaField": "Nationality",
-    "ShortName": "Nationalité"
+    "ShortName": "nationalité"
   },
   {
     "FieldName": "Position",
@@ -4386,12 +4797,14 @@
     "ApiField": "Position",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.Position",
     "SedaField": "Position",
-    "ShortName": "Intitulé du poste"
+    "ShortName": "Position"
   },
   {
     "FieldName": "Role",
@@ -4403,12 +4816,14 @@
     "ApiField": "Role",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.Role",
     "SedaField": "Role",
-    "ShortName": "Droits"
+    "ShortName": "Rôle"
   },
   {
     "FieldName": "SentDate",
@@ -4478,7 +4893,7 @@
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.ReferencedObject",
-    "ShortName": "Référence à l'objet signé "
+    "ShortName": "Référence à l'objet signé"
   },
   {
     "FieldName": "SignedObjectDigest",
@@ -4495,7 +4910,7 @@
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.ReferencedObject.SignedObjectDigest",
-    "ShortName": "Empreinte de l'objet signé "
+    "ShortName": "Empreinte de l'objet signé"
   },
   {
     "FieldName": "Algorithm",
@@ -4551,7 +4966,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.ReferencedObject.SignedObjectId",
     "SedaField": "SignedObjectId",
-    "ShortName": "Identifiant"
+    "ShortName": "Identifiant de l'objet de données signé"
   },
   {
     "FieldName": "Signer",
@@ -4657,7 +5072,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Signer.BirthPlace.Address",
     "SedaField": "Address",
-    "ShortName": "Addresse"
+    "ShortName": "Adresse"
   },
   {
     "FieldName": "City",
@@ -4711,7 +5126,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Signer.BirthPlace.Geogname",
     "SedaField": "Geogname",
-    "ShortName": "Nom géographique"
+    "ShortName": "Nom de lieu"
   },
   {
     "FieldName": "PostalCode",
@@ -4765,7 +5180,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Signer.Corpname",
     "SedaField": "Corpname",
-    "ShortName": "Nom d'une entité"
+    "ShortName": "Nom de l'entité"
   },
   {
     "FieldName": "DeathDate",
@@ -4800,7 +5215,7 @@
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Signer.DeathPlace",
-    "ShortName": "Lieu de décès "
+    "ShortName": "Lieu de décès"
   },
   {
     "FieldName": "Address",
@@ -4818,7 +5233,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Signer.DeathPlace.Address",
     "SedaField": "Address",
-    "ShortName": "Addresse"
+    "ShortName": "Adresse"
   },
   {
     "FieldName": "City",
@@ -4872,7 +5287,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Signer.DeathPlace.Geogname",
     "SedaField": "Geogname",
-    "ShortName": "Nom géographique"
+    "ShortName": "Nom de lieu"
   },
   {
     "FieldName": "PostalCode",
@@ -4939,13 +5354,12 @@
     "Collection": "Unit",
     "SedaVersions": [
       "2.1",
-      "2.2",
-      "2.3"
+      "2.2"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Signer.FullName",
     "SedaField": "FullName",
-    "ShortName": "Nom / Nom + Prénom"
+    "ShortName": "Nom complet"
   },
   {
     "FieldName": "Function",
@@ -5035,7 +5449,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Signer.Mandate",
     "SedaField": "Mandate",
-    "ShortName": "Mandat octroyé à la personne"
+    "ShortName": "Droits"
   },
   {
     "FieldName": "Nationality",
@@ -5053,7 +5467,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Signer.Nationality",
     "SedaField": "Nationality",
-    "ShortName": "Nationalité"
+    "ShortName": "nationalité"
   },
   {
     "FieldName": "Position",
@@ -5071,7 +5485,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Signer.Position",
     "SedaField": "Position",
-    "ShortName": "Intitulé du poste"
+    "ShortName": "Position"
   },
   {
     "FieldName": "Role",
@@ -5089,7 +5503,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Signer.Role",
     "SedaField": "Role",
-    "ShortName": "Droits"
+    "ShortName": "Rôle"
   },
   {
     "FieldName": "SigningTime",
@@ -5107,7 +5521,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Signer.SigningTime",
     "SedaField": "SigningTime",
-    "ShortName": "Date"
+    "ShortName": "Date de signature"
   },
   {
     "FieldName": "Validator",
@@ -5213,7 +5627,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.BirthPlace.Address",
     "SedaField": "Address",
-    "ShortName": "Addresse"
+    "ShortName": "Adresse"
   },
   {
     "FieldName": "City",
@@ -5267,7 +5681,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.BirthPlace.Geogname",
     "SedaField": "Geogname",
-    "ShortName": "Nom géographique"
+    "ShortName": "Nom de lieu"
   },
   {
     "FieldName": "PostalCode",
@@ -5321,7 +5735,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.Corpname",
     "SedaField": "Corpname",
-    "ShortName": "Nom d'une entité"
+    "ShortName": "Nom de l'entité"
   },
   {
     "FieldName": "DeathDate",
@@ -5339,7 +5753,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.DeathDate",
     "SedaField": "DeathDate",
-    "ShortName": "Date de décès"
+    "ShortName": "date de décès"
   },
   {
     "FieldName": "DeathPlace",
@@ -5356,7 +5770,7 @@
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.DeathPlace",
-    "ShortName": "Lieu de décès "
+    "ShortName": "Lieu de décès"
   },
   {
     "FieldName": "Address",
@@ -5374,7 +5788,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.DeathPlace.Address",
     "SedaField": "Address",
-    "ShortName": "Addresse"
+    "ShortName": "Adresse"
   },
   {
     "FieldName": "City",
@@ -5428,7 +5842,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.DeathPlace.Geogname",
     "SedaField": "Geogname",
-    "ShortName": "Nom géographique"
+    "ShortName": "Nom de lieu"
   },
   {
     "FieldName": "PostalCode",
@@ -5495,13 +5909,12 @@
     "Collection": "Unit",
     "SedaVersions": [
       "2.1",
-      "2.2",
-      "2.3"
+      "2.2"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.FullName",
     "SedaField": "FullName",
-    "ShortName": "Nom / Nom + Prénom"
+    "ShortName": "Nom complet"
   },
   {
     "FieldName": "Function",
@@ -5591,7 +6004,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.Mandate",
     "SedaField": "Mandate",
-    "ShortName": "Mandat octroyé à la personne"
+    "ShortName": "Droits"
   },
   {
     "FieldName": "Nationality",
@@ -5609,7 +6022,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.Nationality",
     "SedaField": "Nationality",
-    "ShortName": "Nationalité"
+    "ShortName": "nationalité"
   },
   {
     "FieldName": "Position",
@@ -5627,7 +6040,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.Position",
     "SedaField": "Position",
-    "ShortName": "Intitulé du poste"
+    "ShortName": "Position"
   },
   {
     "FieldName": "Role",
@@ -5645,7 +6058,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.Role",
     "SedaField": "Role",
-    "ShortName": "Droits"
+    "ShortName": "Rôle"
   },
   {
     "FieldName": "ValidationTime",
@@ -5663,7 +6076,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.ValidationTime",
     "SedaField": "ValidationTime",
-    "ShortName": "Date"
+    "ShortName": "Date de validation *"
   },
   {
     "FieldName": "SigningInformation",
@@ -5712,7 +6125,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.AdditionalProof.AdditionalProofInformation",
     "SedaField": "AdditionalProofInformation",
-    "ShortName": "AdditionalProofInformation"
+    "ShortName": "Description"
   },
   {
     "FieldName": "DetachedSigningRole",
@@ -5729,7 +6142,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.DetachedSigningRole",
     "SedaField": "DetachedSigningRole",
-    "ShortName": "DetachedSigningRole"
+    "ShortName": "Rôle de l'unité encapsulée"
   },
   {
     "FieldName": "Extended",
@@ -5863,7 +6276,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Signer.BirthPlace.Address",
     "SedaField": "Address",
-    "ShortName": "Addresse"
+    "ShortName": "Adresse"
   },
   {
     "FieldName": "City",
@@ -5914,7 +6327,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Signer.BirthPlace.Geogname",
     "SedaField": "Geogname",
-    "ShortName": "Nom géographique"
+    "ShortName": "Nom de lieu"
   },
   {
     "FieldName": "PostalCode",
@@ -5965,7 +6378,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Signer.Corpname",
     "SedaField": "Corpname",
-    "ShortName": "Nom d'une entité"
+    "ShortName": "Nom de l'entité"
   },
   {
     "FieldName": "DeathDate",
@@ -5998,7 +6411,7 @@
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Signer.DeathPlace",
-    "ShortName": "Lieu de décès "
+    "ShortName": "Lieu de décès"
   },
   {
     "FieldName": "Address",
@@ -6015,7 +6428,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Signer.DeathPlace.Address",
     "SedaField": "Address",
-    "ShortName": "Addresse"
+    "ShortName": "Adresse"
   },
   {
     "FieldName": "City",
@@ -6066,7 +6479,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Signer.DeathPlace.Geogname",
     "SedaField": "Geogname",
-    "ShortName": "Nom géographique"
+    "ShortName": "Nom de lieu"
   },
   {
     "FieldName": "PostalCode",
@@ -6221,7 +6634,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Signer.Mandate",
     "SedaField": "Mandate",
-    "ShortName": "Mandat octroyé à la personne"
+    "ShortName": "Droits"
   },
   {
     "FieldName": "Nationality",
@@ -6238,7 +6651,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Signer.Nationality",
     "SedaField": "Nationality",
-    "ShortName": "Nationalité"
+    "ShortName": "nationalité"
   },
   {
     "FieldName": "Position",
@@ -6255,7 +6668,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Signer.Position",
     "SedaField": "Position",
-    "ShortName": "Intitulé du poste"
+    "ShortName": "Position"
   },
   {
     "FieldName": "Role",
@@ -6272,7 +6685,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Signer.Role",
     "SedaField": "Role",
-    "ShortName": "Droits"
+    "ShortName": "Rôle"
   },
   {
     "FieldName": "SigningTime",
@@ -6289,7 +6702,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Signer.SigningTime",
     "SedaField": "SigningTime",
-    "ShortName": "Date"
+    "ShortName": "Date de signature"
   },
   {
     "FieldName": "SigningType",
@@ -6408,7 +6821,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator.BirthPlace.Address",
     "SedaField": "Address",
-    "ShortName": "Addresse"
+    "ShortName": "Adresse"
   },
   {
     "FieldName": "City",
@@ -6459,7 +6872,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator.BirthPlace.Geogname",
     "SedaField": "Geogname",
-    "ShortName": "Nom géographique"
+    "ShortName": "Nom de lieu"
   },
   {
     "FieldName": "PostalCode",
@@ -6510,7 +6923,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator.Corpname",
     "SedaField": "Corpname",
-    "ShortName": "Nom d'une entité"
+    "ShortName": "Nom de l'entité"
   },
   {
     "FieldName": "DeathDate",
@@ -6527,7 +6940,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator.DeathDate",
     "SedaField": "DeathDate",
-    "ShortName": "Date de décès"
+    "ShortName": "date de décès"
   },
   {
     "FieldName": "DeathPlace",
@@ -6543,7 +6956,7 @@
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator.DeathPlace",
-    "ShortName": "Lieu de décès "
+    "ShortName": "Lieu de décès"
   },
   {
     "FieldName": "Address",
@@ -6560,7 +6973,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator.DeathPlace.Address",
     "SedaField": "Address",
-    "ShortName": "Addresse"
+    "ShortName": "Adresse"
   },
   {
     "FieldName": "City",
@@ -6611,7 +7024,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator.DeathPlace.Geogname",
     "SedaField": "Geogname",
-    "ShortName": "Nom géographique"
+    "ShortName": "Nom de lieu"
   },
   {
     "FieldName": "PostalCode",
@@ -6766,7 +7179,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator.Mandate",
     "SedaField": "Mandate",
-    "ShortName": "Mandat octroyé à la personne"
+    "ShortName": "Droits"
   },
   {
     "FieldName": "Nationality",
@@ -6783,7 +7196,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator.Nationality",
     "SedaField": "Nationality",
-    "ShortName": "Nationalité"
+    "ShortName": "nationalité"
   },
   {
     "FieldName": "Position",
@@ -6800,7 +7213,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator.Position",
     "SedaField": "Position",
-    "ShortName": "Intitulé du poste"
+    "ShortName": "Position"
   },
   {
     "FieldName": "Role",
@@ -6817,7 +7230,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator.Role",
     "SedaField": "Role",
-    "ShortName": "Droits"
+    "ShortName": "Rôle"
   },
   {
     "FieldName": "ValidationTime",
@@ -6834,7 +7247,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator.ValidationTime",
     "SedaField": "ValidationTime",
-    "ShortName": "Date"
+    "ShortName": "Date de validation *"
   },
   {
     "FieldName": "SignedDocumentReferenceId",
@@ -6867,7 +7280,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SigningRole",
     "SedaField": "SigningRole",
-    "ShortName": "SigningRole"
+    "ShortName": "Rôle"
   },
   {
     "FieldName": "TimestampingInformation",
@@ -6900,7 +7313,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.TimestampingInformation.AdditionalTimestampingInformation",
     "SedaField": "AdditionalTimestampingInformation",
-    "ShortName": "AdditionalTimestampingInformation"
+    "ShortName": "Description de l'horodatage"
   },
   {
     "FieldName": "TimeStamp",
@@ -6917,7 +7330,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.TimestampingInformation.TimeStamp",
     "SedaField": "TimeStamp",
-    "ShortName": "TimeStamp"
+    "ShortName": "Horodatage de la signature"
   },
   {
     "FieldName": "Source",
@@ -7012,7 +7425,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "SubmissionAgency.Identifier",
     "SedaField": "Identifier",
-    "ShortName": "Identifiant"
+    "ShortName": "Identifiant du service versant"
   },
   {
     "FieldName": "OrganizationDescriptiveMetadata",
@@ -7049,7 +7462,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "SystemId",
     "SedaField": "SystemId",
-    "ShortName": "GUID"
+    "ShortName": "Identifiant technique du système"
   },
   {
     "FieldName": "Tag",
@@ -7080,14 +7493,13 @@
     "ApiField": "TextContent",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1",
       "2.2",
       "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "TextContent",
     "SedaField": "TextContent",
-    "ShortName": "TextContent"
+    "ShortName": "Contenu"
   },
   {
     "FieldName": "Title",
@@ -7106,7 +7518,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Title",
     "SedaField": "Title",
-    "ShortName": "Intitulé"
+    "ShortName": "Intitulé *"
   },
   {
     "FieldName": "Title_",
@@ -7143,7 +7555,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "TransactedDate",
     "SedaField": "TransactedDate",
-    "ShortName": "Date de la transaction"
+    "ShortName": "Date de transaction"
   },
   {
     "FieldName": "TransferringAgencyArchiveUnitIdentifier",
@@ -7162,7 +7574,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "TransferringAgencyArchiveUnitIdentifier",
     "SedaField": "TransferringAgencyArchiveUnitIdentifier",
-    "ShortName": "ID métier (Service versant)"
+    "ShortName": "Identifiant attribué par le service versant"
   },
   {
     "FieldName": "Transmitter",
@@ -7174,7 +7586,9 @@
     "ApiField": "Transmitter",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter",
@@ -7190,7 +7604,9 @@
     "ApiField": "Activity",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.Activity",
@@ -7207,7 +7623,9 @@
     "ApiField": "BirthDate",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.BirthDate",
@@ -7224,7 +7642,9 @@
     "ApiField": "BirthName",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.BirthName",
@@ -7241,7 +7661,9 @@
     "ApiField": "BirthPlace",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.BirthPlace",
@@ -7257,12 +7679,14 @@
     "ApiField": "Address",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.BirthPlace.Address",
     "SedaField": "Address",
-    "ShortName": "Addresse"
+    "ShortName": "Adresse"
   },
   {
     "FieldName": "City",
@@ -7274,7 +7698,9 @@
     "ApiField": "City",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.BirthPlace.City",
@@ -7291,7 +7717,9 @@
     "ApiField": "Country",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.BirthPlace.Country",
@@ -7308,12 +7736,14 @@
     "ApiField": "Geogname",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.BirthPlace.Geogname",
     "SedaField": "Geogname",
-    "ShortName": "Nom géographique"
+    "ShortName": "Nom de lieu"
   },
   {
     "FieldName": "PostalCode",
@@ -7325,7 +7755,9 @@
     "ApiField": "PostalCode",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.BirthPlace.PostalCode",
@@ -7342,7 +7774,9 @@
     "ApiField": "Region",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.BirthPlace.Region",
@@ -7359,12 +7793,14 @@
     "ApiField": "Corpname",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.Corpname",
     "SedaField": "Corpname",
-    "ShortName": "Nom d'une entité"
+    "ShortName": "Nom de l'entité"
   },
   {
     "FieldName": "DeathDate",
@@ -7376,12 +7812,14 @@
     "ApiField": "DeathDate",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.DeathDate",
     "SedaField": "DeathDate",
-    "ShortName": "Date de décès"
+    "ShortName": "date de décès"
   },
   {
     "FieldName": "DeathPlace",
@@ -7393,11 +7831,13 @@
     "ApiField": "DeathPlace",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.DeathPlace",
-    "ShortName": "Lieu de décès "
+    "ShortName": "Lieu de décès"
   },
   {
     "FieldName": "Address",
@@ -7409,12 +7849,14 @@
     "ApiField": "Address",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.DeathPlace.Address",
     "SedaField": "Address",
-    "ShortName": "Addresse"
+    "ShortName": "Adresse"
   },
   {
     "FieldName": "City",
@@ -7426,7 +7868,9 @@
     "ApiField": "City",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.DeathPlace.City",
@@ -7443,7 +7887,9 @@
     "ApiField": "Country",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.DeathPlace.Country",
@@ -7460,12 +7906,14 @@
     "ApiField": "Geogname",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.DeathPlace.Geogname",
     "SedaField": "Geogname",
-    "ShortName": "Nom géographique"
+    "ShortName": "Nom de lieu"
   },
   {
     "FieldName": "PostalCode",
@@ -7477,7 +7925,9 @@
     "ApiField": "PostalCode",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.DeathPlace.PostalCode",
@@ -7494,7 +7944,9 @@
     "ApiField": "Region",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.DeathPlace.Region",
@@ -7511,7 +7963,9 @@
     "ApiField": "FirstName",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.FirstName",
@@ -7528,12 +7982,14 @@
     "ApiField": "FullName",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.FullName",
     "SedaField": "FullName",
-    "ShortName": "Nom / Nom + Prénom"
+    "ShortName": "Nom complet"
   },
   {
     "FieldName": "Function",
@@ -7545,7 +8001,9 @@
     "ApiField": "Function",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.Function",
@@ -7562,7 +8020,9 @@
     "ApiField": "Gender",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.Gender",
@@ -7579,7 +8039,9 @@
     "ApiField": "GivenName",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.GivenName",
@@ -7596,7 +8058,9 @@
     "ApiField": "Identifier",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.Identifier",
@@ -7613,12 +8077,14 @@
     "ApiField": "Mandate",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.Mandate",
     "SedaField": "Mandate",
-    "ShortName": "Mandat octroyé à la personne"
+    "ShortName": "Droits"
   },
   {
     "FieldName": "Nationality",
@@ -7630,12 +8096,14 @@
     "ApiField": "Nationality",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.Nationality",
     "SedaField": "Nationality",
-    "ShortName": "Nationalité"
+    "ShortName": "nationalité"
   },
   {
     "FieldName": "Position",
@@ -7647,12 +8115,14 @@
     "ApiField": "Position",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.Position",
     "SedaField": "Position",
-    "ShortName": "Intitulé du poste"
+    "ShortName": "Position"
   },
   {
     "FieldName": "Role",
@@ -7664,12 +8134,14 @@
     "ApiField": "Role",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.Role",
     "SedaField": "Role",
-    "ShortName": "Droits"
+    "ShortName": "Rôle"
   },
   {
     "FieldName": "Type",
@@ -7688,7 +8160,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Type",
     "SedaField": "Type",
-    "ShortName": "Type"
+    "ShortName": "Type d'information"
   },
   {
     "FieldName": "Version",
@@ -7719,7 +8191,9 @@
     "ApiField": "Writer",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Writer",
@@ -7735,7 +8209,9 @@
     "ApiField": "Activity",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.Activity",
@@ -7752,7 +8228,9 @@
     "ApiField": "BirthDate",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.BirthDate",
@@ -7769,7 +8247,9 @@
     "ApiField": "BirthName",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.BirthName",
@@ -7786,7 +8266,9 @@
     "ApiField": "BirthPlace",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.BirthPlace",
@@ -7802,12 +8284,14 @@
     "ApiField": "Address",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.BirthPlace.Address",
     "SedaField": "Address",
-    "ShortName": "Addresse"
+    "ShortName": "Adresse"
   },
   {
     "FieldName": "City",
@@ -7819,7 +8303,9 @@
     "ApiField": "City",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.BirthPlace.City",
@@ -7836,7 +8322,9 @@
     "ApiField": "Country",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.BirthPlace.Country",
@@ -7853,12 +8341,14 @@
     "ApiField": "Geogname",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.BirthPlace.Geogname",
     "SedaField": "Geogname",
-    "ShortName": "Nom géographique"
+    "ShortName": "Nom de lieu"
   },
   {
     "FieldName": "PostalCode",
@@ -7870,7 +8360,9 @@
     "ApiField": "PostalCode",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.BirthPlace.PostalCode",
@@ -7887,7 +8379,9 @@
     "ApiField": "Region",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.BirthPlace.Region",
@@ -7904,12 +8398,14 @@
     "ApiField": "Corpname",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.Corpname",
     "SedaField": "Corpname",
-    "ShortName": "Nom d'une entité"
+    "ShortName": "Nom de l'entité"
   },
   {
     "FieldName": "DeathDate",
@@ -7921,12 +8417,14 @@
     "ApiField": "DeathDate",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.DeathDate",
     "SedaField": "DeathDate",
-    "ShortName": "Date de décès"
+    "ShortName": "date de décès"
   },
   {
     "FieldName": "DeathPlace",
@@ -7938,11 +8436,13 @@
     "ApiField": "DeathPlace",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.DeathPlace",
-    "ShortName": "Lieu de décès "
+    "ShortName": "Lieu de décès"
   },
   {
     "FieldName": "Address",
@@ -7954,12 +8454,14 @@
     "ApiField": "Address",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.DeathPlace.Address",
     "SedaField": "Address",
-    "ShortName": "Addresse"
+    "ShortName": "Adresse"
   },
   {
     "FieldName": "City",
@@ -7971,7 +8473,9 @@
     "ApiField": "City",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.DeathPlace.City",
@@ -7988,7 +8492,9 @@
     "ApiField": "Country",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.DeathPlace.Country",
@@ -8005,12 +8511,14 @@
     "ApiField": "Geogname",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.DeathPlace.Geogname",
     "SedaField": "Geogname",
-    "ShortName": "Nom géographique"
+    "ShortName": "Nom de lieu"
   },
   {
     "FieldName": "PostalCode",
@@ -8022,7 +8530,9 @@
     "ApiField": "PostalCode",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.DeathPlace.PostalCode",
@@ -8039,7 +8549,9 @@
     "ApiField": "Region",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.DeathPlace.Region",
@@ -8056,7 +8568,9 @@
     "ApiField": "FirstName",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.FirstName",
@@ -8073,12 +8587,14 @@
     "ApiField": "FullName",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.FullName",
     "SedaField": "FullName",
-    "ShortName": "Nom / Nom + Prénom"
+    "ShortName": "Nom complet"
   },
   {
     "FieldName": "Function",
@@ -8090,7 +8606,9 @@
     "ApiField": "Function",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.Function",
@@ -8107,7 +8625,9 @@
     "ApiField": "Gender",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.Gender",
@@ -8124,7 +8644,9 @@
     "ApiField": "GivenName",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.GivenName",
@@ -8141,7 +8663,9 @@
     "ApiField": "Identifier",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.Identifier",
@@ -8158,12 +8682,14 @@
     "ApiField": "Mandate",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.Mandate",
     "SedaField": "Mandate",
-    "ShortName": "Mandat octroyé à la personne"
+    "ShortName": "Droits"
   },
   {
     "FieldName": "Nationality",
@@ -8175,12 +8701,14 @@
     "ApiField": "Nationality",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.Nationality",
     "SedaField": "Nationality",
-    "ShortName": "Nationalité"
+    "ShortName": "nationalité"
   },
   {
     "FieldName": "Position",
@@ -8192,12 +8720,14 @@
     "ApiField": "Position",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.Position",
     "SedaField": "Position",
-    "ShortName": "Intitulé du poste"
+    "ShortName": "Position"
   },
   {
     "FieldName": "Role",
@@ -8209,12 +8739,14 @@
     "ApiField": "Role",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.Role",
     "SedaField": "Role",
-    "ShortName": "Droits"
+    "ShortName": "Rôle"
   },
   {
     "FieldName": "_acd",
@@ -11492,7 +12024,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "#originating_agency",
     "SedaField": "OriginatingAgencyIdentifier",
-    "ShortName": "Service producteur"
+    "ShortName": "Service producteur responsable de l'entrée(*)"
   },
   {
     "FieldName": "_sps",
@@ -11508,7 +12040,7 @@
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "#originating_agencies",
-    "ShortName": "Services producteurs liés à l’unité archivistique"
+    "ShortName": "Service(s) producteur(s) ayant des droits sur l'unité"
   },
   {
     "FieldName": "_storage",

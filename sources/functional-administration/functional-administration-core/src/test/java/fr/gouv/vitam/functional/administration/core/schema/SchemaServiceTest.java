@@ -148,8 +148,8 @@ public class SchemaServiceTest {
         assertEquals(addressBirthPlaceAddressSchemaElt.getCollection(), "Unit");
         assertEquals(addressBirthPlaceAddressSchemaElt.getCardinality(), SchemaCardinality.ONE);
         assertThat(addressBirthPlaceAddressSchemaElt.getSedaVersions()).contains("2.1");
-        assertThat(addressBirthPlaceAddressSchemaElt.getSedaVersions()).doesNotContain("2.2");
-        assertThat(addressBirthPlaceAddressSchemaElt.getSedaVersions()).doesNotContain("2.3");
+        assertThat(addressBirthPlaceAddressSchemaElt.getSedaVersions()).contains("2.2");
+        assertThat(addressBirthPlaceAddressSchemaElt.getSedaVersions()).contains("2.3");
         assertThat(addressBirthPlaceAddressSchemaElt.getTypeDetail()).isEqualTo(SchemaTypeDetail.STRING);
         assertThat(addressBirthPlaceAddressSchemaElt.getStringSize()).isEqualTo(SchemaStringSizeType.SHORT);
     }
@@ -243,8 +243,8 @@ public class SchemaServiceTest {
         assertEquals(addressBirthPlaceAddressSchemaElt.getCollection(), "Unit");
         assertEquals(addressBirthPlaceAddressSchemaElt.getCardinality(), SchemaCardinality.ONE);
         assertThat(addressBirthPlaceAddressSchemaElt.getSedaVersions()).contains("2.1");
-        assertThat(addressBirthPlaceAddressSchemaElt.getSedaVersions()).doesNotContain("2.2");
-        assertThat(addressBirthPlaceAddressSchemaElt.getSedaVersions()).doesNotContain("2.3");
+        assertThat(addressBirthPlaceAddressSchemaElt.getSedaVersions()).contains("2.2");
+        assertThat(addressBirthPlaceAddressSchemaElt.getSedaVersions()).contains("2.3");
         assertThat(addressBirthPlaceAddressSchemaElt.getTypeDetail()).isEqualTo(SchemaTypeDetail.STRING);
         assertThat(addressBirthPlaceAddressSchemaElt.getStringSize()).isEqualTo(SchemaStringSizeType.SHORT);
 
