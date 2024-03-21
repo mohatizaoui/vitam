@@ -926,7 +926,6 @@ public class OntologyServiceImplTest {
         final RequestResponseOK<OntologyModel> responseCast1 = (RequestResponseOK<OntologyModel>) response;
         List<OntologyModel> results1 = responseCast1.getResults();
         List<Ontology> actualExternals = getExternalOntologies();
-
         assertThat(response.isOk()).isTrue();
         assertThat(results1).hasSize(6);
         assertThat(actualExternals).hasSize(3);
@@ -973,19 +972,19 @@ public class OntologyServiceImplTest {
     @RunWithCustomExecutor
     public void givenMissingTypeDetailOrStringSizeThenKO() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(ADMIN_TENANT);
-        final File fileOntology =
-            PropertiesUtils.getResourceFile("ontology_ko_mandatory_typedetail_and_stringsize.json");
-        final List<OntologyModel> ontologyModelList =
-            JsonHandler.getFromFileAsTypeReference(fileOntology, listOfOntologyType);
+        final File fileOntology = PropertiesUtils.getResourceFile("ontology_ko_mandatory_typedetail_and_stringsize.json");
+        final List<OntologyModel> ontologyModelList = JsonHandler.getFromFileAsTypeReference(fileOntology, listOfOntologyType);
+
         final RequestResponse response = ontologyService.importOntologies(true, ontologyModelList);
 
         final ArgumentCaptor<InputStream> inputStreamCaptor = ArgumentCaptor.forClass(InputStream.class);
         verify(functionalBackupService, times(1)).saveFile(inputStreamCaptor.capture(), any(), any(), any(), any());
-
         assertThat(response.isOk()).isFalse();
-
+        VitamError error = (VitamError) response;
+        assertThat(error.getStatus()).isEqualTo(400);
+        assertThat(error.getMessage()).isEqualTo("Ontology service error");
+        assertThat(error.getDescription()).isEqualTo("InternalMissingTypeDetail: The field TypeDetail is mandatory for internal ontology; InternalMissingStringSize: The field StringSize is mandatory for internal ontology with STRING TypeDetail");
         final JsonNode errors = JsonHandler.getFromInputStream(inputStreamCaptor.getValue()).get("error");
-
         hasError(errors, "InternalMissingTypeDetail", STP_IMPORT_ONTOLOGIES_MISSING_INFORMATION, TYPE_DETAIL);
         hasError(errors, "InternalMissingStringSize", STP_IMPORT_ONTOLOGIES_MISSING_INFORMATION, STRING_SIZE);
         assertThat(errors.has("ExternalMissingTypeDetail")).isFalse();
