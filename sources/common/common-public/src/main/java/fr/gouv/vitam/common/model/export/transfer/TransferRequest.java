@@ -49,7 +49,7 @@ public class TransferRequest {
     @JsonProperty("sedaVersion")
     private String sedaVersion;
 
-    @JsonProperty("transferWithoutObject")
+    @JsonProperty("transferWithoutObjects")
     private boolean transferWithoutObjects;
 
 
