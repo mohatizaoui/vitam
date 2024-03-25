@@ -370,6 +370,35 @@
     ProxyPassReverse /nodes/{{ host }}/elasticsearch-exporter http://{{ hostvars[host]['ip_admin'] }}:{{ prometheus.elasticsearch_exporter.port | default(9114) }}{{ prometheus.elasticsearch_exporter.metrics_path | default('/metrics') }}
     {% endfor %}
     {% endif %}
+
+    {% if prometheus.blackbox_exporter.enabled | default(false) | bool == true %}
+    # Blackbox Exporter metrics
+    {% for host in groups['hosts_prometheus'] %}
+    ProxyPass /nodes/{{ host }}/blackbox-exporter http://{{ hostvars[host]['ip_admin'] }}:{{ prometheus.blackbox_exporter.port | default(9115) }}/metrics
+    ProxyPassReverse /nodes/{{ host }}/blackbox-exporter http://{{ hostvars[host]['ip_admin'] }}:{{ prometheus.blackbox_exporter.port | default(9115) }}/metrics
+    {% endfor %}
+    {% endif %}
+
+    {%  if prometheus.mongodb_exporter.enabled | default(false) | bool == true %}
+    # Mongoc Exporter metrics
+    {% for host in groups['hosts_mongoc_offer'] %}
+    ProxyPass /nodes/{{ host }}/mongoc-exporter http://{{ hostvars[host]['ip_admin'] }}:{{ prometheus.mongodb_exporter.port_mongoc | default(9216) }}/metrics
+    ProxyPassReverse /nodes/{{ host }}/mongoc-exporter http://{{ hostvars[host]['ip_admin'] }}:{{ prometheus.mongodb_exporter.port_mongoc | default(9216) }}/metrics
+    {% endfor %}
+    {% for host in groups['hosts_mongoc_data'] %}
+    ProxyPass /nodes/{{ host }}/mongoc-exporter http://{{ hostvars[host]['ip_admin'] }}:{{ prometheus.mongodb_exporter.port_mongoc | default(9216) }}/metrics
+    ProxyPassReverse /nodes/{{ host }}/mongoc-exporter http://{{ hostvars[host]['ip_admin'] }}:{{ prometheus.mongodb_exporter.port_mongoc | default(9216) }}/metrics
+    {% endfor %}
+    # Mongod Exporter metrics
+    {% for host in groups['hosts_mongod_offer'] %}
+    ProxyPass /nodes/{{ host }}/mongod-exporter http://{{ hostvars[host]['ip_admin'] }}:{{ prometheus.mongodb_exporter.port_mongod | default(9217) }}/metrics
+    ProxyPassReverse /nodes/{{ host }}/mongod-exporter http://{{ hostvars[host]['ip_admin'] }}:{{ prometheus.mongodb_exporter.port_mongod | default(9217) }}/metrics
+    {% endfor %}
+    {% for host in groups['hosts_mongod_data'] %}
+    ProxyPass /nodes/{{ host }}/mongod-exporter http://{{ hostvars[host]['ip_admin'] }}:{{ prometheus.mongodb_exporter.port_mongod | default(9217) }}/metrics
+    ProxyPassReverse /nodes/{{ host }}/mongod-exporter http://{{ hostvars[host]['ip_admin'] }}:{{ prometheus.mongodb_exporter.port_mongod | default(9217) }}/metrics
+    {% endfor %}
+    {% endif %}
 {% endif %}
 {# </InternalServiceMetrics> #}
 

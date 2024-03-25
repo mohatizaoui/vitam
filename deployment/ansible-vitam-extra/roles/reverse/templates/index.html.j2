@@ -243,6 +243,19 @@
                   <a href="/nodes/{{ item }}/elasticsearch-exporter" class="btn btn-primary btn-xs" target="_blank">Elasticsearch Exporter</a>
                 {% endif %}
                 {% endif %}
+                {% if prometheus.blackbox_exporter.enabled | default(false) | bool == true %}
+                {% if item in groups['hosts_prometheus'] %}
+                  <a href="/nodes/{{ item }}/blackbox-exporter" class="btn btn-primary btn-xs" target="_blank">Blackbox Exporter</a>
+                {% endif %}
+                {% endif %}
+                {% if prometheus.mongodb_exporter.enabled | default(false) | bool == true %}
+                {% if item in groups['hosts_mongoc_offer'] or item in groups['hosts_mongoc_data'] %}
+                  <a href="/nodes/{{ item }}/mongoc-exporter" class="btn btn-primary btn-xs" target="_blank">Mongoc Exporter</a>
+                {% endif %}
+                {% if item in groups['hosts_mongod_offer'] or item in groups['hosts_mongod_data'] %}
+                  <a href="/nodes/{{ item }}/mongod-exporter" class="btn btn-primary btn-xs" target="_blank">Mongod Exporter</a>
+                {% endif %}
+                {% endif %}
                 {% endif %}
                 {# </Metrics> #}
                 </div>

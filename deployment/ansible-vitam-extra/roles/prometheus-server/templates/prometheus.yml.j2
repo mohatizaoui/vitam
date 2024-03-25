@@ -306,7 +306,7 @@ scrape_configs:
 
 {% if prometheus.blackbox_exporter.enabled | bool %}
   - job_name: vitam-blackbox
-    metrics_path: {{ prometheus.blackbox_exporter.metrics_path | default('/probe') }}
+    metrics_path: /probe
     params:
       module:
       - http_2xx
