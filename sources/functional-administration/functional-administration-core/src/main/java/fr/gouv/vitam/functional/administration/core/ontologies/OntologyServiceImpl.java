@@ -81,6 +81,7 @@ import fr.gouv.vitam.functional.administration.common.OntologyErrorCode;
 import fr.gouv.vitam.functional.administration.common.VitamErrorUtils;
 import fr.gouv.vitam.functional.administration.common.exception.OntologyInternalExternalConflictException;
 import fr.gouv.vitam.functional.administration.common.exception.ReferentialException;
+import fr.gouv.vitam.functional.administration.common.schema.Schema;
 import fr.gouv.vitam.functional.administration.common.server.FunctionalAdminCollections;
 import fr.gouv.vitam.functional.administration.common.server.MongoDbAccessAdminImpl;
 import fr.gouv.vitam.functional.administration.core.backup.FunctionalBackupService;
@@ -300,6 +301,8 @@ public class OntologyServiceImpl implements OntologyService {
                 //ontologies to delete validation
                 checkInternalFieldDelete(toDelete, manager, errors);
             }
+
+            rejectOntologiesToDeleteUsedInSchema(toDelete, manager, errors);
 
             VitamError coherenceErrors = abortOnErrors(eip, errors, manager);
             if (coherenceErrors != null) {
@@ -781,6 +784,34 @@ public class OntologyServiceImpl implements OntologyService {
                 }
             }
         }
+    }
+
+    private void rejectOntologiesToDeleteUsedInSchema(
+        final List<OntologyModel> ontologiesToDelete,
+        final OntologyManager manager,
+        final Map<String, List<ErrorReportOntologies>> errors
+    ) {
+        final List<Schema> schemaModels =
+            IterableUtils.toList(FunctionalAdminCollections.SCHEMA.<Schema>getCollection().find());
+        schemaModels.forEach(schema -> {
+            final String[] pathFragments = schema.getPath().split("[.]");
+            final String lastFragment =
+                pathFragments.length == 0 ? schema.getPath() : pathFragments[pathFragments.length - 1];
+            ontologiesToDelete.forEach(ontologyModel -> {
+                final boolean isOntologyUsedInSchema = lastFragment.equals(ontologyModel.getIdentifier());
+                if (isOntologyUsedInSchema) {
+                    final String message =
+                        String.format("Ontology identifier '%s' is still used in schema path '%s'",
+                            ontologyModel.getIdentifier(), schema.getPath());
+                    final ErrorReportOntologies errorReportOntologies = new ErrorReportOntologies(
+                        OntologyErrorCode.STP_IMPORT_ONTOLOGIES_DELETE_USED_ONTOLOGY,
+                        TAG_IDENTIFIER,
+                        message,
+                        ontologyModel);
+                    manager.addError(ontologyModel.getIdentifier(), errorReportOntologies, errors);
+                }
+            });
+        });
     }
 
     private void commitToDatabase(Map<String, OntologyModel> currentOntologiesMap, List<OntologyModel> toDelete,
