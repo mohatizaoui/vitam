@@ -243,7 +243,7 @@ public class Ontology extends VitamDocument<Ontology> {
      * @return status of the ontology
      */
     public OntologyType getType() {
-        return (OntologyType) get(TYPE);
+        return Optional.ofNullable(getString(TYPE)).map(OntologyType::valueOf).orElse(null);
     }
 
     /**
@@ -265,7 +265,7 @@ public class Ontology extends VitamDocument<Ontology> {
      * @return origin of the ontology
      */
     public OntologyOrigin getOrigin() {
-        return (OntologyOrigin) get(ORIGIN);
+        return Optional.ofNullable(getString(ORIGIN)).map(OntologyOrigin::valueOf).orElse(null);
     }
 
     /**
