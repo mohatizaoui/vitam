@@ -55,6 +55,8 @@ import fr.gouv.vitam.common.model.administration.AbstractContractModel;
 import fr.gouv.vitam.common.model.administration.ActivationStatus;
 import fr.gouv.vitam.common.model.administration.DataObjectVersionType;
 import fr.gouv.vitam.common.model.administration.ManagementContractModel;
+import fr.gouv.vitam.common.model.administration.PersistentIdentifierPolicy;
+import fr.gouv.vitam.common.model.administration.PersistentIdentifierUsage;
 import fr.gouv.vitam.common.model.administration.StorageDetailModel;
 import fr.gouv.vitam.common.model.administration.VersionRetentionPolicyModel;
 import fr.gouv.vitam.common.model.administration.VersionUsageModel;
@@ -86,6 +88,7 @@ import javax.ws.rs.core.Response;
 import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -124,6 +127,8 @@ public class ManagementContractImpl implements ContractService<ManagementContrac
         CONTRACTS_IMPORT_EVENT + ContractLogbookService.CONTRACT_BAD_REQUEST;
     private static final String VERSION_RETENTION_POLICY_VALIDATION_ERROR =
         CONTRACTS_IMPORT_EVENT + ContractLogbookService.VERSION_RETENTION_POLICY_VALIDATION_ERROR;
+    private static final String PERSISTENCE_IDENTIFIER_POLICY_VALIDATION_ERROR =
+        CONTRACTS_IMPORT_EVENT + ContractLogbookService.PERSISTENCE_IDENTIFIER_POLICY_VALIDATION_ERROR;
     private static final String UPDATE_CONTRACT_NOT_FOUND =
         CONTRACT_UPDATE_EVENT + ContractLogbookService.UPDATE_CONTRACT_NOT_FOUND;
     private static final String UPDATE_CONTRACT_BAD_REQUEST =
@@ -593,6 +598,7 @@ public class ManagementContractImpl implements ContractService<ManagementContrac
      */
     protected final static class ManagementContractValidationService {
 
+        private static final String USAGE_NAME = "UsageName";
         private final Map<ManagementContractValidator, String> validators;
 
         private final StorageClient storageClient;
@@ -609,6 +615,7 @@ public class ManagementContractImpl implements ContractService<ManagementContrac
                     put(createCheckDuplicateInDatabaseValidator(), DUPLICATE_IN_DATABASE);
                     put(checkStorageStrategies(), STRATEGY_VALIDATION_ERROR);
                     put(checkVersionRetentionPolicy(), VERSION_RETENTION_POLICY_VALIDATION_ERROR);
+                    put(checkPersistenceIdentifierPolicy(), PERSISTENCE_IDENTIFIER_POLICY_VALIDATION_ERROR);
                 }
             };
         }
@@ -860,6 +867,58 @@ public class ManagementContractImpl implements ContractService<ManagementContrac
                                             versionUsage.getUsageName(), contractName));
                                 }
                             }
+                        }
+                    }
+
+                    return Optional.empty();
+                } catch (Exception e) {
+                    return Optional.of(GenericRejectionCause.rejectExceptionOccurred(contract.getName(),
+                        "Error checking version retention policy", e));
+                }
+
+            };
+        }
+
+        private ManagementContractValidator checkPersistenceIdentifierPolicy() {
+
+            return (contract, contractName) -> {
+                try {
+
+                    Set<String> uniqueUsageNames = new HashSet<>();
+                    List<PersistentIdentifierPolicy> persistentIdentifierPolicyList =
+                        contract.getPersistentIdentifierPolicyList();
+
+                    if (persistentIdentifierPolicyList == null) {
+                        return Optional.empty();
+                    }
+
+
+                    for (var persistentIdentifierPolicy : persistentIdentifierPolicyList) {
+                        // Check Usage
+                        List<PersistentIdentifierUsage> persistentIdentifierUsages =
+                            persistentIdentifierPolicy.getPersistentIdentifierUsages();
+                        if (persistentIdentifierUsages != null && !persistentIdentifierUsages.isEmpty()) {
+                            for (PersistentIdentifierUsage persistentIdentifierUsage : persistentIdentifierUsages) {
+
+                                String usageName = persistentIdentifierUsage.getUsageName().getName();
+
+
+                                // Check Usage against DataObjectVersionType
+                                if (Arrays.stream(DataObjectVersionType.values())
+                                    .noneMatch(elmt -> elmt.getName().equals(usageName))) {
+                                    return Optional.of(GenericContractValidator.GenericRejectionCause
+                                        .rejectInvalidVersionRetentionPolicyUsage(usageName, contractName));
+                                }
+
+                                // Check for uniqueness
+                                if (!uniqueUsageNames.add(usageName)) {
+                                    return Optional.of(GenericContractValidator.GenericRejectionCause
+                                        .rejectDuplicateVersionRetentionPolicyUsage(usageName, contractName));
+                                }
+
+
+                            }
+
                         }
                     }
 
