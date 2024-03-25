@@ -2290,7 +2290,7 @@
     "Indexed": true,
     "Path": "Event.LinkingAgentIdentifier.LinkingAgentIdentifierType",
     "ApiField": "LinkingAgentIdentifierType",
-    "Collections": "Unit",
+    "Collection": "Unit",
     "SedaVersions": [
       "2.2",
       "2.3"
@@ -2308,7 +2308,7 @@
     "Indexed": true,
     "Path": "Event.LinkingAgentIdentifier.LinkingAgentIdentifierValue",
     "ApiField": "LinkingAgentIdentifierValue",
-    "Collections": "Unit",
+    "Collection": "Unit",
     "SedaVersions": [
       "2.2",
       "2.3"
@@ -2326,7 +2326,7 @@
     "Indexed": true,
     "Path": "Event.LinkingAgentIdentifier.LinkingAgentRole",
     "ApiField": "LinkingAgentRole",
-    "Collections": "Unit",
+    "Collection": "Unit",
     "SedaVersions": [
       "2.2",
       "2.3"
