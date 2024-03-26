@@ -94,6 +94,7 @@ public class UnitPurgedPersistentIdentifierExtractorTest {
         assertThat(purgedPersistentIdentifier.getType()).isEqualTo("Unit");
         assertThat(purgedPersistentIdentifier.getPersistentIdentifier().size()).isEqualTo(2);
         assertThat(purgedPersistentIdentifier.getArchivalAgencyIdentifier()).isEqualTo("identifier4");
+        assertThat(purgedPersistentIdentifier.getObjectGroupId()).isNull();
     }
 
     private JsonNode createSampleJsonNode() throws Exception {
