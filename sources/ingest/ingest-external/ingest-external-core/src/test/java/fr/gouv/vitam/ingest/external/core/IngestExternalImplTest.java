@@ -46,6 +46,7 @@ import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.ingest.external.common.config.IngestExternalConfiguration;
+import fr.gouv.vitam.ingest.external.common.util.JavaExecuteScript;
 import fr.gouv.vitam.ingest.internal.client.IngestInternalClient;
 import fr.gouv.vitam.ingest.internal.client.IngestInternalClientFactory;
 import fr.gouv.vitam.ingest.internal.client.IngestInternalClientMock;
@@ -53,6 +54,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Mockito;
+import org.mockito.Mock;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -62,6 +65,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 
@@ -256,6 +260,22 @@ public class IngestExternalImplTest {
 
     @RunWithCustomExecutor
     @Test
+    public void givenNoPerformedAntivirusScan() throws Exception {
+        JavaExecuteScript javaExecuteScript = mock(JavaExecuteScript.class);
+        setVirusScanScriptWithNoAntivirusScan(SCRIPT_SCAN_CLAMAV_OK);
+        VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
+        when(formatIdentifier.analysePath(any())).thenReturn(getFormatIdentifierZipResponse());
+        stream = PropertiesUtils.getResourceAsStream("toto_manifest.xml_OK.zip");
+        final AsyncResponseJunitTest responseAsync = new AsyncResponseJunitTest();
+        final GUID guid = GUIDFactory.newEventGUID(ParameterHelper.getTenantParameter());
+        PreUploadResume model = ingestExternalImpl.preUploadAndResume(stream, CONTEXT_ID, guid, null, responseAsync);
+        StatusCode statusCode = ingestExternalImpl.upload(model, EXECUTION_MODE, guid, null, null);
+        Assert.assertTrue(statusCode.equals(StatusCode.OK));
+        verifyZeroInteractions(javaExecuteScript);
+    }
+
+    @RunWithCustomExecutor
+    @Test
     public void givenValidManifestFileNameWithPrefix1() throws Exception {
         setVirusScanScript(SCRIPT_SCAN_CLAMAV_OK);
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
@@ -349,6 +369,17 @@ public class IngestExternalImplTest {
         config.setPath(PATH);
         config.setAntiVirusScriptName(script);
         config.setTimeoutScanDelay(timeoutScanDelay);
+        ManifestDigestValidator manifestDigestValidator = new ManifestDigestValidator();
+        ingestExternalImpl = new IngestExternalImpl(config, formatIdentifierFactory, ingestInternalClientFactory,
+            manifestDigestValidator);
+    }
+
+    private void setVirusScanScriptWithNoAntivirusScan(String script) {
+        final IngestExternalConfiguration config = new IngestExternalConfiguration();
+        config.setPath(PATH);
+        config.setAntiVirusScriptName(script);
+        config.setTimeoutScanDelay(timeoutScanDelay);
+        config.setIgnoreAntivirusCheck(true);
         ManifestDigestValidator manifestDigestValidator = new ManifestDigestValidator();
         ingestExternalImpl = new IngestExternalImpl(config, formatIdentifierFactory, ingestInternalClientFactory,
             manifestDigestValidator);

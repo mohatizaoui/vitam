@@ -69,6 +69,14 @@ public class ExecutionOutput {
         this.stderr = stdToString(process.getErrorStream());
     }
 
+    public ExecutionOutput(int exitCode) {
+        this.command = null;
+        this.exception = null;
+        this.exitCode = exitCode;
+        this.stdout = null;
+        this.stderr = null;
+    }
+
     private static String stdToString(InputStream std) {
         CircularFifoQueue<String> lastLines = new CircularFifoQueue<>(250);
         List<String> firstLines = new ArrayList<>();

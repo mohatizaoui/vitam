@@ -43,11 +43,12 @@ public class JavaExecuteScriptTest {
     @Test
     public void givenExecuteScanClamAVWhenVirusFoundButNotCorrectedThenReturn2()
         throws Exception {
-        assertEquals(1, JavaExecuteScript.executeCommand(SCRIPT_SCAN_CLAMAV,
+        JavaExecuteScript javaExecuteScript = new JavaExecuteScript();
+        assertEquals(1, javaExecuteScript.executeCommand(SCRIPT_SCAN_CLAMAV,
             PropertiesUtils.getResourceFile(FIXED_VIRUS_FILE).getPath(), timeoutScanDelay).getExitCode());
-        assertEquals(2, JavaExecuteScript.executeCommand(SCRIPT_SCAN_CLAMAV,
+        assertEquals(2, javaExecuteScript.executeCommand(SCRIPT_SCAN_CLAMAV,
             PropertiesUtils.getResourceFile(UNFIXED_VIRUS_FILE).getPath(), timeoutScanDelay).getExitCode());
-        assertEquals(0, JavaExecuteScript.executeCommand(SCRIPT_SCAN_CLAMAV,
+        assertEquals(0, javaExecuteScript.executeCommand(SCRIPT_SCAN_CLAMAV,
             PropertiesUtils.getResourceFile(NO_VIRUS_FILE).getPath(), timeoutScanDelay).getExitCode());
     }
 

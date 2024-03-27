@@ -250,6 +250,8 @@ vitam:
     https_enabled: true
     secret_platform: "false"
     antivirus: "clamav" # or avast
+    # this variable has containerization purposes only : must not be used in production environment
+    ignore_antivirus_check: false
     #scantimeout: 1200000 # value in milliseconds; increase this value if huge files need to be analyzed in more than 20 min (default value)
     # Directory where files should be placed for local ingest
     upload_dir: "/vitam/data/ingest-external/upload"

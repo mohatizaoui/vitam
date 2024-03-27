@@ -222,9 +222,11 @@ public class IngestExternalImpl implements IngestExternal {
         try {
             final String antiVirusScriptName = config.getAntiVirusScriptName();
             final long timeoutScanDelay = config.getTimeoutScanDelay();
+            final boolean ignoreAntivirusCheck = config.isIgnoreAntivirusCheck();
             final String containerNamePath = guid.getId();
             final String objectNamePath = guid.getId();
             final File file;
+            JavaExecuteScript javaExecuteScript = new JavaExecuteScript();
             try {
                 file = SafeFileChecker.checkSafeFilePath(config.getPath(), containerNamePath, objectNamePath);
             } catch (IllegalPathException e) {
@@ -244,8 +246,9 @@ public class IngestExternalImpl implements IngestExternal {
                  * Return values of script scan-clamav.sh return 0: scan OK - no virus 1: virus found and corrected 2:
                  * virus found but not corrected 3: Fatal scan not performed
                  */
-                executionOutput =
-                    JavaExecuteScript.executeCommand(antiVirusScriptName, file.getAbsolutePath(), timeoutScanDelay);
+                executionOutput = !ignoreAntivirusCheck ?
+                    javaExecuteScript.executeCommand(antiVirusScriptName, file.getAbsolutePath(), timeoutScanDelay)
+                    : new ExecutionOutput(STATUS_ANTIVIRUS_OK);
             } catch (final Exception e) {
                 LOGGER.error(CAN_NOT_SCAN_VIRUS, e);
                 throw new IngestExternalException(e);
