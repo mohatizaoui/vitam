@@ -41,6 +41,7 @@ public class IngestExternalConfiguration extends DefaultVitamApplicationConfigur
     private LocalFileAction fileActionAfterUpload;
     private String successfulUploadDir;
     private String failedUploadDir;
+    private boolean ignoreAntivirusCheck;
 
     private boolean allowSslClientHeader = false;
 
@@ -150,5 +151,13 @@ public class IngestExternalConfiguration extends DefaultVitamApplicationConfigur
 
     public void setAllowSslClientHeader(boolean allowSslClientHeader) {
         this.allowSslClientHeader = allowSslClientHeader;
+    }
+
+    public boolean isIgnoreAntivirusCheck() {
+        return ignoreAntivirusCheck;
+    }
+
+    public void setIgnoreAntivirusCheck(boolean ignoreAntivirusCheck) {
+        this.ignoreAntivirusCheck = ignoreAntivirusCheck;
     }
 }

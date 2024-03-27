@@ -50,7 +50,7 @@ public class JavaExecuteScript {
      * @return The return value of the cmd or 3 if the execution failed
      * @throws JavaExecuteScriptException if script could not be executed
      */
-    public static ExecutionOutput executeCommand(String cmd, String arg, long timeoutScanDelay)
+    public ExecutionOutput executeCommand(String cmd, String arg, long timeoutScanDelay)
         throws JavaExecuteScriptException {
         String scriptPath;
         try {
@@ -62,7 +62,7 @@ public class JavaExecuteScript {
         return exec(scriptPath, arg, timeoutScanDelay);
     }
 
-    private static ExecutionOutput exec(String scriptPath, String arg, long timeoutScanDelay) {
+    private ExecutionOutput exec(String scriptPath, String arg, long timeoutScanDelay) {
         ProcessBuilder processBuilder = new ProcessBuilder(Lists.newArrayList(scriptPath, arg));
         Process process = null;
         try {
