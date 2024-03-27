@@ -210,10 +210,12 @@ grafana:
 
 # Curator units: days
 curator:
-    log:
+    indices:
         metricbeat:
+            close: 5
             delete: 10
         packetbeat:
+            close: 5
             delete: 10
 
 kibana:
