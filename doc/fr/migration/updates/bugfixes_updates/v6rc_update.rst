@@ -1,5 +1,5 @@
-Notes et procédures spécifiques V6
-##################################
+Notes et procédures spécifiques V6RC
+####################################
 
 Procédures à exécuter APRÈS la montée de version
 ================================================
