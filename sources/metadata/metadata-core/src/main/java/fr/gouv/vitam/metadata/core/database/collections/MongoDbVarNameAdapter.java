@@ -168,7 +168,9 @@ public class MongoDbVarNameAdapter extends VarNameAdapter {
                     case APPROXIMATE_UPDATE_DATE:
                         return MetadataDocument.APPROXIMATE_UPDATE_DATE;
                     case BATCHID:
-                        return MetadataDocument.BATCHID;
+                        return MetadataDocument.BATCH_ID;
+                    case UPLOADPATH:
+                        return MetadataDocument.UPLOAD_PATH;
                     case ALL:
                     default:
                         break;

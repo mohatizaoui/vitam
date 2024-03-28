@@ -31,15 +31,27 @@ import fr.gouv.vitam.common.model.unit.ArchiveUnitModel;
 
 public class CollectArchiveUnitModel extends ArchiveUnitModel {
 
-
     @JsonProperty("#batchId")
     private String batchId;
+
+    @JsonProperty("#uploadPath")
+    private String uploadPath;
 
     public String getBatchId() {
         return batchId;
     }
 
-    public void setBatchId(String batchId) {
+    public CollectArchiveUnitModel setBatchId(String batchId) {
         this.batchId = batchId;
+        return this;
+    }
+
+    public String getUploadPath() {
+        return uploadPath;
+    }
+
+    public CollectArchiveUnitModel setUploadPath(String uploadPath) {
+        this.uploadPath = uploadPath;
+        return this;
     }
 }

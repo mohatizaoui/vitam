@@ -760,9 +760,15 @@ public abstract class BuilderToken {
         APPROXIMATE_CREATION_DATE("approximate_creation_date"),
         APPROXIMATE_UPDATE_DATE("approximate_update_date"),
         /**
-         * Unit or GOT's batch identifier
+         * Unit or GOT's batch identifier (Collect-only)
          */
-        BATCHID("batchId"),
+        BATCH_ID("batchId"),
+        
+        /**
+         * Initial upload path (Collect-only)
+         */
+        UPLOAD_PATH("uploadPath"),
+        
         OPERATION_TRANSFERS("opts");
 
 

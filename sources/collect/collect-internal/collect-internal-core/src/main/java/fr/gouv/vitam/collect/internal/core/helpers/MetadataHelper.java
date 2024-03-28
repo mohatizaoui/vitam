@@ -81,14 +81,15 @@ public class MetadataHelper {
     private MetadataHelper() {
     }
 
-    public static ArchiveUnitModel createUnit(String transactionId, LevelType descriptionLevel, String title,
-        String unitParent) {
+    public static ArchiveUnitModel createUnit(String transactionId, LevelType descriptionLevel, String path,
+        String title, String unitParent) {
         String id = GUIDFactory.newUnitGUID(VitamThreadUtils.getVitamSession().getTenantId()).getId();
         CollectArchiveUnitModel unitInternalModel = new CollectArchiveUnitModel();
 
         unitInternalModel.setId(id);
         unitInternalModel.setOpi(transactionId);
         unitInternalModel.setUnitType(UnitType.INGEST);
+        unitInternalModel.setUploadPath(path);
         unitInternalModel.setBatchId(VitamThreadUtils.getVitamSession().getRequestId());
 
         DescriptiveMetadataModel description = new DescriptiveMetadataModel();
