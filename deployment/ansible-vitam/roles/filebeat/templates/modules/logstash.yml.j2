@@ -2,7 +2,7 @@
 
 - module: logstash
   log:
-    enabled: true
+    enabled: "{{ filebeat.cots.logstash.enable_log }}"
     var.paths:
       - "{{ vitam_defaults.folder.root_path }}/log/logstash/logstash-plain.log"
     input:

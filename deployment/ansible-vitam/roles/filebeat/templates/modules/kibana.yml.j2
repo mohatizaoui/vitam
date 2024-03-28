@@ -2,7 +2,7 @@
 
 - module: kibana
   log:
-    enabled: true
+    enabled: {{ filebeat.cots.kibana_data.enable_log if inventory_hostname in groups['hosts_kibana_data'] else filebeat.cots.kibana_log.enable_log if inventory_hostname in groups['hosts_kibana_log'] }}
     input:
       fields:
         kind: log
@@ -10,7 +10,7 @@
         source: vitam
 
   audit:
-    enabled: true
+    enabled: {{ filebeat.cots.kibana_data.enable_audit if inventory_hostname in groups['hosts_kibana_data'] else filebeat.cots.kibana_log.enable_audit if inventory_hostname in groups['hosts_kibana_log'] }}
     input:
       fields:
         kind: audit

@@ -24,7 +24,11 @@ node.name: {{ inventory_hostname }}
 
 # https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-node.html#node-roles
 # node.roles: [master, data, data_content, data_hot, data_warm, data_cold, data_frozen, ingest, ml, remote_cluster_client, transform]
+{% if groups['hosts_logstash'] | length > 0 %}
 node.roles: {{ elasticsearch_roles | default(['master', 'data']) }}
+{% else %}
+node.roles: {{ elasticsearch_roles | default(['master', 'data', 'ingest']) }}
+{% endif %}
 
 # https://www.elastic.co/guide/en/elasticsearch/reference/current/ml-settings.html
 xpack.ml.enabled: false

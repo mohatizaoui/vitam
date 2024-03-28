@@ -10,6 +10,7 @@
 #
 - type: filestream
   id: "{{ vitam_site_name }}-{{ composant_name }}-error"
+  enabled: {{ filebeat.cots.antivirus.enable_log }}
   paths:
     - "{{ vitam_defaults.folder.root_path }}/log/{{ composant_name }}/*.log"
   fields:
@@ -19,6 +20,7 @@
 
 - type: filestream
   id: "{{ vitam_site_name }}-antivirus-scan"
+  enabled: {{ filebeat.cots.antivirus.enable_scan }}
   paths:
     - "{{ vitam_defaults.folder.root_path }}/log/{{ composant_name }}/clamd.scan"
   fields:
@@ -32,6 +34,7 @@
 #
 - type: filestream
   id: "{{ vitam_site_name }}-{{ composant_name }}-error"
+  enabled: {{ filebeat.cots.antivirus.enable_log }}
   paths:
     - "{{ vitam_defaults.folder.root_path }}/log/{{ composant_name }}/*.log"
   fields:

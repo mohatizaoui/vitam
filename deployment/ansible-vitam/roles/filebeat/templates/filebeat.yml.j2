@@ -41,14 +41,40 @@ setup.ilm.enabled: false
 setup.template.enabled: false
 setup.template.overwrite: true
 
+{% if groups['hosts_logstash'] | length > 0 %}
 #
 # Logstash
 #
 output.logstash:
   # The Logstash hosts
   hosts: [{% for item in groups['hosts_logstash'] %}"{{ hostvars[item]['ip_admin'] }}:{{ logstash.port | default(10514) }}"{% if not loop.last %},{% endif %}{% endfor %}]
+{% else %}
+#
+# Elasticsearch-log
+#
+# (Each node of es log should have a role 'ingest')
+#
+output.elasticsearch:
+  # The Elasticsearch hosts
+  hosts: [{% for item in groups['hosts_elasticsearch_log'] %}"{% if 'ingest' in hostvars[item]['elasticsearch_roles'] | default(['master', 'data', 'ingest']) %}{{ hostvars[item]['ip_admin'] }}:{{ elasticsearch.log.port_http | default(9201) }}"{% if not loop.last %},{% endif %}{% endif %}{% endfor %}]
+{% endif %}
   compression_level: {{ filebeat.compression_level | default(3) }}
 
+  indices:
+    - index: "logstash-access-%{+yyyy.MM.dd}"
+      when.contains:
+        fields.kind: "access"
+    - index: "logstash-system-%{+yyyy.MM.dd}"
+      when.equals:
+        event.module: "system"
+    - index: "logstash-vitam-%{+yyyy.MM.dd}"
+      when:
+        not:
+          or:
+            - equals:
+                event.module: "system"
+            - contains:
+                fields.kind: "access"
 #
 # Processors
 #

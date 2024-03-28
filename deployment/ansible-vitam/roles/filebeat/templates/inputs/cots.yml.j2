@@ -6,6 +6,10 @@
 #
 - type: filestream
   id: "{{ vitam_site_name }}-{{cots_service }}"
+  enabled: {{ {'cerebro': filebeat.cots.cerebro.enable_log,
+    'grafana': filebeat.cots.grafana.enable_log,
+    'prometheus': filebeat.cots.prometheus.enable_log,
+    'alertmanager': filebeat.cots.alertmanager.enable_log}[cots_service] | default(true) }}
   paths:
     - "{{ vitam_defaults.folder.root_path }}/log/{{ cots_service }}/{{ cots_service }}*.log"
   fields:
@@ -19,6 +23,7 @@
 #
 - type: filestream
   id: "{{ vitam_site_name }}-consul"
+  enabled: "{{ filebeat.cots.consul.enable_log }}"
   paths:
     - "{{ vitam_defaults.folder.root_path }}/log/consul/consul*.log"
   fields:

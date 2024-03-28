@@ -36,7 +36,6 @@
     - "curator.yml"
     - "delete_index.yml"
     - "close_index.yml"
-    - "metrics_index.yml"
 #  when: "inventory_hostname not in single_vm_hostnames"
 
 - name: copy the systemd unit & timer files for curator

@@ -212,10 +212,8 @@ grafana:
 curator:
     log:
         metricbeat:
-            close: 5
             delete: 10
         packetbeat:
-            close: 5
             delete: 10
 
 kibana:
@@ -258,6 +256,9 @@ kibana:
 syslog:
     # value can be syslog-ng, rsyslog or filebeat (default)
     name: "filebeat"
+
+# filebeat:
+# Default values are under ansible-vitam/roles/filebeat/defaults/main.yml
 
 cerebro:
     baseuri: "cerebro"

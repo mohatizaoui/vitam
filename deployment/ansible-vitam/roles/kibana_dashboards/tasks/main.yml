@@ -150,6 +150,7 @@
         timeout: "{{ composant.api_call_timeout }}"
       with_items:
         - Filebeat-Composants-Vitam.json
+        - Filebeat-Access-Vitam.json
       register: kibana_result
       until: kibana_result.status in [200,201]
       retries: "{{ kibana.import_retries }}"

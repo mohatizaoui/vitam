@@ -44,16 +44,16 @@
   notify: "filebeat - restart service"
 
 - name: Add apache filebeat module
-  copy:
-    src: modules/apache.yml
+  template:
+    src: modules/apache.yml.j2
     dest: /etc/filebeat/modules.d/apache.yml
     mode: 0644
   when: inventory_hostname in groups['reverse']
   notify: "filebeat - restart service"
 
 - name: Add system filebeat module
-  copy:
-    src: modules/system.yml
+  template:
+    src: modules/system.yml.j2
     dest: /etc/filebeat/modules.d/system.yml
     mode: 0644
   notify: "filebeat - restart service"

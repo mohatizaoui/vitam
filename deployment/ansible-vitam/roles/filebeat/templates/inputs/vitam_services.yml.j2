@@ -7,15 +7,61 @@
 #
 - type: filestream
   id: "{{ vitam_site_name }}-{{ vitam_service }}-access"
+  enabled: {{ {'access_external': filebeat.services.access_external.enable_access,
+    'access_internal': filebeat.services.access_internal.enable_access,
+    'functional_administration': filebeat.services.functional_administration.enable_access,
+    'scheduler': filebeat.services.scheduler.enable_access,
+    'batch_report': filebeat.services.batch_report.enable_access,
+    'ingest_external': filebeat.services.ingest_external.enable_access,
+    'ingest_internal': filebeat.services.ingest_internal.enable_access,
+    'ihm_demo': filebeat.services.ihm_demo.enable_access,
+    'logbook': filebeat.services.logbook.enable_access,
+    'metadata': filebeat.services.metadata.enable_access,
+    'processing': filebeat.services.processing.enable_access,
+    'security_internal': filebeat.services.security_internal.enable_access,
+    'storage_engine': filebeat.services.storage_engine.enable_access,
+    'offer': filebeat.services.offer.enable_access,
+    'worker': filebeat.services.worker.enable_access,
+    'workspace': filebeat.services.workspace.enable_access,
+    'collect_internal': filebeat.services.collect_internal.enable_access,
+    'collect_external': filebeat.services.collect_external.enable_access,
+    'metadata_collect': filebeat.services.metadata_collect.enable_access,
+    'workspace_collect': filebeat.services.workspace_collect.enable_access} [vitam_service] | default(true) }}
   paths:
     - "{{ vitam_defaults.folder.root_path }}/log/{{ vitam_service }}/accesslog-{{ vitam_service }}.*.log"
   fields:
     kind: access
     vitam_component: "{{ vitam_service }}"
     source: vitam
+  processors:
+    - dissect:
+        tokenizer: '%{client_ip} - - %{date_time} "%{http_method} %{request_path} HTTP/%{http_version}" %{http_status_code} %{response_size} "%{referer}" "%{user_agent}" %{duration} %{request_id} %{tenant_id} %{application_id}'
+        field: "message"
+        target: ""
+
 
 - type: filestream
   id: "{{ vitam_site_name }}-{{ vitam_service }}-security"
+  enabled: {{ {'access_external': filebeat.services.access_external.enable_security,
+    'access_internal': filebeat.services.access_internal.enable_security,
+    'functional_administration': filebeat.services.functional_administration.enable_security,
+    'scheduler': filebeat.services.scheduler.enable_security,
+    'batch_report': filebeat.services.batch_report.enable_security,
+    'ingest_external': filebeat.services.ingest_external.enable_security,
+    'ingest_internal': filebeat.services.ingest_internal.enable_security,
+    'ihm_demo': filebeat.services.ihm_demo.enable_security,
+    'logbook': filebeat.services.logbook.enable_security,
+    'metadata': filebeat.services.metadata.enable_security,
+    'processing': filebeat.services.processing.enable_security,
+    'security_internal': filebeat.services.security_internal.enable_security,
+    'storage_engine': filebeat.services.storage_engine.enable_security,
+    'offer': filebeat.services.offer.enable_security,
+    'worker': filebeat.services.worker.enable_security,
+    'workspace': filebeat.services.workspace.enable_security,
+    'collect_internal': filebeat.services.collect_internal.enable_security,
+    'collect_external': filebeat.services.collect_external.enable_security,
+    'metadata_collect': filebeat.services.metadata_collect.enable_security,
+    'workspace_collect': filebeat.services.workspace_collect.enable_security} [vitam_service] | default(true) }}
   paths:
     - "{{ vitam_defaults.folder.root_path }}/log/{{ vitam_service }}/{{ vitam_service }}_security.*.log"
   fields:
@@ -25,6 +71,26 @@
 
 - type: filestream
   id: "{{ vitam_site_name }}-{{ vitam_service }}-error"
+  enabled: {{ {'access_external': filebeat.services.access_external.enable_log,
+    'access_internal': filebeat.services.access_internal.enable_log,
+    'functional_administration': filebeat.services.functional_administration.enable_log,
+    'scheduler': filebeat.services.scheduler.enable_log,
+    'batch_report': filebeat.services.batch_report.enable_log,
+    'ingest_external': filebeat.services.ingest_external.enable_log,
+    'ingest_internal': filebeat.services.ingest_internal.enable_log,
+    'ihm_demo': filebeat.services.ihm_demo.enable_log,
+    'logbook': filebeat.services.logbook.enable_log,
+    'metadata': filebeat.services.metadata.enable_log,
+    'processing': filebeat.services.processing.enable_log,
+    'security_internal': filebeat.services.security_internal.enable_log,
+    'storage_engine': filebeat.services.storage_engine.enable_log,
+    'offer': filebeat.services.offer.enable_log,
+    'worker': filebeat.services.worker.enable_log,
+    'workspace': filebeat.services.workspace.enable_log,
+    'collect_internal': filebeat.services.collect_internal.enable_log,
+    'collect_external': filebeat.services.collect_external.enable_log,
+    'metadata_collect': filebeat.services.metadata_collect.enable_log,
+    'workspace_collect': filebeat.services.workspace_collect.enable_log} [vitam_service] | default(true) }}
   paths:
     - "{{ vitam_defaults.folder.root_path }}/log/{{ vitam_service }}/{{ vitam_service }}.*.log"
   fields:
@@ -33,11 +99,9 @@
     source: vitam
   processors:
     - dissect:
-        tokenizer: '%{timestamp} [%{thread}] [%{request_id}] [%{tenant_id}] %{loglevel} %{logger} - %{message}'
+        tokenizer: '%{date_time} [%{thread}] [%{request_id}] [%{tenant_id}] %{loglevel} %{logger} - %{message}'
         field: "message"
         target: ""
-    - drop_fields:
-        fields: ["timestamp","dissect.timestamp"]
     - copy_fields:
         fields:
           - from: dissect.loglevel
