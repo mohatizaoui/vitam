@@ -1,0 +1,18 @@
+{
+  "sort": [
+    "@timestamp",
+    "desc"
+  ],
+  "kibanaSavedObjectMeta": {
+      "searchSourceJSON": "{\"index\":\"logstash-access*\",\"query\":{\"query_string\":{\"query\":\"*\",\"analyze_wildcard\":true}},\"filter\":[{\"meta\":{\"negate\":false,\"index\":\"logstash-access*\",\"disabled\":false,\"alias\":null},\"query\":{\"terms\":{\"agent.type\":[\"filebeat\"]}},\"$state\":{\"store\":\"appState\"}}],\"highlight\":{\"pre_tags\":[\"@kibana-highlighted-field@\"],\"post_tags\":[\"@/kibana-highlighted-field@\"],\"fields\":{\"*\":{}},\"require_field_match\":false,\"fragment_size\":2147483647}}"
+  },
+  "description": "",
+  "columns": [
+    "agent.hostname",
+    "fields.vitam_component",
+    "dissect.http_method.keyword",
+    "dissect.http_status_code.keyword",
+    "message"
+  ],
+  "title": "vitam-type-accesslog"
+}

@@ -16,6 +16,51 @@ filebeat_log:
 cots_list:
   - cerebro
   - grafana
-  - kibana
   - prometheus
   - alertmanager
+
+filebeat:
+  system:
+    enable_log: true
+    enable_auth: true
+  cots:
+    consul:
+      enable_log: true
+    antivirus:
+      enable_scan: true
+      enable_log: true
+    kibana_data:
+      enable_log: true
+      enable_audit: true
+    kibana_log:
+      enable_log: true
+      enable_audit: true
+    logstash:
+      enable_log: true
+    elasticsearch_data:
+      enable_server: true
+      enable_audit: true
+      enable_slowlog: true
+      enable_deprecation: true
+    elasticsearch_log:
+      enable_server: true
+      enable_audit: true
+      enable_slowlog: true
+      enable_deprecation: true
+    apache:
+      enable_access: true
+      enable_log: true
+    mongodb_offer:
+      mongos:
+        enable_log: true
+      mongoc:
+        enable_log: true
+      mongod:
+        enable_log: true
+    mongodb_data:
+      mongos:
+        enable_log: true
+      mongoc:
+        enable_log: true
+      mongod:
+        enable_log: true

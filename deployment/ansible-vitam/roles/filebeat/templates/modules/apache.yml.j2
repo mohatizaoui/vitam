@@ -4,7 +4,7 @@
 - module: apache
   # Access logs
   access:
-    enabled: true
+    enabled: "{{ filebeat.cots.apache.enable_access }}"
 
     # Set custom paths for the log files. If left empty,
     # Filebeat will choose the paths depending on your OS.
@@ -14,10 +14,15 @@
         kind: access
         vitam_component: apache
         source: vitam
+      processors:
+        - dissect:
+          tokenizer: '%{client_ip} - - [%{date_time}] "%{http_method} %{request_path} HTTP/%{http_version}" %{http_status_code} %{response_size} "%{referer}" "%{user_agent}"'
+          field: "message"
+          target: ""
 
   # Error logs
   error:
-    enabled: true
+    enabled: "{{ filebeat.cots.apache.enable_log }}"
 
     # Set custom paths for the log files. If left empty,
     # Filebeat will choose the paths depending on your OS.
