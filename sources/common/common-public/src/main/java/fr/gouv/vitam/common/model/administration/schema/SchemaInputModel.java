@@ -76,7 +76,7 @@ public class SchemaInputModel {
      * is object flag to specify that the element is object
      */
     @JsonProperty(TAG_IS_OBJECT)
-    private Boolean isObject;
+    private Boolean isObject = false;
 
     /**
      * short name of the element

@@ -1,0 +1,8 @@
+[
+  {
+    "IsObject": false,
+    "Cardinality": "MANY",
+    "Path": "MyTestRa",
+    "ShortName": "MyTestRa"
+  }
+]

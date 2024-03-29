@@ -364,7 +364,7 @@ public class SchemaServiceTest {
         final RequestResponse<SchemaModel> importingResponse =
             schemaService.importExternalSchemaElements(schemaModelInputList);
         assertNotNull(importingResponse);
-        assertEquals(importingResponse.getStatus(), HttpStatus.SC_CREATED);
+        assertEquals(HttpStatus.SC_CREATED, importingResponse.getStatus());
     }
 
     @Test
