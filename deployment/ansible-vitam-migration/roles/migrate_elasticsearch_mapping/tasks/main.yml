@@ -19,8 +19,3 @@
   vars:
     - alias_prefix: "collect_objectgroup"
     - mapping_folder: "objectgroup"
-
-- include_tasks: list_and_migrate_alias_mapping.yml
-  vars:
-    - alias_prefix: "ingestcontract"
-    - mapping_folder: "ingestcontract"

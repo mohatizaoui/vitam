@@ -1,0 +1,10 @@
+{
+  "properties": {
+    "_batchId": {
+      "type": "keyword"
+    },
+    "_uploadPath": {
+      "type": "keyword"
+    }
+  }
+}
