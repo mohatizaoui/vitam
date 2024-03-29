@@ -124,7 +124,7 @@ public class SchemaModel {
      * is object
      */
     @JsonProperty(TAG_IS_OBJECT_NAME)
-    private Boolean isObject;
+    private Boolean isObject = false;
 
     /**
      * The origin of the schema

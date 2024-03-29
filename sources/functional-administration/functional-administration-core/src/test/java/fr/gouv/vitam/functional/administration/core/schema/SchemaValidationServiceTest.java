@@ -71,30 +71,19 @@ public class SchemaValidationServiceTest {
 
     private static final Integer TENANT_ID = 2;
     private static final Integer ADMIN_TENANT = 1;
-
+    private static final OntologyService ontologyService = Mockito.mock(OntologyServiceImpl.class);
     private static MongoDbAccessReferential mongoDbAccessReferential = Mockito.mock(MongoDbAccessReferential.class);
     private static SchemaValidationService schemaValidationService;
-    private static final OntologyService ontologyService = Mockito.mock(OntologyServiceImpl.class);
-
     private final TypeReference<List<SchemaInputModel>> listOfSchemaInputType = new TypeReference<>() {
     };
     private final TypeReference<List<Schema>> listOfSchemaType = new TypeReference<>() {
     };
     private final TypeReference<List<OntologyModel>> listOfOntologyType = new TypeReference<>() {
     };
-
-    private List<SchemaResponse> internalSchemaList;
     @Rule
     public RunWithCustomExecutorRule runInThread = new RunWithCustomExecutorRule(
         VitamThreadPoolExecutor.getDefaultExecutor());
-
-    @Before
-    public void setUp() throws IOException, InvalidParseOperationException {
-        String operationId = newRequestIdGUID(TENANT_ID).toString();
-        internalSchemaList = findUnitInternalSchema();
-        VitamThreadUtils.getVitamSession().setRequestId(operationId);
-    }
-
+    private List<SchemaResponse> internalSchemaList;
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
@@ -103,6 +92,13 @@ public class SchemaValidationServiceTest {
         LogbookOperationsClientFactory.changeMode(null);
         schemaValidationService =
             new SchemaValidationService(mongoDbAccessReferential, LogbookOperationsClientFactory.getInstance());
+    }
+
+    @Before
+    public void setUp() throws IOException, InvalidParseOperationException {
+        String operationId = newRequestIdGUID(TENANT_ID).toString();
+        internalSchemaList = findUnitInternalSchema();
+        VitamThreadUtils.getVitamSession().setRequestId(operationId);
     }
 
     @Test
@@ -257,18 +253,12 @@ public class SchemaValidationServiceTest {
             PropertiesUtils.getResourceFile("schema/schema-with-conflicts-objects-and-ontology.json");
         final List<SchemaInputModel> schemaModelList =
             JsonHandler.getFromFileAsTypeReference(fileSchema, listOfSchemaInputType);
-
         final File ontologyFile = PropertiesUtils.getResourceFile("schema/ok-ontologies.json");
-
         final List<OntologyModel> ontologyModelList =
             JsonHandler.getFromFileAsTypeReference(ontologyFile, listOfOntologyType);
-
-        RequestResponseOK<OntologyModel> ontologyResponse = new RequestResponseOK<OntologyModel>
+        final RequestResponseOK<OntologyModel> ontologyResponse = new RequestResponseOK<OntologyModel>
             ().addAllResults(ontologyModelList);
         when(ontologyService.findOntologies(any())).thenReturn(ontologyResponse);
-
-
-        // When / then
         assertThatThrownBy(() -> schemaValidationService
             .validateExternalSchemaInputs(schemaModelList, internalSchemaList, ontologyModelList, new HashMap<>()))
             .isInstanceOf(SchemaImportValidationException.class);

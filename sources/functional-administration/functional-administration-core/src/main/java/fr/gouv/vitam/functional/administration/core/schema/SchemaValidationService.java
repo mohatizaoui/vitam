@@ -67,6 +67,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -247,63 +248,102 @@ public class SchemaValidationService {
         }
     }
 
-    private void checkPathsWithOntology(Map<String, SchemaInputModel> externalSchemaInputsMapByPath,
-        Map<String, OntologyModel> ontologyEltsMapByIdentifier, Map<String, List<ErrorReportSchema>> importErrors)
-        throws VitamException {
-
-        List<String> pathsWithMissedLeavesErrors = new ArrayList<>();
-        List<String> pathsWithOntologyConflicts = new ArrayList<>();
-        Set<String> leavesList =
-            externalSchemaInputsMapByPath.values().stream()
-                .filter(schemaModelElt -> !Boolean.TRUE.equals(schemaModelElt.isObject()))
-                .map(schemaModelElt ->
-                    SchemaCommonService.extractLeafFromPath(schemaModelElt.getPath())).collect(Collectors.toSet());
-
-        //all leaves should be in ontology
-        for (String leafElt : leavesList) {
-            if (!ontologyEltsMapByIdentifier.containsKey(leafElt)) {
-                pathsWithMissedLeavesErrors.add(leafElt);
-            }
-        }
-
+    private void checkSchemaPathsAreDeclaredAsOntologies(
+        final Map<String, SchemaInputModel> externalSchemaInputsMapByPath,
+        final Map<String, OntologyModel> ontologyEltsMapByIdentifier,
+        final Map<String, List<ErrorReportSchema>> importErrors
+    ) throws SchemaImportValidationException {
+        final List<String> pathsWithMissedLeavesErrors = externalSchemaInputsMapByPath.values().stream()
+            .filter(schemaModelElt -> !Boolean.TRUE.equals(schemaModelElt.isObject()))
+            .map(schemaModelElt -> SchemaCommonService.extractLeafFromPath(schemaModelElt.getPath()))
+            .collect(Collectors.toSet()).stream()
+            .filter(leaf -> !ontologyEltsMapByIdentifier.containsKey(leaf))
+            .collect(Collectors.toList());
         if (!CollectionUtils.isEmpty(pathsWithMissedLeavesErrors)) {
-            LOGGER.error("Path leaf missed ");
-            pathsWithMissedLeavesErrors.stream().forEach(
-                schemaPath ->
-                    addError(schemaPath, new ErrorReportSchema(SchemaErrorCode.IMPORT_SCHEMA_LEAF_NOT_FOUND,
-                        externalSchemaInputsMapByPath.get(schemaPath), "Path leaf missed"), importErrors));
-            String message = String.format("Paths leaf missed =  %s  ",
-                pathsWithMissedLeavesErrors.stream().collect(Collectors.joining(", ")));
-            throw new SchemaImportValidationException(message);
+            final String baseMessage = "Path leaf missed";
+            checkErrors(
+                pathsWithMissedLeavesErrors,
+                baseMessage,
+                SchemaErrorCode.IMPORT_SCHEMA_LEAF_NOT_FOUND,
+                externalSchemaInputsMapByPath,
+                importErrors
+            );
         }
+    }
 
-        //any sub path should not be in ontology
-        Set<String> objectSubPathElts = new HashSet<>();
-        for (SchemaInputModel inputElt : externalSchemaInputsMapByPath.values()) {
-            if (Boolean.TRUE.equals(inputElt.isObject())) {
-                objectSubPathElts.addAll(Set.of(StringUtils.splitByWholeSeparator(inputElt.getPath(), ".")));
-            } else {
-                objectSubPathElts.addAll(Set.of(
-                    StringUtils.splitByWholeSeparator(StringUtils.substringBeforeLast(inputElt.getPath(), "."), ".")));
-            }
-        }
-        for (String subPathElt : objectSubPathElts) {
-            if (ontologyEltsMapByIdentifier.containsKey(subPathElt)) {
-                pathsWithOntologyConflicts.add(subPathElt);
-            }
-        }
+    private void checkSchemaObjectPathsAreNotDeclaredAsOntologies(
+        final Map<String, SchemaInputModel> externalSchemaInputsMapByPath,
+        final Map<String, OntologyModel> ontologyEltsMapByIdentifier,
+        final Map<String, List<ErrorReportSchema>> importErrors
+    ) throws SchemaImportValidationException {
+        final String separator = ".";
+        final List<String> pathsWithOntologyConflicts = externalSchemaInputsMapByPath.values().stream()
+            .map(inputElement -> {
+                final String path = inputElement.isObject() ? inputElement.getPath() :
+                    StringUtils.substringBeforeLast(inputElement.getPath(), separator);
+                return StringUtils.splitByWholeSeparator(path, separator);
+            })
+            .flatMap(Arrays::stream)
+            .collect(Collectors.toCollection(HashSet::new))
+            .stream()
+            .filter(subPathElement -> {
+                final boolean isLeaf = ontologyEltsMapByIdentifier.containsKey(subPathElement);
+                final SchemaInputModel schemaInputModel = externalSchemaInputsMapByPath.get(subPathElement);
+                if (schemaInputModel == null) {
+                    return isLeaf;
+                }
+
+                return isLeaf && schemaInputModel.isObject();
+            })
+            .collect(Collectors.toList());
 
         if (!CollectionUtils.isEmpty(pathsWithOntologyConflicts)) {
-            LOGGER.error("Paths leafs declared as objects but already in ontology ");
-            pathsWithMissedLeavesErrors.stream().forEach(
-                schemaPath ->
-                    addError(schemaPath, new ErrorReportSchema(SchemaErrorCode.IMPORT_SCHEMA_PATH_OBJECT_IN_ONTOLOGY,
-                        externalSchemaInputsMapByPath.get(schemaPath),
-                        "Paths leafs declared as objects but already in ontology"), importErrors));
-            String message = String.format("Paths leafs declared as objects but already in ontology =  %s  ",
-                pathsWithOntologyConflicts.stream().collect(Collectors.joining(", ")));
-            throw new SchemaImportValidationException(message);
+            final String baseMessage = "Paths leafs declared as objects but already in ontology";
+            checkErrors(
+                pathsWithOntologyConflicts,
+                baseMessage,
+                SchemaErrorCode.IMPORT_SCHEMA_PATH_OBJECT_IN_ONTOLOGY,
+                externalSchemaInputsMapByPath,
+                importErrors
+            );
         }
+    }
+
+    private void checkErrors(
+        final List<String> errorPaths,
+        final String baseMessage,
+        final SchemaErrorCode errorCode,
+        final Map<String, SchemaInputModel> externalSchemaInputsMapByPath,
+        final Map<String, List<ErrorReportSchema>> importErrors
+    ) throws SchemaImportValidationException {
+        errorPaths.forEach(schemaPath -> addError(
+                schemaPath,
+                new ErrorReportSchema(errorCode, externalSchemaInputsMapByPath.get(schemaPath), baseMessage),
+                importErrors
+            )
+        );
+
+        final String conflictingPaths = String.join(", ", errorPaths);
+        final String message = String.format("%s = %s", baseMessage, conflictingPaths);
+        LOGGER.error(message);
+        throw new SchemaImportValidationException(message);
+    }
+
+    private void checkPathsWithOntology(
+        final Map<String, SchemaInputModel> externalSchemaInputsMapByPath,
+        final Map<String, OntologyModel> ontologyEltsMapByIdentifier,
+        final Map<String, List<ErrorReportSchema>> importErrors
+    ) throws VitamException {
+        checkSchemaPathsAreDeclaredAsOntologies(
+            externalSchemaInputsMapByPath,
+            ontologyEltsMapByIdentifier,
+            importErrors
+        );
+        checkSchemaObjectPathsAreNotDeclaredAsOntologies(
+            externalSchemaInputsMapByPath,
+            ontologyEltsMapByIdentifier,
+            importErrors
+        );
     }
 
 

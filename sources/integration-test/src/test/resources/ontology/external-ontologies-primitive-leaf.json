@@ -1,0 +1,13 @@
+[
+  {
+    "Identifier": "MyTestRa",
+    "Type": "TEXT",
+    "TypeDetail": "STRING",
+    "StringSize": "MEDIUM",
+    "Origin": "EXTERNAL",
+    "ShortName": "MyTestRa",
+    "Collections": [
+      "Unit"
+    ]
+  }
+]
