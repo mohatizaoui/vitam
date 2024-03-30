@@ -70,7 +70,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 public class ReadOnlyShieldStorageDistributionTest {
 
@@ -131,7 +131,7 @@ public class ReadOnlyShieldStorageDistributionTest {
         assertThatThrownBy(() -> instance.copyObjectFromOfferToOffer(dataContext, OFFER1, OFFER2))
             .isInstanceOf(IllegalStateException.class);
         verify(alertService).createAlert(eq(VitamLogLevel.ERROR), anyString(), any());
-        verifyZeroInteractions(innerStorageDistribution);
+        verifyNoInteractions(innerStorageDistribution);
     }
 
     @Test
@@ -147,7 +147,7 @@ public class ReadOnlyShieldStorageDistributionTest {
             DATA_CATEGORY, REQUESTER))
             .isInstanceOf(IllegalStateException.class);
         verify(alertService).createAlert(eq(VitamLogLevel.ERROR), anyString(), any());
-        verifyZeroInteractions(innerStorageDistribution);
+        verifyNoInteractions(innerStorageDistribution);
     }
 
     @Test
@@ -165,7 +165,7 @@ public class ReadOnlyShieldStorageDistributionTest {
                 STRATEGY, ORIGIN, OBJECT_ID, DATA_CATEGORY, REQUESTER, OFFER_IDS, response)
         ).isInstanceOf(IllegalStateException.class);
         verify(alertService).createAlert(eq(VitamLogLevel.ERROR), anyString(), any());
-        verifyZeroInteractions(innerStorageDistribution);
+        verifyNoInteractions(innerStorageDistribution);
     }
 
     @Test
@@ -183,7 +183,7 @@ public class ReadOnlyShieldStorageDistributionTest {
                 STRATEGY, ORIGIN, streamAndInfo, OBJECT_ID, DATA_CATEGORY, REQUESTER, OFFER_IDS)
         ).isInstanceOf(IllegalStateException.class);
         verify(alertService).createAlert(eq(VitamLogLevel.ERROR), anyString(), any());
-        verifyZeroInteractions(innerStorageDistribution);
+        verifyNoInteractions(innerStorageDistribution);
     }
 
     @Test
@@ -344,7 +344,7 @@ public class ReadOnlyShieldStorageDistributionTest {
         assertThatThrownBy(() -> instance.deleteObjectInAllOffers(STRATEGY, dataContext))
             .isInstanceOf(IllegalStateException.class);
         verify(alertService).createAlert(eq(VitamLogLevel.ERROR), anyString(), any());
-        verifyZeroInteractions(innerStorageDistribution);
+        verifyNoInteractions(innerStorageDistribution);
     }
 
     @Test
@@ -357,7 +357,7 @@ public class ReadOnlyShieldStorageDistributionTest {
         assertThatThrownBy(() -> instance.deleteObjectInOffers(STRATEGY, dataContext, OFFER_IDS))
             .isInstanceOf(IllegalStateException.class);
         verify(alertService).createAlert(eq(VitamLogLevel.ERROR), anyString(), any());
-        verifyZeroInteractions(innerStorageDistribution);
+        verifyNoInteractions(innerStorageDistribution);
     }
 
     @Test
@@ -389,7 +389,7 @@ public class ReadOnlyShieldStorageDistributionTest {
         assertThatThrownBy(() -> instance.bulkCreateFromWorkspace(STRATEGY, bulkObjectStoreRequest, REQUESTER))
             .isInstanceOf(IllegalStateException.class);
         verify(alertService).createAlert(eq(VitamLogLevel.ERROR), anyString(), any());
-        verifyZeroInteractions(innerStorageDistribution);
+        verifyNoInteractions(innerStorageDistribution);
     }
 
     @Test

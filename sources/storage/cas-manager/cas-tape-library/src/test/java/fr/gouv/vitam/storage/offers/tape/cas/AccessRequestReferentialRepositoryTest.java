@@ -550,7 +550,7 @@ public class AccessRequestReferentialRepositoryTest {
             = accessRequestReferentialRepository.listObjectIdsForActiveAccessRequests()) {
 
             // Then
-            assertThat(usedArchiveIds).containsExactlyInAnyOrder(
+            assertThat(usedArchiveIds).toIterable().containsExactlyInAnyOrder(
                 new TapeLibraryObjectReferentialId("myContainer1", "obj1"),
                 new TapeLibraryObjectReferentialId("myContainer1", "obj2"),
                 new TapeLibraryObjectReferentialId("myContainer1", "obj3"),

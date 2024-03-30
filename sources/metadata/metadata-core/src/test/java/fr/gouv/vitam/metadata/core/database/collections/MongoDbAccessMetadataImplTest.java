@@ -101,7 +101,7 @@ import static java.util.Locale.US;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyListOf;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -383,10 +383,10 @@ public class MongoDbAccessMetadataImplTest {
         SearchResponse objectGroupResponse =
             searchResult(PropertiesUtils.getResourceAsString("accession_register_symbolic_got_aggs_1.data"));
 
-        given(client.basicAggregationSearch(eq(UNIT), eq(0), anyListOf(AggregationBuilder.class),
+        given(client.basicAggregationSearch(eq(UNIT), eq(0), anyList(),
             any(QueryBuilder.class)))
             .willReturn(archiveUnitResponse.getAggregations());
-        given(client.basicAggregationSearch(eq(OBJECTGROUP), eq(0), anyListOf(AggregationBuilder.class),
+        given(client.basicAggregationSearch(eq(OBJECTGROUP), eq(0), anyList(),
             any(QueryBuilder.class)))
             .willReturn(objectGroupResponse.getAggregations());
 
@@ -418,10 +418,10 @@ public class MongoDbAccessMetadataImplTest {
         SearchResponse objectGroupResponse =
             searchResult(PropertiesUtils.getResourceAsString("accession_register_symbolic_got_aggs_2.data"));
 
-        given(client.basicAggregationSearch(eq(UNIT), eq(0), anyListOf(AggregationBuilder.class),
+        given(client.basicAggregationSearch(eq(UNIT), eq(0), anyList(),
             any(QueryBuilder.class)))
             .willReturn(archiveUnitResponse.getAggregations());
-        given(client.basicAggregationSearch(eq(OBJECTGROUP), eq(0), anyListOf(AggregationBuilder.class),
+        given(client.basicAggregationSearch(eq(OBJECTGROUP), eq(0), anyList(),
             any(QueryBuilder.class)))
             .willReturn(objectGroupResponse.getAggregations());
 
@@ -467,10 +467,10 @@ public class MongoDbAccessMetadataImplTest {
             PropertiesUtils.getResourceAsString("accession_register_symbolic_got_aggs_3.data")
         );
 
-        given(client.basicAggregationSearch(eq(UNIT), eq(0), anyListOf(AggregationBuilder.class),
+        given(client.basicAggregationSearch(eq(UNIT), eq(0), anyList(),
             any(QueryBuilder.class)))
             .willReturn(archiveUnitResponse.getAggregations());
-        given(client.basicAggregationSearch(eq(OBJECTGROUP), eq(0), anyListOf(AggregationBuilder.class),
+        given(client.basicAggregationSearch(eq(OBJECTGROUP), eq(0), anyList(),
             any(QueryBuilder.class)))
             .willReturn(objectGroupResponse.getAggregations());
 
@@ -515,10 +515,10 @@ public class MongoDbAccessMetadataImplTest {
                 objectGroupCountAll, binaryCount, binarySize, objectGroupCountThis, binaryCount, binarySize)
         );
 
-        given(client.basicAggregationSearch(eq(UNIT), eq(0), anyListOf(AggregationBuilder.class),
+        given(client.basicAggregationSearch(eq(UNIT), eq(0), anyList(),
             any(QueryBuilder.class)))
             .willReturn(archiveUnitResponse.getAggregations());
-        given(client.basicAggregationSearch(eq(OBJECTGROUP), eq(0), anyListOf(AggregationBuilder.class),
+        given(client.basicAggregationSearch(eq(OBJECTGROUP), eq(0), anyList(),
             any(QueryBuilder.class)))
             .willReturn(objectGroupResponse.getAggregations());
 
@@ -565,10 +565,10 @@ public class MongoDbAccessMetadataImplTest {
                 objectGroupCountAll, binaryCount, binarySize, objectGroupCountThis, binaryCount, binarySize)
         );
 
-        given(client.basicAggregationSearch(eq(UNIT), eq(0), anyListOf(AggregationBuilder.class),
+        given(client.basicAggregationSearch(eq(UNIT), eq(0), anyList(),
             any(QueryBuilder.class)))
             .willReturn(archiveUnitResponse.getAggregations());
-        given(client.basicAggregationSearch(eq(OBJECTGROUP), eq(0), anyListOf(AggregationBuilder.class),
+        given(client.basicAggregationSearch(eq(OBJECTGROUP), eq(0), anyList(),
             any(QueryBuilder.class)))
             .willReturn(objectGroupResponse.getAggregations());
 
@@ -606,10 +606,10 @@ public class MongoDbAccessMetadataImplTest {
             PropertiesUtils.getResourceAsString("accession_register_symbolic_got_aggs_6.data")
         );
 
-        given(client.basicAggregationSearch(eq(UNIT), eq(0), anyListOf(AggregationBuilder.class),
+        given(client.basicAggregationSearch(eq(UNIT), eq(0), anyList(),
             any(QueryBuilder.class)))
             .willReturn(archiveUnitResponse.getAggregations());
-        given(client.basicAggregationSearch(eq(OBJECTGROUP), eq(0), anyListOf(AggregationBuilder.class),
+        given(client.basicAggregationSearch(eq(OBJECTGROUP), eq(0), anyList(),
             any(QueryBuilder.class)))
             .willReturn(objectGroupResponse.getAggregations());
 

@@ -59,7 +59,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 public class IngestCleanupEligibilityServiceTest {
@@ -240,7 +240,7 @@ public class IngestCleanupEligibilityServiceTest {
         verify(metaDataClient, times(1)).selectObjectGroups(queryCaptor.capture());
         checkQueryEquals(queryCaptor.getAllValues().get(0),
             "IngestCleanup/Eligibility/selectObjectGroupOperationsQuery.json");
-        verifyZeroInteractions(logbookOperationsClient);
+        verifyNoInteractions(logbookOperationsClient);
     }
 
     @Test

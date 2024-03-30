@@ -82,7 +82,7 @@ Pré-requis
 **********
 
 * jdk 11
-* maven (version 3.3.9 minimale)
+* maven (version 3.6.3 minimale)
 * rpm-build
 
 Il est nécessaire de builder la librairie elasticsearch-metrics-reporter-java mise à jour par le projet VITAM:
@@ -187,7 +187,7 @@ Pré-requis
 **********
 
 * jdk 11
-* maven (version 3.3.9 minimale)
+* maven (version 3.6.3 minimale)
 * rpm-build
 * sphinx-build (ainsi que le thème rtd)
 * Pour construire le pdf : une distribution latex (Miktex, texlive, mactex, ...)

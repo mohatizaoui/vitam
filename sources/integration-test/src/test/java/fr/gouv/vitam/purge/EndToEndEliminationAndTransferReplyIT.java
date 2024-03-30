@@ -2931,7 +2931,7 @@ public class EndToEndEliminationAndTransferReplyIT extends VitamRuleRunner {
         }
 
         assertThat(collection.getCollection().find(Filters.eq(VitamDocument.ID, documentId))
-            .iterator()).hasSize(expectedHits);
+            .iterator()).toIterable().hasSize(expectedHits);
     }
 
     private void checkDocumentExistence(MetadataCollections collection, String documentId,
@@ -2959,7 +2959,7 @@ public class EndToEndEliminationAndTransferReplyIT extends VitamRuleRunner {
         }
 
         assertThat(collection.getCollection().find(Filters.eq(VitamDocument.ID, documentId))
-            .iterator()).hasSize(expectedHits);
+            .iterator()).toIterable().hasSize(expectedHits);
     }
 
     private Set<String> getBinaryObjectIds(RequestResponseOK<JsonNode> gots) {

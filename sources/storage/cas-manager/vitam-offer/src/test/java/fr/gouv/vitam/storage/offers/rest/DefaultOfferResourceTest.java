@@ -628,7 +628,7 @@ public class DefaultOfferResourceTest {
 
         ObjectEntryReader emptyContainerObjectEntryReader =
             new ObjectEntryReader(emptyContainerListObjectResponse.asInputStream());
-        assertThat(emptyContainerObjectEntryReader).isEmpty();
+        assertThat(emptyContainerObjectEntryReader).toIterable().isEmpty();
 
         for (int i = 0; i < 10; i++) {
 

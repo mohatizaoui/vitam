@@ -52,7 +52,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 public class BackgroundObjectDigestValidatorTest {
 
@@ -91,7 +91,7 @@ public class BackgroundObjectDigestValidatorTest {
         assertThat(instance.hasTechnicalExceptionsReported()).isFalse();
         assertThat(instance.getWrittenObjects()).isEmpty();
 
-        verifyZeroInteractions(contentAddressableStorage);
+        verifyNoInteractions(contentAddressableStorage);
     }
 
     @Test

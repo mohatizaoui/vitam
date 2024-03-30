@@ -2276,10 +2276,10 @@ public class ProcessingIT extends VitamRuleRunner {
         MetaDataClient metaDataClient = MetaDataClientFactory.getInstance().getClient();
         JsonNode selectUnitsAfterIngest = metaDataClient.selectUnits(select.getFinalSelect()).get(TAG_RESULTS);
 
-        assertThat(selectUnitsAfterIngest.elements())
+        assertThat(selectUnitsAfterIngest.elements()).toIterable()
             .extracting(unit -> unit.get(VitamFieldsHelper.validComputedInheritedRules()))
             .allMatch(Objects::isNull);
-        assertThat(selectUnitsAfterIngest.elements())
+        assertThat(selectUnitsAfterIngest.elements()).toIterable()
             .extracting(unit -> unit.get(VitamFieldsHelper.computedInheritedRules()))
             .allMatch(Objects::isNull);
 
@@ -2290,10 +2290,10 @@ public class ProcessingIT extends VitamRuleRunner {
         JsonNode selectUnitsAfterComputedInheritedRules =
             metaDataClient.selectUnits(select.getFinalSelect()).get(TAG_RESULTS);
 
-        assertThat(selectUnitsAfterComputedInheritedRules.elements())
+        assertThat(selectUnitsAfterComputedInheritedRules.elements()).toIterable()
             .extracting(unit -> unit.get(VitamFieldsHelper.validComputedInheritedRules()))
             .allMatch(JsonNode::booleanValue);
-        assertThat(selectUnitsAfterComputedInheritedRules.elements())
+        assertThat(selectUnitsAfterComputedInheritedRules.elements()).toIterable()
             .extracting(unit -> unit.get(VitamFieldsHelper.computedInheritedRules()))
             .allMatch(Objects::nonNull);
 
@@ -2365,10 +2365,10 @@ public class ProcessingIT extends VitamRuleRunner {
         MetaDataClient metaDataClient = MetaDataClientFactory.getInstance().getClient();
         JsonNode selectUnitsAfterIngest = metaDataClient.selectUnits(select.getFinalSelect()).get(TAG_RESULTS);
 
-        assertThat(selectUnitsAfterIngest.elements())
+        assertThat(selectUnitsAfterIngest.elements()).toIterable()
             .extracting(unit -> unit.get(VitamFieldsHelper.validComputedInheritedRules()))
             .allMatch(Objects::isNull);
-        assertThat(selectUnitsAfterIngest.elements())
+        assertThat(selectUnitsAfterIngest.elements()).toIterable()
             .extracting(unit -> unit.get(VitamFieldsHelper.computedInheritedRules()))
             .allMatch(Objects::isNull);
 
@@ -2435,10 +2435,10 @@ public class ProcessingIT extends VitamRuleRunner {
                 DateTimeFormatter.ofPattern("yyyy-MM-dd"))));
 
         // Ensure no computed inherited rules
-        assertThat(selectUnitsAfterRuleUpdate.elements())
+        assertThat(selectUnitsAfterRuleUpdate.elements()).toIterable()
             .extracting(unit -> unit.get(VitamFieldsHelper.validComputedInheritedRules()))
             .allMatch(Objects::isNull);
-        assertThat(selectUnitsAfterRuleUpdate.elements())
+        assertThat(selectUnitsAfterRuleUpdate.elements()).toIterable()
             .extracting(unit -> unit.get(VitamFieldsHelper.computedInheritedRules()))
             .allMatch(Objects::isNull);
     }
@@ -2478,10 +2478,10 @@ public class ProcessingIT extends VitamRuleRunner {
         JsonNode selectUnitsAfterComputedInheritedRules =
             metaDataClient.selectUnits(select.getFinalSelect()).get(TAG_RESULTS);
 
-        assertThat(selectUnitsAfterComputedInheritedRules.elements())
+        assertThat(selectUnitsAfterComputedInheritedRules.elements()).toIterable()
             .extracting(unit -> unit.get(VitamFieldsHelper.validComputedInheritedRules()))
             .allMatch(JsonNode::booleanValue);
-        assertThat(selectUnitsAfterComputedInheritedRules.elements())
+        assertThat(selectUnitsAfterComputedInheritedRules.elements()).toIterable()
             .extracting(unit -> unit.get(VitamFieldsHelper.computedInheritedRules()))
             .allMatch(Objects::nonNull);
 
@@ -3493,10 +3493,10 @@ public class ProcessingIT extends VitamRuleRunner {
         JsonNode selectUnitsAfterComputedInheritedRules =
             metaDataClient.selectUnits(select.getFinalSelect()).get(TAG_RESULTS);
 
-        assertThat(selectUnitsAfterComputedInheritedRules.elements())
+        assertThat(selectUnitsAfterComputedInheritedRules.elements()).toIterable()
             .extracting(unit -> unit.get(VitamFieldsHelper.validComputedInheritedRules()))
             .allMatch(JsonNode::booleanValue);
-        assertThat(selectUnitsAfterComputedInheritedRules.elements())
+        assertThat(selectUnitsAfterComputedInheritedRules.elements()).toIterable()
             .extracting(unit -> unit.get(VitamFieldsHelper.computedInheritedRules()))
             .allMatch(Objects::nonNull);
 
@@ -3565,10 +3565,10 @@ public class ProcessingIT extends VitamRuleRunner {
         JsonNode selectUnitsAfterComputedInheritedRules =
             metaDataClient.selectUnits(select.getFinalSelect()).get(TAG_RESULTS);
 
-        assertThat(selectUnitsAfterComputedInheritedRules.elements())
+        assertThat(selectUnitsAfterComputedInheritedRules.elements()).toIterable()
             .extracting(unit -> unit.get(VitamFieldsHelper.validComputedInheritedRules()))
             .allMatch(Objects::isNull);
-        assertThat(selectUnitsAfterComputedInheritedRules.elements())
+        assertThat(selectUnitsAfterComputedInheritedRules.elements()).toIterable()
             .extracting(unit -> unit.get(VitamFieldsHelper.computedInheritedRules()))
             .allMatch(Objects::isNull);
 
@@ -3608,10 +3608,10 @@ public class ProcessingIT extends VitamRuleRunner {
         assertThat(getUnitParents(unitD)).containsExactlyInAnyOrder(getUnitId(unitC));
 
         // Check computed inherited rules are still non indexed
-        assertThat(selectUnitsAfterReclassification.elements())
+        assertThat(selectUnitsAfterReclassification.elements()).toIterable()
             .extracting(unit -> unit.get(VitamFieldsHelper.validComputedInheritedRules()))
             .allMatch(Objects::isNull);
-        assertThat(selectUnitsAfterReclassification.elements())
+        assertThat(selectUnitsAfterReclassification.elements()).toIterable()
             .extracting(unit -> unit.get(VitamFieldsHelper.computedInheritedRules()))
             .allMatch(Objects::isNull);
     }
@@ -3753,10 +3753,10 @@ public class ProcessingIT extends VitamRuleRunner {
         JsonNode selectUnitsAfterComputedInheritedRules =
             metaDataClient.selectUnits(select.getFinalSelect()).get(TAG_RESULTS);
 
-        assertThat(selectUnitsAfterComputedInheritedRules.elements())
+        assertThat(selectUnitsAfterComputedInheritedRules.elements()).toIterable()
             .extracting(unit -> unit.get(VitamFieldsHelper.validComputedInheritedRules()))
             .allMatch(JsonNode::booleanValue);
-        assertThat(selectUnitsAfterComputedInheritedRules.elements())
+        assertThat(selectUnitsAfterComputedInheritedRules.elements()).toIterable()
             .extracting(unit -> unit.get(VitamFieldsHelper.computedInheritedRules()))
             .allMatch(Objects::nonNull);
 
@@ -3769,10 +3769,10 @@ public class ProcessingIT extends VitamRuleRunner {
         assertThat(graphComputeResponse.getErrorMessage()).isNull();
 
         // Check computed inherited rules have not been invalidated
-        assertThat(selectUnitsAfterComputedInheritedRules.elements())
+        assertThat(selectUnitsAfterComputedInheritedRules.elements()).toIterable()
             .extracting(unit -> unit.get(VitamFieldsHelper.validComputedInheritedRules()))
             .allMatch(JsonNode::booleanValue);
-        assertThat(selectUnitsAfterComputedInheritedRules.elements())
+        assertThat(selectUnitsAfterComputedInheritedRules.elements()).toIterable()
             .extracting(unit -> unit.get(VitamFieldsHelper.computedInheritedRules()))
             .allMatch(Objects::nonNull);
     }

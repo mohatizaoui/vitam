@@ -216,7 +216,7 @@ public class RevertEssentialMetadataIT extends VitamRuleRunner {
                 assertNotEquals(u.get(TITLE_).get(FR).asText(), OLD_VALUE);
             }
             assertThat(u.get(VitamFieldsHelper.version()).asInt()).isGreaterThan(1);
-            assertThat(u.get(VitamFieldsHelper.operations()).iterator()).extracting(JsonNode::asText)
+            assertThat(u.get(VitamFieldsHelper.operations()).iterator()).toIterable().extracting(JsonNode::asText)
                 .contains(containerName);
         });
 
@@ -281,7 +281,7 @@ public class RevertEssentialMetadataIT extends VitamRuleRunner {
                 assertEquals(u.get(TITLE_).get(FR).asText(), OLD_VALUE);
             }
             assertThat(u.get(VitamFieldsHelper.version()).asInt()).isGreaterThan(1);
-            assertThat(u.get(VitamFieldsHelper.operations()).iterator()).extracting(JsonNode::asText)
+            assertThat(u.get(VitamFieldsHelper.operations()).iterator()).toIterable().extracting(JsonNode::asText)
                 .doesNotContain(containerName);
         });
 
@@ -342,7 +342,7 @@ public class RevertEssentialMetadataIT extends VitamRuleRunner {
                 assertNotEquals(u.get(TITLE_).get(FR).asText(), OLD_VALUE);
             }
             assertThat(u.get(VitamFieldsHelper.version()).asInt()).isGreaterThan(1);
-            assertThat(u.get(VitamFieldsHelper.operations()).iterator()).extracting(JsonNode::asText)
+            assertThat(u.get(VitamFieldsHelper.operations()).iterator()).toIterable().extracting(JsonNode::asText)
                 .contains(containerName);
         });
 

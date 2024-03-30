@@ -492,7 +492,7 @@ public class ObjectReferentialRepositoryTest {
         CloseableIterator<ObjectEntry> result = objectReferentialRepository.listContainerObjectEntries("container");
 
         // Then
-        assertThat(result).isEmpty();
+        assertThat(result).toIterable().isEmpty();
         assertThatCode(result::close).doesNotThrowAnyException();
     }
 
@@ -513,7 +513,7 @@ public class ObjectReferentialRepositoryTest {
         CloseableIterator<ObjectEntry> result = objectReferentialRepository.listContainerObjectEntries("container");
 
         // Then
-        assertThat(result).extracting(ObjectEntry::getObjectId, ObjectEntry::getSize).containsExactlyInAnyOrder(
+        assertThat(result).toIterable().extracting(ObjectEntry::getObjectId, ObjectEntry::getSize).containsExactlyInAnyOrder(
             tuple("objectName0", 0L),
             tuple("objectName1", 1_000_000_000L),
             tuple("objectName2", 2_000_000_000L),
@@ -544,7 +544,7 @@ public class ObjectReferentialRepositoryTest {
         CloseableIterator<ObjectEntry> result = objectReferentialRepository.listContainerObjectEntries("container");
 
         // Then
-        assertThat(result).extracting(ObjectEntry::getObjectId, ObjectEntry::getSize).containsExactly(
+        assertThat(result).toIterable().extracting(ObjectEntry::getObjectId, ObjectEntry::getSize).containsExactly(
             tuple("objectName1", 100L));
 
         assertThatCode(result::close).doesNotThrowAnyException();

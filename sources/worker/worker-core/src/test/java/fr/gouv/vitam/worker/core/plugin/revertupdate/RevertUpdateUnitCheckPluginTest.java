@@ -180,7 +180,7 @@ public class RevertUpdateUnitCheckPluginTest {
             new JsonLineGenericIterator<>(new FileInputStream(jsonlFile), new TypeReference<>() {
             });
 
-        assertThat(jsonLineIterator).extracting(JsonLineModel::getParams).extracting(JsonNode::toString)
+        assertThat(jsonLineIterator).toIterable().extracting(JsonLineModel::getParams).extracting(JsonNode::toString)
             .isEqualTo(List.of(
                 "{\"queryIndex\":0,\"originQuery\":{\"$roots\":[],\"$query\":[{\"$eq\":{\"#id\":\"UNIT_ID\"}}],\"$filter\":{},\"$action\":[{\"$set\":{\"Description\":\"Old_Description\",\"Title\":\"Old_Title\"}},{\"$unset\":[\"DescriptionLevel\"]}]}}"));
     }
@@ -227,7 +227,7 @@ public class RevertUpdateUnitCheckPluginTest {
             new JsonLineGenericIterator<>(new FileInputStream(jsonlFile), new TypeReference<>() {
             });
 
-        assertThat(jsonLineIterator).extracting(JsonLineModel::getParams).extracting(JsonNode::toString)
+        assertThat(jsonLineIterator).toIterable().extracting(JsonLineModel::getParams).extracting(JsonNode::toString)
             .isEqualTo(List.of(
                 "{\"queryIndex\":0,\"originQuery\":{\"$roots\":[],\"$query\":[{\"$eq\":{\"#id\":\"UNIT_ID\"}}],\"$filter\":{},\"$action\":[{\"$set\":{\"Title_.fr\":\"Old_Title\",\"Description_.fr\":\"Old_Description\"}}]}}"));
     }
@@ -274,7 +274,7 @@ public class RevertUpdateUnitCheckPluginTest {
             new JsonLineGenericIterator<>(new FileInputStream(jsonlFile), new TypeReference<>() {
             });
 
-        assertThat(jsonLineIterator).extracting(JsonLineModel::getId).isEqualTo(Collections.emptyList());
+        assertThat(jsonLineIterator).toIterable().extracting(JsonLineModel::getId).isEqualTo(Collections.emptyList());
     }
 
 
@@ -347,7 +347,7 @@ public class RevertUpdateUnitCheckPluginTest {
             new JsonLineGenericIterator<>(new FileInputStream(jsonlFile), new TypeReference<>() {
             });
 
-        assertThat(jsonLineIterator).extracting(JsonLineModel::getParams).extracting(JsonNode::toString)
+        assertThat(jsonLineIterator).toIterable().extracting(JsonLineModel::getParams).extracting(JsonNode::toString)
             .isEqualTo(List.of(
                 "{\"queryIndex\":0,\"originQuery\":{\"$roots\":[],\"$query\":[{\"$eq\":{\"#id\":\"UNIT_ID\"}}],\"$filter\":{},\"$action\":[{\"$set\":{\"Title_.fr\":\"Old_Title\"}}]}}"));
     }
@@ -381,7 +381,7 @@ public class RevertUpdateUnitCheckPluginTest {
             new JsonLineGenericIterator<>(new FileInputStream(jsonlFile), new TypeReference<>() {
             });
 
-        assertThat(jsonLineIterator).extracting(JsonLineModel::getId).isEqualTo(Collections.emptyList());
+        assertThat(jsonLineIterator).toIterable().extracting(JsonLineModel::getId).isEqualTo(Collections.emptyList());
     }
 
     @Test
@@ -426,7 +426,7 @@ public class RevertUpdateUnitCheckPluginTest {
             new JsonLineGenericIterator<>(new FileInputStream(jsonlFile), new TypeReference<>() {
             });
 
-        assertThat(jsonLineIterator).extracting(JsonLineModel::getParams).extracting(JsonNode::toString)
+        assertThat(jsonLineIterator).toIterable().extracting(JsonLineModel::getParams).extracting(JsonNode::toString)
             .isEqualTo(List.of(
                 "{\"queryIndex\":0,\"originQuery\":{\"$roots\":[],\"$query\":[{\"$eq\":{\"#id\":\"UNIT_ID\"}}],\"$filter\":{},\"$action\":[{\"$set\":{\"Title_.fr\":\"Old_Title\",\"Description_.fr\":\"Old_Description\"}}]}}"));
     }

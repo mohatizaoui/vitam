@@ -57,7 +57,7 @@ public class ObjectEntryLargeFileReaderTest {
         try (ObjectEntryLargeFileReader reader = new ObjectEntryLargeFileReader(file)) {
 
             // Then
-            assertThat(reader).isEmpty();
+            assertThat(reader).toIterable().isEmpty();
         }
     }
 
@@ -74,7 +74,7 @@ public class ObjectEntryLargeFileReaderTest {
         try (ObjectEntryLargeFileReader reader = new ObjectEntryLargeFileReader(file)) {
 
             // Then
-            assertThat(reader).extracting(ObjectEntry::getObjectId, ObjectEntry::getSize)
+            assertThat(reader).toIterable().extracting(ObjectEntry::getObjectId, ObjectEntry::getSize)
                 .isEqualTo(Arrays.asList(
                     tuple("obj1", 1L)));
         }
@@ -94,7 +94,7 @@ public class ObjectEntryLargeFileReaderTest {
         try (ObjectEntryLargeFileReader reader = new ObjectEntryLargeFileReader(file)) {
 
             // Then
-            assertThat(reader).extracting(ObjectEntry::getObjectId, ObjectEntry::getSize)
+            assertThat(reader).toIterable().extracting(ObjectEntry::getObjectId, ObjectEntry::getSize)
                 .isEqualTo(Arrays.asList(
                     tuple("obj1", 1L),
                     tuple("obj2", 2L)));

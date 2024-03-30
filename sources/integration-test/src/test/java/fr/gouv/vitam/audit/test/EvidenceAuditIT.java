@@ -186,7 +186,7 @@ public class EvidenceAuditIT extends VitamRuleRunner {
                 .selectOperationById(evidenceAuditOperation).toJsonNode()
                 .get("$results").get(0).get("events");
             // Then
-            assertThat(jsonNode.iterator()).extracting(j -> j.get("outcome").asText())
+            assertThat(jsonNode.iterator()).toIterable().extracting(j -> j.get("outcome").asText())
                 .allMatch(outcome -> outcome.equals(StatusCode.OK.name()));
 
             // Check report exists
@@ -227,7 +227,7 @@ public class EvidenceAuditIT extends VitamRuleRunner {
                 .selectOperationById(evidenceAuditOperation).toJsonNode()
                 .get("$results").get(0).get("events");
             // Then
-            assertThat(evidenceAuditOperationEvents.iterator()).extracting(j -> j.get("outcome").asText())
+            assertThat(evidenceAuditOperationEvents.iterator()).toIterable().extracting(j -> j.get("outcome").asText())
                 .anyMatch(outcome -> outcome.equals(StatusCode.KO.name()));
 
             // Check report exists
@@ -262,9 +262,9 @@ public class EvidenceAuditIT extends VitamRuleRunner {
                 .toJsonNode()
                 .get("$results").get(0).get("events");
             // Then
-            assertThat(rectificationAuditOperationEvents.iterator()).extracting(j -> j.get("outcome").asText())
+            assertThat(rectificationAuditOperationEvents.iterator()).toIterable().extracting(j -> j.get("outcome").asText())
                 .allMatch(outcome -> outcome.equals(StatusCode.OK.name()));
-            assertThat(rectificationAuditOperationEvents.iterator()).extracting(j -> j.get("outDetail").asText())
+            assertThat(rectificationAuditOperationEvents.iterator()).toIterable().extracting(j -> j.get("outDetail").asText())
                 .contains(DataRectificationCheckResourceAvailability.PLUGIN_NAME + ".OK");
 
             // Check report exists
@@ -322,7 +322,7 @@ public class EvidenceAuditIT extends VitamRuleRunner {
                 .get("$results").get(0).get("events");
 
             //Then
-            assertThat(jsonNode.iterator()).extracting(j -> j.get("outcome").asText())
+            assertThat(jsonNode.iterator()).toIterable().extracting(j -> j.get("outcome").asText())
                 .anyMatch(outcome -> outcome.equals(StatusCode.FATAL.name()));
         }
     }

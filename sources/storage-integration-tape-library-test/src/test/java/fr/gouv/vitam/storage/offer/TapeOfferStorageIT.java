@@ -946,7 +946,7 @@ public class TapeOfferStorageIT {
         // When
         try (CloseableIterator<ObjectEntry> objectIterator =
             storageClient.listContainer(DEFAULT_STRATEGY, null, OBJECTGROUP_GRAPH)) {
-            assertThat(objectIterator)
+            assertThat(objectIterator).toIterable()
                 .usingFieldByFieldElementComparator()
                 .containsExactly(
                     new ObjectEntry(prefix + "obj1", files.get(1).length()),
@@ -962,7 +962,7 @@ public class TapeOfferStorageIT {
         Iterator<OfferLog> objectIterator = new StorageClientOfferLogIterator(
             StorageClientFactory.getInstance(), DEFAULT_STRATEGY, null, Order.ASC, OBJECTGROUP_GRAPH, 5, 0L);
 
-        assertThat(objectIterator)
+        assertThat(objectIterator).toIterable()
             .extracting(OfferLog::getFileName, OfferLog::getAction)
             .containsExactly(
                 tuple(prefix + "obj0", OfferLogAction.WRITE),
@@ -1068,12 +1068,12 @@ public class TapeOfferStorageIT {
         // Check offer2 is empty
         try (CloseableIterator<ObjectEntry> objectIterator = storageClient.listContainer(OFFER2_ONLY_STRATEGY, null,
             OBJECT)) {
-            assertThat(objectIterator).isEmpty();
+            assertThat(objectIterator).toIterable().isEmpty();
         }
 
         Iterator<OfferLog> objectIterator = new StorageClientOfferLogIterator(
             StorageClientFactory.getInstance(), OFFER2_ONLY_STRATEGY, null, Order.ASC, OBJECT, 5, 0L);
-        assertThat(objectIterator).isEmpty();
+        assertThat(objectIterator).toIterable().isEmpty();
 
         // When
         OfferSyncRequest offerSyncRequest = new OfferSyncRequest()
@@ -1109,7 +1109,7 @@ public class TapeOfferStorageIT {
         try (CloseableIterator<ObjectEntry> objectIteratorAfterSync =
             storageClient.listContainer(OFFER2_ONLY_STRATEGY, null, OBJECT)) {
 
-            assertThat(objectIteratorAfterSync)
+            assertThat(objectIteratorAfterSync).toIterable()
                 .usingFieldByFieldElementComparator()
                 .containsExactly(
                     new ObjectEntry(prefix + "obj1", files.get(1).length()),
@@ -1125,7 +1125,7 @@ public class TapeOfferStorageIT {
         Iterator<OfferLog> objectIteratorAfterSync = new StorageClientOfferLogIterator(
             StorageClientFactory.getInstance(), OFFER2_ONLY_STRATEGY, null, Order.ASC, OBJECT, 5, 0L);
 
-        assertThat(objectIteratorAfterSync)
+        assertThat(objectIteratorAfterSync).toIterable()
             .extracting(OfferLog::getFileName, OfferLog::getAction)
             .containsExactlyInAnyOrder(
                 tuple(prefix + "obj0", OfferLogAction.DELETE),
@@ -1248,7 +1248,7 @@ public class TapeOfferStorageIT {
         VitamThreadUtils.getVitamSession().setTenantId(4);
         try (CloseableIterator<ObjectEntry> iterator = storageClient.listContainer(OFFER2_ONLY_STRATEGY, null,
             OBJECT)) {
-            assertThat(iterator)
+            assertThat(iterator).toIterable()
                 .usingFieldByFieldElementComparator()
                 .containsExactlyInAnyOrder(
                     new ObjectEntry(prefix + "obj2", objFile2.length()),
@@ -1260,7 +1260,7 @@ public class TapeOfferStorageIT {
         Iterator<OfferLog> objectIteratorAfterSync = new StorageClientOfferLogIterator(
             StorageClientFactory.getInstance(), OFFER2_ONLY_STRATEGY, null, Order.ASC, OBJECT, 5, 0L);
 
-        assertThat(objectIteratorAfterSync)
+        assertThat(objectIteratorAfterSync).toIterable()
             .extracting(OfferLog::getFileName, OfferLog::getAction)
             .containsExactlyInAnyOrder(
                 // Initial OfferLogs (before offer sync)
@@ -1276,18 +1276,18 @@ public class TapeOfferStorageIT {
         // Ensure unit1 NOT copied to 4_unit container
         VitamThreadUtils.getVitamSession().setTenantId(4);
         try (CloseableIterator<ObjectEntry> iterator = storageClient.listContainer(OFFER2_ONLY_STRATEGY, null, UNIT)) {
-            assertThat(iterator).isEmpty();
+            assertThat(iterator).toIterable().isEmpty();
         }
 
         VitamThreadUtils.getVitamSession().setTenantId(4);
         Iterator<OfferLog> unit4IteratorAfterSync = new StorageClientOfferLogIterator(
             StorageClientFactory.getInstance(), OFFER2_ONLY_STRATEGY, null, Order.ASC, UNIT, 5, 0L);
-        assertThat(unit4IteratorAfterSync).isEmpty();
+        assertThat(unit4IteratorAfterSync).toIterable().isEmpty();
 
         // Ensure unit2 copied to 5_unit container, and unit1 removed since not found (wrong tenant)
         VitamThreadUtils.getVitamSession().setTenantId(5);
         try (CloseableIterator<ObjectEntry> iterator = storageClient.listContainer(OFFER2_ONLY_STRATEGY, null, UNIT)) {
-            assertThat(iterator)
+            assertThat(iterator).toIterable()
                 .usingFieldByFieldElementComparator()
                 .containsExactlyInAnyOrder(
                     new ObjectEntry(prefix + "unit2.json", unitFile2.length())
@@ -1298,7 +1298,7 @@ public class TapeOfferStorageIT {
         Iterator<OfferLog> unit5IteratorAfterSync = new StorageClientOfferLogIterator(
             StorageClientFactory.getInstance(), OFFER2_ONLY_STRATEGY, null, Order.ASC, UNIT, 5, 0L);
 
-        assertThat(unit5IteratorAfterSync)
+        assertThat(unit5IteratorAfterSync).toIterable()
             .extracting(OfferLog::getFileName, OfferLog::getAction)
             .containsExactlyInAnyOrder(
                 tuple(prefix + "unit1.json", OfferLogAction.DELETE),
@@ -1381,7 +1381,7 @@ public class TapeOfferStorageIT {
             JsonLineGenericIterator<ReportEntry> iterator =
                 new JsonLineGenericIterator<>(inputStream, OFFER_DIFF_ENTRY_TYPE)) {
 
-            assertThat(iterator)
+            assertThat(iterator).toIterable()
                 .usingFieldByFieldElementComparator()
                 .containsExactlyInAnyOrder(
                     new ReportEntry().setObjectId(prefix + "logbook1")

@@ -1093,7 +1093,7 @@
       </dependency>
 
       <dependency>
-        <groupId>com.thaiopensource</groupId>
+        <groupId>org.relaxng</groupId>
         <artifactId>jing</artifactId>
         <version>${thaiopensource.version}</version>
         <exclusions>
@@ -1112,7 +1112,7 @@
         </exclusions>
       </dependency>
       <dependency>
-        <groupId>com.thaiopensource</groupId>
+        <groupId>org.relaxng</groupId>
         <artifactId>trang</artifactId>
         <version>${thaiopensource.version}</version>
         <exclusions>
