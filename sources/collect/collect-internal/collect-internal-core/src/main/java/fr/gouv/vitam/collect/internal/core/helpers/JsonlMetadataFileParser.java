@@ -61,10 +61,6 @@ import static fr.gouv.vitam.common.model.unit.RuleModel.END_DATE;
 
 public class JsonlMetadataFileParser {
 
-    public static final TypeReference<CollectJsonMetadataLine> COLLECT_JSON_METADATA_LINE_TYPE_REFERENCE =
-        new TypeReference<>() {
-        };
-
     private static final Set<String> ALLOWED_RESERVED_FIELD_NAMES =
         Set.of(VitamFieldsHelper.management(), VitamFieldsHelper.history());
 
@@ -80,7 +76,7 @@ public class JsonlMetadataFileParser {
         try (
             InputStream inputStream = new FileInputStream(jsonlMetadataFile);
             CloseableIterator<CollectJsonMetadataLine> iterator =
-                new JsonLineGenericIterator<>(inputStream, COLLECT_JSON_METADATA_LINE_TYPE_REFERENCE);
+                new JsonLineGenericIterator<>(inputStream, CollectJsonMetadataLine.TYPE_REFERENCE);
             JsonLineWriter writer = new JsonLineWriter(new FileOutputStream(transformedMetadataFile, true))) {
 
             for (int lineIndex = 0; iterator.hasNext(); lineIndex++) {

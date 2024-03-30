@@ -27,6 +27,7 @@
 package fr.gouv.vitam.collect.internal.rest;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import fr.gouv.vitam.collect.common.dto.BulkAtomicUpdateResult;
 import fr.gouv.vitam.collect.common.dto.ProjectDto;
 import fr.gouv.vitam.collect.common.dto.TransactionDto;
@@ -58,6 +59,7 @@ import fr.gouv.vitam.common.parameter.ParameterHelper;
 import fr.gouv.vitam.common.security.SanityChecker;
 import fr.gouv.vitam.common.stream.StreamUtils;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
+import fr.gouv.vitam.metadata.api.utils.BulkAtomicUpdateModelUtils;
 import org.apache.commons.io.FileUtils;
 
 import javax.ws.rs.Consumes;
@@ -570,8 +572,12 @@ public class TransactionInternalResource {
                 return CollectRequestResponse.toVitamError(BAD_REQUEST, TRANSACTION_NOT_FOUND_OR_INVALID_STATUS);
             }
 
-            List<BulkAtomicUpdateResult> bulkAtomicUpdateResults =
-                bulkAtomicUpdateMetadataService.bulkAtomicUpdateUnits(transactionModel.get(), updateQueriesJson);
+            bulkAtomicUpdateMetadataService.checkThreshold(updateQueriesJson);
+
+            ArrayNode queries = BulkAtomicUpdateModelUtils.getQueries(updateQueriesJson);
+
+            List<BulkAtomicUpdateResult> bulkAtomicUpdateResults = bulkAtomicUpdateMetadataService
+                .bulkAtomicUpdateUnits(transactionModel.get().getId(), queries);
 
             return new RequestResponseOK<BulkAtomicUpdateResult>()
                 .addAllResults(bulkAtomicUpdateResults)

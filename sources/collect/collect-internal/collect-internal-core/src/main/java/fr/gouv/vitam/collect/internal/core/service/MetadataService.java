@@ -95,7 +95,7 @@ import java.util.stream.Collectors;
 
 import static fr.gouv.vitam.collect.internal.core.helpers.MetadataHelper.DYNAMIC_ATTACHEMENT;
 import static fr.gouv.vitam.collect.internal.core.helpers.MetadataHelper.STATIC_ATTACHMENT;
-import static fr.gouv.vitam.common.mapping.mapper.VitamObjectMapper.buildSerializationObjectMapper;
+import static fr.gouv.vitam.common.mapping.mapper.VitamObjectMapper.getSerializationObjectMapper;
 
 public class MetadataService {
 
@@ -126,7 +126,7 @@ public class MetadataService {
     public JsonNode saveArchiveUnit(JsonNode unit, TransactionModel transactionModel)
         throws CollectInternalException, InvalidParseOperationException {
         ArchiveUnitModel unitModel =
-            VitamObjectMapper.buildDeserializationObjectMapper().convertValue(unit, ArchiveUnitModel.class);
+            VitamObjectMapper.getDeserializationObjectMapper().convertValue(unit, ArchiveUnitModel.class);
         String unitId = GUIDFactory.newUnitGUID(VitamThreadUtils.getVitamSession().getTenantId()).getId();
         unitModel.setId(unitId);
         unitModel.setOpi(transactionModel.getId());
@@ -154,7 +154,7 @@ public class MetadataService {
             }
         }
 
-        JsonNode jsonNode = buildSerializationObjectMapper().convertValue(unitModel, JsonNode.class);
+        JsonNode jsonNode = getSerializationObjectMapper().convertValue(unitModel, JsonNode.class);
         insertSimpleUnit(jsonNode);
         updateSimpleUnit(transactionModel.getId(), jsonNode, unitId);
         return jsonNode;
@@ -397,7 +397,7 @@ public class MetadataService {
                 }
 
                 if (!units.isEmpty()) {
-                    ObjectMapper objectMapper = buildSerializationObjectMapper();
+                    ObjectMapper objectMapper = getSerializationObjectMapper();
                     metadataRepository.saveArchiveUnits(
                         units.stream().map(unit -> objectMapper.convertValue(unit, ObjectNode.class))
                             .collect(Collectors.toList()));
