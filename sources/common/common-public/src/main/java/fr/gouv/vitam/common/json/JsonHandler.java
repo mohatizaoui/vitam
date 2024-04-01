@@ -66,6 +66,7 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -181,6 +182,17 @@ public final class JsonHandler {
      * @return a string ArrayNode filled with provided values
      */
     public static ArrayNode createStringArrayNode(String... values) {
+        ArrayNode arrayNode = createArrayNode();
+        for (String value : values) {
+            arrayNode.add(value);
+        }
+        return arrayNode;
+    }
+
+    /**
+     * @return a string ArrayNode filled with provided values
+     */
+    public static ArrayNode createStringArrayNode(Collection<String> values) {
         ArrayNode arrayNode = createArrayNode();
         for (String value : values) {
             arrayNode.add(value);

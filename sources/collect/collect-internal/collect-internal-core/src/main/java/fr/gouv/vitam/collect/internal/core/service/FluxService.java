@@ -29,7 +29,6 @@ package fr.gouv.vitam.collect.internal.core.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
 import com.google.common.collect.Iterators;
 import fr.gouv.vitam.collect.common.exception.CollectInternalException;
 import fr.gouv.vitam.collect.common.exception.CollectInternalInvalidRequestException;
@@ -73,7 +72,6 @@ import org.elasticsearch.common.Strings;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -85,10 +83,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
-import java.util.Spliterator;
-import java.util.Spliterators;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import static fr.gouv.vitam.collect.internal.core.helpers.MetadataHelper.findUnitParent;
 import static fr.gouv.vitam.common.mapping.mapper.VitamObjectMapper.getSerializationObjectMapper;
@@ -99,7 +93,6 @@ public class FluxService {
 
     private static final int BULK_SIZE = 1000;
     private final static String TRANSFORMED_METADATA_JSONL_FILE = "transformed_metadata.jsonl";
-    private static final String TITLE = "Title";
     static final String METADATA_CSV_FILE = "metadata.csv";
     static final String METADATA_JSONL_FILE = "metadata.jsonl";
 
@@ -185,10 +178,11 @@ public class FluxService {
                 }
             }
 
-            Map<String, Set<String>> unitUps = (transformedMetadataFile != null) ?
-                findUnitUps(transformedMetadataFile, projectModel, attachmentUnitsBySystemId) : new HashMap<>();
+            Map<String, Set<String>> dynamicAttachmentUnitUpsByRootUnitsUploadPath =
+                computeDynamicAttachmentUnitUpsForRootUnits(transformedMetadataFile, projectModel,
+                    attachmentUnitsBySystemId);
 
-            bulkWriteUnits(tempWorkspace, unitUps);
+            bulkWriteUnits(tempWorkspace, dynamicAttachmentUnitUpsByRootUnitsUploadPath);
 
             bulkWriteObjectGroups(tempWorkspace);
 
@@ -241,26 +235,36 @@ public class FluxService {
         }
     }
 
-    private Map<String, Set<String>> findUnitUps(File tranformedMetadataFile, ProjectModel projectModel,
-        Map<String, String> attachmentUnitsBySystemId) throws FileNotFoundException {
-        if (projectModel.getUnitUps() != null) {
-            try (JsonLineGenericIterator<JsonLineModel> iterator = new JsonLineGenericIterator<>(
-                new FileInputStream(tranformedMetadataFile), new TypeReference<>() {
-            })) {
-                return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator, Spliterator.ORDERED), false)
-                    .filter(e -> StringUtils.countMatches(e.getId(), File.separator) == 0).map(e -> {
-                        String id = e.getId();
-                        ObjectNode unit = (ObjectNode) e.getParams();
-                        unit.put(VitamFieldsHelper.id(), id);
-                        Set<String> unitUps =
-                            findUnitParent(unit, projectModel.getUnitUps(), attachmentUnitsBySystemId);
-                        return new SimpleEntry<>(id, unitUps);
-                    }).filter(e -> !e.getValue().isEmpty()).collect(
-                        Collectors.toMap(Entry<String, Set<String>>::getKey, Entry<String, Set<String>>::getValue));
-            }
-        } else {
+    private Map<String, Set<String>> computeDynamicAttachmentUnitUpsForRootUnits(File tranformedMetadataFile,
+        ProjectModel projectModel, Map<String, String> attachmentUnitsBySystemId) throws IOException {
+        if (projectModel.getUnitUps() == null || tranformedMetadataFile == null) {
             return new HashMap<>();
         }
+        try (JsonLineGenericIterator<JsonLineModel> iterator = new JsonLineGenericIterator<>(
+            new FileInputStream(tranformedMetadataFile), new TypeReference<>() {
+        })) {
+
+            Map<String, Set<String>> unitUpsByUploadPath = new HashMap<>();
+            while (iterator.hasNext()) {
+                JsonLineModel jsonMetadataLine = iterator.next();
+                String uploadPath = jsonMetadataLine.getId();
+                if (isNotRootLevelUnit(uploadPath)) {
+                    // Only keep root-level units for dynamic attachment
+                    continue;
+                }
+
+                ObjectNode unitContent = (ObjectNode) jsonMetadataLine.getParams();
+                Set<String> unitUps = findUnitParent(unitContent,
+                    projectModel.getUnitUps(), attachmentUnitsBySystemId);
+
+                unitUpsByUploadPath.put(uploadPath, unitUps);
+            }
+            return unitUpsByUploadPath;
+        }
+    }
+
+    private static boolean isNotRootLevelUnit(String uploadPath) {
+        return StringUtils.contains(uploadPath, File.separatorChar);
     }
 
     private void createMetadata(TempWorkspace tempWorkspace, String transactionId, String path,
@@ -343,11 +347,10 @@ public class FluxService {
     }
 
     private ObjectNode updateParent(ObjectNode unit, Map<String, Set<String>> unitUps) {
-        String title = unit.get(TITLE).asText();
-        Set<String> up = unitUps.get(title);
-        if (CollectionUtils.isNotEmpty(up)) {
-            unit.set(VitamFieldsHelper.unitups(),
-                JsonHandler.createArrayNode().addAll(up.stream().map(TextNode::new).collect(Collectors.toList())));
+        String unitUploadPath = unit.get(VitamFieldsHelper.uploadPath()).asText();
+        Set<String> dynamicAttachmentParentUnitIds = unitUps.get(unitUploadPath);
+        if (CollectionUtils.isNotEmpty(dynamicAttachmentParentUnitIds)) {
+            unit.set(VitamFieldsHelper.unitups(), JsonHandler.createStringArrayNode(dynamicAttachmentParentUnitIds));
         }
         return unit;
     }
