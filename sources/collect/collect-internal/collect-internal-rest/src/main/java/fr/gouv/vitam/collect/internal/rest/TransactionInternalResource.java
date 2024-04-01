@@ -577,7 +577,7 @@ public class TransactionInternalResource {
             ArrayNode queries = BulkAtomicUpdateModelUtils.getQueries(updateQueriesJson);
 
             List<BulkAtomicUpdateResult> bulkAtomicUpdateResults = bulkAtomicUpdateMetadataService
-                .bulkAtomicUpdateUnits(transactionModel.get().getId(), queries);
+                .bulkAtomicUpdateUnits(transactionModel.get().getId(), queries, false);
 
             return new RequestResponseOK<BulkAtomicUpdateResult>()
                 .addAllResults(bulkAtomicUpdateResults)

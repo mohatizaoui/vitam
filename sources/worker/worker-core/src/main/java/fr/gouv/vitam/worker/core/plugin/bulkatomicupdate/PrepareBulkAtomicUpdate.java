@@ -213,7 +213,8 @@ public class PrepareBulkAtomicUpdate extends ActionHandler {
             BulkSelectQueryParallelProcessor bulkSelectQueryParallelProcessor =
                 new BulkSelectQueryParallelProcessor(
                     metadataClient, internalActionKeysRetriever, threadPoolSize, threadPoolQueueSize, batchSize,
-                    successReporter, failureReporter, createAccessContractRestrictionConverter(accessContractModel));
+                    successReporter, failureReporter, createAccessContractRestrictionConverter(accessContractModel),
+                    false);
 
             bulkSelectQueryParallelProcessor.processQueries(queryIterator);
 

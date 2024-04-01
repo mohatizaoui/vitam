@@ -150,8 +150,13 @@ documentation:
       description: |
         Permet de soumettre un ensemble de binaire au format Zip.
         L'arborescence est rattachée à une transaction auto-générée dont l'identifiant est retourné à l'appelant. 
-        Optionnellement, le Zip peut contenir un fichier "metadata.csv" décrivant l'ensemble des métadonnées de
-        l'arborescence.
+        Optionnellement, le Zip peut contenir un fichier "metadata.csv" ou "metadata.jsonl" décrivant l'ensemble des
+        métadonnées de l'arborescence.
+
+        Il est à noter que dans le cas d'un fichier de métadonnées au format JSONL (metadata.jsonl), la sélection des
+        métadonnées peut se faire uniquement via le champ `File` ou via un sélecteur (champ `Selector`),
+        limité à la clé `#uploadFile`.
+
         Attention : Cette API est alpha / expérimentale.
       body:
         application/zip:
@@ -266,9 +271,9 @@ documentation:
           description: |
             Permet de mettre à jour les métadonnées à partir d'un fichier de métadonnées JSONL (JSON-Lines) en entrée.
 
-            Chaque ligne cible une unité archivistique de la transaction (via le champ `File` qui sélectionne l'unité
-            d'archives par son chemin dans le zip au format "Dossier/Sous-Dossier/Fichier.ext"), ainsi que les
-            métadonnées à mettre à jour via le champ `UnitContent`.
+            Chaque ligne cible une unité archivistique de la transaction soit via le champ `File` qui sélectionne
+            l'unité d'archives par son chemin dans le zip au format "Dossier/Sous-Dossier/Fichier.ext"), soit via un ou
+            plusieurs sélecteurs libres (chaine de type "keyword", booléen, nombre), via le champ `Selector`.
 
             La mise à jour des métadonnées se fait au niveau des champs "racines" (de premier niveau), et se traduit par :
             - l'insertion du champ, si celui ci n'existe pas ;
@@ -292,6 +297,8 @@ documentation:
             Il est limité à un seuil maximum de 100 000.
 
             **Important :** L'API est synchrone / bloquante, et peut prendre quelques instants.
+
+            **Important :** Le comportement en cas de sélecteur en doublon est **non-supporté** / **non-déterminé**.
 
             Permissions requises:
               - transaction:id:units:metadata:jsonl:update
@@ -431,8 +438,13 @@ documentation:
     post:
       description: |
         Permet de soumettre un ensemble de binaire au format Zip.
-        Optionnellement, le Zip peut contenir un fichier "metadata.csv" décrivant l'ensemble des métadonnées de
-        l'arborescence.
+        Optionnellement, le Zip peut contenir un fichier "metadata.csv" ou "metadata.jsonl" décrivant l'ensemble des
+        métadonnées de l'arborescence.
+
+        Il est à noter que dans le cas d'un fichier de métadonnées au format JSONL (metadata.jsonl), la sélection des
+        métadonnées peut se faire uniquement via le champ `File` ou via un sélecteur (champ `Selector`), limité à la clé
+        `#uploadFile`.
+
       body:
         application/zip:
       headers:

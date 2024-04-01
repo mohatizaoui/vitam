@@ -219,7 +219,7 @@ public class FluxService {
     private File validateJsonlMetadataFile(File jsonlMetadataFile)
         throws CollectInternalException {
         JsonlMetadataFileValidator jsonlMetadataFileValidator = new JsonlMetadataFileValidator();
-        jsonlMetadataFileValidator.validate(jsonlMetadataFile);
+        jsonlMetadataFileValidator.validate(jsonlMetadataFile, true);
         return jsonlMetadataFile;
     }
 
