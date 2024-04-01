@@ -42,16 +42,12 @@ import fr.gouv.vitam.common.model.unit.RuleCategoryModel;
 import fr.gouv.vitam.common.model.unit.RuleModel;
 import fr.gouv.vitam.common.security.SanityChecker;
 import fr.gouv.vitam.worker.core.distribution.JsonLineGenericIterator;
-import fr.gouv.vitam.worker.core.distribution.JsonLineModel;
-import fr.gouv.vitam.worker.core.distribution.JsonLineWriter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
@@ -59,7 +55,7 @@ import java.util.Set;
 
 import static fr.gouv.vitam.common.model.unit.RuleModel.END_DATE;
 
-public class JsonlMetadataFileParser {
+public class JsonlMetadataFileValidator {
 
     private static final Set<String> ALLOWED_RESERVED_FIELD_NAMES =
         Set.of(VitamFieldsHelper.management(), VitamFieldsHelper.history());
@@ -68,7 +64,7 @@ public class JsonlMetadataFileParser {
         ARCHIVE_UNIT_MODEL_TYPE_REFERENCE = new TypeReference<>() {
     };
 
-    public void process(File jsonlMetadataFile, File transformedMetadataFile)
+    public void validate(File jsonlMetadataFile)
         throws CollectInternalException {
 
         doSanityChecks(jsonlMetadataFile);
@@ -76,8 +72,7 @@ public class JsonlMetadataFileParser {
         try (
             InputStream inputStream = new FileInputStream(jsonlMetadataFile);
             CloseableIterator<CollectJsonMetadataLine> iterator =
-                new JsonLineGenericIterator<>(inputStream, CollectJsonMetadataLine.TYPE_REFERENCE);
-            JsonLineWriter writer = new JsonLineWriter(new FileOutputStream(transformedMetadataFile, true))) {
+                new JsonLineGenericIterator<>(inputStream, CollectJsonMetadataLine.TYPE_REFERENCE)) {
 
             for (int lineIndex = 0; iterator.hasNext(); lineIndex++) {
                 CollectJsonMetadataLine entry = iterator.next();
@@ -87,7 +82,6 @@ public class JsonlMetadataFileParser {
                 validateUnitContent(entry.getUnitContent(), lineIndex);
 
                 // FIXME : Add support for key/value selectors
-                writer.addEntry(new JsonLineModel(entry.getFile(), null, entry.getUnitContent()));
             }
         } catch (IOException e) {
             throw new CollectInternalServerSideException(

@@ -33,12 +33,11 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
-import java.nio.file.Files;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
 
-public class JsonlMetadataFileParserTest {
+public class JsonlMetadataFileValidatorTest {
 
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -47,17 +46,12 @@ public class JsonlMetadataFileParserTest {
     public void testParseValidJsonlMetadataFile() throws Exception {
 
         // Given
-        JsonlMetadataFileParser parser = new JsonlMetadataFileParser();
+        JsonlMetadataFileValidator validator = new JsonlMetadataFileValidator();
         File jsonlMetadataFile = PropertiesUtils.getResourceFile("update/metadata.jsonl");
 
-        // When
-        File transformedFile = temporaryFolder.newFile("transformed_metadata.jsonl");
-        parser.process(jsonlMetadataFile, transformedFile);
-
-        // Then
-        File expectedTransformedMetadataFile =
-            PropertiesUtils.getResourceFile("update/expected_transformed_metadata.jsonl");
-        assertThat(transformedFile).hasSameContentAs(expectedTransformedMetadataFile);
+        // When / Then
+        assertThatCode(() -> validator.validate(jsonlMetadataFile))
+            .doesNotThrowAnyException();
     }
 
     @Test
@@ -146,12 +140,10 @@ public class JsonlMetadataFileParserTest {
     }
 
     private void assertInvalid(String resourcesFile, String expectedMessage) throws Exception {
-        JsonlMetadataFileParser parser = new JsonlMetadataFileParser();
+        JsonlMetadataFileValidator parser = new JsonlMetadataFileValidator();
         File jsonlMetadataFile = PropertiesUtils.getResourceFile(resourcesFile);
-        File transformedFile = temporaryFolder.newFile("transformed_metadata.jsonl");
-        assertThatThrownBy(() -> parser.process(jsonlMetadataFile, transformedFile))
+        assertThatThrownBy(() -> parser.validate(jsonlMetadataFile))
             .isInstanceOf(CollectInternalInvalidRequestException.class)
             .hasMessageContaining(expectedMessage);
-        Files.delete(transformedFile.toPath());
     }
 }

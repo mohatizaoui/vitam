@@ -26,7 +26,6 @@
  */
 package fr.gouv.vitam.collect.internal.core.service;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -36,11 +35,12 @@ import fr.gouv.vitam.collect.common.dto.MetadataUnitUp;
 import fr.gouv.vitam.collect.common.exception.CollectInternalException;
 import fr.gouv.vitam.collect.common.exception.CollectInternalInvalidRequestException;
 import fr.gouv.vitam.collect.common.exception.CollectInternalServerSideException;
+import fr.gouv.vitam.collect.internal.core.common.CollectJsonMetadataLine;
 import fr.gouv.vitam.collect.internal.core.common.ProjectModel;
 import fr.gouv.vitam.collect.internal.core.common.TransactionModel;
 import fr.gouv.vitam.collect.internal.core.helpers.CsvHelper;
 import fr.gouv.vitam.collect.internal.core.helpers.JsonHelper;
-import fr.gouv.vitam.collect.internal.core.helpers.JsonlMetadataFileParser;
+import fr.gouv.vitam.collect.internal.core.helpers.JsonlMetadataFileValidator;
 import fr.gouv.vitam.collect.internal.core.helpers.MetadataHelper;
 import fr.gouv.vitam.collect.internal.core.helpers.TempWorkspace;
 import fr.gouv.vitam.collect.internal.core.repository.MetadataRepository;
@@ -69,7 +69,6 @@ import fr.gouv.vitam.common.model.unit.LevelType;
 import fr.gouv.vitam.common.model.unit.ManagementModel;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.worker.core.distribution.JsonLineGenericIterator;
-import fr.gouv.vitam.worker.core.distribution.JsonLineModel;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -180,9 +179,9 @@ public class MetadataService {
         String requestId = VitamThreadUtils.getVitamSession().getRequestId();
         File file = PropertiesUtils.fileFromTmpFolder("metadata_" + requestId + VitamConstants.JSONL_EXTENSION);
         try {
-            CsvHelper.convertCsvToMetadataFile(is, file);
-            try (InputStream metadataInputStream = new FileInputStream(file)) {
-                updateUnitsWithMetadataFile(transaction.getId(), metadataInputStream);
+            CsvHelper.convertCsvToJsonlMetadataFile(is, file);
+            try (InputStream jsonlMetadataInputStream = new FileInputStream(file)) {
+                updateUnitsWithJsonlMetadataFile(transaction.getId(), jsonlMetadataInputStream);
             }
         } catch (IOException e) {
             throw new CollectInternalException(e);
@@ -198,12 +197,11 @@ public class MetadataService {
 
             File jsonlMetadataFile = tempWorkspace.writeToFile("metadata.jsonl", metadataJsonlInputStream);
 
-            File transformedMetadataFile = tempWorkspace.getFile("transformed_metadata.jsonl");
-            JsonlMetadataFileParser jsonlMetadataFileParser = new JsonlMetadataFileParser();
-            jsonlMetadataFileParser.process(jsonlMetadataFile, transformedMetadataFile);
+            JsonlMetadataFileValidator jsonlMetadataFileValidator = new JsonlMetadataFileValidator();
+            jsonlMetadataFileValidator.validate(jsonlMetadataFile);
 
-            try (InputStream sanityStream = new FileInputStream(transformedMetadataFile)) {
-                updateUnitsWithMetadataFile(transaction.getId(), sanityStream);
+            try (InputStream sanityStream = new FileInputStream(jsonlMetadataFile)) {
+                updateUnitsWithJsonlMetadataFile(transaction.getId(), sanityStream);
             }
         } catch (IOException e) {
             throw new CollectInternalServerSideException(e);
@@ -211,7 +209,7 @@ public class MetadataService {
     }
 
 
-    void updateUnitsWithMetadataFile(String transactionId, InputStream is)
+    void updateUnitsWithJsonlMetadataFile(String transactionId, InputStream is)
         throws CollectInternalException, IOException {
         Map<String, String> unitIdsByURI = buildGraphFromExistingUnits(transactionId);
         updateUnitsMetadata(is, unitIdsByURI);
@@ -223,17 +221,20 @@ public class MetadataService {
     }
 
     private void updateUnitsMetadata(InputStream is, Map<String, String> unitIdsByURI) throws CollectInternalException {
-        JsonLineGenericIterator<JsonLineModel> metadata = new JsonLineGenericIterator<>(is, new TypeReference<>() {
-        });
-        Iterator<List<JsonLineModel>> iterator = Iterators.partition(metadata, 100);
+
+        JsonLineGenericIterator<CollectJsonMetadataLine> metadata =
+            new JsonLineGenericIterator<>(is,
+                CollectJsonMetadataLine.TYPE_REFERENCE);
+
+        Iterator<List<CollectJsonMetadataLine>> iterator = Iterators.partition(metadata, 100);
         boolean updated = false;
         while (iterator.hasNext()) {
             try {
                 updated = true;
-                List<JsonLineModel> next = iterator.next();
-                Map<String, JsonNode> unitContentToSetByURI =
-                    next.stream()
-                        .collect(Collectors.toMap(JsonLineModel::getId, JsonLineModel::getParams));
+                List<CollectJsonMetadataLine> next = iterator.next();
+                Map<String, JsonNode> unitContentToSetByURI = next.stream().collect(Collectors.toMap(
+                        CollectJsonMetadataLine::getFile,
+                        CollectJsonMetadataLine::getUnitContent));
                 // update unit with list
                 final List<JsonNode> updateMultiQueries = convertToQuery(unitContentToSetByURI, unitIdsByURI);
                 final RequestResponse<JsonNode> result = metadataRepository.atomicBulkUpdate(updateMultiQueries);
