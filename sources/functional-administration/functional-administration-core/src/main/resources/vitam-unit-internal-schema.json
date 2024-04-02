@@ -2271,14 +2271,14 @@
     "Cardinality": "ONE",
     "Indexed": true,
     "Path": "Event.LinkingAgentIdentifier",
-    "ApiField": "LinkingAgentIdentifier",
+    "ApiField": "linkingAgentIdentifier",
     "Collection": "Unit",
     "SedaVersions": [
       "2.2",
       "2.3"
     ],
     "Category": "DESCRIPTION",
-    "ApiPath": "Event.LinkingAgentIdentifier",
+    "ApiPath": "Event.linkingAgentIdentifier",
     "SedaField": "LinkingAgentIdentifier",
     "ShortName": "Agent"
   },
@@ -2296,7 +2296,7 @@
       "2.3"
     ],
     "Category": "DESCRIPTION",
-    "ApiPath": "Event.LinkingAgentIdentifier.LinkingAgentIdentifierType",
+    "ApiPath": "Event.linkingAgentIdentifier.LinkingAgentIdentifierType",
     "SedaField": "LinkingAgentIdentifierType",
     "ShortName": "Identifiant"
   },
@@ -2314,7 +2314,7 @@
       "2.3"
     ],
     "Category": "DESCRIPTION",
-    "ApiPath": "Event.LinkingAgentIdentifier.LinkingAgentIdentifierValue",
+    "ApiPath": "Event.linkingAgentIdentifier.LinkingAgentIdentifierValue",
     "SedaField": "LinkingAgentIdentifierValue",
     "ShortName": "Valeur"
   },
@@ -2332,7 +2332,7 @@
       "2.3"
     ],
     "Category": "DESCRIPTION",
-    "ApiPath": "Event.LinkingAgentIdentifier.LinkingAgentRole",
+    "ApiPath": "Event.linkingAgentIdentifier.LinkingAgentRole",
     "SedaField": "LinkingAgentRole",
     "ShortName": "Rôle"
   },
@@ -2616,78 +2616,6 @@
     "ApiPath": "Language",
     "SedaField": "Language",
     "ShortName": "Langue"
-  },
-  {
-    "FieldName": "LinkingAgentIdentifier",
-    "Type": "OBJECT",
-    "Origin": "INTERNAL",
-    "Cardinality": "MANY",
-    "Indexed": true,
-    "Path": "LinkingAgentIdentifier",
-    "ApiField": "LinkingAgentIdentifier",
-    "Collection": "Unit",
-    "SedaVersions": [
-      "2.2",
-      "2.3"
-    ],
-    "Category": "OTHER",
-    "ApiPath": "LinkingAgentIdentifier",
-    "ShortName": "LinkingAgentIdentifier"
-  },
-  {
-    "FieldName": "LinkingAgentIdentifierType",
-    "Type": "KEYWORD",
-    "Origin": "INTERNAL",
-    "Cardinality": "ONE",
-    "Indexed": true,
-    "Path": "LinkingAgentIdentifier.LinkingAgentIdentifierType",
-    "ApiField": "LinkingAgentIdentifierType",
-    "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
-    "Category": "OTHER",
-    "ApiPath": "LinkingAgentIdentifier.LinkingAgentIdentifierType",
-    "SedaField": "LinkingAgentIdentifierType",
-    "ShortName": "LinkingAgentIdentifierType"
-  },
-  {
-    "FieldName": "LinkingAgentIdentifierValue",
-    "Type": "TEXT",
-    "Origin": "INTERNAL",
-    "Cardinality": "ONE",
-    "Indexed": true,
-    "Path": "LinkingAgentIdentifier.LinkingAgentIdentifierValue",
-    "ApiField": "LinkingAgentIdentifierValue",
-    "Collection": "Unit",
-    "SedaVersions": [
-      "2.2",
-      "2.3"
-    ],
-    "Category": "OTHER",
-    "ApiPath": "LinkingAgentIdentifier.LinkingAgentIdentifierValue",
-    "SedaField": "LinkingAgentIdentifierValue",
-    "ShortName": "LinkingAgentIdentifierValue"
-  },
-  {
-    "FieldName": "LinkingAgentRole",
-    "Type": "KEYWORD",
-    "Origin": "INTERNAL",
-    "Cardinality": "ONE",
-    "Indexed": true,
-    "Path": "LinkingAgentIdentifier.LinkingAgentRole",
-    "ApiField": "LinkingAgentRole",
-    "Collection": "Unit",
-    "SedaVersions": [
-      "2.2",
-      "2.3"
-    ],
-    "Category": "OTHER",
-    "ApiPath": "LinkingAgentIdentifier.LinkingAgentRole",
-    "SedaField": "LinkingAgentRole",
-    "ShortName": "LinkingAgentRole"
   },
   {
     "FieldName": "OriginatingAgency",
