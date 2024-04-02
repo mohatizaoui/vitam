@@ -1,0 +1,19 @@
+#!/bin/bash
+
+if [ $# -eq 0 ]; then
+  echo "[ERROR] Please select an action: close or delete"
+  exit 1
+fi
+
+action="$1"
+
+if [ "$action" != "close" ] && [ "$action" != "delete" ]; then
+  echo "[ERROR] Incorrect action must be: close or delete"
+  exit 1
+fi
+
+for file in $(ls {{ curator_conf_dir }}/curator.d/${action}_index_*.yml); do
+  if [ -f "$file" ]; then
+    /usr/bin/curator --config {{ curator_conf_dir }}/curator.yml $file
+  fi
+done

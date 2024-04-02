@@ -1,0 +1,9 @@
+[Unit]
+Description={{ item[0] }} old indices on elasticsearch-log
+
+[Timer]
+OnCalendar={{ curator.actions[item.0].calendar | default('*-*-* 00:10:00' if item[0] == 'close' else '*-*-* 00:20:00') }}
+Persistent=false
+
+[Install]
+WantedBy=timers.target

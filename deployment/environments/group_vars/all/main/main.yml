@@ -100,12 +100,16 @@ elasticsearch:
       default:
         shards: 1
         replica: 2
+
 curator:
-  log:
-    metrics:
-      close: 7
-      delete: 30
-    logstash:
+  indices:
+    vitam:
+      close: 30
+      delete: 365
+    access:
+      close: 30
+      delete: 180
+    system:
       close: 7
       delete: 30
 

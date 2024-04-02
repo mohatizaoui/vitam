@@ -1,16 +1,10 @@
 ---
-# Remember, leave a key empty if there is no value.  None will be a string,
-# not a Python "NoneType"
-#
-# Also remember that all examples have 'disable_action' set to True.  If you
-# want to use this action as a template, be sure to set this to False after
-# copying it.
+
 actions:
   1:
     action: close
     description: >-
-      Close indices older than {{ curator.log.logstash.close }} days (based on index name), for {{ curator.log.logstash.prefix | default('logstash-') }}
-      prefixed indices.
+      Close {{ curator.indices[item.1].prefix | default('logstash-' + item.1) }} prefixed indices older than {{ curator.indices[item.1].close | default(10) }} days (based on index name).
     options:
       ignore_empty_list: True
       delete_aliases: False
@@ -20,12 +14,12 @@ actions:
     filters:
     - filtertype: pattern
       kind: prefix
-      value: {{ curator.log.logstash.prefix | default('logstash-') }}
+      value: {{ curator.indices[item.1].prefix | default('logstash-' + item.1) }}
       exclude:
     - filtertype: age
       source: name
       direction: older
       timestring: '%Y.%m.%d'
       unit: days
-      unit_count: {{ curator.log.logstash.close }}
+      unit_count: {{ curator.indices[item.1].close | default(10) }}
       exclude:

@@ -1,19 +1,10 @@
-# --------------------------------------------
-#
-# Fichier des actions curator, version 4.0.6
-# Delete les anciens indexs "logstash-" (value) vieux de +30 (unit_count)
-#
-# Mettre "disable_action: " à "False" si action à realiser sinon mettre "True"
-#
-# lancement via la commande: /usr/bin/curator --config /vitam/curator/curator.yml delete_index.yml
-#
+---
+
 actions:
-# --------------------------------------------
   2:
     action: delete_indices
     description: >-
-      Delete indices older than {{ curator.log.logstash.delete }} days (based on index name), for {{ curator.log.logstash.prefix | default('logstash-') }}
-      prefixed indices.
+      Delete {{ curator.indices[item.1].prefix | default('logstash-' + item.1) }} prefixed indices older than {{ curator.indices[item.1].delete | default(30) }} days (based on index name).
     options:
       ignore_empty_list: True
       timeout_override:
@@ -21,13 +12,12 @@ actions:
     filters:
     - filtertype: pattern
       kind: prefix
-      value: {{ curator.log.logstash.prefix | default('logstash-') }}
+      value: {{ curator.indices[item.1].prefix | default('logstash-' + item.1) }}
       exclude:
     - filtertype: age
       source: name
       direction: older
       timestring: '%Y.%m.%d'
       unit: days
-      unit_count: {{ curator.log.logstash.delete }}
+      unit_count: {{ curator.indices[item.1].delete | default(30) }}
       exclude:
-# --------------------------------------------

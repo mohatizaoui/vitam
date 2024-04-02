@@ -2,5 +2,6 @@
 
 curator_conf_dir: "{{ vitam_defaults.folder.root_path }}/conf/curator"
 curator_log_dir: "{{ vitam_defaults.folder.root_path }}/log/curator"
+curator_script_dir: "{{ vitam_defaults.folder.root_path }}/script/curator"
 
 service_at_boot: "{{ vitam_defaults.services.at_boot | default(false) }}"
