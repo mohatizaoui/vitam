@@ -15,7 +15,7 @@
         vitam_component: apache
         source: vitam
       processors:
-        - dissect:
+      - dissect:
           tokenizer: '%{client_ip} - - [%{date_time}] "%{http_method} %{request_path} HTTP/%{http_version}" %{http_status_code} %{response_size} "%{referer}" "%{user_agent}"'
           field: "message"
           target: ""
