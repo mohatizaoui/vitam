@@ -7178,22 +7178,6 @@
     "ShortName": "Date de validation *"
   },
   {
-    "FieldName": "SignedDocumentReferenceId",
-    "Type": "OBJECT",
-    "Origin": "INTERNAL",
-    "Cardinality": "MANY",
-    "Indexed": true,
-    "Path": "SigningInformation.SignedDocumentReferenceId",
-    "ApiField": "SignedDocumentReferenceId",
-    "Collection": "Unit",
-    "SedaVersions": [
-      "2.3"
-    ],
-    "Category": "DESCRIPTION",
-    "ApiPath": "SigningInformation.SignedDocumentReferenceId",
-    "ShortName": "Référence du document signé"
-  },
-  {
     "FieldName": "SigningRole",
     "Type": "KEYWORD",
     "Origin": "INTERNAL",
