@@ -85,5 +85,5 @@
       "$ref": "#/definitions/date-opt-time"
     }
   },
-  "required": ["_id", "_v", "Identifier", "SecurityProfile", "Status", "CreationDate", "LastUpdate", "Name", "Permissions", "EnableControl"]
+  "required": ["_id", "_v", "Identifier", "SecurityProfile", "Status", "CreationDate", "LastUpdate", "Name", "EnableControl"]
 }
