@@ -206,7 +206,12 @@ public class ParserTokens extends BuilderToken {
 
         APPROXIMATE_UPDATE_DATE("approximate_update_date"),
 
+        /**
+         * COLLECT-ONLY FIELDS
+         */
         BATCHID("batchId"),
+        UPLOADPATH("uploadPath"),
+
         /**
          * TRANSFER
          */

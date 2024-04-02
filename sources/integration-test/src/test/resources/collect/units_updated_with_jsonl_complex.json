@@ -881,7 +881,7 @@
     "#approximate_update_date": "2022-10-18T19:39:30.063"
   },
   {
-    "Title": "Saint-Denis-Basilique",
+    "Title": "Saint-Denis-Basilique Updated",
     "#uploadPath": "1_Saint-Denis/Saint-Denis-Basilique",
     "DescriptionLevel": "RecordGrp",
     "StartDate": "2017-04-04T08:07:00",
@@ -917,7 +917,7 @@
     "#unitType": "INGEST",
     "#opi": "aeeaaaaaaceaaaaba3gnkamd5sn2uwqaaaaq",
     "#originating_agencies": [],
-    "#version": 1,
+    "#version": 2,
     "#approximate_creation_date": "2022-10-18T19:39:28.628",
     "#approximate_update_date": "2022-10-18T19:39:30.090"
   },

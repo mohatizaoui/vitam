@@ -106,7 +106,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.fail;
 
 public class FluxIT extends VitamRuleRunner {
 
@@ -122,6 +121,8 @@ public class FluxIT extends VitamRuleRunner {
     private static final String UNITS_UPDATED_BY_ZIP_PATH = "collect/units_with_description.json";
     private static final String UNITS_UPDATED_WITH_JSONL_BY_ZIP_PATH =
         "collect/units_updated_with_jsonl_with_description.json";
+    private static final String UNITS_UPDATED_WITH_JSONL_WITH_COMPLEX =
+        "collect/units_updated_with_jsonl_complex.json";
     private static final String UPDATED_UNITS_WITH_DYNAMIC_ATTACHMENT =
         "collect/updated_units_with_dynamic_attachment.json";
     private static final String CREATED_UNIT_WITH_DYNAMIC_ATTACHMENT =
@@ -136,6 +137,8 @@ public class FluxIT extends VitamRuleRunner {
     private static final String ZIP_FILE_WITH_BOTH_JSONL_AND_CSV_METADATA_FILES
         = "collect/sampleStreamWithJsonlAndCsvMetadataFiles.zip";
     private static final String METADATA_JSONL = "collect/metadata.jsonl";
+    private static final String METADATA_JSONL_UPDATE_WITH_COMPLEX_SELECTORS =
+        "collect/metadata_update_with_complex_selectors.jsonl";
     private static final String METADATA_JSONL_BAD_FORMAT = "collect/metadata_bad_format.jsonl";
     private static final String METADATA_JSONL_UNKNOWN_FILE = "collect/metadata_unknown_file.jsonl";
     private static final String FILE_ZIP_FILE = "collect/file.zip";
@@ -265,7 +268,8 @@ public class FluxIT extends VitamRuleRunner {
                 assertThatThrownBy(
                     () -> collectClient.uploadZipToTransaction(vitamContext, transactionDto.getId(), inputStream)
                 ).isExactlyInstanceOf(CollectExternalClientInvalidRequestException.class)
-                    .hasMessage("Cannot find unit with path UnknownFile");
+                    .hasMessage(
+                        "Metadata update failed. Nb OK: 0, Nb KO: 1. Error messages:[No unit was matches selection criteria]");
             }
         }
     }
@@ -376,7 +380,7 @@ public class FluxIT extends VitamRuleRunner {
                     transactionDtoResult.getId(),
                     new SelectMultiQuery().addUsedProjection("#id", "Title").getFinalSelect());
 
-            RequestResponse<Map<String, FileParams>> filesBeforeUpdate ;
+            RequestResponse<Map<String, FileParams>> filesBeforeUpdate;
             try (WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.COLLECT)
                 .getClient()) {
                 filesBeforeUpdate =
@@ -395,8 +399,7 @@ public class FluxIT extends VitamRuleRunner {
 
 
 
-
-            RequestResponse<Map<String, FileParams>> filesAfterUpdate ;
+            RequestResponse<Map<String, FileParams>> filesAfterUpdate;
             try (WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.COLLECT)
                 .getClient()) {
                 filesAfterUpdate =
@@ -409,13 +412,16 @@ public class FluxIT extends VitamRuleRunner {
             try (CollectInternalClient client = CollectInternalClientFactory.getInstance().getClient()) {
                 VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
                 client.generateSip(transactionDtoResult.getId());
-                RequestResponse<JsonNode> transactionFinalResponse = client.getTransactionById(transactionDtoResult.getId());
+                RequestResponse<JsonNode> transactionFinalResponse =
+                    client.getTransactionById(transactionDtoResult.getId());
                 Assertions.assertThat(transactionFinalResponse.getStatus()).isEqualTo(200);
 
-                RequestResponseOK<JsonNode> requestFinalResponseOK = (RequestResponseOK<JsonNode>) transactionFinalResponse;
+                RequestResponseOK<JsonNode> requestFinalResponseOK =
+                    (RequestResponseOK<JsonNode>) transactionFinalResponse;
                 TransactionDto transactionDtoFinalResult =
                     JsonHandler.getFromJsonNode(requestFinalResponseOK.getFirstResult(), TransactionDto.class);
-                Assertions.assertThat(transactionDtoFinalResult.getStatus()).isEqualTo(TransactionStatus.SENDING.toString());
+                Assertions.assertThat(transactionDtoFinalResult.getStatus())
+                    .isEqualTo(TransactionStatus.SENDING.toString());
 
             }
 
@@ -438,10 +444,12 @@ public class FluxIT extends VitamRuleRunner {
                     new SelectMultiQuery().addUsedProjection("#id", "Title").getFinalSelect());
 
 
-            JsonAssert.assertJsonEquals(JsonHandler.toJsonNode(unitsByTransactionbeforUploadTransaction.getResults()), unitsByTransactionafterUploadTransaction.getResults(),
+            JsonAssert.assertJsonEquals(JsonHandler.toJsonNode(unitsByTransactionbeforUploadTransaction.getResults()),
+                unitsByTransactionafterUploadTransaction.getResults(),
                 JsonAssert.when(Option.IGNORING_ARRAY_ORDER));
 
-            JsonAssert.assertJsonEquals(JsonHandler.toJsonNode(filesBeforeUpdate.toJsonNode()), filesAfterUpdate.toJsonNode(),
+            JsonAssert.assertJsonEquals(JsonHandler.toJsonNode(filesBeforeUpdate.toJsonNode()),
+                filesAfterUpdate.toJsonNode(),
                 JsonAssert.when(Option.IGNORING_ARRAY_ORDER));
         }
     }
@@ -725,26 +733,8 @@ public class FluxIT extends VitamRuleRunner {
         final VitamClientException vitamClientException = assertThrows(VitamClientException.class,
             () -> updateUnitWithMetadataCsv(vitamContext, transaction.getId(), unitUpdateResourcePath));
 
-        assertThat(vitamClientException.getLocalizedMessage()).contains("Cannot find unit with path no-dir");
-    }
-
-    @Test
-    @RunWithCustomExecutor
-    public void shouldUpdateTransactionFailWhenCsvContainsFileDupes() {
-        final String unitUpdateResourcePath = "collect/transaction/unit/update/metadata-with-duplicates.csv";
-        final String zipPath = "collect/transaction/unit/update/versement.zip";
-        final ProjectDto project = createProject(vitamContext).orElseThrow();
-        final TransactionDto transaction = createTransaction(vitamContext, project.getId()).orElseThrow();
-
-        assertThat(transaction).isNotNull();
-        assertThat(transaction.getId()).isNotBlank();
-
-        uploadZipTransaction(vitamContext, transaction.getId(), zipPath);
-
-        final VitamClientException vitamClientException = assertThrows(VitamClientException.class,
-            () -> updateUnitWithMetadataCsv(vitamContext, transaction.getId(), unitUpdateResourcePath));
-
-        assertThat(vitamClientException.getLocalizedMessage()).contains("Duplicate key versement/pastis.json");
+        assertThat(vitamClientException.getLocalizedMessage()).contains(
+            "Metadata update failed. Nb OK: 0, Nb KO: 1. Error messages:[No unit was matches selection criteria]");
     }
 
     @Test
@@ -764,7 +754,7 @@ public class FluxIT extends VitamRuleRunner {
             () -> updateUnitWithMetadataCsv(vitamContext, transaction.getId(), unitUpdateResourcePath));
 
         assertThat(vitamClientException.getLocalizedMessage()).contains(
-            "Error when trying to update units metadata");
+            "Metadata update failed. Nb OK: 1, Nb KO: 1. Error messages:[metadata contains fields declared in ontology with a wrong format");
     }
 
     @Test
@@ -799,7 +789,7 @@ public class FluxIT extends VitamRuleRunner {
 
             uploadZipTransaction(vitamContext, transaction.getId(), ZIP_FILE);
 
-            // When
+            // When (first update with simple selectors)
             final RequestResponse<JsonNode> response;
             try (InputStream inputStream = PropertiesUtils.getResourceAsStream(METADATA_JSONL)) {
                 response = client.updateUnitsWithJsonlMetadata(vitamContext, transaction.getId(), inputStream);
@@ -822,7 +812,35 @@ public class FluxIT extends VitamRuleRunner {
                         "[*]." + VitamFieldsHelper.object(), "[*]." + VitamFieldsHelper.allunitups(),
                         "[*]." + VitamFieldsHelper.initialOperation(),
                         "[*]." + VitamFieldsHelper.approximateCreationDate(),
-                        "[*]." + VitamFieldsHelper.approximateUpdateDate())));
+                        "[*]." + VitamFieldsHelper.approximateUpdateDate(),
+                        "[*]." + VitamFieldsHelper.version())));
+
+            // When (Second update with complex selectors)
+            final RequestResponse<JsonNode> response2;
+            try (InputStream inputStream = 
+                PropertiesUtils.getResourceAsStream(METADATA_JSONL_UPDATE_WITH_COMPLEX_SELECTORS)) {
+                response2 = client.updateUnitsWithJsonlMetadata(vitamContext, transaction.getId(), inputStream);
+            }
+
+            // Then
+            Assertions.assertThat(response2.isOk()).isTrue();
+            Assertions.assertThat(response2.getStatus()).isEqualTo(200);
+            
+            final RequestResponseOK<JsonNode> unitsByTransaction2 =
+                (RequestResponseOK<JsonNode>) client.getUnitsByTransaction(vitamContext,
+                    transaction.getId(), new SelectMultiQuery().getFinalSelect());
+            final JsonNode expectedUnits2 =
+                JsonHandler.getFromFile(PropertiesUtils.getResourceFile(UNITS_UPDATED_WITH_JSONL_WITH_COMPLEX));
+
+            JsonAssert.assertJsonEquals(JsonHandler.toJsonNode(unitsByTransaction2.getResults()), expectedUnits2,
+                JsonAssert.when(Option.IGNORING_ARRAY_ORDER).whenIgnoringPaths(
+                    List.of("[*]." + VitamFieldsHelper.id(), "[*]." + VitamFieldsHelper.batchId(),
+                        "[*]." + VitamFieldsHelper.unitups(),
+                        "[*]." + VitamFieldsHelper.object(), "[*]." + VitamFieldsHelper.allunitups(),
+                        "[*]." + VitamFieldsHelper.initialOperation(),
+                        "[*]." + VitamFieldsHelper.approximateCreationDate(),
+                        "[*]." + VitamFieldsHelper.approximateUpdateDate(),
+                        "[*]." + VitamFieldsHelper.version())));
         }
     }
 
@@ -838,9 +856,9 @@ public class FluxIT extends VitamRuleRunner {
             uploadZipTransaction(vitamContext, transaction.getId(), ZIP_FILE);
 
             // When
-            final RequestResponse<JsonNode> response;
             try (InputStream inputStream = PropertiesUtils.getResourceAsStream(METADATA_JSONL_BAD_FORMAT)) {
-                assertThatThrownBy(() -> client.updateUnitsWithJsonlMetadata(vitamContext, transaction.getId(), inputStream)
+                assertThatThrownBy(
+                    () -> client.updateUnitsWithJsonlMetadata(vitamContext, transaction.getId(), inputStream)
                 ).isExactlyInstanceOf(CollectExternalClientInvalidRequestException.class)
                     .hasMessageContaining("Invalid unit metadata at index: 0. Empty metadata content");
             }
@@ -859,11 +877,11 @@ public class FluxIT extends VitamRuleRunner {
             uploadZipTransaction(vitamContext, transaction.getId(), ZIP_FILE);
 
             // When
-            final RequestResponse<JsonNode> response;
-            try (InputStream inputStream = PropertiesUtils.getResourceAsStream(METADATA_JSONL_BAD_FORMAT)) {
-                assertThatThrownBy(() -> client.updateUnitsWithJsonlMetadata(vitamContext, transaction.getId(), inputStream)
+            try (InputStream inputStream = PropertiesUtils.getResourceAsStream(METADATA_JSONL_UNKNOWN_FILE)) {
+                assertThatThrownBy(
+                    () -> client.updateUnitsWithJsonlMetadata(vitamContext, transaction.getId(), inputStream)
                 ).isExactlyInstanceOf(CollectExternalClientInvalidRequestException.class)
-                    .hasMessageContaining("Invalid unit metadata at index: 0. Empty metadata content");
+                    .hasMessageContaining("Metadata update failed. Nb OK: 0, Nb KO: 1. Error messages:[No unit was matches selection criteria]");
             }
         }
     }

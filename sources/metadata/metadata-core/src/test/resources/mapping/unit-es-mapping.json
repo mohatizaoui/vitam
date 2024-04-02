@@ -1838,6 +1838,9 @@
     "_batchId": {
       "type": "keyword"
     },
+    "_uploadPath": {
+      "type": "keyword"
+    },
     "_tenant": {
       "type": "long"
     },

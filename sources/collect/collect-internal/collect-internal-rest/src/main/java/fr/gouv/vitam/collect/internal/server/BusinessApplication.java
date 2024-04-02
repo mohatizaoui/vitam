@@ -106,7 +106,11 @@ public class BusinessApplication extends ConfigurationApplication {
             MetadataRepository metadataRepository = new MetadataRepository(metadataCollectClientFactory);
 
             // Services
-            MetadataService metadataService = new MetadataService(metadataRepository, projectRepository);
+            BulkAtomicUpdateMetadataService bulkAtomicUpdateMetadataService =
+                new BulkAtomicUpdateMetadataService(metadataRepository, metadataCollectClientFactory,
+                    configuration);
+            MetadataService metadataService = new MetadataService(metadataRepository, projectRepository,
+                bulkAtomicUpdateMetadataService);
             ProjectService projectService = new ProjectService(projectRepository);
             CollectService collectService =
                 new CollectService(metadataRepository, workspaceCollectClientFactory,
@@ -117,10 +121,6 @@ public class BusinessApplication extends ConfigurationApplication {
                 new TransactionService(transactionRepository, projectService, metadataRepository,
                     fluxService, workspaceCollectClientFactory, accessInternalClientFactory, ingestInternalClientFactory);
             SipService sipService = new SipService(workspaceCollectClientFactory, metadataRepository);
-
-            BulkAtomicUpdateMetadataService bulkAtomicUpdateMetadataService =
-                new BulkAtomicUpdateMetadataService(metadataRepository, metadataCollectClientFactory,
-                    configuration);
 
             // Resources
             final TransactionInternalResource transactionInternalResource =

@@ -36,7 +36,6 @@ import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.database.builder.query.InQuery;
 import fr.gouv.vitam.common.database.builder.query.Query;
 import fr.gouv.vitam.common.database.builder.query.QueryHelper;
-import fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper;
 import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
 import fr.gouv.vitam.common.database.builder.request.multiple.RequestMultiple;
 import fr.gouv.vitam.common.format.identification.model.FormatIdentifierResponse;
@@ -82,14 +81,15 @@ public class MetadataHelper {
     private MetadataHelper() {
     }
 
-    public static ArchiveUnitModel createUnit(String transactionId, LevelType descriptionLevel, String title,
-        String unitParent) {
+    public static ArchiveUnitModel createUnit(String transactionId, LevelType descriptionLevel, String path,
+        String title, String unitParent) {
         String id = GUIDFactory.newUnitGUID(VitamThreadUtils.getVitamSession().getTenantId()).getId();
         CollectArchiveUnitModel unitInternalModel = new CollectArchiveUnitModel();
 
         unitInternalModel.setId(id);
         unitInternalModel.setOpi(transactionId);
         unitInternalModel.setUnitType(UnitType.INGEST);
+        unitInternalModel.setUploadPath(path);
         unitInternalModel.setBatchId(VitamThreadUtils.getVitamSession().getRequestId());
 
         DescriptiveMetadataModel description = new DescriptiveMetadataModel();
@@ -149,22 +149,15 @@ public class MetadataHelper {
     }
 
     public static Set<String> findUnitParent(ObjectNode unit, @Nonnull List<MetadataUnitUp> unitUps,
-        Map<String, String> unitIds) {
+        Map<String, String> attachmentUnitsBySystemId) {
         Set<String> attachmentUnits = new HashSet<>();
         for (MetadataUnitUp metadataUnitUp : unitUps) {
             if (metadataMatches(unit, metadataUnitUp.getMetadataKey(), metadataUnitUp.getMetadataValue())) {
-                final String unitTitle = String.format("%s_%s", DYNAMIC_ATTACHEMENT, metadataUnitUp.getUnitUp());
-                String unitUpId = unitIds.get(unitTitle);
+                String unitUpId = attachmentUnitsBySystemId.get(metadataUnitUp.getUnitUp());
                 attachmentUnits.add(unitUpId);
             }
         }
-        if (attachmentUnits.isEmpty()) {
-            return (unit.get(VitamFieldsHelper.unitups()) != null) ?
-                Collections.singleton(unit.get(VitamFieldsHelper.unitups()).asText()) :
-                Collections.emptySet();
-        } else {
-            return attachmentUnits;
-        }
+        return attachmentUnits;
     }
 
     private static boolean metadataMatches(JsonNode objectNode, String path, String value) {

@@ -83,9 +83,10 @@ public class CollectInternalResourceBaseIT {
     protected static CollectService collectService = mock(CollectService.class);
     protected static MetadataRepository metadataRepository = mock(MetadataRepository.class);
     protected static ProjectRepository projectRepository = mock(ProjectRepository.class);
-    protected static MetadataService metadataService = new MetadataService(metadataRepository, projectRepository);
     protected static BulkAtomicUpdateMetadataService bulkAtomicUpdateMetadataService
         = mock(BulkAtomicUpdateMetadataService.class);
+    protected static MetadataService metadataService = new MetadataService(metadataRepository, projectRepository,
+        bulkAtomicUpdateMetadataService);
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {

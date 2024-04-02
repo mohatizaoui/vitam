@@ -77,11 +77,12 @@ public class ComputedFieldsTest {
             MetadataDocument.OPS, MetadataDocument.OPI, MetadataDocument.ORIGINATING_AGENCY, VitamDocument.ID,
             VitamDocument.VERSION, VitamDocument.TENANT_ID, VitamDocument.SCORE, VitamDocument.SEDAVERSION,
             VitamDocument.IMPLEMENTATIONVERSION, MetadataDocument.ATOMIC_VERSION,
-            MetadataDocument.APPROXIMATE_CREATION_DATE, MetadataDocument.APPROXIMATE_UPDATE_DATE, ObjectGroup.MANAGEMENT_CONTRACT_ID_VERSION,
+            MetadataDocument.APPROXIMATE_CREATION_DATE, MetadataDocument.APPROXIMATE_UPDATE_DATE,
+            ObjectGroup.MANAGEMENT_CONTRACT_ID_VERSION,
             MetadataDocument.MANAGEMENT_CONTRACT_ID);
 
-    private static final List<String> collectOnlyFields = Arrays.asList( MetadataDocument.BATCHID);
-
+    private static final List<String> collectOnlyFields =
+        List.of(MetadataDocument.BATCH_ID, MetadataDocument.UPLOAD_PATH);
 
     @Test
     public void testUnitComputedFields() throws Exception {

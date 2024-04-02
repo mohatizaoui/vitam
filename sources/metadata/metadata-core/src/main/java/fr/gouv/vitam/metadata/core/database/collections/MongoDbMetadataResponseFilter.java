@@ -187,8 +187,11 @@ public class MongoDbMetadataResponseFilter {
                         VitamFieldsHelper.approximateUpdateDate());
                     break;
                 case BATCHID:
-                    replace(document, MetadataDocument.BATCHID,
+                    replace(document, MetadataDocument.BATCH_ID,
                         VitamFieldsHelper.batchId());
+                    break;
+                case UPLOADPATH:
+                    replace(document, MetadataDocument.UPLOAD_PATH, VitamFieldsHelper.uploadPath());
                     break;
                 case MANAGEMENT_CONTRACT_ID:
                     replace(document, MetadataDocument.MANAGEMENT_CONTRACT_ID,

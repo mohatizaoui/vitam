@@ -28,6 +28,7 @@ package fr.gouv.vitam.collect.internal.core.helpers;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.ValueNode;
 import fr.gouv.vitam.collect.common.exception.CollectInternalException;
 import fr.gouv.vitam.collect.common.exception.CollectInternalInvalidRequestException;
 import fr.gouv.vitam.collect.common.exception.CollectInternalServerSideException;
@@ -42,28 +43,21 @@ import fr.gouv.vitam.common.model.unit.RuleCategoryModel;
 import fr.gouv.vitam.common.model.unit.RuleModel;
 import fr.gouv.vitam.common.security.SanityChecker;
 import fr.gouv.vitam.worker.core.distribution.JsonLineGenericIterator;
-import fr.gouv.vitam.worker.core.distribution.JsonLineModel;
-import fr.gouv.vitam.worker.core.distribution.JsonLineWriter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import static fr.gouv.vitam.common.model.unit.RuleModel.END_DATE;
 
-public class JsonlMetadataFileParser {
-
-    public static final TypeReference<CollectJsonMetadataLine> COLLECT_JSON_METADATA_LINE_TYPE_REFERENCE =
-        new TypeReference<>() {
-        };
+public class JsonlMetadataFileValidator {
 
     private static final Set<String> ALLOWED_RESERVED_FIELD_NAMES =
         Set.of(VitamFieldsHelper.management(), VitamFieldsHelper.history());
@@ -72,7 +66,7 @@ public class JsonlMetadataFileParser {
         ARCHIVE_UNIT_MODEL_TYPE_REFERENCE = new TypeReference<>() {
     };
 
-    public void process(File jsonlMetadataFile, File transformedMetadataFile)
+    public void validate(File jsonlMetadataFile, boolean isFirstUpload)
         throws CollectInternalException {
 
         doSanityChecks(jsonlMetadataFile);
@@ -80,22 +74,19 @@ public class JsonlMetadataFileParser {
         try (
             InputStream inputStream = new FileInputStream(jsonlMetadataFile);
             CloseableIterator<CollectJsonMetadataLine> iterator =
-                new JsonLineGenericIterator<>(inputStream, COLLECT_JSON_METADATA_LINE_TYPE_REFERENCE);
-            JsonLineWriter writer = new JsonLineWriter(new FileOutputStream(transformedMetadataFile, true))) {
+                new JsonLineGenericIterator<>(inputStream, CollectJsonMetadataLine.TYPE_REFERENCE)) {
 
             for (int lineIndex = 0; iterator.hasNext(); lineIndex++) {
                 CollectJsonMetadataLine entry = iterator.next();
 
                 // Validate line
-                validateMetadataIdentificationInformation(entry, lineIndex);
+                validateMetadataIdentificationInformation(entry, lineIndex, isFirstUpload);
                 validateUnitContent(entry.getUnitContent(), lineIndex);
 
-                // FIXME : Add support for key/value selectors
-                writer.addEntry(new JsonLineModel(entry.getFile(), null, entry.getUnitContent()));
             }
         } catch (IOException e) {
             throw new CollectInternalServerSideException(
-                "An internal error occurred during jsonl metadata file processing", e);
+                "An internal error occurred during jsonl metadata file validation", e);
         }
 
     }
@@ -116,7 +107,8 @@ public class JsonlMetadataFileParser {
         }
     }
 
-    private void validateMetadataIdentificationInformation(CollectJsonMetadataLine entry, int lineIndex)
+    private void validateMetadataIdentificationInformation(CollectJsonMetadataLine entry, int lineIndex,
+        boolean isFirstUpload)
         throws CollectInternalInvalidRequestException {
 
         if (entry.getFile() == null && entry.getSelector() == null) {
@@ -135,7 +127,7 @@ public class JsonlMetadataFileParser {
         }
 
         if (entry.getSelector() != null) {
-            validateSelector(entry.getSelector(), lineIndex);
+            validateSelector(entry.getSelector(), lineIndex, isFirstUpload);
         }
     }
 
@@ -152,19 +144,75 @@ public class JsonlMetadataFileParser {
     }
 
 
-    private void validateSelector(CollectJsonMetadataSelector selectorValue, int lineIndex)
+    private void validateSelector(CollectJsonMetadataSelector selectorValue, int lineIndex, boolean isFirstUpload)
         throws CollectInternalInvalidRequestException {
         if (selectorValue.getEntries().isEmpty()) {
             throw new CollectInternalInvalidRequestException("Invalid entry at index: " + lineIndex +
                 ". Empty selectors");
         }
-        // FIXME : Implement validation criteria :
-        //  - fields name (No internal fields "_", "$", spacing, unprintable...)
-        //  - check ontology type :
-        //    - Exact match types are OK (keyword, long, double, bool, date).
-        //    - Analyzed texts should not queried (otherwise, we won't be able to manage direct inserts, we'll be stuck forever using insert + update)
-        throw new CollectInternalInvalidRequestException("Invalid entry at index: " + lineIndex +
-            ". Custom selector key are not supported yet");
+        for (Map.Entry<String, ValueNode> entry : selectorValue.getEntries().entrySet()) {
+            validateSelectorKey(entry.getKey(), lineIndex, isFirstUpload);
+            validateSelectorValue(entry.getKey(), entry.getValue(), lineIndex);
+
+            // TODO / Possible improvement - Check ontology type :
+            //   - Exact match types are OK (keyword, long, double, bool, date).
+            //   - Analyzed texts should not queried (otherwise, we won't be able to manage direct inserts, we'll be stuck forever using insert + update)
+        }
+    }
+
+    private void validateSelectorKey(String key, int lineIndex, boolean isFirstUpload)
+        throws CollectInternalInvalidRequestException {
+
+        validateKeyNameFormat(key, lineIndex);
+
+        if (isFirstUpload && !VitamFieldsHelper.uploadPath().equals(key)) {
+            throw new CollectInternalInvalidRequestException("Invalid selector key '" + key
+                + "' for upload operation at index: " + lineIndex + ". Only " + CollectJsonMetadataLine.FILE_FIELD +
+                " field Or " + CollectJsonMetadataLine.SELECTOR_FIELD + "." + VitamFieldsHelper.uploadPath()
+                + " selector allowed for upload operations.");
+        }
+    }
+
+    private static void validateKeyNameFormat(String key, int lineIndex)
+        throws CollectInternalInvalidRequestException {
+        // TODO: Field name checks should be unified
+        if (StringUtils.isBlank(key)) {
+            throw new CollectInternalInvalidRequestException(
+                "Invalid field name: '" + key + "'  at index: " + lineIndex);
+        }
+        String[] fieldNames = StringUtils.split(key, '.');
+        for (String fieldName : fieldNames) {
+            if (fieldName.isEmpty()
+                || StringUtils.containsWhitespace(fieldName)
+                || fieldName.startsWith("_")
+                || fieldName.startsWith("$")) {
+                throw new CollectInternalInvalidRequestException(
+                    "Invalid field name: '" + key + "'  at index: " + lineIndex);
+            }
+        }
+    }
+
+    private void validateSelectorValue(String key, ValueNode value, int lineIndex)
+        throws CollectInternalInvalidRequestException {
+        switch (value.getNodeType()) {
+            case BOOLEAN:
+            case NUMBER:
+            case STRING:
+                // OK
+                break;
+            case ARRAY:
+                throw new CollectInternalInvalidRequestException("Invalid selector value for '" + key + "'." +
+                    ". Arrays are not supported");
+            case NULL:
+                throw new CollectInternalInvalidRequestException("Invalid selector value for '" + key + "'." +
+                    ". Null value");
+            case BINARY:
+            case MISSING:
+            case OBJECT:
+            case POJO:
+            default:
+                throw new IllegalStateException("Unexpected value: " + value.getNodeType());
+        }
     }
 
     private void validateUnitContent(ObjectNode unitContent, int lineIndex)
@@ -187,7 +235,7 @@ public class JsonlMetadataFileParser {
         Iterator<String> it = unitContent.fieldNames();
         while (it.hasNext()) {
             String fieldName = it.next();
-            if (fieldName.startsWith("$") || fieldName.startsWith("_")) {
+            if (StringUtils.containsWhitespace(fieldName) || fieldName.startsWith("$") || fieldName.startsWith("_")) {
                 throw new CollectInternalInvalidRequestException("Invalid unit metadata at index: " + lineIndex +
                     ". Illegal field name '" + fieldName + "'");
             }

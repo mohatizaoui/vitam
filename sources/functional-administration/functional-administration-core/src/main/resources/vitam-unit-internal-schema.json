@@ -12150,6 +12150,24 @@
     ],
     "Category": "OTHER",
     "ApiPath": "#batchId",
-    "ShortName": "batch identifier"
+    "ShortName": "Collect batch identifier"
+  },
+  {
+    "FieldName": "_uploadPath",
+    "Type": "KEYWORD",
+    "Origin": "INTERNAL",
+    "Cardinality": "ONE",
+    "Indexed": true,
+    "Path": "_uploadPath",
+    "ApiField": "#uploadPath",
+    "Collection": "Unit",
+    "SedaVersions": [
+      "2.1",
+      "2.2",
+      "2.3"
+    ],
+    "Category": "OTHER",
+    "ApiPath": "#uploadPath",
+    "ShortName": "Collect initial upload path"
   }
 ]
