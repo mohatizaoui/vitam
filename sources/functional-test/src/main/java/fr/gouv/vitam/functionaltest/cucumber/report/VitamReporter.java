@@ -27,6 +27,8 @@
 package fr.gouv.vitam.functionaltest.cucumber.report;
 
 import fr.gouv.vitam.common.json.JsonHandler;
+import fr.gouv.vitam.common.logging.VitamLogger;
+import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import io.cucumber.core.exception.CucumberException;
 import io.cucumber.core.gherkin.Feature;
 import io.cucumber.plugin.ConcurrentEventListener;
@@ -52,11 +54,15 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class VitamReporter implements ConcurrentEventListener {
+    private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(VitamReporter.class);
+    private static final String RESET_COLOR = "\033[0m";
+    private static final String RED_COLOR = "\033[0;31m";
+    private static final String GREEN_COLOR = "\033[0;32m";
 
     private final PrintStream out;
     private Reports reports = null;
     private Report report = null;
-    private Map<URI, String> featureNames = new HashMap<>();
+    private final Map<URI, String> featureNames = new HashMap<>();
 
     public VitamReporter(OutputStream out) {
         this.out = new PrintStream(out, false, StandardCharsets.UTF_8);
@@ -90,7 +96,11 @@ public class VitamReporter implements ConcurrentEventListener {
 
     private void runFinished(TestRunFinished event) {
         reports.setEnd(LocalDateTime.ofInstant(event.getInstant(), ZoneOffset.UTC));
-        out.print(JsonHandler.prettyPrint(reports));
+        String finalReport = JsonHandler.prettyPrint(reports);
+        out.print(finalReport);
+
+        boolean success = reports.getReports().stream().allMatch(Report::isOK);
+        logEvents("\n\n\n#######################\nFULL REPORT:\n#######################\n\n" + finalReport, success);
     }
 
     private void caseStarted(TestCaseStarted event) {
@@ -110,9 +120,24 @@ public class VitamReporter implements ConcurrentEventListener {
             report.addError(error.toString());
         }
         reports.add(report);
+
+        String msg = "\n" + report.getFeature() + " - " + report.getDescription() +
+            "\n" + JsonHandler.prettyPrint(report);
+        logEvents(msg, result.getStatus().isOk());
     }
 
     private void writeEvent(WriteEvent writeEvent) {
         report.setOperationId(writeEvent.getText());
+    }
+
+    private static void logEvents(String msg, boolean success) {
+        // LOG to file + print to CONSOLE for ansible
+        if (success) {
+            LOGGER.info(msg);
+            System.out.println(GREEN_COLOR + msg + RESET_COLOR);
+        } else {
+            LOGGER.warn(msg);
+            System.out.println(RED_COLOR + msg + RESET_COLOR);
+        }
     }
 }
