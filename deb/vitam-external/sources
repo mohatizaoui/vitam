@@ -1,8 +1,8 @@
-https://repo.mongodb.org/apt/debian/dists/bookworm/mongodb-org/7.0/main/binary-amd64/mongodb-mongosh_2.1.5_amd64.deb
+https://repo.mongodb.org/apt/debian/dists/bookworm/mongodb-org/7.0/main/binary-amd64/mongodb-mongosh_2.2.3_amd64.deb
 https://repo.mongodb.org/apt/debian/dists/bookworm/mongodb-org/7.0/main/binary-amd64/mongodb-database-tools_100.9.4_amd64.deb
 
-https://repo.mongodb.org/apt/debian/dists/bookworm/mongodb-org/7.0/main/binary-amd64/mongodb-org-mongos_7.0.6_amd64.deb
-https://repo.mongodb.org/apt/debian/dists/bookworm/mongodb-org/7.0/main/binary-amd64/mongodb-org-server_7.0.6_amd64.deb
+https://repo.mongodb.org/apt/debian/dists/bookworm/mongodb-org/7.0/main/binary-amd64/mongodb-org-mongos_7.0.7_amd64.deb
+https://repo.mongodb.org/apt/debian/dists/bookworm/mongodb-org/7.0/main/binary-amd64/mongodb-org-server_7.0.7_amd64.deb
 
 https://repo.mongodb.org/apt/debian/dists/bullseye/mongodb-org/6.0/main/binary-amd64/mongodb-org-mongos_6.0.11_amd64.deb
 https://repo.mongodb.org/apt/debian/dists/bullseye/mongodb-org/6.0/main/binary-amd64/mongodb-org-server_6.0.11_amd64.deb
@@ -13,15 +13,15 @@ https://repo.mongodb.org/apt/debian/dists/bullseye/mongodb-org/5.0/main/binary-a
 https://repo.mongodb.org/apt/debian/dists/buster/mongodb-org/4.4/main/binary-amd64/mongodb-org-mongos_4.4.17_amd64.deb
 https://repo.mongodb.org/apt/debian/dists/buster/mongodb-org/4.4/main/binary-amd64/mongodb-org-server_4.4.17_amd64.deb
 
-https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.17.18-amd64.deb
-https://artifacts.elastic.co/downloads/logstash/logstash-7.17.18-amd64.deb
-https://artifacts.elastic.co/downloads/kibana/kibana-7.17.18-amd64.deb
+https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.17.19-amd64.deb
+https://artifacts.elastic.co/downloads/logstash/logstash-7.17.19-amd64.deb
+https://artifacts.elastic.co/downloads/kibana/kibana-7.17.19-amd64.deb
 https://packages.elastic.co/curator/5/debian9/pool/main/e/elasticsearch-curator/elasticsearch-curator_5.8.4_amd64.deb
 
-https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-7.17.18-amd64.deb
-https://artifacts.elastic.co/downloads/beats/metricbeat/metricbeat-7.17.18-amd64.deb
-https://artifacts.elastic.co/downloads/beats/packetbeat/packetbeat-7.17.18-amd64.deb
+https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-7.17.19-amd64.deb
+https://artifacts.elastic.co/downloads/beats/metricbeat/metricbeat-7.17.19-amd64.deb
+https://artifacts.elastic.co/downloads/beats/packetbeat/packetbeat-7.17.19-amd64.deb
 
-https://dl.grafana.com/oss/release/grafana_10.3.3_amd64.deb
+https://dl.grafana.com/oss/release/grafana_10.3.5_amd64.deb
 
-https://apt.releases.hashicorp.com/pool/amd64/main/consul_1.18.0-1_amd64.deb
+https://apt.releases.hashicorp.com/pool/amd64/main/consul_1.18.1-1_amd64.deb
