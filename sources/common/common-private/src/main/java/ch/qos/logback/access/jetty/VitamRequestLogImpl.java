@@ -38,7 +38,7 @@ public class VitamRequestLogImpl extends RequestLogImpl {
     @Override
     public void log(Request jettyRequest, Response jettyResponse) {
         JettyServerAdapter adapter = new VitamJettyServerAdapter(jettyRequest, jettyResponse);
-        IAccessEvent accessEvent = new AccessEvent(jettyRequest, jettyResponse, adapter);
+        IAccessEvent accessEvent = new AccessEvent(this, jettyRequest, jettyResponse, adapter);
         if (getFilterChainDecision(accessEvent) == FilterReply.DENY) {
             return;
         }
