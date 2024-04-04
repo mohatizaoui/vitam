@@ -1,4 +1,4 @@
-https://repo.mongodb.org/yum/redhat/7/mongodb-org/7.0/x86_64/RPMS/mongodb-mongosh-2.1.5.x86_64.rpm
+https://repo.mongodb.org/yum/redhat/7/mongodb-org/7.0/x86_64/RPMS/mongodb-mongosh-2.2.3.x86_64.rpm
 https://repo.mongodb.org/yum/redhat/7/mongodb-org/7.0/x86_64/RPMS/mongodb-database-tools-100.9.4.x86_64.rpm
 
 # Workaround to permit installation of mongodb-org-server.el7 on AlmaLinux9

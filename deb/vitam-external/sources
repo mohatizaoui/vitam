@@ -1,4 +1,4 @@
-https://repo.mongodb.org/apt/debian/dists/bookworm/mongodb-org/7.0/main/binary-amd64/mongodb-mongosh_2.1.5_amd64.deb
+https://repo.mongodb.org/apt/debian/dists/bookworm/mongodb-org/7.0/main/binary-amd64/mongodb-mongosh_2.2.3_amd64.deb
 https://repo.mongodb.org/apt/debian/dists/bookworm/mongodb-org/7.0/main/binary-amd64/mongodb-database-tools_100.9.4_amd64.deb
 
 https://repo.mongodb.org/apt/debian/dists/bookworm/mongodb-org/7.0/main/binary-amd64/mongodb-org-mongos_7.0.7_amd64.deb
