@@ -6,7 +6,7 @@
 # Image name: vitam/dev-deb-base
 #########################################################################################
 
-# Set the base image to Debian 10
+# Set the base image to Debian 11
 FROM debian:11.8
 MAINTAINER French Prime minister Office/SGMAP/DINSIC/Vitam Program <contact.vitam@culture.gouv.fr>
 
@@ -56,10 +56,10 @@ RUN /var/lib/dpkg/info/ca-certificates-java.postinst configure
 ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64
 
 # Install & configure maven
-RUN curl -k https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.3.9/apache-maven-3.3.9-bin.tar.gz --output /tmp/maven.tgz \
+RUN curl -k https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.6.3/apache-maven-3.6.3-bin.tar.gz --output /tmp/maven.tgz \
    && tar xvzf /tmp/maven.tgz --directory /opt \
    && rm -f /tmp/maven.tgz \
-   && ln -s /opt/apache-maven-3.3.9 /opt/maven \
+   && ln -s /opt/apache-maven-3.6.3 /opt/maven \
    && mkdir -p /devhome/.m2 \
    && chmod -R 777 /devhome
 

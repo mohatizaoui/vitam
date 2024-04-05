@@ -135,7 +135,7 @@ public class VitamElasticsearchRepositoryTest {
 
         Optional<Document> response = repository.getByID(id, tenant);
         assertThat(response).isPresent();
-        assertThat(response.get()).extracting("Title").contains("Test save");
+        assertThat(response.get().getString("Title")).contains("Test save");
     }
 
     @Test
@@ -152,13 +152,13 @@ public class VitamElasticsearchRepositoryTest {
         Document document = Document.parse(Strings.toString(builder));
         VitamRepositoryStatus result = repository.save(document);
 
-        assertThat(VitamRepositoryStatus.CREATED.equals(result));
+        assertThat(VitamRepositoryStatus.CREATED).isEqualTo(result);
         assertThat(document.get(VitamDocument.ID)).isNotNull();
         assertThat(document.get(VitamDocument.ID)).isEqualTo(id);
 
         Optional<Document> response = repository.getByID(id, tenant);
         assertThat(response).isPresent();
-        assertThat(response.get()).extracting("Title").contains("Test save");
+        assertThat(response.get().getString("Title")).contains("Test save");
 
         builder = jsonBuilder()
             .startObject()
@@ -170,10 +170,10 @@ public class VitamElasticsearchRepositoryTest {
         document = Document.parse(Strings.toString(builder));
         result = repository.save(document);
 
-        assertThat(VitamRepositoryStatus.UPDATED.equals(result));
+        assertThat(VitamRepositoryStatus.UPDATED).isEqualTo(result);
         response = repository.getByID(id, tenant);
         assertThat(response).isPresent();
-        assertThat(response.get()).extracting("Title").contains("Test othersave");
+        assertThat(response.get().getString("Title")).contains("Test othersave");
     }
 
     @Test
@@ -255,7 +255,7 @@ public class VitamElasticsearchRepositoryTest {
 
         Optional<Document> response = repository.getByID(guids.get(0), 0);
         assertThat(response).isPresent();
-        assertThat(response.get()).extracting("Title").contains("Test save updated");
+        assertThat(response.get().getString("Title")).contains("Test save updated");
 
         // purge tenant 0
         long deleted = repository.purge(0);
@@ -279,7 +279,7 @@ public class VitamElasticsearchRepositoryTest {
 
         Optional<Document> response = repository.getByID(id, tenant);
         assertThat(response).isPresent();
-        assertThat(response.get()).extracting("Title").contains("Test save");
+        assertThat(response.get().getString("Title")).contains("Test save");
 
         repository.remove(id, tenant);
         response = repository.getByID(id, tenant);
@@ -331,11 +331,11 @@ public class VitamElasticsearchRepositoryTest {
 
         Optional<Document> response = repository.getByID(id, tenant);
         assertThat(response).isPresent();
-        assertThat(response.get()).extracting("Title").contains("Test save");
+        assertThat(response.get().getString("Title")).contains("Test save");
 
         response = repository.findByIdentifierAndTenant(FAKE_IDENTIFIER, tenant);
         assertThat(response).isPresent();
-        assertThat(response.get()).extracting("Title").contains("Test save");
+        assertThat(response.get().getString("Title")).contains("Test save");
     }
 
     @Test
@@ -354,11 +354,11 @@ public class VitamElasticsearchRepositoryTest {
 
         Optional<Document> response = repository.getByID(id, tenant);
         assertThat(response).isPresent();
-        assertThat(response.get()).extracting("Title").contains("Test save");
+        assertThat(response.get().getString("Title")).contains("Test save");
 
         response = repository.findByIdentifier(FAKE_IDENTIFIER);
         assertThat(response).isPresent();
-        assertThat(response.get()).extracting("Title").contains("Test save");
+        assertThat(response.get().getString("Title")).contains("Test save");
     }
 
     private static void createIndexWithMapping() throws IOException {
@@ -401,7 +401,7 @@ public class VitamElasticsearchRepositoryTest {
 
         Optional<Document> response = repository.getDocumentById(id);
         assertThat(response).isPresent();
-        assertThat(response.get()).extracting("Title").contains("Test save");
+        assertThat(response.get().getString("Title")).contains("Test save");
     }
 
     @Test

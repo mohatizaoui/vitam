@@ -436,7 +436,7 @@ public class PreservationIT extends VitamRuleRunner {
                 .get("events");
 
             // Then
-            assertThat(jsonNode.iterator()).extracting(j -> j.get("outcome").asText())
+            assertThat(jsonNode.iterator()).toIterable().extracting(j -> j.get("outcome").asText())
                 .allMatch(outcome -> outcome.equals(StatusCode.OK.name()));
 
             validateAccessionRegisterDetails(excludeFields, operationGuid.toString());
@@ -569,7 +569,7 @@ public class PreservationIT extends VitamRuleRunner {
             try (InputStream inputStream = storageClient.getContainerAsync(VitamConfiguration.getDefaultStrategy(),
                 String.format("%s.jsonl", operationGuid.getId()), DataCategory.REPORT,
                 AccessLogUtils.getNoLogAccessLog()).readEntity(InputStream.class)) {
-                assertThat(jsonNode.iterator()).extracting(j -> j.get("outcome").asText())
+                assertThat(jsonNode.iterator()).toIterable().extracting(j -> j.get("outcome").asText())
                     .allMatch(outcome -> outcome.equals(StatusCode.OK.name()));
 
                 try (InputStream inputStreamExpected = getClass().getResourceAsStream(

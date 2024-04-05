@@ -624,7 +624,7 @@ public class BatchReportServiceImplTest {
         try (InputStream is = Files.newInputStream(report);
             JsonLineGenericIterator<JsonLineModel> reader = new JsonLineGenericIterator<>(is, TYPE_REFERENCE)) {
 
-            assertThat(reader).extracting(JsonLineModel::getId).containsExactly(
+            assertThat(reader).toIterable().extracting(JsonLineModel::getId).containsExactly(
                 "unit1", "unit2"
             );
         }
@@ -671,7 +671,7 @@ public class BatchReportServiceImplTest {
         // Then
         try (InputStream is = Files.newInputStream(report);
             JsonLineGenericIterator<JsonLineModel> reader = new JsonLineGenericIterator<>(is, TYPE_REFERENCE)) {
-            assertThat(reader).extracting(JsonLineModel::getId).containsExactly(
+            assertThat(reader).toIterable().extracting(JsonLineModel::getId).containsExactly(
                 "unitId"
             );
         }

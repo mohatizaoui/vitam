@@ -454,7 +454,7 @@ public class ReadOnlyStorageIT {
             CloseableIterator<ObjectEntry> objectEntryCloseableIterator =
                 storageClient.listContainer(STRATEGY_ID, OFFER_ID_1, DataCategory.UNIT);
 
-            assertThat(objectEntryCloseableIterator).extracting(ObjectEntry::getObjectId, ObjectEntry::getSize)
+            assertThat(objectEntryCloseableIterator).toIterable().extracting(ObjectEntry::getObjectId, ObjectEntry::getSize)
                 .containsExactlyInAnyOrder(tuple(OBJ_1, 5L), tuple(OBJ_3, 5L));
         }
     }
@@ -521,7 +521,7 @@ public class ReadOnlyStorageIT {
 
             CloseableIterator<ObjectEntry> storageAccessLogEntries =
                 storageClient.listContainer(STRATEGY_ID, OFFER_ID_1, DataCategory.STORAGEACCESSLOG);
-            assertThat(storageAccessLogEntries).isEmpty();
+            assertThat(storageAccessLogEntries).toIterable().isEmpty();
         }
     }
 
@@ -540,7 +540,7 @@ public class ReadOnlyStorageIT {
 
             CloseableIterator<ObjectEntry> storageAccessLogEntries =
                 storageClient.listContainer(STRATEGY_ID, OFFER_ID_1, DataCategory.STORAGELOG);
-            assertThat(storageAccessLogEntries).isEmpty();
+            assertThat(storageAccessLogEntries).toIterable().isEmpty();
         }
     }
 
@@ -559,7 +559,7 @@ public class ReadOnlyStorageIT {
 
             CloseableIterator<ObjectEntry> storageAccessLogEntries =
                 storageClient.listContainer(STRATEGY_ID, OFFER_ID_1, DataCategory.STORAGETRACEABILITY);
-            assertThat(storageAccessLogEntries).isEmpty();
+            assertThat(storageAccessLogEntries).toIterable().isEmpty();
         }
     }
 

@@ -164,7 +164,7 @@ public class AuditIT extends VitamRuleRunner {
                 .get("$results").get(0).get("events");
 
             // Then
-            assertThat(jsonNode.iterator()).extracting(j -> j.get("outcome").asText())
+            assertThat(jsonNode.iterator()).toIterable().extracting(j -> j.get("outcome").asText())
                 .allMatch(outcome -> outcome.equals(StatusCode.OK.name()));
 
             // Check logbook
@@ -260,7 +260,7 @@ public class AuditIT extends VitamRuleRunner {
                 .selectOperationById(operationId).toJsonNode()
                 .get("$results").get(0).get("events");
             // Then
-            assertThat(jsonNode.iterator()).extracting(j -> j.get("outcome").asText())
+            assertThat(jsonNode.iterator()).toIterable().extracting(j -> j.get("outcome").asText())
                 .allMatch(outcome -> outcome.equals(StatusCode.OK.name()));
 
             // Check logbook
@@ -359,7 +359,7 @@ public class AuditIT extends VitamRuleRunner {
                 .selectOperationById(operationGuid.getId()).toJsonNode()
                 .get("$results").get(0).get("events");
             // Then
-            assertThat(jsonNode.iterator()).extracting(j -> j.get("outcome").asText())
+            assertThat(jsonNode.iterator()).toIterable().extracting(j -> j.get("outcome").asText())
                 .anyMatch(outcome -> outcome.equals(StatusCode.KO.name()));
 
             // Check report

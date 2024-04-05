@@ -107,7 +107,7 @@ public class LargeFileSorterTest {
 
         // Then
         try (LargeFileReader<ObjectEntry> reader = fileReaderFactory.apply(sortedFile)) {
-            assertThat(reader).isEmpty();
+            assertThat(reader).toIterable().isEmpty();
         }
         assertThat(tmpFileCounter).isEqualTo(1);
         ensureAllTempFileCleaned(inputFile, sortedFile);

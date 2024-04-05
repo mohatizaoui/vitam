@@ -30,11 +30,11 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>com.thaiopensource</groupId>
+			<groupId>org.relaxng</groupId>
 			<artifactId>jing</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.thaiopensource</groupId>
+			<groupId>org.relaxng</groupId>
 			<artifactId>trang</artifactId>
 		</dependency>
 		<dependency>

@@ -82,7 +82,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 public class MassUpdateFinalizeTest {
@@ -224,7 +224,7 @@ public class MassUpdateFinalizeTest {
 
         // Then
         verify(batchReportClient, never()).storeReportToWorkspace(any());
-        verifyZeroInteractions(logbookOperationsClient);
+        verifyNoInteractions(logbookOperationsClient);
 
         ArgumentCaptor<ObjectDescription> descriptionArgumentCaptor = ArgumentCaptor.forClass(ObjectDescription.class);
         verify(storageClient)

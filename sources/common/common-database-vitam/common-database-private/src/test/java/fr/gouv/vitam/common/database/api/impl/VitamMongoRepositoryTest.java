@@ -105,7 +105,7 @@ public class VitamMongoRepositoryTest {
 
         Optional<Document> response = repository.getByID(id, tenant);
         assertThat(response).isPresent();
-        assertThat(response.get()).extracting(TITLE).contains(TEST_SAVE);
+        assertThat(response.get().getString(TITLE)).contains(TEST_SAVE);
     }
 
     @Test
@@ -125,7 +125,7 @@ public class VitamMongoRepositoryTest {
         assertThat(VitamRepositoryStatus.CREATED.equals(result)).isTrue();
         Optional<Document> response = repository.getByID(id, tenant);
         assertThat(response).isPresent();
-        assertThat(response.get()).extracting(TITLE).contains(TEST_SAVE);
+        assertThat(response.get().getString(TITLE)).contains(TEST_SAVE);
 
         builder = jsonBuilder()
             .startObject()
@@ -140,7 +140,7 @@ public class VitamMongoRepositoryTest {
         assertThat(VitamRepositoryStatus.UPDATED.equals(result)).isTrue();
         response = repository.getByID(id, tenant);
         assertThat(response).isPresent();
-        assertThat(response.get()).extracting(TITLE).contains("Test othersave");
+        assertThat(response.get().getString(TITLE)).contains("Test othersave");
     }
 
     @Test
@@ -340,7 +340,7 @@ public class VitamMongoRepositoryTest {
 
         Optional<Document> response = repository.getByID(id, tenant);
         assertThat(response).isPresent();
-        assertThat(response.get()).extracting(TITLE).contains(TEST_SAVE);
+        assertThat(response.get().getString(TITLE)).contains(TEST_SAVE);
 
         repository.remove(id, tenant);
         response = repository.getByID(id, tenant);
@@ -378,7 +378,7 @@ public class VitamMongoRepositoryTest {
 
         Optional<Document> response = repository.findByIdentifierAndTenant("FakeIdentifier", tenant);
         assertThat(response).isPresent();
-        assertThat(response.get()).extracting(TITLE).contains("Test save");
+        assertThat(response.get().getString(TITLE)).contains("Test save");
     }
 
     @Test
@@ -396,7 +396,7 @@ public class VitamMongoRepositoryTest {
 
         Optional<Document> response = repository.findByIdentifier("FakeIdentifier");
         assertThat(response).isPresent();
-        assertThat(response.get()).extracting(TITLE).contains(TEST_SAVE);
+        assertThat(response.get().getString(TITLE)).contains(TEST_SAVE);
     }
 
     @Test
@@ -430,7 +430,7 @@ public class VitamMongoRepositoryTest {
 
         Optional<Document> response = repository.findByIdentifierAndTenant("FakeIdentifier", tenant);
         assertThat(response).isPresent();
-        assertThat(response.get()).extracting("Title").contains("Test save");
+        assertThat(response.get().getString("Title")).contains("Test save");
 
         repository.removeByNameAndTenant("FakeName", tenant);
         response = repository.findByIdentifierAndTenant("FakeIdentifier", tenant);

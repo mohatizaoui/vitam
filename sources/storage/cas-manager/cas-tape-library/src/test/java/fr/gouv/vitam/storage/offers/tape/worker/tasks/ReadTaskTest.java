@@ -88,7 +88,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 public class ReadTaskTest {
@@ -732,7 +732,7 @@ public class ReadTaskTest {
         inOrder.verify(tapeLoadUnloadService).unloadTape(SLOT_INDEX + 1, DRIVE_INDEX);
         inOrder.verifyNoMoreInteractions();
 
-        verifyZeroInteractions(archiveCacheStorage, accessRequestManager);
+        verifyNoInteractions(archiveCacheStorage, accessRequestManager);
     }
 
     @Test
@@ -787,7 +787,7 @@ public class ReadTaskTest {
         inOrder.verify(tapeLoadUnloadService).unloadTape(SLOT_INDEX + 1, DRIVE_INDEX);
         inOrder.verifyNoMoreInteractions();
 
-        verifyZeroInteractions(archiveCacheStorage, accessRequestManager);
+        verifyNoInteractions(archiveCacheStorage, accessRequestManager);
     }
 
     @Test
@@ -839,7 +839,7 @@ public class ReadTaskTest {
         inOrder.verify(tapeLoadUnloadService).unloadTape(SLOT_INDEX + 1, DRIVE_INDEX);
         inOrder.verifyNoMoreInteractions();
 
-        verifyZeroInteractions(archiveCacheStorage, accessRequestManager);
+        verifyNoInteractions(archiveCacheStorage, accessRequestManager);
     }
 
     @Test
@@ -902,7 +902,7 @@ public class ReadTaskTest {
         inOrder.verify(tapeLoadUnloadService).unloadTape(SLOT_INDEX + 1, DRIVE_INDEX);
         inOrder.verifyNoMoreInteractions();
 
-        verifyZeroInteractions(archiveCacheStorage, accessRequestManager);
+        verifyNoInteractions(archiveCacheStorage, accessRequestManager);
     }
 
     @Test
@@ -968,7 +968,7 @@ public class ReadTaskTest {
         inOrder.verify(tapeLoadUnloadService).loadTape(SLOT_INDEX, DRIVE_INDEX);
         inOrder.verifyNoMoreInteractions();
 
-        verifyZeroInteractions(archiveCacheStorage, accessRequestManager);
+        verifyNoInteractions(archiveCacheStorage, accessRequestManager);
     }
 
 
@@ -1035,7 +1035,7 @@ public class ReadTaskTest {
         inOrder.verify(tapeLoadUnloadService).unloadTape(SLOT_INDEX + 1, DRIVE_INDEX);
         inOrder.verifyNoMoreInteractions();
 
-        verifyZeroInteractions(archiveCacheStorage, accessRequestManager);
+        verifyNoInteractions(archiveCacheStorage, accessRequestManager);
     }
 
     @Test
@@ -1279,7 +1279,7 @@ public class ReadTaskTest {
         verifyNoMoreInteractions(archiveCacheStorage);
 
         verify(tapeReadWriteService, never()).readFromTape(any());
-        verifyZeroInteractions(tapeDriveCommandService, accessRequestManager);
+        verifyNoInteractions(tapeDriveCommandService, accessRequestManager);
     }
 
     @Test

@@ -125,7 +125,7 @@ public class RestoreBackupServiceTest {
         Iterator<List<OfferLog>> listing =
             restoreBackupService.getListing(VitamConfiguration.getDefaultStrategy(), 100L, 2);
         // then
-        assertThat(listing).isNotNull().isEmpty();
+        assertThat(listing).isNotNull().toIterable().isEmpty();
     }
 
     @RunWithCustomExecutor

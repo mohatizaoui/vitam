@@ -54,7 +54,8 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 public class AsyncResourceCleanerTest {
@@ -98,7 +99,7 @@ public class AsyncResourceCleanerTest {
         simulateBackgroundScheduledTasksRun3xTimes();
 
         // Then
-        verifyZeroInteractions(storageClient);
+        verifyNoInteractions(storageClient);
     }
 
     @Test
@@ -122,7 +123,7 @@ public class AsyncResourceCleanerTest {
         verify(storageClient).removeAccessRequest("strategyId2", "offerId2", "accessRequestId2", true);
         verify(storageClient).removeAccessRequest("strategyId1", null, "accessRequestId3", true);
         verify(storageClient, atLeastOnce()).close();
-        verifyZeroInteractions(storageClient);
+        verifyNoMoreInteractions(storageClient);
     }
 
     @Test
@@ -150,7 +151,7 @@ public class AsyncResourceCleanerTest {
         verify(storageClient).removeAccessRequest("strategyId1", null, "accessRequestId2", true);
         verify(storageClient, times(2)).removeAccessRequest("strategyId2", "offerId2", "accessRequestId3", true);
         verify(storageClient, atLeastOnce()).close();
-        verifyZeroInteractions(storageClient);
+        verifyNoMoreInteractions(storageClient);
     }
 
     @Test

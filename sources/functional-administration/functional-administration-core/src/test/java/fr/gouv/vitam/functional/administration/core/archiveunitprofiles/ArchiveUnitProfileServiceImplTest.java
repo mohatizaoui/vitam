@@ -81,7 +81,7 @@ import static fr.gouv.vitam.common.guid.GUIDFactory.newOperationLogbookGUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 public class ArchiveUnitProfileServiceImplTest {
 
@@ -197,7 +197,7 @@ public class ArchiveUnitProfileServiceImplTest {
             archiveUnitProfileService.createArchiveUnitProfiles(profileModelList);
 
         assertThat(response.isOk()).isFalse();
-        verifyZeroInteractions(functionalBackupService);
+        verifyNoInteractions(functionalBackupService);
     }
 
     @Test
@@ -212,7 +212,7 @@ public class ArchiveUnitProfileServiceImplTest {
         final RequestResponse response = archiveUnitProfileService.createArchiveUnitProfiles(profileModelList);
 
         assertThat(response.isOk()).isFalse();
-        verifyZeroInteractions(functionalBackupService);
+        verifyNoInteractions(functionalBackupService);
     }
 
     @Test
@@ -511,7 +511,7 @@ public class ArchiveUnitProfileServiceImplTest {
             "The field Identifier is mandatory");
         assertThat(((VitamError<ArchiveUnitProfileModel>) response).getErrors().get(0).getMessage()).isEqualTo(
             "IMPORT_ARCHIVEUNITPROFILE.EMPTY_REQUIRED_FIELD.KO");
-        verifyZeroInteractions(functionalBackupService);
+        verifyNoInteractions(functionalBackupService);
 
     }
 

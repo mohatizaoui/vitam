@@ -87,12 +87,12 @@
 			<version>${javax.el-api.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.glassfish.web</groupId>
+			<groupId>org.glassfish</groupId>
 			<artifactId>javax.el</artifactId>
 			<version>${org.glassfish.web.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>com.thaiopensource</groupId>
+			<groupId>org.relaxng</groupId>
 			<artifactId>jing</artifactId>
 		</dependency>
 		<dependency>

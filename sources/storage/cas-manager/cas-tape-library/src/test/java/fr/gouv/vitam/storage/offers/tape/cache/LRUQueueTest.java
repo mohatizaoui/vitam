@@ -50,7 +50,7 @@ public class LRUQueueTest {
         // Then
         assertThat(instance.isEmpty()).isTrue();
         assertThat(instance.size()).isEqualTo(0);
-        assertThat(instance.iterator()).isEmpty();
+        assertThat(instance.iterator()).toIterable().isEmpty();
         assertThat(instance.update("UNKNOWN", 2L)).isFalse();
         assertThat(instance.contains("UNKNOWN")).isFalse();
         assertThat(instance.remove("UNKNOWN")).isFalse();
@@ -68,7 +68,7 @@ public class LRUQueueTest {
         // Then
         assertThat(instance.isEmpty()).isFalse();
         assertThat(instance.size()).isEqualTo(1);
-        assertThat(instance.iterator()).containsExactly("Entry1");
+        assertThat(instance.iterator()).toIterable().containsExactly("Entry1");
     }
 
     @Test
@@ -85,7 +85,7 @@ public class LRUQueueTest {
         // Then
         assertThat(instance.isEmpty()).isFalse();
         assertThat(instance.size()).isEqualTo(3);
-        assertThat(instance.iterator()).containsExactly("Entry2", "Entry1", "Entry3");
+        assertThat(instance.iterator()).toIterable().containsExactly("Entry2", "Entry1", "Entry3");
         assertThat(instance.contains("UNKNOWN")).isFalse();
     }
 
@@ -103,7 +103,7 @@ public class LRUQueueTest {
 
         assertThat(instance.isEmpty()).isFalse();
         assertThat(instance.size()).isEqualTo(2);
-        assertThat(instance.iterator()).containsExactly("Entry2", "Entry1");
+        assertThat(instance.iterator()).toIterable().containsExactly("Entry2", "Entry1");
     }
 
     @Test
@@ -115,7 +115,7 @@ public class LRUQueueTest {
         instance.add("Entry1", 2L);
 
         // Then
-        assertThat(instance.iterator()).containsExactly("Entry2", "Entry1");
+        assertThat(instance.iterator()).toIterable().containsExactly("Entry2", "Entry1");
 
         // When
         boolean updated = instance.update("Entry2", 3L);
@@ -124,7 +124,7 @@ public class LRUQueueTest {
         assertThat(updated).isTrue();
         assertThat(instance.isEmpty()).isFalse();
         assertThat(instance.size()).isEqualTo(2);
-        assertThat(instance.iterator()).containsExactly("Entry1", "Entry2");
+        assertThat(instance.iterator()).toIterable().containsExactly("Entry1", "Entry2");
     }
 
     @Test
@@ -136,7 +136,7 @@ public class LRUQueueTest {
         instance.add("Entry1", 2L);
 
         // Then
-        assertThat(instance.iterator()).containsExactly("Entry2", "Entry1");
+        assertThat(instance.iterator()).toIterable().containsExactly("Entry2", "Entry1");
 
         // When
         boolean updated = instance.update("UNKNOWN", 3L);
@@ -145,7 +145,7 @@ public class LRUQueueTest {
         assertThat(updated).isFalse();
         assertThat(instance.isEmpty()).isFalse();
         assertThat(instance.size()).isEqualTo(2);
-        assertThat(instance.iterator()).containsExactly("Entry2", "Entry1");
+        assertThat(instance.iterator()).toIterable().containsExactly("Entry2", "Entry1");
     }
 
     @Test
@@ -162,7 +162,7 @@ public class LRUQueueTest {
         assertThat(removed).isTrue();
         assertThat(instance.isEmpty()).isTrue();
         assertThat(instance.size()).isEqualTo(0);
-        assertThat(instance.iterator()).isEmpty();
+        assertThat(instance.iterator()).toIterable().isEmpty();
     }
 
     @Test
@@ -180,7 +180,7 @@ public class LRUQueueTest {
         assertThat(removed).isTrue();
         assertThat(instance.isEmpty()).isFalse();
         assertThat(instance.size()).isEqualTo(1);
-        assertThat(instance.iterator()).containsExactly("Entry1");
+        assertThat(instance.iterator()).toIterable().containsExactly("Entry1");
     }
 
     @Test
@@ -198,7 +198,7 @@ public class LRUQueueTest {
         assertThat(updated).isFalse();
         assertThat(instance.isEmpty()).isFalse();
         assertThat(instance.size()).isEqualTo(2);
-        assertThat(instance.iterator()).containsExactly("Entry2", "Entry1");
+        assertThat(instance.iterator()).toIterable().containsExactly("Entry2", "Entry1");
     }
 
     @Test
@@ -211,7 +211,7 @@ public class LRUQueueTest {
         Iterator<String> iterator = instance.iterator();
 
         // Then
-        assertThat(iterator).isEmpty();
+        assertThat(iterator).toIterable().isEmpty();
     }
 
     @Test
@@ -225,7 +225,7 @@ public class LRUQueueTest {
         Iterator<String> iterator = instance.iterator();
 
         // Then
-        assertThat(iterator).containsExactly("Entry1");
+        assertThat(iterator).toIterable().containsExactly("Entry1");
     }
 
     @Test
@@ -244,7 +244,7 @@ public class LRUQueueTest {
         Iterator<String> iterator = instance.iterator();
 
         // Then
-        assertThat(iterator).containsExactly("Entry1", "Entry2", "Entry3", "Entry4", "Entry5", "Entry6");
+        assertThat(iterator).toIterable().containsExactly("Entry1", "Entry2", "Entry3", "Entry4", "Entry5", "Entry6");
     }
 
     @Test
@@ -263,7 +263,7 @@ public class LRUQueueTest {
         Iterator<String> iterator = instance.iterator();
 
         // Then
-        assertThat(iterator).containsExactly("Entry6", "Entry2", "Entry4", "Entry1", "Entry5", "Entry3");
+        assertThat(iterator).toIterable().containsExactly("Entry6", "Entry2", "Entry4", "Entry1", "Entry5", "Entry3");
     }
 
     @Test
@@ -280,7 +280,7 @@ public class LRUQueueTest {
         Iterator<String> iterator = instance.iterator();
 
         // Then
-        assertThat(iterator).containsExactly("Entry1", "Entry2", "Entry3");
+        assertThat(iterator).toIterable().containsExactly("Entry1", "Entry2", "Entry3");
     }
 
     @Test
@@ -296,7 +296,7 @@ public class LRUQueueTest {
         instance.add("Entry6", -20_000_000_000_000L);
 
         // Check before
-        assertThat(instance.iterator()).containsExactly("Entry6", "Entry2", "Entry4", "Entry1", "Entry5", "Entry3");
+        assertThat(instance.iterator()).toIterable().containsExactly("Entry6", "Entry2", "Entry4", "Entry1", "Entry5", "Entry3");
 
         // When
         Iterator<String> iterator = instance.iterator();
@@ -311,7 +311,7 @@ public class LRUQueueTest {
         // Then
         assertThat(instance.isEmpty()).isFalse();
         assertThat(instance.size()).isEqualTo(3);
-        assertThat(instance.iterator()).containsExactly("Entry1", "Entry5", "Entry3");
+        assertThat(instance.iterator()).toIterable().containsExactly("Entry1", "Entry5", "Entry3");
 
         // When
         instance.add("Entry2", -1000L);
@@ -320,7 +320,7 @@ public class LRUQueueTest {
         // Then
         assertThat(instance.isEmpty()).isFalse();
         assertThat(instance.size()).isEqualTo(5);
-        assertThat(instance.iterator()).containsExactly("Entry2", "Entry1", "Entry7", "Entry5", "Entry3");
+        assertThat(instance.iterator()).toIterable().containsExactly("Entry2", "Entry1", "Entry7", "Entry5", "Entry3");
     }
 
     @Test

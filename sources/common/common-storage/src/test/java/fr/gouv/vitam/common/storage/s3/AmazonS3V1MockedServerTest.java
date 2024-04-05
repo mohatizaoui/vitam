@@ -64,7 +64,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 public class AmazonS3V1MockedServerTest {
 
@@ -531,7 +531,7 @@ public class AmazonS3V1MockedServerTest {
         }).isInstanceOf(ContentAddressableStorageNotFoundException.class)
             .hasMessageContaining(ErrorMessage.CONTAINER_NOT_FOUND.getMessage());
 
-        verifyZeroInteractions(objectListingListener);
+        verifyNoInteractions(objectListingListener);
     }
 
     @Test
@@ -542,7 +542,7 @@ public class AmazonS3V1MockedServerTest {
         assertThatThrownBy(() -> {
             amazonS3V1.listContainer(CONTAINER_1, objectListingListener);
         }).isInstanceOf(ContentAddressableStorageServerException.class);
-        verifyZeroInteractions(objectListingListener);
+        verifyNoInteractions(objectListingListener);
     }
 
     @Test

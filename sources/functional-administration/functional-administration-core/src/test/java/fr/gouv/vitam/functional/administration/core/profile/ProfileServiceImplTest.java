@@ -89,7 +89,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 public class ProfileServiceImplTest {
 
@@ -293,7 +293,7 @@ public class ProfileServiceImplTest {
         final RequestResponse<ProfileModel> response = profileService.createProfiles(profileModelList);
 
         assertThat(response.isOk()).isFalse();
-        verifyZeroInteractions(functionalBackupService);
+        verifyNoInteractions(functionalBackupService);
     }
 
     @Test

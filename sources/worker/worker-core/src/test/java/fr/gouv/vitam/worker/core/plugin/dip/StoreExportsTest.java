@@ -64,7 +64,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 public class StoreExportsTest {
 
@@ -115,7 +115,7 @@ public class StoreExportsTest {
             .isEqualTo(Arrays.asList(SEDA_FILE, StoreExports.CONTENT));
         assertThat(compressInformationArgumentCaptor.getValue().getOutputFile()).isEqualTo("2/" + requestId);
         assertThat(compressInformationArgumentCaptor.getValue().getOutputContainer()).isEqualTo(DIP_CONTAINER);
-        verifyZeroInteractions(storageClient);
+        verifyNoInteractions(storageClient);
     }
 
     @RunWithCustomExecutor

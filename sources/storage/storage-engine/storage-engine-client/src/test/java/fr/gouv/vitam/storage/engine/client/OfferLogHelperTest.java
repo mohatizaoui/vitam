@@ -106,6 +106,7 @@ public class OfferLogHelperTest {
 
         // When
         assertThat(offerLogIterator)
+            .toIterable()
             .extracting(OfferLog::getFileName)
             .containsExactly("file20", "file30", "file40", "file50", "file60", "file70", "file80");
 

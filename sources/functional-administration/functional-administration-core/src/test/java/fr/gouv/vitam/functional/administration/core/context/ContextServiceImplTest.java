@@ -104,7 +104,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
@@ -215,7 +215,7 @@ public class ContextServiceImplTest {
         RequestResponse<ContextModel> response = contextService.createContexts(contextModelList);
         assertThat(response.isOk()).isTrue();
 
-        verifyZeroInteractions(ingestContractService);
+        verifyNoInteractions(ingestContractService);
 
         verify(functionalBackupService).saveCollectionAndSequence(any(),
             Mockito.eq(ContextServiceImpl.CONTEXTS_BACKUP_EVENT), Mockito.eq(FunctionalAdminCollections.CONTEXT),
@@ -262,10 +262,10 @@ public class ContextServiceImplTest {
             contextService.updateContext(context.getIdentifier(), update.getFinalUpdate());
         assertFalse(updateError.isOk());
 
-        verifyZeroInteractions(functionalBackupService);
+        verifyNoMoreInteractions(functionalBackupService);
 
         verify(ingestContractService).findByIdentifier(INVALID_INGEST_CONTRACT_IDENTIFIER);
-        verifyZeroInteractions(ingestContractService);
+        verifyNoMoreInteractions(ingestContractService);
     }
 
 
@@ -316,7 +316,7 @@ public class ContextServiceImplTest {
 
         assertThat(((VitamError<ContextModel>) response).getErrors().get(0).getDescription()).isEqualTo(
             "The ingest contract NON-EXISTING-INGEST_CONTRACT of tenant 0 does not exist");
-        verifyZeroInteractions(functionalBackupService);
+        verifyNoInteractions(functionalBackupService);
     }
 
     @Test
@@ -337,8 +337,8 @@ public class ContextServiceImplTest {
 
         assertThat(((VitamError<ContextModel>) response).getErrors().get(0).getDescription()).isEqualTo(
             "The access contract NON-EXISTING-ACCESS_CONTRACT of tenant 0 does not exist");
-        verifyZeroInteractions(ingestContractService);
-        verifyZeroInteractions(functionalBackupService);
+        verifyNoInteractions(ingestContractService);
+        verifyNoInteractions(functionalBackupService);
     }
 
     @Test
@@ -369,7 +369,7 @@ public class ContextServiceImplTest {
             "The ingest contract NON-EXISTING-INGEST_CONTRACT of tenant 1 does not exist");
         assertThat(((VitamError<ContextModel>) response).getErrors().get(3).getDescription()).isEqualTo(
             "The access contract NON-EXISTING-ACCESS_CONTRACT of tenant 1 does not exist");
-        verifyZeroInteractions(functionalBackupService);
+        verifyNoInteractions(functionalBackupService);
     }
 
     @Test
@@ -425,7 +425,7 @@ public class ContextServiceImplTest {
         assertThat(response.isOk()).isFalse();
         assertThat(((VitamError<ContextModel>) response).getErrors().get(0).getDescription()).isEqualTo(
             "The tenant field for permissions should not be null");
-        verifyZeroInteractions(functionalBackupService);
+        verifyNoInteractions(functionalBackupService);
 
     }
 
@@ -448,7 +448,7 @@ public class ContextServiceImplTest {
             any());
         verifyNoMoreInteractions(functionalBackupService);
 
-        verifyZeroInteractions(ingestContractService);
+        verifyNoInteractions(ingestContractService);
     }
 
     @Test
@@ -463,8 +463,8 @@ public class ContextServiceImplTest {
         RequestResponse<ContextModel> response = contextService.createContexts(contextModelList);
         assertThat(response.isOk()).isFalse();
 
-        verifyZeroInteractions(ingestContractService);
-        verifyZeroInteractions(functionalBackupService);
+        verifyNoInteractions(ingestContractService);
+        verifyNoInteractions(functionalBackupService);
     }
 
     @Test

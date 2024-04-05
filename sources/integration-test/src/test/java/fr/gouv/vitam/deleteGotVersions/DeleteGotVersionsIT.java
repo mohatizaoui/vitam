@@ -1084,7 +1084,7 @@ public class DeleteGotVersionsIT extends VitamRuleRunner {
                 .get(0)
                 .get("events");
 
-            assertThat(jsonNode.iterator()).extracting(j -> j.get("outcome").asText())
+            assertThat(jsonNode.iterator()).toIterable().extracting(j -> j.get("outcome").asText())
                 .allMatch(outcome -> outcome.equals(OK.name()));
 
             tmpGriffinFolder.delete();

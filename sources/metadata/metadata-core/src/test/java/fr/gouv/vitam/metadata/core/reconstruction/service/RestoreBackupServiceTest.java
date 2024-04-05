@@ -176,7 +176,7 @@ public class RestoreBackupServiceTest {
                 VitamConfiguration.getRestoreBulkSize());
 
         // then
-        assertThat(res).isNotNull().isEmpty();
+        assertThat(res).isNotNull().toIterable().isEmpty();
     }
 
     @RunWithCustomExecutor

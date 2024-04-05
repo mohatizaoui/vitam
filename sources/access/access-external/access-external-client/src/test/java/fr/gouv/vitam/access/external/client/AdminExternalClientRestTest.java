@@ -1113,7 +1113,7 @@ public class AdminExternalClientRestTest extends ResteasyTestApplication {
 
             when(mock.get()).thenReturn(Response.status(Status.UNSUPPORTED_MEDIA_TYPE).build());
             RequestResponse<ProcessDetail> resp3 =
-                client.listOperationsDetails(new VitamContext(0), mock(ProcessQuery.class));
+                client.listOperationsDetails(new VitamContext(0), new ProcessQuery());
             assertEquals(resp3.getStatus(), Status.UNSUPPORTED_MEDIA_TYPE.getStatusCode());
         }
     }

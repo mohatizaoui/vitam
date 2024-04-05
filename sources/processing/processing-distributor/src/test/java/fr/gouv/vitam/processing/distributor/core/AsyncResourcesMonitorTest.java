@@ -69,7 +69,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 public class AsyncResourcesMonitorTest {
@@ -490,7 +490,7 @@ public class AsyncResourcesMonitorTest {
 
         // Then
         verify(bulkCallback1).notifyWorkflow();
-        verifyZeroInteractions(bulkCallback2);
+        verifyNoInteractions(bulkCallback2);
 
         // Ensure access request of interrupted workflow never checked
         verify(storageClient, times(3)).checkAccessRequestStatuses(eq("strategyId1"), eq("offerId1"),
