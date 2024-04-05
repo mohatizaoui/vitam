@@ -124,7 +124,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>cucumber.api.cli.Main</mainClass>
+                            <mainClass>io.cucumber.core.cli.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -145,7 +145,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>cucumber.api.cli.Main</mainClass>
+                            <mainClass>io.cucumber.core.cli.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
