@@ -2033,9 +2033,9 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "DESCRIPTION",
     "ApiPath": "Description_",
-    "ShortName": "Description_"
+    "ShortName": "Description"
   },
   {
     "FieldName": "DocumentType",
@@ -7446,9 +7446,9 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "DESCRIPTION",
     "ApiPath": "Title_",
-    "ShortName": "Title_"
+    "ShortName": "Intitulé"
   },
   {
     "FieldName": "TransactedDate",
