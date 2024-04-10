@@ -28,6 +28,7 @@ package fr.gouv.vitam.common.model.unit;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import fr.gouv.vitam.common.ParametersChecker;
 import org.apache.commons.collections4.MapUtils;
 
@@ -64,6 +65,7 @@ public class TextByLang {
         return this;
     }
 
+    @JsonIgnore
     public boolean isEmpty() {
         return MapUtils.isEmpty(this.textByLang);
     }
