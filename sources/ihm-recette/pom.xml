@@ -189,6 +189,7 @@
     <quartz.version>2.3.2</quartz.version>
     <quartz-mongodb.version>2.2.0-rc2</quartz-mongodb.version>
     <jta.version>1.1</jta.version>
+    <jib.skip>true</jib.skip>
   </properties>
 
 
@@ -253,6 +254,31 @@
   <build>
     <pluginManagement>
       <plugins>
+        <plugin>
+          <groupId>com.google.cloud.tools</groupId>
+          <artifactId>jib-maven-plugin</artifactId>
+          <version>3.4.0</version>
+          <configuration>
+            <from>
+              <image>gcr.io/distroless/java17</image>
+            </from>
+            <allowInsecureRegistries>true</allowInsecureRegistries>
+            <container>
+              <labels>
+                <git.commit.id>${git.commit.id}</git.commit.id>
+                <mvn.build.version>${project.version}</mvn.build.version>
+              </labels>
+            </container>
+          </configuration>
+          <executions>
+            <execution>
+              <phase>package</phase>
+              <goals>
+                <goal>build</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
         <plugin>
           <groupId>com.github.eirslett</groupId>
           <artifactId>frontend-maven-plugin</artifactId>

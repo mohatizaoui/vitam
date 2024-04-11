@@ -8,6 +8,7 @@
         state: directory
         owner: "{{ vitam_defaults.users.vitam }}"
         group: "{{ vitam_defaults.users.group }}"
+        mode: "{{ '0777' if install_mode == 'container' else vitam_defaults.folder.folder_permission }}"
 
     - name: "Deploy consul agent service declaration for {{ package_name }} service"
       template:
@@ -15,7 +16,7 @@
         dest: "{{ consul_folder_conf }}/service-{{ vitam_struct.vitam_component }}.json"
         owner: "{{ vitam_defaults.users.vitam }}"
         group: "{{ vitam_defaults.users.group }}"
-        mode: "{{ vitam_defaults.folder.conf_permission }}"
+        mode: "{{ '0644' if install_mode == 'container' else vitam_defaults.folder.conf_permission }}"
       tags:
         - consul_conf
       notify:

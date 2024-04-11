@@ -1,0 +1,25 @@
+[Unit]
+Description=Cerebro for elasticsearch
+Documentation=https://github.com/lmenezes/cerebro
+Requires=docker.service
+After=docker.service
+
+[Service]
+ExecStartPre=-/usr/bin/docker pull {{ container_repository.registry_url }}/vitam-external/lmenezes/cerebro:0.9.4
+ExecStartPre=-/usr/bin/docker stop vitam-elasticsearch-cerebro
+ExecStartPre=-/usr/bin/docker rm vitam-elasticsearch-cerebro
+ExecStart=/usr/bin/docker run --rm --net=host --name vitam-elasticsearch-cerebro \
+        -v "/vitam/conf/cerebro/application.conf:/opt/cerebro/conf/application.conf" \
+        -v "/vitam/log/cerebro:/vitam/log/cerebro" \
+        -v "/vitam/data/cerebro:/vitam/data/cerebro" \
+        -v "/vitam/tmp/cerebro:/vitam/tmp/cerebro" \
+        {{ container_repository.registry_url }}/vitam-external/lmenezes/cerebro:0.9.4
+
+ExecStop=/usr/bin/docker stop -t 85 vitam-elasticsearch-cerebro
+ExecReload=/usr/bin/docker restart vitam-elasticsearch-cerebro
+TimeoutStartSec=60
+TimeoutStopSec=30
+StartLimitBurst=6
+
+[Install]
+WantedBy=multi-user.target

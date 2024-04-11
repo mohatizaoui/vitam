@@ -17,6 +17,7 @@
 		<unix.name>ihm-demo</unix.name>
 		<unix.user>vitam</unix.user>
 		<unix.group>vitam</unix.group>
+		<jib.skip>false</jib.skip>
 	</properties>
 
 	<dependencies>
@@ -121,6 +122,29 @@
 		</resources>
 
 		<plugins>
+			<plugin>
+				<groupId>com.google.cloud.tools</groupId>
+				<artifactId>jib-maven-plugin</artifactId>
+				<configuration>
+                    <from>
+                            <image>gcr.io/distroless/java17</image>
+                        </from>
+                        <allowInsecureRegistries>true</allowInsecureRegistries>
+                        <container>
+                            <labels>
+                                <git.commit.id>${git.commit.id}</git.commit.id>
+                                <mvn.build.version>${project.version}</mvn.build.version>
+                            </labels>
+                        </container>
+				 <to>
+				 <image>${env.SERVICE_DOCKER_PUSH_URL}/vitam/ihm-demo</image>
+				 <tags>
+				    <tag>${git.commit.id.describe-short}</tag>
+				 	<tag>${project.version}</tag>
+				 </tags>
+				</to>
+				</configuration>
+			</plugin>
 			<plugin>
 				<!-- Dependency manipulation (copy, unpack) and analysis. -->
 				<artifactId>maven-dependency-plugin</artifactId>

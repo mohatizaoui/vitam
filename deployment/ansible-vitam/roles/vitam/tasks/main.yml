@@ -14,6 +14,7 @@
     - ansible_os_family == "Debian"
     - disable_internet_repositories_install == false
     - ansible_distribution_version | int  < 12
+    - install_mode != "container"
 
 - name: "install openjdk only when Debian"
   apt:
@@ -27,6 +28,7 @@
     - ansible_os_family == "Debian"
     - disable_internet_repositories_install == true
     - ansible_distribution_version | int  < 12
+    - install_mode != "container"
 
 - name: "install openjdk17 only when Debian 12"
   apt:
@@ -40,6 +42,7 @@
     - ansible_os_family == "Debian"
     - disable_internet_repositories_install == true
     - ansible_distribution_version  == "12"
+    - install_mode != "container"
 
 - include_tasks: tape_offer.yml
   when: vitam_struct.vitam_component == "offer"
@@ -57,7 +60,7 @@
     - update_package_vitam
   notify:
     - "vitam - restart service"
-  when: force_vitam_version is not defined
+  when: force_vitam_version is not defined and install_mode != "container"
 
 # Force a specific version to install (even downgrade)
 - block:
@@ -92,7 +95,7 @@
         - "vitam - restart service"
       when: ansible_os_family == "RedHat"
 
-  when: force_vitam_version is defined
+  when: force_vitam_version is defined and install_mode != "container"
 
 #### Configuration ####
 
@@ -125,6 +128,7 @@
     mode: "{{ vitam_defaults.folder.folder_permission }}"
   notify:
     - "vitam - restart service"
+  when: install_mode != "container"
 
 - name: Deploy script for ExecStart
   template:
@@ -137,6 +141,7 @@
     - update_vitam_configuration
   notify:
     - "vitam - restart service"
+  when: install_mode != "container"
 
 - name: Set Debian systemd directory
   set_fact:
@@ -154,7 +159,7 @@
 
 - name: Deploy systemd service file
   template:
-    src: vitam-componentid.service.j2
+    src: "vitam-{{ 'container-' if install_mode == 'container' else '' }}componentid.service.j2"
     dest: "{{ systemd_directory }}/vitam-{{ vitam_struct.vitam_component }}.service"
     owner: "root"
     group: "root"
@@ -177,6 +182,7 @@
     - update_jvmoptions_vitam
   notify:
     - "vitam - restart service"
+  when: install_mode != "container"
 
 - name: Deploy common configuration files
   template:

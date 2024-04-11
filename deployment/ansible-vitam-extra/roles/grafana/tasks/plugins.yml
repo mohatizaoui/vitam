@@ -28,4 +28,4 @@
     dest: "{{ grafana_data_dir }}/plugins"
   with_fileglob:
     - "{{ role_path }}/files/plugins/*.zip"
-  notify: "grafana - restart service"
+  notify: "grafana - restart {{ 'docker' if install_mode == 'container' else 'service' }}"

@@ -11,6 +11,7 @@
   delay: "{{ packages_install_retries_delay }}"
   notify:
     - "kibana - restart service"
+  when: install_mode != "container"
 
 - name: Kibana configuration by templating
   template:
@@ -21,14 +22,56 @@
     mode: 0644
   notify:
     - "kibana - restart service"
+  when: install_mode != "container"
+
+- block:
+
+  - name: Deploy systemd service file for kibana
+    template:
+      src: vitam-container-kibana.service.j2
+      dest: "{{ '/lib/systemd/system' if ansible_os_family == 'Debian' else '/usr/lib/systemd/system' }}/kibana.service"
+      owner: root
+      group: root
+      mode: "0644"
+    notify: "kibana - restart service"
+
+  - name: Create kibana group
+    group:
+      name: kibana
+      state: present
+
+  - name: Create kibana user
+    user:
+      name: kibana
+      state: present
+
+  - name: Check that the conf directory exists
+    file:
+      path: "{{ vitam_defaults.folder.root_path }}/conf/kibana"
+      state: directory
+      owner: kibana
+      group: kibana
+      mode: "0777"
+    notify: "kibana - restart service"
+
+  - name: Kibana configuration by templating
+    template:
+      src: kibana.yml.j2
+      dest: "{{ vitam_defaults.folder.root_path }}/conf/kibana/kibana.yml"
+      owner: root
+      group: root
+      mode: 0644
+    notify: "kibana - restart service"
+
+  when: install_mode == "container"
 
 - name: Ensure Kibana log dir is OK
   file:
     path: "{{ vitam_defaults.folder.root_path }}/log/kibana/"
     state: directory
-    owner: "kibana"
-    group: "kibana"
-    mode: "{{ vitam_defaults.folder.folder_permission }}"
+    owner: kibana
+    group: kibana
+    mode: "{{ '0777' if install_mode == 'container' else vitam_defaults.folder.folder_permission }}"
 
 - name: Enable logrotate for Kibana
   template:
@@ -52,6 +95,7 @@
     state: directory
     owner: "{{ vitam_defaults.users.vitam }}"
     group: "{{ vitam_defaults.users.group }}"
+    mode: "{{ '0777' if install_mode == 'container' else vitam_defaults.folder.folder_permission }}"
 
 - name: Deploy consul agent service declaration
   template:
@@ -59,7 +103,7 @@
     dest: "{{ consul_folder_conf }}/service-{{ kibana_service_name }}.json"
     owner: "{{ vitam_defaults.users.vitam }}"
     group: "{{ vitam_defaults.users.group }}"
-    mode: "{{ vitam_defaults.folder.conf_permission }}"
+    mode: "{{ '0644' if install_mode == 'container' else vitam_defaults.folder.conf_permission }}"
   tags:
     - consul_conf
   notify:

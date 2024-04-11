@@ -1,0 +1,23 @@
+[Unit]
+Description=Prometheus Elasticsearch Exporter
+Documentation=https://github.com/prometheus-community/elasticsearch_exporter
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+ExecStartPre=-/usr/bin/docker pull {{ container_repository.registry_url }}/vitam-external/prometheuscommunity/elasticsearch-exporter:v1.7.0
+ExecStartPre=-/usr/bin/docker stop elasticsearch_exporter
+ExecStartPre=-/usr/bin/docker rm elasticsearch_exporter
+ExecStart=/usr/bin/docker run --rm --net=host --ulimit memlock=-1:-1 --name elasticsearch_exporter \
+        {{ container_repository.registry_url }}/vitam-external/prometheuscommunity/elasticsearch-exporter:v1.7.0 \
+        {% if inventory_hostname in groups['hosts_elasticsearch_data'] %}
+        --es.uri=http://{{ ip_service }}:{{ elasticsearch.data.port_http }} --web.listen-address=:{{ prometheus.elasticsearch_exporter.port | default(9114) }} --web.telemetry-path={{ prometheus.elasticsearch_exporter.metrics_path | default('/metrics') }} --log.level={{ prometheus.elasticsearch_exporter.log_level | default('warn') }}
+        {% elif inventory_hostname in groups['hosts_elasticsearch_log'] %}
+        --es.uri=http://{{ ip_admin }}:{{ elasticsearch.log.port_http }} --web.listen-address=:{{ prometheus.elasticsearch_exporter.port | default(9114) }} --web.telemetry-path={{ prometheus.elasticsearch_exporter.metrics_path | default('/metrics') }} --log.level={{ prometheus.elasticsearch_exporter.log_level | default('warn') }}'
+        {% endif %}
+
+ExecStop=/usr/bin/docker stop -t 85 elasticsearch_exporter
+ExecReload=/usr/bin/docker restart -t 85 elasticsearch_exporter
+TimeoutStartSec=60
+TimeoutStopSec=30
+StartLimitBurst=6

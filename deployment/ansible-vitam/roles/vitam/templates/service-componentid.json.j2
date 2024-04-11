@@ -55,7 +55,7 @@
         "interval": "{{ siegfried.consul_check }}s"
       }
 {% endif %}
-{% if vitam_struct.antivirus is defined %}
+{% if vitam_struct.antivirus is defined and install_mode != "container" %}
       ,{
         "name": "Antivirus check",
         "notes": "Is {{ vitam_struct.antivirus }} running ?",

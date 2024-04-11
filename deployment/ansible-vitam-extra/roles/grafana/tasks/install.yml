@@ -11,6 +11,85 @@
   until: result is succeeded
   delay: "{{ packages_install_retries_delay | default(10) }}"
   notify: "grafana - restart service"
+  when: install_mode != "container"
+
+- block:
+
+  - name: Create Grafana group
+    group:
+      name: grafana
+      state: present
+
+  - name: Create Grafana user
+    user:
+      name: grafana
+      state: present
+      groups: grafana
+
+  - name: Ensure grafana directories are present
+    file:
+      path: "{{ vitam_defaults.folder.root_path | default('/vitam') }}/{{ item }}/grafana/"
+      state: directory
+      owner: "{{ grafana_user }}"
+      group: "{{ grafana_group }}"
+      mode: "{{ '0666' if install_mode == 'container' else  vitam_defaults.folder.conf_permission | default ('0640') }}"
+    loop:
+      - lib
+      - log
+      - conf
+    notify: "grafana - restart docker"
+
+  - name: Apply grafana custom configuration
+    template:
+      src: "grafana.ini.j2"
+      dest: /vitam/conf/grafana/grafana.ini
+      owner: "{{ grafana_user }}"
+      group: "{{ grafana_group }}"
+      mode: "{{ '0666' if install_mode == 'container' else  vitam_defaults.folder.conf_permission | default ('0640') }}"
+    tags: update_grafana_configuration
+    notify: "grafana - restart docker"
+
+  - name: Ensure grafana sub directories are present
+    file:
+      path: "{{ vitam_defaults.folder.root_path | default('/vitam') }}/conf/grafana/provisioning"
+      state: directory
+      owner: "{{ grafana_user }}"
+      group: "{{ grafana_group }}"
+      mode: "{{ '0777' if install_mode == 'container' else  vitam_defaults.folder.conf_permission | default ('0640') }}"
+
+  - name: Ensure grafana sub directories are present
+    file:
+      path: "{{ vitam_defaults.folder.root_path | default('/vitam') }}/conf/grafana/provisioning/{{ item }}"
+      state: directory
+      owner: "{{ grafana_user }}"
+      group: "{{ grafana_group }}"
+      mode: "{{ '0777' if install_mode == 'container' else  vitam_defaults.folder.conf_permission | default ('0640') }}"
+    loop:
+      - datasources
+      - dashboards
+
+  - name: Pull Docker image
+    docker_image:
+      name: "{{ container_repository.registry_url }}/vitam-external/grafana/grafana:{{ grafana_version }}"
+      state: present
+
+  - name: Start Docker container
+    docker_container:
+      name: grafana-server
+      image: "{{ container_repository.registry_url }}/vitam-external/grafana/grafana:{{ grafana_version }}"
+      state: started
+      restart_policy: always
+      ports:
+        - "3000:3000"
+      volumes:
+        - "/vitam/conf/grafana:/vitam/conf/grafana:rw"
+        - "/vitam/lib/grafana:/var/lib/grafana:rw"
+        - "/vitam/log/grafana:/var/log/grafana:rw"
+      env:
+        GF_PATHS_CONFIG: "/vitam/conf/grafana/grafana.ini"
+      user: 0
+
+  when: install_mode == "container"
 
 - name: Ensure grafana directories are present
   file:
@@ -22,17 +101,18 @@
   loop:
     - lib
     - log
+  when: install_mode != "container"
 
 # When upgrade the Grafana version, get the corresponding grafana.ini file and replace templates/grafana.ini.j2 with corresponding changes
 - name: Apply grafana custom configuration
   template:
     src: "grafana.ini.j2"
-    dest: /etc/grafana/grafana.ini
+    dest: "{{ '/vitam/conf/grafana' if install_mode == 'container' else '/etc/grafana' }}/grafana.ini"
     owner: "{{ grafana_user }}"
     group: "{{ grafana_group }}"
     mode: "{{ vitam_defaults.folder.conf_permission | default ('0640') }}"
   tags: update_grafana_configuration
-  notify: "grafana - restart service"
+  notify: "grafana - restart {{ 'docker' if install_mode == 'container' else 'service' }}"
 
 - meta: flush_handlers
 
@@ -41,6 +121,7 @@
     name: grafana-server
     enabled: "{{ grafana.at_boot | default(service_at_boot) }}"
     state: started
+  when: install_mode != "container"
 
 #### Consul configuration ####
 
@@ -50,7 +131,7 @@
     state: directory
     owner: "{{ vitam_defaults.users.vitam | default('vitam') }}"
     group: "{{ vitam_defaults.users.group | default('vitam') }}"
-    mode: "{{ vitam_defaults.folder.folder_permission | default('0750') }}"
+    mode: "{{ '0777' if install_mode == 'container' else vitam_defaults.folder.folder_permission }}"
 
 - name: Deploy consul agent service declaration
   template:
@@ -58,12 +139,12 @@
     dest: "{{ consul_folder_conf }}/service-grafana.json"
     owner: "{{ vitam_defaults.users.vitam | default('vitam') }}"
     group: "{{ vitam_defaults.users.group | default('vitam') }}"
-    mode: "{{ vitam_defaults.folder.conf_permission | default('0640') }}"
+    mode: "{{ '0644' if install_mode == 'container' else vitam_defaults.folder.conf_permission }}"
   tags:
     - consul_conf
     - update_grafana_configuration
   notify:
-    - "grafana - reload consul configuration"
+    - "grafana - restart {{ 'docker' if install_mode == 'container' else 'service' }}"
 
 - name: Wait for grafana-server port {{ grafana.http_port | default(3000) }} to be open
   wait_for:

@@ -2,8 +2,8 @@
 
 grafana_user: grafana
 grafana_group: grafana
-grafana_path_provisioning: "/etc/grafana/provisioning"
-grafana_data_dir: "/var/lib/grafana"
+grafana_path_provisioning: "{{ '/vitam/conf/grafana/provisioning' if install_mode == 'container' else '/etc/grafana/provisioning' }}"
+grafana_data_dir: "{{ '/vitam/lib/grafana' if install_mode == 'container' else '/var/lib/grafana' }}"
 
 service_at_boot: "{{ vitam_defaults.services.at_boot | default(false) }}"
 

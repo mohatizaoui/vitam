@@ -7,3 +7,4 @@
     - selinux_conf
     - syslogd
     - filebeat
+    - docker

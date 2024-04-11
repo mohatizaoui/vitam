@@ -10,10 +10,11 @@
   until: result is succeeded
   delay: "{{ packages_install_retries_delay | default(10) }}"
   notify: "prometheus-node-exporter - restart service"
+  when: install_mode != "container"
 
 - name: Deploy systemd service file for vitam-node-exporter
   template:
-    src: vitam-node-exporter.service.j2
+    src: vitam-{{ 'container-' if install_mode == 'container' else '' }}node-exporter.service.j2
     dest: "{{ '/lib/systemd/system' if ansible_distribution == 'Debian' else '/usr/lib/systemd/system' }}/vitam-node-exporter.service"
     owner: root
     group: root
@@ -27,7 +28,7 @@
     state: directory
     owner: "{{ vitam_defaults.users.vitam | default('vitam') }}"
     group: "{{ vitam_defaults.users.group | default('vitam') }}"
-    mode: "{{ vitam_defaults.folder.folder_permission | default('0750') }}"
+    mode: "{{ '0755' if install_mode == 'container' else vitam_defaults.folder.folder_permission }}"
   with_items:
     - app
     - bin
@@ -48,6 +49,7 @@
   tags:
     - update_node_exporter_configuration
   notify: "prometheus-node-exporter - restart service"
+  when: install_mode != "container"
 
 - name: Add directory for textfile_collector
   file:
@@ -55,7 +57,7 @@
     state: directory
     owner: "{{ vitam_defaults.users.vitam | default('vitam') }}"
     group: "{{ vitam_defaults.users.group | default('vitam') }}"
-    mode: "{{ vitam_defaults.folder.folder_permission | default('0750') }}"
+    mode: "{{ '0755' if install_mode == 'container' else vitam_defaults.folder.folder_permission }}"
   tags:
     - update_node_exporter_configuration
 
@@ -81,7 +83,7 @@
     state: directory
     owner: "{{ vitam_defaults.users.vitam | default('vitam') }}"
     group: "{{ vitam_defaults.users.group | default('vitam') }}"
-    mode: "{{ vitam_defaults.folder.folder_permission | default('0750') }}"
+    mode: "{{ '0777' if install_mode == 'container' else vitam_defaults.folder.folder_permission }}"
 
 - name: Deploy consul agent service declaration
   template:
@@ -89,7 +91,7 @@
     dest: "{{ consul_folder_conf }}/service-node-exporter.json"
     owner: "{{ vitam_defaults.users.vitam | default('vitam') }}"
     group: "{{ vitam_defaults.users.group | default('vitam') }}"
-    mode: "{{ vitam_defaults.folder.conf_permission | default('0640') }}"
+    mode: "{{ '0644' if install_mode == 'container' else vitam_defaults.folder.conf_permission }}"
   tags:
     - consul_conf
     - update_node_exporter_configuration

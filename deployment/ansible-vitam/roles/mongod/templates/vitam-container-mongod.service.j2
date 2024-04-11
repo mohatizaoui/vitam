@@ -1,0 +1,32 @@
+[Unit]
+Description=MongoDB (mongod) Database Service (Docker version)
+Requires=docker.service
+After=docker.service
+
+[Service]
+ExecStartPre=-/usr/bin/docker pull {{ container_repository.registry_url }}/vitam-external/mongodb/mongodb-community-server:7.0.7-ubuntu2204
+ExecStartPre=-/usr/bin/docker stop vitam-mongod
+ExecStartPre=-/usr/bin/docker rm vitam-mongod
+ExecStart=/usr/bin/docker run --rm --net=host --name vitam-mongod --user 1003:1003 \
+        -v "/vitam/conf/mongod:/etc/mongo:rw" \
+        -v "/vitam/conf/mongod/mongoc.conf:/etc/mongo/mongoc.conf:rw" \
+        -v "/vitam/conf/mongod/keyfile:/etc/mongo/keyfile:rw" \
+        -v "/vitam/conf/mongod/keyfile:/vitam/conf/mongod/keyfile:rw" \
+        -v "/vitam/log/mongod:/vitam/log/mongod:rw" \
+        -v "/vitam/script/mongod:/vitam/script/mongod:rw" \
+        -v "/vitam/data/mongod:/data/db:rw" \
+        -v "/vitam/app/mongod:/vitam/app/mongod:rw" \
+        -v "/vitam/tmp/mongod:/vitam/tmp/mongod:rw" \
+        -v /etc/localtime:/etc/localtime:ro \
+        {{ container_repository.registry_url }}/vitam-external/mongodb/mongodb-community-server:7.0.7-ubuntu2204 \
+        --config /etc/mongo/mongod.conf \
+        --dbpath /data/db
+
+ExecStop=/usr/bin/docker stop -t 85 vitam-mongod
+ExecReload=/usr/bin/docker restart -t 85 vitam-mongod
+TimeoutStartSec=60
+TimeoutStopSec=30
+StartLimitBurst=6
+
+[Install]
+WantedBy=multi-user.target

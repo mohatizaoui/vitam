@@ -1,0 +1,26 @@
+[Unit]
+Description=Elasticsearch-log
+Documentation=http://www.elastic.co
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+ExecStartPre=-/usr/bin/docker pull {{ container_repository.registry_url }}/vitam-external/elasticsearch:{{ elasticsearch_version }}
+ExecStartPre=-/usr/bin/docker stop vitam-elasticsearch-log
+ExecStartPre=-/usr/bin/docker rm vitam-elasticsearch-log
+ExecStart=/usr/bin/docker run --rm --net=host --user 1003:1003 --ulimit memlock=-1:-1 -e 'ES_HOME=/usr/share/elasticsearch' \
+		-e 'ES_PATH_CONF={{ vitam_defaults.folder.root_path }}/conf/elasticsearch-log' --name vitam-elasticsearch-log \
+        -v "/vitam/conf/elasticsearch-log:/vitam/conf/elasticsearch-log:rw" \
+        -v "/vitam/log/elasticsearch-log:/vitam/log/elasticsearch-log:rw" \
+        -v "/vitam/data/elasticsearch-log:/vitam/data/elasticsearch-log:rw" \
+        -v "/vitam/tmp/elasticsearch-log:/vitam/tmp/elasticsearch-log:rw" \
+        {{ container_repository.registry_url }}/vitam-external/elasticsearch:{{ elasticsearch_version }}
+
+ExecStop=/usr/bin/docker stop -t 85 vitam-elasticsearch-log
+ExecReload=/usr/bin/docker restart -t 85 vitam-elasticsearch-log
+TimeoutStartSec=60
+TimeoutStopSec=30
+StartLimitBurst=6
+
+[Install]
+WantedBy=multi-user.target
