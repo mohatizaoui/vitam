@@ -7,7 +7,7 @@
     owner: "{{ grafana_user }}"
     group: "{{ grafana_group }}"
     mode: "{{ vitam_defaults.folder.conf_permission | default (0440) }}"
-  notify: "grafana - restart service"
+  notify: "grafana - restart {{ 'docker' if install_mode == 'container' else 'service' }}"
 
 - name: Copy dashboard json files to provisioning dashboard folder
   copy:
@@ -96,4 +96,4 @@
     owner: "{{ grafana_user }}"
     group: "{{ grafana_group }}"
     mode: "{{ vitam_defaults.folder.conf_permission | default (0440) }}"
-  notify: "grafana - restart service"
+  notify: "grafana - restart {{ 'docker' if install_mode == 'container' else 'service' }}"

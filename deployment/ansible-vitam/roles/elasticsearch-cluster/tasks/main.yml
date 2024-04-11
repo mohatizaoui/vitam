@@ -43,6 +43,10 @@
 
 #### Elasticsearch installation ####
 
+- name: "change max map count"
+  shell: sysctl -w vm.max_map_count=262144
+  when: install_mode == "container"
+
 - name: "Install {{ elasticsearch_package }} packages"
   package:
     name:
@@ -55,6 +59,20 @@
   delay: "{{ packages_install_retries_delay }}"
   notify:
     - "elasticsearch-cluster - restart service"
+  when: install_mode != "container"
+
+- name: "Install vitam-user-vitamdb packages"
+  package:
+    name:
+      - vitam-user-vitamdb
+    state: present
+  register: result
+  retries: "{{ packages_install_retries_number }}"
+  until: result is succeeded
+  delay: "{{ packages_install_retries_delay }}"
+  notify:
+    - "elasticsearch-cluster - restart service"
+  when: install_mode == "container"
 
 - name: Install ICU analysis plugin for elastic-data
   package:
@@ -69,7 +87,7 @@
 
 - name: "Deploy systemd service file for vitam-{{ composant.cluster_name }}"
   template:
-    src: "vitam-{{ composant.cluster_name }}.service.j2"
+    src: "vitam-{{ 'container-' if install_mode == 'container' else '' }}{{ composant.cluster_name }}.service.j2"
     dest: "{{ '/lib/systemd/system' if ansible_os_family == 'Debian' else '/usr/lib/systemd/system' }}/vitam-{{ composant.cluster_name }}.service"
     owner: root
     group: root
@@ -101,17 +119,20 @@
     name: elasticsearch
     state: stopped
     enabled: no
+  when: install_mode != "container"
 
 - name: ensure default config file is readable for anyone
   file:
     path: "/etc/{{ sysconfig_dir }}/elasticsearch"
     mode: 0664
+  when: install_mode != "container"
 
 - name: change default config ES_PATH_CONF value
   lineinfile:
     path: "/etc/{{ sysconfig_dir }}/elasticsearch"
     regexp: '^ES_PATH_CONF='
     line: "#ES_PATH_CONF="
+  when: install_mode != "container"
 
 - name: Ensure elasticsearch directories exist
   file:
@@ -200,6 +221,7 @@
     state: directory
     owner: "{{ vitam_defaults.users.vitam }}"
     group: "{{ vitam_defaults.users.group }}"
+    mode: "{{ '0777' if install_mode == 'container' else vitam_defaults.folder.folder_permission }}"
 
 - name: Deploy consul agent service declaration
   template:
@@ -207,7 +229,7 @@
     dest: "{{ consul_folder_conf }}/service-{{ composant.cluster_name }}.json"
     owner: "{{ vitam_defaults.users.vitam }}"
     group: "{{ vitam_defaults.users.group }}"
-    mode: "{{ vitam_defaults.folder.conf_permission }}"
+    mode: "{{ '0644' if install_mode == 'container' else vitam_defaults.folder.conf_permission }}"
   tags:
     - consul_conf
   notify:

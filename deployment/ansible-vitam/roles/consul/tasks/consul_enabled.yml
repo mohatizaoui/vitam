@@ -16,10 +16,11 @@
   until: result is succeeded
   delay: "{{ packages_install_retries_delay }}"
   notify: "consul - restart service"
+  when: install_mode != "container"
 
 - name: Deploy systemd service file for vitam-consul
   template:
-    src: vitam-consul.service.j2
+    src: "vitam-{{ 'container-' if install_mode == 'container' else '' }}consul.service.j2"
     dest: "{{ '/lib/systemd/system' if ansible_os_family == 'Debian' else '/usr/lib/systemd/system' }}/vitam-consul.service"
     owner: root
     group: root
@@ -38,6 +39,7 @@
   when:
     - selinux_state | lower in ["enforcing", "permissive"]
     - selinux_policy | lower == "targeted" # We don't handle mls mode for now
+    - install_mode != "container"
 
 #### Configuration ####
 
@@ -47,7 +49,7 @@
     state: directory
     owner: "{{ vitam_defaults.users.vitam }}"
     group: "{{ vitam_defaults.users.group }}"
-    mode: "{{ vitam_defaults.folder.folder_permission }}"
+    mode: "{{ '0777' if install_mode == 'container' else vitam_defaults.folder.folder_permission }}"
   with_items:
     - app
     - bin
@@ -67,6 +69,7 @@
     group: "{{ vitam_defaults.users.group }}"
     mode: "{{ vitam_defaults.folder.conf_permission }}"
   notify: "consul - restart service"
+  when: install_mode != "container"
 
 - name: Deploy consul common configuration files
   template:
@@ -74,7 +77,7 @@
     dest: "{{ consul_folder_conf }}/consul.json"
     owner: "{{ vitam_defaults.users.vitam }}"
     group: "{{ vitam_defaults.users.group }}"
-    mode: "{{ vitam_defaults.folder.conf_permission }}"
+    mode: "{{ '0644' if install_mode == 'container' else vitam_defaults.folder.conf_permission }}"
   notify: "consul - restart service"
 
 # Ensure that the installation is complete and consul up before setting up the system-wide dns resolver...
@@ -109,6 +112,7 @@
     retries: "{{ packages_install_retries_number }}"
     until: result is succeeded
     delay: "{{ packages_install_retries_delay }}"
+    when: ansible_os_family == "Debian"
 
   # For Debian add nameserver 127.0.0.1 entry in /etc/resolvconf/resolv.conf.d/head
   - name: Add nameserver entry in /etc/resolvconf/resolv.conf.d/head
@@ -138,10 +142,16 @@
       - vitam_dns_localhost_enforce.service
     when: ansible_os_family == "RedHat"
 
-  when: ansible_virtualization_type not in ['docker', 'container']
+  when: ansible_virtualization_type not in ['docker', 'container'] and install_mode != "container"
 
 - name: Wait for consul port to be open
   wait_for:
     host: 127.0.0.1
     port: 53
     state: started
+
+- name: Restart vitam-consul
+  service:
+    name: vitam-consul
+    state: restarted
+  when: install_mode == "container"

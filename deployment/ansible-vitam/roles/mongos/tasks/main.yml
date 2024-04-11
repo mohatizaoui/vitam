@@ -12,10 +12,23 @@
   delay: "{{ packages_install_retries_delay }}"
   notify:
     - "mongos - restart service"
+  when: install_mode != "container"
+
+- name: "Install vitam-user-vitamdb packages"
+  package:
+    name:
+      - vitam-user-vitamdb
+    state: present
+  register: result
+  retries: "{{ packages_install_retries_number }}"
+  until: result is succeeded
+  delay: "{{ packages_install_retries_delay }}"
+  notify: "mongod - restart service"
+  when: install_mode == "container"
 
 - name: Deploy systemd service file for vitam-mongos
   template:
-    src: vitam-mongos.service.j2
+    src: "vitam-{{ 'container-' if install_mode == 'container' else '' }}mongos.service.j2"
     dest: "{{ '/lib/systemd/system' if ansible_os_family == 'Debian' else '/usr/lib/systemd/system' }}/vitam-mongos.service"
     owner: root
     group: root
@@ -97,6 +110,7 @@
     state: directory
     owner: "{{ vitam_defaults.users.vitam }}"
     group: "{{ vitam_defaults.users.group }}"
+    mode: "{{ '0777' if install_mode == 'container' else vitam_defaults.folder.folder_permission }}"
   tags:
     - update_mongodb_configuration
 
@@ -106,7 +120,7 @@
     dest: "{{ consul_folder_conf }}/service-mongos.json"
     owner: "{{ vitam_defaults.users.vitam }}"
     group: "{{ vitam_defaults.users.group }}"
-    mode: "{{ vitam_defaults.folder.conf_permission }}"
+    mode: "{{ '0644' if install_mode == 'container' else vitam_defaults.folder.conf_permission }}"
   tags:
     - consul_conf
     - update_mongodb_configuration

@@ -1,0 +1,24 @@
+[Unit]
+Description=Prometheus Alertmanager
+Documentation=https://github.com/prometheus/alertmanager
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+ExecStartPre=-/usr/bin/docker pull {{ container_repository.registry_url }}/vitam-external/prom/alertmanager:v0.27.0
+ExecStartPre=-/usr/bin/docker stop prometheus-alertmanager
+ExecStartPre=-/usr/bin/docker rm prometheus-alertmanager
+ExecStart=/usr/bin/docker run --rm --net=host --ulimit memlock=-1:-1 --name prometheus-alertmanager \
+        -v "/vitam/conf/alertmanager/alertmanager.yml:/vitam/conf/alertmanager/alertmanager.yml:rw" \
+        -v "/vitam/data/alertmanager/alertmanager.yml:/vitam/data/alertmanager:rw" \
+        {{ container_repository.registry_url }}/vitam-external/prom/alertmanager:v0.27.0 \
+        --config.file=/vitam/conf/alertmanager/alertmanager.yml \
+        --web.listen-address={{ ip_admin }}:{{ prometheus.alertmanager.api_port | default(9093) }} \
+        --cluster.listen-address={{ ip_admin }}:{{ prometheus.alertmanager.cluster_port | default(9094) }} \
+        --storage.path=/vitam/data/alertmanager
+
+ExecStop=/usr/bin/docker stop -t 85 prometheus-alertmanager
+ExecReload=/usr/bin/docker restart -t 85 prometheus-alertmanager
+TimeoutStartSec=60
+TimeoutStopSec=30
+StartLimitBurst=6

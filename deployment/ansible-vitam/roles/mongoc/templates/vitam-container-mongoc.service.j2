@@ -1,0 +1,32 @@
+[Unit]
+Description=MongoDB (mongoc) Database Service (Docker version)
+Requires=docker.service
+After=docker.service
+
+[Service]
+ExecStartPre=-/usr/bin/docker pull {{ container_repository.registry_url }}/vitam-external/mongodb/mongodb-community-server:7.0.7-ubuntu2204
+ExecStartPre=-/usr/bin/docker stop vitam-mongoc
+ExecStartPre=-/usr/bin/docker rm vitam-mongoc
+ExecStart=/usr/bin/docker run --rm --net=host --name vitam-mongoc --user 1003:1003 \
+        -v "/vitam/conf/mongoc:/etc/mongo" \
+        -v "/vitam/conf/mongoc/mongoc.conf:/etc/mongo/mongoc.conf" \
+        -v "/vitam/conf/mongoc/keyfile:/etc/mongo/keyfile" \
+        -v "/vitam/conf/mongoc/keyfile:/vitam/conf/mongoc/keyfile" \
+        -v "/vitam/log/mongoc:/vitam/log/mongoc" \
+        -v "/vitam/script/mongoc:/vitam/script/mongoc" \
+        -v "/vitam/data/mongoc:/data/db" \
+        -v "/vitam/app/mongoc:/vitam/app/mongoc" \
+        -v "/vitam/tmp/mongoc:/vitam/tmp/mongoc" \
+        -v /etc/localtime:/etc/localtime:ro \
+        {{ container_repository.registry_url }}/vitam-external/mongodb/mongodb-community-server:7.0.7-ubuntu2204 \
+        --config /etc/mongo/mongoc.conf \
+        --dbpath /data/db
+
+ExecStop=/usr/bin/docker stop -t 85 vitam-mongoc
+ExecReload=/usr/bin/docker restart -t 85 vitam-mongoc
+TimeoutStartSec=60
+TimeoutStopSec=30
+StartLimitBurst=6
+
+[Install]
+WantedBy=multi-user.target

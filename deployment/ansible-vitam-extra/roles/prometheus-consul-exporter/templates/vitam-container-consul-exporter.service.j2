@@ -1,0 +1,23 @@
+[Unit]
+Description=Prometheus Consul Exporter
+Documentation=https://github.com/prometheus/consul_exporter
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+ExecStartPre=-/usr/bin/docker pull {{ container_repository.registry_url }}/vitam-external/prom/consul-exporter:v0.11.0
+ExecStartPre=-/usr/bin/docker stop consul_exporter
+ExecStartPre=-/usr/bin/docker rm consul_exporter
+ExecStart=/usr/bin/docker run --rm --net=host --ulimit memlock=-1:-1 --name consul_exporter \
+        {{ container_repository.registry_url }}/vitam-external/prom/consul-exporter:v0.11.0 \
+        {% if inventory_hostname in groups['hosts_consul_server'] %}
+        --consul.server={{ ip_admin }}:8500
+        {% else %}
+        --consul.server=127.0.0.1:8500
+        {% endif %}
+
+ExecStop=/usr/bin/docker stop -t 85 consul_exporter
+ExecReload=/usr/bin/docker restart -t 85 consul_exporter
+TimeoutStartSec=60
+TimeoutStopSec=30
+StartLimitBurst=6

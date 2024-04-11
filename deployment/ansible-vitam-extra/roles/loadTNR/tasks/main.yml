@@ -5,6 +5,16 @@
     path: "{{ TNR_output }}"
     state: absent
 
+- name: Install vitam-ihm-recette package
+  package:
+    name: "vitam-ihm-recette"
+    state: latest
+  register: result
+  retries: "{{ packages_install_retries_number }}"
+  until: result is succeeded
+  delay: "{{ packages_install_retries_delay }}"
+  when: install_mode == "container"
+
 - name: ihm-recette auth
   uri:
     method: POST

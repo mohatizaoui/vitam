@@ -5,6 +5,12 @@
     path: "{{ vitam_defaults.folder.root_path }}"
   register: root_dir
 
+- name: Create the user vitam
+  user:
+    name: vitam
+    shell: /bin/bash
+  when: install_mode == "container"
+
 - name: fail if this VITAM parent dir is a symlink
   fail:
     msg: "Whoops! VITAM parent dir should not be a symlink !"

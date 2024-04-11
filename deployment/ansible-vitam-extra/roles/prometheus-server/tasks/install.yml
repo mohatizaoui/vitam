@@ -9,10 +9,11 @@
   until: result is succeeded
   delay: "{{ packages_install_retries_delay | default(10) }}"
   notify: "prometheus-server - restart service"
+  when: install_mode != "container"
 
 - name: Deploy systemd service file for vitam-prometheus
   template:
-    src: vitam-prometheus.service.j2
+    src: vitam-{{ 'container-' if install_mode == 'container' else '' }}prometheus.service.j2
     dest: "{{ '/lib/systemd/system' if ansible_os_family == 'Debian' else '/usr/lib/systemd/system' }}/vitam-prometheus.service"
     owner: root
     group: root
@@ -26,7 +27,7 @@
     state: directory
     owner: "{{ vitam_defaults.users.vitam | default('vitam') }}"
     group: "{{ vitam_defaults.users.group | default('vitam') }}"
-    mode: "{{ vitam_defaults.folder.folder_permission | default('0750') }}"
+    mode: "{{ '0777' if install_mode == 'container' else vitam_defaults.folder.folder_permission }}"
   with_items:
     - app
     - bin
@@ -48,6 +49,7 @@
     group: "{{ vitam_defaults.users.group | default('vitam') }}"
     mode: "{{ vitam_defaults.folder.conf_permission | default('0640') }}"
   notify: "prometheus-server - restart service"
+  when: install_mode != "container"
 
 - name: Check that the prometheus rules directory exist
   file:
@@ -55,7 +57,7 @@
     state: directory
     owner: "{{ vitam_defaults.users.vitam | default('vitam') }}"
     group: "{{ vitam_defaults.users.group | default('vitam') }}"
-    mode: "{{ vitam_defaults.folder.folder_permission | default('0750') }}"
+    mode: "{{ '0755' if install_mode == 'container' else vitam_defaults.folder.folder_permission }}"
   notify: "prometheus-server - restart service"
 
 - name: Copy prometheus common rule files
@@ -64,7 +66,7 @@
     dest: "{{ prometheus_server_config_path }}/rules/{{ item }}"
     owner: "{{ vitam_defaults.users.vitam | default('vitam') }}"
     group: "{{ vitam_defaults.users.group | default('vitam') }}"
-    mode: "{{ vitam_defaults.folder.conf_permission | default('0640') }}"
+    mode: "{{ '0644' if install_mode == 'container' else vitam_defaults.folder.conf_permission }}"
   with_items:
     - cpu.yml
     - disk.yml
@@ -80,11 +82,10 @@
     dest: "{{ prometheus_server_config_path }}/rules/{{ item }}"
     owner: "{{ vitam_defaults.users.vitam | default('vitam') }}"
     group: "{{ vitam_defaults.users.group | default('vitam') }}"
-    mode: "{{ vitam_defaults.folder.conf_permission | default('0640') }}"
+    mode: "{{ '0644' if install_mode == 'container' else vitam_defaults.folder.conf_permission }}"
   with_items:
     - vitam_workflow.yml
   when: primary_site | lower == "true"
-  notify: "prometheus-server - restart service"
 
 - name: Copy prometheus secondary-site rule files
   copy:
@@ -92,7 +93,7 @@
     dest: "{{ prometheus_server_config_path }}/rules/{{ item }}"
     owner: "{{ vitam_defaults.users.vitam | default('vitam') }}"
     group: "{{ vitam_defaults.users.group | default('vitam') }}"
-    mode: "{{ vitam_defaults.folder.conf_permission | default('0640') }}"
+    mode: "{{ '0644' if install_mode == 'container' else vitam_defaults.folder.conf_permission }}"
   with_items:
     - reconstruction.yml
   when: primary_site | lower != "true"
@@ -130,7 +131,7 @@
     dest: "{{ prometheus_server_config_path }}/prometheus.yml"
     owner: "{{ vitam_defaults.users.vitam | default('vitam') }}"
     group: "{{ vitam_defaults.users.group | default('vitam') }}"
-    mode: "{{ vitam_defaults.folder.conf_permission | default('0640') }}"
+    mode: "{{ '0644' if install_mode == 'container' else vitam_defaults.folder.conf_permission }}"
   tags:
     - update_prometheus_configuration
     - generate_prometheus_conf
@@ -144,7 +145,7 @@
     state: directory
     owner: "{{ vitam_defaults.users.vitam | default('vitam') }}"
     group: "{{ vitam_defaults.users.group | default('vitam') }}"
-    mode: "{{ vitam_defaults.folder.folder_permission | default('0750') }}"
+    mode: "{{ '0777' if install_mode == 'container' else vitam_defaults.folder.folder_permission }}"
 
 - name: Deploy consul agent service declaration
   template:
@@ -152,7 +153,7 @@
     dest: "{{ consul_folder_conf }}/service-prometheus.json"
     owner: "{{ vitam_defaults.users.vitam | default('vitam') }}"
     group: "{{ vitam_defaults.users.group | default('vitam') }}"
-    mode: "{{ vitam_defaults.folder.conf_permission | default('0640') }}"
+    mode: "{{ '0644' if install_mode == 'container' else vitam_defaults.folder.conf_permission }}"
   tags:
     - consul_conf
     - update_prometheus_configuration

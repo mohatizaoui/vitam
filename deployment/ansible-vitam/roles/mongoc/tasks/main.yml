@@ -11,16 +11,30 @@
   until: result is succeeded
   delay: "{{ packages_install_retries_delay }}"
   notify: "mongoc - restart service"
+  when: install_mode != "container"
+
+- name: "Install vitam-user-vitamdb packages"
+  package:
+    name:
+      - vitam-user-vitamdb
+    state: present
+  register: result
+  retries: "{{ packages_install_retries_number }}"
+  until: result is succeeded
+  delay: "{{ packages_install_retries_delay }}"
+  notify: "mongoc - restart service"
+  when: install_mode == "container"
 
 - name: Disable mongod default service
   service:
     name: mongod
     state: stopped
     enabled: no
+  when: install_mode != "container"
 
 - name: Deploy systemd service file for vitam-mongoc
   template:
-    src: vitam-mongoc.service.j2
+    src: "vitam-{{ 'container-' if install_mode == 'container' else '' }}mongoc.service.j2"
     dest: "{{ '/lib/systemd/system' if ansible_os_family == 'Debian' else '/usr/lib/systemd/system' }}/vitam-mongoc.service"
     owner: root
     group: root
@@ -91,7 +105,7 @@
     state: directory
     owner: "{{ vitam_defaults.users.vitam }}"
     group: "{{ vitam_defaults.users.group }}"
-    mode: "{{ vitam_defaults.folder.folder_permission }}"
+    mode: "{{ '0777' if install_mode == 'container' else vitam_defaults.folder.folder_permission }}"
 
 - name: Deploy consul agent service declaration
   template:
@@ -99,7 +113,7 @@
     dest: "{{ consul_folder_conf }}/service-mongoc.json"
     owner: "{{ vitam_defaults.users.vitamdb }}"
     group: "{{ vitam_defaults.users.group }}"
-    mode: "{{ vitam_defaults.folder.conf_permission }}"
+    mode: "{{ '0644' if install_mode == 'container' else vitam_defaults.folder.conf_permission }}"
   tags:
     - consul_conf
     - update_mongodb_configuration

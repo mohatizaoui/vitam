@@ -9,10 +9,11 @@
   until: result is succeeded
   delay: "{{ packages_install_retries_delay | default(10) }}"
   notify: "prometheus-alertmanager - restart service"
+  when: install_mode != "container"
 
 - name: Deploy systemd service file for vitam-alertmanager
   template:
-    src: vitam-alertmanager.service.j2
+    src: vitam-{{ 'container-' if install_mode == 'container' else '' }}alertmanager.service.j2
     dest: "{{ '/lib/systemd/system' if ansible_os_family == 'Debian' else '/usr/lib/systemd/system' }}/vitam-alertmanager.service"
     owner: root
     group: root
@@ -27,7 +28,7 @@
     state: directory
     owner: "{{ vitam_defaults.users.vitam | default('vitam') }}"
     group: "{{ vitam_defaults.users.group | default('vitam') }}"
-    mode: "{{ vitam_defaults.folder.folder_permission | default('0750') }}"
+    mode: "{{ '0777' if install_mode == 'container' else vitam_defaults.folder.folder_permission }}"
   with_items:
     - app
     - bin
@@ -48,6 +49,7 @@
   tags:
     - update_alertmanager_configuration
   notify: "prometheus-alertmanager - restart service"
+  when: install_mode != "container"
 
 - name: Create the prometheus alertmanager configuration file
   template:
@@ -55,7 +57,7 @@
     dest: "{{ prometheus_alertmanager_config_path }}/alertmanager.yml"
     owner: "{{ vitam_defaults.users.vitam | default('vitam') }}"
     group: "{{ vitam_defaults.users.group | default('vitam') }}"
-    mode: "{{ vitam_defaults.folder.conf_permission | default('0640') }}"
+    mode: "{{ '0644' if install_mode == 'container' else vitam_defaults.folder.conf_permission }}"
   tags:
     - update_alertmanager_configuration
   notify:
@@ -76,7 +78,7 @@
     dest: "{{ consul_folder_conf }}/service-alertmanager.json"
     owner: "{{ vitam_defaults.users.vitam | default('vitam') }}"
     group: "{{ vitam_defaults.users.group | default('vitam') }}"
-    mode: "{{ vitam_defaults.folder.conf_permission | default('0640') }}"
+    mode: "{{ '0644' if install_mode == 'container' else vitam_defaults.folder.conf_permission }}"
   tags:
     - consul_conf
     - update_alertmanager_configuration

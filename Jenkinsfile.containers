@@ -1,0 +1,166 @@
+pipeline {
+
+    agent {
+        label 'java11'
+    }
+
+    environment {
+        MVN_BASE = "/usr/local/maven/bin/mvn --settings ${pwd()}/.ci/settings.xml"
+        MVN_COMMAND = "${MVN_BASE} --show-version --batch-mode --errors --fail-at-end -DdeployAtEnd=true "
+        M2_REPO = "${HOME}/.m2"
+        CI = credentials("app-jenkins")
+        SERVICE_SONAR_URL = credentials("service-sonar-java11-url")
+        SERVICE_NEXUS_URL = credentials("service-nexus-url")
+        SERVICE_REPO_SSHURL = credentials("repository-connection-string")
+        SERVICE_GIT_URL = credentials("service-gitlab-url")
+        SERVICE_DOCKER_PULL_URL=credentials("SERVICE_DOCKER_PULL_URL")
+        SERVICE_DOCKER_PUSH_URL=credentials("SERVICE_DOCKER_PUSH_URL")
+        SERVICE_REPOSITORY_URL=credentials("service-repository-url")
+        GITHUB_ACCOUNT_TOKEN = credentials("vitam-prg-token")
+        ES_VERSION="7.17.19"
+        MONGO_VERSION="7.0.7"
+        MINIO_VERSION="RELEASE.2020-04-15T00-39-01Z" // more precise than edge
+        OPENIO_VERSION="18.10"
+    }
+
+    stages {
+        stage('Build and create vitam docker images'){
+            steps {
+                withCredentials([
+                [$class: 'UsernamePasswordMultiBinding', credentialsId: 'app-jenkins',usernameVariable: 'CI_USR', passwordVariable: 'CI_PSW'],
+                string(credentialsId: "service-nexus-url", variable: 'SERVICE_NEXUS_URL') ]) {
+                    sh '''
+                    npm config get cache
+                    npm config get
+                    npm config ls -l
+                    echo $HOME
+                    cat /etc/passwd
+                    whoami
+                    '''
+
+                    sh '$MVN_COMMAND -f sources/pom.xml install jib:build -Dmaven.test.skip=true -DskipTests=true -Djacoco.skip=true -Dlicense.skip -Denv.SERVICE_NEXUS_URL=$SERVICE_NEXUS_URL -DsendCredentialsOverHttp=true -Djib.to.auth.username=$CI_USR -Djib.to.auth.password=$CI_PSW'
+                }
+            }
+        }
+
+        // stage('Build and create doc package docker images'){
+        //     steps {
+        //         withCredentials([
+        //         [$class: 'UsernamePasswordMultiBinding', credentialsId: 'app-jenkins',usernameVariable: 'CI_USR', passwordVariable: 'CI_PSW'],
+        //         string(credentialsId: "service-nexus-url", variable: 'SERVICE_NEXUS_URL')
+        //         ]) {
+        //             sh '''
+        //             npm config get cache
+        //             npm config get
+        //             npm config ls -l
+        //             echo $HOME
+        //             cat /etc/passwd
+        //             whoami
+        //             '''
+
+        //             sh '$MVN_COMMAND -f doc/pom.xml clean install jib:build -Denv.SERVICE_NEXUS_URL=$SERVICE_NEXUS_URL -DsendCredentialsOverHttp=true -Djib.to.auth.username=$CI_USR -Djib.to.auth.password=$CI_PSW deploy'
+        //         }
+        //     }
+        // }
+
+        stage('build cots') {
+            steps {
+                withCredentials([
+                [$class: 'UsernamePasswordMultiBinding', credentialsId: 'app-jenkins',usernameVariable: 'CI_USR', passwordVariable: 'CI_PSW'],
+                string(credentialsId: "service-nexus-url", variable: 'SERVICE_NEXUS_URL')
+                ]) {
+                    sh 'echo $CI_PSW | docker login  ${SERVICE_DOCKER_PULL_URL} -u $CI_USR --password-stdin'
+                    sh 'echo $CI_PSW | docker login  ${SERVICE_DOCKER_PUSH_URL} -u $CI_USR --password-stdin'
+                }
+
+                dir("containers/vitam-external") {
+                    script {
+                        def filePath = 'sources.containers'
+                        // Read the file contents
+                        def fileContents = readFile file: filePath
+                        def lines = fileContents.split('\n')
+
+                        // Iterate over the lines
+                        lines.each { line ->
+                            // Process each line as needed
+                            sh "docker pull ${SERVICE_DOCKER_PULL_URL}/${line}"
+                            sh "docker tag ${SERVICE_DOCKER_PULL_URL}/${line} ${SERVICE_DOCKER_PUSH_URL}/vitam-external/${line}"
+                            sh "docker push ${SERVICE_DOCKER_PUSH_URL}/vitam-external/${line}"
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Set scanner prerequisites') {
+            steps {
+                // Install trivy
+                sh 'sudo curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh -s -- -b /usr/local/bin v0.47.0'
+                sh 'sudo curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl > html.tpl'
+            }
+        }
+
+        stage('Scan containers') {
+            steps {
+                script {
+                    def dockerImages = [
+                        '$SERVICE_DOCKER_PUSH_URL/vitam/access-external',
+                        '$SERVICE_DOCKER_PUSH_URL/vitam/access-internal',
+                        '$SERVICE_DOCKER_PUSH_URL/vitam/batch-report',
+                        '$SERVICE_DOCKER_PUSH_URL/vitam/collect-external',
+                        '$SERVICE_DOCKER_PUSH_URL/vitam/collect-internal',
+                        '$SERVICE_DOCKER_PUSH_URL/vitam/functional-administration',
+                        '$SERVICE_DOCKER_PUSH_URL/vitam/ihm-demo',
+                        '$SERVICE_DOCKER_PUSH_URL/vitam/ihm-recette',
+                        '$SERVICE_DOCKER_PUSH_URL/vitam/ingest-internal',
+                        '$SERVICE_DOCKER_PUSH_URL/vitam/ingest-external',
+                        '$SERVICE_DOCKER_PUSH_URL/vitam/ingest-security',
+                        '$SERVICE_DOCKER_PUSH_URL/vitam/logbook',
+                        '$SERVICE_DOCKER_PUSH_URL/vitam/metadata',
+                        '$SERVICE_DOCKER_PUSH_URL/vitam/metadata-collect',
+                        '$SERVICE_DOCKER_PUSH_URL/vitam/offer',
+                        '$SERVICE_DOCKER_PUSH_URL/vitam/processing',
+                        '$SERVICE_DOCKER_PUSH_URL/vitam/scheduler',
+                        '$SERVICE_DOCKER_PUSH_URL/vitam/storage-engine',
+                        '$SERVICE_DOCKER_PUSH_URL/vitam/worker',
+                        '$SERVICE_DOCKER_PUSH_URL/vitam/workspace'
+                        // Add more images as needed
+                    ]
+
+                    // Create reports directory
+                    sh 'mkdir -p reports'
+
+                    // Iterate over the list of images
+                    dockerImages.each { image ->
+                        def imageName = image.tokenize('/').last()
+
+                        // Pull the Docker image
+                        sh "docker pull $image"
+
+                        // Run Trivy scan
+                        sh "trivy image $image --ignore-unfixed --vuln-type os,library --format template --template '@html.tpl' -o reports/${imageName}-scan.html"
+
+                        // Publish HTML report
+                        publishHTML target: [
+                            allowMissing: true,
+                            alwaysLinkToLastBuild: true,
+                            keepAll: true,
+                            reportDir: 'reports',
+                            reportFiles: "${imageName}-scan.html",
+                            reportName: "Trivy Scan ${imageName}",
+                            reportTitles: "Trivy Scan ${imageName}"
+                        ]
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        // Clean after build
+        always {
+            sh 'docker system prune -a -f'
+            cleanWs()
+        }
+    }
+}

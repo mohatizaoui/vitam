@@ -1,0 +1,23 @@
+[Unit]
+Description=Prometheus Node Exporter
+Documentation=https://github.com/prometheus/node_exporter
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+ExecStartPre=-/usr/bin/docker pull {{ container_repository.registry_url }}/vitam-external/prom/node-exporter:v1.7.0
+ExecStartPre=-/usr/bin/docker stop node_exporter
+ExecStartPre=-/usr/bin/docker rm node_exporter
+ExecStart=/usr/bin/docker run --rm --net=host --ulimit memlock=-1:-1 --name node_exporter \
+        -v "/vitam/data/node_exporter:/vitam/data/node_exporter:rw" \
+        {{ container_repository.registry_url }}/vitam-external/prom/node-exporter:v1.7.0 \
+        --web.listen-address={{ ip_admin }}:{{ prometheus.node_exporter.port | default(9101) }} \
+        --web.telemetry-path={{ prometheus.node_exporter.metrics_path | default('/metrics') }} \
+        --collector.textfile.directory /vitam/data/node_exporter/textfile_collector \
+        --log.level={{ prometheus.node_exporter.log_level | default('warn') }}
+
+ExecStop=/usr/bin/docker stop -t 85 node_exporter
+ExecReload=/usr/bin/docker restart -t 85 node_exporter
+TimeoutStartSec=60
+TimeoutStopSec=30
+StartLimitBurst=6

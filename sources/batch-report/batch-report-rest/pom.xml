@@ -15,6 +15,7 @@
         <unix.name>batch-report</unix.name>
         <unix.user>vitam</unix.user>
         <unix.group>vitam</unix.group>
+        <jib.skip>false</jib.skip>
     </properties>
 
     <dependencies>
@@ -83,6 +84,19 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>com.google.cloud.tools</groupId>
+                <artifactId>jib-maven-plugin</artifactId>
+                <configuration>
+                    <to>
+                        <image>${env.SERVICE_DOCKER_PUSH_URL}/vitam/batch-report</image>
+                        <tags>
+                            <tag>${git.commit.id.describe-short}</tag>
+                            <tag>${project.version}</tag>
+                        </tags>
+                    </to>
+                </configuration>
+            </plugin>
             <plugin>
                 <!-- Dependency manipulation (copy, unpack) and analysis. -->
                 <artifactId>maven-dependency-plugin</artifactId>

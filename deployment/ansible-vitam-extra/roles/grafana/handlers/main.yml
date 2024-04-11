@@ -6,6 +6,12 @@
     state: restarted
     daemon_reload: yes
 
+- name: "grafana - restart docker"
+  docker_container:
+    name: grafana-server
+    state: started
+    restart: true
+
 - name: "grafana - reload consul configuration"
   systemd:
     name: vitam-consul
