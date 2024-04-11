@@ -147,6 +147,7 @@ public class SchemaServiceTest {
         assertEquals(addressBirthPlaceAddressSchemaElt.getSedaField(), "Address");
         assertEquals(addressBirthPlaceAddressSchemaElt.getCollection(), "Unit");
         assertEquals(addressBirthPlaceAddressSchemaElt.getCardinality(), SchemaCardinality.ONE);
+        assertEquals(addressBirthPlaceAddressSchemaElt.getDescription(), "Mapping : unit-es-mapping.json. En plus des balises Tag et Keyword, il est possible d'indexer les objets avec des éléments pré-définis : Adresse. Références : ead.address");
         assertThat(addressBirthPlaceAddressSchemaElt.getSedaVersions()).contains("2.1");
         assertThat(addressBirthPlaceAddressSchemaElt.getSedaVersions()).contains("2.2");
         assertThat(addressBirthPlaceAddressSchemaElt.getSedaVersions()).contains("2.3");
@@ -242,6 +243,7 @@ public class SchemaServiceTest {
         assertEquals(addressBirthPlaceAddressSchemaElt.getSedaField(), "Address");
         assertEquals(addressBirthPlaceAddressSchemaElt.getCollection(), "Unit");
         assertEquals(addressBirthPlaceAddressSchemaElt.getCardinality(), SchemaCardinality.ONE);
+        assertEquals(addressBirthPlaceAddressSchemaElt.getDescription(), "Mapping : unit-es-mapping.json. En plus des balises Tag et Keyword, il est possible d'indexer les objets avec des éléments pré-définis : Adresse. Références : ead.address");
         assertThat(addressBirthPlaceAddressSchemaElt.getSedaVersions()).contains("2.1");
         assertThat(addressBirthPlaceAddressSchemaElt.getSedaVersions()).contains("2.2");
         assertThat(addressBirthPlaceAddressSchemaElt.getSedaVersions()).contains("2.3");
