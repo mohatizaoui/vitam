@@ -1,5 +1,6 @@
 ---
 
+## Must be set when install_mode == 'legacy'
 # vitam_repositories:
 #   - key: repo1 # Mandatory: Only on CentOS/AlmaLinux
 #     value: http://path_to_repo1 # Mandatory: Path to the repository
@@ -7,3 +8,9 @@
 #     gpgkey: path_to_custom_key # Optionnal: Only if gpgcheck is enabled; Default to official Vitam GPG Key
 #     subtree: "./" # Optionnal: Only on Debian; Default to ./
 #     proxy: http://proxy_url # Optionnal: Only on CentOS/AlmaLinux; Default to _none_
+
+## Must be set when install_mode == 'container'
+# container_repository:
+#   registry_url:
+#   username:
+#   password:

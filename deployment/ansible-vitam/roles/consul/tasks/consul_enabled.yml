@@ -103,7 +103,6 @@
 - block:
 
   # Install resolvconf package to maintain proper nameserver for consul resolution
-
   - name: Install resolvconf package
     package:
       name: "{{ 'resolvconf' if ansible_distribution == 'Debian' else 'vitam-resolvconf' }}"
@@ -112,7 +111,6 @@
     retries: "{{ packages_install_retries_number }}"
     until: result is succeeded
     delay: "{{ packages_install_retries_delay }}"
-    when: ansible_os_family == "Debian"
 
   # For Debian add nameserver 127.0.0.1 entry in /etc/resolvconf/resolv.conf.d/head
   - name: Add nameserver entry in /etc/resolvconf/resolv.conf.d/head
@@ -142,7 +140,9 @@
       - vitam_dns_localhost_enforce.service
     when: ansible_os_family == "RedHat"
 
-  when: ansible_virtualization_type not in ['docker', 'container'] and install_mode != "container"
+  when:
+    - ansible_virtualization_type not in ['docker', 'container']
+    - install_mode != "container"
 
 - name: Wait for consul port to be open
   wait_for:
