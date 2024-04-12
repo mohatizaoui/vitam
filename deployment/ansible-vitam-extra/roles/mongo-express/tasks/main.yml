@@ -16,7 +16,7 @@
 - name: Install docker
   include_role:
     name: docker
-  when: mongos_list |first == inventory_hostname and install_mode != "container"
+  when: mongos_list |first == inventory_hostname
 
 - name: Deploy mongo-express container
   docker_container:

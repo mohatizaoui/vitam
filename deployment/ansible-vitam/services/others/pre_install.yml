@@ -7,4 +7,4 @@
     - selinux_conf
     - syslogd
     - filebeat
-    - docker
+    - { role: docker, when: install_mode == 'container' }
