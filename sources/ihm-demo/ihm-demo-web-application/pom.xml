@@ -17,7 +17,7 @@
 		<unix.name>ihm-demo</unix.name>
 		<unix.user>vitam</unix.user>
 		<unix.group>vitam</unix.group>
-		<jib.skip>false</jib.skip>
+		<jib.skip>true</jib.skip>
 	</properties>
 
 	<dependencies>

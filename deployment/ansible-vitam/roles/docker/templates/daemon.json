@@ -1,7 +1,0 @@
-{
-  "bip": "{{ docker_opts.docker_bip }}",
-  "insecure-registries" : [ "{{ container_repository.registry_url }}" ],
-  "default-address-pools": [
-      { "base": "{{ docker_opts.docker_address_pools_cidr }}", "size": {{ docker_opts.docker_address_pools_size }} }
-  ]
-}

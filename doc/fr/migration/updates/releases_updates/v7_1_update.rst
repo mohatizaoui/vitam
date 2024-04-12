@@ -30,6 +30,79 @@ Vous devrez les remplacer par la nouvelle convention sous forme de tableau pour 
 Cette nouvelle convention offre plus de souplesse dans la définition de l'ensemble des rôles possible pour un cluster Elasticsearch (cf. `Documentation officielle - Node Roles <https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-node.html#node-roles>`_).
 Attention une mauvaise configuration de ces paramètres avancés pourrait mener à une incohérence de la configuration rendant vos clusters non fonctionnels.
 
+Modifications du rôle curator
+-----------------------------
+
+Le rôle curator permet la rotation des indexes du cluster elasticsearch-log. Il a pour but de permettre de fermer et supprimer au bout d'un certain temps les anciens indexes afin de limiter l'empreinte mémoire associée.
+
+Dans un contexte d'environnement de production, les logs applicatif vitam son stockés par défaut pour une durée de 365j et les accesslogs pour une durée de 180j.
+
+Les paramètres ``curator.log.*`` ont évolués en ``curator.indices.*``.
+
+Ancienne configuration par défaut:
+
+.. code-block:: yaml
+
+curator:
+  log:
+    metrics:
+      close: 7
+      delete: 30
+    logstash:
+      close: 10
+      delete: 30
+    metricbeat:
+      close: 5
+      delete: 10
+    packetbeat:
+      close: 5
+      delete: 10
+
+..
+
+Nouvelle configuration par défaut:
+
+.. code-block:: yaml
+
+curator:
+  ## Pour personnaliser les dates d'exécution des actions close/delete
+  # actions:
+  #   close:
+  #     calendar: '*-*-* 00:10:00'
+  #   delete:
+  #     calendar: '*-*-* 00:20:00'
+  indices:
+    vitam:
+      close: 30
+      delete: 365
+    access:
+      close: 30
+      delete: 180
+    system:
+      close: 7
+      delete: 30
+    metricbeat:
+      close: 5
+      delete: 10
+    packetbeat:
+      close: 5
+      delete: 10
+    ## Exemple d'index personnel avec préfixe personnalisé
+    ## Sans le paramètre prefix, les actions seront exécutées sur les indexes nommés logstash-mycustom*
+    ## Avec le paramètre prefix défini, les actions seront exécutées sur les indexes nommés myprefix*
+    # mycustom:
+    #   prefix: myprefix
+    #   close: 15
+    #   delete: 30
+
+..
+
+Le listing des éléments ``curator.indices.<index_name>`` permet de créer les fichiers de configuration adaptés à la mise en place des rotations de chacun des indexes.
+
+Chacun des nouveaux indices sera préfixé selon la convention de nommage ``logstash-<index_name>``.
+
+Si vous aviez personnalisés le prefix des indexes à gérer par curator à l'aide de la variable ``curator.log.prefix`` (par défaut 'logstash-*'). Vous devez maintenant la modifier à l'aide du paramètre ``curator.indices.<index_name>.prefix``.
+
 Procédures à exécuter AVANT la montée de version
 ================================================
 

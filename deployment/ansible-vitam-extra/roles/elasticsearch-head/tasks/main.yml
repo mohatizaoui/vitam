@@ -3,7 +3,6 @@
 - name: Install docker
   import_role:
     name: docker
-  when: install_mode != "container"
 
 - name: ensure old elasticsearch-head image is absent
   docker_container:

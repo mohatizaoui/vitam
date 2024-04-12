@@ -64,25 +64,29 @@
 
 - name: installer docker & pip3
   apt:
-    name: ['docker-ce','python3-pip']
+    name: ['docker-ce','python3-pip','python3-docker']
     state: latest
   register: result
   retries: "{{ packages_install_retries_number }}"
   until: result is succeeded
   delay: "{{ packages_install_retries_delay }}"
-  when: ansible_distribution_version == "11"
+  when: ansible_distribution_version == "11" or ansible_distribution_version == "12"
 
-- name: upgrade pip & install docker python package
-  pip:
-    name: ['pip','docker']
-    state: latest
-  environment:
-    http_proxy: "{{ http_proxy_environnement }}"
-    https_proxy: "{{ http_proxy_environnement }}"
-  when: http_proxy_environnement is defined and http_proxy_environnement != ""
+- block:
 
-- name: upgrade pip & install docker python package
-  pip:
-    name: ['pip','docker']
-    state: latest
-  when: http_proxy_environnement is not defined or http_proxy_environnement == ""
+  - name: upgrade pip & install docker python package
+    pip:
+      name: ['pip','docker']
+      state: latest
+    environment:
+      http_proxy: "{{ http_proxy_environnement }}"
+      https_proxy: "{{ http_proxy_environnement }}"
+    when: http_proxy_environnement is defined and http_proxy_environnement != ""
+
+  - name: upgrade pip & install docker python package
+    pip:
+      name: ['pip','docker']
+      state: latest
+    when: http_proxy_environnement is not defined or http_proxy_environnement == ""
+
+  when: ansible_distribution_version | int < 11

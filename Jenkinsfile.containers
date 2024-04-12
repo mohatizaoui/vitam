@@ -38,7 +38,7 @@ pipeline {
                     whoami
                     '''
 
-                    sh '$MVN_COMMAND -f sources/pom.xml install jib:build -Dmaven.test.skip=true -DskipTests=true -Djacoco.skip=true -Dlicense.skip -Denv.SERVICE_NEXUS_URL=$SERVICE_NEXUS_URL -DsendCredentialsOverHttp=true -Djib.to.auth.username=$CI_USR -Djib.to.auth.password=$CI_PSW'
+                    sh '$MVN_COMMAND -f sources/pom.xml install jib:build -D!jib.skip -Dmaven.test.skip=true -DskipTests=true -Djacoco.skip=true -Dlicense.skip -Denv.SERVICE_NEXUS_URL=$SERVICE_NEXUS_URL -DsendCredentialsOverHttp=true -Djib.to.auth.username=$CI_USR -Djib.to.auth.password=$CI_PSW'
                 }
             }
         }
