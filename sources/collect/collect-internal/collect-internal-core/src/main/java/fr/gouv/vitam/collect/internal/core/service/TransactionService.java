@@ -37,10 +37,10 @@ import fr.gouv.vitam.collect.common.dto.TransactionDto;
 import fr.gouv.vitam.collect.common.enums.TransactionStatus;
 import fr.gouv.vitam.collect.common.exception.CollectInternalException;
 import fr.gouv.vitam.collect.common.exception.CollectInternalInvalidRequestException;
+import fr.gouv.vitam.collect.common.exception.CollectInternalNotFoundException;
 import fr.gouv.vitam.collect.common.exception.CollectRequestResponse;
 import fr.gouv.vitam.collect.internal.core.common.Batch;
 import fr.gouv.vitam.collect.internal.core.common.BatchStatus;
-import fr.gouv.vitam.collect.internal.core.common.ManifestContext;
 import fr.gouv.vitam.collect.internal.core.common.TransactionModel;
 import fr.gouv.vitam.collect.internal.core.helpers.CollectHelper;
 import fr.gouv.vitam.collect.internal.core.repository.MetadataRepository;
@@ -457,30 +457,21 @@ public class TransactionService {
      *
      * @throws CollectInternalException exception thrown in case of error
      */
-    public void replaceTransaction(TransactionDto transactionDto) throws CollectInternalException {
+    public TransactionModel replaceTransaction(TransactionDto transactionDto) throws CollectInternalException {
         final String projectId = transactionDto.getProjectId();
         Optional<ProjectDto> projectOpt = projectService.findProject(projectId);
         if (projectOpt.isEmpty()) {
             throw new CollectInternalException("project with id " + projectId + " not found");
         }
-
         final String id = transactionDto.getId();
-        final String name = transactionDto.getName();
-        final ManifestContext manifestContext =
-            CollectHelper.mapTransactionDtoToManifestContext(transactionDto, projectOpt.get());
-        final Integer tenant = transactionDto.getTenant();
-        final TransactionStatus status = TransactionStatus.valueOf(transactionDto.getStatus());
-        // Update Dates
-        final String creationDate = transactionDto.getCreationDate();
-        final String lastUpdate = transactionDto.getLastUpdate();
-
-        final Boolean automaticIngest = transactionDto.getAutomaticIngest();
-
         TransactionModel transactionModel =
-            new TransactionModel(id, name, manifestContext, status, projectId, creationDate, lastUpdate, tenant,
-                automaticIngest);
-
+            findTransaction(id).orElseThrow(() -> new CollectInternalNotFoundException("transaction with id " + id + " not found"));
+        transactionModel.setName(transactionDto.getName());
+        transactionModel.setManifestContext(
+            CollectHelper.mapTransactionDtoToManifestContext(transactionDto, projectOpt.get()));
+        transactionModel.setLastUpdate(LocalDateUtil.getFormattedDateForMongo(LocalDateUtil.now()));
         transactionRepository.replaceTransaction(transactionModel);
+        return transactionModel;
     }
 
     /**

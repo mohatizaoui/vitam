@@ -162,7 +162,7 @@ public class CollectIngestIT extends VitamRuleRunner {
                 JsonHandler.getFromJsonNode(((RequestResponseOK<JsonNode>) projectResponse).getFirstResult(),
                     ProjectDto.class);
 
-            TransactionDto transactiondto = initTransaction();
+            TransactionDto transactiondto = initTransaction(projectDtoResult.getId());
 
             RequestResponse<JsonNode> transactionResponse =
                 collectClient.initTransaction(vitamContext, transactiondto, projectDtoResult.getId());
@@ -299,7 +299,7 @@ public class CollectIngestIT extends VitamRuleRunner {
                 JsonHandler.getFromJsonNode(((RequestResponseOK<JsonNode>) projectResponse).getFirstResult(),
                     ProjectDto.class);
 
-            final TransactionDto transactiondto = initTransaction();
+            final TransactionDto transactiondto = initTransaction(projectDtoResult.getId());
 
             final RequestResponse<JsonNode> transactionResponse =
                 collectClient.initTransaction(vitamContext, transactiondto, projectDtoResult.getId());

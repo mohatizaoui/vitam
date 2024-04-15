@@ -34,6 +34,7 @@ import fr.gouv.vitam.collect.common.dto.TransactionDto;
 import fr.gouv.vitam.collect.common.enums.TransactionStatus;
 import fr.gouv.vitam.collect.common.exception.CollectInternalException;
 import fr.gouv.vitam.collect.common.exception.CollectInternalInvalidRequestException;
+import fr.gouv.vitam.collect.common.exception.CollectInternalNotFoundException;
 import fr.gouv.vitam.collect.common.exception.CollectRequestResponse;
 import fr.gouv.vitam.collect.internal.core.common.TransactionModel;
 import fr.gouv.vitam.collect.internal.core.helpers.CollectHelper;
@@ -169,22 +170,12 @@ public class TransactionInternalResource {
         try {
             ParametersChecker.checkParameter("You must supply transaction data!", transactionDto);
             SanityChecker.checkJsonAll(JsonHandler.toJsonNode(transactionDto));
-            Optional<TransactionModel> transactionModel = transactionService.findTransaction(transactionDto.getId());
-            if (transactionModel.isEmpty()) {
-                LOGGER.error(TRANSACTION_NOT_FOUND_OR_INVALID_STATUS);
-                return CollectRequestResponse.toVitamError(NOT_FOUND, TRANSACTION_NOT_FOUND_OR_INVALID_STATUS);
-            }
-
-            // TODO : Move setting internal Fields to the service
-            Integer tenantId = ParameterHelper.getTenantParameter();
-            transactionDto.setTenant(tenantId);
-            transactionDto.setStatus(transactionModel.get().getStatus().name());
-            transactionDto.setProjectId(transactionModel.get().getProjectId());
-            transactionDto.setCreationDate(transactionModel.get().getCreationDate());
-            transactionDto.setLastUpdate(LocalDateUtil.now().toString());
-            transactionService.replaceTransaction(transactionDto);
-
-            return CollectRequestResponse.toResponseOK(transactionDto);
+            TransactionModel transactionModel = transactionService.replaceTransaction(transactionDto);
+            TransactionDto result = CollectHelper.convertTransactionModelToTransactionDto(transactionModel);
+            return CollectRequestResponse.toResponseOK(result);
+        } catch (CollectInternalNotFoundException e) {
+            LOGGER.error(TRANSACTION_NOT_FOUND_OR_INVALID_STATUS);
+            return CollectRequestResponse.toVitamError(NOT_FOUND, TRANSACTION_NOT_FOUND_OR_INVALID_STATUS);
         } catch (CollectInternalException e) {
             return CollectRequestResponse.toVitamError(INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
         } catch (IllegalArgumentException | InvalidParseOperationException e) {
