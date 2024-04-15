@@ -406,6 +406,7 @@ public class SchemaService {
                 unitSchema.setTypeDetail(SchemaTypeDetail.valueOf(typeDetail.getType()));
                 Optional.ofNullable(ontologyElt.getStringSize()).ifPresent(
                     stringSize -> unitSchema.setStringSize(SchemaStringSizeType.valueOf(stringSize.getSize())));
+                unitSchema.setDescription(ontologyElt.getDescription());
                 if (SchemaOrigin.EXTERNAL.equals(unitSchema.getOrigin()) && unitSchema.getType() == null) {
                     unitSchema.setType(SchemaType.valueOf(ontologyElt.getType().getType()));
                 }
