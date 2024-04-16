@@ -1185,7 +1185,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "ArchiveUnitProfile",
     "SedaField": "ArchiveUnitProfile",
     "ShortName": "Profil d'unité archivistique"
@@ -8728,7 +8728,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules",
     "ShortName": "_computedInheritedRules"
   },
@@ -8746,7 +8746,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.AccessRule",
     "ShortName": "AccessRule"
   },
@@ -8764,7 +8764,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.AccessRule.EndDates",
     "ShortName": "EndDates"
   },
@@ -8782,7 +8782,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.AccessRule.InheritanceOrigin",
     "ShortName": "InheritanceOrigin"
   },
@@ -8800,7 +8800,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.AccessRule.InheritedRuleIds",
     "ShortName": "InheritedRuleIds"
   },
@@ -8818,7 +8818,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.AccessRule.MaxEndDate",
     "ShortName": "MaxEndDate"
   },
@@ -8836,7 +8836,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.AccessRule.Rules",
     "ShortName": "Rules"
   },
@@ -8854,7 +8854,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.AccessRule.Rules.EndDate",
     "SedaField": "EndDate",
     "ShortName": "Date de fin"
@@ -8873,7 +8873,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.AccessRule.Rules.Rule",
     "SedaField": "Rule",
     "ShortName": "Règle de gestion"
@@ -8892,7 +8892,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.AppraisalRule",
     "ShortName": "AppraisalRule"
   },
@@ -8910,7 +8910,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.AppraisalRule.EndDates",
     "ShortName": "EndDates"
   },
@@ -8928,7 +8928,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.AppraisalRule.FinalAction",
     "SedaField": "FinalAction",
     "ShortName": "Sort final"
@@ -8947,7 +8947,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.AppraisalRule.InheritanceOrigin",
     "ShortName": "InheritanceOrigin"
   },
@@ -8965,7 +8965,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.AppraisalRule.InheritedRuleIds",
     "ShortName": "InheritedRuleIds"
   },
@@ -8983,7 +8983,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.AppraisalRule.MaxEndDate",
     "ShortName": "MaxEndDate"
   },
@@ -9001,7 +9001,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.AppraisalRule.Rules",
     "ShortName": "Rules"
   },
@@ -9019,7 +9019,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.AppraisalRule.Rules.EndDate",
     "SedaField": "EndDate",
     "ShortName": "Date de fin"
@@ -9038,7 +9038,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.AppraisalRule.Rules.Rule",
     "SedaField": "Rule",
     "ShortName": "Règle de gestion"
@@ -9057,7 +9057,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.ClassificationRule",
     "ShortName": "ClassificationRule"
   },
@@ -9075,7 +9075,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.ClassificationRule.EndDates",
     "ShortName": "EndDates"
   },
@@ -9093,7 +9093,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.ClassificationRule.InheritanceOrigin",
     "ShortName": "InheritanceOrigin"
   },
@@ -9111,7 +9111,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.ClassificationRule.InheritedRuleIds",
     "ShortName": "InheritedRuleIds"
   },
@@ -9129,7 +9129,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.ClassificationRule.MaxEndDate",
     "ShortName": "MaxEndDate"
   },
@@ -9147,7 +9147,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.ClassificationRule.Rules",
     "ShortName": "Rules"
   },
@@ -9165,7 +9165,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.ClassificationRule.Rules.EndDate",
     "SedaField": "EndDate",
     "ShortName": "Date de fin"
@@ -9184,7 +9184,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.ClassificationRule.Rules.Rule",
     "SedaField": "Rule",
     "ShortName": "Règle de gestion"
@@ -9203,7 +9203,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.DisseminationRule",
     "ShortName": "DisseminationRule"
   },
@@ -9221,7 +9221,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.DisseminationRule.EndDates",
     "ShortName": "EndDates"
   },
@@ -9239,7 +9239,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.DisseminationRule.InheritanceOrigin",
     "ShortName": "InheritanceOrigin"
   },
@@ -9257,7 +9257,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.DisseminationRule.InheritedRuleIds",
     "ShortName": "InheritedRuleIds"
   },
@@ -9275,7 +9275,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.DisseminationRule.MaxEndDate",
     "ShortName": "MaxEndDate"
   },
@@ -9293,7 +9293,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.DisseminationRule.Rules",
     "ShortName": "Rules"
   },
@@ -9311,7 +9311,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.DisseminationRule.Rules.EndDate",
     "SedaField": "EndDate",
     "ShortName": "Date de fin"
@@ -9330,7 +9330,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.DisseminationRule.Rules.Rule",
     "SedaField": "Rule",
     "ShortName": "Règle de gestion"
@@ -9349,7 +9349,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.HoldRule",
     "ShortName": "HoldRule"
   },
@@ -9367,7 +9367,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.HoldRule.EndDates",
     "ShortName": "EndDates"
   },
@@ -9385,7 +9385,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.HoldRule.InheritanceOrigin",
     "ShortName": "InheritanceOrigin"
   },
@@ -9403,7 +9403,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.HoldRule.InheritedRuleIds",
     "ShortName": "InheritedRuleIds"
   },
@@ -9421,7 +9421,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.HoldRule.MaxEndDate",
     "ShortName": "MaxEndDate"
   },
@@ -9439,7 +9439,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.HoldRule.Rules",
     "ShortName": "Rules"
   },
@@ -9457,7 +9457,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.HoldRule.Rules.EndDate",
     "SedaField": "EndDate",
     "ShortName": "Date de fin"
@@ -9476,7 +9476,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.HoldRule.Rules.Rule",
     "SedaField": "Rule",
     "ShortName": "Règle de gestion"
@@ -9495,7 +9495,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.NeedAuthorization",
     "SedaField": "NeedAuthorization",
     "ShortName": "Autorisation"
@@ -9514,7 +9514,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.ReuseRule",
     "ShortName": "ReuseRule"
   },
@@ -9532,7 +9532,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.ReuseRule.EndDates",
     "ShortName": "EndDates"
   },
@@ -9550,7 +9550,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.ReuseRule.InheritanceOrigin",
     "ShortName": "InheritanceOrigin"
   },
@@ -9568,7 +9568,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.ReuseRule.InheritedRuleIds",
     "ShortName": "InheritedRuleIds"
   },
@@ -9586,7 +9586,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.ReuseRule.MaxEndDate",
     "ShortName": "MaxEndDate"
   },
@@ -9604,7 +9604,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.ReuseRule.Rules",
     "ShortName": "Rules"
   },
@@ -9622,7 +9622,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.ReuseRule.Rules.EndDate",
     "SedaField": "EndDate",
     "ShortName": "Date de fin"
@@ -9641,7 +9641,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.ReuseRule.Rules.Rule",
     "SedaField": "Rule",
     "ShortName": "Règle de gestion"
@@ -9660,7 +9660,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.StorageRule",
     "ShortName": "StorageRule"
   },
@@ -9678,7 +9678,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.StorageRule.EndDates",
     "ShortName": "EndDates"
   },
@@ -9696,7 +9696,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.StorageRule.FinalAction",
     "SedaField": "FinalAction",
     "ShortName": "Sort final"
@@ -9715,7 +9715,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.StorageRule.InheritanceOrigin",
     "ShortName": "InheritanceOrigin"
   },
@@ -9733,7 +9733,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.StorageRule.InheritedRuleIds",
     "ShortName": "InheritedRuleIds"
   },
@@ -9751,7 +9751,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.StorageRule.MaxEndDate",
     "ShortName": "MaxEndDate"
   },
@@ -9769,7 +9769,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.StorageRule.Rules",
     "ShortName": "Rules"
   },
@@ -9787,7 +9787,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.StorageRule.Rules.EndDate",
     "SedaField": "EndDate",
     "ShortName": "Date de fin"
@@ -9806,7 +9806,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.StorageRule.Rules.Rule",
     "SedaField": "Rule",
     "ShortName": "Règle de gestion"
@@ -9825,7 +9825,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.indexationDate",
     "ShortName": "indexationDate"
   },
@@ -9843,7 +9843,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.inheritedRulesAPIOutput",
     "ShortName": "inheritedRulesAPIOutput"
   },
@@ -9861,7 +9861,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#elimination",
     "ShortName": "_elimination"
   },
@@ -9879,7 +9879,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#elimination.DestroyableOriginatingAgencies",
     "ShortName": "DestroyableOriginatingAgencies"
   },
@@ -9897,7 +9897,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#elimination.ExtendedInfo",
     "ShortName": "ExtendedInfo"
   },
@@ -9915,7 +9915,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#elimination.ExtendedInfo.ExtendedInfoDetails",
     "ShortName": "ExtendedInfoDetails"
   },
@@ -9933,7 +9933,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#elimination.ExtendedInfo.ExtendedInfoDetails.DestroyableOriginatingAgencies",
     "ShortName": "DestroyableOriginatingAgencies"
   },
@@ -9951,7 +9951,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#elimination.ExtendedInfo.ExtendedInfoDetails.HoldRuleIds",
     "ShortName": "HoldRuleIds"
   },
@@ -9969,7 +9969,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#elimination.ExtendedInfo.ExtendedInfoDetails.NonDestroyableOriginatingAgencies",
     "ShortName": "NonDestroyableOriginatingAgencies"
   },
@@ -9987,7 +9987,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#elimination.ExtendedInfo.ExtendedInfoDetails.OriginatingAgenciesInConflict",
     "ShortName": "OriginatingAgenciesInConflict"
   },
@@ -10005,7 +10005,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#elimination.ExtendedInfo.ExtendedInfoDetails.ParentUnitId",
     "ShortName": "ParentUnitId"
   },
@@ -10023,7 +10023,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#elimination.ExtendedInfo.ExtendedInfoType",
     "ShortName": "ExtendedInfoType"
   },
@@ -10041,7 +10041,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#elimination.GlobalStatus",
     "ShortName": "GlobalStatus"
   },
@@ -10059,7 +10059,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#elimination.NonDestroyableOriginatingAgencies",
     "ShortName": "NonDestroyableOriginatingAgencies"
   },
@@ -10077,7 +10077,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#elimination.OperationId",
     "ShortName": "OperationId"
   },
@@ -10131,7 +10131,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#history",
     "ShortName": "_history"
   },
@@ -10149,7 +10149,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#history.data",
     "ShortName": "data"
   },
@@ -10167,7 +10167,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#history.data.#management",
     "ShortName": "_mgt"
   },
@@ -10185,7 +10185,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#history.data.#management.ClassificationRule",
     "ShortName": "ClassificationRule"
   },
@@ -10203,7 +10203,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#history.data.#management.ClassificationRule.ClassificationAudience",
     "SedaField": "ClassificationAudience",
     "ShortName": "Audience de la classification"
@@ -10222,7 +10222,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#history.data.#management.ClassificationRule.ClassificationLevel",
     "SedaField": "ClassificationLevel",
     "ShortName": "Niveau de classification"
@@ -10241,7 +10241,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#history.data.#management.ClassificationRule.ClassificationOwner",
     "SedaField": "ClassificationOwner",
     "ShortName": "Service émetteur / Propriétaire de la classification"
@@ -10260,7 +10260,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#history.data.#management.ClassificationRule.ClassificationReassessingDate",
     "SedaField": "ClassificationReassessingDate",
     "ShortName": "Date de réévaluation"
@@ -10279,7 +10279,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#history.data.#management.ClassificationRule.Inheritance",
     "ShortName": "Inheritance"
   },
@@ -10297,7 +10297,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#history.data.#management.ClassificationRule.Inheritance.PreventInheritance",
     "SedaField": "PreventInheritance",
     "ShortName": "Ignorer l'héritage"
@@ -10316,7 +10316,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#history.data.#management.ClassificationRule.Inheritance.PreventRulesId",
     "SedaField": "RefNonRuleId",
     "ShortName": "Bloquer la règle"
@@ -10335,7 +10335,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#history.data.#management.ClassificationRule.NeedReassessingAuthorization",
     "SedaField": "NeedReassessingAuthorization",
     "ShortName": "Autorisation"
@@ -10354,7 +10354,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#history.data.#management.ClassificationRule.Rules",
     "ShortName": "Rules"
   },
@@ -10372,7 +10372,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#history.data.#management.ClassificationRule.Rules.EndDate",
     "SedaField": "EndDate",
     "ShortName": "Date de fin"
@@ -10391,7 +10391,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#history.data.#management.ClassificationRule.Rules.Rule",
     "SedaField": "Rule",
     "ShortName": "Règle de gestion"
@@ -10410,7 +10410,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#history.data.#management.ClassificationRule.Rules.StartDate",
     "SedaField": "StartDate",
     "ShortName": "Date de début"
@@ -10429,7 +10429,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#history.data.#version",
     "ShortName": "Version"
   },
@@ -10447,7 +10447,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#history.ud",
     "ShortName": "Dernière modification"
   },
@@ -10465,7 +10465,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#id",
     "ShortName": "Identifiant du groupe d'objets"
   },
@@ -12130,7 +12130,7 @@
       "2.2",
       "2.3"
     ],
-    "Category": "OTHER",
+    "Category": "MANAGEMENT",
     "ApiPath": "#validComputedInheritedRules",
     "ShortName": "validComputedInheritedRules"
   },
