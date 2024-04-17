@@ -60,6 +60,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static fr.gouv.vitam.common.guid.GUIDFactory.newRequestIdGUID;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -115,6 +116,8 @@ public class SchemaValidationServiceTest {
 
         final List<OntologyModel> ontologyModelList =
             JsonHandler.getFromFileAsTypeReference(ontologyFile, listOfOntologyType);
+        Map<String, OntologyModel> ontologyEltsMapByIdentifier = ontologyModelList.stream().collect(
+            Collectors.toMap(OntologyModel::getIdentifier, ontologyElt -> ontologyElt));
 
         RequestResponseOK<OntologyModel> ontologyResponse = new RequestResponseOK<OntologyModel>
             ().addAllResults(ontologyModelList);
@@ -123,8 +126,8 @@ public class SchemaValidationServiceTest {
         when(mongoDbAccessReferential.findDocumentsWithoutRestrictionOnCurrentTenant(any(), any())).thenReturn(
             result);
         Map<String, List<ErrorReportSchema>> importErrors = new HashMap<>();
-        schemaValidationService.validateExternalSchemaInputs(schemaModelList, internalSchemaList, ontologyModelList,
-            importErrors);
+        schemaValidationService.validateExternalSchemaInputs(schemaModelList, internalSchemaList,
+            ontologyEltsMapByIdentifier, importErrors);
     }
 
 
@@ -141,6 +144,8 @@ public class SchemaValidationServiceTest {
 
         final List<OntologyModel> ontologyModelList =
             JsonHandler.getFromFileAsTypeReference(ontologyFile, listOfOntologyType);
+        Map<String, OntologyModel> ontologyEltsMapByIdentifier = ontologyModelList.stream().collect(
+            Collectors.toMap(OntologyModel::getIdentifier, ontologyElt -> ontologyElt));
 
         RequestResponseOK<OntologyModel> ontologyResponse = new RequestResponseOK<OntologyModel>
             ().addAllResults(ontologyModelList);
@@ -153,7 +158,7 @@ public class SchemaValidationServiceTest {
 
         // When / then
         assertThatThrownBy(() -> schemaValidationService
-            .validateExternalSchemaInputs(schemaModelList, internalSchemaList, ontologyModelList, new HashMap<>()))
+            .validateExternalSchemaInputs(schemaModelList, internalSchemaList, ontologyEltsMapByIdentifier, new HashMap<>()))
             .isInstanceOf(SchemaImportValidationException.class)
             .withFailMessage(
                 "Paths already in internal schema =  Addressee.BirthPlace.City, Addressee.BirthPlace.Country");
@@ -173,6 +178,8 @@ public class SchemaValidationServiceTest {
 
         final List<OntologyModel> ontologyModelList =
             JsonHandler.getFromFileAsTypeReference(ontologyFile, listOfOntologyType);
+        Map<String, OntologyModel> ontologyEltsMapByIdentifier = ontologyModelList.stream().collect(
+            Collectors.toMap(OntologyModel::getIdentifier, ontologyElt -> ontologyElt));
 
         RequestResponseOK<OntologyModel> ontologyResponse = new RequestResponseOK<OntologyModel>
             ().addAllResults(ontologyModelList);
@@ -185,7 +192,7 @@ public class SchemaValidationServiceTest {
 
         // When / then
         assertThatThrownBy(() -> schemaValidationService
-            .validateExternalSchemaInputs(schemaModelList, internalSchemaList, ontologyModelList, new HashMap<>()))
+            .validateExternalSchemaInputs(schemaModelList, internalSchemaList, ontologyEltsMapByIdentifier, new HashMap<>()))
             .isInstanceOf(SchemaImportValidationException.class)
             .withFailMessage(
                 "Paths already in internal schema =  Addressee.BirthPlace.City, Addressee.BirthPlace.Country");
@@ -204,6 +211,8 @@ public class SchemaValidationServiceTest {
 
         final List<OntologyModel> ontologyModelList =
             JsonHandler.getFromFileAsTypeReference(ontologyFile, listOfOntologyType);
+        Map<String, OntologyModel> ontologyEltsMapByIdentifier = ontologyModelList.stream().collect(
+            Collectors.toMap(OntologyModel::getIdentifier, ontologyElt -> ontologyElt));
 
         RequestResponseOK<OntologyModel> ontologyResponse = new RequestResponseOK<OntologyModel>
             ().addAllResults(ontologyModelList);
@@ -213,7 +222,7 @@ public class SchemaValidationServiceTest {
             result);
         // When / then
         assertThatThrownBy(() -> schemaValidationService
-            .validateExternalSchemaInputs(schemaModelList, internalSchemaList, ontologyModelList, new HashMap<>()))
+            .validateExternalSchemaInputs(schemaModelList, internalSchemaList, ontologyEltsMapByIdentifier, new HashMap<>()))
             .isInstanceOf(SchemaImportValidationException.class);
     }
 
@@ -229,6 +238,9 @@ public class SchemaValidationServiceTest {
 
         final List<OntologyModel> ontologyModelList =
             JsonHandler.getFromFileAsTypeReference(ontologyFile, listOfOntologyType);
+        Map<String, OntologyModel> ontologyEltsMapByIdentifier = ontologyModelList.stream().collect(
+            Collectors.toMap(OntologyModel::getIdentifier, ontologyElt -> ontologyElt));
+
         DbRequestResult result = new DbRequestResult().setCount(0).setTotal(0).setOffset(0);
         when(mongoDbAccessReferential.findDocumentsWithoutRestrictionOnCurrentTenant(any(), any())).thenReturn(
             result);
@@ -239,7 +251,7 @@ public class SchemaValidationServiceTest {
 
         // When / then
         assertThatThrownBy(() -> schemaValidationService
-            .validateExternalSchemaInputs(schemaModelList, internalSchemaList, ontologyModelList, new HashMap<>()))
+            .validateExternalSchemaInputs(schemaModelList, internalSchemaList, ontologyEltsMapByIdentifier, new HashMap<>()))
             .isInstanceOf(SchemaImportValidationException.class)
             .withFailMessage(
                 "Import schema errors : Paths leaf missed =  Invoice, Provider, SomeDate");
@@ -256,11 +268,13 @@ public class SchemaValidationServiceTest {
         final File ontologyFile = PropertiesUtils.getResourceFile("schema/ok-ontologies.json");
         final List<OntologyModel> ontologyModelList =
             JsonHandler.getFromFileAsTypeReference(ontologyFile, listOfOntologyType);
+        Map<String, OntologyModel> ontologyEltsMapByIdentifier = ontologyModelList.stream().collect(
+            Collectors.toMap(OntologyModel::getIdentifier, ontologyElt -> ontologyElt));
         final RequestResponseOK<OntologyModel> ontologyResponse = new RequestResponseOK<OntologyModel>
             ().addAllResults(ontologyModelList);
         when(ontologyService.findOntologies(any())).thenReturn(ontologyResponse);
         assertThatThrownBy(() -> schemaValidationService
-            .validateExternalSchemaInputs(schemaModelList, internalSchemaList, ontologyModelList, new HashMap<>()))
+            .validateExternalSchemaInputs(schemaModelList, internalSchemaList, ontologyEltsMapByIdentifier, new HashMap<>()))
             .isInstanceOf(SchemaImportValidationException.class);
     }
 
@@ -278,6 +292,8 @@ public class SchemaValidationServiceTest {
 
         final List<OntologyModel> ontologyModelList =
             JsonHandler.getFromFileAsTypeReference(ontologyFile, listOfOntologyType);
+        Map<String, OntologyModel> ontologyEltsMapByIdentifier = ontologyModelList.stream().collect(
+            Collectors.toMap(OntologyModel::getIdentifier, ontologyElt -> ontologyElt));
 
         RequestResponseOK<OntologyModel> ontologyResponse = new RequestResponseOK<OntologyModel>
             ().addAllResults(ontologyModelList);
@@ -308,7 +324,7 @@ public class SchemaValidationServiceTest {
 
         // When / then
         assertThatThrownBy(() -> schemaValidationService
-            .validateExternalSchemaInputs(schemaModelList, internalSchemaList, ontologyModelList, new HashMap<>()))
+            .validateExternalSchemaInputs(schemaModelList, internalSchemaList, ontologyEltsMapByIdentifier, new HashMap<>()))
             .isInstanceOf(SchemaImportValidationException.class)
             .withFailMessage(
                 "Paths already in internal schema =  Addressee.BirthPlace.City, Addressee.BirthPlace.Country");

@@ -51,6 +51,7 @@ import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -98,7 +99,9 @@ public class SchemaCommonService {
     /**
      * Map Schema intput to db entity
      */
-    public static List<Schema> mapSchemaFromInputParameters(List<SchemaInputModel> externalSchemaInputList) {
+    public static List<Schema> mapSchemaFromInputParameters(List<SchemaInputModel> externalSchemaInputList,
+        Map<String, OntologyModel>  ontologyEltsMapByIdentifier) {
+
         List<Schema> schemaModelElementsBuilt = new ArrayList<>();
         for (SchemaInputModel schemaEltInputElt : externalSchemaInputList) {
             //Common parameters
@@ -107,7 +110,12 @@ public class SchemaCommonService {
             schemaDb.setCollection(MetadataType.UNIT.getName());
             schemaDb.setCardinality(schemaEltInputElt.getCardinality().name());
             schemaDb.setPath(schemaEltInputElt.getPath());
-            schemaDb.setShortName(schemaEltInputElt.getShortName());
+            String shortName = schemaEltInputElt.getShortName();
+            if (StringUtils.isBlank(shortName)) {
+                String leaf = SchemaCommonService.extractLeafFromPath(schemaEltInputElt.getPath());
+                shortName = ontologyEltsMapByIdentifier.get(leaf).getShortName();
+            }
+            schemaDb.setShortName(shortName);
             schemaDb.setDescription(schemaEltInputElt.getDescription());
             schemaDb.setCreationdate(LocalDateUtil.now().toString());
             schemaDb.setLastupdate(LocalDateUtil.now().toString());
