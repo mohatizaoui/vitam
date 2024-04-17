@@ -226,9 +226,14 @@ Exemple du fichier mapping de la collection ObjectGroup :
      :language: json
      :linenos:
 
-.. note:: Le paramétrage de ce mapping se fait sur les deux composants ``metadata`` et le composant extra``ihm-recette``.
+.. note:: Le paramétrage de ce mapping se fait sur les composants ``metadata``, ``metadata_collect`` et le composant extra ``ihm-recette``.
 
 .. caution::
     En cas de changement du mapping, il faut veiller à ce que cette mise à jour soit en accord avec l'Ontologie de :term:`VITAM`.
+    Le mapping est pris en compte lors de la première création des indexes.
+    Pour une nouvelle installation de :term:`VITAM`, les mappings seront automatiquement pris en compte.
 
-    Le mapping est pris en compte lors de la première création des indexes. Pour une nouvelle installation de :term:`VITAM`, les mapping seront automatiquement pris en compte. Cependant, la modification des mappings nécessite une réindexation via l'API dédiée si VITAM est déjà installé.
+.. note:: Une modification de ces mappings après installation peut-être faite mais nécessitera de rejouer les playbooks ``metadata`` et ``metadata_collect`` avant de réindexer:
+    ``ansible-vitam/services/vitam/metadata.yml``
+    ``ansible-vitam/services/vitam/metadata_collect.yml``
+    ``ansible-vitam-exploitation/reindex_es_data.yml``
