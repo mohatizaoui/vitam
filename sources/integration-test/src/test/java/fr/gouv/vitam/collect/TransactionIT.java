@@ -123,7 +123,7 @@ public class TransactionIT extends VitamRuleRunner {
                 JsonHandler.getFromJsonNode(((RequestResponseOK<JsonNode>) projectResponse).getFirstResult(),
                     ProjectDto.class);
 
-            TransactionDto transactiondto = initTransaction();
+            TransactionDto transactiondto = initTransaction(projectDtoResult.getId());
 
             RequestResponse<JsonNode> transactionResponse =
                 collectClient.initTransaction(vitamContext, transactiondto, projectDtoResult.getId());
@@ -171,7 +171,7 @@ public class TransactionIT extends VitamRuleRunner {
             ProjectDto projectDtoResult =
                 JsonHandler.getFromJsonNode(((RequestResponseOK<JsonNode>) projectResponse).getFirstResult(),
                     ProjectDto.class);
-            TransactionDto initialTransaction = initTransaction();
+            TransactionDto initialTransaction = initTransaction(projectDtoResult.getId());
 
             // INSERT TRANSACTION
             RequestResponse<JsonNode> transactionResponse =
@@ -270,7 +270,7 @@ public class TransactionIT extends VitamRuleRunner {
                 JsonHandler.getFromJsonNode(((RequestResponseOK<JsonNode>) projectResponse).getFirstResult(),
                     ProjectDto.class);
 
-            TransactionDto transactiondto = initTransaction();
+            TransactionDto transactiondto = initTransaction(projectDtoResult.getId());
 
             RequestResponse<JsonNode> transactionResponse =
                 client.initTransaction(vitamContext, transactiondto, projectDtoResult.getId());
@@ -302,7 +302,7 @@ public class TransactionIT extends VitamRuleRunner {
                 JsonHandler.getFromJsonNode(((RequestResponseOK<JsonNode>) projectResponse).getFirstResult(),
                     ProjectDto.class);
 
-            TransactionDto transactiondto = initTransaction();
+            TransactionDto transactiondto = initTransaction(projectDtoResult.getId());
 
             RequestResponse<JsonNode> transactionResponse =
                 client.initTransaction(vitamContext, transactiondto, projectDtoResult.getId());

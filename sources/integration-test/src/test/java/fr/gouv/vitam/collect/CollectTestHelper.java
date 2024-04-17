@@ -82,7 +82,7 @@ public class CollectTestHelper {
 
     public static Optional<TransactionDto> createTransaction(final VitamContext vitamContext, final String projectId) {
         try (final CollectExternalClient client = CollectExternalClientFactory.getInstance().getClient()) {
-            final TransactionDto createTransactionDto = initTransaction();
+            final TransactionDto createTransactionDto = initTransaction(projectId);
             final RequestResponse<JsonNode> response = client.initTransaction(vitamContext, createTransactionDto, projectId);
 
             if (response.isOk()) {
@@ -120,9 +120,10 @@ public class CollectTestHelper {
         }
     }
 
-    static TransactionDto initTransaction() {
+    static TransactionDto initTransaction(String projectId) {
         final TransactionDto transactionDto = new TransactionDto();
 
+        transactionDto.setProjectId(projectId);
         transactionDto.setName("My Transaction");
         transactionDto.setArchivalAgreement("ArchivalAgreement0");
         transactionDto.setAcquisitionInformation("AcquisitionInformation");

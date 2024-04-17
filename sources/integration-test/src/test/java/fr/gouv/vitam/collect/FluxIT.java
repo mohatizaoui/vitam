@@ -360,7 +360,7 @@ public class FluxIT extends VitamRuleRunner {
             final ProjectDto projectDtoResult =
                 JsonHandler.getFromJsonNode(((RequestResponseOK<JsonNode>) projectResponse).getFirstResult(),
                     ProjectDto.class);
-            final TransactionDto transactiondto = CollectTestHelper.initTransaction();
+            final TransactionDto transactiondto = CollectTestHelper.initTransaction(projectDtoResult.getId());
             final RequestResponse<JsonNode> transactionResponse =
                 collectClient.initTransaction(vitamContext, transactiondto, projectDtoResult.getId());
             Assertions.assertThat(transactionResponse.getStatus()).isEqualTo(200);

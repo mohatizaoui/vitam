@@ -31,6 +31,7 @@ import fr.gouv.vitam.collect.common.dto.ProjectDto;
 import fr.gouv.vitam.collect.common.dto.TransactionDto;
 import fr.gouv.vitam.collect.common.enums.TransactionStatus;
 import fr.gouv.vitam.collect.common.exception.CollectInternalException;
+import fr.gouv.vitam.collect.common.exception.CollectInternalNotFoundException;
 import fr.gouv.vitam.collect.internal.core.common.TransactionModel;
 import fr.gouv.vitam.collect.internal.core.service.TransactionService;
 import fr.gouv.vitam.collect.internal.resource.utils.ReflectionTestUtils;
@@ -154,8 +155,7 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
         TransactionModel transactionModel = new TransactionModel();
         transactionModel.setStatus(TransactionStatus.OPEN);
         transactionModel.setProjectId("1");
-        when(transactionService.findTransaction("1")).thenReturn(Optional.of(transactionModel));
-        doNothing().when(transactionService).replaceTransaction(any(TransactionDto.class));
+        when(transactionService.replaceTransaction(any(TransactionDto.class))).thenReturn(transactionModel);
         given()
             .contentType(ContentType.JSON)
             .accept(ContentType.JSON)
@@ -169,7 +169,8 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
 
     @Test
     public void updateTransaction_ko_with_not_found_error() throws Exception {
-        when(transactionService.findTransaction("1")).thenReturn(Optional.empty());
+        doThrow(new CollectInternalNotFoundException("not found"))
+            .when(transactionService).replaceTransaction(any(TransactionDto.class));
         given()
             .contentType(ContentType.JSON)
             .accept(ContentType.JSON)
@@ -197,7 +198,8 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
 
     @Test
     public void updateTransaction_ko_with_parsing_error() throws Exception {
-        when(transactionService.findTransaction("1")).thenThrow(new IllegalArgumentException("error"));
+        doThrow(new IllegalArgumentException("error"))
+            .when(transactionService).replaceTransaction(any(TransactionDto.class));
         given()
             .contentType(ContentType.JSON)
             .accept(ContentType.JSON)
