@@ -76,7 +76,7 @@
 
 - name: Install ICU analysis plugin for elastic-data
   package:
-    name: vitam-elasticsearch-analysis-icu
+    name: vitam-elasticsearch-analysis-icu{{ '=' if ansible_os_family == 'Debian' else '-' }}{{ elasticsearch_version }}
     state: present
   register: result
   retries: "{{ packages_install_retries_number }}"
