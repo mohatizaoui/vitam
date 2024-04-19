@@ -484,11 +484,6 @@
     "ApiPath": "#qualifiers.qualifier",
     "ApiField": "qualifier",
     "Collection": "ObjectGroup",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "StringSize": "SHORT",
     "ShortName": "Usage"
   },
@@ -502,11 +497,6 @@
     "ApiPath": "#qualifiers.versions",
     "ApiField": "versions",
     "Collection": "ObjectGroup",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "StringSize": "SHORT",
     "ShortName": "versions"
   },
@@ -1552,11 +1542,6 @@
     "ApiPath": "#qualifiers.versions.#id",
     "ApiField": "#id",
     "Collection": "ObjectGroup",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "StringSize": "SHORT",
     "ShortName": "Identifiant du groupe d'objets"
   },
@@ -1570,11 +1555,6 @@
     "ApiPath": "#qualifiers.versions.#opi",
     "ApiField": "#opi",
     "Collection": "ObjectGroup",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "StringSize": "SHORT",
     "ShortName": "Opération initiale"
   },
@@ -1588,11 +1568,6 @@
     "ApiPath": "#qualifiers.versions.#storage",
     "ApiField": "#storage",
     "Collection": "ObjectGroup",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "StringSize": "SHORT",
     "ShortName": "_storage"
   },
@@ -1606,11 +1581,6 @@
     "ApiPath": "#qualifiers.versions.#storage.#nbc",
     "ApiField": "#nbc",
     "Collection": "ObjectGroup",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "StringSize": "SHORT",
     "ShortName": "Nombre d’objets"
   },
@@ -1624,11 +1594,6 @@
     "ApiPath": "#qualifiers.versions.#storage.offerIds",
     "ApiField": "offerIds",
     "Collection": "ObjectGroup",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "StringSize": "SHORT",
     "ShortName": "offerIds"
   },
@@ -1642,11 +1607,6 @@
     "ApiPath": "#qualifiers.versions.#storage.strategyId",
     "ApiField": "strategyId",
     "Collection": "ObjectGroup",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "StringSize": "SHORT",
     "ShortName": "strategyId"
   },
@@ -1679,11 +1639,6 @@
     "ApiPath": "#originating_agencies",
     "ApiField": "#originating_agencies",
     "Collection": "ObjectGroup",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "StringSize": "SHORT",
     "ShortName": "Services producteurs liés à l’unité archivistique"
   },
@@ -1697,11 +1652,6 @@
     "ApiPath": "#storage",
     "ApiField": "#storage",
     "Collection": "ObjectGroup",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "StringSize": "SHORT",
     "ShortName": "_storage"
   },
@@ -1715,11 +1665,6 @@
     "ApiPath": "#storage.#nbc",
     "ApiField": "#nbc",
     "Collection": "ObjectGroup",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "StringSize": "SHORT",
     "ShortName": "Nombre d’objets"
   },
@@ -1733,11 +1678,6 @@
     "ApiPath": "#storage.offerIds",
     "ApiField": "offerIds",
     "Collection": "ObjectGroup",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "StringSize": "SHORT",
     "ShortName": "offerIds"
   },
@@ -1751,11 +1691,6 @@
     "ApiPath": "#storage.strategyId",
     "ApiField": "strategyId",
     "Collection": "ObjectGroup",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "StringSize": "SHORT",
     "ShortName": "strategyId"
   },
@@ -1769,11 +1704,6 @@
     "ApiPath": "#tenant",
     "ApiField": "#tenant",
     "Collection": "ObjectGroup",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "StringSize": "SHORT",
     "ShortName": "Tenant"
   },
@@ -1787,11 +1717,6 @@
     "ApiPath": "#uds",
     "ApiField": "#uds",
     "Collection": "ObjectGroup",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "StringSize": "SHORT",
     "ShortName": "_uds"
   },
@@ -1805,11 +1730,6 @@
     "ApiPath": "#unitups",
     "ApiField": "#unitups",
     "Collection": "ObjectGroup",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "StringSize": "SHORT",
     "ShortName": "Identifiant(s) des unités archivistiques parentes (parents immédiats)"
   },
@@ -1823,11 +1743,6 @@
     "ApiPath": "#allunitups",
     "ApiField": "#allunitups",
     "Collection": "ObjectGroup",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "StringSize": "SHORT",
     "ShortName": "Identifiant(s) des unités archivistiques parentes"
   },
@@ -1841,11 +1756,6 @@
     "ApiPath": "#version",
     "ApiField": "#version",
     "Collection": "ObjectGroup",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "StringSize": "SHORT",
     "ShortName": "Version"
   },
@@ -1859,11 +1769,6 @@
     "ApiPath": "#batchId",
     "ApiField": "#batchId",
     "Collection": "ObjectGroup",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "StringSize": "SHORT",
     "ShortName": "batch identifier"
   }
