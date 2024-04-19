@@ -8669,11 +8669,6 @@
     "Path": "_acd",
     "ApiField": "#approximate_creation_date",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "OTHER",
     "ApiPath": "#approximate_creation_date",
     "ShortName": "_acd"
@@ -8687,11 +8682,6 @@
     "Path": "_aud",
     "ApiField": "#approximate_update_date",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "OTHER",
     "ApiPath": "#approximate_update_date",
     "ShortName": "_aud"
@@ -8705,11 +8695,6 @@
     "Path": "_av",
     "ApiField": "#atomic_version",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "OTHER",
     "ApiPath": "#atomic_version",
     "ShortName": "Version"
@@ -8723,11 +8708,6 @@
     "Path": "_computedInheritedRules",
     "ApiField": "#computedInheritedRules",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules",
     "ShortName": "_computedInheritedRules"
@@ -8741,11 +8721,6 @@
     "Path": "_computedInheritedRules.AccessRule",
     "ApiField": "AccessRule",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.AccessRule",
     "ShortName": "AccessRule"
@@ -8759,11 +8734,6 @@
     "Path": "_computedInheritedRules.AccessRule.EndDates",
     "ApiField": "EndDates",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.AccessRule.EndDates",
     "ShortName": "EndDates"
@@ -8777,11 +8747,6 @@
     "Path": "_computedInheritedRules.AccessRule.InheritanceOrigin",
     "ApiField": "InheritanceOrigin",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.AccessRule.InheritanceOrigin",
     "ShortName": "InheritanceOrigin"
@@ -8795,11 +8760,6 @@
     "Path": "_computedInheritedRules.AccessRule.InheritedRuleIds",
     "ApiField": "InheritedRuleIds",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.AccessRule.InheritedRuleIds",
     "ShortName": "InheritedRuleIds"
@@ -8813,11 +8773,6 @@
     "Path": "_computedInheritedRules.AccessRule.MaxEndDate",
     "ApiField": "MaxEndDate",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.AccessRule.MaxEndDate",
     "ShortName": "MaxEndDate"
@@ -8831,11 +8786,6 @@
     "Path": "_computedInheritedRules.AccessRule.Rules",
     "ApiField": "Rules",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.AccessRule.Rules",
     "ShortName": "Rules"
@@ -8849,11 +8799,6 @@
     "Path": "_computedInheritedRules.AccessRule.Rules.EndDate",
     "ApiField": "EndDate",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.AccessRule.Rules.EndDate",
     "SedaField": "EndDate",
@@ -8868,11 +8813,6 @@
     "Path": "_computedInheritedRules.AccessRule.Rules.Rule",
     "ApiField": "Rule",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.AccessRule.Rules.Rule",
     "SedaField": "Rule",
@@ -8887,11 +8827,6 @@
     "Path": "_computedInheritedRules.AppraisalRule",
     "ApiField": "AppraisalRule",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.AppraisalRule",
     "ShortName": "AppraisalRule"
@@ -8905,11 +8840,6 @@
     "Path": "_computedInheritedRules.AppraisalRule.EndDates",
     "ApiField": "EndDates",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.AppraisalRule.EndDates",
     "ShortName": "EndDates"
@@ -8923,11 +8853,6 @@
     "Path": "_computedInheritedRules.AppraisalRule.FinalAction",
     "ApiField": "FinalAction",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.AppraisalRule.FinalAction",
     "SedaField": "FinalAction",
@@ -8942,11 +8867,6 @@
     "Path": "_computedInheritedRules.AppraisalRule.InheritanceOrigin",
     "ApiField": "InheritanceOrigin",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.AppraisalRule.InheritanceOrigin",
     "ShortName": "InheritanceOrigin"
@@ -8960,11 +8880,6 @@
     "Path": "_computedInheritedRules.AppraisalRule.InheritedRuleIds",
     "ApiField": "InheritedRuleIds",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.AppraisalRule.InheritedRuleIds",
     "ShortName": "InheritedRuleIds"
@@ -8978,11 +8893,6 @@
     "Path": "_computedInheritedRules.AppraisalRule.MaxEndDate",
     "ApiField": "MaxEndDate",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.AppraisalRule.MaxEndDate",
     "ShortName": "MaxEndDate"
@@ -8996,11 +8906,6 @@
     "Path": "_computedInheritedRules.AppraisalRule.Rules",
     "ApiField": "Rules",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.AppraisalRule.Rules",
     "ShortName": "Rules"
@@ -9014,11 +8919,6 @@
     "Path": "_computedInheritedRules.AppraisalRule.Rules.EndDate",
     "ApiField": "EndDate",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.AppraisalRule.Rules.EndDate",
     "SedaField": "EndDate",
@@ -9033,11 +8933,6 @@
     "Path": "_computedInheritedRules.AppraisalRule.Rules.Rule",
     "ApiField": "Rule",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.AppraisalRule.Rules.Rule",
     "SedaField": "Rule",
@@ -9052,11 +8947,6 @@
     "Path": "_computedInheritedRules.ClassificationRule",
     "ApiField": "ClassificationRule",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.ClassificationRule",
     "ShortName": "ClassificationRule"
@@ -9070,11 +8960,6 @@
     "Path": "_computedInheritedRules.ClassificationRule.EndDates",
     "ApiField": "EndDates",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.ClassificationRule.EndDates",
     "ShortName": "EndDates"
@@ -9088,11 +8973,6 @@
     "Path": "_computedInheritedRules.ClassificationRule.InheritanceOrigin",
     "ApiField": "InheritanceOrigin",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.ClassificationRule.InheritanceOrigin",
     "ShortName": "InheritanceOrigin"
@@ -9106,11 +8986,6 @@
     "Path": "_computedInheritedRules.ClassificationRule.InheritedRuleIds",
     "ApiField": "InheritedRuleIds",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.ClassificationRule.InheritedRuleIds",
     "ShortName": "InheritedRuleIds"
@@ -9124,11 +8999,6 @@
     "Path": "_computedInheritedRules.ClassificationRule.MaxEndDate",
     "ApiField": "MaxEndDate",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.ClassificationRule.MaxEndDate",
     "ShortName": "MaxEndDate"
@@ -9142,11 +9012,6 @@
     "Path": "_computedInheritedRules.ClassificationRule.Rules",
     "ApiField": "Rules",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.ClassificationRule.Rules",
     "ShortName": "Rules"
@@ -9160,11 +9025,6 @@
     "Path": "_computedInheritedRules.ClassificationRule.Rules.EndDate",
     "ApiField": "EndDate",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.ClassificationRule.Rules.EndDate",
     "SedaField": "EndDate",
@@ -9179,11 +9039,6 @@
     "Path": "_computedInheritedRules.ClassificationRule.Rules.Rule",
     "ApiField": "Rule",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.ClassificationRule.Rules.Rule",
     "SedaField": "Rule",
@@ -9198,11 +9053,6 @@
     "Path": "_computedInheritedRules.DisseminationRule",
     "ApiField": "DisseminationRule",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.DisseminationRule",
     "ShortName": "DisseminationRule"
@@ -9216,11 +9066,6 @@
     "Path": "_computedInheritedRules.DisseminationRule.EndDates",
     "ApiField": "EndDates",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.DisseminationRule.EndDates",
     "ShortName": "EndDates"
@@ -9234,11 +9079,6 @@
     "Path": "_computedInheritedRules.DisseminationRule.InheritanceOrigin",
     "ApiField": "InheritanceOrigin",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.DisseminationRule.InheritanceOrigin",
     "ShortName": "InheritanceOrigin"
@@ -9252,11 +9092,6 @@
     "Path": "_computedInheritedRules.DisseminationRule.InheritedRuleIds",
     "ApiField": "InheritedRuleIds",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.DisseminationRule.InheritedRuleIds",
     "ShortName": "InheritedRuleIds"
@@ -9270,11 +9105,6 @@
     "Path": "_computedInheritedRules.DisseminationRule.MaxEndDate",
     "ApiField": "MaxEndDate",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.DisseminationRule.MaxEndDate",
     "ShortName": "MaxEndDate"
@@ -9288,11 +9118,6 @@
     "Path": "_computedInheritedRules.DisseminationRule.Rules",
     "ApiField": "Rules",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.DisseminationRule.Rules",
     "ShortName": "Rules"
@@ -9306,11 +9131,6 @@
     "Path": "_computedInheritedRules.DisseminationRule.Rules.EndDate",
     "ApiField": "EndDate",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.DisseminationRule.Rules.EndDate",
     "SedaField": "EndDate",
@@ -9325,11 +9145,6 @@
     "Path": "_computedInheritedRules.DisseminationRule.Rules.Rule",
     "ApiField": "Rule",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.DisseminationRule.Rules.Rule",
     "SedaField": "Rule",
@@ -9344,11 +9159,6 @@
     "Path": "_computedInheritedRules.HoldRule",
     "ApiField": "HoldRule",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.HoldRule",
     "ShortName": "HoldRule"
@@ -9362,11 +9172,6 @@
     "Path": "_computedInheritedRules.HoldRule.EndDates",
     "ApiField": "EndDates",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.HoldRule.EndDates",
     "ShortName": "EndDates"
@@ -9380,11 +9185,6 @@
     "Path": "_computedInheritedRules.HoldRule.InheritanceOrigin",
     "ApiField": "InheritanceOrigin",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.HoldRule.InheritanceOrigin",
     "ShortName": "InheritanceOrigin"
@@ -9398,11 +9198,6 @@
     "Path": "_computedInheritedRules.HoldRule.InheritedRuleIds",
     "ApiField": "InheritedRuleIds",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.HoldRule.InheritedRuleIds",
     "ShortName": "InheritedRuleIds"
@@ -9416,11 +9211,6 @@
     "Path": "_computedInheritedRules.HoldRule.MaxEndDate",
     "ApiField": "MaxEndDate",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.HoldRule.MaxEndDate",
     "ShortName": "MaxEndDate"
@@ -9434,11 +9224,6 @@
     "Path": "_computedInheritedRules.HoldRule.Rules",
     "ApiField": "Rules",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.HoldRule.Rules",
     "ShortName": "Rules"
@@ -9452,11 +9237,6 @@
     "Path": "_computedInheritedRules.HoldRule.Rules.EndDate",
     "ApiField": "EndDate",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.HoldRule.Rules.EndDate",
     "SedaField": "EndDate",
@@ -9471,11 +9251,6 @@
     "Path": "_computedInheritedRules.HoldRule.Rules.Rule",
     "ApiField": "Rule",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.HoldRule.Rules.Rule",
     "SedaField": "Rule",
@@ -9490,11 +9265,6 @@
     "Path": "_computedInheritedRules.NeedAuthorization",
     "ApiField": "NeedAuthorization",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.NeedAuthorization",
     "SedaField": "NeedAuthorization",
@@ -9509,11 +9279,6 @@
     "Path": "_computedInheritedRules.ReuseRule",
     "ApiField": "ReuseRule",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.ReuseRule",
     "ShortName": "ReuseRule"
@@ -9527,11 +9292,6 @@
     "Path": "_computedInheritedRules.ReuseRule.EndDates",
     "ApiField": "EndDates",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.ReuseRule.EndDates",
     "ShortName": "EndDates"
@@ -9545,11 +9305,6 @@
     "Path": "_computedInheritedRules.ReuseRule.InheritanceOrigin",
     "ApiField": "InheritanceOrigin",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.ReuseRule.InheritanceOrigin",
     "ShortName": "InheritanceOrigin"
@@ -9563,11 +9318,6 @@
     "Path": "_computedInheritedRules.ReuseRule.InheritedRuleIds",
     "ApiField": "InheritedRuleIds",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.ReuseRule.InheritedRuleIds",
     "ShortName": "InheritedRuleIds"
@@ -9581,11 +9331,6 @@
     "Path": "_computedInheritedRules.ReuseRule.MaxEndDate",
     "ApiField": "MaxEndDate",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.ReuseRule.MaxEndDate",
     "ShortName": "MaxEndDate"
@@ -9599,11 +9344,6 @@
     "Path": "_computedInheritedRules.ReuseRule.Rules",
     "ApiField": "Rules",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.ReuseRule.Rules",
     "ShortName": "Rules"
@@ -9617,11 +9357,6 @@
     "Path": "_computedInheritedRules.ReuseRule.Rules.EndDate",
     "ApiField": "EndDate",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.ReuseRule.Rules.EndDate",
     "SedaField": "EndDate",
@@ -9636,11 +9371,6 @@
     "Path": "_computedInheritedRules.ReuseRule.Rules.Rule",
     "ApiField": "Rule",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.ReuseRule.Rules.Rule",
     "SedaField": "Rule",
@@ -9655,11 +9385,6 @@
     "Path": "_computedInheritedRules.StorageRule",
     "ApiField": "StorageRule",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.StorageRule",
     "ShortName": "StorageRule"
@@ -9673,11 +9398,6 @@
     "Path": "_computedInheritedRules.StorageRule.EndDates",
     "ApiField": "EndDates",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.StorageRule.EndDates",
     "ShortName": "EndDates"
@@ -9691,11 +9411,6 @@
     "Path": "_computedInheritedRules.StorageRule.FinalAction",
     "ApiField": "FinalAction",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.StorageRule.FinalAction",
     "SedaField": "FinalAction",
@@ -9710,11 +9425,6 @@
     "Path": "_computedInheritedRules.StorageRule.InheritanceOrigin",
     "ApiField": "InheritanceOrigin",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.StorageRule.InheritanceOrigin",
     "ShortName": "InheritanceOrigin"
@@ -9728,11 +9438,6 @@
     "Path": "_computedInheritedRules.StorageRule.InheritedRuleIds",
     "ApiField": "InheritedRuleIds",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.StorageRule.InheritedRuleIds",
     "ShortName": "InheritedRuleIds"
@@ -9746,11 +9451,6 @@
     "Path": "_computedInheritedRules.StorageRule.MaxEndDate",
     "ApiField": "MaxEndDate",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.StorageRule.MaxEndDate",
     "ShortName": "MaxEndDate"
@@ -9764,11 +9464,6 @@
     "Path": "_computedInheritedRules.StorageRule.Rules",
     "ApiField": "Rules",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.StorageRule.Rules",
     "ShortName": "Rules"
@@ -9782,11 +9477,6 @@
     "Path": "_computedInheritedRules.StorageRule.Rules.EndDate",
     "ApiField": "EndDate",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.StorageRule.Rules.EndDate",
     "SedaField": "EndDate",
@@ -9801,11 +9491,6 @@
     "Path": "_computedInheritedRules.StorageRule.Rules.Rule",
     "ApiField": "Rule",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.StorageRule.Rules.Rule",
     "SedaField": "Rule",
@@ -9820,11 +9505,6 @@
     "Path": "_computedInheritedRules.indexationDate",
     "ApiField": "indexationDate",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.indexationDate",
     "ShortName": "indexationDate"
@@ -9838,11 +9518,6 @@
     "Path": "_computedInheritedRules.inheritedRulesAPIOutput",
     "ApiField": "inheritedRulesAPIOutput",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.inheritedRulesAPIOutput",
     "ShortName": "inheritedRulesAPIOutput"
@@ -9856,11 +9531,6 @@
     "Path": "_elimination",
     "ApiField": "#elimination",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#elimination",
     "ShortName": "_elimination"
@@ -9874,11 +9544,6 @@
     "Path": "_elimination.DestroyableOriginatingAgencies",
     "ApiField": "DestroyableOriginatingAgencies",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#elimination.DestroyableOriginatingAgencies",
     "ShortName": "DestroyableOriginatingAgencies"
@@ -9892,11 +9557,6 @@
     "Path": "_elimination.ExtendedInfo",
     "ApiField": "ExtendedInfo",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#elimination.ExtendedInfo",
     "ShortName": "ExtendedInfo"
@@ -9910,11 +9570,6 @@
     "Path": "_elimination.ExtendedInfo.ExtendedInfoDetails",
     "ApiField": "ExtendedInfoDetails",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#elimination.ExtendedInfo.ExtendedInfoDetails",
     "ShortName": "ExtendedInfoDetails"
@@ -9928,11 +9583,6 @@
     "Path": "_elimination.ExtendedInfo.ExtendedInfoDetails.DestroyableOriginatingAgencies",
     "ApiField": "DestroyableOriginatingAgencies",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#elimination.ExtendedInfo.ExtendedInfoDetails.DestroyableOriginatingAgencies",
     "ShortName": "DestroyableOriginatingAgencies"
@@ -9946,11 +9596,6 @@
     "Path": "_elimination.ExtendedInfo.ExtendedInfoDetails.HoldRuleIds",
     "ApiField": "HoldRuleIds",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#elimination.ExtendedInfo.ExtendedInfoDetails.HoldRuleIds",
     "ShortName": "HoldRuleIds"
@@ -9964,11 +9609,6 @@
     "Path": "_elimination.ExtendedInfo.ExtendedInfoDetails.NonDestroyableOriginatingAgencies",
     "ApiField": "NonDestroyableOriginatingAgencies",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#elimination.ExtendedInfo.ExtendedInfoDetails.NonDestroyableOriginatingAgencies",
     "ShortName": "NonDestroyableOriginatingAgencies"
@@ -9982,11 +9622,6 @@
     "Path": "_elimination.ExtendedInfo.ExtendedInfoDetails.OriginatingAgenciesInConflict",
     "ApiField": "OriginatingAgenciesInConflict",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#elimination.ExtendedInfo.ExtendedInfoDetails.OriginatingAgenciesInConflict",
     "ShortName": "OriginatingAgenciesInConflict"
@@ -10000,11 +9635,6 @@
     "Path": "_elimination.ExtendedInfo.ExtendedInfoDetails.ParentUnitId",
     "ApiField": "ParentUnitId",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#elimination.ExtendedInfo.ExtendedInfoDetails.ParentUnitId",
     "ShortName": "ParentUnitId"
@@ -10018,11 +9648,6 @@
     "Path": "_elimination.ExtendedInfo.ExtendedInfoType",
     "ApiField": "ExtendedInfoType",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#elimination.ExtendedInfo.ExtendedInfoType",
     "ShortName": "ExtendedInfoType"
@@ -10036,11 +9661,6 @@
     "Path": "_elimination.GlobalStatus",
     "ApiField": "GlobalStatus",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#elimination.GlobalStatus",
     "ShortName": "GlobalStatus"
@@ -10054,11 +9674,6 @@
     "Path": "_elimination.NonDestroyableOriginatingAgencies",
     "ApiField": "NonDestroyableOriginatingAgencies",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#elimination.NonDestroyableOriginatingAgencies",
     "ShortName": "NonDestroyableOriginatingAgencies"
@@ -10072,11 +9687,6 @@
     "Path": "_elimination.OperationId",
     "ApiField": "OperationId",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#elimination.OperationId",
     "ShortName": "OperationId"
@@ -10090,11 +9700,6 @@
     "Path": "_glpd",
     "ApiField": "#graph_last_persisted_date",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "OTHER",
     "ApiPath": "#graph_last_persisted_date",
     "ShortName": "_glpd"
@@ -10108,11 +9713,6 @@
     "Path": "_graph",
     "ApiField": "#graph",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "OTHER",
     "ApiPath": "#graph",
     "ShortName": "_graph"
@@ -10126,11 +9726,6 @@
     "Path": "_history",
     "ApiField": "#history",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#history",
     "ShortName": "_history"
@@ -10144,11 +9739,6 @@
     "Path": "_history.data",
     "ApiField": "data",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#history.data",
     "ShortName": "data"
@@ -10162,11 +9752,6 @@
     "Path": "_history.data._mgt",
     "ApiField": "#management",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#history.data.#management",
     "ShortName": "_mgt"
@@ -10180,11 +9765,6 @@
     "Path": "_history.data._mgt.ClassificationRule",
     "ApiField": "ClassificationRule",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#history.data.#management.ClassificationRule",
     "ShortName": "ClassificationRule"
@@ -10198,11 +9778,6 @@
     "Path": "_history.data._mgt.ClassificationRule.ClassificationAudience",
     "ApiField": "ClassificationAudience",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#history.data.#management.ClassificationRule.ClassificationAudience",
     "SedaField": "ClassificationAudience",
@@ -10217,11 +9792,6 @@
     "Path": "_history.data._mgt.ClassificationRule.ClassificationLevel",
     "ApiField": "ClassificationLevel",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#history.data.#management.ClassificationRule.ClassificationLevel",
     "SedaField": "ClassificationLevel",
@@ -10236,11 +9806,6 @@
     "Path": "_history.data._mgt.ClassificationRule.ClassificationOwner",
     "ApiField": "ClassificationOwner",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#history.data.#management.ClassificationRule.ClassificationOwner",
     "SedaField": "ClassificationOwner",
@@ -10255,11 +9820,6 @@
     "Path": "_history.data._mgt.ClassificationRule.ClassificationReassessingDate",
     "ApiField": "ClassificationReassessingDate",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#history.data.#management.ClassificationRule.ClassificationReassessingDate",
     "SedaField": "ClassificationReassessingDate",
@@ -10274,11 +9834,6 @@
     "Path": "_history.data._mgt.ClassificationRule.Inheritance",
     "ApiField": "Inheritance",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#history.data.#management.ClassificationRule.Inheritance",
     "ShortName": "Inheritance"
@@ -10292,11 +9847,6 @@
     "Path": "_history.data._mgt.ClassificationRule.Inheritance.PreventInheritance",
     "ApiField": "PreventInheritance",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#history.data.#management.ClassificationRule.Inheritance.PreventInheritance",
     "SedaField": "PreventInheritance",
@@ -10311,11 +9861,6 @@
     "Path": "_history.data._mgt.ClassificationRule.Inheritance.PreventRulesId",
     "ApiField": "PreventRulesId",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#history.data.#management.ClassificationRule.Inheritance.PreventRulesId",
     "SedaField": "RefNonRuleId",
@@ -10330,11 +9875,6 @@
     "Path": "_history.data._mgt.ClassificationRule.NeedReassessingAuthorization",
     "ApiField": "NeedReassessingAuthorization",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#history.data.#management.ClassificationRule.NeedReassessingAuthorization",
     "SedaField": "NeedReassessingAuthorization",
@@ -10349,11 +9889,6 @@
     "Path": "_history.data._mgt.ClassificationRule.Rules",
     "ApiField": "Rules",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#history.data.#management.ClassificationRule.Rules",
     "ShortName": "Rules"
@@ -10367,11 +9902,6 @@
     "Path": "_history.data._mgt.ClassificationRule.Rules.EndDate",
     "ApiField": "EndDate",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#history.data.#management.ClassificationRule.Rules.EndDate",
     "SedaField": "EndDate",
@@ -10386,11 +9916,6 @@
     "Path": "_history.data._mgt.ClassificationRule.Rules.Rule",
     "ApiField": "Rule",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#history.data.#management.ClassificationRule.Rules.Rule",
     "SedaField": "Rule",
@@ -10405,11 +9930,6 @@
     "Path": "_history.data._mgt.ClassificationRule.Rules.StartDate",
     "ApiField": "StartDate",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#history.data.#management.ClassificationRule.Rules.StartDate",
     "SedaField": "StartDate",
@@ -10424,11 +9944,6 @@
     "Path": "_history.data._v",
     "ApiField": "#version",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#history.data.#version",
     "ShortName": "Version"
@@ -10442,11 +9957,6 @@
     "Path": "_history.ud",
     "ApiField": "ud",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#history.ud",
     "ShortName": "Dernière modification"
@@ -10460,11 +9970,6 @@
     "Path": "_id",
     "ApiField": "#id",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "OTHER",
     "ApiPath": "#id",
     "ShortName": "Identifiant du groupe d'objets"
@@ -10478,11 +9983,6 @@
     "Path": "_implementationVersion",
     "ApiField": "#implementationVersion",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "OTHER",
     "ApiPath": "#implementationVersion",
     "ShortName": "_implementationVersion"
@@ -10496,11 +9996,6 @@
     "Path": "_max",
     "ApiField": "#max",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "OTHER",
     "ApiPath": "#max",
     "ShortName": "Profondeur maximale"
@@ -11822,11 +11317,6 @@
     "Path": "_min",
     "ApiField": "#min",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "OTHER",
     "ApiPath": "#min",
     "ShortName": "Profondeur minimale"
@@ -11840,11 +11330,6 @@
     "Path": "_og",
     "ApiField": "#object",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "OTHER",
     "ApiPath": "#object",
     "ShortName": "Identifiant du groupe d’objets"
@@ -11858,11 +11343,6 @@
     "Path": "_opi",
     "ApiField": "#opi",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "OTHER",
     "ApiPath": "#opi",
     "ShortName": "Opération initiale"
@@ -11876,11 +11356,6 @@
     "Path": "_ops",
     "ApiField": "#operations",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "OTHER",
     "ApiPath": "#operations",
     "ShortName": "Opérations"
@@ -11894,11 +11369,6 @@
     "Path": "_opts",
     "ApiField": "#opts",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "OTHER",
     "ApiPath": "#opts",
     "ShortName": "Opérations de transfert"
@@ -11912,11 +11382,6 @@
     "Path": "_sedaVersion",
     "ApiField": "#sedaVersion",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "OTHER",
     "ApiPath": "#sedaVersion",
     "ShortName": "_sedaVersion"
@@ -11930,9 +11395,6 @@
     "Path": "_sp",
     "ApiField": "#originating_agency",
     "Collection": "Unit",
-    "SedaVersions": [
-      "INTERNE"
-    ],
     "Category": "DESCRIPTION",
     "ApiPath": "#originating_agency",
     "SedaField": "OriginatingAgencyIdentifier",
@@ -11947,9 +11409,6 @@
     "Path": "_sps",
     "ApiField": "#originating_agencies",
     "Collection": "Unit",
-    "SedaVersions": [
-      "INTERNE"
-    ],
     "Category": "DESCRIPTION",
     "ApiPath": "#originating_agencies",
     "ShortName": "Service(s) producteur(s) ayant des droits sur l'unité"
@@ -11963,11 +11422,6 @@
     "Path": "_storage",
     "ApiField": "#storage",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "OTHER",
     "ApiPath": "#storage",
     "ShortName": "_storage"
@@ -11981,11 +11435,6 @@
     "Path": "_storage._nbc",
     "ApiField": "#nbc",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "OTHER",
     "ApiPath": "#storage.#nbc",
     "ShortName": "Nombre d’objets"
@@ -11999,11 +11448,6 @@
     "Path": "_storage.offerIds",
     "ApiField": "offerIds",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "OTHER",
     "ApiPath": "#storage.offerIds",
     "ShortName": "offerIds"
@@ -12017,11 +11461,6 @@
     "Path": "_storage.strategyId",
     "ApiField": "strategyId",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "OTHER",
     "ApiPath": "#storage.strategyId",
     "ShortName": "strategyId"
@@ -12035,11 +11474,6 @@
     "Path": "_tenant",
     "ApiField": "#tenant",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "OTHER",
     "ApiPath": "#tenant",
     "ShortName": "Tenant"
@@ -12053,11 +11487,6 @@
     "Path": "_uds",
     "ApiField": "#uds",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "OTHER",
     "ApiPath": "#uds",
     "ShortName": "_uds"
@@ -12071,11 +11500,6 @@
     "Path": "_unitType",
     "ApiField": "#unitType",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "OTHER",
     "ApiPath": "#unitType",
     "ShortName": "Type d'unité archivistique"
@@ -12089,11 +11513,6 @@
     "Path": "_up",
     "ApiField": "#unitups",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "OTHER",
     "ApiPath": "#unitups",
     "ShortName": "Identifiant(s) des unités archivistiques parentes (parents immédiats)"
@@ -12107,11 +11526,6 @@
     "Path": "_us",
     "ApiField": "#allunitups",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "OTHER",
     "ApiPath": "#allunitups",
     "ShortName": "Identifiant(s) des unités archivistiques parentes"
@@ -12125,11 +11539,6 @@
     "Path": "_validComputedInheritedRules",
     "ApiField": "#validComputedInheritedRules",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "MANAGEMENT",
     "ApiPath": "#validComputedInheritedRules",
     "ShortName": "validComputedInheritedRules"
@@ -12143,11 +11552,6 @@
     "Path": "_batchId",
     "ApiField": "#batchId",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "OTHER",
     "ApiPath": "#batchId",
     "ShortName": "Collect batch identifier"
@@ -12161,11 +11565,6 @@
     "Path": "_uploadPath",
     "ApiField": "#uploadPath",
     "Collection": "Unit",
-    "SedaVersions": [
-      "2.1",
-      "2.2",
-      "2.3"
-    ],
     "Category": "OTHER",
     "ApiPath": "#uploadPath",
     "ShortName": "Collect initial upload path"
