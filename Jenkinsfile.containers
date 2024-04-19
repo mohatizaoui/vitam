@@ -38,30 +38,24 @@ pipeline {
                     whoami
                     '''
 
-                    sh '$MVN_COMMAND -f sources/pom.xml install jib:build -D!jib.skip -Dmaven.test.skip=true -DskipTests=true -Djacoco.skip=true -Dlicense.skip -Denv.SERVICE_NEXUS_URL=$SERVICE_NEXUS_URL -DsendCredentialsOverHttp=true -Djib.to.auth.username=$CI_USR -Djib.to.auth.password=$CI_PSW'
+                    sh '$MVN_COMMAND -f sources/pom.xml install  -Djib.skip=false -Dmaven.test.skip=true -DskipTests=true -Djacoco.skip=true -Dlicense.skip -Denv.SERVICE_NEXUS_URL=$SERVICE_NEXUS_URL -DsendCredentialsOverHttp=true -Djib.to.auth.username=$CI_USR -Djib.to.auth.password=$CI_PSW'
+
+                    withCredentials([
+                    [$class: 'UsernamePasswordMultiBinding', credentialsId: 'app-jenkins',usernameVariable: 'CI_USR', passwordVariable: 'CI_PSW'],
+                    string(credentialsId: "service-nexus-url", variable: 'SERVICE_NEXUS_URL')
+                    ]) {
+                        sh 'echo $CI_PSW | docker login  ${SERVICE_DOCKER_PULL_URL} -u $CI_USR --password-stdin'
+                        sh 'echo $CI_PSW | docker login  ${SERVICE_DOCKER_PUSH_URL} -u $CI_USR --password-stdin'
+                        sh "docker pull ${SERVICE_DOCKER_PUSH_URL}/vitam/metadata"
+                        sh "docker tag ${SERVICE_DOCKER_PUSH_URL}/vitam/metadata ${SERVICE_DOCKER_PUSH_URL}/vitam/metadata-collect"
+                        sh "docker push ${SERVICE_DOCKER_PUSH_URL}/vitam/metadata-collect"
+                        sh "docker pull ${SERVICE_DOCKER_PUSH_URL}/vitam/workspace"
+                        sh "docker tag ${SERVICE_DOCKER_PUSH_URL}/vitam/workspace ${SERVICE_DOCKER_PUSH_URL}/vitam/workspace-collect"
+                        sh "docker push ${SERVICE_DOCKER_PUSH_URL}/vitam/workspace-collect"
+                    }
                 }
             }
         }
-
-        // stage('Build and create doc package docker images'){
-        //     steps {
-        //         withCredentials([
-        //         [$class: 'UsernamePasswordMultiBinding', credentialsId: 'app-jenkins',usernameVariable: 'CI_USR', passwordVariable: 'CI_PSW'],
-        //         string(credentialsId: "service-nexus-url", variable: 'SERVICE_NEXUS_URL')
-        //         ]) {
-        //             sh '''
-        //             npm config get cache
-        //             npm config get
-        //             npm config ls -l
-        //             echo $HOME
-        //             cat /etc/passwd
-        //             whoami
-        //             '''
-
-        //             sh '$MVN_COMMAND -f doc/pom.xml clean install jib:build -Denv.SERVICE_NEXUS_URL=$SERVICE_NEXUS_URL -DsendCredentialsOverHttp=true -Djib.to.auth.username=$CI_USR -Djib.to.auth.password=$CI_PSW deploy'
-        //         }
-        //     }
-        // }
 
         stage('build cots') {
             steps {

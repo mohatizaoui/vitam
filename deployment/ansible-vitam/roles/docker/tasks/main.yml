@@ -32,15 +32,9 @@
     name: vitam
     groups: docker
     append: yes
+  notify: "docker - restart service"
 
-# Note : we force the restart here, as mongo-express must be restarted when mongodb is restarted...
-# As this is development tools and not production assets, it's OK.
-- name: Ensure docker daemon autostart && docker is started
-  systemd:
-    name: docker
-    state: restarted
-    enabled: yes
-    daemon_reload: yes
+- meta: flush_handlers
 
 - name: Login into Docker registry
   docker_login:

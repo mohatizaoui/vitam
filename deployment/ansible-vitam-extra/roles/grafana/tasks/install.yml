@@ -72,6 +72,7 @@
     docker_image:
       name: "{{ container_repository.registry_url }}/vitam-external/grafana/grafana:{{ grafana_version }}"
       state: present
+    ignore_errors: True
 
   - name: Start Docker container
     docker_container:
