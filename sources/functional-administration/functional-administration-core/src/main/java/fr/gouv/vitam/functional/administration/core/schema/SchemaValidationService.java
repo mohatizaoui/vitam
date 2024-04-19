@@ -94,12 +94,12 @@ public class SchemaValidationService {
      *
      * @param externalSchemaInputList
      * @param currentUnitSchemaList
-     * @param ontologiesElements
+     * @param ontologyEltsMapByIdentifier
      * @throws VitamException
      * @throws InvalidCreateOperationException
      */
     public void validateExternalSchemaInputs(List<SchemaInputModel> externalSchemaInputList,
-        List<SchemaResponse> currentUnitSchemaList, List<OntologyModel> ontologiesElements,
+        List<SchemaResponse> currentUnitSchemaList, Map<String, OntologyModel> ontologyEltsMapByIdentifier,
         Map<String, List<ErrorReportSchema>> importErrors)
         throws VitamException, InvalidCreateOperationException {
 
@@ -109,9 +109,6 @@ public class SchemaValidationService {
             Collectors.toMap(SchemaInputModel::getPath, schemaModel -> schemaModel));
         Map<String, SchemaResponse> currentUnitSchemaMapByPath = currentUnitSchemaList.stream().collect(
             Collectors.toMap(SchemaResponse::getPath, schemaModel -> schemaModel));
-
-        Map<String, OntologyModel> ontologyEltsMapByIdentifier = ontologiesElements.stream().collect(
-            Collectors.toMap(OntologyModel::getIdentifier, ontologyElt -> ontologyElt));
 
         Integer currentTenant = ParameterHelper.getTenantParameter();
         if (currentTenant.equals(VitamConfiguration.getAdminTenant())) {

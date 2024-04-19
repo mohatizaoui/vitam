@@ -224,14 +224,17 @@ public class SchemaService {
             schemaValidationService.startLogBook(importExternalSchemaOpId, SCHEMA_IMPORT_EVENT);
 
             List<OntologyModel> ontologiesElts = loadFullOntologiesElts();
+            Map<String, OntologyModel> ontologyEltsMapByIdentifier = ontologiesElts.stream().collect(
+                Collectors.toMap(OntologyModel::getIdentifier, ontologyElt -> ontologyElt));
 
             List<SchemaResponse> currentUnitSchemaList = new ArrayList<>(loadUnitInternalSchema());
             currentUnitSchemaList.addAll(this.findUnitExternalSchema(INCLUDE_ADMIN_TENANT));
 
-            schemaValidationService.validateExternalSchemaInputs(externalSchemaList, currentUnitSchemaList,
-                ontologiesElts, importErrors);
 
-            List<Schema> dbSchemaModelList = SchemaCommonService.mapSchemaFromInputParameters(externalSchemaList);
+            schemaValidationService.validateExternalSchemaInputs(externalSchemaList, currentUnitSchemaList,
+                ontologyEltsMapByIdentifier, importErrors);
+
+            List<Schema> dbSchemaModelList = SchemaCommonService.mapSchemaFromInputParameters(externalSchemaList, ontologyEltsMapByIdentifier);
             persistImportedSchemaList(dbSchemaModelList);
 
             backupSchemaDatabaseToOffers(importExternalSchemaOpId);
