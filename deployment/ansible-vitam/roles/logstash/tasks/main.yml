@@ -13,8 +13,7 @@
   retries: "{{ packages_install_retries_number }}"
   until: result is succeeded
   delay: "{{ packages_install_retries_delay }}"
-  notify:
-    - "logstash - restart service"
+  notify: "logstash - restart service"
 
 ## Logstash configuration
 
@@ -31,8 +30,7 @@
     - conf
     - lib
     - tmp
-  notify:
-    - "logstash - restart service"
+  notify: "logstash - restart service"
 
 - name: ensure json conf extra directory exists
   file:
@@ -41,8 +39,7 @@
     group: "{{ vitam_defaults.users.group }}"
     state: directory
     mode: "{{ vitam_defaults.folder.folder_permission }}"
-  notify:
-    - "logstash - restart service"
+  notify: "logstash - restart service"
 
 - name: apply configuration files
   template:
@@ -51,12 +48,11 @@
     owner: root
     mode: 0644
   with_items:
-    - "jvm.options"
-    - "log4j2.properties"
-    - "startup.options"
-    - "logstash.yml"
-  notify:
-    - "logstash - restart service"
+    - jvm.options
+    - log4j2.properties
+    - startup.options
+    - logstash.yml
+  notify: "logstash - restart service"
 
 - block:
 
@@ -64,6 +60,7 @@
     file:
       path: "{{ logstash_conf_dir }}/filebeat-to-logstash.conf"
       state: absent
+    notify: "logstash - restart service"
 
   - name: configure logstash parser
     template:
@@ -73,13 +70,19 @@
       group: "{{ vitam_defaults.users.group }}"
       mode: "{{ vitam_defaults.folder.conf_permission }}"
     with_items:
-      - "01-logstash-vitam-input.conf"
-      - "02-logstash-vitam-filter.conf"
-      - "03-logstash-vitam-output.conf"
-    notify:
-      - "logstash - restart service"
+      - 01-logstash-vitam-input.conf
+      - 02-logstash-vitam-filter.conf
+      - 03-logstash-vitam-output.conf
+    notify: "logstash - restart service"
 
-  when:  syslog.name | default('filebeat') != 'filebeat'
+- name: add vitam patterns conf
+  template:
+    src: vitam-patterns.j2
+    dest: "/usr/share/logstash/vendor/bundle/jruby/2.5.0/gems/logstash-patterns-core-{{ logstash_patterns_core_version }}/patterns/vitam"
+    owner: "{{ logstash.user }}"
+  notify: "logstash - restart service"
+
+  when: syslog.name | default('filebeat') != 'filebeat'
 
 - block:
 
@@ -88,42 +91,30 @@
       path: "{{ logstash_conf_dir }}/{{ item }}"
       state: absent
     with_items:
-      - "01-logstash-vitam-input.conf"
-      - "02-logstash-vitam-filter.conf"
-      - "03-logstash-vitam-output.conf"
+      - 01-logstash-vitam-input.conf
+      - 02-logstash-vitam-filter.conf
+      - 03-logstash-vitam-output.conf
+    notify: "logstash - restart service"
 
   - name: configure logstash parser when filebeat
     template:
-      src: "filebeat-to-logstash.conf.j2"
+      src: filebeat-to-logstash.conf.j2
       dest: "{{ logstash_conf_dir }}/filebeat-to-logstash.conf"
       owner: "{{ logstash.user }}"
       group: "{{ vitam_defaults.users.group }}"
       mode: "{{ vitam_defaults.folder.conf_permission }}"
-    notify:
-      - "logstash - restart service"
+    notify: "logstash - restart service"
 
-  when:  syslog.name | default('filebeat') == 'filebeat'
-
-- name: add vitam patterns conf
-  template:
-    src: "vitam-patterns.j2"
-    dest: "/usr/share/logstash/vendor/bundle/jruby/2.5.0/gems/logstash-patterns-core-{{ logstash_patterns_core_version }}/patterns/vitam"
-    owner: "{{ logstash.user }}"
-  when:  syslog.name | default('filebeat') != 'filebeat'
-  notify:
-    - "logstash - restart service"
+  when: syslog.name | default('filebeat') == 'filebeat'
 
 - name: configure extra parser configuration
   template:
-    src: "{{ item }}.j2"
-    dest: "{{ logstash_conf_dir }}/extra/{{ item }}"
+    src: elasticsearch-template.json.j2
+    dest: "{{ logstash_confextra_dir }}/elasticsearch-template.json"
     owner: logstash
     group: "{{ vitam_defaults.users.group }}"
     mode: "{{ vitam_defaults.folder.conf_permission }}"
-  with_items:
-    - "elasticsearch-template.json"
-  notify:
-    - "logstash - restart service"
+  notify: "logstash - restart service"
 
 #### Consul configuration ####
 
@@ -134,20 +125,17 @@
     owner: "{{ vitam_defaults.users.vitam }}"
     group: "{{ vitam_defaults.users.group }}"
     mode: "{{ '0777' if install_mode == 'container' else vitam_defaults.folder.folder_permission }}"
+  tags: consul_conf
 
 - name: Deploy consul agent service declaration
   template:
-    src: "service-{{ item }}.json.j2"
-    dest: "{{ consul_folder_conf }}/service-{{ item }}.json"
+    src: service-logstash.json.j2
+    dest: "{{ consul_folder_conf }}/service-logstash.json"
     owner: "{{ vitam_defaults.users.vitam }}"
     group: "{{ vitam_defaults.users.group }}"
     mode: "{{ '0644' if install_mode == 'container' else vitam_defaults.folder.conf_permission }}"
-  with_items:
-    - logstash
-  tags:
-    - consul_conf
-  notify:
-   - "logstash - reload consul configuration"
+  tags: consul_conf
+  notify: "logstash - reload consul configuration"
 
 - name: Flush handlers
   meta: flush_handlers

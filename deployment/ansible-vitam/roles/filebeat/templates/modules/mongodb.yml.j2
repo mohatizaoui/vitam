@@ -38,6 +38,10 @@
                         event.Put("loglevel", "UNKNOWN");
                 }
               }
+        - drop_event:
+          when:
+            equals:
+              loglevel: "INFO"
 {% endif %}
 
 {% if inventory_hostname in groups['hosts_mongoc_offer'] or inventory_hostname in groups['hosts_mongoc_data'] %}
@@ -66,7 +70,7 @@
                         event.Put("loglevel", "INFO");
                         break;
                     case "W":
-                        event.Put("loglevel", "WARNING");
+                        event.Put("loglevel", "WARN");
                         break;
                     case "E":
                         event.Put("loglevel", "ERROR");
@@ -78,6 +82,10 @@
                         event.Put("loglevel", "UNKNOWN");
                 }
               }
+        - drop_event:
+          when:
+            equals:
+              loglevel: "INFO"
 {% endif %}
 
 {% if inventory_hostname in groups['hosts_mongod_offer'] or inventory_hostname in groups['hosts_mongod_data'] %}
@@ -106,7 +114,7 @@
                         event.Put("loglevel", "INFO");
                         break;
                     case "W":
-                        event.Put("loglevel", "WARNING");
+                        event.Put("loglevel", "WARN");
                         break;
                     case "E":
                         event.Put("loglevel", "ERROR");
@@ -118,4 +126,8 @@
                         event.Put("loglevel", "UNKNOWN");
                 }
               }
+        - drop_event:
+          when:
+            equals:
+              loglevel: "INFO"
 {% endif %}
