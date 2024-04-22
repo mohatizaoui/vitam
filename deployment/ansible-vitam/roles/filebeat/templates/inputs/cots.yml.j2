@@ -1,35 +1,39 @@
 #jinja2: lstrip_blocks: True
-
 {% for cots_service in cots_service_list %}
 #
-# "{{cots_service }}"
+# {{ cots_service }}
 #
+{% if filebeat.cots[cots_service].enable_log | default(true) | bool %}
 - type: filestream
-  id: "{{ vitam_site_name }}-{{cots_service }}"
+  id: {{ vitam_site_name }}-{{cots_service }}
   enabled: {{ {'cerebro': filebeat.cots.cerebro.enable_log,
     'grafana': filebeat.cots.grafana.enable_log,
     'prometheus': filebeat.cots.prometheus.enable_log,
-    'alertmanager': filebeat.cots.alertmanager.enable_log}[cots_service] | default(true) }}
+    'alertmanager': filebeat.cots.alertmanager.enable_log}[cots_service] | default(true) | bool | lower }}
   paths:
     - "{{ vitam_defaults.folder.root_path }}/log/{{ cots_service }}/{{ cots_service }}*.log"
   fields:
     kind: log
-    vitam_component: "{{ cots_service }}"
+    vitam_component: {{ cots_service }}
     source: vitam
+    type: cots
+{% endif %}
 {% endfor %}
 
 #
 # Consul
 #
+{% if filebeat.cots.consul.enable_log | bool %}
 - type: filestream
-  id: "{{ vitam_site_name }}-consul"
-  enabled: "{{ filebeat.cots.consul.enable_log }}"
+  id: {{ vitam_site_name }}-consul
+  enabled: {{ filebeat.cots.consul.enable_log | bool | lower }}
   paths:
     - "{{ vitam_defaults.folder.root_path }}/log/consul/consul*.log"
   fields:
     kind: log
     vitam_component: consul
     source: vitam
+    type: cots
   processors:
   - dissect:
       tokenizer: '%{timestamp} [%{loglevel}]  %{logger}: %{message}'
@@ -39,3 +43,4 @@
       fields:
         - from: dissect.loglevel
           to: loglevel
+{% endif %}

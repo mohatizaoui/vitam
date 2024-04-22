@@ -63,18 +63,19 @@ output.elasticsearch:
   indices:
     - index: "logstash-access-%{+yyyy.MM.dd}"
       when.contains:
-        fields.kind: "access"
+        fields.kind: access
     - index: "logstash-system-%{+yyyy.MM.dd}"
       when.equals:
-        event.module: "system"
+        event.module: system
     - index: "logstash-vitam-%{+yyyy.MM.dd}"
       when:
         not:
           or:
             - equals:
-                event.module: "system"
+                event.module: system
             - contains:
-                fields.kind: "access"
+                fields.kind: access
+
 #
 # Processors
 #
