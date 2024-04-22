@@ -97,6 +97,7 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -330,7 +331,7 @@ public class AccessExternalResource extends ApplicationStatusResource {
      */
 
     @GET
-    @Path("/units/byunitspersistentidentifier/{persistentIdentifier:.+}")
+    @Path("/units/unitpid/{persistentIdentifier:.+}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Secured(permission = UNITS_PERSISTENT_IDENTIFIER_READ, description = "Récupérer une unité archivistique par identifiant pérenne")
@@ -1020,7 +1021,7 @@ public class AccessExternalResource extends ApplicationStatusResource {
      * @return object content as response body stream with HTTP 200 when OK, HTTP 404 when object not found, HTTP 460 when object is not available for immediate access and requires Access Request. HTTP 40X / 50X on error.
      */
     @GET
-    @Path("/objects/byunitspersistentidentifier/{persistentIdentifier:.+}")
+    @Path("/objects/unitpid/{persistentIdentifier:.+}")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     @Secured(permission = OBJECTS_PERSISTENT_IDENTIFIER_OBJECTS_READ_BINARY, description = "Télécharger un objet")
     @Operation(
@@ -1040,20 +1041,23 @@ public class AccessExternalResource extends ApplicationStatusResource {
     public Response getDataObjectByUnitPersistentIdentifier(@Context HttpHeaders headers,
         @PathParam("persistentIdentifier") String persistentIdentifier,
         @DefaultValue("BinaryMaster") @QueryParam("qualifier") String qualifier,
-        @DefaultValue("1") @QueryParam("version") Integer version) {
-        try {
+        @QueryParam("version") Integer version) {
+        try (final AccessInternalClient client = accessInternalClientFactory.getClient()) {
             ParametersChecker.checkParameter("Missing persistent identifier", persistentIdentifier);
             DataObjectVersionType dataObjectVersionType = DataObjectVersionType.fromName(qualifier);
             if (dataObjectVersionType == null) {
                 throw new IllegalArgumentException("Could not identify DataObjectVersionType with value " + qualifier);
             }
-            return getDataObjectByUnitPersistentIdentifier(persistentIdentifier,
-                DataObjectVersionType.fromName(qualifier).getName(), version);
+            return client.downloadObjectsByUnitPersistentIdentifier(persistentIdentifier, qualifier, version);
 
         } catch (IllegalArgumentException e) {
             LOGGER.warn(COULD_NOT_VALIDATE_REQUEST, e);
             return Response.status(Status.PRECONDITION_FAILED)
                 .entity(getErrorEntity(Status.PRECONDITION_FAILED, e.getLocalizedMessage())).build();
+        } catch (VitamClientException e) {
+            final VitamError<?> vitamError = e.getVitamError();
+            final int statusCode = vitamError.getStatus();
+            return Response.status(statusCode).entity(e).build();
         }
     }
 
@@ -1066,7 +1070,7 @@ public class AccessExternalResource extends ApplicationStatusResource {
      * @return object content as response body stream with HTTP 200 when OK, HTTP 404 when object not found, HTTP 460 when object is not available for immediate access and requires Access Request. HTTP 40X / 50X on error.
      */
     @GET
-    @Path("/objects/byobjectspersistentidentifier/{persistentIdentifier:.+}")
+    @Path("/objects/objectpid/{persistentIdentifier:.+}")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     @Secured(permission = OBJECTS_PERSISTENT_IDENTIFIER_READ_BINARY, description = "Télécharger un objet par son identifiant pérenne")
     @Operation(
@@ -1088,7 +1092,7 @@ public class AccessExternalResource extends ApplicationStatusResource {
         ParametersChecker.checkParameter("Persistent identifier must not be blank or defined", persistentIdentifier);
         SanityChecker.checkParameter(persistentIdentifier);
         try (final AccessInternalClient client = accessInternalClientFactory.getClient()) {
-            return client.downloadObject(persistentIdentifier);
+            return client.downloadObjectByPersistentIdentifier(persistentIdentifier);
         } catch (VitamClientException e) {
             final VitamError<?> vitamError = e.getVitamError();
             final int statusCode = vitamError.getStatus();
@@ -1103,7 +1107,7 @@ public class AccessExternalResource extends ApplicationStatusResource {
      * @return Response
      */
     @GET
-    @Path("/objects/byobjectspersistentidentifier/{persistentIdentifier:.+}")
+    @Path("/objects/objectpid/{persistentIdentifier:.+}")
     @Operation(
         description = "Requête qui retourne la liste des objets qui correspondent aux critères d'identifiant pérenne . ",
         parameters = {
@@ -1168,61 +1172,6 @@ public class AccessExternalResource extends ApplicationStatusResource {
             .entity(VitamCodeHelper.toVitamError(VitamCode.ACCESS_EXTERNAL_SELECT_UNITS_ERROR,
                 exceptionMessage).setHttpCode(status.getStatusCode()))
             .build();
-    }
-
-    private Response getDataObjectByUnitPersistentIdentifier(String unitPersistentIdentifier, String qualifier,
-        Integer version) {
-
-        Status status;
-        try {
-            JsonNode unit = findUnitByPersistentIdentifier(unitPersistentIdentifier, List.of(OBJECT_TAG));
-            if (unit == null) {
-                throw new AccessInternalClientNotFoundException("No unit found with criteria");
-            }
-            if (unit.get(OBJECT_TAG) == null) {
-                throw new AccessInternalClientNotFoundException("objectGroup not found");
-            }
-            String idObjectGroup = unit.get(OBJECT_TAG).textValue();
-
-            if (idObjectGroup == null) {
-                throw new AccessInternalClientNotFoundException("ObjectGroup of Unit not found");
-            }
-
-            return asyncObjectStream(qualifier, String.valueOf(version), idObjectGroup,
-                unit.get(VitamFieldsHelper.id()).textValue());
-        } catch (final InvalidParseOperationException | BadRequestException | InvalidCreateOperationException e) {
-            LOGGER.debug(PREDICATES_FAILED_EXCEPTION, e);
-            status = Status.PRECONDITION_FAILED;
-            return Response.status(status)
-                .entity(getErrorStream(
-                    VitamCodeHelper.toVitamError(VitamCode.ACCESS_EXTERNAL_SELECT_DATA_OBJECT_BY_UNIT_ID_ERROR,
-                        e.getLocalizedMessage()).setHttpCode(status.getStatusCode())))
-                .build();
-        } catch (final AccessInternalClientServerException e) {
-            LOGGER.error("Unauthorized request Exception ", e);
-            status = Status.INTERNAL_SERVER_ERROR;
-            return Response.status(status)
-                .entity(getErrorStream(
-                    VitamCodeHelper.toVitamError(VitamCode.ACCESS_EXTERNAL_SELECT_DATA_OBJECT_BY_UNIT_ID_ERROR,
-                        e.getLocalizedMessage()).setHttpCode(status.getStatusCode())))
-                .build();
-        } catch (final AccessInternalClientNotFoundException e) {
-            LOGGER.debug(REQUEST_RESOURCES_DOES_NOT_EXISTS, e);
-            status = Status.NOT_FOUND;
-            return Response.status(status)
-                .entity(getErrorStream(
-                    VitamCodeHelper.toVitamError(VitamCode.ACCESS_EXTERNAL_SELECT_DATA_OBJECT_BY_UNIT_ID_ERROR,
-                        e.getLocalizedMessage()).setHttpCode(status.getStatusCode())))
-                .build();
-        } catch (AccessUnauthorizedException e) {
-            LOGGER.error(CONTRACT_ACCESS_NOT_ALLOW, e);
-            status = Status.UNAUTHORIZED;
-            return Response.status(status)
-                .entity(getErrorStream(
-                    VitamCodeHelper.toVitamError(VitamCode.ACCESS_EXTERNAL_SELECT_DATA_OBJECT_BY_UNIT_ID_ERROR,
-                        e.getLocalizedMessage()).setHttpCode(status.getStatusCode())))
-                .build();
-        }
     }
 
     /**
@@ -1783,8 +1732,9 @@ public class AccessExternalResource extends ApplicationStatusResource {
         try (AccessInternalClient client = accessInternalClientFactory.getClient()) {
             SelectParserMultiple query = new SelectParserMultiple();
             SelectMultiQuery selectMultiQuery = query.getRequest();
-            selectMultiQuery.addQueries(
-                QueryHelper.eq(PERSISTENT_IDENTIFIERS + "." + PERSISTENT_IDENTIFIER_CONTENT, persistentIdentifier));
+            selectMultiQuery.addQueries(QueryHelper.and().add(
+                QueryHelper.eq(PERSISTENT_IDENTIFIERS + "." + PERSISTENT_IDENTIFIER_CONTENT, persistentIdentifier),
+                QueryHelper.exists(OBJECT_TAG)));
             selectMultiQuery.addUsedProjection(VitamFieldsHelper.id());
             if (projectionFields != null && !projectionFields.isEmpty()) {
                 for (String projectionField : projectionFields) {

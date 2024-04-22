@@ -148,7 +148,7 @@ public interface AccessInternalModule {
      * @return Response with InputStream.
      * @throws MetaDataNotFoundException when persistent identifier not found in metadata database.
      */
-    Response getObject(String persistentIdentifier)
+    Response getObjectByPersistentIdentifier(String persistentIdentifier)
         throws MetaDataNotFoundException, StorageNotFoundException,
         AccessInternalException;
 
@@ -231,4 +231,8 @@ public interface AccessInternalModule {
     Response streamObjects(JsonNode applyAccessContractRestrictionForObjectForSelect)
         throws AccessInternalExecutionException, MetadataScrollLimitExceededException,
         MetadataScrollThresholdExceededException;
+
+    Response getObjectByUnitPersistentIdentifier(String persistentIdentifier, String qualifier, Integer version)
+        throws  InvalidParseOperationException, MetaDataNotFoundException,
+        StorageNotFoundException, AccessInternalException;
 }

@@ -513,7 +513,7 @@ class AccessExternalClientRest extends DefaultClient implements AccessExternalCl
         JsonNode selectQuery, String persistentIdentifier)
         throws VitamClientException {
         VitamRequestBuilder request =
-            get().withPath("/units/byunitspersistentidentifier/" + persistentIdentifier)
+            get().withPath("/units/unitpid/" + persistentIdentifier)
                 .withHeaders(vitamContext.getHeaders())
                 .withBody(selectQuery, BLANK_QUERY)
                 .withJson();
@@ -538,7 +538,7 @@ class AccessExternalClientRest extends DefaultClient implements AccessExternalCl
         ParametersChecker.checkParameter("Persistent identifier should not be empty", persistentIdentifier);
         VitamRequestBuilder request = get()
             .withPath(
-                "/objects/byunitspersistentidentifier/" + persistentIdentifier)
+                "/objects/unitpid/" + persistentIdentifier)
             .withHeaders(vitamContext.getHeaders())
             .withOctetAccept();
 
@@ -574,7 +574,7 @@ class AccessExternalClientRest extends DefaultClient implements AccessExternalCl
         ParametersChecker.checkParameter("Persistent identifier should not be empty", persistentIdentifier);
 
         VitamRequestBuilder request = get()
-            .withPath("/objects/byobjectspersistentidentifier/" + persistentIdentifier)
+            .withPath("/objects/objectpid/" + persistentIdentifier)
             .withHeaders(vitamContext.getHeaders())
             .withBody(selectQuery, BLANK_QUERY)
             .withJson();
@@ -601,7 +601,7 @@ class AccessExternalClientRest extends DefaultClient implements AccessExternalCl
         ParametersChecker.checkParameter("Persistent identifier should not be empty", persistentIdentifier);
 
         VitamRequestBuilder request = get()
-            .withPath("/objects/byobjectspersistentidentifier/" + persistentIdentifier)
+            .withPath("/objects/objectpid/" + persistentIdentifier)
             .withHeaders(vitamContext.getHeaders())
             .withOctetAccept();
         Response response = null;

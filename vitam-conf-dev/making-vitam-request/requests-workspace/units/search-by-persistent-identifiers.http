@@ -5,7 +5,7 @@
 @object-persistent-identifier = ark:/27447/1234567xyz_binary_master1
 
 ### Recherche d'une unitée archivistique dont un identifiant pérenne correspond à '{{unit-persistent-identifier}}'
-GET {{url-access}}/access-external/v1/units/byunitspersistentidentifier/{{unit-persistent-identifier}}
+GET {{url-access}}/access-external/v1/units/unitpid/{{unit-persistent-identifier}}
 Accept: application/json
 Content-Type: application/json
 X-Access-Contract-Id: {{access-contract}}
@@ -18,14 +18,14 @@ X-Tenant-Id: {{tenant}}
 }
 
 ### télécharger un objet dont l'identifiant pérenne est ark:/23567/001a9d7db5eadxac_binary_master
-GET {{url-access}}/access-external/v1/objects/byobjectspersistentidentifier/ark:/23567/001a9d7db5eadxac_binary_master
+GET {{url-access}}/access-external/v1/objects/objectpid/ark:/23567/001a9d7db5eadxac_binary_master
 Accept: application/octet-stream
 X-Access-Contract-Id: {{access-contract}}
 X-Tenant-Id: {{tenant}}
 
 
 ### télécharger un objet dont l'identifiant pérenne de l'unit est ark:/23567/001a9d7db5eadxac et le qualifier est BinaryMaster
-GET {{url-access}}/access-external/v1/objects/byunitspersistentidentifier/ark:/23567/001a9d7db5eadxac?qualifier=BinaryMaster
+GET {{url-access}}/access-external/v1/objects/unitpid/ark:/23567/001a9d7db5eadxac?qualifier=BinaryMaster
 Accept: application/octet-stream
 X-Access-Contract-Id: {{access-contract}}
 X-Tenant-Id: {{tenant}}
@@ -33,13 +33,13 @@ X-Tenant-Id: {{tenant}}
 
 
 ### télécharger un objet dont l'identifiant pérenne de l'unit est ark:/23567/001a9d7db5eadxac et le qualifier est BinaryMaster et la version est 1
-GET {{url-access}}/access-external/v1/objects/byunitspersistentidentifier/ark:/23567/001a9d7db5eadxac?qualifier=BinaryMaster&version=1
+GET {{url-access}}/access-external/v1/objects/unitpid/ark:/23567/001a9d7db5eadxac?qualifier=BinaryMaster&version=1
 Accept: application/octet-stream
 X-Access-Contract-Id: {{access-contract}}
 X-Tenant-Id: {{tenant}}
 
 ### retourner les objets dont l'identifiant pérenne est ark:/23567/001a9d7db5eadxac_binary_master
-GET {{url-access}}/access-external/v1/objects/byobjectspersistentidentifier/ark:/23567/001a9d7db5eadabac
+GET {{url-access}}/access-external/v1/objects/objectpid/ark:/23567/001a9d7db5eadabac
 Accept: application/json
 Content-Type: application/json
 X-Access-Contract-Id: {{access-contract}}

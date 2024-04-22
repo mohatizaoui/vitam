@@ -151,6 +151,7 @@ import fr.gouv.vitam.workspace.client.WorkspaceType;
 import fr.gouv.vitam.workspace.common.CompressInformation;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
 import javax.ws.rs.ProcessingException;
@@ -245,6 +246,8 @@ public class AccessInternalModuleImpl implements AccessInternalModule {
     private static final String UNSUPPORTED_CATEGORY = "Unsupported category ";
     private static final String ERROR_CODE = "errorCode";
     private static final String RULE_TYPE = "RuleType";
+
+    private static final String OBJECT_TAG = "#object";
     private final LogbookLifeCyclesClientFactory logbookLifeCyclesClientFactory;
     private final LogbookOperationsClientFactory logbookOperationsClientFactory;
     private final StorageClientFactory storageClientFactory;
@@ -644,7 +647,7 @@ public class AccessInternalModuleImpl implements AccessInternalModule {
     }
 
     @Override
-    public Response getObject(String persistentIdentifier)
+    public Response getObjectByPersistentIdentifier(String persistentIdentifier)
         throws MetaDataNotFoundException, StorageNotFoundException,
         AccessInternalException {
         final SelectMultiQuery selectMultiQuery =
@@ -882,6 +885,48 @@ public class AccessInternalModuleImpl implements AccessInternalModule {
             return metaDataClient.streamObjects(query);
         } catch (MetaDataClientServerException e) {
             throw new AccessInternalExecutionException(e);
+        }
+    }
+
+    @Override
+    public Response getObjectByUnitPersistentIdentifier(String persistentIdentifier, String qualifier,
+        Integer version) throws StorageNotFoundException, MetaDataNotFoundException, AccessInternalException {
+
+        try {
+            SelectMultiQuery selectMultiQuery = new SelectParserMultiple().getRequest();
+            selectMultiQuery.addQueries(QueryHelper.and().add(
+                QueryHelper.eq("PersistentIdentifier.PersistentIdentifierContent", persistentIdentifier),
+                QueryHelper.exists(OBJECT_TAG)));
+            selectMultiQuery.addUsedProjection(VitamFieldsHelper.id(), OBJECT_TAG);
+
+            final JsonNode unitResult =
+                selectUnit(applyAccessContractRestrictionForUnitForSelect(selectMultiQuery.getFinalSelect(),
+                    getVitamSession().getContract()));
+
+            if (unitResult.get("$results").isNull() || unitResult.get("$results").isEmpty()) {
+                throw new MetaDataNotFoundException("No unit found for the persistent identifier provided");
+            }
+
+            JsonNode unit = unitResult.get("$results").get(0);
+            String objectGroupId = unit.get(OBJECT_TAG).textValue();
+            final SelectMultiQuery request = new SelectMultiQuery();
+            request.addRoots(objectGroupId);
+            request.addUsedProjection("#qualifiers.versions", "#qualifiers.qualifier");
+            JsonNode objectGroupResponse = this.selectObjectGroupById(request.getFinalSelect(), objectGroupId);
+            ObjectGroupResponse objectGroup =
+                JsonHandler.getFromJsonNode(objectGroupResponse.get(RESULTS), ObjectGroupResponse.class);
+            if (objectGroup == null) {
+                throw new MetaDataNotFoundException(
+                    "No object group found for the unit persistent identifier provided");
+            }
+            if (version == null) {
+                version = findLatestVersionByQualifier(objectGroup, qualifier);
+            }
+            return getOneObjectFromObjectGroup(objectGroupId, qualifier, version,
+                unit.get(VitamFieldsHelper.id()).asText());
+        } catch (AccessInternalExecutionException | InvalidParseOperationException | InvalidCreateOperationException |
+                 AccessInternalUnavailableDataFromAsyncOfferException e) {
+            throw new AccessInternalException("Error creating or parsing query: " + e.getMessage(), e);
         }
     }
 
@@ -1950,5 +1995,23 @@ public class AccessInternalModuleImpl implements AccessInternalModule {
                  MetaDataExecutionException e) {
             throw new AccessInternalExecutionException(e);
         }
+    }
+
+    private Integer findLatestVersionByQualifier(ObjectGroupResponse objectGroup, String qualifier) {
+        int latestVersion = -1;
+        for (QualifiersModel qualifierElt : objectGroup.getQualifiers()) {
+            if (!qualifierElt.getQualifier().equals(qualifier)) {
+                continue;
+            }
+            for (VersionsModel version : qualifierElt.getVersions()) {
+                String dataObjectVersion = version.getDataObjectVersion();
+                int versionNumber = Integer.parseInt(StringUtils.substringAfterLast(dataObjectVersion,"_"));
+                if (versionNumber > latestVersion) {
+                    latestVersion = versionNumber;
+                }
+            }
+        }
+
+        return latestVersion;
     }
 }

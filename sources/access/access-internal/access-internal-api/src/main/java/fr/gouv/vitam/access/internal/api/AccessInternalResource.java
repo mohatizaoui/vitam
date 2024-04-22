@@ -37,7 +37,14 @@ import fr.gouv.vitam.metadata.api.exception.MetaDataClientServerException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataDocumentSizeException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataExecutionException;
 
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
 import java.util.List;
@@ -58,9 +65,11 @@ public interface AccessInternalResource {
 
     Response getUnitsByUnitPersistentIdentifier(String persistentIdentifier, JsonNode selectQuery);
 
+    Response downloadObjectsByUnitPersistentIdentifier(String persistentIdentifier, String qualifier, Integer version);
+
     Response getObjectsByObjectPersistentIdentifier(String persistentIdentifier, JsonNode selectQuery);
 
-    Response downloadObject(String persistentId) throws Exception;
+    Response downloadObjectByPersistentIdentifier(String persistentId) throws Exception;
 
     Response streamUnits(JsonNode queryDsl);
 
