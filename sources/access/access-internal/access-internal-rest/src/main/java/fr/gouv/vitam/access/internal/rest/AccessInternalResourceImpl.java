@@ -123,6 +123,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
@@ -130,6 +131,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -307,7 +309,7 @@ public class AccessInternalResourceImpl extends ApplicationStatusResource implem
      */
     @Override
     @GET
-    @Path("/units/persistentIdentifier/{persistentIdentifier:.+}")
+    @Path("/units/unitpid/{persistentIdentifier:.+}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUnitsByUnitPersistentIdentifier(@PathParam("persistentIdentifier") String persistentIdentifier,
@@ -347,6 +349,33 @@ public class AccessInternalResourceImpl extends ApplicationStatusResource implem
         return Response.status(Status.OK).entity(result).build();
     }
 
+    @Override
+    @GET
+    @Path("/objects/unitpid/{persistentIdentifier:.+}")
+    @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON})
+    public Response downloadObjectsByUnitPersistentIdentifier(
+        @PathParam("persistentIdentifier") String unitPersistentIdentifier,
+        @DefaultValue("BinaryMaster") @QueryParam("qualifier") String qualifier,
+        @QueryParam("version") Integer version) {
+        try {
+            return accessModule.getObjectByUnitPersistentIdentifier(unitPersistentIdentifier, qualifier, version);
+        } catch (MetaDataNotFoundException | InvalidParseOperationException e) {
+            final Optional<PurgedPersistentIdentifier> optionalPurgedPersistentIdentifier =
+                new PurgedPersistentIdentifierSearchService().search(unitPersistentIdentifier, OBJECT)
+                    .stream()
+                    .findFirst();
+            final Response.ResponseBuilder responseBuilder = Response.status(NOT_FOUND);
+            if (optionalPurgedPersistentIdentifier.isPresent()) {
+                return responseBuilder.entity(optionalPurgedPersistentIdentifier.get()).build();
+            }
+            throw new PersistentIdentifierNotFoundException();
+        } catch (StorageNotFoundException | AccessInternalException e) {
+            LOGGER.error(e);
+            return Response.status(INTERNAL_SERVER_ERROR).entity(getErrorEntity(INTERNAL_SERVER_ERROR, e.getMessage()))
+                .build();
+        }
+    }
+
     /**
      * get Archive Unit list by query based on identifier
      *
@@ -356,7 +385,7 @@ public class AccessInternalResourceImpl extends ApplicationStatusResource implem
      */
     @Override
     @GET
-    @Path("/objects/persistentIdentifier/{persistentIdentifier:.+}")
+    @Path("/objects/objectpid/{persistentIdentifier:.+}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response getObjectsByObjectPersistentIdentifier(@PathParam("persistentIdentifier") String persistentIdentifier,
@@ -398,11 +427,11 @@ public class AccessInternalResourceImpl extends ApplicationStatusResource implem
 
     @Override
     @GET
-    @Path("/objects/persistentIdentifier/{persistentIdentifier:.+}")
+    @Path("/objects/objectpid/{persistentIdentifier:.+}")
     @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON})
-    public Response downloadObject(@PathParam("persistentIdentifier") final String persistentIdentifier) {
+    public Response downloadObjectByPersistentIdentifier(@PathParam("persistentIdentifier") final String persistentIdentifier) {
         try {
-            return accessModule.getObject(persistentIdentifier);
+            return accessModule.getObjectByPersistentIdentifier(persistentIdentifier);
         } catch (MetaDataNotFoundException e) {
             final Optional<PurgedPersistentIdentifier> optionalPurgedPersistentIdentifier =
                 new PurgedPersistentIdentifierSearchService().search(persistentIdentifier, OBJECT)

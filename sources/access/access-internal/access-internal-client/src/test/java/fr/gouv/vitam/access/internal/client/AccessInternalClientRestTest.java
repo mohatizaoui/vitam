@@ -162,7 +162,7 @@ public class AccessInternalClientRestTest extends ResteasyTestApplication {
 
         @Override
         @GET
-        @Path("/units/persistentIdentifier/{persistentIdentifier:.+}")
+        @Path("/units/unitpid/{persistentIdentifier:.+}")
         @Consumes(MediaType.APPLICATION_JSON)
         @Produces(MediaType.APPLICATION_JSON)
         public Response getUnitsByUnitPersistentIdentifier(@PathParam("persistentIdentifier") String persistentIdentifier, JsonNode queryDsl) {
@@ -171,7 +171,17 @@ public class AccessInternalClientRestTest extends ResteasyTestApplication {
 
         @Override
         @GET
-        @Path("/objects/persistentIdentifier/{persistentIdentifier:.+}")
+        @Path("/objects/unitpid/{persistentIdentifier:.+}")
+        @Consumes(MediaType.APPLICATION_JSON)
+        @Produces(MediaType.APPLICATION_JSON)
+        public Response downloadObjectsByUnitPersistentIdentifier(String persistentIdentifier, String qualifier,
+            Integer version) {
+            return expectedResponse.get();
+        }
+
+        @Override
+        @GET
+        @Path("/objects/objectpid/{persistentIdentifier:.+}")
         @Consumes(MediaType.APPLICATION_JSON)
         @Produces(MediaType.APPLICATION_JSON)
         public Response getObjectsByObjectPersistentIdentifier(String persistentIdentifier, JsonNode selectQuery) {
@@ -180,10 +190,10 @@ public class AccessInternalClientRestTest extends ResteasyTestApplication {
 
         @Override
         @GET
-        @Path("/objects/persistentIdentifier/{persistentIdentifier:.+}")
+        @Path("/objects/objectpid/{persistentIdentifier:.+}")
         @Consumes(MediaType.APPLICATION_JSON)
         @Produces(MediaType.APPLICATION_JSON)
-        public Response downloadObject(@PathParam("persistentIdentifier") String persistentIdentifier) {
+        public Response downloadObjectByPersistentIdentifier(@PathParam("persistentIdentifier") String persistentIdentifier) {
             return expectedResponse.get();
         }
 

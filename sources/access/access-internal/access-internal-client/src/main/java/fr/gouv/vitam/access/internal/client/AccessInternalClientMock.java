@@ -94,7 +94,13 @@ class AccessInternalClientMock extends AbstractMockClient implements AccessInter
     }
 
     @Override
-    public Response downloadObject(String persistentIdentifier) throws VitamClientException {
+    public Response downloadObjectByPersistentIdentifier(String persistentIdentifier) throws VitamClientException {
+        throw new IllegalStateException("Stop using mocks in production");
+    }
+
+    @Override
+    public Response downloadObjectsByUnitPersistentIdentifier(String unitPersistentIdentifier, String qualifier,
+        Integer version) throws VitamClientException {
         throw new IllegalStateException("Stop using mocks in production");
     }
 

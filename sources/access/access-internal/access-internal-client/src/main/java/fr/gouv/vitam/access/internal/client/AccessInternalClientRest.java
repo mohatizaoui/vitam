@@ -65,7 +65,9 @@ import javax.ws.rs.core.Response.Status;
 import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static fr.gouv.vitam.common.GlobalDataRest.X_ACCESS_CONTRAT_ID;
@@ -108,7 +110,8 @@ class AccessInternalClientRest extends DefaultClient implements AccessInternalCl
     private static final String EXPORT_BY_USAGE_FILTER = "export/usagefilter";
     private static final String TRANSFER_EXPORT = "transferexport/";
     private static final String UNITS = "units/";
-    private static final String PERSISTENT_IDENTIFIER = "persistentIdentifier/";
+    private static final String UNIT_PERSISTENT_IDENTIFIER = "unitpid/";
+    private static final String OBJECT_PERSISTENT_IDENTIFIER = "objectpid/";
     private static final String UNITS_ATOMIC_BULK = "units/atomicbulk/";
     private static final String UNITS_RULES = "/units/rules";
     private static final String UNITS_WITH_INHERITED_RULES = "unitsWithInheritedRules";
@@ -151,7 +154,7 @@ class AccessInternalClientRest extends DefaultClient implements AccessInternalCl
         Response response = null;
         try {
             response =
-                make(get().withBefore(CHECK_REQUEST_ID).withPath(UNITS + PERSISTENT_IDENTIFIER + persistentIdentifier)
+                make(get().withBefore(CHECK_REQUEST_ID).withPath(UNITS + UNIT_PERSISTENT_IDENTIFIER + persistentIdentifier)
                     .withBody(selectQuery, BLANK_DSL).withJson());
             check(response);
             return response;
@@ -175,7 +178,7 @@ class AccessInternalClientRest extends DefaultClient implements AccessInternalCl
         Response response = null;
         try {
             response =
-                make(get().withBefore(CHECK_REQUEST_ID).withPath(OBJECTS + PERSISTENT_IDENTIFIER + persistentIdentifier)
+                make(get().withBefore(CHECK_REQUEST_ID).withPath(OBJECTS + OBJECT_PERSISTENT_IDENTIFIER + persistentIdentifier)
                     .withBody(selectQuery, BLANK_DSL).withJson());
             check(response);
             return RequestResponse.parseFromResponse(response);
@@ -412,9 +415,9 @@ class AccessInternalClientRest extends DefaultClient implements AccessInternalCl
     }
 
     @Override
-    public Response downloadObject(String persistentIdentifier) throws VitamClientException {
+    public Response downloadObjectByPersistentIdentifier(String persistentIdentifier) throws VitamClientException {
         ParametersChecker.checkParameter("Persistent identifier must not be blank or defined", persistentIdentifier);
-        final String path = String.format("objects/persistentIdentifier/%s", persistentIdentifier);
+        final String path = String.format("objects/objectpid/%s", persistentIdentifier);
         Response response = null;
         try {
             response = make(get().withBefore(CHECK_REQUEST_ID).withPath(path).withJson());
@@ -432,6 +435,38 @@ class AccessInternalClientRest extends DefaultClient implements AccessInternalCl
             }
         }
     }
+
+    @Override
+    public Response downloadObjectsByUnitPersistentIdentifier(String unitPersistentIdentifier, String qualifier,
+        Integer version) throws VitamClientException {
+            ParametersChecker.checkParameter("Persistent identifier must not be blank or defined", unitPersistentIdentifier);
+            Response response = null;
+            try {
+                Map<String, String> queryParams = new HashMap<>();
+                if(qualifier != null){
+                    queryParams.put("qualifier", qualifier);
+                }
+                if(version != null){
+                    queryParams.put("version", String.valueOf(version));
+                }
+                response = make(get().withBefore(CHECK_REQUEST_ID).
+                    withPath(OBJECTS+UNIT_PERSISTENT_IDENTIFIER+unitPersistentIdentifier)
+                    .withQueryParams(queryParams)
+                    .withJson());
+                if (response.getStatusInfo().toEnum() == NOT_FOUND) {
+                    return response;
+                }
+                check(response);
+                return response;
+            } catch (VitamException e) {
+                throw new VitamClientException(e);
+            } finally {
+                if (response != null && !SUCCESSFUL.equals(response.getStatusInfo().getFamily()) &&
+                    response.getStatusInfo().toEnum() != NOT_FOUND) {
+                    response.close();
+                }
+            }
+        }
 
     @Override
     public RequestResponse<JsonNode> selectOperation(JsonNode select, boolean isSliced, boolean isCrossTenant)

@@ -98,8 +98,20 @@ public interface AccessInternalClient extends MockOrRestClient {
      * @param persistentIdentifier object's persistent identifier
      * @return object binary
      */
-    Response downloadObject(String persistentIdentifier)
+    Response downloadObjectByPersistentIdentifier(String persistentIdentifier)
         throws VitamClientException;
+
+
+    /**
+     * Download object by unit persistent identifier and other criteria.
+     *
+     * @param unitPersistentIdentifier the unit persistent identifier
+     * @param qualifier the object qualifier
+     * @param version the object version, if not provided, the latest is selected
+     * @return object binary
+     */
+    Response downloadObjectsByUnitPersistentIdentifier(String unitPersistentIdentifier,String qualifier,
+        Integer version) throws VitamClientException;
 
     /**
      * Select Units

@@ -606,7 +606,7 @@ documentation:
     is: [AccessTraits.DeleteAccessRequest]
 
 
-/units/byunitspersistentidentifier/{persistentIdentifier}:
+/units/unitpid/{persistentIdentifier}:
   displayName: Retourne la liste des unités d'archives correspondantes à l'identifiant pérenne fourni en entrée.
   description: |
     Requête qui retourne la liste des unités d'archives correspondantes à l'identifiant pérenne fourni en entrée. La requête utilise le langage de requête (DSL) de Vitam en entrée pour filter et retourner que les informations demandées en cas de succès.
@@ -618,7 +618,7 @@ documentation:
           example: "ark:/22567/001a957db5eadaac"
           required: true
     Permissions requises:
-      - units:unitsbypersistentidentifier:id:read
+      - units:unitpid:id:read
     responses:
       200:
         description: "Renvoie les unités d'archives correspondantes à l'identifiant pérenne fourni."
@@ -643,7 +643,7 @@ documentation:
         required: true
         example: "1"
 
-/objects/byobjectspersistentidentifier/{persistentIdentifier}:
+/objects/objectpid/{persistentIdentifier}:
   displayName: Retourne la liste des objets correspondants à l'identifiant pérenne fourni en entrée.
   description: |
     Requête qui retourne la liste des objets correspondants à l'identifiant pérenne fourni en entrée. La requête utilise le langage de requête (DSL) de Vitam en entrée pour filter et retourner que les informations demandées en cas de succès.
@@ -655,7 +655,7 @@ documentation:
           example: "ark:/22567/001a957db5eadaac_binary_master"
           required: true
     Permissions requises:
-      - objects:objectsbypersistentidentifier:id:read
+      - objects:objectpid:id:read
     responses:
       200:
         description: "Renvoie les objets correspondants à l'identifiant pérenne fourni."
@@ -680,7 +680,7 @@ documentation:
         required: true
         example: "1"
 
-/objects/byunitspersistentidentifier/{persistentIdentifier}:
+/objects/unitpid/{persistentIdentifier}:
   displayName: Télécharger le premier objet correspondant à l'identifiant pérenne d'une unité selon les critères passés en paramètre.
   description: |
     Télécharger le premier objet correspondant à l'identifiant pérenne d'une unité selon les critères passés en paramètre.
@@ -694,13 +694,13 @@ documentation:
     queryParameters:
         version:
           required: false
-          description: La version de l'objet binaire, par défaut la version 1.
-        qualfier:
+          description: La version de l'objet binaire, par défaut la dernière version.
+        qualifier:
           required: false
           description: Le qualifier de l'objet binaire, par défaut 'BINARY_MASTER''.
 
     Permissions requises:
-      - objects:unitsbypersistentidentifier:id:objects:read:binary
+      - objects:unitpid:id:objects:read:binary
     responses:
         202:
           description: Retourne l'objet binaire qui correspond aux critères
@@ -737,7 +737,7 @@ documentation:
         example: "1"
 
 
-/objects/byobjectspersistentidentifier/{persistentIdentifier}:
+/objects/objectpid/{persistentIdentifier}:
   displayName: Télécharger le premier objet correspondant à l'identifiant pérenne d'une unité selon les critères passés en paramètre.
   description: |
     Télécharger le premier objet correspondant à l'identifiant pérenne d'une unité selon les critères passés en paramètre.
@@ -750,7 +750,7 @@ documentation:
           required: true
 
     Permissions requises:
-      - objects:objectsbypersistentidentifier:id:read:binary
+      - objects:objectpid:id:read:binary
     responses:
         202:
           description: Retourne le premier objet binaire qui correspond aux critères
