@@ -55,8 +55,10 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import javax.ws.rs.core.Response;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -72,7 +74,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
@@ -318,9 +322,9 @@ public class ProjectExternalResourceTest extends ResteasyTestApplication {
             .accept(ContentType.JSON)
             .contentType(ContentType.JSON) // If Content-Type: application/json is set, searchProject is called instead getProjects
             .header(GlobalDataRest.X_TENANT_ID, TENANT)
-        .when()
+            .when()
             .get(PROJECTS_URI)
-        .then()
+            .then()
             .statusCode(INTERNAL_SERVER_ERROR.getStatusCode())
             .body("message", Matchers.equalTo("An error occurred while converting the DTO to a JsonNode"));
     }
@@ -332,9 +336,9 @@ public class ProjectExternalResourceTest extends ResteasyTestApplication {
             .contentType(ContentType.JSON) // If Content-Type: application/json is set, searchProject is called instead getProjects
             .header(GlobalDataRest.X_TENANT_ID, TENANT)
             .body("no_json_content")
-        .when()
+            .when()
             .get(PROJECTS_URI)
-        .then()
+            .then()
             .statusCode(INTERNAL_SERVER_ERROR.getStatusCode())
             .body("description", Matchers.containsString("Unrecognized token 'no_json_content'"));
     }
@@ -346,9 +350,9 @@ public class ProjectExternalResourceTest extends ResteasyTestApplication {
             .contentType(ContentType.JSON) // If Content-Type: application/json is set, searchProject is called instead getProjects
             .header(GlobalDataRest.X_TENANT_ID, TENANT)
             .body("{ \"$query\": \"<div>malicious input</div>\" }")
-        .when()
+            .when()
             .get(PROJECTS_URI)
-        .then()
+            .then()
             .statusCode(INTERNAL_SERVER_ERROR.getStatusCode())
             .body("message", Matchers.containsString("HTML PATTERN found"));
     }
@@ -361,7 +365,7 @@ public class ProjectExternalResourceTest extends ResteasyTestApplication {
                 .contentType(ContentType.JSON)
                 .header(GlobalDataRest.X_TENANT_ID, TENANT)
                 .body((String) null)
-            .when()
+                .when()
                 .post(PROJECTS_URI);
         });
     }
@@ -373,9 +377,9 @@ public class ProjectExternalResourceTest extends ResteasyTestApplication {
             .contentType(ContentType.JSON)
             .header(GlobalDataRest.X_TENANT_ID, TENANT)
             .body("")
-        .when()
+            .when()
             .post(PROJECTS_URI)
-        .then()
+            .then()
             .statusCode(INTERNAL_SERVER_ERROR.getStatusCode())
             .body("message", Matchers.equalTo("Internal Server Error"))
             .body("description", Matchers.equalTo("You must supply projects data!"));
@@ -388,20 +392,21 @@ public class ProjectExternalResourceTest extends ResteasyTestApplication {
             .contentType(ContentType.JSON)
             .header(GlobalDataRest.X_TENANT_ID, TENANT)
             .body("{}")
-        .when()
+            .when()
             .post(PROJECTS_URI)
-        .then()
+            .then()
             .statusCode(OK.getStatusCode());
     }
 
     @Test
     public void upload_zip_to_project_OK() throws Exception {
-        when(collectInternalClient.uploadZipToProject(eq("prId"), any())).thenReturn("txId");
+        when(collectInternalClient.uploadZipToProject(eq("prId"), any(), any())).thenReturn("txId");
 
         RequestResponseOK<?> responseOK = given()
             .contentType(CommonMediaType.ZIP)
             .accept(ContentType.JSON)
             .header(GlobalDataRest.X_TENANT_ID, TENANT)
+            .header(GlobalDataRest.X_ENCODING, "Windows-1251")
             .body(new NullInputStream(100))
             .when()
             .post(PROJECTS_URI + "/prId/upload")
@@ -409,12 +414,13 @@ public class ProjectExternalResourceTest extends ResteasyTestApplication {
             .statusCode(OK.getStatusCode())
             .extract().body().as(RequestResponseOK.class);
 
+        verify(collectInternalClient).uploadZipToProject(eq("prId"), any(InputStream.class), eq("Windows-1251"));
         assertThat(responseOK.getFirstResult()).isEqualTo("txId");
     }
 
     @Test
     public void upload_zip_to_project_not_found() throws Exception {
-        when(collectInternalClient.uploadZipToProject(eq("prId"), any()))
+        when(collectInternalClient.uploadZipToProject(eq("prId"), any(), any()))
             .thenThrow(new CollectInternalClientNotFoundException("Prb"));
 
         given()
@@ -430,7 +436,7 @@ public class ProjectExternalResourceTest extends ResteasyTestApplication {
 
     @Test
     public void upload_zip_to_project_KO() throws Exception {
-        when(collectInternalClient.uploadZipToProject(eq("prId"), any()))
+        when(collectInternalClient.uploadZipToProject(eq("prId"), any(), any()))
             .thenThrow(new VitamClientException("Prb"));
 
         given()
@@ -443,4 +449,22 @@ public class ProjectExternalResourceTest extends ResteasyTestApplication {
             .then()
             .statusCode(INTERNAL_SERVER_ERROR.getStatusCode());
     }
+
+    @Test
+    public void upload_zip_to_project_with_unsupported_encoding() throws Exception {
+        given()
+            .contentType(CommonMediaType.ZIP)
+            .accept(ContentType.JSON)
+            .header(GlobalDataRest.X_TENANT_ID, TENANT)
+            .header(GlobalDataRest.X_ENCODING, "imaginary-encoding")
+            .body(new NullInputStream(100))
+            .when()
+            .post(PROJECTS_URI + "/prId/upload")
+            .then()
+            .statusCode(BAD_REQUEST.getStatusCode())
+            .body("message", Matchers.equalTo("Unsupported encoding imaginary-encoding"));
+
+        verify(collectInternalClient, never()).uploadZipToProject(any(), any(), any());
+    }
+
 }

@@ -79,6 +79,7 @@ import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
 import org.apache.commons.collections.CollectionUtils;
 
+import javax.annotation.Nullable;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -100,6 +101,7 @@ import static fr.gouv.vitam.common.json.JsonHandler.getFromJsonNodeList;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 
 public class TransactionService {
+
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(TransactionService.class);
     private static final String TRANSACTION_NOT_FOUND = "Unable to find transaction Id or invalid status";
     private static final String TRANSACTION_NOT_UPDATED = "Wrong status to update! ";
@@ -333,7 +335,6 @@ public class TransactionService {
     }
 
 
-
     private Map<String, String> getIngestOperationStatusesFromProcessing(List<TransactionModel> transactions)
         throws CollectInternalException {
 
@@ -564,7 +565,7 @@ public class TransactionService {
     }
 
 
-    private Optional<TransactionModel> traceTransaction(List<Batch> batches , TransactionModel transactionModel)
+    private Optional<TransactionModel> traceTransaction(List<Batch> batches, TransactionModel transactionModel)
         throws CollectInternalException {
         String errorMsg = "concurrency problem: The transaction was deleted by someone else";
 
@@ -697,18 +698,17 @@ public class TransactionService {
     }
 
 
-    public Response uploadTransactionZip(InputStream inputStreamObject, TransactionModel transactionModel)
+    public Response uploadTransactionZip(InputStream inputStreamObject, TransactionModel transactionModel, @Nullable String encoding)
         throws CollectInternalException {
         try {
-
             fluxService.processStream(
-                inputStreamObject, transactionModel.getProjectId(), transactionModel.getId());
+                inputStreamObject, transactionModel.getProjectId(), transactionModel.getId(), encoding);
             return Response.ok().build();
         } catch (CollectInternalInvalidRequestException e) {
             LOGGER.error("An error occurs when try to upload the ZIP: {}", e);
             return CollectRequestResponse.toVitamError(BAD_REQUEST, e.getLocalizedMessage());
         } catch (CollectInternalException e) {
-            purgeFailedUploadSilently( transactionModel);
+            purgeFailedUploadSilently(transactionModel);
             throw e;
         }
     }
@@ -725,7 +725,8 @@ public class TransactionService {
         transaction.setStatus(TransactionStatus.SENDING);
 
         transaction.setLastUpdate(LocalDateUtil.now().toString());
-        return  findOneAndReplace(TransactionStatus.READY, transaction);
+        return findOneAndReplace(TransactionStatus.READY, transaction);
 
     }
+
 }

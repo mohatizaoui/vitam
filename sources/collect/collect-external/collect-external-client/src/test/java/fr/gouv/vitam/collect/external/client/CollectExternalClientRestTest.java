@@ -38,6 +38,7 @@ import fr.gouv.vitam.collect.common.dto.TransactionDto;
 import fr.gouv.vitam.collect.common.exception.CollectRequestResponse;
 import fr.gouv.vitam.collect.external.external.exception.CollectExternalClientInvalidRequestException;
 import fr.gouv.vitam.common.CommonMediaType;
+import fr.gouv.vitam.common.GlobalDataRest;
 import fr.gouv.vitam.common.client.VitamContext;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.RequestResponse;
@@ -59,6 +60,7 @@ import org.mockito.Mockito;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -176,8 +178,17 @@ public class CollectExternalClientRestTest extends ResteasyTestApplication {
     public void uploadZipToTransaction() throws Exception {
         Mockito.when(mock.post()).thenReturn(
             Response.ok(new RequestResponseOK<JsonNode>().addResult(JsonHandler.toJsonNode("TX_ID"))).build());
-        RequestResponse<JsonNode> response =
-            client.uploadZipToTransaction(new VitamContext(TENANT_ID), "TX_ID", new NullInputStream(100));
+        RequestResponse<JsonNode> response = client.uploadZipToTransaction(new VitamContext(TENANT_ID),
+            "TX_ID", new NullInputStream(100));
+        Assertions.assertThat(response).isNotNull();
+    }
+
+    @Test
+    public void uploadZipToTransaction_with_optional_header() throws Exception {
+        Mockito.when(mock.post()).thenReturn(
+            Response.ok(new RequestResponseOK<JsonNode>().addResult(JsonHandler.toJsonNode("TX_ID"))).build());
+        RequestResponse<JsonNode> response = client.uploadZipToTransaction(new VitamContext(TENANT_ID),
+            "TX_ID", new NullInputStream(100), "Ventura-Math");
         Assertions.assertThat(response).isNotNull();
     }
 
@@ -187,6 +198,16 @@ public class CollectExternalClientRestTest extends ResteasyTestApplication {
             .thenReturn(Response.ok(new RequestResponseOK<String>().addResult("MyVirtualTx")).build());
         RequestResponse<String> response = client.uploadZipToProject(new VitamContext(TENANT_ID),
             "PJ_ID", new NullInputStream(100));
+        Assertions.assertThat(((RequestResponseOK<String>) response).getFirstResult())
+            .isEqualTo("MyVirtualTx");
+    }
+
+    @Test
+    public void uploadZipToProject_with_optional_header() throws Exception {
+        Mockito.when(mock.post())
+            .thenReturn(Response.ok(new RequestResponseOK<String>().addResult("MyVirtualTx")).build());
+        RequestResponse<String> response = client.uploadZipToProject(new VitamContext(TENANT_ID),
+            "PJ_ID", new NullInputStream(100), "SEN_850200_C");
         Assertions.assertThat(((RequestResponseOK<String>) response).getFirstResult())
             .isEqualTo("MyVirtualTx");
     }
@@ -238,6 +259,7 @@ public class CollectExternalClientRestTest extends ResteasyTestApplication {
 
     @Path("/collect-external/v1")
     public static class MockResource {
+
         private final ExpectedResults expectedResponse;
 
         public MockResource(ExpectedResults expectedResponse) {
@@ -439,8 +461,11 @@ public class CollectExternalClientRestTest extends ResteasyTestApplication {
         @POST
         @Consumes({CommonMediaType.ZIP})
         @Produces(MediaType.APPLICATION_JSON)
-        public Response uploadZipToTransaction(@PathParam("transactionId") String transactionId,
-            InputStream inputStreamObject) throws Exception {
+        public Response uploadZipToTransaction(
+            @PathParam("transactionId") String transactionId,
+            InputStream inputStreamObject,
+            @HeaderParam(GlobalDataRest.X_ENCODING) String encoding
+        ) {
             return expectedResponse.post();
         }
 
@@ -449,8 +474,11 @@ public class CollectExternalClientRestTest extends ResteasyTestApplication {
         @Consumes({CommonMediaType.ZIP})
         @Produces(MediaType.APPLICATION_JSON)
         @Beta
-        public Response uploadZipToProject(@PathParam("projectId") String projectId,
-            InputStream inputStreamObject) {
+        public Response uploadZipToProject(
+            @PathParam("projectId") String projectId,
+            InputStream inputStreamObject,
+            @HeaderParam(GlobalDataRest.X_ENCODING) String encoding
+        ) {
             return expectedResponse.post();
         }
 
@@ -465,5 +493,7 @@ public class CollectExternalClientRestTest extends ResteasyTestApplication {
                     new BulkAtomicUpdateResult(BulkAtomicUpdateStatus.OK, "unitId", null)
                 ).setHttpCode(202)).build();
         }
+
     }
+
 }

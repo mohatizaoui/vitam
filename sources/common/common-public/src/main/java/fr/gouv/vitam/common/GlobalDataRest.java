@@ -286,6 +286,11 @@ public class GlobalDataRest {
      */
     public static final String X_MANIFEST_DIGEST_ALGORITHM = "X-Manifest-Digest-Algo";
 
+    /**
+     * Optional. ZIP encoding. Use Content-Encoding ?
+     */
+    public static final String X_ENCODING = "X-Encoding";
+
     private GlobalDataRest() {
         // empty
     }

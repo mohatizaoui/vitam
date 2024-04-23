@@ -39,6 +39,7 @@ import fr.gouv.vitam.collect.internal.core.service.MetadataService;
 import fr.gouv.vitam.collect.internal.core.service.ProjectService;
 import fr.gouv.vitam.collect.internal.core.service.TransactionService;
 import fr.gouv.vitam.common.CommonMediaType;
+import fr.gouv.vitam.common.GlobalDataRest;
 import fr.gouv.vitam.common.ParametersChecker;
 import fr.gouv.vitam.common.database.parser.request.multiple.SelectParserMultiple;
 import fr.gouv.vitam.common.exception.BadRequestException;
@@ -51,9 +52,11 @@ import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.parameter.ParameterHelper;
 import fr.gouv.vitam.common.security.SanityChecker;
 
+import javax.annotation.Nullable;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -311,9 +314,11 @@ public class ProjectInternalResource {
     @POST
     @Consumes({CommonMediaType.ZIP})
     @Produces(APPLICATION_JSON)
-    public Response uploadZipToProject(@PathParam("projectId") String projectId,
-        InputStream inputStreamObject) {
-
+    public Response uploadZipToProject(
+        @PathParam("projectId") String projectId,
+        InputStream inputStreamObject,
+        @HeaderParam(GlobalDataRest.X_ENCODING) @Nullable String encoding
+    ) {
         try {
             ParametersChecker.checkParameter("You must supply a ZIP input stream body!", inputStreamObject);
             SanityChecker.checkParameter(projectId);
@@ -332,7 +337,7 @@ public class ProjectInternalResource {
             // Use projectId to ensure the virtual transactionId is reused within the same project
             String virtualTransactionId = VIRTUAL_TX + projectId;
 
-            fluxService.processStream(inputStreamObject, projectId, virtualTransactionId);
+            fluxService.processStream(inputStreamObject, projectId, virtualTransactionId, encoding);
             return Response.ok(new RequestResponseOK<>().addResult(virtualTransactionId)).build();
         } catch (CollectInternalInvalidRequestException | IllegalArgumentException e) {
             LOGGER.error("An error occurs when try to upload the ZIP: {}", e);
@@ -350,4 +355,5 @@ public class ProjectInternalResource {
             throw new BadRequestException("Query cant be empty");
         }
     }
+
 }

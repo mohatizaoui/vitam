@@ -38,6 +38,7 @@ import fr.gouv.vitam.collect.internal.client.CollectInternalClientFactory;
 import fr.gouv.vitam.collect.internal.client.exceptions.CollectInternalClientInvalidRequestException;
 import fr.gouv.vitam.collect.internal.client.exceptions.CollectInternalClientNotFoundException;
 import fr.gouv.vitam.common.CommonMediaType;
+import fr.gouv.vitam.common.GlobalDataRest;
 import fr.gouv.vitam.common.ParametersChecker;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.exception.VitamClientException;
@@ -51,9 +52,11 @@ import fr.gouv.vitam.common.security.rest.Secured;
 import fr.gouv.vitam.common.server.application.resources.ApplicationStatusResource;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import javax.annotation.Nullable;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -62,6 +65,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.util.Objects;
 
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.PROJECT_CREATE;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.PROJECT_ID_DELETE;
@@ -82,6 +87,7 @@ import static javax.ws.rs.core.Response.Status.fromStatusCode;
 @Path("/collect-external/v1/projects")
 @Tag(name = "Collect")
 public class ProjectExternalResource extends ApplicationStatusResource {
+
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(ProjectExternalResource.class);
 
     private static final String YOU_MUST_SUPPLY_PROJECTS_DATA = "You must supply projects data!";
@@ -294,19 +300,26 @@ public class ProjectExternalResource extends ApplicationStatusResource {
     @Produces(APPLICATION_JSON)
     @Secured(permission = PROJECT_ID_ZIP_CREATE, description = "Verser une archive arborescente ZIP à un projet de versement automatique sans transaction")
     @Beta
-    public Response uploadZipToProject(@PathParam("projectId") String projectId,
-        InputStream inputStreamObject) {
-
+    public Response uploadZipToProject(
+        @PathParam("projectId") String projectId,
+        InputStream inputStreamObject,
+        @HeaderParam(GlobalDataRest.X_ENCODING) @Nullable String encoding
+    ) {
         try {
             SanityChecker.checkParameter(projectId);
             ParametersChecker.checkParameter("You must supply a body!", inputStreamObject);
+            if (Objects.nonNull(encoding)) {
+                SanityChecker.checkParameter(encoding);
+                if (!Charset.isSupported(encoding)) {
+                    return CollectRequestResponse.toVitamError(BAD_REQUEST, "Unsupported encoding " + encoding);
+                }
+            }
         } catch (InvalidParseOperationException | IllegalArgumentException e) {
             LOGGER.error("Cannot validate request", e);
             return Response.status(BAD_REQUEST).build();
         }
-
         try (CollectInternalClient client = collectInternalClientFactory.getClient()) {
-            String transactionId = client.uploadZipToProject(projectId, inputStreamObject);
+            String transactionId = client.uploadZipToProject(projectId, inputStreamObject, encoding);
             RequestResponseOK<String> transactionsResponse = new RequestResponseOK<String>().addResult(transactionId);
             return Response.status(Response.Status.OK).entity(transactionsResponse).build();
         } catch (CollectInternalClientInvalidRequestException e) {
@@ -320,4 +333,5 @@ public class ProjectExternalResource extends ApplicationStatusResource {
             return CollectRequestResponse.toVitamError(INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
         }
     }
+
 }

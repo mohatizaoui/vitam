@@ -27,11 +27,10 @@
 package fr.gouv.vitam.collect.external.external.rest;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import fr.gouv.vitam.collect.common.exception.CollectInternalInvalidRequestException;
 import fr.gouv.vitam.collect.internal.client.CollectInternalClient;
 import fr.gouv.vitam.collect.internal.client.CollectInternalClientFactory;
 import fr.gouv.vitam.collect.internal.client.exceptions.CollectInternalClientInvalidRequestException;
-import fr.gouv.vitam.collect.internal.client.exceptions.CollectInternalClientNotFoundException;
+import fr.gouv.vitam.common.CommonMediaType;
 import fr.gouv.vitam.common.GlobalDataRest;
 import fr.gouv.vitam.common.client.VitamClientFactory;
 import fr.gouv.vitam.common.exception.VitamApplicationServerException;
@@ -44,8 +43,9 @@ import fr.gouv.vitam.common.server.application.junit.ResteasyTestApplication;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
 import io.restassured.RestAssured;
-import io.restassured.config.EncoderConfig;
 import io.restassured.http.ContentType;
+import org.apache.commons.io.input.NullInputStream;
+import org.hamcrest.Matchers;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -54,17 +54,21 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import javax.ws.rs.core.Response;
+import java.io.InputStream;
 import java.util.Set;
 
 import static fr.gouv.vitam.common.CommonMediaType.TEXT_CSV;
-import static fr.gouv.vitam.common.CommonMediaType.TEXT_CSV_MEDIATYPE;
 import static io.restassured.RestAssured.given;
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
+import static javax.ws.rs.core.Response.Status.OK;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class TransactionExternalResourceTest extends ResteasyTestApplication {
@@ -149,9 +153,9 @@ public class TransactionExternalResourceTest extends ResteasyTestApplication {
                 "  \"DescriptionLevel\": \"RecordGrp\",\n" +
                 "  \"Title\": \"Bulletins de salaire : mars 2020\"\n" +
                 "}")
-            .when().log().all()
+            .when()
             .post("/transactions/" + transactionId + "/units")
-            .then().log().all()
+            .then()
             .statusCode(Response.Status.OK.getStatusCode());
     }
 
@@ -168,9 +172,9 @@ public class TransactionExternalResourceTest extends ResteasyTestApplication {
                 "  \"DescriptionLevel\": \"RecordGrp\",\n" +
                 "  \"Title\": \"Bulletins de salaire : mars 2020\"\n" +
                 "}")
-            .when().log().all()
+            .when()
             .post("/transactions/BAD_TRANSACTION_ID/units")
-            .then().log().all()
+            .then()
             .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
@@ -185,9 +189,9 @@ public class TransactionExternalResourceTest extends ResteasyTestApplication {
                 "  \"DescriptionLevel\": \"RecordGrp\",\n" +
                 "  \"Title\": \"Bulletins de salaire : mars 2020\"\n" +
                 "}")
-            .when().log().all()
+            .when()
             .post("/transactions/units")
-            .then().log().all()
+            .then()
             .statusCode(Response.Status.METHOD_NOT_ALLOWED.getStatusCode());
     }
 
@@ -201,9 +205,9 @@ public class TransactionExternalResourceTest extends ResteasyTestApplication {
                 "  \"DescriptionLevel\": \"RecordGrp\",\n" +
                 "  \"Title\": \"Bulletins de salaire : mars 2020\"\n" +
                 "}")
-            .when().log().all()
+            .when()
             .post("/transactions//units")
-            .then().log().all()
+            .then()
             .statusCode(Response.Status.NOT_FOUND.getStatusCode());
     }
 
@@ -217,9 +221,9 @@ public class TransactionExternalResourceTest extends ResteasyTestApplication {
             .contentType(ContentType.BINARY)
             .header(GlobalDataRest.X_TENANT_ID, "0")
             .body("CSV_REQ".getBytes())
-            .when().log().all()
+            .when()
             .put("/transactions/myTx/units")
-            .then().log().all()
+            .then()
             .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
@@ -233,9 +237,9 @@ public class TransactionExternalResourceTest extends ResteasyTestApplication {
             .contentType(ContentType.BINARY)
             .header(GlobalDataRest.X_TENANT_ID, "0")
             .body("CSV_REQ".getBytes())
-            .when().log().all()
+            .when()
             .put("/transactions/myTx/units")
-            .then().log().all()
+            .then()
             .statusCode(Response.Status.OK.getStatusCode());
     }
 
@@ -249,9 +253,9 @@ public class TransactionExternalResourceTest extends ResteasyTestApplication {
             .contentType(TEXT_CSV)
             .header(GlobalDataRest.X_TENANT_ID, "0")
             .body("CSV_REQ")
-            .when().log().all()
+            .when()
             .put("/transactions/myTx/units/metadata/csv")
-            .then().log().all()
+            .then()
             .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
@@ -265,9 +269,9 @@ public class TransactionExternalResourceTest extends ResteasyTestApplication {
             .contentType(TEXT_CSV)
             .header(GlobalDataRest.X_TENANT_ID, "0")
             .body("CSV_REQ")
-            .when().log().all()
+            .when()
             .put("/transactions/myTx/units/metadata/csv")
-            .then().log().all()
+            .then()
             .statusCode(Response.Status.OK.getStatusCode());
     }
 
@@ -281,9 +285,9 @@ public class TransactionExternalResourceTest extends ResteasyTestApplication {
             .contentType(ContentType.BINARY)
             .header(GlobalDataRest.X_TENANT_ID, "0")
             .body("JSONL_REQ".getBytes())
-            .when().log().all()
+            .when()
             .put("/transactions/myTx/units/metadata/jsonl")
-            .then().log().all()
+            .then()
             .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
@@ -297,9 +301,45 @@ public class TransactionExternalResourceTest extends ResteasyTestApplication {
             .contentType(ContentType.BINARY)
             .header(GlobalDataRest.X_TENANT_ID, "0")
             .body("JSONL_REQ".getBytes())
-            .when().log().all()
+            .when()
             .put("/transactions/myTx/units/metadata/jsonl")
-            .then().log().all()
+            .then()
             .statusCode(Response.Status.OK.getStatusCode());
     }
+
+    @Test
+    public void upload_zip_to_project_OK() throws Exception {
+        Mockito.doNothing().when(collectInternalClient).uploadZipToTransaction(eq("transaction-id"), any(), any());
+
+        given()
+            .contentType(CommonMediaType.ZIP)
+            .accept(ContentType.JSON)
+            .header(GlobalDataRest.X_TENANT_ID, 1)
+            .header(GlobalDataRest.X_ENCODING, "MacRoman")
+            .body(new NullInputStream(100))
+            .when()
+            .post("/transactions/transaction-id/upload")
+            .then()
+            .statusCode(OK.getStatusCode());
+
+        verify(collectInternalClient).uploadZipToTransaction(eq("transaction-id"), any(InputStream.class), eq("MacRoman"));
+    }
+
+    @Test
+    public void upload_zip_to_project_with_unsupported_encoding() throws Exception {
+        given()
+            .contentType(CommonMediaType.ZIP)
+            .accept(ContentType.JSON)
+            .header(GlobalDataRest.X_TENANT_ID, 1)
+            .header(GlobalDataRest.X_ENCODING, "imaginary-encoding")
+            .body(new NullInputStream(100))
+            .when()
+            .post("/transactions/transaction-id/upload")
+            .then()
+            .statusCode(BAD_REQUEST.getStatusCode())
+            .body("message", Matchers.equalTo("Unsupported encoding imaginary-encoding"));
+
+        verify(collectInternalClient, never()).uploadZipToTransaction(any(), any(), any());
+    }
+
 }

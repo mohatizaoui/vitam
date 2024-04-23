@@ -44,7 +44,7 @@ import fr.gouv.vitam.collect.internal.core.service.ProjectService;
 import fr.gouv.vitam.collect.internal.core.service.SipService;
 import fr.gouv.vitam.collect.internal.core.service.TransactionService;
 import fr.gouv.vitam.common.CommonMediaType;
-import fr.gouv.vitam.common.LocalDateUtil;
+import fr.gouv.vitam.common.GlobalDataRest;
 import fr.gouv.vitam.common.ParametersChecker;
 import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.database.parser.request.multiple.SelectParserMultiple;
@@ -56,16 +56,17 @@ import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.common.model.RequestResponseOK;
-import fr.gouv.vitam.common.parameter.ParameterHelper;
 import fr.gouv.vitam.common.security.SanityChecker;
 import fr.gouv.vitam.common.stream.StreamUtils;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.metadata.api.utils.BulkAtomicUpdateModelUtils;
 import org.apache.commons.io.FileUtils;
 
+import javax.annotation.Nullable;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -93,6 +94,7 @@ import static javax.ws.rs.core.Response.Status.OK;
 
 @Path("/collect-internal/v1/transactions")
 public class TransactionInternalResource {
+
     public static final String SIP_GENERATED_MANIFEST_CAN_T_BE_NULL = "SIP generated manifest can't be null";
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(TransactionInternalResource.class);
     private static final String TRANSACTION_NOT_FOUND = "Unable to find transaction Id";
@@ -423,21 +425,20 @@ public class TransactionInternalResource {
     @POST
     @Consumes({CommonMediaType.ZIP})
     @Produces(APPLICATION_JSON)
-    public Response uploadTransactionZip(@PathParam("transactionId") String transactionId,
-        InputStream inputStreamObject) {
-
+    public Response uploadTransactionZip(
+        @PathParam("transactionId") String transactionId,
+        InputStream inputStreamObject,
+        @HeaderParam(GlobalDataRest.X_ENCODING) @Nullable String encoding
+    ) {
         try {
             ParametersChecker.checkParameter("You must supply a file!", inputStreamObject);
             Optional<TransactionModel> transactionModel = transactionService.findTransaction(transactionId);
-
             if (transactionModel.isEmpty() ||
                 !transactionService.checkStatus(transactionModel.get(), TransactionStatus.OPEN)) {
                 LOGGER.error(TRANSACTION_NOT_FOUND_OR_INVALID_STATUS);
                 return CollectRequestResponse.toVitamError(NOT_FOUND, TRANSACTION_NOT_FOUND_OR_INVALID_STATUS);
             }
-
-            return transactionService.uploadTransactionZip(inputStreamObject, transactionModel.get());
-
+            return transactionService.uploadTransactionZip(inputStreamObject, transactionModel.get(), encoding);
         } catch (IllegalArgumentException e) {
             LOGGER.error("An error occurs when try to upload the ZIP: {}", e);
             return CollectRequestResponse.toVitamError(BAD_REQUEST, e.getLocalizedMessage());
@@ -449,7 +450,6 @@ public class TransactionInternalResource {
 
 
     }
-
 
 
     @Path("/{transactionId}/status/{transactionStatus}")
@@ -602,4 +602,5 @@ public class TransactionInternalResource {
         }
         return transaction;
     }
+
 }

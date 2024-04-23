@@ -131,7 +131,6 @@ public enum VitamHttpHeader {
     X_ADMIN_CROSS_TENANT_ACCESS_REQUEST_ALLOWED(GlobalDataRest.X_ADMIN_CROSS_TENANT_ACCESS_REQUEST_ALLOWED,
         "true|false");
 
-
     private String name;
     private String regExp;
 
