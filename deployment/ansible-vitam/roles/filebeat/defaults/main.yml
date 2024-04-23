@@ -8,10 +8,10 @@ filebeat_processors:
     - add_docker_metadata: ~
 
 filebeat_log:
-  level: INFO
-  directory: "/vitam/log/filebeat"
+  level: WARNING
+  directory: /vitam/log/filebeat
   filename: filebeat.log
-  keepfiles: 7
+  keepfiles: 30
 
 cots_list:
   - cerebro
@@ -21,8 +21,8 @@ cots_list:
 
 filebeat:
   system:
-    enable_log: true
-    enable_auth: true
+    enable_log: false
+    enable_auth: false
   cots:
     consul:
       enable_log: true

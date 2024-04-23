@@ -1,12 +1,11 @@
 #jinja2: lstrip_blocks: True
-
 {% for vitam_service in vitam_service_list %}
-
 #
-# VITAM SERVICE : "{{ vitam_service  }}"
+# VITAM SERVICE : {{ vitam_service }}
 #
+  {% if filebeat.services[vitam_service].enable_access | default(true) | bool %}
 - type: filestream
-  id: "{{ vitam_site_name }}-{{ vitam_service }}-access"
+  id: {{ vitam_site_name }}-{{ vitam_service }}-access
   enabled: {{ {'access_external': filebeat.services.access_external.enable_access,
     'access_internal': filebeat.services.access_internal.enable_access,
     'functional_administration': filebeat.services.functional_administration.enable_access,
@@ -26,22 +25,23 @@
     'collect_internal': filebeat.services.collect_internal.enable_access,
     'collect_external': filebeat.services.collect_external.enable_access,
     'metadata_collect': filebeat.services.metadata_collect.enable_access,
-    'workspace_collect': filebeat.services.workspace_collect.enable_access} [vitam_service] | default(true) }}
+    'workspace_collect': filebeat.services.workspace_collect.enable_access} [vitam_service] | default(true) | bool | lower }}
   paths:
     - "{{ vitam_defaults.folder.root_path }}/log/{{ vitam_service }}/accesslog-{{ vitam_service }}.*.log"
   fields:
     kind: access
-    vitam_component: "{{ vitam_service }}"
+    vitam_component: {{ vitam_service }}
     source: vitam
   processors:
     - dissect:
         tokenizer: '%{client_ip} - - %{date_time} "%{http_method} %{request_path} HTTP/%{http_version}" %{http_status_code} %{response_size} "%{referer}" "%{user_agent}" %{duration} %{request_id} %{tenant_id} %{application_id}'
         field: "message"
         target: ""
+  {% endif %}
 
-
+  {% if filebeat.services[vitam_service].enable_security | default(true) | bool %}
 - type: filestream
-  id: "{{ vitam_site_name }}-{{ vitam_service }}-security"
+  id: {{ vitam_site_name }}-{{ vitam_service }}-security
   enabled: {{ {'access_external': filebeat.services.access_external.enable_security,
     'access_internal': filebeat.services.access_internal.enable_security,
     'functional_administration': filebeat.services.functional_administration.enable_security,
@@ -61,16 +61,18 @@
     'collect_internal': filebeat.services.collect_internal.enable_security,
     'collect_external': filebeat.services.collect_external.enable_security,
     'metadata_collect': filebeat.services.metadata_collect.enable_security,
-    'workspace_collect': filebeat.services.workspace_collect.enable_security} [vitam_service] | default(true) }}
+    'workspace_collect': filebeat.services.workspace_collect.enable_security} [vitam_service] | default(true) | bool | lower }}
   paths:
     - "{{ vitam_defaults.folder.root_path }}/log/{{ vitam_service }}/{{ vitam_service }}_security.*.log"
   fields:
     kind: security
-    vitam_component: "{{ vitam_service }}"
+    vitam_component: {{ vitam_service }}
     source: vitam
+  {% endif %}
 
+  {% if filebeat.services[vitam_service].enable_log | default(true) | bool %}
 - type: filestream
-  id: "{{ vitam_site_name }}-{{ vitam_service }}-error"
+  id: {{ vitam_site_name }}-{{ vitam_service }}-log
   enabled: {{ {'access_external': filebeat.services.access_external.enable_log,
     'access_internal': filebeat.services.access_internal.enable_log,
     'functional_administration': filebeat.services.functional_administration.enable_log,
@@ -90,12 +92,12 @@
     'collect_internal': filebeat.services.collect_internal.enable_log,
     'collect_external': filebeat.services.collect_external.enable_log,
     'metadata_collect': filebeat.services.metadata_collect.enable_log,
-    'workspace_collect': filebeat.services.workspace_collect.enable_log} [vitam_service] | default(true) }}
+    'workspace_collect': filebeat.services.workspace_collect.enable_log} [vitam_service] | default(true) | bool | lower }}
   paths:
     - "{{ vitam_defaults.folder.root_path }}/log/{{ vitam_service }}/{{ vitam_service }}.*.log"
   fields:
     kind: log
-    vitam_component: "{{ vitam_service }}"
+    vitam_component: {{ vitam_service }}
     source: vitam
   processors:
     - dissect:
@@ -112,5 +114,5 @@
         pattern: '^\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2},\d{3}'
         negate: true
         match: after
-
+  {% endif %}
 {% endfor %}

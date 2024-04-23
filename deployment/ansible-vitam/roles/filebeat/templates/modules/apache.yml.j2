@@ -4,7 +4,7 @@
 - module: apache
   # Access logs
   access:
-    enabled: "{{ filebeat.cots.apache.enable_access }}"
+    enabled: {{ filebeat.cots.apache.enable_access | bool | lower }}
 
     # Set custom paths for the log files. If left empty,
     # Filebeat will choose the paths depending on your OS.
@@ -22,7 +22,7 @@
 
   # Error logs
   error:
-    enabled: "{{ filebeat.cots.apache.enable_log }}"
+    enabled: {{ filebeat.cots.apache.enable_log | bool | lower }}
 
     # Set custom paths for the log files. If left empty,
     # Filebeat will choose the paths depending on your OS.

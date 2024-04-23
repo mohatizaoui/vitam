@@ -4,7 +4,7 @@
 - module: system
   # Syslog
   syslog:
-    enabled: "{{ filebeat.system.enable_log }}"
+    enabled: {{ filebeat.system.enable_log | bool | lower }}
     # Set custom paths for the log files. If left empty,
     # Filebeat will choose the paths depending on your OS.
     #var.paths:
@@ -15,7 +15,7 @@
 
   # Authorization logs
   auth:
-    enabled: "{{ filebeat.system.enable_auth }}"
+    enabled: {{ filebeat.system.enable_auth | bool | lower }}
     # Set custom paths for the log files. If left empty,
     # Filebeat will choose the paths depending on your OS.
     #var.paths:

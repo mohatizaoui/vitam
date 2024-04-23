@@ -1,45 +1,31 @@
 #jinja2: lstrip_blocks: True
-
 {% set vitam_struct = vitam.ingestexternal %}
-
-{% set composant_name = vitam_struct.antivirus | default('clamav')  %}
-
-{% if composant_name == "clamav" %}
+{% set composant_name = vitam_struct.antivirus | default('clamav') %}
 #
-#  antivirus "{{ composant_name }}"
+# antivirus {{ composant_name }}
 #
+{% if filebeat.cots.antivirus.enable_log | bool %}
 - type: filestream
-  id: "{{ vitam_site_name }}-{{ composant_name }}-error"
-  enabled: {{ filebeat.cots.antivirus.enable_log }}
+  id: {{ vitam_site_name }}-{{ composant_name }}-error
+  enabled: {{ filebeat.cots.antivirus.enable_log | bool | lower }}
   paths:
     - "{{ vitam_defaults.folder.root_path }}/log/{{ composant_name }}/*.log"
   fields:
     kind: log
-    vitam_component: clamd
+    vitam_component: {{ composant_name }}
     source: vitam
+{% endif %}
 
+{% if composant_name == "clamav" %}
+  {% if filebeat.cots.antivirus.enable_scan | bool %}
 - type: filestream
-  id: "{{ vitam_site_name }}-antivirus-scan"
-  enabled: {{ filebeat.cots.antivirus.enable_scan }}
+  id: {{ vitam_site_name }}-{{ composant_name }}-scan
+  enabled: {{ filebeat.cots.antivirus.enable_scan | bool | lower }}
   paths:
     - "{{ vitam_defaults.folder.root_path }}/log/{{ composant_name }}/clamd.scan"
   fields:
     kind: scan
-    vitam_component: clamd
+    vitam_component: {{ composant_name }}
     source: vitam
-
-{% else  %}
-#
-#  antivirus "{{ composant_name }}"
-#
-- type: filestream
-  id: "{{ vitam_site_name }}-{{ composant_name }}-error"
-  enabled: {{ filebeat.cots.antivirus.enable_log }}
-  paths:
-    - "{{ vitam_defaults.folder.root_path }}/log/{{ composant_name }}/*.log"
-  fields:
-    kind: log
-    vitam_component: avast
-    source: vitam
-
+  {% endif %}
 {% endif %}
