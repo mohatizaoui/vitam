@@ -35,6 +35,7 @@ import fr.gouv.vitam.collect.external.external.exception.CollectExternalClientEx
 import fr.gouv.vitam.collect.external.external.exception.CollectExternalClientInvalidRequestException;
 import fr.gouv.vitam.collect.external.external.exception.CollectExternalClientNotFoundException;
 import fr.gouv.vitam.common.CommonMediaType;
+import fr.gouv.vitam.common.GlobalDataRest;
 import fr.gouv.vitam.common.client.VitamClientFactoryInterface;
 import fr.gouv.vitam.common.client.VitamContext;
 import fr.gouv.vitam.common.client.VitamRequestBuilder;
@@ -46,6 +47,7 @@ import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import org.apache.commons.lang3.StringUtils;
 
+import javax.annotation.Nullable;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
@@ -64,6 +66,7 @@ import static org.apache.http.protocol.HTTP.EXPECT_CONTINUE;
  * Collect Client implementation for production environment
  */
 public class CollectExternalClientRest extends DefaultClient implements CollectExternalClient {
+
     private static final String TRANSACTION_PATH = "/transactions";
     private static final String PROJECT_PATH = "/projects";
     private static final String UNITS_PATH = "/units";
@@ -374,9 +377,17 @@ public class CollectExternalClientRest extends DefaultClient implements CollectE
     public RequestResponse<JsonNode> uploadZipToTransaction(VitamContext vitamContext, String transactionId,
         InputStream inputStreamUploaded)
         throws VitamClientException {
+        return uploadZipToTransaction(vitamContext, transactionId, inputStreamUploaded, null);
+    }
+
+    @Override
+    public RequestResponse<JsonNode> uploadZipToTransaction(VitamContext vitamContext, String transactionId,
+        InputStream inputStreamUploaded, @Nullable String encoding)
+        throws VitamClientException {
         try (Response response = make(post()
             .withPath(TRANSACTION_PATH + "/" + transactionId + "/upload")
             .withHeaders(vitamContext.getHeaders())
+            .withOptionalHeader(GlobalDataRest.X_ENCODING, encoding)
             .withBody(inputStreamUploaded)
             .withContentType(CommonMediaType.ZIP_TYPE)
             .withJsonAccept())) {
@@ -387,11 +398,17 @@ public class CollectExternalClientRest extends DefaultClient implements CollectE
 
     @Override
     public RequestResponse<String> uploadZipToProject(VitamContext vitamContext, String projectId,
-        InputStream inputStreamUploaded)
-        throws VitamClientException {
+        InputStream inputStreamUploaded) throws VitamClientException {
+        return uploadZipToProject(vitamContext, projectId, inputStreamUploaded, null);
+    }
+
+    @Override
+    public RequestResponse<String> uploadZipToProject(VitamContext vitamContext, String projectId,
+        InputStream inputStreamUploaded, @Nullable String encoding) throws VitamClientException {
         try (Response response = make(post()
             .withPath(PROJECT_PATH + "/" + projectId + "/upload")
             .withHeaders(vitamContext.getHeaders())
+            .withOptionalHeader(GlobalDataRest.X_ENCODING, encoding)
             .withBody(inputStreamUploaded)
             .withContentType(CommonMediaType.ZIP_TYPE)
             .withJsonAccept())) {
@@ -570,4 +587,5 @@ public class CollectExternalClientRest extends DefaultClient implements CollectE
                 BulkAtomicUpdateResult.class);
         }
     }
+
 }

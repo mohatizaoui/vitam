@@ -26,6 +26,10 @@
  */
 package fr.gouv.vitam.common.client;
 
+import fr.gouv.vitam.common.logging.VitamLogger;
+import fr.gouv.vitam.common.logging.VitamLoggerFactory;
+
+import javax.annotation.Nullable;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
@@ -45,6 +49,8 @@ import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM_TYPE;
 import static javax.ws.rs.core.MediaType.APPLICATION_XML_TYPE;
 
 public class VitamRequestBuilder {
+
+    private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(VitamRequestBuilder.class);
     private static final Runnable NOOP = () -> {
     };
 
@@ -189,6 +195,13 @@ public class VitamRequestBuilder {
         return this;
     }
 
+    public VitamRequestBuilder withOptionalHeader(String key, @Nullable Object value) {
+        if (Objects.isNull(value)) {
+            return this;
+        }
+        return withHeader(key, value);
+    }
+
     public VitamRequestBuilder withHeader(String key, Object value) {
         if (this.headers == null) {
             this.headers = new MultivaluedHashMap<>();
@@ -291,4 +304,5 @@ public class VitamRequestBuilder {
     public String getBaseUrl() {
         return baseUrl;
     }
+
 }

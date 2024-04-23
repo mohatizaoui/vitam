@@ -32,13 +32,13 @@ import fr.gouv.vitam.collect.common.dto.BulkAtomicUpdateResult;
 import fr.gouv.vitam.collect.common.dto.CriteriaProjectDto;
 import fr.gouv.vitam.collect.common.dto.ProjectDto;
 import fr.gouv.vitam.collect.common.dto.TransactionDto;
-import fr.gouv.vitam.collect.external.external.exception.CollectExternalClientNotFoundException;
 import fr.gouv.vitam.common.client.MockOrRestClient;
 import fr.gouv.vitam.common.client.VitamContext;
 import fr.gouv.vitam.common.exception.VitamClientException;
 import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 
+import javax.annotation.Nullable;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
 
@@ -146,7 +146,6 @@ public interface CollectExternalClient extends MockOrRestClient {
     RequestResponse<JsonNode> getUnitById(VitamContext vitamContext, String unitId) throws VitamClientException;
 
 
-
     /**
      * get an archive unit by transaction Id
      *
@@ -167,7 +166,6 @@ public interface CollectExternalClient extends MockOrRestClient {
      * @throws VitamClientException exception occurs when parse operation failed
      */
     RequestResponse<JsonNode> getObjectById(VitamContext vitamContext, String gotId) throws VitamClientException;
-
 
 
     /**
@@ -279,6 +277,33 @@ public interface CollectExternalClient extends MockOrRestClient {
     }
 
     /**
+     * Upload zip to a project with automatic transaction management.
+     * Consumes a ZIP (application/zip).
+     * Warning: This Method is marked as "beta". API signature & behavior might evolve in next versions.
+     *
+     * @return RequestResponse<JsonNode>
+     * @throws VitamClientException exception occurs when parse operation failed
+     */
+    @Beta
+    RequestResponse<String> uploadZipToProject(VitamContext vitamContext, String projectId,
+        InputStream inputStreamUploaded)
+        throws VitamClientException;
+
+    /**
+     * Upload zip to a project with automatic transaction management.
+     * Consumes a ZIP (application/zip) and it's encoding (optional)
+     * Warning: This Method is marked as "beta". API signature & behavior might evolve in next versions.
+     *
+     * @return RequestResponse<JsonNode>
+     * @throws VitamClientException exception occurs when parse operation failed
+     */
+    @Beta
+    RequestResponse<String> uploadZipToProject(VitamContext vitamContext, String projectId,
+        InputStream inputStreamUploaded, @Nullable String encoding)
+        throws VitamClientException;
+
+
+    /**
      * Upload zip to a transaction.
      * Consumes a ZIP (application/zip).
      *
@@ -290,17 +315,15 @@ public interface CollectExternalClient extends MockOrRestClient {
         throws VitamClientException;
 
     /**
-     * Upload zip to a project with automatic transaction management.
-     * Consumes a ZIP (application/zip).
-     * Warning: This Method is marked as "beta". API signature & behavior might evolve in next versions.
+     * Upload zip to a transaction.
+     * Consumes a ZIP (application/zip) and it's encoding (optional)
      *
      * @return RequestResponse<JsonNode>
      * @throws VitamClientException exception occurs when parse operation failed
      */
-    @Beta
-    RequestResponse<String> uploadZipToProject(VitamContext vitamContext, String projectId,
-        InputStream inputStreamUploaded)
-        throws VitamClientException, CollectExternalClientNotFoundException;
+    RequestResponse<JsonNode> uploadZipToTransaction(VitamContext vitamContext, String transactionId,
+        InputStream inputStreamUploaded, @Nullable String encoding)
+        throws VitamClientException;
 
     /**
      * Get all AU attached to transactions related to project Id param
@@ -390,5 +413,5 @@ public interface CollectExternalClient extends MockOrRestClient {
     RequestResponseOK<BulkAtomicUpdateResult> bulkAtomicUpdateUnits(VitamContext vitamContext, String transactionId,
         JsonNode updateQueriesJson)
         throws VitamClientException;
-}
 
+}

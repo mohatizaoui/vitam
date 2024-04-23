@@ -717,25 +717,22 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
         when(transactionService.findTransaction("1")).thenReturn(Optional.of(transactionModel));
         when(transactionService.checkStatus(any(TransactionModel.class), eq(TransactionStatus.OPEN))).thenReturn(true);
         when(projectService.findProject("1")).thenReturn(Optional.of(new ProjectDto()));
-
         try (final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(TRANSACTION_ZIP_PATH)) {
-
-
             ReflectionTestUtils.setField(TransactionService.class, transactionService, "fluxService", fluxService);
-
-
-
-            when(transactionService.uploadTransactionZip(any(), any())).thenCallRealMethod();
+            when(transactionService.uploadTransactionZip(any(), any(), any())).thenCallRealMethod();
 
             given()
                 .contentType("application/zip")
                 .accept(ContentType.JSON)
                 .header(GlobalDataRest.X_TENANT_ID, TENANT)
+                .header(GlobalDataRest.X_ENCODING, "latin1")
                 .body(resourceAsStream)
                 .when()
                 .post(TRANSACTIONS + "/1/upload")
                 .then()
                 .statusCode(Response.Status.OK.getStatusCode());
+
+            verify(transactionService).uploadTransactionZip(any(InputStream.class), eq(transactionModel), eq("latin1"));
         }
     }
 
@@ -812,7 +809,7 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
         when(transactionService.findTransaction("txId")).thenReturn(Optional.of(transactionModel));
         when(transactionService.checkStatus(any(TransactionModel.class), eq(TransactionStatus.OPEN))).thenReturn(true);
         doThrow(new CollectInternalException("error")).when(transactionService)
-            .uploadTransactionZip(any(), any());
+            .uploadTransactionZip(any(), any(), any());
         try (final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(TRANSACTION_ZIP_PATH)) {
             given()
                 .contentType("application/zip")
@@ -836,7 +833,7 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
         when(transactionService.checkStatus(any(TransactionModel.class), eq(TransactionStatus.OPEN))).thenReturn(true);
         doThrow(new CollectInternalException(
             "Mapping for File not found, expected one of [Content.DescriptionLevel, Content.Title]"))
-            .when(transactionService).uploadTransactionZip(any(), any());
+            .when(transactionService).uploadTransactionZip(any(), any(), any());
         try (final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(TRANSACTION_ZIP_PATH)) {
             given()
                 .contentType("application/zip")
@@ -896,11 +893,11 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
 
         when(transactionService.checkStatus(any(), eq(TransactionStatus.OPEN))).thenReturn(true);
         ReflectionTestUtils.setField(TransactionService.class, transactionService, "fluxService", fluxService);
-        when(transactionService.uploadTransactionZip(inputStreamZip, transactionModel)).thenCallRealMethod();
+        when(transactionService.uploadTransactionZip(inputStreamZip, transactionModel, null)).thenCallRealMethod();
 
 
         // When
-        Response result = transactionInternalResource.uploadTransactionZip(TRANSACTION_ID, inputStreamZip);
+        Response result = transactionInternalResource.uploadTransactionZip(TRANSACTION_ID, inputStreamZip, null);
         // Then
         Assertions.assertThat(result.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
@@ -985,4 +982,5 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
         return JsonHandler
             .getFromString("{ \"$roots\" : [ " + data + " ], \"$query\" : [ \"\" ], \"$data\" : " + data + " }");
     }
+
 }

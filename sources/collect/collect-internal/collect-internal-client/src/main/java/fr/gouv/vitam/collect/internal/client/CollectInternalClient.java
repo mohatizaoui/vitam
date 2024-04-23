@@ -37,6 +37,7 @@ import fr.gouv.vitam.common.exception.VitamClientException;
 import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 
+import javax.annotation.Nullable;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
 
@@ -142,7 +143,6 @@ public interface CollectInternalClient extends MockOrRestClient {
     RequestResponseOK<JsonNode> getUnitById(String unitId) throws VitamClientException;
 
 
-
     /**
      * get an archive unit by transaction Id
      *
@@ -163,7 +163,6 @@ public interface CollectInternalClient extends MockOrRestClient {
      * @throws VitamClientException exception occurs when parse operation failed
      */
     RequestResponseOK<JsonNode> getObjectById(String gotId) throws VitamClientException;
-
 
 
     /**
@@ -266,7 +265,7 @@ public interface CollectInternalClient extends MockOrRestClient {
      * @return Response
      * @throws VitamClientException exception occurs when parse operation failed
      */
-    void uploadZipToTransaction(String transactionId, InputStream inputStreamUploaded)
+    void uploadZipToTransaction(String transactionId, InputStream inputStreamUploaded, @Nullable String encoding)
         throws VitamClientException;
 
     /**
@@ -277,7 +276,7 @@ public interface CollectInternalClient extends MockOrRestClient {
      * @return Response
      * @throws VitamClientException exception occurs when parse operation failed
      */
-    String uploadZipToProject(String projectId, InputStream inputStreamUploaded)
+    String uploadZipToProject(String projectId, InputStream inputStreamUploaded, @Nullable String encoding)
         throws VitamClientException;
 
     /**
@@ -369,5 +368,5 @@ public interface CollectInternalClient extends MockOrRestClient {
 
     RequestResponseOK<BulkAtomicUpdateResult> bulkAtomicUpdateUnits(String transactionId, JsonNode updateQueriesJson)
         throws VitamClientException;
-}
 
+}

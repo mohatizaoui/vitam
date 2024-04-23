@@ -74,6 +74,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static fr.gouv.vitam.collect.internal.core.service.FluxService.METADATA_CSV_FILE;
+import static fr.gouv.vitam.common.PropertiesUtils.getResourceAsStream;
 import static fr.gouv.vitam.common.SedaConstants.TAG_FILE_INFO;
 import static fr.gouv.vitam.common.SedaConstants.TAG_URI;
 import static fr.gouv.vitam.common.SedaConstants.TAG_VERSIONS;
@@ -169,7 +170,7 @@ public class FluxServiceTest {
 
 
         try (final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(TRANSACTION_ZIP_PATH)) {
-            fluxService.processStream(resourceAsStream, PROJECT_ID, TRANSACTION_ID);
+            fluxService.processStream(resourceAsStream, PROJECT_ID, TRANSACTION_ID, null);
         }
 
 
@@ -210,7 +211,7 @@ public class FluxServiceTest {
 
         try (final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(
             TRANSACTION_ZIP_WITH_METADATA_CSV_PATH)) {
-            fluxService.processStream(resourceAsStream, PROJECT_ID, TRANSACTION_ID);
+            fluxService.processStream(resourceAsStream, PROJECT_ID, TRANSACTION_ID, null);
         }
 
         JsonNode transformedMetadataFileLines =
@@ -247,7 +248,7 @@ public class FluxServiceTest {
 
         try (final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(
             TRANSACTION_ZIP_WITH_METADATA_JSONL_PATH)) {
-            fluxService.processStream(resourceAsStream, PROJECT_ID, TRANSACTION_ID);
+            fluxService.processStream(resourceAsStream, PROJECT_ID, TRANSACTION_ID, null);
         }
 
         JsonNode transformedMetadataFileLines =
@@ -288,7 +289,7 @@ public class FluxServiceTest {
         try (final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(
             TRANSACTION_WITHOUT_FILE_COLUMN_ZIP_PATH)) {
             CollectInternalException exception = Assert.assertThrows(CollectInternalException.class,
-                () -> fluxService.processStream(resourceAsStream, PROJECT_ID, TRANSACTION_ID));
+                () -> fluxService.processStream(resourceAsStream, PROJECT_ID, TRANSACTION_ID, null));
             Assert.assertEquals("Mapping for File not found, expected one of [Content.DescriptionLevel, Content.Title]",
                 exception.getMessage());
         }
@@ -330,7 +331,7 @@ public class FluxServiceTest {
         when(metadataService.prepareAttachmentUnits(any(), anyString())).thenReturn(new HashMap<>());
 
         try (final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(TRANSACTION_ZIP_PATH)) {
-            fluxService.processStream(resourceAsStream, transaction.getProjectId(), transaction.getId());
+            fluxService.processStream(resourceAsStream, transaction.getProjectId(), transaction.getId(), null);
         }
 
         final JsonNode expectedUnits = JsonHandler.getFromFile(
@@ -351,4 +352,55 @@ public class FluxServiceTest {
                     FileInfoModel.LAST_MODIFIED,
                 "[*]." + VitamFieldsHelper.qualifiers() + "[*]." + TAG_VERSIONS + "[*]." + TAG_URI)));
     }
+
+
+    @Test
+    @RunWithCustomExecutor
+    public void processStream_with_arborescence_with_accents_windows_zip() throws Exception {
+        Map<String, JsonNode> units = new HashMap<>();
+        Map<String, JsonNode> objectGroups = new HashMap<>();
+
+        when(projectRepository.findProjectById(anyString())).thenReturn(Optional.of(projectModel));
+        when(metadataService.prepareAttachmentUnits(any(), anyString())).thenReturn(new HashMap<>());
+        when(metadataRepository.saveArchiveUnits(ArgumentMatchers.anyList())).thenAnswer(e -> {
+            final List<ObjectNode> unitsToSave = e.getArgument(0);
+            for (ObjectNode unit : unitsToSave) {
+                units.put(unit.get(VitamFieldsHelper.id()).asText(), unit);
+            }
+            return JsonHandler.toJsonNode(
+                new RequestResponseOK<>(JsonHandler.createObjectNode(), unitsToSave, unitsToSave.size()));
+        });
+        when(metadataRepository.saveObjectGroups(anyList())).thenAnswer(e -> {
+            final List<ObjectNode> ogToSave = e.getArgument(0);
+            for (ObjectNode og : ogToSave) {
+                objectGroups.put(og.get(VitamFieldsHelper.id()).asText(), og);
+            }
+            return JsonHandler.toJsonNode(new RequestResponseOK<>(JsonHandler.createObjectNode(), ogToSave, ogToSave.size()));
+        });
+
+        try (final InputStream resourceAsStream = getResourceAsStream(ARBORESCENCE_WITH_ACCENTS_WINDOWS_ZIP)) {
+            fluxService.processStream(resourceAsStream, "PROJECT_ID", "TRANSACTION_ID", "IBM437");
+        }
+
+        JsonAssert.assertJsonEquals(
+            JsonHandler.getFromFile(PropertiesUtils.getResourceFile(ARBORESCENCE_WITH_ACCENTS_UNITS)),
+            units.values(), JsonAssert.when(Option.IGNORING_ARRAY_ORDER)
+                .whenIgnoringPaths(List.of("[*]." + VitamFieldsHelper.id(), "[*]." + VitamFieldsHelper.unitups(),
+                    "[*]." + VitamFieldsHelper.object(),
+                    "[*]." + VitamFieldsHelper.batchId())));
+        JsonAssert.assertJsonEquals(
+            JsonHandler.getFromFile(PropertiesUtils.getResourceFile(ARBORESCENCE_WITH_ACCENTS_OBJECTGROUPS)),
+            JsonHandler.toJsonNode(objectGroups.values()),
+            JsonAssert.when(Option.IGNORING_ARRAY_ORDER).whenIgnoringPaths(List.of("[*]." + VitamFieldsHelper.id(),
+                "[*]." + VitamFieldsHelper.batchId(),
+                "[*]." + VitamFieldsHelper.qualifiers() + "[*]." + TAG_VERSIONS + "[*]." + VitamFieldsHelper.id(),
+                "[*]." + TAG_FILE_INFO + "." + FileInfoModel.LAST_MODIFIED,
+                "[*]." + VitamFieldsHelper.qualifiers() + "[*]." + TAG_VERSIONS + "[*]." + TAG_FILE_INFO + "." + FileInfoModel.LAST_MODIFIED,
+                "[*]." + VitamFieldsHelper.qualifiers() + "[*]." + TAG_VERSIONS + "[*]." + TAG_URI)));
+    }
+
+    private static final String ARBORESCENCE_WITH_ACCENTS_WINDOWS_ZIP = "streamZip/arborescence_with_accents_windows.zip";
+    private static final String ARBORESCENCE_WITH_ACCENTS_OBJECTGROUPS = "streamZip/arborescence_with_accents_objectgroups.json";
+    private static final String ARBORESCENCE_WITH_ACCENTS_UNITS = "streamZip/arborescence_with_accents_units.json";
+
 }

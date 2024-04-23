@@ -59,9 +59,11 @@ import fr.gouv.vitam.ingest.external.client.IngestExternalClient;
 import fr.gouv.vitam.ingest.external.client.IngestExternalClientFactory;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import javax.annotation.Nullable;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -70,6 +72,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.util.Objects;
 
 import static fr.gouv.vitam.common.CommonMediaType.TEXT_CSV;
 import static fr.gouv.vitam.common.model.ProcessAction.RESUME;
@@ -100,6 +104,7 @@ import static javax.ws.rs.core.Response.Status.PRECONDITION_FAILED;
 @Path("/collect-external/v1/transactions")
 @Tag(name = "Collect-External")
 public class TransactionExternalResource extends ApplicationStatusResource {
+
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(TransactionExternalResource.class);
     private static final String PREDICATES_FAILED_EXCEPTION = "Predicates Failed Exception ";
     private static final String YOU_MUST_SUPPLY_TRANSACTION_DATA = "You must supply transaction data!";
@@ -414,12 +419,21 @@ public class TransactionExternalResource extends ApplicationStatusResource {
     @Consumes({CommonMediaType.ZIP})
     @Produces(APPLICATION_JSON)
     @Secured(permission = TRANSACTION_ZIP_CREATE, description = "Charge les binaires d'une transaction")
-    public Response uploadTransactionZip(@PathParam("transactionId") String transactionId,
-        InputStream inputStreamObject) {
+    public Response uploadTransactionZip(
+        @PathParam("transactionId") String transactionId,
+        InputStream inputStreamObject,
+        @HeaderParam(GlobalDataRest.X_ENCODING) @Nullable String encoding
+    ) {
         try (CollectInternalClient client = collectInternalClientFactory.getClient()) {
             SanityChecker.checkParameter(transactionId);
             ParametersChecker.checkParameter("You must supply a file!", inputStreamObject);
-            client.uploadZipToTransaction(transactionId, inputStreamObject);
+            if (Objects.nonNull(encoding)) {
+                SanityChecker.checkParameter(encoding);
+                if (!Charset.isSupported(encoding)) {
+                    return CollectRequestResponse.toVitamError(BAD_REQUEST, "Unsupported encoding " + encoding);
+                }
+            }
+            client.uploadZipToTransaction(transactionId, inputStreamObject, encoding);
             return Response.ok().build();
         } catch (CollectInternalClientInvalidRequestException e) {
             LOGGER.error("Error when uploading transaction Zip - BAD REQUEST ", e);
@@ -453,4 +467,5 @@ public class TransactionExternalResource extends ApplicationStatusResource {
             return Response.status(BAD_REQUEST).build();
         }
     }
+
 }

@@ -59,7 +59,6 @@ import fr.gouv.vitam.common.storage.compress.ArchiveEntryInputStream;
 import fr.gouv.vitam.common.storage.compress.VitamArchiveStreamFactory;
 import fr.gouv.vitam.common.stream.StreamUtils;
 import fr.gouv.vitam.worker.core.distribution.JsonLineGenericIterator;
-import fr.gouv.vitam.worker.core.distribution.JsonLineModel;
 import fr.gouv.vitam.worker.core.distribution.JsonLineWriter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IteratorUtils;
@@ -71,6 +70,7 @@ import org.apache.commons.io.input.CountingInputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.elasticsearch.common.Strings;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -90,6 +90,7 @@ import static fr.gouv.vitam.common.mapping.mapper.VitamObjectMapper.getSerializa
 import static fr.gouv.vitam.common.model.IngestWorkflowConstants.CONTENT_FOLDER;
 
 public class FluxService {
+
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(FluxService.class);
 
     private static final int BULK_SIZE = 1000;
@@ -110,9 +111,8 @@ public class FluxService {
         this.metadataRepository = metadataRepository;
     }
 
-    public void processStream(InputStream inputStreamObject, String projectId, String transactionId)
+    public void processStream(InputStream inputStreamObject, String projectId, String transactionId, @Nullable String encoding)
         throws CollectInternalException {
-
         Optional<ProjectModel> projectById = projectRepository.findProjectById(projectId);
         if (projectById.isEmpty()) {
             throw new CollectInternalException("Project not found");
@@ -123,7 +123,7 @@ public class FluxService {
             final TempWorkspace tempWorkspace = new TempWorkspace();
             final InputStream inputStreamClosable = StreamUtils.getRemainingReadOnCloseInputStream(inputStreamObject);
             final ArchiveInputStream archiveInputStream = new VitamArchiveStreamFactory().createArchiveInputStream(
-                CommonMediaType.ZIP_TYPE, inputStreamClosable)) {
+                CommonMediaType.ZIP_TYPE, inputStreamClosable, encoding)) {
             ArchiveEntry entry;
             boolean isEmpty = true;
             Map<String, String> attachmentUnitsBySystemId =
@@ -394,4 +394,5 @@ public class FluxService {
             return new SimpleEntry<>(digest, countingInputStream.getByteCount());
         }
     }
+
 }

@@ -35,6 +35,7 @@ import fr.gouv.vitam.collect.common.enums.TransactionStatus;
 import fr.gouv.vitam.collect.internal.client.exceptions.CollectInternalClientInvalidRequestException;
 import fr.gouv.vitam.collect.internal.client.exceptions.CollectInternalClientNotFoundException;
 import fr.gouv.vitam.common.CommonMediaType;
+import fr.gouv.vitam.common.GlobalDataRest;
 import fr.gouv.vitam.common.client.DefaultClient;
 import fr.gouv.vitam.common.client.VitamClientFactoryInterface;
 import fr.gouv.vitam.common.client.VitamRequestBuilder;
@@ -45,6 +46,7 @@ import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import org.apache.commons.lang3.StringUtils;
 
+import javax.annotation.Nullable;
 import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
@@ -63,6 +65,7 @@ import static org.apache.http.protocol.HTTP.EXPECT_CONTINUE;
  * Collect Client implementation for production environment
  */
 public class CollectInternalClientRest extends DefaultClient implements CollectInternalClient {
+
     private static final String TRANSACTION_PATH = "/transactions";
     private static final String PROJECT_PATH = "/projects";
     private static final String UNITS_PATH = "/units";
@@ -349,10 +352,11 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
     }
 
     @Override
-    public void uploadZipToTransaction(String transactionId, InputStream inputStreamUploaded)
+    public void uploadZipToTransaction(String transactionId, InputStream inputStreamUploaded, @Nullable String encoding)
         throws VitamClientException {
         try (Response response = make(post()
             .withPath(TRANSACTION_PATH + "/" + transactionId + "/upload")
+            .withOptionalHeader(GlobalDataRest.X_ENCODING, encoding)
             .withBody(inputStreamUploaded)
             .withContentType(CommonMediaType.ZIP_TYPE))) {
             check(response);
@@ -360,11 +364,12 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
     }
 
     @Override
-    public String uploadZipToProject(String projectId, InputStream inputStreamUploaded)
+    public String uploadZipToProject(String projectId, InputStream inputStreamUploaded, @Nullable String encoding)
         throws VitamClientException {
         try (Response response = make(post()
             .withPath(PROJECT_PATH + "/" + projectId + "/upload")
             .withBody(inputStreamUploaded)
+            .withOptionalHeader(GlobalDataRest.X_ENCODING, encoding)
             .withContentType(CommonMediaType.ZIP_TYPE)
             .withJsonAccept())) {
             check(response);
@@ -583,4 +588,5 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
                 RequestResponse.parseFromResponse(response, BulkAtomicUpdateResult.class);
         }
     }
+
 }

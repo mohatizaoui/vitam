@@ -26,6 +26,7 @@
  */
 package fr.gouv.vitam.common.storage.compress;
 
+import fr.gouv.vitam.common.CharsetUtils;
 import fr.gouv.vitam.common.CommonMediaType;
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
@@ -33,7 +34,9 @@ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
+import org.apache.commons.lang3.StringUtils;
 
+import javax.annotation.Nullable;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,29 +57,46 @@ public class VitamArchiveStreamFactory {
      * @throws IOException
      * @throws IllegalArgumentException if the archiver name or stream is null
      */
-    public ArchiveInputStream createArchiveInputStream(final MediaType mediaType, final InputStream in)
-        throws ArchiveException, IOException {
+    public ArchiveInputStream createArchiveInputStream(final MediaType mediaType, final InputStream in) throws IOException, ArchiveException {
+        return createArchiveInputStream(mediaType, in, null);
+    }
 
+    /**
+     * Create an archive input stream from an archiver name and an input stream.
+     *
+     * @param mediaType MediaType object {@link MediaType} the archive name, i.e.
+     * ZIP, TAR, or GZIP
+     * @param in the input stream
+     * @return the archive input stream
+     * @throws ArchiveException if the archiver name is not known
+     * @throws IOException
+     * @throws IllegalArgumentException if the archiver name or stream is null
+     */
+    public ArchiveInputStream createArchiveInputStream(final MediaType mediaType, final InputStream in, @Nullable String encoding)
+        throws ArchiveException, IOException {
         if (mediaType == null) {
             throw new IllegalArgumentException("archiverMediaType must not be null.");
         }
-
         if (in == null) {
             throw new IllegalArgumentException("InputStream must not be null");
+        }
+        if (StringUtils.isBlank(encoding)) {
+            encoding = CharsetUtils.UTF_8;
         }
 
         switch (CommonMediaType.mimeTypeOf(mediaType)) {
             case CommonMediaType.ZIP:
-                return new ZipArchiveInputStream(in);
+                return new ZipArchiveInputStream(in, encoding);
             case CommonMediaType.TAR:
-                return new TarArchiveInputStream(in);
+                return new TarArchiveInputStream(in, encoding);
             case CommonMediaType.XGZIP:
             case CommonMediaType.GZIP:
-                return new TarArchiveInputStream(new GzipCompressorInputStream(in));
+                return new TarArchiveInputStream(new GzipCompressorInputStream(in), encoding);
             case CommonMediaType.BZIP2:
-                return new TarArchiveInputStream(new BZip2CompressorInputStream(in));
+                return new TarArchiveInputStream(new BZip2CompressorInputStream(in), encoding);
             default:
                 throw new ArchiveException("Archive: " + mediaType + " not found.");
         }
     }
+
 }

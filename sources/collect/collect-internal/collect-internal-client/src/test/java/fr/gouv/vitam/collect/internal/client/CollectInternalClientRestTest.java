@@ -176,14 +176,14 @@ public class CollectInternalClientRestTest extends ResteasyTestApplication {
     public void uploadZipToTransaction() {
         Mockito.when(mock.post()).thenReturn(Response.ok(new RequestResponseOK<>().addResult("RESULT")).build());
         assertThatCode(() ->
-            client.uploadZipToTransaction("TX_ID", new NullInputStream(100))
+            client.uploadZipToTransaction("TX_ID", new NullInputStream(100), null)
         ).doesNotThrowAnyException();
     }
 
     @Test
     public void uploadZipToProjectOK() throws Exception {
         Mockito.when(mock.post()).thenReturn(Response.ok(new RequestResponseOK<>().addResult("RESULT")).build());
-        final String result = client.uploadZipToProject("PR_ID", new NullInputStream(100));
+        final String result = client.uploadZipToProject("PR_ID", new NullInputStream(100), null);
         assertThat(result).isEqualTo("RESULT");
     }
 
@@ -191,7 +191,7 @@ public class CollectInternalClientRestTest extends ResteasyTestApplication {
     public void uploadZipToProjectNotFound() {
         Mockito.when(mock.post()).thenReturn(
             CollectRequestResponse.toVitamError(NOT_FOUND, "Prb"));
-        assertThatThrownBy(() -> client.uploadZipToProject("PR_ID", new NullInputStream(100)))
+        assertThatThrownBy(() -> client.uploadZipToProject("PR_ID", new NullInputStream(100), null))
             .isExactlyInstanceOf(CollectInternalClientNotFoundException.class)
             .hasMessage("Prb");
     }
@@ -200,7 +200,7 @@ public class CollectInternalClientRestTest extends ResteasyTestApplication {
     public void uploadZipToProjectKo() {
         Mockito.when(mock.post()).thenReturn(
             CollectRequestResponse.toVitamError(INTERNAL_SERVER_ERROR, "Prb"));
-        assertThatThrownBy(() -> client.uploadZipToProject("PR_ID", new NullInputStream(100)))
+        assertThatThrownBy(() -> client.uploadZipToProject("PR_ID", new NullInputStream(100), null))
             .isExactlyInstanceOf(VitamClientException.class)
             .hasMessage("Prb");
     }

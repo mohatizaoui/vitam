@@ -1,0 +1,162 @@
+[
+  {
+    "#qualifiers": [
+      {
+        "qualifier": "BinaryMaster",
+        "#nbobjects": "1",
+        "versions": [
+          {
+            "#id": "aeaaaaaaaaeaaaabaeq52amo6fvovgyaaaba",
+            "DataObjectVersion": "BinaryMaster_1",
+            "FormatIdentification": {},
+            "FileInfo": {
+              "Filename": "ça et là.txt",
+              "LastModified": "2024-04-18T15:34:59.740"
+            },
+            "Size": 0,
+            "Uri": "Content/aeaaaaaaaaeaaaabaeq52amo6fvovgyaaaba.txt",
+            "Algorithm": "SHA-512",
+            "#opi": "TRANSACTION_ID"
+          }
+        ]
+      }
+    ],
+    "#id": "aebaaaaaaaeaaaabaeq52amo6fvovhaaaaaq",
+    "#tenant": 0,
+    "FileInfo": {
+      "Filename": "ça et là.txt",
+      "LastModified": "2024-04-18T15:34:59.740"
+    },
+    "#nbobjects": 1,
+    "#opi": "TRANSACTION_ID",
+    "#batchId": "aeeaaaaaaceaaaabaeq52amo6fvotdqaaaaq"
+  },
+  {
+    "#qualifiers": [
+      {
+        "qualifier": "BinaryMaster",
+        "#nbobjects": "1",
+        "versions": [
+          {
+            "#id": "aeaaaaaaaaeaaaabaeq52amo6fvovfiaaaba",
+            "DataObjectVersion": "BinaryMaster_1",
+            "FormatIdentification": {},
+            "FileInfo": {
+              "Filename": "ambiguë.txt",
+              "LastModified": "2024-04-18T15:34:59.734"
+            },
+            "Size": 0,
+            "Uri": "Content/aeaaaaaaaaeaaaabaeq52amo6fvovfiaaaba.txt",
+            "Algorithm": "SHA-512",
+            "#opi": "TRANSACTION_ID"
+          }
+        ]
+      }
+    ],
+    "#id": "aebaaaaaaaeaaaabaeq52amo6fvovfqaaaaq",
+    "#tenant": 0,
+    "FileInfo": {
+      "Filename": "ambiguë.txt",
+      "LastModified": "2024-04-18T15:34:59.734"
+    },
+    "#nbobjects": 1,
+    "#opi": "TRANSACTION_ID",
+    "#batchId": "aeeaaaaaaceaaaabaeq52amo6fvotdqaaaaq"
+  },
+  {
+    "#qualifiers": [
+      {
+        "qualifier": "BinaryMaster",
+        "#nbobjects": "1",
+        "versions": [
+          {
+            "#id": "aeaaaaaaaaeaaaabaeq52amo6fvovhiaaaba",
+            "DataObjectVersion": "BinaryMaster_1",
+            "FormatIdentification": {},
+            "FileInfo": {
+              "Filename": "ça-et-là.txt",
+              "LastModified": "2024-04-18T15:34:59.742"
+            },
+            "Size": 0,
+            "Uri": "Content/aeaaaaaaaaeaaaabaeq52amo6fvovhiaaaba.txt",
+            "Algorithm": "SHA-512",
+            "#opi": "TRANSACTION_ID"
+          }
+        ]
+      }
+    ],
+    "#id": "aebaaaaaaaeaaaabaeq52amo6fvovhqaaaaq",
+    "#tenant": 0,
+    "FileInfo": {
+      "Filename": "ça-et-là.txt",
+      "LastModified": "2024-04-18T15:34:59.742"
+    },
+    "#nbobjects": 1,
+    "#opi": "TRANSACTION_ID",
+    "#batchId": "aeeaaaaaaceaaaabaeq52amo6fvotdqaaaaq"
+  },
+  {
+    "#qualifiers": [
+      {
+        "qualifier": "BinaryMaster",
+        "#nbobjects": "1",
+        "versions": [
+          {
+            "#id": "aeaaaaaaaaeaaaabaeq52amo6fvou5qaaaba",
+            "DataObjectVersion": "BinaryMaster_1",
+            "FormatIdentification": {},
+            "FileInfo": {
+              "Filename": "capharnaüm.txt",
+              "LastModified": "2024-04-18T15:34:59.712"
+            },
+            "Size": 0,
+            "Uri": "Content/aeaaaaaaaaeaaaabaeq52amo6fvou5qaaaba.txt",
+            "Algorithm": "SHA-512",
+            "#opi": "TRANSACTION_ID"
+          }
+        ]
+      }
+    ],
+    "#id": "aebaaaaaaaeaaaabaeq52amo6fvovayaaaaq",
+    "#tenant": 0,
+    "FileInfo": {
+      "Filename": "capharnaüm.txt",
+      "LastModified": "2024-04-18T15:34:59.712"
+    },
+    "#nbobjects": 1,
+    "#opi": "TRANSACTION_ID",
+    "#batchId": "aeeaaaaaaceaaaabaeq52amo6fvotdqaaaaq"
+  },
+  {
+    "#qualifiers": [
+      {
+        "qualifier": "BinaryMaster",
+        "#nbobjects": "1",
+        "versions": [
+          {
+            "#id": "aeaaaaaaaaeaaaabaeq52amo6fvovgiaaaba",
+            "DataObjectVersion": "BinaryMaster_1",
+            "FormatIdentification": {},
+            "FileInfo": {
+              "Filename": "ca et la.txt",
+              "LastModified": "2024-04-18T15:34:59.738"
+            },
+            "Size": 0,
+            "Uri": "Content/aeaaaaaaaaeaaaabaeq52amo6fvovgiaaaba.txt",
+            "Algorithm": "SHA-512",
+            "#opi": "TRANSACTION_ID"
+          }
+        ]
+      }
+    ],
+    "#id": "aebaaaaaaaeaaaabaeq52amo6fvovgqaaaaq",
+    "#tenant": 0,
+    "FileInfo": {
+      "Filename": "ca et la.txt",
+      "LastModified": "2024-04-18T15:34:59.738"
+    },
+    "#nbobjects": 1,
+    "#opi": "TRANSACTION_ID",
+    "#batchId": "aeeaaaaaaceaaaabaeq52amo6fvotdqaaaaq"
+  }
+]

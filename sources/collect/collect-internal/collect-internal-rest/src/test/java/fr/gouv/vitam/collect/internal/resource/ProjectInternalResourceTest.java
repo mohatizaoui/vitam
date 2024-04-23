@@ -582,12 +582,13 @@ public class ProjectInternalResourceTest extends CollectInternalResourceBaseTest
             .contentType(CommonMediaType.ZIP)
             .accept(ContentType.JSON)
             .header(GlobalDataRest.X_TENANT_ID, TENANT)
+            .header(GlobalDataRest.X_ENCODING, "x-mac-greek")
             .body(new NullInputStream(100))
             .when()
             .post(PROJECTS + "/prId/upload")
             .then()
             .statusCode(Response.Status.OK.getStatusCode());
-        verify(fluxService).processStream(any(), eq("prId"), eq("VIRTUAL_TX_prId"));
+        verify(fluxService).processStream(any(), eq("prId"), eq("VIRTUAL_TX_prId"), eq("x-mac-greek"));
     }
 
     @Test
@@ -602,7 +603,7 @@ public class ProjectInternalResourceTest extends CollectInternalResourceBaseTest
             .post(PROJECTS + "/prId/upload")
             .then()
             .statusCode(Response.Status.NOT_FOUND.getStatusCode());
-        verify(fluxService, never()).processStream(any(), eq("prId"), eq("VIRTUAL_TX_prId"));
+        verify(fluxService, never()).processStream(any(), eq("prId"), eq("VIRTUAL_TX_prId"), any());
     }
 
     @Test
@@ -611,7 +612,7 @@ public class ProjectInternalResourceTest extends CollectInternalResourceBaseTest
         project.setId("prId");
         doReturn(Optional.of(project)).when(projectService).findProject("prId");
         doThrow(new CollectInternalException("error")).when(fluxService)
-            .processStream(any(), eq("prId"), eq("VIRTUAL_TX_prId"));
+            .processStream(any(), eq("prId"), eq("VIRTUAL_TX_prId"), any());
         given()
             .contentType(CommonMediaType.ZIP)
             .accept(ContentType.JSON)
@@ -622,4 +623,5 @@ public class ProjectInternalResourceTest extends CollectInternalResourceBaseTest
             .then()
             .statusCode(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
     }
+
 }

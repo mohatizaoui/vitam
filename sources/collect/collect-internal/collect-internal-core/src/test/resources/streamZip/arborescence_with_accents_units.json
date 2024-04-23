@@ -1,0 +1,173 @@
+[
+  {
+    "DescriptionLevel": "Item",
+    "Title": "capharnaüm.txt",
+    "#id": "aeaqaaaaaaeaaaabaeqheamo6fs4o3yaaaaq",
+    "#object": "aebaaaaaaaeaaaabaeqheamo6fs4o7aaaaaq",
+    "#management": {},
+    "#unitType": "INGEST",
+    "#opi": "TRANSACTION_ID",
+    "#unitups": [
+      "aeaqaaaaaaeaaaabaeqheamo6fs4o3qaaaaq"
+    ],
+    "#batchId": "aeeaaaaaaceaaaabaeqheamo6fs4naiaaaaq",
+    "#uploadPath": "arborescence_with_accents_windows/Parent/alcôve ovoïde/âtre/capharnaüm.txt"
+  },
+  {
+    "DescriptionLevel": "Item",
+    "Title": "ça-et-là.txt",
+    "#id": "aeaqaaaaaaeaaaabaeqheamo6fs4pfqaaaaq",
+    "#object": "aebaaaaaaaeaaaabaeqheamo6fs4pfqaaabq",
+    "#management": {},
+    "#unitType": "INGEST",
+    "#opi": "TRANSACTION_ID",
+    "#unitups": [
+      "aeaqaaaaaaeaaaabaeqheamo6fs4peiaaaaq"
+    ],
+    "#batchId": "aeeaaaaaaceaaaabaeqheamo6fs4naiaaaaq",
+    "#uploadPath": "arborescence_with_accents_windows/Parent/île intérieure/ça-et-là.txt"
+  },
+  {
+    "DescriptionLevel": "RecordGrp",
+    "Title": "Parent",
+    "#id": "aeaqaaaaaaeaaaabaeqheamo6fs4o2iaaaaq",
+    "#management": {},
+    "#unitType": "INGEST",
+    "#opi": "TRANSACTION_ID",
+    "#unitups": [
+      "aeaqaaaaaaeaaaabaeqheamo6fs4n5aaaaaq"
+    ],
+    "#batchId": "aeeaaaaaaceaaaabaeqheamo6fs4naiaaaaq",
+    "#uploadPath": "arborescence_with_accents_windows/Parent"
+  },
+  {
+    "DescriptionLevel": "Item",
+    "Title": "ça et là.txt",
+    "#id": "aeaqaaaaaaeaaaabaeqheamo6fs4pfaaaaaq",
+    "#object": "aebaaaaaaaeaaaabaeqheamo6fs4pfaaaabq",
+    "#management": {},
+    "#unitType": "INGEST",
+    "#opi": "TRANSACTION_ID",
+    "#unitups": [
+      "aeaqaaaaaaeaaaabaeqheamo6fs4peiaaaaq"
+    ],
+    "#batchId": "aeeaaaaaaceaaaabaeqheamo6fs4naiaaaaq",
+    "#uploadPath": "arborescence_with_accents_windows/Parent/île intérieure/ça et là.txt"
+  },
+  {
+    "DescriptionLevel": "Item",
+    "Title": "ca et la.txt",
+    "#id": "aeaqaaaaaaeaaaabaeqheamo6fs4peiaaaba",
+    "#object": "aebaaaaaaaeaaaabaeqheamo6fs4peqaaaaq",
+    "#management": {},
+    "#unitType": "INGEST",
+    "#opi": "TRANSACTION_ID",
+    "#unitups": [
+      "aeaqaaaaaaeaaaabaeqheamo6fs4peiaaaaq"
+    ],
+    "#batchId": "aeeaaaaaaceaaaabaeqheamo6fs4naiaaaaq",
+    "#uploadPath": "arborescence_with_accents_windows/Parent/île intérieure/ca et la.txt"
+  },
+  {
+    "DescriptionLevel": "RecordGrp",
+    "Title": "l'être",
+    "#id": "aeaqaaaaaaeaaaabaeqheamo6fs4pdaaaaaq",
+    "#management": {},
+    "#unitType": "INGEST",
+    "#opi": "TRANSACTION_ID",
+    "#unitups": [
+      "aeaqaaaaaaeaaaabaeqheamo6fs4o3iaaaaq"
+    ],
+    "#batchId": "aeeaaaaaaceaaaabaeqheamo6fs4naiaaaaq",
+    "#uploadPath": "arborescence_with_accents_windows/Parent/alcôve ovoïde/l'être"
+  },
+  {
+    "DescriptionLevel": "Item",
+    "Title": "ambiguë.txt",
+    "#id": "aeaqaaaaaaeaaaabaeqheamo6fs4pdiaaaaq",
+    "#object": "aebaaaaaaaeaaaabaeqheamo6fs4pdqaaaaq",
+    "#management": {},
+    "#unitType": "INGEST",
+    "#opi": "TRANSACTION_ID",
+    "#unitups": [
+      "aeaqaaaaaaeaaaabaeqheamo6fs4pdaaaaaq"
+    ],
+    "#batchId": "aeeaaaaaaceaaaabaeqheamo6fs4naiaaaaq",
+    "#uploadPath": "arborescence_with_accents_windows/Parent/alcôve ovoïde/l'être/ambiguë.txt"
+  },
+  {
+    "DescriptionLevel": "RecordGrp",
+    "Title": "à côté",
+    "#id": "aeaqaaaaaaeaaaabaeqheamo6fs4o3aaaaaq",
+    "#management": {},
+    "#unitType": "INGEST",
+    "#opi": "TRANSACTION_ID",
+    "#unitups": [
+      "aeaqaaaaaaeaaaabaeqheamo6fs4o2iaaaaq"
+    ],
+    "#batchId": "aeeaaaaaaceaaaabaeqheamo6fs4naiaaaaq",
+    "#uploadPath": "arborescence_with_accents_windows/Parent/à côté"
+  },
+  {
+    "DescriptionLevel": "RecordGrp",
+    "Title": "alcôve ovoïde",
+    "#id": "aeaqaaaaaaeaaaabaeqheamo6fs4o3iaaaaq",
+    "#management": {},
+    "#unitType": "INGEST",
+    "#opi": "TRANSACTION_ID",
+    "#unitups": [
+      "aeaqaaaaaaeaaaabaeqheamo6fs4o2iaaaaq"
+    ],
+    "#batchId": "aeeaaaaaaceaaaabaeqheamo6fs4naiaaaaq",
+    "#uploadPath": "arborescence_with_accents_windows/Parent/alcôve ovoïde"
+  },
+  {
+    "DescriptionLevel": "RecordGrp",
+    "Title": "âtre",
+    "#id": "aeaqaaaaaaeaaaabaeqheamo6fs4o3qaaaaq",
+    "#management": {},
+    "#unitType": "INGEST",
+    "#opi": "TRANSACTION_ID",
+    "#unitups": [
+      "aeaqaaaaaaeaaaabaeqheamo6fs4o3iaaaaq"
+    ],
+    "#batchId": "aeeaaaaaaceaaaabaeqheamo6fs4naiaaaaq",
+    "#uploadPath": "arborescence_with_accents_windows/Parent/alcôve ovoïde/âtre"
+  },
+  {
+    "DescriptionLevel": "RecordGrp",
+    "Title": "île intérieure",
+    "#id": "aeaqaaaaaaeaaaabaeqheamo6fs4peiaaaaq",
+    "#management": {},
+    "#unitType": "INGEST",
+    "#opi": "TRANSACTION_ID",
+    "#unitups": [
+      "aeaqaaaaaaeaaaabaeqheamo6fs4o2iaaaaq"
+    ],
+    "#batchId": "aeeaaaaaaceaaaabaeqheamo6fs4naiaaaaq",
+    "#uploadPath": "arborescence_with_accents_windows/Parent/île intérieure"
+  },
+  {
+    "DescriptionLevel": "RecordGrp",
+    "Title": "arborescence_with_accents_windows",
+    "#id": "aeaqaaaaaaeaaaabaeqheamo6fs4n5aaaaaq",
+    "#management": {},
+    "#unitType": "INGEST",
+    "#opi": "TRANSACTION_ID",
+    "#batchId": "aeeaaaaaaceaaaabaeqheamo6fs4naiaaaaq",
+    "#uploadPath": "arborescence_with_accents_windows"
+  },
+  {
+    "DescriptionLevel": "RecordGrp",
+    "Title": "où les bûches",
+    "#id": "aeaqaaaaaaeaaaabaeqheamo6fs4peaaaaaq",
+    "#management": {},
+    "#unitType": "INGEST",
+    "#opi": "TRANSACTION_ID",
+    "#unitups": [
+      "aeaqaaaaaaeaaaabaeqheamo6fs4o3iaaaaq"
+    ],
+    "#batchId": "aeeaaaaaaceaaaabaeqheamo6fs4naiaaaaq",
+    "#uploadPath": "arborescence_with_accents_windows/Parent/alcôve ovoïde/où les bûches"
+  }
+]
