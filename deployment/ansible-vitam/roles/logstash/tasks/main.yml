@@ -20,7 +20,7 @@
 - name: Ensure logstash directories exist
   file:
     path: "{{ vitam_defaults.folder.root_path }}/{{ item }}/logstash"
-    owner: "{{ logstash.user }}"
+    owner: "{{ logstash_user }}"
     group: "{{ vitam_defaults.users.group }}"
     state: directory
     mode: "{{ vitam_defaults.folder.folder_permission }}"
@@ -35,7 +35,7 @@
 - name: ensure json conf extra directory exists
   file:
     path: "{{ logstash_confextra_dir }}"
-    owner: "{{ logstash.user }}"
+    owner: "{{ logstash_user }}"
     group: "{{ vitam_defaults.users.group }}"
     state: directory
     mode: "{{ vitam_defaults.folder.folder_permission }}"
@@ -45,8 +45,9 @@
   template:
     src: "{{ item }}.j2"
     dest: "/etc/logstash/{{ item }}"
-    owner: root
-    mode: 0644
+    owner: "{{ logstash_user }}"
+    group: "{{ vitam_defaults.users.group }}"
+    mode: "{{ vitam_defaults.folder.conf_permission }}"
   with_items:
     - jvm.options
     - log4j2.properties
@@ -66,7 +67,7 @@
     template:
       src: "{{ item }}.j2"
       dest: "{{ logstash_conf_dir }}/{{ item }}"
-      owner: "{{ logstash.user }}"
+      owner: "{{ logstash_user }}"
       group: "{{ vitam_defaults.users.group }}"
       mode: "{{ vitam_defaults.folder.conf_permission }}"
     with_items:
@@ -79,7 +80,8 @@
   template:
     src: vitam-patterns.j2
     dest: "/usr/share/logstash/vendor/bundle/jruby/2.5.0/gems/logstash-patterns-core-{{ logstash_patterns_core_version }}/patterns/vitam"
-    owner: "{{ logstash.user }}"
+    owner: "{{ logstash_user }}"
+    group: "{{ vitam_defaults.users.group }}"
   notify: "logstash - restart service"
 
   when: syslog.name | default('filebeat') != 'filebeat'
@@ -100,7 +102,7 @@
     template:
       src: filebeat-to-logstash.conf.j2
       dest: "{{ logstash_conf_dir }}/filebeat-to-logstash.conf"
-      owner: "{{ logstash.user }}"
+      owner: "{{ logstash_user }}"
       group: "{{ vitam_defaults.users.group }}"
       mode: "{{ vitam_defaults.folder.conf_permission }}"
     notify: "logstash - restart service"
@@ -111,7 +113,7 @@
   template:
     src: elasticsearch-template.json.j2
     dest: "{{ logstash_confextra_dir }}/elasticsearch-template.json"
-    owner: logstash
+    owner: "{{ logstash_user }}"
     group: "{{ vitam_defaults.users.group }}"
     mode: "{{ vitam_defaults.folder.conf_permission }}"
   notify: "logstash - restart service"

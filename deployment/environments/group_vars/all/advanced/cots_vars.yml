@@ -109,14 +109,13 @@ mongodb:
 
 logstash:
     host: "logstash.service.{{ consul_domain }}"
-    user: logstash
     port: 10514
     rest_port: 20514
     check_consul: 10 # in seconds
-    # logstash xms & xmx in Megabytes
-    # jvm_xms: 2048
-    # jvm_xmx: 2048
-    # workers_number: 4
+    ## logstash xms & xmx in Megabytes
+    # jvm_xms: 256 # default to memory_size/8
+    # jvm_xmx: 1024 # default to memory_size/4
+    # workers_number: 4 # default to cores*threads
     log_appenders:
         rolling:
             max_log_file_size: "10MB"
