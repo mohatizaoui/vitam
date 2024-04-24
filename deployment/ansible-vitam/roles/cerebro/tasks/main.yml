@@ -11,7 +11,7 @@
   delay: "{{ packages_install_retries_delay }}"
   when:
    - ansible_distribution == 'Debian'
-   - ansible_distribution_version == '12'
+   - ansible_distribution_version | int == 12
    - install_mode != "container"
   tags:
     - update_package_vitam

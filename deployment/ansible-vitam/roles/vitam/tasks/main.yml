@@ -41,7 +41,7 @@
   when:
     - ansible_os_family == "Debian"
     - disable_internet_repositories_install == true
-    - ansible_distribution_version  == "12"
+    - ansible_distribution_version | int == 12
     - install_mode != "container"
 
 - include_tasks: tape_offer.yml

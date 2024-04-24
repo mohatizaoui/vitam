@@ -15,7 +15,7 @@
       - cron
   when:
     - ansible_distribution == 'Debian'
-    - ansible_distribution_version == '12'
+    - ansible_distribution_version | int == 12
 
 - name: Check that the restic directories exist
   file:
