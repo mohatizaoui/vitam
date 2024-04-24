@@ -18,6 +18,7 @@
         group: root
         mode: 0644
         backup: true
+      notify: "docker - restart service"
 
   when:
   - docker_opts.docker_bip is defined
