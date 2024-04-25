@@ -720,6 +720,12 @@
         "OtherLevel"
       ]
     },
+    "_aud": {
+      "$ref": "#/definitions/date-time"
+    },
+    "_acd": {
+      "$ref": "#/definitions/date-time"
+    },
     "Title": {
       "type": "string",
       "minLength": 1
@@ -1116,7 +1122,7 @@
             "type": "object",
             "properties": {
               "TimeStamp": {
-                "$ref": "#/definitions/date-time"
+                "$ref": "#/definitions/date-time-opt"
               },
               "AdditionalTimestampingInformation": {
                 "$ref": "#/definitions/non-empty-token"
