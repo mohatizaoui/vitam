@@ -13,10 +13,9 @@ output
                 #idle_flush_time => 1
                 #idle_flush_time => 2
                 #workers => 20
-                template => "/vitam/conf/logstash/extra/elasticsearch-template.json"
+                template => "{{ logstash_confextra_dir }}/elasticsearch-template.json"
                 index => "logstash-vitam-%{+YYYY.MM.dd}"
-
-                 hosts =>  [{% for host in groups['hosts_elasticsearch_log'] %}"{{ hostvars[host]['ip_admin'] }}:{{ elasticsearch.log.port_http }}"{% if not loop.last %},{% endif %}{% endfor %}]
+                hosts => [{% for host in groups['hosts_elasticsearch_log'] %}"{{ hostvars[host]['ip_admin'] }}:{{ elasticsearch.log.port_http }}"{% if not loop.last %},{% endif %}{% endfor %}]
 
             }
         }
@@ -24,7 +23,7 @@ output
         {
             elasticsearch
             {
-                template => "/vitam/conf/logstash/extra/elasticsearch-template.json"
+                template => "{{ logstash_confextra_dir }}/elasticsearch-template.json"
                 index => "logstash-logs-%{+YYYY.MM.dd}"
                 hosts => [{% for host in groups['hosts_elasticsearch_log'] %}"{{ hostvars[host]['ip_admin'] }}:{{ elasticsearch.log.port_http }}"{% if not loop.last %},{% endif %}{% endfor %}]
             }
@@ -33,7 +32,7 @@ output
         {
             elasticsearch
             {
-                template => "/vitam/conf/logstash/extra/elasticsearch-template.json"
+                template => "{{ logstash_confextra_dir }}/elasticsearch-template.json"
                 index => "logstash-uncatched-%{+YYYY.MM.dd}"
                 hosts => [{% for host in groups['hosts_elasticsearch_log'] %}"{{ hostvars[host]['ip_admin'] }}:{{ elasticsearch.log.port_http }}"{% if not loop.last %},{% endif %}{% endfor %}]
             }
