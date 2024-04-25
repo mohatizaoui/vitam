@@ -2516,7 +2516,9 @@
     "ApiField": "GpsVersionID",
     "Collection": "Unit",
     "SedaVersions": [
-      "2.1"
+      "2.1",
+      "2.2",
+      "2.3"
     ],
     "Category": "DESCRIPTION",
     "ApiPath": "Gps.GpsVersionID",
