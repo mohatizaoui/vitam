@@ -7361,7 +7361,7 @@
     "FieldName": "SystemId",
     "Type": "KEYWORD",
     "Origin": "INTERNAL",
-    "Cardinality": "ONE",
+    "Cardinality": "MANY",
     "Indexed": true,
     "Path": "SystemId",
     "ApiField": "SystemId",
