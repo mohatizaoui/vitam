@@ -2268,7 +2268,7 @@
     "FieldName": "LinkingAgentIdentifier",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "Cardinality": "ONE",
+    "Cardinality": "MANY",
     "Indexed": true,
     "Path": "Event.LinkingAgentIdentifier",
     "ApiField": "linkingAgentIdentifier",
