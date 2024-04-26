@@ -17,7 +17,6 @@
   roles:
     - { role: mongoc, when: inventory_hostname not in single_vm_hostnames }
   vars:
-    mongo_bin: mongod
     mongod: hosts_mongod_offer
     group_name: hosts_mongoc_offer
 
@@ -28,7 +27,6 @@
   roles:
     - { role: mongod, when: inventory_hostname not in single_vm_hostnames }
   vars:
-    mongo_bin: mongod
     mongoc: hosts_mongoc_offer
     group_name: hosts_mongod_offer
 
@@ -39,7 +37,6 @@
   roles:
     - { role: mongo_configure, when: inventory_hostname in single_vm_hostnames }
   vars:
-    mongo_bin: mongos
     group_name: hosts_mongos_offer
     mongoc: hosts_mongoc_offer
     mongod: hosts_mongod_offer
@@ -53,7 +50,6 @@
     - { role: mongos, when: inventory_hostname not in single_vm_hostnames }
     - { role: mongo_configure, when: inventory_hostname not in single_vm_hostnames }
   vars:
-    mongo_bin: mongos
     group_name: hosts_mongos_offer
     mongoc: hosts_mongoc_offer
     mongod: hosts_mongod_offer

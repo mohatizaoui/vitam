@@ -1,13 +1,14 @@
 ---
 
 - name: Compute the mongos server list
-  set_fact: mongos_item="{{ item }}"
+  set_fact:
+    mongos_item: "{{ item }}"
   when: mongo_cluster_name == hostvars[item]['mongo_cluster_name']
   with_items: "{{ groups[mongos] }}"
   register: mongos_result
   tags: update_mongodb_configuration
 
-- name: make a list from the result
+- name: Make a list from the result
   set_fact:
     mongos_list: "{{ mongos_result.results | remove_skipped_servers | map(attribute='ansible_facts.mongos_item') | list }}"
   when: inventory_hostname not in single_vm_hostnames
@@ -21,38 +22,24 @@
 
 - block:
 
-    - name: Set dnsname for mongos service
+    - name: Compute list of mongos nodes
       set_fact:
-        mongos_dnsname: "{{ mongo_cluster_name }}-mongos.service.{{ consul_domain }}"
-      when: inventory_hostname not in single_vm_hostnames
+        mongos_nodes: "{{ mongo_nodes | default([]) + [ hostvars[item]['ip_service'] + ':' + mongodb.mongos_port | string ] }}"
+      loop: "{{ mongos_list }}"
       tags: update_mongodb_configuration
 
-    - name: Set dnsname for mongos service (localhost deploy)
+    - name: Set mongos connection & credentials
       set_fact:
-        mongos_dnsname: "{{ ip_service }}"
-      when: inventory_hostname in single_vm_hostnames
-      tags: update_mongodb_configuration
-
-    # Make sure the service is open (mongos listening on 27017)
-    # TODO: put the timeout in global variable (timeout to wait for mongo to be open)
-    - name: Wait for the service port to be open
-      wait_for:
-        host: "{{ mongos_dnsname }}"
-        port: "{{ mongodb.mongos_port }}"
-        timeout: "{{ vitam_defaults.services.start_timeout }}"
-      tags: update_mongodb_configuration
-
-    - name: Set mongo connection & credentials
-      set_fact:
-        mongo_connection: "--host {{ mongos_dnsname }} --port {{ mongodb.mongos_port }} --quiet"
-        mongo_credentials: "-u {{ mongodb[mongo_cluster_name].admin.user }} -p {{ mongodb[mongo_cluster_name].admin.password }}"
+        mongos_dnsname: "{{ ip_service if inventory_hostname in single_vm_hostnames else mongo_cluster_name + '-mongos.service.' + consul_domain }}"
+        mongos_connection: "mongodb://{{ mongos_nodes | join(',') }}"
+        mongos_credentials: "-u {{ mongodb[mongo_cluster_name].admin.user }} -p {{ mongodb[mongo_cluster_name].admin.password }} --quiet"
       no_log: "{{ hide_passwords_during_deploy }}"
       tags: update_mongodb_configuration
 
     # Detect if authentication is enabled
 
     - name: Verify if authent is enabled
-      command: "mongosh {{ mongo_connection }} {{ mongo_credentials }} --eval 'db.help();'"
+      command: "mongosh {{ mongos_connection }} {{ mongos_credentials }} --eval 'db.help();'"
       register: mongo_authent_enabled
       failed_when: false
       no_log: "{{ hide_passwords_during_deploy }}"
@@ -60,7 +47,7 @@
 
     - name: Disable mongo credentials as authent is not enabled
       set_fact:
-        mongo_credentials: ""
+        mongos_credentials: ""
       when: mongo_authent_enabled.rc != 0
       tags: update_mongodb_configuration
 
@@ -122,12 +109,12 @@
     # Enable sharding for specific databases and collections
 
     - name: Enable the sharding
-      command: "mongosh {{ mongo_connection }} {{ mongo_credentials }} --file {{ vitam_defaults.folder.root_path }}/app/mongos/enable-sharding.js"
+      command: "mongosh {{ mongos_connection }} {{ mongos_credentials }} --file {{ vitam_defaults.folder.root_path }}/app/mongos/enable-sharding.js"
       no_log: "{{ hide_passwords_during_deploy }}"
       tags: update_mongodb_configuration
 
     - name: Create the users
-      command: "mongosh {{ mongo_connection }} {{ mongo_credentials }} --file {{ vitam_defaults.folder.root_path }}/app/mongos/users-{{ item }}.js"
+      command: "mongosh {{ mongos_connection }} {{ mongos_credentials }} --file {{ vitam_defaults.folder.root_path }}/app/mongos/users-{{ item }}.js"
       with_items:
         - admin
         - logbook
@@ -141,7 +128,7 @@
       tags: update_mongodb_configuration
 
     - name: Create collect module users
-      command: "mongosh {{ mongo_connection }} {{ mongo_credentials }} {{ vitam_defaults.folder.root_path }}/app/mongos/users-{{ item }}.js"
+      command: "mongosh {{ mongos_connection }} {{ mongos_credentials }} {{ vitam_defaults.folder.root_path }}/app/mongos/users-{{ item }}.js"
       with_items:
         - collect
         - metadata-collect
@@ -153,7 +140,7 @@
       tags: update_mongodb_configuration
 
     - name: Create the users
-      command: "mongosh {{ mongo_connection }} {{ mongo_credentials }} {{ vitam_defaults.folder.root_path }}/app/mongos/users-{{ item }}.js"
+      command: "mongosh {{ mongos_connection }} {{ mongos_credentials }} {{ vitam_defaults.folder.root_path }}/app/mongos/users-{{ item }}.js"
       with_items:
         - admin
         - offer
@@ -259,12 +246,12 @@
 
     - name: Set credentials with authent as we just configure it
       set_fact:
-        mongo_credentials: "-u {{ mongodb[mongo_cluster_name].admin.user }} -p {{ mongodb[mongo_cluster_name].admin.password }}"
+        mongos_credentials: "-u {{ mongodb[mongo_cluster_name].admin.user }} -p {{ mongodb[mongo_cluster_name].admin.password }}"
       no_log: "{{ hide_passwords_during_deploy }}"
       tags: update_mongodb_configuration
 
     - name: Wait for mongos to be properly connected to databases
-      command: "mongosh {{ mongo_connection }} {{ mongo_credentials }} --file {{ vitam_defaults.folder.root_path }}/script/mongos/wait_until_mongos_is_ok.js"
+      command: "mongosh {{ mongos_connection }} {{ mongos_credentials }} --file {{ vitam_defaults.folder.root_path }}/script/mongos/wait_until_mongos_is_ok.js"
       no_log: "{{ hide_passwords_during_deploy }}"
       ignore_errors: true # To properly catch output on the next task
       register: output_mongos_state
@@ -279,7 +266,7 @@
 
     # Initiate the databases (now we know that authentication is enabled)
     - name: Initiate the databases
-      command: "mongosh {{ mongo_connection }} {{ mongo_credentials }} --file {{ vitam_defaults.folder.root_path }}/app/mongos/init-{{ item }}-database.js"
+      command: "mongosh {{ mongos_connection }} {{ mongos_credentials }} --file {{ vitam_defaults.folder.root_path }}/app/mongos/init-{{ item }}-database.js"
       with_items:
         - logbook
         - masterdata
@@ -291,7 +278,7 @@
       tags: update_mongodb_configuration
 
     - name: Initiate metadata-collect database
-      command: "mongosh {{ mongo_connection }} {{ mongo_credentials }} --file {{ vitam_defaults.folder.root_path }}/app/mongos/init-{{ item }}-database.js"
+      command: "mongosh {{ mongos_connection }} {{ mongos_credentials }} --file {{ vitam_defaults.folder.root_path }}/app/mongos/init-{{ item }}-database.js"
       with_items:
         - collect
         - metadata-collect
@@ -303,7 +290,7 @@
       tags: update_mongodb_configuration
 
     - name: Initiate the databases
-      command: "mongosh {{ mongo_connection }} {{ mongo_credentials }} --file {{ vitam_defaults.folder.root_path }}/app/mongos/init-{{ item }}-database.js"
+      command: "mongosh {{ mongos_connection }} {{ mongos_credentials }} --file {{ vitam_defaults.folder.root_path }}/app/mongos/init-{{ item }}-database.js"
       with_items:
         - offer
         - tape-offer

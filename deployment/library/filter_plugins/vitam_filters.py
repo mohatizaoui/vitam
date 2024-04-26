@@ -15,6 +15,8 @@ def client_url(vitam_struct):
         else:
             return "http://%s:%s/" % (vitam_struct["host"], vitam_struct["port_service"])
 
+# This function is aimed to remove elements from a list which must be skipped.
+# For example, when we want to configure a mongo cluster, we need to remove the elements which are not associated to the current mongo_cluster_name.
 def remove_skipped_servers(result):
     '''Remove the skipped hosts'''
     new_list = []
