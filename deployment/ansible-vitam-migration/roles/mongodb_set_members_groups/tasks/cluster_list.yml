@@ -4,8 +4,19 @@
   set_fact:
     mongo_list: []
 
-- name: Compute the mongo server list
+- name: Compute the mongod server list
   set_fact:
     mongo_list: "{{ mongo_list | default([]) + [ item ] }}"
-  when: mongo_cluster_name == hostvars[item]['mongo_cluster_name']
+  when:
+    - mongo_type == 'mongod'
+    - mongo_cluster_name == hostvars[item]['mongo_cluster_name']
+    - mongo_shard_id == hostvars[item]['mongo_shard_id']
+  with_items: "{{ groups[mongo_group] }}"
+
+- name: Compute the mongoc server list
+  set_fact:
+    mongo_list: "{{ mongo_list | default([]) + [ item ] }}"
+  when:
+    - mongo_type == 'mongoc'
+    - mongo_cluster_name == hostvars[item]['mongo_cluster_name']
   with_items: "{{ groups[mongo_group] }}"
