@@ -60,20 +60,11 @@
     - update_mongodb_configuration
 
 - name: Compute the mongoc server list
-  set_fact: mongoc_item="{{ item }}"
-  when:
-    - "mongo_cluster_name == hostvars[item]['mongo_cluster_name']"
-  with_items:
-    - "{{ groups[mongoc] }}"
-  register: mongoc_result
-  tags:
-    - update_mongodb_configuration
-
-- name: make a list from the result
   set_fact:
-    mongoc_list: "{{ mongoc_result.results | remove_skipped_servers | map(attribute='ansible_facts.mongoc_item') | list }}"
-  tags:
-    - update_mongodb_configuration
+    mongoc_list: "{{ mongoc_list | default([]) + [ item ] }}"
+  when: mongo_cluster_name == hostvars[item]['mongo_cluster_name']
+  with_items: "{{ groups[mongoc] }}"
+  tags: update_mongodb_configuration
 
 - name: Create the mongos configuration server file
   template:

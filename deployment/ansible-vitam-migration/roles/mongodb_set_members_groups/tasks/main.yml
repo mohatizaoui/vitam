@@ -5,9 +5,9 @@
 
 - name: Wait for the service port to be open
   wait_for:
-      host: "{{ ip_service }}"
-      port: "{{ mongo_port }}"
-      timeout: "{{ vitam_defaults.services.start_timeout }}"
+    host: "{{ ip_service }}"
+    port: "{{ mongo_port }}"
+    timeout: "{{ vitam_defaults.services.start_timeout }}"
 
 # set the is_primary var for each host to find out if the member is primary or not
 - import_tasks: is_primary.yml

@@ -1,26 +1,19 @@
 ---
 
 - name: Compute the mongos server list
-  set_fact: mongos_item="{{ item }}"
-  when:
-    - "mongo_cluster_name == hostvars[item]['mongo_cluster_name']"
-  with_items:
-    - "{{ groups[group_name] }}"
-  register: mongos_result
-
-- name: make a list from the result
   set_fact:
-    mongos_list: "{{ mongos_result.results | remove_skipped_servers | map(attribute='ansible_facts.mongos_item') | list }}"
-  when: "inventory_hostname not in single_vm_hostnames"
+    mongos_list: "{{ mongos_list | default([]) + [ item ] }}"
+  when: mongo_cluster_name == hostvars[item]['mongo_cluster_name']
+  with_items: "{{ groups[group_name] }}"
 
 - name: Install docker
   include_role:
     name: docker
-  when: mongos_list |first == inventory_hostname
+  when: mongos_list | first == inventory_hostname
 
 - name: Deploy mongo-express container
   docker_container:
-    name: "mongo-express"
+    name: mongo-express
     image: "{{ mongo_express_image }}:{{ mongo_express_version }}"
     state: started
     restart_policy: always

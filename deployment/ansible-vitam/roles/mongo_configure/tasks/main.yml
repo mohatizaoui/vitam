@@ -2,29 +2,16 @@
 
 - name: Compute the mongos server list
   set_fact:
-    mongos_item: "{{ item }}"
+    mongos_list: "{{ mongos_list | default([]) + [ item ] }}"
   when: mongo_cluster_name == hostvars[item]['mongo_cluster_name']
   with_items: "{{ groups[mongos] }}"
-  register: mongos_result
-  tags: update_mongodb_configuration
-
-- name: Make a list from the result
-  set_fact:
-    mongos_list: "{{ mongos_result.results | remove_skipped_servers | map(attribute='ansible_facts.mongos_item') | list }}"
-  when: inventory_hostname not in single_vm_hostnames
-  tags: update_mongodb_configuration
-
-- name: make a list from the result (localhost deploy)
-  set_fact:
-    mongos_list: "{{ single_vm_hostnames }}"
-  when: inventory_hostname in single_vm_hostnames
   tags: update_mongodb_configuration
 
 - block:
 
     - name: Compute list of mongos nodes
       set_fact:
-        mongos_nodes: "{{ mongo_nodes | default([]) + [ hostvars[item]['ip_service'] + ':' + mongodb.mongos_port | string ] }}"
+        mongos_nodes: "{{ mongos_nodes | default([]) + [ hostvars[item]['ip_service'] + ':' + mongodb.mongos_port | string ] }}"
       loop: "{{ mongos_list }}"
       tags: update_mongodb_configuration
 
@@ -34,6 +21,13 @@
         mongos_connection: "mongodb://{{ mongos_nodes | join(',') }}"
         mongos_credentials: "-u {{ mongodb[mongo_cluster_name].admin.user }} -p {{ mongodb[mongo_cluster_name].admin.password }} --quiet"
       no_log: "{{ hide_passwords_during_deploy }}"
+      tags: update_mongodb_configuration
+
+    - name: Wait for the service port to be open
+      wait_for:
+        host: "{{ mongos_dnsname }}"
+        port: "{{ mongodb.mongos_port }}"
+        timeout: "{{ vitam_defaults.services.start_timeout }}"
       tags: update_mongodb_configuration
 
     # Detect if authentication is enabled
@@ -298,4 +292,4 @@
       when: mongo_cluster_name != 'mongo-data'
       tags: update_mongodb_configuration
 
-  when: mongos_list | last == inventory_hostname
+  when: inventory_hostname == mongos_list | last
