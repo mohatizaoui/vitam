@@ -6651,7 +6651,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.SigningType",
     "SedaField": "SigningType",
-    "ShortName": "SigningType"
+    "ShortName": "Type de signature"
   },
   {
     "FieldName": "Validator",
