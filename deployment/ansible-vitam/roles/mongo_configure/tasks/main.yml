@@ -1,8 +1,13 @@
 ---
 
+- name: Reset mongos server list
+  set_fact:
+    mongos_list: []
+    mongos_nodes: []
+
 - name: Compute the mongos server list
   set_fact:
-    mongos_list: "{{ mongos_list | default([]) + [ item ] }}"
+    mongos_list: "{{ mongos_list + [ item ] }}"
   when: mongo_cluster_name == hostvars[item]['mongo_cluster_name']
   with_items: "{{ groups[mongos] }}"
   tags: update_mongodb_configuration
@@ -11,7 +16,7 @@
 
     - name: Compute list of mongos nodes
       set_fact:
-        mongos_nodes: "{{ mongos_nodes | default([]) + [ hostvars[item]['ip_service'] + ':' + mongodb.mongos_port | string ] }}"
+        mongos_nodes: "{{ mongos_nodes + [ hostvars[item]['ip_service'] + ':' + mongodb.mongos_port | string ] }}"
       loop: "{{ mongos_list }}"
       tags: update_mongodb_configuration
 

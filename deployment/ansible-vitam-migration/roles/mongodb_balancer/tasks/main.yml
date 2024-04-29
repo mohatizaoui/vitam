@@ -1,8 +1,13 @@
 ---
 
+- name: Reset mongos server list
+  set_fact:
+    mongos_list: []
+    mongos_nodes: []
+
 - name: Compute the mongos server list
   set_fact:
-    mongos_list: "{{ mongos_list | default([]) + [ item ] }}"
+    mongos_list: "{{ mongos_list + [ item ] }}"
   when: mongo_cluster_name == hostvars[item]['mongo_cluster_name']
   with_items: "{{ groups[mongo_group] }}"
 
@@ -10,7 +15,7 @@
 
   - name: Compute list of mongos nodes
     set_fact:
-      mongos_nodes: "{{ mongos_nodes | default([]) + [ hostvars[item]['ip_service'] + ':' + mongodb.mongos_port | string ] }}"
+      mongos_nodes: "{{ mongos_nodes + [ hostvars[item]['ip_service'] + ':' + mongodb.mongos_port | string ] }}"
     loop: "{{ mongos_list }}"
 
   - name: Set mongos connection & credentials
@@ -47,4 +52,4 @@
     no_log: "{{ hide_passwords_during_deploy }}"
     when: state == "stopped"
 
-  when: mongos_list | last == inventory_hostname
+  when: inventory_hostname == mongos_list | last
