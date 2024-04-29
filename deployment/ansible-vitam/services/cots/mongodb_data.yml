@@ -13,7 +13,6 @@
   roles:
     - mongoc
   vars:
-    mongo_bin: mongod
     mongod: hosts_mongod_data
     group_name: hosts_mongoc_data
 
@@ -24,7 +23,6 @@
   roles:
     - mongod
   vars:
-    mongo_bin: mongod
     mongoc: hosts_mongoc_data
     group_name: hosts_mongod_data
 
@@ -36,7 +34,6 @@
     - mongos
     - mongo_configure
   vars:
-    mongo_bin: mongos
     group_name: hosts_mongod_data
     mongoc: hosts_mongoc_data
     mongod: hosts_mongod_data

@@ -112,6 +112,3 @@ curator:
     system:
       close: 7
       delete: 30
-
-# PACKAGES
-disable_internet_repositories_install: true # Disable EPEL or Debian backports repositories install

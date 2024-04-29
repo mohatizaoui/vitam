@@ -15,16 +15,6 @@ def client_url(vitam_struct):
         else:
             return "http://%s:%s/" % (vitam_struct["host"], vitam_struct["port_service"])
 
-def remove_skipped_servers(result):
-    '''Remove the skipped hosts'''
-    new_list = []
-    for elem in result:
-        if not 'skipped' in elem:
-            new_list.append(elem)
-        if 'skipped' in elem and elem['skipped'] != True:
-            new_list.append(elem)
-    return new_list
-
 def get_certificates(securityprofiles_struct, securityprofile_identifier):
     '''Get present certificates list from a securityprofiles structure'''
     certificates_list = []
@@ -75,7 +65,6 @@ class FilterModule(object):
         return {
             # jinja2 overrides
             'client_url': client_url,
-            'remove_skipped_servers': remove_skipped_servers,
             'get_certificates': get_certificates,
             'get_certificates_from_context_id': get_certificates_from_context_id,
             'get_certificates_from_context_name': get_certificates_from_context_name,

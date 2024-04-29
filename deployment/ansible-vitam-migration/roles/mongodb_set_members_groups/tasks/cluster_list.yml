@@ -1,19 +1,22 @@
 ---
 
-- name: Compute the mongo server list
-  set_fact: mongo_item="{{ item }}"
+- name: Reset mongo server list
+  set_fact:
+    mongo_list: []
+
+- name: Compute the mongod server list
+  set_fact:
+    mongo_list: "{{ mongo_list | default([]) + [ item ] }}"
   when:
-    - "mongo_cluster_name == hostvars[item]['mongo_cluster_name']"
-  with_items:
-    - "{{ groups[mongo_group] }}"
-  register: mongo_result
+    - mongo_type == 'mongod'
+    - mongo_cluster_name == hostvars[item]['mongo_cluster_name']
+    - mongo_shard_id == hostvars[item]['mongo_shard_id']
+  with_items: "{{ groups[mongo_group] }}"
 
-- name: make a list from the result
+- name: Compute the mongoc server list
   set_fact:
-    mongo_list: "{{ mongo_result.results | remove_skipped_servers | map(attribute='ansible_facts.mongo_item') | list }}"
-  when: inventory_hostname not in single_vm_hostnames
-
-- name: make a list from the result (localhost deploy)
-  set_fact:
-    mongo_list: [ 'localhost' ]
-  when: inventory_hostname in single_vm_hostnames
+    mongo_list: "{{ mongo_list | default([]) + [ item ] }}"
+  when:
+    - mongo_type == 'mongoc'
+    - mongo_cluster_name == hostvars[item]['mongo_cluster_name']
+  with_items: "{{ groups[mongo_group] }}"

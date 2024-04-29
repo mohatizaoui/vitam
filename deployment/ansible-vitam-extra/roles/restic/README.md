@@ -38,19 +38,19 @@ Role Variables
       # mongo-offer
       - name: "{{ offer_conf }}"
         type: mongodb
-        host: "{{ offer_conf }}-mongos.service.consul:{{ mongodb.mongos_port }}"
+        host: "{{ offer_conf }}-mongos.service.{{ consul_domain }}:{{ mongodb.mongos_port }}"
         user: "{{ mongodb[offer_conf].admin.user }}"
         password: "{{ mongodb[offer_conf].admin.password }}"
       # mongo-data
       - name: mongo-data
         type: mongodb
-        host: "mongo-data-mongos.service.consul:{{ mongodb.mongos_port }}"
+        host: "mongo-data-mongos.service.{{ consul_domain }}:{{ mongodb.mongos_port }}"
         user: "{{ mongodb['mongo-data'].admin.user }}"
         password: "{{ mongodb['mongo-data'].admin.password }}"
       # mongo-vitamui
       - name: mongo-vitamui
         type: mongodb
-        host: "mongo-vitamui-mongod.service.consul:{{ mongodb.mongod_port }}"
+        host: "mongo-vitamui-mongod.service.{{ consul_domain }}:{{ mongodb.mongod_port }}"
         # Add the following params on environments/group_vars/all/main/vault-vitam.yml
         # They can be found on vitamui deployment sources under environments/group_vars/all/vault-mongodb.yml
         user: "{{ mongodb['mongo-vitamui'].admin.user }}"
