@@ -28,15 +28,15 @@
     'workspace_collect': filebeat.services.workspace_collect.enable_access} [vitam_service] | default(true) | bool | lower }}
   paths:
     - "{{ vitam_defaults.folder.root_path }}/log/{{ vitam_service }}/accesslog-{{ vitam_service }}.*.log"
+  fields_under_root: true
   fields:
     kind: access
     vitam_component: {{ vitam_service }}
     source: vitam
   processors:
     - dissect:
-        tokenizer: '%{client_ip} - - %{date_time} "%{http_method} %{request_path} HTTP/%{http_version}" %{http_status_code} %{response_size} "%{referer}" "%{user_agent}" %{duration} %{request_id} %{tenant_id} %{application_id}'
-        field: "message"
-        target: ""
+        tokenizer: '%{client_ip|ip} - - %{date_time} "%{http_method} %{request_path} HTTP/%{http_version}" %{http_status_code|integer} %{response_size|integer} "%{referer}" "%{user_agent}" %{duration|integer} %{request_id} %{tenant_id|integer} %{application_id}'
+        target_prefix: ""
   {% endif %}
 
   {% if filebeat.services[vitam_service].enable_security | default(true) | bool %}
@@ -64,6 +64,7 @@
     'workspace_collect': filebeat.services.workspace_collect.enable_security} [vitam_service] | default(true) | bool | lower }}
   paths:
     - "{{ vitam_defaults.folder.root_path }}/log/{{ vitam_service }}/{{ vitam_service }}_security.*.log"
+  fields_under_root: true
   fields:
     kind: security
     vitam_component: {{ vitam_service }}
@@ -95,19 +96,15 @@
     'workspace_collect': filebeat.services.workspace_collect.enable_log} [vitam_service] | default(true) | bool | lower }}
   paths:
     - "{{ vitam_defaults.folder.root_path }}/log/{{ vitam_service }}/{{ vitam_service }}.*.log"
+  fields_under_root: true
   fields:
     kind: log
     vitam_component: {{ vitam_service }}
     source: vitam
   processors:
     - dissect:
-        tokenizer: '%{date_time} [%{thread}] [%{request_id}] [%{tenant_id}] %{loglevel} %{logger} - %{message}'
-        field: "message"
-        target: ""
-    - copy_fields:
-        fields:
-          - from: dissect.loglevel
-            to: loglevel
+        tokenizer: '%{date_time} [%{thread}] [%{request_id}] [%{tenant_id|integer}] %{log_level}  %{logger} - %{log_message}'
+        target_prefix: ""
   parsers:
     - multiline:
         type: pattern

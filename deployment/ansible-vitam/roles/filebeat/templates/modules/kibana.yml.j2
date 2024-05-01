@@ -6,15 +6,19 @@
   log:
     enabled: {{ filebeat.cots.kibana_data.enable_log if inventory_hostname in groups['hosts_kibana_data'] else filebeat.cots.kibana_log.enable_log if inventory_hostname in groups['hosts_kibana_log'] | bool | lower }}
     input:
+      fields_under_root: true
       fields:
         kind: log
         vitam_component: {% if inventory_hostname in groups["hosts_kibana_data"] %}kibana-data{% else %}kibana-log{% endif %}
         source: vitam
+        type: cots
 
   audit:
     enabled: {{ filebeat.cots.kibana_data.enable_audit if inventory_hostname in groups['hosts_kibana_data'] else filebeat.cots.kibana_log.enable_audit if inventory_hostname in groups['hosts_kibana_log'] | bool | lower }}
     input:
+      fields_under_root: true
       fields:
         kind: audit
         vitam_component: {% if inventory_hostname in groups["hosts_kibana_data"] %}kibana-data{% else %}kibana-log{% endif %}
         source: vitam
+        type: cots

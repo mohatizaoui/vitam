@@ -9,6 +9,7 @@
     var.paths:
       - "{{ vitam_defaults.folder.root_path }}/log/mongos/mongo*.log"
     input:
+      fields_under_root: true
       fields:
         kind: log
         vitam_component: {% if inventory_hostname in groups["hosts_mongos_offer"] %}mongos_offer{% endif %}{% if inventory_hostname in groups["hosts_mongos_data"] %}mongos_data{% endif %}
@@ -26,25 +27,25 @@
               function process(event) {
                 switch (event.Get("message.s")) {
                     case "I":
-                        event.Put("loglevel", "INFO");
+                        event.Put("log_level", "INFO");
                         break;
                     case "W":
-                        event.Put("loglevel", "WARN");
+                        event.Put("log_level", "WARN");
                         break;
                     case "E":
-                        event.Put("loglevel", "ERROR");
+                        event.Put("log_level", "ERROR");
                         break;
                     case "F":
-                        event.Put("loglevel", "FATAL");
+                        event.Put("log_level", "FATAL");
                         break;
                     default:
-                        event.Put("loglevel", "UNKNOWN");
+                        event.Put("log_level", "UNKNOWN");
                 }
               }
         - drop_event:
           when:
             equals:
-              loglevel: "INFO"
+              log_level: "INFO"
 {% endif %}
 
 {% if inventory_hostname in groups['hosts_mongoc_offer'] or inventory_hostname in groups['hosts_mongoc_data'] %}
@@ -54,6 +55,7 @@
     var.paths:
       - "{{ vitam_defaults.folder.root_path }}/log/mongoc/mongo*.log"
     input:
+      fields_under_root: true
       fields:
         kind: log
         vitam_component: {% if inventory_hostname in groups["hosts_mongoc_offer"] %}mongoc_offer{% endif %}{% if inventory_hostname in groups["hosts_mongoc_data"] %}mongoc_data{% endif %}
@@ -71,25 +73,25 @@
               function process(event) {
                 switch (event.Get("message.s")) {
                     case "I":
-                        event.Put("loglevel", "INFO");
+                        event.Put("log_level", "INFO");
                         break;
                     case "W":
-                        event.Put("loglevel", "WARN");
+                        event.Put("log_level", "WARN");
                         break;
                     case "E":
-                        event.Put("loglevel", "ERROR");
+                        event.Put("log_level", "ERROR");
                         break;
                     case "F":
-                        event.Put("loglevel", "FATAL");
+                        event.Put("log_level", "FATAL");
                         break;
                     default:
-                        event.Put("loglevel", "UNKNOWN");
+                        event.Put("log_level", "UNKNOWN");
                 }
               }
         - drop_event:
           when:
             equals:
-              loglevel: "INFO"
+              log_level: "INFO"
 {% endif %}
 
 {% if inventory_hostname in groups['hosts_mongod_offer'] or inventory_hostname in groups['hosts_mongod_data'] %}
@@ -99,6 +101,7 @@
     var.paths:
       - "{{ vitam_defaults.folder.root_path }}/log/mongod/mongo*.log"
     input:
+      fields_under_root: true
       fields:
         kind: log
         vitam_component: {% if inventory_hostname in groups["hosts_mongod_offer"] %}mongod_offer{% endif %}{% if inventory_hostname in groups["hosts_mongod_data"] %}mongod_data{% endif %}
@@ -116,23 +119,23 @@
               function process(event) {
                 switch (event.Get("message.s")) {
                     case "I":
-                        event.Put("loglevel", "INFO");
+                        event.Put("log_level", "INFO");
                         break;
                     case "W":
-                        event.Put("loglevel", "WARN");
+                        event.Put("log_level", "WARN");
                         break;
                     case "E":
-                        event.Put("loglevel", "ERROR");
+                        event.Put("log_level", "ERROR");
                         break;
                     case "F":
-                        event.Put("loglevel", "FATAL");
+                        event.Put("log_level", "FATAL");
                         break;
                     default:
-                        event.Put("loglevel", "UNKNOWN");
+                        event.Put("log_level", "UNKNOWN");
                 }
               }
         - drop_event:
           when:
             equals:
-              loglevel: "INFO"
+              log_level: "INFO"
 {% endif %}

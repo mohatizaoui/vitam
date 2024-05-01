@@ -9,9 +9,9 @@
   "description": "",
   "columns": [
     "agent.hostname",
-    "fields.vitam_component",
-    "dissect.http_method.keyword",
-    "dissect.http_status_code.keyword",
+    "vitam_component",
+    "http_method.keyword",
+    "http_status_code.keyword",
     "message"
   ],
   "title": "vitam-type-accesslog"

@@ -13,10 +13,12 @@
       - "{{ vitam_defaults.folder.root_path }}/log/elasticsearch-log/elasticsearch-log.log"
       {% endif %}
     input:
+      fields_under_root: true
       fields:
         kind: log
         vitam_component: {% if inventory_hostname in groups["hosts_elasticsearch_data"] %}elasticsearch-data{% else %}elasticsearch-log{% endif %}
         source: vitam
+        type: cots
 
   audit:
     enabled: {{ filebeat.cots.elasticsearch_data.enable_audit if inventory_hostname in groups['hosts_elasticsearch_data'] else filebeat.cots.elasticsearch_log.enable_audit if inventory_hostname in groups['hosts_elasticsearch_log'] | bool | lower }}
@@ -28,10 +30,12 @@
       - "{{ vitam_defaults.folder.root_path }}/log/elasticsearch-log/elasticsearch-log_audit.log"
       {% endif %}
     input:
+      fields_under_root: true
       fields:
         kind: audit
         vitam_component: {% if inventory_hostname in groups["hosts_elasticsearch_data"] %}elasticsearch-data{% else %}elasticsearch-log{% endif %}
         source: vitam
+        type: cots
 
   slowlog:
     enabled: {{ filebeat.cots.elasticsearch_data.enable_slowlog if inventory_hostname in groups['hosts_elasticsearch_data'] else filebeat.cots.elasticsearch_log.enable_slowlog if inventory_hostname in groups['hosts_elasticsearch_log'] | bool | lower }}
@@ -43,10 +47,12 @@
       - "{{ vitam_defaults.folder.root_path }}/log/elasticsearch-log/elasticsearch-log_*_slowlog.log"
       {% endif %}
     input:
+      fields_under_root: true
       fields:
         kind: slowlog
         vitam_component: {% if inventory_hostname in groups["hosts_elasticsearch_data"] %}elasticsearch-data{% else %}elasticsearch-log{% endif %}
         source: vitam
+        type: cots
 
   deprecation:
     enabled: {{ filebeat.cots.elasticsearch_data.enable_deprecation if inventory_hostname in groups['hosts_elasticsearch_data'] else filebeat.cots.elasticsearch_log.enable_deprecation if inventory_hostname in groups['hosts_elasticsearch_log'] | bool | lower }}
@@ -58,7 +64,9 @@
       - "{{ vitam_defaults.folder.root_path }}/log/elasticsearch-log/elasticsearch-log_deprecation.log"
       {% endif %}
     input:
+      fields_under_root: true
       fields:
         kind: deprecation
         vitam_component: {% if inventory_hostname in groups["hosts_elasticsearch_data"] %}elasticsearch-data{% else %}elasticsearch-log{% endif %}
         source: vitam
+        type: cots

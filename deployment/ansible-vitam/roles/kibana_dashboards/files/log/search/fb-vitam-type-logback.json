@@ -9,10 +9,10 @@
   "description": "",
   "columns": [
     "agent.hostname",
-    "fields.vitam_component",
-    "fields.kind",
-    "loglevel",
-    "message"
+    "vitam_component",
+    "kind",
+    "log_level",
+    "log_message"
   ],
   "title": "vitam-type-logback"
 }
