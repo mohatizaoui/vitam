@@ -18,6 +18,13 @@
         vitam_component: {{ 'elasticsearch-data' if inventory_hostname in groups["hosts_elasticsearch_data"] else 'elasticsearch-log' }}
         source: vitam
         type: cots
+      processors:
+        - dissect:
+            tokenizer: '[%{date_time}][%{log_level}]%{*}[%{logger}] [%{node_name}] %{log_message}'
+            target_prefix: ""
+            trim_values: all
+        - drop_fields:
+            fields: ["date_time", "node_name"]
 
   audit:
     enabled: {{ filebeat.cots.elasticsearch_data.enable_audit | bool | lower if inventory_hostname in groups['hosts_elasticsearch_data'] else filebeat.cots.elasticsearch_log.enable_audit | bool | lower }}
