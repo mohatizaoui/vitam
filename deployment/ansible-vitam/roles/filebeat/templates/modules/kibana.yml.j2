@@ -1,4 +1,3 @@
-#jinja2: lstrip_blocks: True
 # Module: kibana
 # Docs: https://www.elastic.co/guide/en/beats/filebeat/7.17/filebeat-module-kibana.html
 
@@ -9,7 +8,7 @@
       fields_under_root: true
       fields:
         kind: log
-        vitam_component: {% if inventory_hostname in groups["hosts_kibana_data"] %}kibana-data{% else %}kibana-log{% endif %}
+        vitam_component: {{ 'kibana-data' if inventory_hostname in groups["hosts_kibana_data"] else 'kibana-log' }}
         source: vitam
         type: cots
 
@@ -19,6 +18,6 @@
       fields_under_root: true
       fields:
         kind: audit
-        vitam_component: {% if inventory_hostname in groups["hosts_kibana_data"] %}kibana-data{% else %}kibana-log{% endif %}
+        vitam_component: {{ 'kibana-data' if inventory_hostname in groups["hosts_kibana_data"] else 'kibana-log' }}
         source: vitam
         type: cots
