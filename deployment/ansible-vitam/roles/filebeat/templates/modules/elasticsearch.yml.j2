@@ -3,7 +3,7 @@
 
 - module: elasticsearch
   server:
-    enabled: {{ filebeat.cots.elasticsearch_data.enable_server if inventory_hostname in groups['hosts_elasticsearch_data'] else filebeat.cots.elasticsearch_log.enable_server if inventory_hostname in groups['hosts_elasticsearch_log'] | bool | lower }}
+    enabled: {{ filebeat.cots.elasticsearch_data.enable_server | bool | lower if inventory_hostname in groups['hosts_elasticsearch_data'] else filebeat.cots.elasticsearch_log.enable_server | bool | lower }}
     var.paths:
 {% if inventory_hostname in groups['hosts_elasticsearch_data'] %}
       - "{{ vitam_defaults.folder.root_path }}/log/elasticsearch-data/elasticsearch-data.log"
@@ -20,7 +20,7 @@
         type: cots
 
   audit:
-    enabled: {{ filebeat.cots.elasticsearch_data.enable_audit if inventory_hostname in groups['hosts_elasticsearch_data'] else filebeat.cots.elasticsearch_log.enable_audit if inventory_hostname in groups['hosts_elasticsearch_log'] | bool | lower }}
+    enabled: {{ filebeat.cots.elasticsearch_data.enable_audit | bool | lower if inventory_hostname in groups['hosts_elasticsearch_data'] else filebeat.cots.elasticsearch_log.enable_audit | bool | lower }}
     var.paths:
 {% if inventory_hostname in groups['hosts_elasticsearch_data'] %}
       - "{{ vitam_defaults.folder.root_path }}/log/elasticsearch-data/elasticsearch-data_audit.log"
@@ -37,7 +37,7 @@
         type: cots
 
   slowlog:
-    enabled: {{ filebeat.cots.elasticsearch_data.enable_slowlog if inventory_hostname in groups['hosts_elasticsearch_data'] else filebeat.cots.elasticsearch_log.enable_slowlog if inventory_hostname in groups['hosts_elasticsearch_log'] | bool | lower }}
+    enabled: {{ filebeat.cots.elasticsearch_data.enable_slowlog | bool | lower if inventory_hostname in groups['hosts_elasticsearch_data'] else filebeat.cots.elasticsearch_log.enable_slowlog | bool | lower }}
     var.paths:
 {% if inventory_hostname in groups['hosts_elasticsearch_data'] %}
       - "{{ vitam_defaults.folder.root_path }}/log/elasticsearch-data/elasticsearch-data_*_slowlog.log"
@@ -54,7 +54,7 @@
         type: cots
 
   deprecation:
-    enabled: {{ filebeat.cots.elasticsearch_data.enable_deprecation if inventory_hostname in groups['hosts_elasticsearch_data'] else filebeat.cots.elasticsearch_log.enable_deprecation if inventory_hostname in groups['hosts_elasticsearch_log'] | bool | lower }}
+    enabled: {{ filebeat.cots.elasticsearch_data.enable_deprecation | bool | lower if inventory_hostname in groups['hosts_elasticsearch_data'] else filebeat.cots.elasticsearch_log.enable_deprecation | bool | lower }}
     var.paths:
 {% if inventory_hostname in groups['hosts_elasticsearch_data'] %}
       - "{{ vitam_defaults.folder.root_path }}/log/elasticsearch-data/elasticsearch-data_deprecation.log"

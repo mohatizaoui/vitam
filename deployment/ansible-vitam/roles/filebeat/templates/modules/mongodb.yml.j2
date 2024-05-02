@@ -4,7 +4,7 @@
 {% if inventory_hostname in groups['hosts_mongos_offer'] or inventory_hostname in groups['hosts_mongos_data'] %}
 - module: mongodb
   log:
-    enabled: {{ filebeat.cots.mongodb_offer.mongos.enable_log if inventory_hostname in groups['hosts_mongos_offer'] else filebeat.cots.mongodb_data.mongos.enable_log if inventory_hostname in groups['hosts_mongos_data'] | bool | lower }}
+    enabled: {{ filebeat.cots.mongodb_offer.mongos.enable_log | bool | lower if inventory_hostname in groups['hosts_mongos_offer'] else filebeat.cots.mongodb_data.mongos.enable_log | bool | lower }}
     var.paths:
       - "{{ vitam_defaults.folder.root_path }}/log/mongos/mongo*.log"
     input:
@@ -51,7 +51,7 @@
 {% if inventory_hostname in groups['hosts_mongoc_offer'] or inventory_hostname in groups['hosts_mongoc_data'] %}
 - module: mongodb
   log:
-    enabled: {{ filebeat.cots.mongodb_offer.mongoc.enable_log if inventory_hostname in groups['hosts_mongoc_offer'] else filebeat.cots.mongodb_data.mongoc.enable_log if inventory_hostname in groups['hosts_mongoc_data'] | bool | lower }}
+    enabled: {{ filebeat.cots.mongodb_offer.mongoc.enable_log | bool | lower if inventory_hostname in groups['hosts_mongoc_offer'] else filebeat.cots.mongodb_data.mongoc.enable_log | bool | lower }}
     var.paths:
       - "{{ vitam_defaults.folder.root_path }}/log/mongoc/mongo*.log"
     input:
@@ -98,7 +98,7 @@
 {% if inventory_hostname in groups['hosts_mongod_offer'] or inventory_hostname in groups['hosts_mongod_data'] %}
 - module: mongodb
   log:
-    enabled: {{ filebeat.cots.mongodb_offer.mongod.enable_log if inventory_hostname in groups['hosts_mongod_offer'] else filebeat.cots.mongodb_data.mongod.enable_log if inventory_hostname in groups['hosts_mongod_data'] | bool | lower }}
+    enabled: {{ filebeat.cots.mongodb_offer.mongod.enable_log | bool | lower if inventory_hostname in groups['hosts_mongod_offer'] else filebeat.cots.mongodb_data.mongod.enable_log | bool | lower }}
     var.paths:
       - "{{ vitam_defaults.folder.root_path }}/log/mongod/mongo*.log"
     input:
