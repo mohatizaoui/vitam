@@ -11,7 +11,7 @@
     "agent.hostname",
     "vitam_component",
     "http_method.keyword",
-    "http_status_code.keyword",
+    "http_status_code",
     "message"
   ],
   "title": "vitam-type-accesslog"
