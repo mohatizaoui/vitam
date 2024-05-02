@@ -1,4 +1,3 @@
-#jinja2: lstrip_blocks: True
 # Module: mongodb
 # Docs: https://www.elastic.co/guide/en/beats/filebeat/7.17/filebeat-module-mongodb.html
 
@@ -12,7 +11,7 @@
       fields_under_root: true
       fields:
         kind: log
-        vitam_component: {% if inventory_hostname in groups["hosts_mongos_offer"] %}mongos_offer{% endif %}{% if inventory_hostname in groups["hosts_mongos_data"] %}mongos_data{% endif %}
+        vitam_component: {{ 'mongos_data' if inventory_hostname in groups["hosts_mongos_data"] else 'mongos_offer' }}
         source: vitam
         type: cots
       processors:
@@ -25,6 +24,7 @@
             id: set_log_level
             source: >
               function process(event) {
+                event.Put("log_message", event.Get("message.msg"));
                 switch (event.Get("message.s")) {
                     case "I":
                         event.Put("log_level", "INFO");
@@ -43,9 +43,9 @@
                 }
               }
         - drop_event:
-          when:
-            equals:
-              log_level: "INFO"
+            when:
+              equals:
+                log_level: "INFO"
 {% endif %}
 
 {% if inventory_hostname in groups['hosts_mongoc_offer'] or inventory_hostname in groups['hosts_mongoc_data'] %}
@@ -58,7 +58,7 @@
       fields_under_root: true
       fields:
         kind: log
-        vitam_component: {% if inventory_hostname in groups["hosts_mongoc_offer"] %}mongoc_offer{% endif %}{% if inventory_hostname in groups["hosts_mongoc_data"] %}mongoc_data{% endif %}
+        vitam_component: {{ 'mongoc_data' if inventory_hostname in groups["hosts_mongoc_data"] else 'mongoc_offer' }}
         source: vitam
         type: cots
       processors:
@@ -71,6 +71,7 @@
             id: set_log_level
             source: >
               function process(event) {
+                event.Put("log_message", event.Get("message.msg"));
                 switch (event.Get("message.s")) {
                     case "I":
                         event.Put("log_level", "INFO");
@@ -89,9 +90,9 @@
                 }
               }
         - drop_event:
-          when:
-            equals:
-              log_level: "INFO"
+            when:
+              equals:
+                log_level: "INFO"
 {% endif %}
 
 {% if inventory_hostname in groups['hosts_mongod_offer'] or inventory_hostname in groups['hosts_mongod_data'] %}
@@ -104,7 +105,7 @@
       fields_under_root: true
       fields:
         kind: log
-        vitam_component: {% if inventory_hostname in groups["hosts_mongod_offer"] %}mongod_offer{% endif %}{% if inventory_hostname in groups["hosts_mongod_data"] %}mongod_data{% endif %}
+        vitam_component: {{ 'mongod_data' if inventory_hostname in groups["hosts_mongod_data"] else 'mongod_offer' }}
         source: vitam
         type: cots
       processors:
@@ -117,6 +118,7 @@
             id: set_log_level
             source: >
               function process(event) {
+                event.Put("log_message", event.Get("message.msg"));
                 switch (event.Get("message.s")) {
                     case "I":
                         event.Put("log_level", "INFO");
@@ -135,7 +137,7 @@
                 }
               }
         - drop_event:
-          when:
-            equals:
-              log_level: "INFO"
+            when:
+              equals:
+                log_level: "INFO"
 {% endif %}
