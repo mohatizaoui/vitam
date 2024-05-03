@@ -1,0 +1,13 @@
+---
+
+- name: "Stop service {{ service }}"
+  service:
+    name: "{{ service }}"
+    state: stopped
+    enabled: false
+  ignore_errors: true
+
+- name: "remove {{ service }} package"
+  package:
+    name: "{{ service }}"
+    state: absent

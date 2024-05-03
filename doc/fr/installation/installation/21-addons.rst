@@ -18,6 +18,26 @@ Pour chaque composant, il est possible de modifier ces 3 variables:
 * gc: paramètres gc
 * java: autres paramètres java
 
+Installation en mode conteneur
+======================================================
+
+.. note:: Fonctionnalité disponible partir de la V7.1 .
+
+.. caution:: Ce mode de déploiement est en mode béta , merci de ne pas l'appliquer dans un environnement de production
+
+Il est possible de déployer vitam en mode conteneur. Pour cela, il faut éditer le contenu du fichier ``environments/group_vars/all/main/repositories.yml``. Pour cela il faut rajouter les paramètres présentés dans l'exemple:
+
+Exemple::
+
+   install_mode: container
+
+   container_repository:
+     registry_url: <url de la registry docker>
+     username: <login>
+     password: <password>
+
+.. warning:: Dans le cas d'utilisation d'une registry interne il vous faudra effectuer une synchronisation à partir de la registry docker du programme Vitam: docker.programmevitam.fr
+
 Installation des *griffins* (greffons de préservation)
 ======================================================
 
@@ -746,7 +766,7 @@ Les paramères de configuration de ce composant se trouvent dans les fichiers ``
 
 Limitations actuelles
 ---------------------
-	
+
 restic est fourni en tant que fonctionnalité beta. À ce titre, il ne peut se substituer à des vérifications régulières de l'état des sauvegardes de vos bases.
 
 restic ne fonctionne pas avec les providers `openstack-swift`, `openstack-swift-v2` et `tape-library`.
