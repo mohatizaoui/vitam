@@ -41,12 +41,12 @@ filebeat:
       enable_server: true
       enable_audit: true
       enable_slowlog: true
-      enable_deprecation: true
+      enable_deprecation: false
     elasticsearch_log:
       enable_server: true
       enable_audit: true
       enable_slowlog: true
-      enable_deprecation: true
+      enable_deprecation: false
     apache:
       enable_access: true
       enable_log: true

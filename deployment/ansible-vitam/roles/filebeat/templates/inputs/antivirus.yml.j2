@@ -10,6 +10,7 @@
   enabled: {{ filebeat.cots.antivirus.enable_log | bool | lower }}
   paths:
     - "{{ vitam_defaults.folder.root_path }}/log/{{ composant_name }}/*.log"
+  fields_under_root: true
   fields:
     kind: log
     vitam_component: {{ composant_name }}
@@ -23,6 +24,7 @@
   enabled: {{ filebeat.cots.antivirus.enable_scan | bool | lower }}
   paths:
     - "{{ vitam_defaults.folder.root_path }}/log/{{ composant_name }}/clamd.scan"
+  fields_under_root: true
   fields:
     kind: scan
     vitam_component: {{ composant_name }}

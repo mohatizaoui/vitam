@@ -1,20 +1,23 @@
-#jinja2: lstrip_blocks: True
 # Module: kibana
 # Docs: https://www.elastic.co/guide/en/beats/filebeat/7.17/filebeat-module-kibana.html
 
 - module: kibana
   log:
-    enabled: {{ filebeat.cots.kibana_data.enable_log if inventory_hostname in groups['hosts_kibana_data'] else filebeat.cots.kibana_log.enable_log if inventory_hostname in groups['hosts_kibana_log'] | bool | lower }}
+    enabled: {{ filebeat.cots.kibana_data.enable_log | bool | lower if inventory_hostname in groups['hosts_kibana_data'] else filebeat.cots.kibana_log.enable_log | bool | lower }}
     input:
+      fields_under_root: true
       fields:
         kind: log
-        vitam_component: {% if inventory_hostname in groups["hosts_kibana_data"] %}kibana-data{% else %}kibana-log{% endif %}
+        vitam_component: {{ 'kibana-data' if inventory_hostname in groups["hosts_kibana_data"] else 'kibana-log' }}
         source: vitam
+        type: cots
 
   audit:
-    enabled: {{ filebeat.cots.kibana_data.enable_audit if inventory_hostname in groups['hosts_kibana_data'] else filebeat.cots.kibana_log.enable_audit if inventory_hostname in groups['hosts_kibana_log'] | bool | lower }}
+    enabled: {{ filebeat.cots.kibana_data.enable_audit | bool | lower if inventory_hostname in groups['hosts_kibana_data'] else filebeat.cots.kibana_log.enable_audit | bool | lower }}
     input:
+      fields_under_root: true
       fields:
         kind: audit
-        vitam_component: {% if inventory_hostname in groups["hosts_kibana_data"] %}kibana-data{% else %}kibana-log{% endif %}
+        vitam_component: {{ 'kibana-data' if inventory_hostname in groups["hosts_kibana_data"] else 'kibana-log' }}
         source: vitam
+        type: cots

@@ -470,7 +470,7 @@ enabled = false
 ;mode = console file
 
 # Either "debug", "info", "warn", "error", "critical", default is "info"
-;level = info
+level = {{ grafana.log_level | default('warn') }}
 
 # optional settings to set different levels for specific loggers. Ex filters = sqlstore:debug
 ;filters =
