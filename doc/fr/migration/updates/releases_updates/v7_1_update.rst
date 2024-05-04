@@ -103,6 +103,72 @@ Chacun des nouveaux indices sera préfixé selon la convention de nommage ``logs
 
 Si vous aviez personnalisés le prefix des indexes à gérer par curator à l'aide de la variable ``curator.log.prefix`` (par défaut 'logstash-*'). Vous devez maintenant la modifier à l'aide du paramètre ``curator.indices.<index_name>.prefix``.
 
+Ajout de nouveaux exporters
+---------------------------
+
+Ces nouveaux exporters permettent de collecter des métriques afin d'afficher ces éléments via Grafana dans les dashboards associés.
+
+Blackbox Exporter permet de collecter des métriques sur le statut des URLs listées dans ``prometheus.blackbox_exporter.targets``.
+
+MongoDB Exporter permet de collecter des métriques sur les différents clusters mongo-vitam.
+
+Il est possible de les désactiver via ``prometheus.blackbox_exporter.enabled: false`` ou ``prometheus.mongodb_exporter.enabled: false``
+
+Ouvrir les ports suivants de Prometheus -> Exporters pour permettre la collecte des métriques:
+
+* Blackbox Exporter: ``prometheus.blackbox_exporter.port: 9115``
+* MongoC Exporter: ``prometheus.mongodb_exporter.port_mongoc: 9216``
+* MongoD Exporter: ``prometheus.mongodb_exporter.port_mongod: 9217``
+
+Modification de la durée de rétention des logs par défaut
+---------------------------------------------------------
+
+Par défaut on conserve maintenant 365j de logs (accesslogs & applicatif) dans une limite de 5GB (par composant). De plus, nous avons réduit la quantité de logs gc de ``32*64m=2048m`` à ``8*32m=256m``.
+
+Il est toujours possible de personnaliser ce paramétrage par défaut via les variables suivantes:
+
+* Pour les gc:
+  * ``vitam_defaults.jvm_opts.gc`` ou par composant en utilisant la variable ``vitam.<composant>.jvm_opts.gc``.
+
+* Pour les accesslogs:
+  * ``vitam_defaults.access_retention_days: 365`` ou par composant en utilisant la variable ``vitam.<composant>.access_retention_days: 365``.
+  * ``vitam_defaults.access_total_size_cap: 5GB`` ou par composant en utilisant la variable ``vitam.<composant>.access_total_size_cap: 5GB``.
+
+* Pour les logs applicatifs:
+  * ``vitam_defaults.logback_total_size_cap.file.history_days: 365`` ou par composant en utilisant la variable ``vitam.<composant>.logback_total_size_cap.file.history_days: 365``.
+  * ``vitam_defaults.logback_total_size_cap.file.totalsize: 5GB`` ou par composant en utilisant la variable ``vitam.<composant>.logback_total_size_cap.file.totalsize: 5GB``.
+
+Modification de la méthodologie de concentration des logs
+---------------------------------------------------------
+
+Un nouveau composant applicatif (Filebeat) permettant de collecter les logs dans le cluster elasticsearch-log a été ajouté.
+
+La méthode de collecte via rsyslog et syslog-ng sera donc dépréciée dans les futures releases.
+
+Vous pouvez continuer à utiliser les précédentes méthodes de concentation de logs via la configuration du paramètre ``syslog.name: filebeat`` (rsyslog, syslog-ng).
+
+Nouveau mode de déploiement en container (beta)
+-----------------------------------------------
+
+.. caution:: Attention, à ne pas utiliser en production.
+
+Pour permettre le déploiement en mode conteneur de Vitam, vous devez configurer les valeurs suivantes:
+
+Dans le fichier de configuration des repositories ``environments/group_vars/all/main/repositories.yml``
+
+.. code-block:: yaml
+
+  install_mode: container # Default to legacy
+
+  container_repository:
+    registry_url:
+    username:
+    password:
+
+..
+
+Actuellement l'antivirus n'est pas supporté par le déploiement en mode conteneur, vous devrez configurer la valeur suivante: ``vitam.ingest_external.ignore_antivirus_check: true``.
+
 Procédures à exécuter AVANT la montée de version
 ================================================
 
