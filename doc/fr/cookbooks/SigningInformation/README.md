@@ -610,7 +610,7 @@ déclarées à la racine du bloc `<DescriptiveMetadata>`, et sont référencées
 </ArchiveTransfer>
 ```
 
-### Cas 5 - Duplication des informations de signature dans l'unité archivistique racine
+### Cas 5 - Duplication de métadonnées dans l'unité d'archives racine
 
 Dans le cas d'un document signé accompagné de binaires détachés, il est possible de recopier/dupliquer les
 informations de signature des unités archivistiques « filles » au niveau de l'unité archivistique « racine ».
