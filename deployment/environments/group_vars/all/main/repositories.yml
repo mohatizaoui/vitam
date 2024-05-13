@@ -1,5 +1,10 @@
 ---
 
+# Vitam installation mode.
+# Allowed values are: legacy, container
+# Caution: container installation is in beta mode. Do not use it in production environments.
+install_mode: legacy
+
 ## Must be set when install_mode == 'legacy'
 # vitam_repositories:
 #   - key: repo1 # Mandatory: Only on CentOS/AlmaLinux
