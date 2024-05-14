@@ -57,6 +57,7 @@ public class PersistentIdentifierReconstructionManagerTest {
 
     @Mock
     private OperationReportParser operationReportParser;
+
     @Mock
     private ReconstructionOperationRepository reconstructionOperationRepository;
 
@@ -70,27 +71,32 @@ public class PersistentIdentifierReconstructionManagerTest {
 
     @Test
     public void reconstruct_Successful() throws Exception {
-
         LocalDateTime startDate = LocalDateUtil.now();
         LocalDateTime endDate = LocalDateUtil.now().plusDays(1);
         List<ReconstructionOperation> reconstructionOperations = new ArrayList<>();
-        reconstructionOperations.add(ReconstructionOperation.builder()
-            .setId("123")
-            .setTenant(1)
-            .setType("Elimination")
-            .setLastPersistedDate("2023-01-01T00:00:00")
-            .build());
-        reconstructionOperations.add(ReconstructionOperation.builder()
-            .setId("234")
-            .setTenant(2)
-            .setType("Elimination")
-            .setLastPersistedDate("2023-01-02T00:00:00")
-            .build());
+        reconstructionOperations.add(
+            ReconstructionOperation.builder()
+                .setId("123")
+                .setTenant(1)
+                .setType("Elimination")
+                .setLastPersistedDate("2023-01-01T00:00:00")
+                .build()
+        );
+        reconstructionOperations.add(
+            ReconstructionOperation.builder()
+                .setId("234")
+                .setTenant(2)
+                .setType("Elimination")
+                .setLastPersistedDate("2023-01-02T00:00:00")
+                .build()
+        );
 
-        when(reconstructionOperationRepository.fetchReconstructionOperations(startDate, endDate))
-            .thenReturn(reconstructionOperations);
-        when(operationReportParser.processReportFromOperation(any(ReconstructionOperation.class)))
-            .thenReturn(LocalDateUtil.now());
+        when(reconstructionOperationRepository.fetchReconstructionOperations(startDate, endDate)).thenReturn(
+            reconstructionOperations
+        );
+        when(operationReportParser.processReportFromOperation(any(ReconstructionOperation.class))).thenReturn(
+            LocalDateUtil.now()
+        );
 
         ReconstructionResponse response = manager.reconstruct(startDate, endDate);
 
@@ -102,8 +108,9 @@ public class PersistentIdentifierReconstructionManagerTest {
     public void reconstruct_Failure() throws ReconstructionException {
         LocalDateTime startDate = LocalDateTime.now();
         LocalDateTime endDate = LocalDateTime.now().plusDays(1);
-        when(reconstructionOperationRepository.fetchReconstructionOperations(startDate, endDate))
-            .thenThrow(new ReconstructionException("Reconstruction failure"));
+        when(reconstructionOperationRepository.fetchReconstructionOperations(startDate, endDate)).thenThrow(
+            new ReconstructionException("Reconstruction failure")
+        );
 
         ReconstructionResponse response = manager.reconstruct(startDate, endDate);
 

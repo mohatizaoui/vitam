@@ -26,7 +26,6 @@
  */
 package fr.gouv.vitam.collect.common.dto;
 
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -102,10 +101,26 @@ public class ProjectDto implements Serializable {
         this.id = id;
     }
 
-    public ProjectDto(String id, String name, String acquisitionInformation, String legalStatus, String creationDate,
-        String lastUpdate, String status, String archivalAgreement, String messageIdentifier,
-        String archivalAgencyIdentifier, String transferringAgencyIdentifier, String originatingAgencyIdentifier,
-        String submissionAgencyIdentifier, String archivalProfile, String comment, String unitUp, Integer tenant, Boolean automaticIngest) {
+    public ProjectDto(
+        String id,
+        String name,
+        String acquisitionInformation,
+        String legalStatus,
+        String creationDate,
+        String lastUpdate,
+        String status,
+        String archivalAgreement,
+        String messageIdentifier,
+        String archivalAgencyIdentifier,
+        String transferringAgencyIdentifier,
+        String originatingAgencyIdentifier,
+        String submissionAgencyIdentifier,
+        String archivalProfile,
+        String comment,
+        String unitUp,
+        Integer tenant,
+        Boolean automaticIngest
+    ) {
         this.id = id;
         this.name = name;
         this.acquisitionInformation = acquisitionInformation;
@@ -280,10 +295,8 @@ public class ProjectDto implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
         ProjectDto that = (ProjectDto) o;
         return Objects.equals(id, that.id);
     }

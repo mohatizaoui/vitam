@@ -35,7 +35,8 @@ public class DataObjectValidator {
 
     public static final Pattern DATA_OBJECT_VERSION_PATTERN = Pattern.compile("^[a-zA-Z]+(_[1-9]\\d{0,6})?$");
     public static final String DATA_OBJECT_VERSION_NOT_DEFINED_MESSAGE = "Data object version is not defined";
-    public static final String DATA_OBJECT_VERSION_NOT_ALLOWED_MESSAGE = "Data object version pattern '%s' is not allowed";
+    public static final String DATA_OBJECT_VERSION_NOT_ALLOWED_MESSAGE =
+        "Data object version pattern '%s' is not allowed";
 
     public static void validateVersionDataObject(final String versionDataObject) throws InvalidDataObjectException {
         checkDataObjectVersionPresence(versionDataObject);

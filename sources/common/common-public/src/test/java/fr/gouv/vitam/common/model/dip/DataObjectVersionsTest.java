@@ -36,6 +36,7 @@ import static fr.gouv.vitam.common.model.dip.QualifierVersion.LAST;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DataObjectVersionsTest {
+
     @Test
     public void shouldGetBinaryMasterVersion1Model() {
         assertThat(new DataObjectVersions().dataHasBeenSetTwice()).isFalse();
@@ -51,5 +52,4 @@ public class DataObjectVersionsTest {
         dataObjectVersions.setDataObjectVersionsPatterns(Map.of(BINARY_MASTER, Set.of(LAST)));
         assertThat(dataObjectVersions.dataHasBeenSetTwice()).isTrue();
     }
-
 }

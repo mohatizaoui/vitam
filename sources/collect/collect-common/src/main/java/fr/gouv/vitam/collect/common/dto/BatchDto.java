@@ -26,7 +26,6 @@
  */
 package fr.gouv.vitam.collect.common.dto;
 
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class BatchDto {
@@ -42,8 +41,7 @@ public class BatchDto {
         this.batchStatus = batchStatus;
     }
 
-    public BatchDto() {
-    }
+    public BatchDto() {}
 
     public String getBatchId() {
         return batchId;
@@ -60,6 +58,4 @@ public class BatchDto {
     public void setBatchStatus(BatchStatusDto batchStatus) {
         this.batchStatus = batchStatus;
     }
-
 }
-

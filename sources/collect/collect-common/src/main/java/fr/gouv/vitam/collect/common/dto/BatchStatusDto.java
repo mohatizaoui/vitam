@@ -26,10 +26,7 @@
  */
 package fr.gouv.vitam.collect.common.dto;
 
-
-
 public enum BatchStatusDto {
     PURGED,
-    KO;
+    KO,
 }
-

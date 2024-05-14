@@ -26,8 +26,6 @@
  */
 package fr.gouv.vitam.metadata.rest;
 
-import static fr.gouv.vitam.common.serverv2.application.ApplicationParameter.CONFIGURATION_FILE_APPLICATION;
-
 import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.database.api.VitamRepositoryFactory;
@@ -44,22 +42,23 @@ import fr.gouv.vitam.metadata.core.database.collections.MongoDbAccessMetadataImp
 import fr.gouv.vitam.metadata.core.database.collections.PersistentIdentifierRepositoryImpl;
 import fr.gouv.vitam.metadata.core.mapping.MappingLoader;
 import fr.gouv.vitam.metadata.core.reconstruction.domain.OffsetManager;
-import fr.gouv.vitam.metadata.core.reconstruction.domain.OperationReportParser;
 import fr.gouv.vitam.metadata.core.reconstruction.domain.PersistentIdentifierReconstructionManager;
-import fr.gouv.vitam.metadata.core.reconstruction.domain.PurgedPersistentIdentifierBulkInserter;
 import fr.gouv.vitam.metadata.core.reconstruction.repository.OperationReportRepository;
 import fr.gouv.vitam.metadata.core.reconstruction.repository.PersistentIdentifierRepository;
 import fr.gouv.vitam.metadata.core.reconstruction.repository.ReconstructionOperationRepository;
 import fr.gouv.vitam.metadata.core.reconstruction.repository.impl.OperationReportRepositoryImpl;
 import fr.gouv.vitam.metadata.core.reconstruction.repository.impl.ReconstructionOperationRepositoryImpl;
 import fr.gouv.vitam.metadata.core.rules.MetadataRuleService;
+
+import javax.servlet.ServletConfig;
+import javax.ws.rs.core.Application;
+import javax.ws.rs.core.Context;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
-import javax.servlet.ServletConfig;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.Context;
+
+import static fr.gouv.vitam.common.serverv2.application.ApplicationParameter.CONFIGURATION_FILE_APPLICATION;
 
 /**
  * Metadata resources and filter
@@ -79,23 +78,27 @@ public class BusinessApplication extends Application {
         String configurationFile = servletConfig.getInitParameter(CONFIGURATION_FILE_APPLICATION);
 
         try (final InputStream yamlIS = PropertiesUtils.getConfigAsStream(configurationFile)) {
-            MetaDataConfiguration metaDataConfiguration =
-                PropertiesUtils.readYaml(yamlIS, MetaDataConfiguration.class);
+            MetaDataConfiguration metaDataConfiguration = PropertiesUtils.readYaml(yamlIS, MetaDataConfiguration.class);
             commonBusinessApplication = new CommonBusinessApplication();
 
             // Validate configuration
             MetaDataConfigurationValidator.validateConfiguration(metaDataConfiguration);
 
-            MappingLoader mappingLoader =
-                new MappingLoader(metaDataConfiguration.getElasticsearchExternalMetadataMappings());
+            MappingLoader mappingLoader = new MappingLoader(
+                metaDataConfiguration.getElasticsearchExternalMetadataMappings()
+            );
 
             // Elasticsearch configuration
-            ElasticsearchMetadataIndexManager indexManager =
-                new ElasticsearchMetadataIndexManager(metaDataConfiguration, VitamConfiguration.getTenants(),
-                    mappingLoader);
+            ElasticsearchMetadataIndexManager indexManager = new ElasticsearchMetadataIndexManager(
+                metaDataConfiguration,
+                VitamConfiguration.getTenants(),
+                mappingLoader
+            );
 
             MongoDbAccessMetadataImpl mongoAccessMetadata = MongoDbAccessMetadataFactory.create(
-                metaDataConfiguration, indexManager);
+                metaDataConfiguration,
+                indexManager
+            );
 
             OffsetRepository offsetRepository = new OffsetRepository(mongoAccessMetadata);
 
@@ -109,25 +112,49 @@ public class BusinessApplication extends Application {
                 metaDataConfiguration.getArchiveUnitProfileCacheTimeoutInSeconds(),
                 metaDataConfiguration.getSchemaValidatorCacheMaxEntries(),
                 metaDataConfiguration.getSchemaValidatorCacheTimeoutInSeconds(),
-                indexManager);
+                indexManager
+            );
 
             MetadataRuleService metadataRuleService = new MetadataRuleService(metadata);
-            MetadataResource metaDataResource =
-                new MetadataResource(metadata, metadataRuleService, metaDataConfiguration);
+            MetadataResource metaDataResource = new MetadataResource(
+                metadata,
+                metadataRuleService,
+                metaDataConfiguration
+            );
             MetadataRawResource metadataRawResource = new MetadataRawResource(vitamRepositoryProvider);
-            MetadataManagementResource metadataManagementResource =
-                new MetadataManagementResource(vitamRepositoryProvider, metadata,
-                    metaDataConfiguration, indexManager);
+            MetadataManagementResource metadataManagementResource = new MetadataManagementResource(
+                vitamRepositoryProvider,
+                metadata,
+                metaDataConfiguration,
+                indexManager
+            );
             MetadataReconstructionResource metadataReconstructionResource = new MetadataReconstructionResource(
-                vitamRepositoryProvider, offsetRepository, metaDataConfiguration, indexManager);
+                vitamRepositoryProvider,
+                offsetRepository,
+                metaDataConfiguration,
+                indexManager
+            );
             final MetadataAuditResource metadataAuditResource = new MetadataAuditResource(metaDataConfiguration);
 
-            final PersistentIdentifierRepository persistentIdentifierRepository = new PersistentIdentifierRepositoryImpl(mongoAccessMetadata);
+            final PersistentIdentifierRepository persistentIdentifierRepository =
+                new PersistentIdentifierRepositoryImpl(mongoAccessMetadata);
             final OperationReportRepository operationReportRepository = new OperationReportRepositoryImpl();
-            final ReconstructionOperationRepository reconstructionOperationRepository = new ReconstructionOperationRepositoryImpl();
-            final PersistentIdentifierReconstructionManager persistentIdentifierReconstructionManager = new PersistentIdentifierReconstructionManager(operationReportRepository, reconstructionOperationRepository, metaDataConfiguration, persistentIdentifierRepository);
+            final ReconstructionOperationRepository reconstructionOperationRepository =
+                new ReconstructionOperationRepositoryImpl();
+            final PersistentIdentifierReconstructionManager persistentIdentifierReconstructionManager =
+                new PersistentIdentifierReconstructionManager(
+                    operationReportRepository,
+                    reconstructionOperationRepository,
+                    metaDataConfiguration,
+                    persistentIdentifierRepository
+                );
             final OffsetManager offsetManager = new OffsetManager(offsetRepository);
-            final PersistentIdentifierResource persistentIdentifierResource = new PersistentIdentifierResource(persistentIdentifierReconstructionManager, offsetManager, metaDataConfiguration, persistentIdentifierRepository);
+            final PersistentIdentifierResource persistentIdentifierResource = new PersistentIdentifierResource(
+                persistentIdentifierReconstructionManager,
+                offsetManager,
+                metaDataConfiguration,
+                persistentIdentifierRepository
+            );
 
             singletons = new HashSet<>();
             singletons.addAll(commonBusinessApplication.getResources());
@@ -147,5 +174,4 @@ public class BusinessApplication extends Application {
     public Set<Object> getSingletons() {
         return singletons;
     }
-
 }

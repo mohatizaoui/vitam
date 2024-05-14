@@ -29,7 +29,6 @@ package fr.gouv.vitam.common.model.unit;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum SigningRoleType {
-
     SIGNED_DOCUMENT("SignedDocument"),
     TIMESTAMP("Timestamp"),
     SIGNATURE("Signature"),

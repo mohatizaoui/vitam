@@ -28,13 +28,13 @@
 package fr.gouv.vitam.functionaltest.cucumber.step;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import io.cucumber.java.fr.Quand;
 import fr.gouv.vitam.access.external.client.VitamPoolingClient;
 import fr.gouv.vitam.common.client.VitamContext;
 import fr.gouv.vitam.common.exception.VitamException;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.ProcessState;
 import fr.gouv.vitam.common.model.RequestResponse;
+import io.cucumber.java.fr.Quand;
 
 import java.util.concurrent.TimeUnit;
 
@@ -44,7 +44,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Java6Assertions.fail;
 
 public class RevertUpdateStep extends CommonStep {
-
 
     public RevertUpdateStep(World world) {
         super(world);
@@ -58,8 +57,9 @@ public class RevertUpdateStep extends CommonStep {
 
         String query = world.getQuery();
         JsonNode queryString = JsonHandler.getFromString(query);
-        final RequestResponse<JsonNode> requestResponse =
-            world.getAccessClient().revertUpdateUnits(vitamContext, queryString);
+        final RequestResponse<JsonNode> requestResponse = world
+            .getAccessClient()
+            .revertUpdateUnits(vitamContext, queryString);
 
         assertThat(requestResponse.isOk()).isTrue();
 
@@ -67,8 +67,14 @@ public class RevertUpdateStep extends CommonStep {
         world.setOperationId(operationId);
 
         final VitamPoolingClient vitamPoolingClient = new VitamPoolingClient(world.getAdminClient());
-        boolean processTimeout = vitamPoolingClient
-            .wait(world.getTenantId(), operationId, ProcessState.COMPLETED, 100, 1_000L, TimeUnit.MILLISECONDS);
+        boolean processTimeout = vitamPoolingClient.wait(
+            world.getTenantId(),
+            operationId,
+            ProcessState.COMPLETED,
+            100,
+            1_000L,
+            TimeUnit.MILLISECONDS
+        );
 
         if (!processTimeout) {
             fail("units update  processing not finished. Timeout exceeded.");

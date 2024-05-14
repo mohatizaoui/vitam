@@ -56,7 +56,6 @@ import static org.mockito.Mockito.when;
 
 public class OperationReportParserTest {
 
-
     @Rule
     public MockitoRule mockitoRule = MockitoJUnit.rule();
 
@@ -79,14 +78,12 @@ public class OperationReportParserTest {
 
     @Before
     public void setup() {
-
         operationReportParser = new OperationReportParser(
             operationReportRepository,
             metaDataConfiguration,
             persistentIdentifierRepository,
             purgedPersistentIdentifierExtractorFactory
         );
-
     }
 
     @Test
@@ -100,18 +97,18 @@ public class OperationReportParserTest {
 
         final InputStream inputStream = PropertiesUtils.getResourceAsStream("deleting_versions_expectedReport.jsonl");
 
-        when(operationReportRepository.retrieveJsonReportForOperation("operationId"))
-            .thenReturn(inputStream);
-        when(purgedPersistentIdentifierExtractorFactory.instance(any(ReportLineType.class)))
-            .thenReturn(purgedPersistentIdentifierExtractor);
+        when(operationReportRepository.retrieveJsonReportForOperation("operationId")).thenReturn(inputStream);
+        when(purgedPersistentIdentifierExtractorFactory.instance(any(ReportLineType.class))).thenReturn(
+            purgedPersistentIdentifierExtractor
+        );
 
-        when(purgedPersistentIdentifierExtractor
-            .extractPurgedPersistentIdentifier(any(JsonNode.class), eq(operation)))
-            .thenReturn(Collections.singletonList(new PurgedPersistentIdentifier.Builder()
-                .setId("purgedId")
-                .setTenant(0)
-                .setType("sampleType")
-                .build()));
+        when(
+            purgedPersistentIdentifierExtractor.extractPurgedPersistentIdentifier(any(JsonNode.class), eq(operation))
+        ).thenReturn(
+            Collections.singletonList(
+                new PurgedPersistentIdentifier.Builder().setId("purgedId").setTenant(0).setType("sampleType").build()
+            )
+        );
 
         LocalDateTime result = operationReportParser.processReportFromOperation(operation);
 
@@ -129,18 +126,18 @@ public class OperationReportParserTest {
 
         final InputStream inputStream = PropertiesUtils.getResourceAsStream("elimination_expectedReport.jsonl");
 
-        when(operationReportRepository.retrieveJsonReportForOperation("operationId"))
-            .thenReturn(inputStream);
-        when(purgedPersistentIdentifierExtractorFactory.instance(any(ReportLineType.class)))
-            .thenReturn(purgedPersistentIdentifierExtractor);
+        when(operationReportRepository.retrieveJsonReportForOperation("operationId")).thenReturn(inputStream);
+        when(purgedPersistentIdentifierExtractorFactory.instance(any(ReportLineType.class))).thenReturn(
+            purgedPersistentIdentifierExtractor
+        );
 
-        when(purgedPersistentIdentifierExtractor
-            .extractPurgedPersistentIdentifier(any(JsonNode.class), eq(operation)))
-            .thenReturn(Collections.singletonList(new PurgedPersistentIdentifier.Builder()
-                .setId("purgedId")
-                .setTenant(0)
-                .setType("sampleType")
-                .build()));
+        when(
+            purgedPersistentIdentifierExtractor.extractPurgedPersistentIdentifier(any(JsonNode.class), eq(operation))
+        ).thenReturn(
+            Collections.singletonList(
+                new PurgedPersistentIdentifier.Builder().setId("purgedId").setTenant(0).setType("sampleType").build()
+            )
+        );
 
         LocalDateTime result = operationReportParser.processReportFromOperation(operation);
 
@@ -149,7 +146,6 @@ public class OperationReportParserTest {
 
     @Test
     public void processReportFromOperation_Exception() throws Exception {
-
         ReconstructionOperation operation = new ReconstructionOperation.Builder()
             .setId("operationId")
             .setTenant(0)
@@ -157,12 +153,12 @@ public class OperationReportParserTest {
             .setLastPersistedDate("2017-10-31T15:11:18")
             .build();
 
-        when(operationReportRepository.retrieveJsonReportForOperation("operationId"))
-            .thenThrow(new ReconstructionException("Simulated exception"));
+        when(operationReportRepository.retrieveJsonReportForOperation("operationId")).thenThrow(
+            new ReconstructionException("Simulated exception")
+        );
 
         assertThrows(ReconstructionException.class, () -> operationReportParser.processReportFromOperation(operation));
     }
-
 
     @Test
     public void processDeletingVersionsReportFromOperation_Successful() throws Exception {
@@ -175,22 +171,21 @@ public class OperationReportParserTest {
 
         final InputStream inputStream = PropertiesUtils.getResourceAsStream("deleting_versions_expectedReport.jsonl");
 
-        when(operationReportRepository.retrieveJsonReportForOperation("operationId"))
-            .thenReturn(inputStream);
-        when(purgedPersistentIdentifierExtractorFactory.instance(any(ReportLineType.class)))
-            .thenReturn(purgedPersistentIdentifierExtractor);
+        when(operationReportRepository.retrieveJsonReportForOperation("operationId")).thenReturn(inputStream);
+        when(purgedPersistentIdentifierExtractorFactory.instance(any(ReportLineType.class))).thenReturn(
+            purgedPersistentIdentifierExtractor
+        );
 
-        when(purgedPersistentIdentifierExtractor
-            .extractPurgedPersistentIdentifier(any(JsonNode.class), eq(operation)))
-            .thenReturn(Collections.singletonList(new PurgedPersistentIdentifier.Builder()
-                .setId("purgedId")
-                .setTenant(0)
-                .setType("sampleType")
-                .build()));
+        when(
+            purgedPersistentIdentifierExtractor.extractPurgedPersistentIdentifier(any(JsonNode.class), eq(operation))
+        ).thenReturn(
+            Collections.singletonList(
+                new PurgedPersistentIdentifier.Builder().setId("purgedId").setTenant(0).setType("sampleType").build()
+            )
+        );
 
         LocalDateTime result = operationReportParser.processReportFromOperation(operation);
 
         assertThat(result).isNotNull();
     }
-
 }

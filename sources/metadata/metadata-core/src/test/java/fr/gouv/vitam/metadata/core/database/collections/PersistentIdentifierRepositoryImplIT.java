@@ -71,34 +71,48 @@ public class PersistentIdentifierRepositoryImplIT {
     public static final int TENANT_ID = 0;
     public static final String PREFIX = GUIDFactory.newGUID().getId();
     static final List<Integer> tenantList = Arrays.asList(TENANT_ID);
-    private static final ElasticsearchMetadataIndexManager metadataIndexManager = MetadataCollectionsTestUtils
-        .createTestIndexManager(tenantList, Collections.emptyMap(), MappingLoaderTestUtils.getTestMappingLoader());
+    private static final ElasticsearchMetadataIndexManager metadataIndexManager =
+        MetadataCollectionsTestUtils.createTestIndexManager(
+            tenantList,
+            Collections.emptyMap(),
+            MappingLoaderTestUtils.getTestMappingLoader()
+        );
     public static final String ARK_PREFIX = "ark:/666567/";
+
     @ClassRule
-    public static RunWithCustomExecutorRule runInThread =
-        new RunWithCustomExecutorRule(VitamThreadPoolExecutor.getDefaultExecutor());
+    public static RunWithCustomExecutorRule runInThread = new RunWithCustomExecutorRule(
+        VitamThreadPoolExecutor.getDefaultExecutor()
+    );
+
     private static ElasticsearchAccessMetadata esClient;
+
     @Rule
-    public MongoRule mongoRule =
-        new MongoRule(MongoDbAccess.getMongoClientSettingsBuilder(Unit.class),
-            PREFIX + PURGED_PERSISTENT_IDENTIFIER_COLLECTION);
+    public MongoRule mongoRule = new MongoRule(
+        MongoDbAccess.getMongoClientSettingsBuilder(Unit.class),
+        PREFIX + PURGED_PERSISTENT_IDENTIFIER_COLLECTION
+    );
+
     private PersistentIdentifierRepository persistentIdentifierRepository;
 
     @BeforeClass
     public static void setupOne() throws Exception {
-        List<ElasticsearchNode> esNodes =
-            org.assertj.core.util.Lists
-                .newArrayList(new ElasticsearchNode(ElasticsearchRule.getHost(), ElasticsearchRule.getPort()));
+        List<ElasticsearchNode> esNodes = org.assertj.core.util.Lists.newArrayList(
+            new ElasticsearchNode(ElasticsearchRule.getHost(), ElasticsearchRule.getPort())
+        );
 
-        esClient = new ElasticsearchAccessMetadata(ElasticsearchRule.getClusterName(), esNodes,
-            metadataIndexManager);
+        esClient = new ElasticsearchAccessMetadata(ElasticsearchRule.getClusterName(), esNodes, metadataIndexManager);
     }
 
     @Before
     public void setUp() {
-        MongoDbAccessMetadataImpl mongoDbAccess =
-            new MongoDbAccessMetadataImpl(mongoRule.getMongoClient(), mongoRule.getMongoDatabase().getName(), true,
-                esClient, MetadataCollections.UNIT, OBJECTGROUP);
+        MongoDbAccessMetadataImpl mongoDbAccess = new MongoDbAccessMetadataImpl(
+            mongoRule.getMongoClient(),
+            mongoRule.getMongoDatabase().getName(),
+            true,
+            esClient,
+            MetadataCollections.UNIT,
+            OBJECTGROUP
+        );
         persistentIdentifierRepository = new PersistentIdentifierRepositoryImpl(mongoDbAccess, PREFIX);
     }
 
@@ -112,14 +126,23 @@ public class PersistentIdentifierRepositoryImplIT {
         final String id2 = GUIDFactory.newUnitGUID(TENANT_ID).toString();
         final Document purgedPersistentIdentifierDocument1 = createPurgedPersistentIdentifier(id1, OBJECT);
         final Document purgedPersistentIdentifierDocument2 = createPurgedPersistentIdentifier(id2, OBJECT);
-        persistentIdentifierRepository
-            .insert(Lists.newArrayList(purgedPersistentIdentifierDocument1, purgedPersistentIdentifierDocument2));
+        persistentIdentifierRepository.insert(
+            Lists.newArrayList(purgedPersistentIdentifierDocument1, purgedPersistentIdentifierDocument2)
+        );
 
         // When
         final List<PurgedPersistentIdentifier> resultsObjectFilter =
-            persistentIdentifierRepository.findByPersistentIdentifierAndTenant(ARK_PREFIX + id1, TENANT_ID, OBJECT.getValue());
+            persistentIdentifierRepository.findByPersistentIdentifierAndTenant(
+                ARK_PREFIX + id1,
+                TENANT_ID,
+                OBJECT.getValue()
+            );
         final List<PurgedPersistentIdentifier> resultsUnitFilter =
-            persistentIdentifierRepository.findByPersistentIdentifierAndTenant(ARK_PREFIX + id1, TENANT_ID, UNIT.getValue());
+            persistentIdentifierRepository.findByPersistentIdentifierAndTenant(
+                ARK_PREFIX + id1,
+                TENANT_ID,
+                UNIT.getValue()
+            );
         final List<PurgedPersistentIdentifier> resultNoFilter =
             persistentIdentifierRepository.findByPersistentIdentifierAndTenant(ARK_PREFIX + id1, TENANT_ID, null);
 
@@ -146,12 +169,14 @@ public class PersistentIdentifierRepositoryImplIT {
         Document purgedPersistentIdentifierDocument2 = createPurgedPersistentIdentifier(id2, OBJECT);
 
         // When
-        persistentIdentifierRepository
-            .insert(Lists.newArrayList(purgedPersistentIdentifierDocument1, purgedPersistentIdentifierDocument2));
+        persistentIdentifierRepository.insert(
+            Lists.newArrayList(purgedPersistentIdentifierDocument1, purgedPersistentIdentifierDocument2)
+        );
 
         // Then
-        MongoCollection<Document> mongoCollection =
-            mongoRule.getMongoCollection(PREFIX + PURGED_PERSISTENT_IDENTIFIER_COLLECTION);
+        MongoCollection<Document> mongoCollection = mongoRule.getMongoCollection(
+            PREFIX + PURGED_PERSISTENT_IDENTIFIER_COLLECTION
+        );
         assertThat(mongoCollection.countDocuments()).isEqualTo(2);
         assertThat(mongoCollection.find())
             .extracting("_id", VitamDocument.TENANT_ID, VERSION)
@@ -161,7 +186,6 @@ public class PersistentIdentifierRepositoryImplIT {
     @Test
     @RunWithCustomExecutor
     public void should_ignore_duplicates_during_bulk_insert() throws Exception {
-
         VitamThreadUtils.getVitamSession().setTenantId(0);
 
         // Given
@@ -172,17 +196,22 @@ public class PersistentIdentifierRepositoryImplIT {
         Document purgedPersistentIdentifierDocument2 = createPurgedPersistentIdentifier(id2, OBJECT);
         Document purgedPersistentIdentifierDocument3 = createPurgedPersistentIdentifier(id3, OBJECT);
 
-
         // When
-        persistentIdentifierRepository
-            .insert(Lists.newArrayList(purgedPersistentIdentifierDocument1, purgedPersistentIdentifierDocument2));
-        persistentIdentifierRepository
-            .insert(Lists.newArrayList(purgedPersistentIdentifierDocument1, purgedPersistentIdentifierDocument2,
-                purgedPersistentIdentifierDocument3));
+        persistentIdentifierRepository.insert(
+            Lists.newArrayList(purgedPersistentIdentifierDocument1, purgedPersistentIdentifierDocument2)
+        );
+        persistentIdentifierRepository.insert(
+            Lists.newArrayList(
+                purgedPersistentIdentifierDocument1,
+                purgedPersistentIdentifierDocument2,
+                purgedPersistentIdentifierDocument3
+            )
+        );
 
         // Then
-        MongoCollection<Document> mongoCollection =
-            mongoRule.getMongoCollection(PREFIX + PURGED_PERSISTENT_IDENTIFIER_COLLECTION);
+        MongoCollection<Document> mongoCollection = mongoRule.getMongoCollection(
+            PREFIX + PURGED_PERSISTENT_IDENTIFIER_COLLECTION
+        );
         assertThat(mongoCollection.countDocuments()).isEqualTo(3);
         assertThat(mongoCollection.find())
             .extracting("_id", VitamDocument.TENANT_ID, VERSION)
@@ -200,11 +229,16 @@ public class PersistentIdentifierRepositoryImplIT {
         Document purgedPersistentIdentifierDocument3 = createPurgedPersistentIdentifier(id3, OBJECT);
 
         // When
-        assertThatCode(() -> persistentIdentifierRepository
-            .insert(Lists.newArrayList(purgedPersistentIdentifierDocument1, purgedPersistentIdentifierDocument2,
-                purgedPersistentIdentifierDocument3))
-        )
-            .doesNotThrowAnyException();
+        assertThatCode(
+            () ->
+                persistentIdentifierRepository.insert(
+                    Lists.newArrayList(
+                        purgedPersistentIdentifierDocument1,
+                        purgedPersistentIdentifierDocument2,
+                        purgedPersistentIdentifierDocument3
+                    )
+                )
+        ).doesNotThrowAnyException();
     }
 
     private Document createPurgedPersistentIdentifier(String id, PurgedCollectionType type) {
@@ -226,5 +260,4 @@ public class PersistentIdentifierRepositoryImplIT {
             .build();
         return PurgedPersistentIdentifier.toDocument(purgedPersistentIdentifier);
     }
-
 }

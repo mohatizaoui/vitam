@@ -61,8 +61,7 @@ public class SigningInformationTypeModel {
         return signingRole;
     }
 
-    public SigningInformationTypeModel setSigningRole(
-        List<SigningRoleType> signingRole) {
+    public SigningInformationTypeModel setSigningRole(List<SigningRoleType> signingRole) {
         this.signingRole = signingRole;
         return this;
     }
@@ -71,8 +70,7 @@ public class SigningInformationTypeModel {
         return detachedSigningRole;
     }
 
-    public SigningInformationTypeModel setDetachedSigningRole(
-        List<DetachedSigningRoleType> detachedSigningRole) {
+    public SigningInformationTypeModel setDetachedSigningRole(List<DetachedSigningRoleType> detachedSigningRole) {
         this.detachedSigningRole = detachedSigningRole;
         return this;
     }
@@ -82,7 +80,8 @@ public class SigningInformationTypeModel {
     }
 
     public SigningInformationTypeModel setSignatureDescription(
-        List<SignatureDescriptionTypeModel> signatureDescription) {
+        List<SignatureDescriptionTypeModel> signatureDescription
+    ) {
         this.signatureDescription = signatureDescription;
         return this;
     }
@@ -92,18 +91,17 @@ public class SigningInformationTypeModel {
     }
 
     public SigningInformationTypeModel setTimestampingInformation(
-        List<TimestampingInformationTypeModel> timestampingInformation) {
+        List<TimestampingInformationTypeModel> timestampingInformation
+    ) {
         this.timestampingInformation = timestampingInformation;
         return this;
     }
-
 
     public List<AdditionalProofType> getAdditionalProof() {
         return additionalProof;
     }
 
-    public SigningInformationTypeModel setAdditionalProof(
-        List<AdditionalProofType> additionalProof) {
+    public SigningInformationTypeModel setAdditionalProof(List<AdditionalProofType> additionalProof) {
         this.additionalProof = additionalProof;
         return this;
     }
@@ -112,8 +110,7 @@ public class SigningInformationTypeModel {
         return extended;
     }
 
-    public SigningInformationTypeModel setExtended(
-        SignatureInformationExtendedModel extended) {
+    public SigningInformationTypeModel setExtended(SignatureInformationExtendedModel extended) {
         this.extended = extended;
         return this;
     }

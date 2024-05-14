@@ -29,5 +29,5 @@ package fr.gouv.vitam.common.model.dip;
 public enum QualifierVersion {
     LAST,
     ALL,
-    FIRST;
+    FIRST,
 }

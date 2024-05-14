@@ -34,14 +34,22 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 public class PurgedPersistentIdentifierValidatorTest {
 
-
     @Test
     public void testValidateFields() {
         String json = "{ \"id\": \"123\", \"name\": \"John\", \"persistentIdentifier\": [1, 2, 3] }";
         JsonNode jsonNode = parseJson(json);
 
-        assertThat(PurgedPersistentIdentifierValidator.validateFields(jsonNode, "id", "name", "persistentIdentifier")).isTrue();
-        assertThat(PurgedPersistentIdentifierValidator.validateFields(jsonNode, "nonexistentField", "name", "persistentIdentifier")).isFalse();
+        assertThat(
+            PurgedPersistentIdentifierValidator.validateFields(jsonNode, "id", "name", "persistentIdentifier")
+        ).isTrue();
+        assertThat(
+            PurgedPersistentIdentifierValidator.validateFields(
+                jsonNode,
+                "nonexistentField",
+                "name",
+                "persistentIdentifier"
+            )
+        ).isFalse();
     }
 
     private JsonNode parseJson(String json) {

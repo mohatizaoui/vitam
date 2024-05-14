@@ -30,23 +30,29 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.math.BigInteger;
 
-
 public class GpsType {
 
     @JsonProperty("GpsVersionID")
     protected String gpsVersionID;
+
     @JsonProperty("GpsAltitude")
     protected BigInteger gpsAltitude;
+
     @JsonProperty("GpsAltitudeRef")
     protected String gpsAltitudeRef;
+
     @JsonProperty("GpsLatitude")
     protected String gpsLatitude;
+
     @JsonProperty("GpsLatitudeRef")
     protected String gpsLatitudeRef;
+
     @JsonProperty("GpsLongitude")
     protected String gpsLongitude;
+
     @JsonProperty("GpsLongitudeRef")
     protected String gpsLongitudeRef;
+
     @JsonProperty("GpsDateStamp")
     protected String gpsDateStamp;
 

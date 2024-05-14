@@ -82,17 +82,21 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class CollectExternalClientRestTest extends ResteasyTestApplication {
 
-    private final static int TENANT_ID = 0;
+    private static final int TENANT_ID = 0;
 
     protected static CollectExternalClient client;
 
-    private final static ExpectedResults mock = Mockito.mock(ExpectedResults.class);
+    private static final ExpectedResults mock = Mockito.mock(ExpectedResults.class);
     static CollectExternalClientFactory factory = CollectExternalClientFactory.getInstance();
-    public static VitamServerTestRunner vitamServerTestRunner =
-        new VitamServerTestRunner(CollectExternalClientRestTest.class, factory);
+    public static VitamServerTestRunner vitamServerTestRunner = new VitamServerTestRunner(
+        CollectExternalClientRestTest.class,
+        factory
+    );
 
-    @Rule public RunWithCustomExecutorRule runInThread =
-        new RunWithCustomExecutorRule(VitamThreadPoolExecutor.getDefaultExecutor());
+    @Rule
+    public RunWithCustomExecutorRule runInThread = new RunWithCustomExecutorRule(
+        VitamThreadPoolExecutor.getDefaultExecutor()
+    );
 
     @BeforeClass
     public static void init() throws Throwable {
@@ -110,10 +114,8 @@ public class CollectExternalClientRestTest extends ResteasyTestApplication {
         return Sets.newHashSet(new MockResource(mock));
     }
 
-
     @Before
-    public void setUp() throws Exception {
-    }
+    public void setUp() throws Exception {}
 
     @Test
     public void initProject() throws Exception {
@@ -139,16 +141,20 @@ public class CollectExternalClientRestTest extends ResteasyTestApplication {
     @Test
     public void getTransactionById() throws Exception {
         Mockito.when(mock.get()).thenReturn(Response.ok().build());
-        final RequestResponse<JsonNode> response =
-            client.getTransactionById(new VitamContext(TENANT_ID), "TRANSACTION_ID");
+        final RequestResponse<JsonNode> response = client.getTransactionById(
+            new VitamContext(TENANT_ID),
+            "TRANSACTION_ID"
+        );
         Assertions.assertThat(response).isNotNull();
     }
 
     @Test
     public void getTransactionByProjectId() throws Exception {
         Mockito.when(mock.get()).thenReturn(Response.ok().build());
-        final RequestResponse<JsonNode> response =
-            client.getTransactionByProjectId(new VitamContext(TENANT_ID), "PROJECT_ID");
+        final RequestResponse<JsonNode> response = client.getTransactionByProjectId(
+            new VitamContext(TENANT_ID),
+            "PROJECT_ID"
+        );
         Assertions.assertThat(response).isNotNull();
     }
 
@@ -162,8 +168,10 @@ public class CollectExternalClientRestTest extends ResteasyTestApplication {
     @Test
     public void deleteTransactionById() throws Exception {
         Mockito.when(mock.delete()).thenReturn(Response.ok().build());
-        final RequestResponse<JsonNode> response =
-            client.deleteTransactionById(new VitamContext(TENANT_ID), "TRANSACTION_ID");
+        final RequestResponse<JsonNode> response = client.deleteTransactionById(
+            new VitamContext(TENANT_ID),
+            "TRANSACTION_ID"
+        );
         Assertions.assertThat(response).isNotNull();
     }
 
@@ -177,45 +185,64 @@ public class CollectExternalClientRestTest extends ResteasyTestApplication {
     @Test
     public void uploadZipToTransaction() throws Exception {
         Mockito.when(mock.post()).thenReturn(
-            Response.ok(new RequestResponseOK<JsonNode>().addResult(JsonHandler.toJsonNode("TX_ID"))).build());
-        RequestResponse<JsonNode> response = client.uploadZipToTransaction(new VitamContext(TENANT_ID),
-            "TX_ID", new NullInputStream(100));
+            Response.ok(new RequestResponseOK<JsonNode>().addResult(JsonHandler.toJsonNode("TX_ID"))).build()
+        );
+        RequestResponse<JsonNode> response = client.uploadZipToTransaction(
+            new VitamContext(TENANT_ID),
+            "TX_ID",
+            new NullInputStream(100)
+        );
         Assertions.assertThat(response).isNotNull();
     }
 
     @Test
     public void uploadZipToTransaction_with_optional_header() throws Exception {
         Mockito.when(mock.post()).thenReturn(
-            Response.ok(new RequestResponseOK<JsonNode>().addResult(JsonHandler.toJsonNode("TX_ID"))).build());
-        RequestResponse<JsonNode> response = client.uploadZipToTransaction(new VitamContext(TENANT_ID),
-            "TX_ID", new NullInputStream(100), "Ventura-Math");
+            Response.ok(new RequestResponseOK<JsonNode>().addResult(JsonHandler.toJsonNode("TX_ID"))).build()
+        );
+        RequestResponse<JsonNode> response = client.uploadZipToTransaction(
+            new VitamContext(TENANT_ID),
+            "TX_ID",
+            new NullInputStream(100),
+            "Ventura-Math"
+        );
         Assertions.assertThat(response).isNotNull();
     }
 
     @Test
     public void uploadZipToProject() throws Exception {
-        Mockito.when(mock.post())
-            .thenReturn(Response.ok(new RequestResponseOK<String>().addResult("MyVirtualTx")).build());
-        RequestResponse<String> response = client.uploadZipToProject(new VitamContext(TENANT_ID),
-            "PJ_ID", new NullInputStream(100));
-        Assertions.assertThat(((RequestResponseOK<String>) response).getFirstResult())
-            .isEqualTo("MyVirtualTx");
+        Mockito.when(mock.post()).thenReturn(
+            Response.ok(new RequestResponseOK<String>().addResult("MyVirtualTx")).build()
+        );
+        RequestResponse<String> response = client.uploadZipToProject(
+            new VitamContext(TENANT_ID),
+            "PJ_ID",
+            new NullInputStream(100)
+        );
+        Assertions.assertThat(((RequestResponseOK<String>) response).getFirstResult()).isEqualTo("MyVirtualTx");
     }
 
     @Test
     public void uploadZipToProject_with_optional_header() throws Exception {
-        Mockito.when(mock.post())
-            .thenReturn(Response.ok(new RequestResponseOK<String>().addResult("MyVirtualTx")).build());
-        RequestResponse<String> response = client.uploadZipToProject(new VitamContext(TENANT_ID),
-            "PJ_ID", new NullInputStream(100), "SEN_850200_C");
-        Assertions.assertThat(((RequestResponseOK<String>) response).getFirstResult())
-            .isEqualTo("MyVirtualTx");
+        Mockito.when(mock.post()).thenReturn(
+            Response.ok(new RequestResponseOK<String>().addResult("MyVirtualTx")).build()
+        );
+        RequestResponse<String> response = client.uploadZipToProject(
+            new VitamContext(TENANT_ID),
+            "PJ_ID",
+            new NullInputStream(100),
+            "SEN_850200_C"
+        );
+        Assertions.assertThat(((RequestResponseOK<String>) response).getFirstResult()).isEqualTo("MyVirtualTx");
     }
 
     @Test
     public void bulkAtomicUpdateTransactionUnits() throws Exception {
-        RequestResponseOK<BulkAtomicUpdateResult> response =
-            client.bulkAtomicUpdateUnits(new VitamContext(TENANT_ID), "transactionId", JsonHandler.createObjectNode());
+        RequestResponseOK<BulkAtomicUpdateResult> response = client.bulkAtomicUpdateUnits(
+            new VitamContext(TENANT_ID),
+            "transactionId",
+            JsonHandler.createObjectNode()
+        );
         Assertions.assertThat(response.getResults()).hasSize(1);
         Assertions.assertThat(response.getResults().get(0).getStatus()).isEqualTo(BulkAtomicUpdateStatus.OK);
         Assertions.assertThat(response.getResults().get(0).getUpdatedUnitId()).isEqualTo("unitId");
@@ -223,37 +250,51 @@ public class CollectExternalClientRestTest extends ResteasyTestApplication {
 
     @Test
     public void updateUnitsWithMetadataCsv_OK() throws Exception {
-        RequestResponse<JsonNode> response =
-            client.updateUnitsWithCsvMetadata(new VitamContext(TENANT_ID), "transactionId",
-                new ByteArrayInputStream("CSV_REQ".getBytes(StandardCharsets.UTF_8)));
+        RequestResponse<JsonNode> response = client.updateUnitsWithCsvMetadata(
+            new VitamContext(TENANT_ID),
+            "transactionId",
+            new ByteArrayInputStream("CSV_REQ".getBytes(StandardCharsets.UTF_8))
+        );
         assertThat(response.isOk()).isTrue();
         assertThat(((RequestResponseOK<JsonNode>) response).getResults()).isEmpty();
     }
 
     @Test
     public void updateUnitsWithMetadataCsv_KO() {
-        assertThatThrownBy(() ->
-            client.updateUnitsWithCsvMetadata(new VitamContext(TENANT_ID), "transactionId",
-                new ByteArrayInputStream("CSV_REQ_BAD".getBytes(StandardCharsets.UTF_8)))
-        ).isInstanceOf(CollectExternalClientInvalidRequestException.class)
+        assertThatThrownBy(
+            () ->
+                client.updateUnitsWithCsvMetadata(
+                    new VitamContext(TENANT_ID),
+                    "transactionId",
+                    new ByteArrayInputStream("CSV_REQ_BAD".getBytes(StandardCharsets.UTF_8))
+                )
+        )
+            .isInstanceOf(CollectExternalClientInvalidRequestException.class)
             .hasMessage("BAD !");
     }
 
     @Test
     public void updateUnitsWithMetadataJsonl_OK() throws Exception {
-        RequestResponse<JsonNode> response =
-            client.updateUnitsWithJsonlMetadata(new VitamContext(TENANT_ID), "transactionId",
-                new ByteArrayInputStream("JSONL_REQ".getBytes(StandardCharsets.UTF_8)));
+        RequestResponse<JsonNode> response = client.updateUnitsWithJsonlMetadata(
+            new VitamContext(TENANT_ID),
+            "transactionId",
+            new ByteArrayInputStream("JSONL_REQ".getBytes(StandardCharsets.UTF_8))
+        );
         assertThat(response.isOk()).isTrue();
         assertThat(((RequestResponseOK<JsonNode>) response).getResults()).isEmpty();
     }
 
     @Test
     public void updateUnitsWithMetadataJsonl_KO() {
-        assertThatThrownBy(() ->
-            client.updateUnitsWithJsonlMetadata(new VitamContext(TENANT_ID), "transactionId",
-                new ByteArrayInputStream("JSONL_REQ_BAD".getBytes(StandardCharsets.UTF_8)))
-        ).isInstanceOf(CollectExternalClientInvalidRequestException.class)
+        assertThatThrownBy(
+            () ->
+                client.updateUnitsWithJsonlMetadata(
+                    new VitamContext(TENANT_ID),
+                    "transactionId",
+                    new ByteArrayInputStream("JSONL_REQ_BAD".getBytes(StandardCharsets.UTF_8))
+                )
+        )
+            .isInstanceOf(CollectExternalClientInvalidRequestException.class)
             .hasMessage("BAD !");
     }
 
@@ -325,8 +366,10 @@ public class CollectExternalClientRestTest extends ResteasyTestApplication {
         @PUT
         @Consumes(TEXT_CSV)
         @Produces(APPLICATION_JSON)
-        public Response updateUnitsWithMetadataCsv(@PathParam("transactionId") String transactionId,
-            InputStream metadataCsvInputStream) throws Exception {
+        public Response updateUnitsWithMetadataCsv(
+            @PathParam("transactionId") String transactionId,
+            InputStream metadataCsvInputStream
+        ) throws Exception {
             if (!"CSV_REQ".equals(IOUtils.toString(metadataCsvInputStream, StandardCharsets.UTF_8))) {
                 return CollectRequestResponse.toVitamError(BAD_REQUEST, "BAD !");
             }
@@ -337,8 +380,10 @@ public class CollectExternalClientRestTest extends ResteasyTestApplication {
         @PUT
         @Consumes(APPLICATION_OCTET_STREAM)
         @Produces(APPLICATION_JSON)
-        public Response updateUnitsWithMetadataJsonl(@PathParam("transactionId") String transactionId,
-            InputStream metadataJsonlInputStream) throws Exception {
+        public Response updateUnitsWithMetadataJsonl(
+            @PathParam("transactionId") String transactionId,
+            InputStream metadataJsonlInputStream
+        ) throws Exception {
             if (!"JSONL_REQ".equals(IOUtils.toString(metadataJsonlInputStream, StandardCharsets.UTF_8))) {
                 return CollectRequestResponse.toVitamError(BAD_REQUEST, "BAD !");
             }
@@ -375,7 +420,6 @@ public class CollectExternalClientRestTest extends ResteasyTestApplication {
         public Response updateProject(ProjectDto projectDto) {
             return expectedResponse.get();
         }
-
 
         @Path("/projects/{projectId}")
         @GET
@@ -423,13 +467,16 @@ public class CollectExternalClientRestTest extends ResteasyTestApplication {
             return expectedResponse.get();
         }
 
-
         @Path("/units/{unitId}/objects/{usage}/{version}")
         @POST
         @Consumes(MediaType.APPLICATION_JSON)
         @Produces(MediaType.APPLICATION_JSON)
-        public Response uploadObjectGroup(@PathParam("unitId") String unitId, @PathParam("usage") String usageString,
-            @PathParam("version") Integer version, ObjectDto objectDto) {
+        public Response uploadObjectGroup(
+            @PathParam("unitId") String unitId,
+            @PathParam("usage") String usageString,
+            @PathParam("version") Integer version,
+            ObjectDto objectDto
+        ) {
             return expectedResponse.get();
         }
 
@@ -444,22 +491,29 @@ public class CollectExternalClientRestTest extends ResteasyTestApplication {
         @POST
         @Consumes(MediaType.APPLICATION_OCTET_STREAM)
         @Produces(MediaType.APPLICATION_JSON)
-        public Response upload(@PathParam("unitId") String unitId, @PathParam("usage") String usageString,
-            @PathParam("version") Integer version, InputStream uploadedInputStream) {
+        public Response upload(
+            @PathParam("unitId") String unitId,
+            @PathParam("usage") String usageString,
+            @PathParam("version") Integer version,
+            InputStream uploadedInputStream
+        ) {
             return expectedResponse.get();
         }
 
         @Path("/units/{unitId}/objects/{usage}/{version}/binary")
         @GET
         @Produces(MediaType.APPLICATION_OCTET_STREAM)
-        public Response download(@PathParam("unitId") String unitId, @PathParam("usage") String usageString,
-            @PathParam("version") Integer version) {
+        public Response download(
+            @PathParam("unitId") String unitId,
+            @PathParam("usage") String usageString,
+            @PathParam("version") Integer version
+        ) {
             return expectedResponse.get();
         }
 
         @Path("/transactions/{transactionId}/upload")
         @POST
-        @Consumes({CommonMediaType.ZIP})
+        @Consumes({ CommonMediaType.ZIP })
         @Produces(MediaType.APPLICATION_JSON)
         public Response uploadZipToTransaction(
             @PathParam("transactionId") String transactionId,
@@ -471,7 +525,7 @@ public class CollectExternalClientRestTest extends ResteasyTestApplication {
 
         @Path("/projects/{projectId}/upload")
         @POST
-        @Consumes({CommonMediaType.ZIP})
+        @Consumes({ CommonMediaType.ZIP })
         @Produces(MediaType.APPLICATION_JSON)
         @Beta
         public Response uploadZipToProject(
@@ -486,14 +540,15 @@ public class CollectExternalClientRestTest extends ResteasyTestApplication {
         @Path("/transactions/{transactionId}/units/bulk")
         @Consumes(MediaType.APPLICATION_JSON)
         @Produces(MediaType.APPLICATION_JSON)
-        public Response bulkAtomicUpdateUnits(@PathParam("transactionId") String transactionId,
-            JsonNode updateQueriesJson) {
+        public Response bulkAtomicUpdateUnits(
+            @PathParam("transactionId") String transactionId,
+            JsonNode updateQueriesJson
+        ) {
             return Response.accepted(
-                new RequestResponseOK<BulkAtomicUpdateResult>().addResult(
-                    new BulkAtomicUpdateResult(BulkAtomicUpdateStatus.OK, "unitId", null)
-                ).setHttpCode(202)).build();
+                new RequestResponseOK<BulkAtomicUpdateResult>()
+                    .addResult(new BulkAtomicUpdateResult(BulkAtomicUpdateStatus.OK, "unitId", null))
+                    .setHttpCode(202)
+            ).build();
         }
-
     }
-
 }

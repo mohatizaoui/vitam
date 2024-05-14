@@ -55,25 +55,23 @@ public class ObjectPurgedPersistentIdentifierExtractorTest {
 
     @Before
     public void setup() throws Exception {
-        objectPurgedPersistentIdentifierExtractor =
-            new ObjectPurgedPersistentIdentifierExtractor();
+        objectPurgedPersistentIdentifierExtractor = new ObjectPurgedPersistentIdentifierExtractor();
     }
 
     @Test
     public void testExtractAndSavePurgedPersistentIdentifier() throws Exception {
-
         // Given
         JsonNode element = createSampleJsonNode();
         ArrayNode objectVersion = JsonHandler.createArrayNode().add(element);
-        JsonNode objectVersions =
-            JsonHandler.createObjectNode().put("id", "aeaqaaaaaae6eg5mabudoamkdsdghiiaaaba")
-                .set("objectVersions", objectVersion);
+        JsonNode objectVersions = JsonHandler.createObjectNode()
+            .put("id", "aeaqaaaaaae6eg5mabudoamkdsdghiiaaaba")
+            .set("objectVersions", objectVersion);
 
         ReconstructionOperation operation = createSampleOperation();
 
         // When
-        List<PurgedPersistentIdentifier> purgedPersistentIdentifiers = objectPurgedPersistentIdentifierExtractor
-            .extractPurgedPersistentIdentifier(objectVersions, operation);
+        List<PurgedPersistentIdentifier> purgedPersistentIdentifiers =
+            objectPurgedPersistentIdentifierExtractor.extractPurgedPersistentIdentifier(objectVersions, operation);
 
         // Then
         assertThat(purgedPersistentIdentifiers).isNotEmpty();
@@ -86,8 +84,8 @@ public class ObjectPurgedPersistentIdentifierExtractorTest {
         ReconstructionOperation operation = createSampleOperation();
 
         // When
-        final PurgedPersistentIdentifier purgedPersistentIdentifier = objectPurgedPersistentIdentifierExtractor
-            .buildObjetPurgedPersistentIdentifier("1234", element, operation);
+        final PurgedPersistentIdentifier purgedPersistentIdentifier =
+            objectPurgedPersistentIdentifierExtractor.buildObjetPurgedPersistentIdentifier("1234", element, operation);
 
         // Then
         assertThat(purgedPersistentIdentifier.getTenant()).isEqualTo(0);
@@ -107,7 +105,6 @@ public class ObjectPurgedPersistentIdentifierExtractorTest {
     }
 
     private ReconstructionOperation createSampleOperation() {
-
         return ReconstructionOperation.builder()
             .setTenant(0)
             .setId("aeeaaaaaace6eg5mabvsaamkdsdfzeaaaaaq")

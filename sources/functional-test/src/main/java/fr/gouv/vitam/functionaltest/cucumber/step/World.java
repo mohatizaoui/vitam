@@ -27,10 +27,6 @@
 package fr.gouv.vitam.functionaltest.cucumber.step;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import io.cucumber.java.After;
-import io.cucumber.java.Before;
-import io.cucumber.java.Scenario;
-import io.cucumber.java.en.Given;
 import fr.gouv.vitam.access.external.client.AccessExternalClient;
 import fr.gouv.vitam.access.external.client.AccessExternalClientFactory;
 import fr.gouv.vitam.access.external.client.AdminExternalClient;
@@ -62,6 +58,10 @@ import fr.gouv.vitam.storage.engine.client.StorageClientFactory;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
 import fr.gouv.vitam.workspace.client.WorkspaceType;
+import io.cucumber.java.After;
+import io.cucumber.java.Before;
+import io.cucumber.java.Scenario;
+import io.cucumber.java.en.Given;
 
 import java.io.File;
 import java.io.IOException;
@@ -115,7 +115,6 @@ public class World {
      */
     private String query;
 
-
     /**
      * Map of operations ids by testSet
      */
@@ -164,7 +163,6 @@ public class World {
      *
      */
     WorkspaceClient workspaceClient;
-
 
     /**
      * base path of all the feature
@@ -240,7 +238,6 @@ public class World {
      */
     @Given("^les jeux de tests réinitialisés$")
     public void the_reinit_of_test_set() {
-
         operationIdsByTestSet.clear();
     }
 
@@ -464,7 +461,6 @@ public class World {
         } catch (IOException | InvalidParseOperationException e) {
             LOGGER.error("Unable to load configuration File: {}" + TNR_CONF, e);
         }
-
     }
 
     /**
@@ -472,15 +468,18 @@ public class World {
      */
     private void purgeData() {
         try (IhmRecetteClient ihmRecetteClient = IhmRecetteClientFactory.getInstance().getClient()) {
-            tnrClientConfiguration.getTenantsTest().forEach((i) -> {
-                try {
-                    ihmRecetteClient.deleteTnrCollectionsTenant(i.toString());
-                } catch (VitamException e) {
-                    // FAIL WHEN unable purge ?
-                    LOGGER.error("Unable purge data " + i + " on tenant: " + i +
-                        Arrays.toString(e.getStackTrace()));
-                }
-            });
+            tnrClientConfiguration
+                .getTenantsTest()
+                .forEach(i -> {
+                    try {
+                        ihmRecetteClient.deleteTnrCollectionsTenant(i.toString());
+                    } catch (VitamException e) {
+                        // FAIL WHEN unable purge ?
+                        LOGGER.error(
+                            "Unable purge data " + i + " on tenant: " + i + Arrays.toString(e.getStackTrace())
+                        );
+                    }
+                });
         }
     }
 
@@ -537,7 +536,6 @@ public class World {
     public World setTransferFile(Path transferFile) {
         this.transferFile = transferFile;
         return this;
-
     }
 
     public Path getAtrFile() {

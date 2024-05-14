@@ -61,5 +61,4 @@ public enum SchemaType {
         }
         throw new IllegalStateException("Cannot find SchemaType " + type);
     }
-
 }

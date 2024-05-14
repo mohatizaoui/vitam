@@ -26,7 +26,6 @@
  */
 package fr.gouv.vitam.processing.integration.test;
 
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.google.common.collect.Sets;
@@ -124,25 +123,26 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
     public static final int TEMPORIZATION_IN_SECONDS = 300;
 
     @ClassRule
-    public static VitamServerRunner runner =
-        new VitamServerRunner(ProcessingLFCTraceabilityIT.class, mongoRule.getMongoDatabase().getName(),
-            ElasticsearchRule.getClusterName(),
-            Sets.newHashSet(
-                MetadataMain.class,
-                WorkerMain.class,
-                AdminManagementMain.class,
-                LogbookMain.class,
-                WorkspaceMain.class,
-                ProcessManagementMain.class,
-                StorageMain.class,
-                DefaultOfferMain.class
-            ));
+    public static VitamServerRunner runner = new VitamServerRunner(
+        ProcessingLFCTraceabilityIT.class,
+        mongoRule.getMongoDatabase().getName(),
+        ElasticsearchRule.getClusterName(),
+        Sets.newHashSet(
+            MetadataMain.class,
+            WorkerMain.class,
+            AdminManagementMain.class,
+            LogbookMain.class,
+            WorkspaceMain.class,
+            ProcessManagementMain.class,
+            StorageMain.class,
+            DefaultOfferMain.class
+        )
+    );
 
     @Rule
     public LogicalClockRule logicalClock = new LogicalClockRule();
 
     private static final Integer TENANT_ID = 0;
-
 
     private static final String SIP_FOLDER = "SIP";
     private static final String METADATA_PATH = "/metadata/v1";
@@ -151,19 +151,19 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
     private static final String WORKSPACE_PATH = "/workspace/v1";
     private static final String LOGBOOK_PATH = "/logbook/v1";
 
-
     private WorkspaceClient workspaceClient;
     private ProcessingManagementClient processingClient;
     private static ProcessMonitoringImpl processMonitoring;
 
-    final private static String SIP_3_UNITS_2_GOTS = "integration-processing/3_UNITS_2_GOTS.zip";
-    final private static String SIP_12_UNITS_12_GOTS = "integration-processing/12_UNITS_12_GOTS.zip";
+    private static final String SIP_3_UNITS_2_GOTS = "integration-processing/3_UNITS_2_GOTS.zip";
+    private static final String SIP_12_UNITS_12_GOTS = "integration-processing/12_UNITS_12_GOTS.zip";
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
         handleBeforeClass(Arrays.asList(0, 1), Collections.emptyMap());
-        String CONFIG_SIEGFRIED_PATH =
-            PropertiesUtils.getResourcePath("integration-processing/format-identifiers.conf").toString();
+        String CONFIG_SIEGFRIED_PATH = PropertiesUtils.getResourcePath(
+            "integration-processing/format-identifiers.conf"
+        ).toString();
         FormatIdentifierFactory.getInstance().changeConfigurationFile(CONFIG_SIEGFRIED_PATH);
 
         new DataLoader("integration-processing").prepareData();
@@ -221,7 +221,6 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
     @RunWithCustomExecutor
     @Test
     public void testWorkflowUnitLfcTraceability_shouldGetWarningOnFirstTraceabilityWhenDbIsEmpty() throws Exception {
-
         ProcessingIT.prepareVitamSession();
         // Given (empty db)
 
@@ -237,9 +236,7 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
 
     @RunWithCustomExecutor
     @Test
-    public void testWorkflowUnitLfcTraceability_shouldGetWarnOnFirstTraceabilityWithDataTooFresh()
-        throws Exception {
-
+    public void testWorkflowUnitLfcTraceability_shouldGetWarnOnFirstTraceabilityWithDataTooFresh() throws Exception {
         // Given
         launchIngest(SIP_3_UNITS_2_GOTS);
         logicalClock.logicalSleep(1, ChronoUnit.MINUTES);
@@ -257,7 +254,6 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
     @RunWithCustomExecutor
     @Test
     public void testWorkflowUnitLfcTraceability_shouldGetOkOnFirstTraceabilityWithDataToSecure() throws Exception {
-
         // Given
         launchIngest(SIP_3_UNITS_2_GOTS);
         logicalClock.logicalSleep(5, ChronoUnit.MINUTES);
@@ -275,16 +271,16 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
         assertThat(traceabilityEvent.getLogType()).isEqualTo(TraceabilityType.UNIT_LIFECYCLE);
         assertThat(traceabilityEvent.getMaxEntriesReached()).isFalse();
         assertThat(traceabilityEvent.getStartDate()).isEqualTo("1970-01-01T00:00:00.000");
-        assertThatDateIsBetween(traceabilityEvent.getEndDate(),
+        assertThatDateIsBetween(
+            traceabilityEvent.getEndDate(),
             beforeTraceability.minusSeconds(TEMPORIZATION_IN_SECONDS),
-            afterTraceability.minusSeconds(TEMPORIZATION_IN_SECONDS));
+            afterTraceability.minusSeconds(TEMPORIZATION_IN_SECONDS)
+        );
     }
 
     @RunWithCustomExecutor
     @Test
-    public void testWorkflowUnitLfcTraceability_shouldGenerateTraceabilityWhenDataToSecure()
-        throws Exception {
-
+    public void testWorkflowUnitLfcTraceability_shouldGenerateTraceabilityWhenDataToSecure() throws Exception {
         // Given / When
 
         // First ingest + traceability
@@ -318,23 +314,27 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
         assertThat(traceabilityEvent2).isNotNull();
 
         assertThat(traceabilityEvent1.getStartDate()).isEqualTo("1970-01-01T00:00:00.000");
-        assertThatDateIsBetween(traceabilityEvent1.getEndDate(),
+        assertThatDateIsBetween(
+            traceabilityEvent1.getEndDate(),
             beforeTraceability1.minusSeconds(TEMPORIZATION_IN_SECONDS),
-            afterTraceability1.minusSeconds(TEMPORIZATION_IN_SECONDS));
+            afterTraceability1.minusSeconds(TEMPORIZATION_IN_SECONDS)
+        );
 
         assertThat(traceabilityEvent2.getStartDate()).isEqualTo(traceabilityEvent1.getEndDate());
-        assertThatDateIsBetween(traceabilityEvent2.getEndDate(),
+        assertThatDateIsBetween(
+            traceabilityEvent2.getEndDate(),
             beforeTraceability.minusSeconds(TEMPORIZATION_IN_SECONDS),
-            afterTraceability.minusSeconds(TEMPORIZATION_IN_SECONDS));
-        assertThat(traceabilityEvent2.getPreviousLogbookTraceabilityDate())
-            .isEqualTo(traceabilityEvent1.getStartDate());
+            afterTraceability.minusSeconds(TEMPORIZATION_IN_SECONDS)
+        );
+        assertThat(traceabilityEvent2.getPreviousLogbookTraceabilityDate()).isEqualTo(
+            traceabilityEvent1.getStartDate()
+        );
     }
 
     @RunWithCustomExecutor
     @Test
     public void testWorkflowUnitLfcTraceability_shouldSkipTraceabilityWhenUntilDataToSecureThenTraceabilityOK()
         throws Exception {
-
         // Given / When
 
         // First ingest + traceability
@@ -375,16 +375,21 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
         assertThat(traceabilityEvent2).isNotNull();
 
         assertThat(traceabilityEvent1.getStartDate()).isEqualTo("1970-01-01T00:00:00.000");
-        assertThatDateIsBetween(traceabilityEvent1.getEndDate(),
+        assertThatDateIsBetween(
+            traceabilityEvent1.getEndDate(),
             beforeTraceability1.minusSeconds(TEMPORIZATION_IN_SECONDS),
-            afterTraceability1.minusSeconds(TEMPORIZATION_IN_SECONDS));
+            afterTraceability1.minusSeconds(TEMPORIZATION_IN_SECONDS)
+        );
 
         assertThat(traceabilityEvent2.getStartDate()).isEqualTo(traceabilityEvent1.getEndDate());
-        assertThatDateIsBetween(traceabilityEvent2.getEndDate(),
+        assertThatDateIsBetween(
+            traceabilityEvent2.getEndDate(),
             beforeTraceability.minusSeconds(TEMPORIZATION_IN_SECONDS),
-            afterTraceability.minusSeconds(TEMPORIZATION_IN_SECONDS));
-        assertThat(traceabilityEvent2.getPreviousLogbookTraceabilityDate())
-            .isEqualTo(traceabilityEvent1.getStartDate());
+            afterTraceability.minusSeconds(TEMPORIZATION_IN_SECONDS)
+        );
+        assertThat(traceabilityEvent2.getPreviousLogbookTraceabilityDate()).isEqualTo(
+            traceabilityEvent1.getStartDate()
+        );
     }
 
     @RunWithCustomExecutor
@@ -424,7 +429,6 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
     @Test
     public void testWorkflowUnitLfcTraceability_shouldSkipTraceabilityWhenNoNewDataToSecureUntilLastTraceabilityIsTooOldThenTraceabilityWarning()
         throws Exception {
-
         // First ingest + traceability
         launchIngest(SIP_3_UNITS_2_GOTS);
 
@@ -457,9 +461,11 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
 
         assertThat(traceabilityEvent1).isNotNull();
         assertThat(traceabilityEvent1.getStartDate()).isEqualTo("1970-01-01T00:00:00.000");
-        assertThatDateIsBetween(traceabilityEvent1.getEndDate(),
+        assertThatDateIsBetween(
+            traceabilityEvent1.getEndDate(),
             beforeTraceability1.minusSeconds(TEMPORIZATION_IN_SECONDS),
-            afterTraceability1.minusSeconds(TEMPORIZATION_IN_SECONDS));
+            afterTraceability1.minusSeconds(TEMPORIZATION_IN_SECONDS)
+        );
 
         assertThat(traceabilityEvent2).isNull();
     }
@@ -467,7 +473,6 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
     @RunWithCustomExecutor
     @Test
     public void testWorkflowUnitLfcTraceability_shouldSkipTraceabilityOnFreshUnitUpdate() throws Exception {
-
         // Given / When
 
         // First ingest + traceability
@@ -491,7 +496,6 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
     @RunWithCustomExecutor
     @Test
     public void testWorkflowUnitLfcTraceability_shouldGetKoOnCorruptedDb() throws Exception {
-
         // Given
         launchIngest(SIP_3_UNITS_2_GOTS);
         logicalClock.logicalSleep(1, ChronoUnit.MINUTES);
@@ -509,7 +513,6 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
     @Test
     public void testWorkflowUnitLfcTraceability_shouldGetOkOnTraceabilityAfterTraceabilityWithMaxEntriesReached()
         throws Exception {
-
         // Given
         logicalClock.freezeTime();
 
@@ -537,7 +540,6 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
         assertCompletedWithStatus(traceabilityOperation1, StatusCode.OK);
         assertCompletedWithStatus(traceabilityOperation2, StatusCode.OK);
 
-
         TraceabilityEvent traceabilityEvent1 = getTraceabilityEvent(traceabilityOperation1);
         assertThat(traceabilityEvent1).isNotNull();
         assertThat(traceabilityEvent1.getLogType()).isEqualTo(TraceabilityType.UNIT_LIFECYCLE);
@@ -552,13 +554,14 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
         assertThat(traceabilityEvent1.getStatistics().getObjectGroups()).isNull();
         assertThat(traceabilityEvent1.getStatistics().getObjects()).isNull();
 
-
         TraceabilityEvent traceabilityEvent2 = getTraceabilityEvent(traceabilityOperation2);
         assertThat(traceabilityEvent2).isNotNull();
         assertThat(traceabilityEvent2.getStartDate()).isEqualTo(traceabilityEvent1.getEndDate());
-        assertThatDateIsBetween(traceabilityEvent2.getEndDate(),
+        assertThatDateIsBetween(
+            traceabilityEvent2.getEndDate(),
             beforeTraceability2.minusSeconds(TEMPORIZATION_IN_SECONDS),
-            afterTraceability2.minusSeconds(TEMPORIZATION_IN_SECONDS));
+            afterTraceability2.minusSeconds(TEMPORIZATION_IN_SECONDS)
+        );
         assertThat(traceabilityEvent2.getLogType()).isEqualTo(TraceabilityType.UNIT_LIFECYCLE);
         assertThat(traceabilityEvent2.getMaxEntriesReached()).isFalse();
         assertThat(traceabilityEvent2.getNumberOfElements()).isEqualTo(15);
@@ -572,7 +575,6 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
     @Test
     public void testWorkflowUnitLfcTraceability_when_corrupted_data_then_all_subsequent_traceabilities_are_ko()
         throws Exception {
-
         // Given / When
 
         // Traceability 1 : Empty DB + ingest + traceability
@@ -614,9 +616,11 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
         TraceabilityEvent traceabilityEvent1 = getTraceabilityEvent(traceabilityOperation1);
         assertThat(traceabilityEvent1).isNotNull();
         assertThat(traceabilityEvent1.getStartDate()).isEqualTo("1970-01-01T00:00:00.000");
-        assertThatDateIsBetween(traceabilityEvent1.getEndDate(),
+        assertThatDateIsBetween(
+            traceabilityEvent1.getEndDate(),
             beforeTraceability1.minusSeconds(TEMPORIZATION_IN_SECONDS),
-            afterTraceability1.minusSeconds(TEMPORIZATION_IN_SECONDS));
+            afterTraceability1.minusSeconds(TEMPORIZATION_IN_SECONDS)
+        );
         assertThat(traceabilityEvent1.getStatistics().getUnits().getNbOK()).isEqualTo(3);
         assertThat(traceabilityEvent1.getStatistics().getUnits().getNbWarnings()).isEqualTo(0);
         assertThat(traceabilityEvent1.getStatistics().getObjectGroups()).isNull();
@@ -630,7 +634,6 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
 
         TraceabilityEvent traceabilityEvent3 = getTraceabilityEvent(traceabilityOperation3);
         assertThat(traceabilityEvent3).isNull();
-
 
         // Traceability 4 KO
         assertCompletedWithStatus(traceabilityOperation4, StatusCode.KO);
@@ -648,7 +651,6 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
     @RunWithCustomExecutor
     @Test
     public void testWorkflowUnitLfcTraceability_multipleChainingTraceabilityOperations() throws Exception {
-
         // Given / When
 
         // Traceability 1 : Empty DB + ingest + traceability
@@ -690,9 +692,11 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
         TraceabilityEvent traceabilityEvent1 = getTraceabilityEvent(traceabilityOperation1);
         assertThat(traceabilityEvent1).isNotNull();
         assertThat(traceabilityEvent1.getStartDate()).isEqualTo("1970-01-01T00:00:00.000");
-        assertThatDateIsBetween(traceabilityEvent1.getEndDate(),
+        assertThatDateIsBetween(
+            traceabilityEvent1.getEndDate(),
             beforeTraceability1.minusSeconds(TEMPORIZATION_IN_SECONDS),
-            afterTraceability1.minusSeconds(TEMPORIZATION_IN_SECONDS));
+            afterTraceability1.minusSeconds(TEMPORIZATION_IN_SECONDS)
+        );
         assertThat(traceabilityEvent1.getStatistics().getUnits().getNbOK()).isEqualTo(3);
         assertThat(traceabilityEvent1.getStatistics().getUnits().getNbWarnings()).isEqualTo(0);
         assertThat(traceabilityEvent1.getStatistics().getObjectGroups()).isNull();
@@ -707,9 +711,11 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
         TraceabilityEvent traceabilityEvent3 = getTraceabilityEvent(traceabilityOperation3);
         assertThat(traceabilityEvent3).isNotNull();
         assertThat(traceabilityEvent3.getStartDate()).isEqualTo(traceabilityEvent1.getEndDate());
-        assertThatDateIsBetween(traceabilityEvent3.getEndDate(),
+        assertThatDateIsBetween(
+            traceabilityEvent3.getEndDate(),
             beforeTraceability3.minusSeconds(TEMPORIZATION_IN_SECONDS),
-            afterTraceability3.minusSeconds(TEMPORIZATION_IN_SECONDS));
+            afterTraceability3.minusSeconds(TEMPORIZATION_IN_SECONDS)
+        );
         assertThat(traceabilityEvent3.getStatistics().getUnits().getNbOK()).isEqualTo(3);
         assertThat(traceabilityEvent3.getStatistics().getUnits().getNbWarnings()).isEqualTo(0);
         assertThat(traceabilityEvent3.getStatistics().getObjectGroups()).isNull();
@@ -727,9 +733,11 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
         TraceabilityEvent traceabilityEvent5 = getTraceabilityEvent(traceabilityOperation5);
         assertThat(traceabilityEvent5).isNotNull();
         assertThat(traceabilityEvent5.getStartDate()).isEqualTo(traceabilityEvent3.getEndDate());
-        assertThatDateIsBetween(traceabilityEvent5.getEndDate(),
+        assertThatDateIsBetween(
+            traceabilityEvent5.getEndDate(),
             beforeTraceability5.minusSeconds(TEMPORIZATION_IN_SECONDS),
-            afterTraceability5.minusSeconds(TEMPORIZATION_IN_SECONDS));
+            afterTraceability5.minusSeconds(TEMPORIZATION_IN_SECONDS)
+        );
         assertThat(traceabilityEvent5.getStatistics().getUnits().getNbOK()).isEqualTo(3);
         assertThat(traceabilityEvent5.getStatistics().getUnits().getNbWarnings()).isEqualTo(0);
         assertThat(traceabilityEvent5.getStatistics().getObjectGroups()).isNull();
@@ -740,7 +748,6 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
     @Test
     public void testWorkflowObjectGroupLfcTraceability_shouldGetWarningOnFirstTraceabilityWhenDbIsEmpty()
         throws Exception {
-
         ProcessingIT.prepareVitamSession();
         // Given (empty db)
 
@@ -758,7 +765,6 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
     @Test
     public void testWorkflowObjectGroupLfcTraceability_shouldGetWarnOnFirstTraceabilityWithDataTooFresh()
         throws Exception {
-
         // Given
         launchIngest(SIP_3_UNITS_2_GOTS);
         logicalClock.logicalSleep(1, ChronoUnit.MINUTES);
@@ -777,7 +783,6 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
     @Test
     public void testWorkflowObjectGroupLfcTraceability_shouldGetOkOnFirstTraceabilityWithDataToSecure()
         throws Exception {
-
         // Given
         launchIngest(SIP_3_UNITS_2_GOTS);
         logicalClock.logicalSleep(5, ChronoUnit.MINUTES);
@@ -796,16 +801,16 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
         assertThat(traceabilityEvent.getLogType()).isEqualTo(TraceabilityType.OBJECTGROUP_LIFECYCLE);
         assertThat(traceabilityEvent.getMaxEntriesReached()).isFalse();
         assertThat(traceabilityEvent.getStartDate()).isEqualTo("1970-01-01T00:00:00.000");
-        assertThatDateIsBetween(traceabilityEvent.getEndDate(),
+        assertThatDateIsBetween(
+            traceabilityEvent.getEndDate(),
             beforeTraceability.minusSeconds(TEMPORIZATION_IN_SECONDS),
-            afterTraceability.minusSeconds(TEMPORIZATION_IN_SECONDS));
+            afterTraceability.minusSeconds(TEMPORIZATION_IN_SECONDS)
+        );
     }
 
     @RunWithCustomExecutor
     @Test
-    public void testWorkflowObjectGroupLfcTraceability_shouldGenerateTraceabilityWhenDataToSecure()
-        throws Exception {
-
+    public void testWorkflowObjectGroupLfcTraceability_shouldGenerateTraceabilityWhenDataToSecure() throws Exception {
         // Given / When
 
         // First ingest + traceability
@@ -839,23 +844,27 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
         assertThat(traceabilityEvent2).isNotNull();
 
         assertThat(traceabilityEvent1.getStartDate()).isEqualTo("1970-01-01T00:00:00.000");
-        assertThatDateIsBetween(traceabilityEvent1.getEndDate(),
+        assertThatDateIsBetween(
+            traceabilityEvent1.getEndDate(),
             beforeTraceability1.minusSeconds(TEMPORIZATION_IN_SECONDS),
-            afterTraceability1.minusSeconds(TEMPORIZATION_IN_SECONDS));
+            afterTraceability1.minusSeconds(TEMPORIZATION_IN_SECONDS)
+        );
 
         assertThat(traceabilityEvent2.getStartDate()).isEqualTo(traceabilityEvent1.getEndDate());
-        assertThatDateIsBetween(traceabilityEvent2.getEndDate(),
+        assertThatDateIsBetween(
+            traceabilityEvent2.getEndDate(),
             beforeTraceability.minusSeconds(TEMPORIZATION_IN_SECONDS),
-            afterTraceability.minusSeconds(TEMPORIZATION_IN_SECONDS));
-        assertThat(traceabilityEvent2.getPreviousLogbookTraceabilityDate())
-            .isEqualTo(traceabilityEvent1.getStartDate());
+            afterTraceability.minusSeconds(TEMPORIZATION_IN_SECONDS)
+        );
+        assertThat(traceabilityEvent2.getPreviousLogbookTraceabilityDate()).isEqualTo(
+            traceabilityEvent1.getStartDate()
+        );
     }
 
     @RunWithCustomExecutor
     @Test
     public void testWorkflowObjectGroupLfcTraceability_shouldSkipTraceabilityWhenUntilDataToSecureThenTraceabilityOK()
         throws Exception {
-
         // Given / When
 
         // First ingest + traceability
@@ -896,16 +905,21 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
         assertThat(traceabilityEvent2).isNotNull();
 
         assertThat(traceabilityEvent1.getStartDate()).isEqualTo("1970-01-01T00:00:00.000");
-        assertThatDateIsBetween(traceabilityEvent1.getEndDate(),
+        assertThatDateIsBetween(
+            traceabilityEvent1.getEndDate(),
             beforeTraceability1.minusSeconds(TEMPORIZATION_IN_SECONDS),
-            afterTraceability1.minusSeconds(TEMPORIZATION_IN_SECONDS));
+            afterTraceability1.minusSeconds(TEMPORIZATION_IN_SECONDS)
+        );
 
         assertThat(traceabilityEvent2.getStartDate()).isEqualTo(traceabilityEvent1.getEndDate());
-        assertThatDateIsBetween(traceabilityEvent2.getEndDate(),
+        assertThatDateIsBetween(
+            traceabilityEvent2.getEndDate(),
             beforeTraceability.minusSeconds(TEMPORIZATION_IN_SECONDS),
-            afterTraceability.minusSeconds(TEMPORIZATION_IN_SECONDS));
-        assertThat(traceabilityEvent2.getPreviousLogbookTraceabilityDate())
-            .isEqualTo(traceabilityEvent1.getStartDate());
+            afterTraceability.minusSeconds(TEMPORIZATION_IN_SECONDS)
+        );
+        assertThat(traceabilityEvent2.getPreviousLogbookTraceabilityDate()).isEqualTo(
+            traceabilityEvent1.getStartDate()
+        );
     }
 
     @RunWithCustomExecutor
@@ -946,7 +960,6 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
     @Test
     public void testWorkflowObjectGroupLfcTraceability_shouldSkipTraceabilityWhenNoNewDataToSecureUntilLastTraceabilityIsTooOldThenTraceabilityWarning()
         throws Exception {
-
         // First ingest + traceability
         launchIngest(SIP_3_UNITS_2_GOTS);
 
@@ -977,9 +990,11 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
 
         assertThat(traceabilityEvent1).isNotNull();
         assertThat(traceabilityEvent1.getStartDate()).isEqualTo("1970-01-01T00:00:00.000");
-        assertThatDateIsBetween(traceabilityEvent1.getEndDate(),
+        assertThatDateIsBetween(
+            traceabilityEvent1.getEndDate(),
             beforeTraceability1.minusSeconds(TEMPORIZATION_IN_SECONDS),
-            afterTraceability1.minusSeconds(TEMPORIZATION_IN_SECONDS));
+            afterTraceability1.minusSeconds(TEMPORIZATION_IN_SECONDS)
+        );
 
         assertThat(traceabilityEvent2).isNull();
     }
@@ -988,7 +1003,6 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
     @Test
     public void testWorkflowObjectGroupLfcTraceability_shouldSkipTraceabilityOnFreshObjectGroupUpdate()
         throws Exception {
-
         // Given / When
 
         // First ingest + traceability
@@ -1012,7 +1026,6 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
     @RunWithCustomExecutor
     @Test
     public void testWorkflowObjectGroupLfcTraceability_shouldGetKoOnCorruptedDb() throws Exception {
-
         // Given
         launchIngest(SIP_3_UNITS_2_GOTS);
         logicalClock.logicalSleep(1, ChronoUnit.MINUTES);
@@ -1030,7 +1043,6 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
     @Test
     public void testWorkflowObjectGroupLfcTraceability_shouldGetOkOnTraceabilityAfterTraceabilityWithMaxEntriesReached()
         throws Exception {
-
         // Given
         logicalClock.freezeTime();
 
@@ -1073,13 +1085,14 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
         assertThat(traceabilityEvent1.getStatistics().getObjects().getNbOK()).isEqualTo(24);
         assertThat(traceabilityEvent1.getStatistics().getObjects().getNbWarnings()).isEqualTo(0);
 
-
         TraceabilityEvent traceabilityEvent2 = getTraceabilityEvent(traceabilityOperation2);
         assertThat(traceabilityEvent2).isNotNull();
         assertThat(traceabilityEvent2.getStartDate()).isEqualTo(traceabilityEvent1.getEndDate());
-        assertThatDateIsBetween(traceabilityEvent2.getEndDate(),
+        assertThatDateIsBetween(
+            traceabilityEvent2.getEndDate(),
             beforeTraceability2.minusSeconds(TEMPORIZATION_IN_SECONDS),
-            afterTraceability2.minusSeconds(TEMPORIZATION_IN_SECONDS));
+            afterTraceability2.minusSeconds(TEMPORIZATION_IN_SECONDS)
+        );
         assertThat(traceabilityEvent2.getLogType()).isEqualTo(TraceabilityType.OBJECTGROUP_LIFECYCLE);
         assertThat(traceabilityEvent2.getMaxEntriesReached()).isFalse();
         assertThat(traceabilityEvent2.getNumberOfElements()).isEqualTo(14);
@@ -1094,7 +1107,6 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
     @Test
     public void testWorkflowObjectGroupLfcTraceability_when_corrupted_data_then_subsequent_TraceabilityOperations_are_ko()
         throws Exception {
-
         // Given / When
 
         // Traceability 1 : Empty DB + ingest + traceability
@@ -1132,9 +1144,11 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
         TraceabilityEvent traceabilityEvent1 = getTraceabilityEvent(traceabilityOperation1);
         assertThat(traceabilityEvent1).isNotNull();
         assertThat(traceabilityEvent1.getStartDate()).isEqualTo("1970-01-01T00:00:00.000");
-        assertThatDateIsBetween(traceabilityEvent1.getEndDate(),
+        assertThatDateIsBetween(
+            traceabilityEvent1.getEndDate(),
             beforeTraceability1.minusSeconds(TEMPORIZATION_IN_SECONDS),
-            afterTraceability1.minusSeconds(TEMPORIZATION_IN_SECONDS));
+            afterTraceability1.minusSeconds(TEMPORIZATION_IN_SECONDS)
+        );
         assertThat(traceabilityEvent1.getStatistics().getUnits()).isNull();
         assertThat(traceabilityEvent1.getStatistics().getObjectGroups().getNbOK()).isEqualTo(2);
         assertThat(traceabilityEvent1.getStatistics().getObjectGroups().getNbWarnings()).isEqualTo(0);
@@ -1160,13 +1174,11 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
 
         TraceabilityEvent traceabilityEvent5 = getTraceabilityEvent(traceabilityOperation5);
         assertThat(traceabilityEvent5).isNull();
-
     }
 
     @RunWithCustomExecutor
     @Test
     public void testWorkflowObjectGroupLfcTraceability_multipleChainingTraceabilityOperations() throws Exception {
-
         // Given / When
 
         // Traceability 1 : Empty DB + ingest + traceability
@@ -1208,9 +1220,11 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
         TraceabilityEvent traceabilityEvent1 = getTraceabilityEvent(traceabilityOperation1);
         assertThat(traceabilityEvent1).isNotNull();
         assertThat(traceabilityEvent1.getStartDate()).isEqualTo("1970-01-01T00:00:00.000");
-        assertThatDateIsBetween(traceabilityEvent1.getEndDate(),
+        assertThatDateIsBetween(
+            traceabilityEvent1.getEndDate(),
             beforeTraceability1.minusSeconds(TEMPORIZATION_IN_SECONDS),
-            afterTraceability1.minusSeconds(TEMPORIZATION_IN_SECONDS));
+            afterTraceability1.minusSeconds(TEMPORIZATION_IN_SECONDS)
+        );
         assertThat(traceabilityEvent1.getStatistics().getUnits()).isNull();
         assertThat(traceabilityEvent1.getStatistics().getObjectGroups().getNbOK()).isEqualTo(2);
         assertThat(traceabilityEvent1.getStatistics().getObjectGroups().getNbWarnings()).isEqualTo(0);
@@ -1226,9 +1240,11 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
         TraceabilityEvent traceabilityEvent3 = getTraceabilityEvent(traceabilityOperation3);
         assertThat(traceabilityEvent3).isNotNull();
         assertThat(traceabilityEvent3.getStartDate()).isEqualTo(traceabilityEvent1.getEndDate());
-        assertThatDateIsBetween(traceabilityEvent3.getEndDate(),
+        assertThatDateIsBetween(
+            traceabilityEvent3.getEndDate(),
             beforeTraceability3.minusSeconds(TEMPORIZATION_IN_SECONDS),
-            afterTraceability3.minusSeconds(TEMPORIZATION_IN_SECONDS));
+            afterTraceability3.minusSeconds(TEMPORIZATION_IN_SECONDS)
+        );
         assertThat(traceabilityEvent3.getStatistics().getUnits()).isNull();
         assertThat(traceabilityEvent3.getStatistics().getObjectGroups().getNbOK()).isEqualTo(2);
         assertThat(traceabilityEvent3.getStatistics().getObjectGroups().getNbWarnings()).isEqualTo(0);
@@ -1247,15 +1263,16 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
         TraceabilityEvent traceabilityEvent5 = getTraceabilityEvent(traceabilityOperation5);
         assertThat(traceabilityEvent5).isNotNull();
         assertThat(traceabilityEvent5.getStartDate()).isEqualTo(traceabilityEvent3.getEndDate());
-        assertThatDateIsBetween(traceabilityEvent5.getEndDate(),
+        assertThatDateIsBetween(
+            traceabilityEvent5.getEndDate(),
             beforeTraceability5.minusSeconds(TEMPORIZATION_IN_SECONDS),
-            afterTraceability5.minusSeconds(TEMPORIZATION_IN_SECONDS));
+            afterTraceability5.minusSeconds(TEMPORIZATION_IN_SECONDS)
+        );
         assertThat(traceabilityEvent5.getStatistics().getUnits()).isNull();
         assertThat(traceabilityEvent5.getStatistics().getObjectGroups().getNbOK()).isEqualTo(2);
         assertThat(traceabilityEvent5.getStatistics().getObjectGroups().getNbWarnings()).isEqualTo(0);
         assertThat(traceabilityEvent5.getStatistics().getObjects().getNbOK()).isEqualTo(2);
         assertThat(traceabilityEvent5.getStatistics().getObjects().getNbWarnings()).isEqualTo(0);
-
     }
 
     private void createLogbookOperation(GUID operationId, GUID objectId)
@@ -1265,17 +1282,19 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
 
     private void createLogbookOperation(GUID operationId, GUID objectId, String type)
         throws LogbookClientBadRequestException, LogbookClientAlreadyExistsException, LogbookClientServerException {
-
         final LogbookOperationsClient logbookClient = LogbookOperationsClientFactory.getInstance().getClient();
         if (type == null) {
             type = "Process_SIP_unitary";
         }
         final LogbookOperationParameters initParameters = LogbookParameterHelper.newLogbookOperationParameters(
-            operationId, type, objectId,
+            operationId,
+            type,
+            objectId,
             "Process_SIP_unitary".equals(type) ? LogbookTypeProcess.INGEST : LogbookTypeProcess.TRACEABILITY,
             StatusCode.STARTED,
             operationId != null ? operationId.toString() : "outcomeDetailMessage",
-            operationId);
+            operationId
+        );
 
         logbookClient.create(initParameters);
     }
@@ -1288,19 +1307,19 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
         final String containerName2 = objectGuid2.getId();
         createLogbookOperation(operationGuid2, objectGuid2);
 
-        final InputStream zipInputStreamSipObject =
-            PropertiesUtils.getResourceAsStream(sipFile);
+        final InputStream zipInputStreamSipObject = PropertiesUtils.getResourceAsStream(sipFile);
         workspaceClient.createContainer(containerName2);
-        workspaceClient.uncompressObject(containerName2, SIP_FOLDER, CommonMediaType.ZIP,
-            zipInputStreamSipObject);
+        workspaceClient.uncompressObject(containerName2, SIP_FOLDER, CommonMediaType.ZIP, zipInputStreamSipObject);
         // Insert sanityCheck file & StpUpload
         insertWaitForStepEssentialFiles(containerName2);
 
         // call processing
         processingClient.initVitamProcess(containerName2, Contexts.DEFAULT_WORKFLOW.name());
-        final RequestResponse<ItemStatus> ret2 =
-            processingClient.executeOperationProcess(containerName2, Contexts.DEFAULT_WORKFLOW.name(),
-                ProcessAction.RESUME.getValue());
+        final RequestResponse<ItemStatus> ret2 = processingClient.executeOperationProcess(
+            containerName2,
+            Contexts.DEFAULT_WORKFLOW.name(),
+            ProcessAction.RESUME.getValue()
+        );
         assertNotNull(ret2);
         assertThat(ret2.isOk()).isTrue();
         assertEquals(Status.ACCEPTED.getStatusCode(), ret2.getStatus());
@@ -1308,10 +1327,10 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
         assertCompletedWithStatus(containerName2, StatusCode.OK);
     }
 
-    private String launchLogbookLFC(Contexts traceabilityContext)
-        throws Exception {
-        try (LogbookOperationsClient logbookOperationsClient = LogbookOperationsClientFactory.getInstance()
-            .getClient()) {
+    private String launchLogbookLFC(Contexts traceabilityContext) throws Exception {
+        try (
+            LogbookOperationsClient logbookOperationsClient = LogbookOperationsClientFactory.getInstance().getClient()
+        ) {
             RequestResponseOK requestResponseOK;
             switch (traceabilityContext) {
                 case UNIT_LFC_TRACEABILITY:
@@ -1334,15 +1353,17 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
     }
 
     private void corruptOneObjectGroupLfcInDb() throws Exception {
-        try (LogbookLifeCyclesClient logbookLifeCyclesClient = LogbookLifeCyclesClientFactory.getInstance()
-            .getClient()) {
+        try (
+            LogbookLifeCyclesClient logbookLifeCyclesClient = LogbookLifeCyclesClientFactory.getInstance().getClient()
+        ) {
             // search for got lfc
             final Query parentQuery = QueryHelper.gte("evDateTime", LocalDateTime.MIN.toString());
             final Select select = new Select();
             select.setQuery(parentQuery);
             select.addOrderByAscFilter("evDateTime");
             RequestResponseOK requestResponseOK = RequestResponseOK.getFromJsonNode(
-                logbookLifeCyclesClient.selectObjectGroupLifeCycle(select.getFinalSelect()));
+                logbookLifeCyclesClient.selectObjectGroupLifeCycle(select.getFinalSelect())
+            );
             List<JsonNode> foundObjectGroupLifecycles = requestResponseOK.getResults();
             assertTrue(foundObjectGroupLifecycles != null && foundObjectGroupLifecycles.size() > 0);
             assertThat(foundObjectGroupLifecycles.get(0).get("evParentId")).isExactlyInstanceOf(NullNode.class);
@@ -1352,13 +1373,16 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
             // update got lfc
             final GUID updateLfcGuidStart = GUIDFactory.newOperationLogbookGUID(TENANT_ID);
             LogbookLifeCycleObjectGroupParameters logbookLifeGotUpdateParameters =
-                LogbookParameterHelper.newLogbookLifeCycleObjectGroupParameters(updateLfcGuidStart,
+                LogbookParameterHelper.newLogbookLifeCycleObjectGroupParameters(
+                    updateLfcGuidStart,
                     VitamLogbookMessages.getEventTypeLfc("AUDIT_CHECK_OBJECT"),
                     updateLfcGuidStart,
-                    LogbookTypeProcess.AUDIT, StatusCode.KO,
+                    LogbookTypeProcess.AUDIT,
+                    StatusCode.KO,
                     VitamLogbookMessages.getOutcomeDetailLfc("AUDIT_CHECK_OBJECT", StatusCode.KO),
                     VitamLogbookMessages.getCodeLfc("AUDIT_CHECK_OBJECT", StatusCode.KO),
-                    GUIDReader.getGUID(oneGotLfc));
+                    GUIDReader.getGUID(oneGotLfc)
+                );
 
             logbookLifeCyclesClient.update(logbookLifeGotUpdateParameters);
             logbookLifeCyclesClient.commit(logbookLifeGotUpdateParameters);
@@ -1366,15 +1390,17 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
     }
 
     private void corruptOneUnitLfcInDb() throws Exception {
-        try (LogbookLifeCyclesClient logbookLifeCyclesClient = LogbookLifeCyclesClientFactory.getInstance()
-            .getClient()) {
+        try (
+            LogbookLifeCyclesClient logbookLifeCyclesClient = LogbookLifeCyclesClientFactory.getInstance().getClient()
+        ) {
             // search for got lfc
             final Query parentQuery = QueryHelper.gte("evDateTime", LocalDateTime.MIN.toString());
             final Select select = new Select();
             select.setQuery(parentQuery);
             select.addOrderByAscFilter("evDateTime");
             RequestResponseOK requestResponseOK = RequestResponseOK.getFromJsonNode(
-                logbookLifeCyclesClient.selectUnitLifeCycle(select.getFinalSelect()));
+                logbookLifeCyclesClient.selectUnitLifeCycle(select.getFinalSelect())
+            );
             List<JsonNode> foundUnitLifecycles = requestResponseOK.getResults();
             assertTrue(foundUnitLifecycles != null && foundUnitLifecycles.size() > 0);
             assertThat(foundUnitLifecycles.get(0).get("evParentId")).isExactlyInstanceOf(NullNode.class);
@@ -1384,13 +1410,16 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
             // update got lfc
             final GUID updateLfcGuidStart = GUIDFactory.newOperationLogbookGUID(TENANT_ID);
             LogbookLifeCycleUnitParameters logbookLifeUnitUpdateParameters =
-                LogbookParameterHelper.newLogbookLifeCycleUnitParameters(updateLfcGuidStart,
+                LogbookParameterHelper.newLogbookLifeCycleUnitParameters(
+                    updateLfcGuidStart,
                     VitamLogbookMessages.getEventTypeLfc("UNIT_UPDATE"),
                     updateLfcGuidStart,
-                    LogbookTypeProcess.UPDATE, StatusCode.OK,
+                    LogbookTypeProcess.UPDATE,
+                    StatusCode.OK,
                     VitamLogbookMessages.getOutcomeDetailLfc("UNIT_UPDATE", StatusCode.OK),
                     VitamLogbookMessages.getCodeLfc("UNIT_UPDATE", StatusCode.OK),
-                    GUIDReader.getGUID(oneUnitLfc));
+                    GUIDReader.getGUID(oneUnitLfc)
+                );
 
             logbookLifeCyclesClient.update(logbookLifeUnitUpdateParameters);
             logbookLifeCyclesClient.commit(logbookLifeUnitUpdateParameters);
@@ -1398,8 +1427,7 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
     }
 
     private void assertCompletedWithStatus(String containerName, StatusCode expected) {
-        ProcessWorkflow processWorkflow =
-            processMonitoring.findOneProcessWorkflow(containerName, TENANT_ID);
+        ProcessWorkflow processWorkflow = processMonitoring.findOneProcessWorkflow(containerName, TENANT_ID);
         assertNotNull(processWorkflow);
         assertEquals(ProcessState.COMPLETED, processWorkflow.getState());
         assertEquals(expected, processWorkflow.getStatus());
@@ -1411,8 +1439,7 @@ public class ProcessingLFCTraceabilityIT extends VitamRuleRunner {
         JsonNode response = logbookClient.selectOperationById(containerName);
         JsonNode jsonNode = response.get("$results").get(0);
         JsonNode evDetData = jsonNode.get("evDetData");
-        if (evDetData == null || evDetData.isNull())
-            return null;
+        if (evDetData == null || evDetData.isNull()) return null;
         return JsonHandler.getFromString(evDetData.textValue(), TraceabilityEvent.class);
     }
 

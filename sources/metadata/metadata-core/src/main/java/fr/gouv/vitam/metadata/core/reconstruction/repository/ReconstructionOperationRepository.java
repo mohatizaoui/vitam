@@ -33,8 +33,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ReconstructionOperationRepository {
-
     List<ReconstructionOperation> fetchReconstructionOperations(LocalDateTime startDate, LocalDateTime endDate)
         throws ReconstructionException;
-
 }

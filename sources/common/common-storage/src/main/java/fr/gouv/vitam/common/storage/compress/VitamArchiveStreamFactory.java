@@ -57,7 +57,8 @@ public class VitamArchiveStreamFactory {
      * @throws IOException
      * @throws IllegalArgumentException if the archiver name or stream is null
      */
-    public ArchiveInputStream createArchiveInputStream(final MediaType mediaType, final InputStream in) throws IOException, ArchiveException {
+    public ArchiveInputStream createArchiveInputStream(final MediaType mediaType, final InputStream in)
+        throws IOException, ArchiveException {
         return createArchiveInputStream(mediaType, in, null);
     }
 
@@ -72,8 +73,11 @@ public class VitamArchiveStreamFactory {
      * @throws IOException
      * @throws IllegalArgumentException if the archiver name or stream is null
      */
-    public ArchiveInputStream createArchiveInputStream(final MediaType mediaType, final InputStream in, @Nullable String encoding)
-        throws ArchiveException, IOException {
+    public ArchiveInputStream createArchiveInputStream(
+        final MediaType mediaType,
+        final InputStream in,
+        @Nullable String encoding
+    ) throws ArchiveException, IOException {
         if (mediaType == null) {
             throw new IllegalArgumentException("archiverMediaType must not be null.");
         }
@@ -98,5 +102,4 @@ public class VitamArchiveStreamFactory {
                 throw new ArchiveException("Archive: " + mediaType + " not found.");
         }
     }
-
 }

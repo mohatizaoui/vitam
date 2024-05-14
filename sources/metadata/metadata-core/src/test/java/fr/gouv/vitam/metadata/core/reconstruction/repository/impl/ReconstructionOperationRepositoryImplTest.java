@@ -73,16 +73,18 @@ public class ReconstructionOperationRepositoryImplTest {
 
     @Test
     public void testFetchReconstructionOperations() throws Exception {
-
         // Given
         final LocalDateTime from = LocalDateUtil.getLocalDateFromSimpleFormattedDate("2023-06-01").atStartOfDay();
         final LocalDateTime to = LocalDateUtil.getLocalDateFromSimpleFormattedDate("2023-06-30").atStartOfDay();
-        JsonNode logbookResponse = JsonHandler.getFromInputStream(PropertiesUtils.getResourceAsStream(
-            LOGBOOKS_JSON));
+        JsonNode logbookResponse = JsonHandler.getFromInputStream(PropertiesUtils.getResourceAsStream(LOGBOOKS_JSON));
         ArgumentCaptor<JsonNode> jsonNodeArgumentCaptor = ArgumentCaptor.forClass(JsonNode.class);
-        when(logbookOperationsClient
-            .selectOperation(jsonNodeArgumentCaptor.capture(), any(Boolean.class), any(Boolean.class)))
-            .thenReturn(logbookResponse);
+        when(
+            logbookOperationsClient.selectOperation(
+                jsonNodeArgumentCaptor.capture(),
+                any(Boolean.class),
+                any(Boolean.class)
+            )
+        ).thenReturn(logbookResponse);
 
         // When
         final List<ReconstructionOperation> reconstructionOperations =

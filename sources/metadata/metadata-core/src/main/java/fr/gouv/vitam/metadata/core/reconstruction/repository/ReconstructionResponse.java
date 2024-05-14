@@ -37,9 +37,7 @@ public class ReconstructionResponse {
     public ReconstructionStatus status;
     private LocalDateTime lastSuccessfulOperationDate;
 
-
-    private ReconstructionResponse() {
-    }
+    private ReconstructionResponse() {}
 
     public boolean isFailure() {
         return status == FAILURE;
@@ -62,11 +60,13 @@ public class ReconstructionResponse {
     }
 
     public enum ReconstructionStatus {
-        INIT, SUCCESS, FAILURE
+        INIT,
+        SUCCESS,
+        FAILURE,
     }
 
-
     public static class Builder {
+
         private ReconstructionResponse response;
 
         public Builder() {

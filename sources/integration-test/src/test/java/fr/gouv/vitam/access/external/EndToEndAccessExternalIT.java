@@ -147,38 +147,45 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 
 public class EndToEndAccessExternalIT extends VitamRuleRunner {
+
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(EndToEndAccessExternalIT.class);
     private static final Integer tenantId = 0;
     private static final String XML = ".xml";
+
     @ClassRule
-    public static VitamServerRunner runner =
-        new VitamServerRunner(EndToEndAccessExternalIT.class, mongoRule.getMongoDatabase().getName(),
-            ElasticsearchRule.getClusterName(),
-            Sets.newHashSet(
-                MetadataMain.class,
-                WorkerMain.class,
-                AdminManagementMain.class,
-                LogbookMain.class,
-                WorkspaceMain.class,
-                ProcessManagementMain.class,
-                AccessInternalMain.class,
-                IngestInternalMain.class,
-                StorageMain.class,
-                DefaultOfferMain.class,
-                BatchReportMain.class,
-                AccessExternalMain.class,
-                IngestExternalMain.class
-            ));
+    public static VitamServerRunner runner = new VitamServerRunner(
+        EndToEndAccessExternalIT.class,
+        mongoRule.getMongoDatabase().getName(),
+        ElasticsearchRule.getClusterName(),
+        Sets.newHashSet(
+            MetadataMain.class,
+            WorkerMain.class,
+            AdminManagementMain.class,
+            LogbookMain.class,
+            WorkspaceMain.class,
+            ProcessManagementMain.class,
+            AccessInternalMain.class,
+            IngestInternalMain.class,
+            StorageMain.class,
+            DefaultOfferMain.class,
+            BatchReportMain.class,
+            AccessExternalMain.class,
+            IngestExternalMain.class
+        )
+    );
+
     @Rule
     public LogicalClockRule logicalClock = new LogicalClockRule();
+
     @Rule
     public TemporaryFolder tempFolder = new TemporaryFolder();
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
         handleBeforeClass(Arrays.asList(0, 1), Collections.emptyMap());
-        final String configSiegfriedPath =
-            PropertiesUtils.getResourcePath("integration-ingest-internal/format-identifiers.conf").toString();
+        final String configSiegfriedPath = PropertiesUtils.getResourcePath(
+            "integration-ingest-internal/format-identifiers.conf"
+        ).toString();
         FormatIdentifierFactory.getInstance().changeConfigurationFile(configSiegfriedPath);
         new DataLoader("integration-ingest-internal").prepareData();
     }
@@ -196,18 +203,19 @@ public class EndToEndAccessExternalIT extends VitamRuleRunner {
         VitamThreadUtils.getVitamSession().setContextId("Context_IT");
 
         ProcessDataAccessImpl.getInstance().clearWorkflow();
-        runAfterMongo(Sets.newHashSet(
-            MetadataCollections.UNIT.getName(),
-            MetadataCollections.OBJECTGROUP.getName(),
-            FunctionalAdminCollections.ACCESSION_REGISTER_SUMMARY.getName(),
-            FunctionalAdminCollections.ACCESSION_REGISTER_DETAIL.getName(),
-            LogbookCollections.OPERATION.getName(),
-            LogbookCollections.LIFECYCLE_UNIT.getName(),
-            LogbookCollections.LIFECYCLE_OBJECTGROUP.getName(),
-            LogbookCollections.LIFECYCLE_OBJECTGROUP.getName(),
-            LogbookCollections.LIFECYCLE_UNIT_IN_PROCESS.getName()
-
-        ));
+        runAfterMongo(
+            Sets.newHashSet(
+                MetadataCollections.UNIT.getName(),
+                MetadataCollections.OBJECTGROUP.getName(),
+                FunctionalAdminCollections.ACCESSION_REGISTER_SUMMARY.getName(),
+                FunctionalAdminCollections.ACCESSION_REGISTER_DETAIL.getName(),
+                LogbookCollections.OPERATION.getName(),
+                LogbookCollections.LIFECYCLE_UNIT.getName(),
+                LogbookCollections.LIFECYCLE_OBJECTGROUP.getName(),
+                LogbookCollections.LIFECYCLE_OBJECTGROUP.getName(),
+                LogbookCollections.LIFECYCLE_UNIT_IN_PROCESS.getName()
+            )
+        );
 
         runAfterEs(
             ElasticsearchIndexAlias.ofMultiTenantCollection(MetadataCollections.UNIT.getName(), 0),
@@ -216,10 +224,12 @@ public class EndToEndAccessExternalIT extends VitamRuleRunner {
             ElasticsearchIndexAlias.ofMultiTenantCollection(MetadataCollections.OBJECTGROUP.getName(), 1),
             ElasticsearchIndexAlias.ofMultiTenantCollection(LogbookCollections.OPERATION.getName(), 0),
             ElasticsearchIndexAlias.ofMultiTenantCollection(LogbookCollections.OPERATION.getName(), 1),
-            ElasticsearchIndexAlias
-                .ofCrossTenantCollection(FunctionalAdminCollections.ACCESSION_REGISTER_DETAIL.getName()),
-            ElasticsearchIndexAlias
-                .ofCrossTenantCollection(FunctionalAdminCollections.ACCESSION_REGISTER_SUMMARY.getName())
+            ElasticsearchIndexAlias.ofCrossTenantCollection(
+                FunctionalAdminCollections.ACCESSION_REGISTER_DETAIL.getName()
+            ),
+            ElasticsearchIndexAlias.ofCrossTenantCollection(
+                FunctionalAdminCollections.ACCESSION_REGISTER_SUMMARY.getName()
+            )
         );
     }
 
@@ -230,8 +240,7 @@ public class EndToEndAccessExternalIT extends VitamRuleRunner {
 
     @Test
     @RunWithCustomExecutor
-    public void shouldDownloadObject()
-        throws Exception {
+    public void shouldDownloadObject() throws Exception {
         final VitamContext context = new VitamContext(tenantId)
             .setApplicationSessionId("ApplicationSessionId")
             .setAccessContract("aName3");
@@ -240,8 +249,12 @@ public class EndToEndAccessExternalIT extends VitamRuleRunner {
         try (final AccessExternalClient client = AccessExternalClientFactory.getInstance().getClient()) {
             final String persistentIdentifier = "ark:/23567/001a9d7db5eadabac_binary_master";
 
-            try (final Response response = client.downloadObjectByObjectPersistentIdentifier(context,
-                persistentIdentifier)) {
+            try (
+                final Response response = client.downloadObjectByObjectPersistentIdentifier(
+                    context,
+                    persistentIdentifier
+                )
+            ) {
                 assertEquals(200, response.getStatus());
                 assertThat(response.getHeaderString("Content-Length")).isEqualTo("6");
                 assertNotNull(response.getEntity());
@@ -253,8 +266,7 @@ public class EndToEndAccessExternalIT extends VitamRuleRunner {
 
     @Test
     @RunWithCustomExecutor
-    public void shouldObjectBeNotFoundWhenTryingToDownloadAnArchiveUnitPersistentIdentifier()
-        throws Exception {
+    public void shouldObjectBeNotFoundWhenTryingToDownloadAnArchiveUnitPersistentIdentifier() throws Exception {
         final String persistentIdentifier = "ark:/666567/001a957db5eadaac";
         final VitamContext context = new VitamContext(tenantId)
             .setApplicationSessionId("ApplicationSessionId")
@@ -262,8 +274,9 @@ public class EndToEndAccessExternalIT extends VitamRuleRunner {
         ingest(context, "elimination/ARK_IDS_AND_TO_GENERATE_NEW_1.zip");
 
         try (final AccessExternalClient client = AccessExternalClientFactory.getInstance().getClient()) {
-            final VitamClientException vitamClientException = assertThrows(VitamClientException.class, () ->
-                client.downloadObjectByObjectPersistentIdentifier(context, persistentIdentifier)
+            final VitamClientException vitamClientException = assertThrows(
+                VitamClientException.class,
+                () -> client.downloadObjectByObjectPersistentIdentifier(context, persistentIdentifier)
             );
             assertThat(vitamClientException.getMessage()).isEqualTo("Persistent identifier not found exception");
         }
@@ -278,8 +291,9 @@ public class EndToEndAccessExternalIT extends VitamRuleRunner {
             .setAccessContract("aName3");
 
         try (final AccessExternalClient client = AccessExternalClientFactory.getInstance().getClient()) {
-            final VitamClientException vitamClientException = assertThrows(VitamClientException.class, () ->
-                client.downloadObjectByObjectPersistentIdentifier(context, persistentIdentifier)
+            final VitamClientException vitamClientException = assertThrows(
+                VitamClientException.class,
+                () -> client.downloadObjectByObjectPersistentIdentifier(context, persistentIdentifier)
             );
             assertThat(vitamClientException.getMessage()).isEqualTo("Persistent identifier not found exception");
         }
@@ -311,20 +325,27 @@ public class EndToEndAccessExternalIT extends VitamRuleRunner {
             assertThat(purgedPayload).isNotNull();
         }
 
-        try (final AccessExternalClient client = AccessExternalClientFactory.getInstance().getClient();
-            final Response response = client.downloadObjectByObjectPersistentIdentifier(context,
-                persistentIdentifier)) {
+        try (
+            final AccessExternalClient client = AccessExternalClientFactory.getInstance().getClient();
+            final Response response = client.downloadObjectByObjectPersistentIdentifier(context, persistentIdentifier)
+        ) {
             assertEquals(404, response.getStatus());
 
             final String entity = response.readEntity(String.class);
             assertThat(entity).isNotBlank();
 
-            final PurgedPersistentIdentifier purgedPersistentIdentifier =
-                JsonHandler.getFromString(entity, PurgedPersistentIdentifier.class);
+            final PurgedPersistentIdentifier purgedPersistentIdentifier = JsonHandler.getFromString(
+                entity,
+                PurgedPersistentIdentifier.class
+            );
             assertThat(purgedPersistentIdentifier).isNotNull();
             assertThat(purgedPersistentIdentifier.getOperationType()).isEqualTo(ELIMINATION_ACTION.name());
-            assertThat(purgedPersistentIdentifier.getPersistentIdentifiers().stream()
-                .anyMatch(pi -> pi.getPersistentIdentifierContent().equals(persistentIdentifier))).isTrue();
+            assertThat(
+                purgedPersistentIdentifier
+                    .getPersistentIdentifiers()
+                    .stream()
+                    .anyMatch(pi -> pi.getPersistentIdentifierContent().equals(persistentIdentifier))
+            ).isTrue();
         }
     }
 
@@ -335,7 +356,8 @@ public class EndToEndAccessExternalIT extends VitamRuleRunner {
         final String guid = GUIDFactory.newGUID().getId();
         final String persistentIdentifier = "ark:/00001/transferred_object:" + guid;
         final String json = PropertiesUtils.getResourceAsString(
-                "elimination/purgedPersistentIdentifier/transferred-ppi.json")
+            "elimination/purgedPersistentIdentifier/transferred-ppi.json"
+        )
             .replace("aeaqaaaaaaeaaaabaatogammrnxmtsiaaaaq", guid)
             .replace("ark:/00001/transferred_object", persistentIdentifier);
         final Document document = Document.parse(json);
@@ -347,19 +369,29 @@ public class EndToEndAccessExternalIT extends VitamRuleRunner {
                 .setApplicationSessionId("ApplicationSessionId")
                 .setAccessContract("contract");
 
-            try (final Response response = client.downloadObjectByObjectPersistentIdentifier(context,
-                persistentIdentifier)) {
+            try (
+                final Response response = client.downloadObjectByObjectPersistentIdentifier(
+                    context,
+                    persistentIdentifier
+                )
+            ) {
                 assertEquals(404, response.getStatus());
 
                 final String entity = response.readEntity(String.class);
                 assertThat(entity).isNotBlank();
 
-                final PurgedPersistentIdentifier purgedPersistentIdentifier =
-                    JsonHandler.getFromString(entity, PurgedPersistentIdentifier.class);
+                final PurgedPersistentIdentifier purgedPersistentIdentifier = JsonHandler.getFromString(
+                    entity,
+                    PurgedPersistentIdentifier.class
+                );
                 assertThat(purgedPersistentIdentifier).isNotNull();
                 assertThat(purgedPersistentIdentifier.getOperationType()).isEqualTo(TRANSFER_REPLY.name());
-                assertThat(purgedPersistentIdentifier.getPersistentIdentifiers().stream()
-                    .anyMatch(pi -> pi.getPersistentIdentifierContent().equals(persistentIdentifier))).isTrue();
+                assertThat(
+                    purgedPersistentIdentifier
+                        .getPersistentIdentifiers()
+                        .stream()
+                        .anyMatch(pi -> pi.getPersistentIdentifierContent().equals(persistentIdentifier))
+                ).isTrue();
             }
         }
     }
@@ -371,7 +403,8 @@ public class EndToEndAccessExternalIT extends VitamRuleRunner {
         final String guid = GUIDFactory.newGUID().getId();
         final String persistentIdentifier = "ark:/00001/removed_object_version:" + guid;
         final String json = PropertiesUtils.getResourceAsString(
-                "elimination/purgedPersistentIdentifier/object-version-removed-ppi.json")
+            "elimination/purgedPersistentIdentifier/object-version-removed-ppi.json"
+        )
             .replace("aeaqaaaaaaeaaaabaatogammrnxmtsiaaaaq", guid)
             .replace("ark:/00001/removed_object_version", persistentIdentifier);
         final Document document = Document.parse(json);
@@ -383,37 +416,53 @@ public class EndToEndAccessExternalIT extends VitamRuleRunner {
                 .setApplicationSessionId("ApplicationSessionId")
                 .setAccessContract("contract");
 
-            try (final Response response = client.downloadObjectByObjectPersistentIdentifier(context,
-                persistentIdentifier)) {
+            try (
+                final Response response = client.downloadObjectByObjectPersistentIdentifier(
+                    context,
+                    persistentIdentifier
+                )
+            ) {
                 assertEquals(404, response.getStatus());
 
                 final String entity = response.readEntity(String.class);
                 assertThat(entity).isNotBlank();
 
-                final PurgedPersistentIdentifier purgedPersistentIdentifier =
-                    JsonHandler.getFromString(entity, PurgedPersistentIdentifier.class);
+                final PurgedPersistentIdentifier purgedPersistentIdentifier = JsonHandler.getFromString(
+                    entity,
+                    PurgedPersistentIdentifier.class
+                );
                 assertThat(purgedPersistentIdentifier).isNotNull();
                 assertThat(purgedPersistentIdentifier.getOperationType()).isEqualTo(DELETE_GOT_VERSIONS.name());
-                assertThat(purgedPersistentIdentifier.getPersistentIdentifiers().stream()
-                    .anyMatch(pi -> pi.getPersistentIdentifierContent().equals(persistentIdentifier))).isTrue();
+                assertThat(
+                    purgedPersistentIdentifier
+                        .getPersistentIdentifiers()
+                        .stream()
+                        .anyMatch(pi -> pi.getPersistentIdentifierContent().equals(persistentIdentifier))
+                ).isTrue();
             }
         }
     }
 
     private InputStream readStoredReport(String filename)
-        throws StorageServerClientException, StorageNotFoundException,
-        StorageUnavailableDataFromAsyncOfferClientException {
+        throws StorageServerClientException, StorageNotFoundException, StorageUnavailableDataFromAsyncOfferClientException {
         try (StorageClient storageClient = StorageClientFactory.getInstance().getClient()) {
             Response reportResponse = null;
 
             try {
-                reportResponse = storageClient.getContainerAsync(VitamConfiguration.getDefaultStrategy(),
-                    filename, DataCategory.REPORT,
-                    AccessLogUtils.getNoLogAccessLog());
+                reportResponse = storageClient.getContainerAsync(
+                    VitamConfiguration.getDefaultStrategy(),
+                    filename,
+                    DataCategory.REPORT,
+                    AccessLogUtils.getNoLogAccessLog()
+                );
                 assertThat(reportResponse.getStatus()).isEqualTo(Status.OK.getStatusCode());
                 return new VitamAsyncInputStream(reportResponse);
-            } catch (RuntimeException | StorageServerClientException | StorageNotFoundException |
-                     StorageUnavailableDataFromAsyncOfferClientException e) {
+            } catch (
+                RuntimeException
+                | StorageServerClientException
+                | StorageNotFoundException
+                | StorageUnavailableDataFromAsyncOfferClientException e
+            ) {
                 StreamUtils.consumeAnyEntityAndClose(reportResponse);
                 throw e;
             }
@@ -423,8 +472,8 @@ public class EndToEndAccessExternalIT extends VitamRuleRunner {
     private void awaitForWorkflowTerminationWithStatus(String operationGuid, StatusCode expectedStatusCode) {
         waitOperation(operationGuid);
 
-        ProcessWorkflow processWorkflow =
-            ProcessMonitoringImpl.getInstance().findOneProcessWorkflow(operationGuid, tenantId);
+        ProcessWorkflow processWorkflow = ProcessMonitoringImpl.getInstance()
+            .findOneProcessWorkflow(operationGuid, tenantId);
 
         try {
             assertNotNull(processWorkflow);
@@ -449,8 +498,7 @@ public class EndToEndAccessExternalIT extends VitamRuleRunner {
     private void tryLogATR(String operationId) {
         try (InputStream atr = readStoredReport(operationId + XML)) {
             LOGGER.error("Operation ATR : \n" + IOUtils.toString(atr, StandardCharsets.UTF_8) + "\n\n\n");
-        } catch (StorageNotFoundException ignored) {
-        } catch (Exception e) {
+        } catch (StorageNotFoundException ignored) {} catch (Exception e) {
             LOGGER.error("Could not retrieve ATR for operation " + operationId, e);
         }
     }
@@ -459,9 +507,11 @@ public class EndToEndAccessExternalIT extends VitamRuleRunner {
         try (
             final InputStream inputStream = PropertiesUtils.getResourceAsStream(sip);
             final IngestExternalClient ingestClient = IngestExternalClientFactory.getInstance()
-                .setVitamClientType(PRODUCTION).getClient();
+                .setVitamClientType(PRODUCTION)
+                .getClient();
             final AdminExternalClient adminClient = AdminExternalClientFactory.getInstance()
-                .setVitamClientType(PRODUCTION).getClient()
+                .setVitamClientType(PRODUCTION)
+                .getClient()
         ) {
             final RequestResponse<Void> response = ingestClient.ingest(
                 context,
@@ -493,9 +543,7 @@ public class EndToEndAccessExternalIT extends VitamRuleRunner {
     private EliminationRequestBody eliminationRequest(final String operationId, final String beginDate)
         throws InvalidCreateOperationException {
         final SelectMultiQuery selectMultiQuery = (SelectMultiQuery) new SelectMultiQuery()
-            .addQueries(
-                QueryHelper.eq(VitamFieldsHelper.initialOperation(), operationId)
-            );
+            .addQueries(QueryHelper.eq(VitamFieldsHelper.initialOperation(), operationId));
         final ObjectNode objectNode = selectMultiQuery.getFinalSelect();
         objectNode.remove("$filter");
         objectNode.remove("$facets");
@@ -528,10 +576,12 @@ public class EndToEndAccessExternalIT extends VitamRuleRunner {
     }
 
     private String eliminate(final VitamContext context, final String operationId, final String date)
-        throws InvalidCreateOperationException, VitamClientException, OperationContextException,
-        StorageNotFoundException, InterruptedException {
-        try (final AccessExternalClient client = AccessExternalClientFactory.getInstance()
-            .setVitamClientType(PRODUCTION).getClient()) {
+        throws InvalidCreateOperationException, VitamClientException, OperationContextException, StorageNotFoundException, InterruptedException {
+        try (
+            final AccessExternalClient client = AccessExternalClientFactory.getInstance()
+                .setVitamClientType(PRODUCTION)
+                .getClient()
+        ) {
             final EliminationRequestBody eliminationRequestBody = eliminationRequest(operationId, date);
             final RequestResponse<JsonNode> result = client.startEliminationAction(context, eliminationRequestBody);
             assertThat(result.isOk()).isTrue();
@@ -542,7 +592,7 @@ public class EndToEndAccessExternalIT extends VitamRuleRunner {
             VitamThreadUtils.getVitamSession().setRequestId(eliminationOperationId);
             containsEliminationInfo(eliminationOperationId);
             awaitForWorkflowTerminationWithStatus(eliminationOperationId, StatusCode.OK);
-            TimeUnit.SECONDS.sleep(1);// wait until cleanup is finished
+            TimeUnit.SECONDS.sleep(1); // wait until cleanup is finished
             notContainsEliminationInfo(eliminationOperationId);
             return eliminationOperationId;
         }
@@ -550,12 +600,11 @@ public class EndToEndAccessExternalIT extends VitamRuleRunner {
 
     public interface IngestCleanupAdminService {
         @POST("/adminmanagement/v1/invalidIngestCleanup/{opi}")
-        @Headers({
-            "Accept: application/json"
-        })
+        @Headers({ "Accept: application/json" })
         Call<Void> startIngestCleanupWorkflow(
             @Path("opi") String opi,
             @Header("X-Tenant-Id") Integer tenant,
-            @Header("Authorization") String basicAuthnToken);
+            @Header("Authorization") String basicAuthnToken
+        );
     }
 }

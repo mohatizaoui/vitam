@@ -89,7 +89,6 @@ public class ArchiveUnitModel {
     @JsonProperty("#managementContractId")
     private String managementContractId;
 
-
     /**
      * Constructor
      */
@@ -136,7 +135,6 @@ public class ArchiveUnitModel {
     public void setManagement(ManagementModel management) {
         this.management = management;
     }
-
 
     public List<ArchiveUnitHistoryModel> getHistory() {
         return history;
@@ -189,8 +187,6 @@ public class ArchiveUnitModel {
         return this;
     }
 
-
-
     public String getOriginatingAgency() {
         return originatingAgency;
     }
@@ -240,5 +236,4 @@ public class ArchiveUnitModel {
     public void setManagementContractId(String managementContractId) {
         this.managementContractId = managementContractId;
     }
-
 }

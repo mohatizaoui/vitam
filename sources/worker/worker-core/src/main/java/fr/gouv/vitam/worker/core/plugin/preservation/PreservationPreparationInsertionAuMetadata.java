@@ -45,9 +45,11 @@ import static fr.gouv.vitam.worker.core.utils.PluginHelper.EventDetails.of;
 import static fr.gouv.vitam.worker.core.utils.PluginHelper.buildItemStatus;
 
 public class PreservationPreparationInsertionAuMetadata extends ActionHandler {
-    private static final VitamLogger LOGGER =
-        VitamLoggerFactory.getInstance(PreservationPreparationInsertionAuMetadata.class);
-    private final static String ITEM_ID = "PREPARATION_PRESERVATION_INSERTION_AU_METADATA";
+
+    private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(
+        PreservationPreparationInsertionAuMetadata.class
+    );
+    private static final String ITEM_ID = "PREPARATION_PRESERVATION_INSERTION_AU_METADATA";
 
     private final BatchReportClientFactory batchReportClientFactory;
     private final WorkspaceClientFactory workspaceClientFactory;
@@ -57,8 +59,10 @@ public class PreservationPreparationInsertionAuMetadata extends ActionHandler {
     }
 
     @VisibleForTesting
-    public PreservationPreparationInsertionAuMetadata(BatchReportClientFactory batchReportClientFactory,
-        WorkspaceClientFactory workspaceClientFactory) {
+    public PreservationPreparationInsertionAuMetadata(
+        BatchReportClientFactory batchReportClientFactory,
+        WorkspaceClientFactory workspaceClientFactory
+    ) {
         this.batchReportClientFactory = batchReportClientFactory;
         this.workspaceClientFactory = workspaceClientFactory;
     }
@@ -66,10 +70,14 @@ public class PreservationPreparationInsertionAuMetadata extends ActionHandler {
     @Override
     public ItemStatus execute(WorkerParameters workerParameters, HandlerIO handler) throws ProcessingException {
         LOGGER.info("starting {}", ITEM_ID);
-        try (BatchReportClient client = batchReportClientFactory.getClient();
-            WorkspaceClient workspaceClient = workspaceClientFactory.getClient()) {
-            boolean distributionFileAlreadyCreated =
-                workspaceClient.isExistingObject(workerParameters.getContainerName(), "distributionFileAU.jsonl");
+        try (
+            BatchReportClient client = batchReportClientFactory.getClient();
+            WorkspaceClient workspaceClient = workspaceClientFactory.getClient()
+        ) {
+            boolean distributionFileAlreadyCreated = workspaceClient.isExistingObject(
+                workerParameters.getContainerName(),
+                "distributionFileAU.jsonl"
+            );
             if (!distributionFileAlreadyCreated) {
                 client.createExtractedMetadataDistributionFileForAu(workerParameters.getContainerName());
             }

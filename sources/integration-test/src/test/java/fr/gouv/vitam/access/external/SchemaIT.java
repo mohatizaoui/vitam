@@ -88,37 +88,44 @@ import static fr.gouv.vitam.common.guid.GUIDFactory.newOperationLogbookGUID;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SchemaIT extends VitamRuleRunner {
+
     private static final Integer TENANT_ID = 1;
     private static final String INTERNAL_ONTOLOGIES_PATH = "ontology/ontologies.json";
-    @ClassRule public static VitamServerRunner runner =
-        new VitamServerRunner(
-            SchemaIT.class,
-            mongoRule.getMongoDatabase().getName(),
-            ElasticsearchRule.getClusterName(),
-            Sets.newHashSet(
-                MetadataMain.class,
-                WorkerMain.class,
-                AdminManagementMain.class,
-                LogbookMain.class,
-                WorkspaceMain.class,
-                ProcessManagementMain.class,
-                AccessInternalMain.class,
-                IngestInternalMain.class,
-                StorageMain.class,
-                DefaultOfferMain.class,
-                BatchReportMain.class,
-                AccessExternalMain.class,
-                IngestExternalMain.class
-            )
-        );
-    @Rule public LogicalClockRule logicalClock = new LogicalClockRule();
-    @Rule public TemporaryFolder tempFolder = new TemporaryFolder();
+
+    @ClassRule
+    public static VitamServerRunner runner = new VitamServerRunner(
+        SchemaIT.class,
+        mongoRule.getMongoDatabase().getName(),
+        ElasticsearchRule.getClusterName(),
+        Sets.newHashSet(
+            MetadataMain.class,
+            WorkerMain.class,
+            AdminManagementMain.class,
+            LogbookMain.class,
+            WorkspaceMain.class,
+            ProcessManagementMain.class,
+            AccessInternalMain.class,
+            IngestInternalMain.class,
+            StorageMain.class,
+            DefaultOfferMain.class,
+            BatchReportMain.class,
+            AccessExternalMain.class,
+            IngestExternalMain.class
+        )
+    );
+
+    @Rule
+    public LogicalClockRule logicalClock = new LogicalClockRule();
+
+    @Rule
+    public TemporaryFolder tempFolder = new TemporaryFolder();
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
         handleBeforeClass(Arrays.asList(0, 1), Collections.emptyMap());
-        final String configSiegfriedPath =
-            PropertiesUtils.getResourcePath("integration-ingest-internal/format-identifiers.conf").toString();
+        final String configSiegfriedPath = PropertiesUtils.getResourcePath(
+            "integration-ingest-internal/format-identifiers.conf"
+        ).toString();
         FormatIdentifierFactory.getInstance().changeConfigurationFile(configSiegfriedPath);
         new DataLoader("integration-ingest-internal").prepareData();
     }
@@ -136,24 +143,34 @@ public class SchemaIT extends VitamRuleRunner {
         VitamThreadUtils.getVitamSession().setContextId("Context_IT");
 
         ProcessDataAccessImpl.getInstance().clearWorkflow();
-        runAfterMongo(Sets.newHashSet(MetadataCollections.UNIT.getName(), MetadataCollections.OBJECTGROUP.getName(),
-            FunctionalAdminCollections.ACCESSION_REGISTER_SUMMARY.getName(),
-            FunctionalAdminCollections.ACCESSION_REGISTER_DETAIL.getName(), LogbookCollections.OPERATION.getName(),
-            LogbookCollections.LIFECYCLE_UNIT.getName(), LogbookCollections.LIFECYCLE_OBJECTGROUP.getName(),
-            LogbookCollections.LIFECYCLE_OBJECTGROUP.getName(), LogbookCollections.LIFECYCLE_UNIT_IN_PROCESS.getName()
+        runAfterMongo(
+            Sets.newHashSet(
+                MetadataCollections.UNIT.getName(),
+                MetadataCollections.OBJECTGROUP.getName(),
+                FunctionalAdminCollections.ACCESSION_REGISTER_SUMMARY.getName(),
+                FunctionalAdminCollections.ACCESSION_REGISTER_DETAIL.getName(),
+                LogbookCollections.OPERATION.getName(),
+                LogbookCollections.LIFECYCLE_UNIT.getName(),
+                LogbookCollections.LIFECYCLE_OBJECTGROUP.getName(),
+                LogbookCollections.LIFECYCLE_OBJECTGROUP.getName(),
+                LogbookCollections.LIFECYCLE_UNIT_IN_PROCESS.getName()
+            )
+        );
 
-        ));
-
-        runAfterEs(ElasticsearchIndexAlias.ofMultiTenantCollection(MetadataCollections.UNIT.getName(), 0),
+        runAfterEs(
+            ElasticsearchIndexAlias.ofMultiTenantCollection(MetadataCollections.UNIT.getName(), 0),
             ElasticsearchIndexAlias.ofMultiTenantCollection(MetadataCollections.UNIT.getName(), 1),
             ElasticsearchIndexAlias.ofMultiTenantCollection(MetadataCollections.OBJECTGROUP.getName(), 0),
             ElasticsearchIndexAlias.ofMultiTenantCollection(MetadataCollections.OBJECTGROUP.getName(), 1),
             ElasticsearchIndexAlias.ofMultiTenantCollection(LogbookCollections.OPERATION.getName(), 0),
             ElasticsearchIndexAlias.ofMultiTenantCollection(LogbookCollections.OPERATION.getName(), 1),
             ElasticsearchIndexAlias.ofCrossTenantCollection(
-                FunctionalAdminCollections.ACCESSION_REGISTER_DETAIL.getName()),
+                FunctionalAdminCollections.ACCESSION_REGISTER_DETAIL.getName()
+            ),
             ElasticsearchIndexAlias.ofCrossTenantCollection(
-                FunctionalAdminCollections.ACCESSION_REGISTER_SUMMARY.getName()));
+                FunctionalAdminCollections.ACCESSION_REGISTER_SUMMARY.getName()
+            )
+        );
     }
 
     @Before
@@ -164,22 +181,28 @@ public class SchemaIT extends VitamRuleRunner {
     @Test
     @RunWithCustomExecutor
     public void shouldCreateRootLeafSchema()
-        throws FileNotFoundException, AccessExternalClientException, InvalidParseOperationException,
-        JsonProcessingException {
+        throws FileNotFoundException, AccessExternalClientException, InvalidParseOperationException, JsonProcessingException {
         try (final AdminExternalClient client = AdminExternalClientFactory.getInstance().getClient()) {
-            final VitamContext context = new VitamContext(TENANT_ID).setApplicationSessionId("ApplicationSessionId")
+            final VitamContext context = new VitamContext(TENANT_ID)
+                .setApplicationSessionId("ApplicationSessionId")
                 .setAccessContract("contract");
 
             final boolean forceUpdate = false;
-            final InputStream ontologiesInputStream =
-                combineOntologies(INTERNAL_ONTOLOGIES_PATH, "ontology/external-ontologies-primitive-leaf.json");
-            final RequestResponse<?> ontologiesImportResponse =
-                client.importOntologies(forceUpdate, context, ontologiesInputStream);
+            final InputStream ontologiesInputStream = combineOntologies(
+                INTERNAL_ONTOLOGIES_PATH,
+                "ontology/external-ontologies-primitive-leaf.json"
+            );
+            final RequestResponse<?> ontologiesImportResponse = client.importOntologies(
+                forceUpdate,
+                context,
+                ontologiesInputStream
+            );
 
             assertThat(ontologiesImportResponse.getStatus()).isEqualTo(200);
 
-            final InputStream schemaInputStream =
-                PropertiesUtils.getResourceAsStream("schema/external-unit-schema-primitive-leaf.json");
+            final InputStream schemaInputStream = PropertiesUtils.getResourceAsStream(
+                "schema/external-unit-schema-primitive-leaf.json"
+            );
             final RequestResponse<?> schemaImportResponse = client.importUnitExternalSchema(context, schemaInputStream);
             assertThat(schemaImportResponse.getStatus()).isEqualTo(200);
         }
@@ -188,23 +211,26 @@ public class SchemaIT extends VitamRuleRunner {
     @Test
     @RunWithCustomExecutor
     public void shouldNotAllowSchemasWithObjectInOntologies()
-        throws FileNotFoundException, JsonProcessingException, AccessExternalClientException,
-        InvalidParseOperationException {
+        throws FileNotFoundException, JsonProcessingException, AccessExternalClientException, InvalidParseOperationException {
         try (final AdminExternalClient client = AdminExternalClientFactory.getInstance().getClient()) {
-            final VitamContext context = new VitamContext(TENANT_ID).setApplicationSessionId("ApplicationSessionId")
+            final VitamContext context = new VitamContext(TENANT_ID)
+                .setApplicationSessionId("ApplicationSessionId")
                 .setAccessContract("contract");
 
             final boolean forceUpdate = false;
             final List<OntologyModel> ontologies = ontologies(INTERNAL_ONTOLOGIES_PATH);
             final InputStream ontologiesInputStream = ontologiesToInputStream(ontologies);
-            final RequestResponse<?> ontologiesImportResponse =
-                client.importOntologies(forceUpdate, context, ontologiesInputStream);
+            final RequestResponse<?> ontologiesImportResponse = client.importOntologies(
+                forceUpdate,
+                context,
+                ontologiesInputStream
+            );
 
             assertThat(ontologiesImportResponse.getStatus()).isEqualTo(200);
 
-            final InputStream schemaInputStream =
-                PropertiesUtils.getResourceAsStream(
-                    "schema/external-unit-schema-with-object-collapsing-ontologies.json");
+            final InputStream schemaInputStream = PropertiesUtils.getResourceAsStream(
+                "schema/external-unit-schema-with-object-collapsing-ontologies.json"
+            );
             final RequestResponse<?> schemaImportResponse = client.importUnitExternalSchema(context, schemaInputStream);
             assertThat(schemaImportResponse.getStatus()).isEqualTo(400);
 
@@ -215,14 +241,18 @@ public class SchemaIT extends VitamRuleRunner {
             final VitamError<?> vitamError = RequestResponse.parseVitamError(schemaImportResponse.toResponse());
             assertThat(vitamError).isNotNull();
             assertThat(vitamError.getDescription()).isEqualTo(
-                "Error with the response, get status: '400' and reason 'Bad Request'.");
+                "Error with the response, get status: '400' and reason 'Bad Request'."
+            );
             assertThat(vitamError.getMessage()).isEqualTo(
-                "Error with the response, get status: '400' and reason 'Bad Request'.");
+                "Error with the response, get status: '400' and reason 'Bad Request'."
+            );
         }
     }
 
-    private InputStream combineOntologies(final String internalOntologieFilePath,
-        final String externalOntologieFilePath) throws FileNotFoundException, JsonProcessingException {
+    private InputStream combineOntologies(
+        final String internalOntologieFilePath,
+        final String externalOntologieFilePath
+    ) throws FileNotFoundException, JsonProcessingException {
         final List<OntologyModel> internalOntologies = ontologies(internalOntologieFilePath);
         final List<OntologyModel> externalOntologies = ontologies(externalOntologieFilePath);
         final List<OntologyModel> ontologies = new ArrayList<>(internalOntologies);
@@ -234,8 +264,7 @@ public class SchemaIT extends VitamRuleRunner {
     private List<OntologyModel> ontologies(final String path) throws JsonProcessingException, FileNotFoundException {
         final String json = PropertiesUtils.getResourceAsString(path);
         final ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper.readValue(json, new TypeReference<>() {
-        });
+        return objectMapper.readValue(json, new TypeReference<>() {});
     }
 
     private InputStream ontologiesToInputStream(List<OntologyModel> ontologies) throws JsonProcessingException {

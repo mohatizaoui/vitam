@@ -42,40 +42,55 @@ import java.util.stream.StreamSupport;
 
 public class VersionPurgedPersistentIdentifierExtractor extends PurgedPersistentIdentifierExtractor {
 
-    private static final VitamLogger LOGGER =
-        VitamLoggerFactory.getInstance(VersionPurgedPersistentIdentifierExtractor.class);
+    private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(
+        VersionPurgedPersistentIdentifierExtractor.class
+    );
 
     @Override
-    public List<PurgedPersistentIdentifier> extractPurgedPersistentIdentifier(JsonNode jsonNode,
-        ReconstructionOperation operation) {
-
+    public List<PurgedPersistentIdentifier> extractPurgedPersistentIdentifier(
+        JsonNode jsonNode,
+        ReconstructionOperation operation
+    ) {
         final String objectGroupId = jsonNode.get("objectGroupId").asText();
 
         return Optional.ofNullable(jsonNode)
             .map(node -> node.path("objectGroupGlobal"))
             .filter(JsonNode::isArray)
-            .map(objectGroupNodes ->
-                StreamSupport.stream(objectGroupNodes.spliterator(), false)
-                    .map(objectGroupNode ->
-                        StreamSupport.stream(objectGroupNode.path("deletedVersions").spliterator(), false)
-                            .map(deletedVersionNode -> buildObjetPurgedPersistentIdentifier(objectGroupId,
-                                deletedVersionNode, operation))
-                            .filter(Objects::nonNull)
-                            .collect(Collectors.toList()))
-                    .collect(Collectors.toList()))
+            .map(
+                objectGroupNodes ->
+                    StreamSupport.stream(objectGroupNodes.spliterator(), false)
+                        .map(
+                            objectGroupNode ->
+                                StreamSupport.stream(objectGroupNode.path("deletedVersions").spliterator(), false)
+                                    .map(
+                                        deletedVersionNode ->
+                                            buildObjetPurgedPersistentIdentifier(
+                                                objectGroupId,
+                                                deletedVersionNode,
+                                                operation
+                                            )
+                                    )
+                                    .filter(Objects::nonNull)
+                                    .collect(Collectors.toList())
+                        )
+                        .collect(Collectors.toList())
+            )
             .orElse(Collections.emptyList())
             .stream()
             .flatMap(List::stream)
             .collect(Collectors.toList());
     }
 
-    public PurgedPersistentIdentifier buildObjetPurgedPersistentIdentifier(String objectGroupId, JsonNode element,
-        ReconstructionOperation operation) {
-
+    public PurgedPersistentIdentifier buildObjetPurgedPersistentIdentifier(
+        String objectGroupId,
+        JsonNode element,
+        ReconstructionOperation operation
+    ) {
         if (!PurgedPersistentIdentifierValidator.validateFields(element, "id", "persistentIdentifier")) {
             LOGGER.warn(
                 "This element {} is ignored in the persistent identifier reconstruction because id or persistent identifier are not provided",
-                element);
+                element
+            );
             return null;
         }
 

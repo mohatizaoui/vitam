@@ -35,11 +35,11 @@ import java.util.Map;
 import java.util.Set;
 
 public class DataObjectVersions {
+
     private Set<String> dataObjectVersions;
     private Map<DataObjectVersionType, Set<QualifierVersion>> dataObjectVersionsPatterns;
 
-    public DataObjectVersions() {
-    }
+    public DataObjectVersions() {}
 
     public DataObjectVersions(Set<String> dataObjectVersionToExport) {
         this.dataObjectVersions = dataObjectVersionToExport;
@@ -64,7 +64,9 @@ public class DataObjectVersions {
         return dataObjectVersionsPatterns;
     }
 
-    public void setDataObjectVersionsPatterns(Map<DataObjectVersionType, Set<QualifierVersion>> dataObjectVersionsPatterns) {
+    public void setDataObjectVersionsPatterns(
+        Map<DataObjectVersionType, Set<QualifierVersion>> dataObjectVersionsPatterns
+    ) {
         this.dataObjectVersionsPatterns = dataObjectVersionsPatterns;
     }
 

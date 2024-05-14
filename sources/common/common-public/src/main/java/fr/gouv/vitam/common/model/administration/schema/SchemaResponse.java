@@ -32,7 +32,6 @@ import fr.gouv.vitam.common.model.ModelConstants;
 
 import java.util.List;
 
-
 /**
  * POJO java for schema response
  */
@@ -85,7 +84,6 @@ public class SchemaResponse {
     public static final String TAG_SEDA_VERSIONS = "SedaVersions";
     public static final String TAG_PATH = "Path";
 
-
     /**
      * StringSize tag for string fields: short, medium, and large
      */
@@ -113,12 +111,12 @@ public class SchemaResponse {
     @JsonProperty(ModelConstants.TAG_TENANT)
     private Integer tenant;
 
-
     /**
      * The seda field
      */
     @JsonProperty(TAG_SEDAFIELD)
     private String sedaField;
+
     /**
      * The api field
      */
@@ -143,11 +141,13 @@ public class SchemaResponse {
 
     @JsonProperty(TAG_PATH_CARDINALITY)
     private SchemaCardinality cardinality;
+
     /**
      * The type
      */
     @JsonProperty(TAG_TYPE)
     private SchemaType type;
+
     /**
      * The origin
      */
@@ -175,7 +175,6 @@ public class SchemaResponse {
     public SchemaResponse() {
         super();
     }
-
 
     public String getFieldName() {
         return fieldName;
@@ -221,7 +220,6 @@ public class SchemaResponse {
         this.apiPath = apiPath;
         return this;
     }
-
 
     public String getDescription() {
         return description;
@@ -317,5 +315,3 @@ public class SchemaResponse {
         this.sedaVersions = sedaVersions;
     }
 }
-
-

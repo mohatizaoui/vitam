@@ -48,8 +48,9 @@ import java.util.List;
 @DisallowConcurrentExecution
 public class PersistentIdentifierReconstructionJob implements Job {
 
-    private static final VitamLogger LOGGER =
-        VitamLoggerFactory.getInstance(PersistentIdentifierReconstructionJob.class);
+    private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(
+        PersistentIdentifierReconstructionJob.class
+    );
     private final MetaDataClientFactory metaDataClientFactory;
 
     public PersistentIdentifierReconstructionJob() {
@@ -61,7 +62,6 @@ public class PersistentIdentifierReconstructionJob implements Job {
     }
 
     public void execute(JobExecutionContext context) throws JobExecutionException {
-
         final List<Integer> tenants = VitamConfiguration.getTenants();
         final Integer adminTenant = VitamConfiguration.getAdminTenant();
         VitamThreadUtils.getVitamSession().setTenantId(adminTenant);

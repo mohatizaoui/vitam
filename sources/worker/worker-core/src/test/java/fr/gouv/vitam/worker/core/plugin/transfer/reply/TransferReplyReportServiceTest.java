@@ -67,11 +67,12 @@ import static org.mockito.Mockito.verify;
 
 public class TransferReplyReportServiceTest {
 
-
     private static final String PROC_ID = "procId";
+
     @Rule
-    public RunWithCustomExecutorRule runInThread =
-        new RunWithCustomExecutorRule(VitamThreadPoolExecutor.getDefaultExecutor());
+    public RunWithCustomExecutorRule runInThread = new RunWithCustomExecutorRule(
+        VitamThreadPoolExecutor.getDefaultExecutor()
+    );
 
     @Rule
     public MockitoRule mockitoRule = MockitoJUnit.rule();
@@ -90,16 +91,15 @@ public class TransferReplyReportServiceTest {
 
     @Mock
     private StorageClientFactory storageClientFactory;
+
     @Mock
     private StorageClient storageClient;
-
 
     @InjectMocks
     private TransferReplyReportService instance;
 
     @Before
     public void setUp() throws Exception {
-
         VitamThreadUtils.getVitamSession().setTenantId(0);
         VitamThreadUtils.getVitamSession().setRequestId("opId");
 
@@ -111,16 +111,21 @@ public class TransferReplyReportServiceTest {
     @Test
     @RunWithCustomExecutor
     public void appendUnitEntries() throws Exception {
-
         PersistentIdentifierModel persistentIdentifierEntry = new PersistentIdentifierModel();
         persistentIdentifierEntry.setPersistentIdentifierContent("ark:/11111/123456axd");
         persistentIdentifierEntry.setPersistentIdentifierType("ark");
         // Given
         List<TransferReplyUnitReportEntry> entries = Arrays.asList(
-            new TransferReplyUnitReportEntry("unit1", TransferReplyUnitStatus.ALREADY_DELETED.name(),
-                List.of(persistentIdentifierEntry)),
-            new TransferReplyUnitReportEntry("unit2", TransferReplyUnitStatus.ALREADY_DELETED.name(),
-                Collections.emptyList())
+            new TransferReplyUnitReportEntry(
+                "unit1",
+                TransferReplyUnitStatus.ALREADY_DELETED.name(),
+                List.of(persistentIdentifierEntry)
+            ),
+            new TransferReplyUnitReportEntry(
+                "unit2",
+                TransferReplyUnitStatus.ALREADY_DELETED.name(),
+                Collections.emptyList()
+            )
         );
 
         // When
@@ -139,14 +144,14 @@ public class TransferReplyReportServiceTest {
         assertThat(unitEntry.getStatus()).isEqualTo(TransferReplyUnitStatus.ALREADY_DELETED.name());
         assertThat(unitEntry.getPersistentIdentifiers()).isNotEmpty();
         assertThat(unitEntry.getPersistentIdentifiers().get(0).getPersistentIdentifierContent()).isEqualTo(
-            "ark:/11111/123456axd");
+            "ark:/11111/123456axd"
+        );
         assertThat(unitEntry.getPersistentIdentifiers().get(0).getPersistentIdentifierType()).isEqualTo("ark");
     }
 
     @Test
     @RunWithCustomExecutor
     public void isReportWrittenInWorkspace() throws Exception {
-
         // Given / When
         instance.isReportWrittenInWorkspace(PROC_ID);
 
@@ -157,7 +162,6 @@ public class TransferReplyReportServiceTest {
     @Test
     @RunWithCustomExecutor
     public void storeReportToWorkspace() throws Exception {
-
         // Given / When
         Report report = mock(Report.class);
         instance.storeReportToWorkspace(report);
@@ -169,15 +173,17 @@ public class TransferReplyReportServiceTest {
     @Test
     @RunWithCustomExecutor
     public void storeReportToOffers() throws Exception {
-
         // Given / When
         instance.storeReportToOffers(PROC_ID);
 
         // Then
         ArgumentCaptor<ObjectDescription> descriptionArgumentCaptor = ArgumentCaptor.forClass(ObjectDescription.class);
-        verify(storageClient)
-            .storeFileFromWorkspace(eq(VitamConfiguration.getDefaultStrategy()), eq(DataCategory.REPORT),
-                eq(PROC_ID + JSONL_EXTENSION), descriptionArgumentCaptor.capture());
+        verify(storageClient).storeFileFromWorkspace(
+            eq(VitamConfiguration.getDefaultStrategy()),
+            eq(DataCategory.REPORT),
+            eq(PROC_ID + JSONL_EXTENSION),
+            descriptionArgumentCaptor.capture()
+        );
         assertThat(descriptionArgumentCaptor.getValue().getWorkspaceContainerGUID()).isEqualTo(PROC_ID);
         assertThat(descriptionArgumentCaptor.getValue().getWorkspaceObjectURI()).isEqualTo(WORKSPACE_REPORT_URI);
     }
@@ -185,7 +191,6 @@ public class TransferReplyReportServiceTest {
     @Test
     @RunWithCustomExecutor
     public void cleanupReport() throws Exception {
-
         // Given / When
         instance.cleanupReport(PROC_ID);
 

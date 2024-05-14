@@ -45,66 +45,65 @@ import static fr.gouv.vitam.worker.core.utils.DataObjectVersionToPatternsConvert
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DataObjectVersionToPatternsConvertorTest {
+
     @Test
     public void should_default_to_map_of_all_object_types_with_LAST_value() {
-        assertThat(
-            computeDataObjectVersionsPatterns(new DataObjectVersions()))
-            .isEqualTo(
-                Map.of(
-                    BINARY_MASTER, Set.of(LAST),
-                    DISSEMINATION, Set.of(LAST),
-                    PHYSICAL_MASTER, Set.of(LAST),
-                    TEXT_CONTENT, Set.of(LAST),
-                    THUMBNAIL, Set.of(LAST)
-                )
-            );
+        assertThat(computeDataObjectVersionsPatterns(new DataObjectVersions())).isEqualTo(
+            Map.of(
+                BINARY_MASTER,
+                Set.of(LAST),
+                DISSEMINATION,
+                Set.of(LAST),
+                PHYSICAL_MASTER,
+                Set.of(LAST),
+                TEXT_CONTENT,
+                Set.of(LAST),
+                THUMBNAIL,
+                Set.of(LAST)
+            )
+        );
     }
 
     @Test
     public void should_convert_empty_set_to_map_of_all_object_types_with_LAST_value() {
-        assertThat(computeDataObjectVersionsPatterns(new DataObjectVersions(Set.of())))
-            .isEqualTo(Map.of(
-                BINARY_MASTER, Set.of(LAST),
-                DISSEMINATION, Set.of(LAST),
-                PHYSICAL_MASTER, Set.of(LAST),
-                TEXT_CONTENT, Set.of(LAST),
-                THUMBNAIL, Set.of(LAST)
-            ));
+        assertThat(computeDataObjectVersionsPatterns(new DataObjectVersions(Set.of()))).isEqualTo(
+            Map.of(
+                BINARY_MASTER,
+                Set.of(LAST),
+                DISSEMINATION,
+                Set.of(LAST),
+                PHYSICAL_MASTER,
+                Set.of(LAST),
+                TEXT_CONTENT,
+                Set.of(LAST),
+                THUMBNAIL,
+                Set.of(LAST)
+            )
+        );
     }
 
     @Test
     public void should_return_map_as_is() {
         final Map<DataObjectVersionType, Set<QualifierVersion>> map = Map.of();
-        assertThat(computeDataObjectVersionsPatterns(
-            new DataObjectVersions(map)
-        )).isSameAs(map);
+        assertThat(computeDataObjectVersionsPatterns(new DataObjectVersions(map))).isSameAs(map);
     }
 
     @Test
     public void should_convert_set_to_map_with_LAST_value() {
-        assertThat(computeDataObjectVersionsPatterns(
-            new DataObjectVersions(Set.of(BINARY_MASTER.getName()))
-        )).isEqualTo(
-            Collections.singletonMap(BINARY_MASTER, Set.of(LAST))
-        );
+        assertThat(
+            computeDataObjectVersionsPatterns(new DataObjectVersions(Set.of(BINARY_MASTER.getName())))
+        ).isEqualTo(Collections.singletonMap(BINARY_MASTER, Set.of(LAST)));
 
-        assertThat(computeDataObjectVersionsPatterns(
-            new DataObjectVersions(Set.of(BINARY_MASTER.getName(), THUMBNAIL.getName()))
-        )).isEqualTo(
-            Map.of(
-                BINARY_MASTER, Set.of(LAST),
-                THUMBNAIL, Set.of(LAST)
+        assertThat(
+            computeDataObjectVersionsPatterns(
+                new DataObjectVersions(Set.of(BINARY_MASTER.getName(), THUMBNAIL.getName()))
             )
-        );
+        ).isEqualTo(Map.of(BINARY_MASTER, Set.of(LAST), THUMBNAIL, Set.of(LAST)));
 
-        assertThat(computeDataObjectVersionsPatterns(
-            new DataObjectVersions(Set.of(BINARY_MASTER.getName(), THUMBNAIL.getName(), TEXT_CONTENT.getName()))
-        )).isEqualTo(
-            Map.of(
-                BINARY_MASTER, Set.of(LAST),
-                THUMBNAIL, Set.of(LAST),
-                TEXT_CONTENT, Set.of(LAST)
+        assertThat(
+            computeDataObjectVersionsPatterns(
+                new DataObjectVersions(Set.of(BINARY_MASTER.getName(), THUMBNAIL.getName(), TEXT_CONTENT.getName()))
             )
-        );
+        ).isEqualTo(Map.of(BINARY_MASTER, Set.of(LAST), THUMBNAIL, Set.of(LAST), TEXT_CONTENT, Set.of(LAST)));
     }
 }

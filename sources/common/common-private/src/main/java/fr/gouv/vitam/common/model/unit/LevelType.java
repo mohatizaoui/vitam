@@ -29,7 +29,6 @@ package fr.gouv.vitam.common.model.unit;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum LevelType {
-
     FONDS("Fonds"),
     SUBFONDS("Subfonds"),
     CLASS("Class"),
@@ -41,6 +40,7 @@ public enum LevelType {
     FILE("File"),
     ITEM("Item"),
     OTHER_LEVEL("OtherLevel");
+
     private final String value;
 
     LevelType(String v) {

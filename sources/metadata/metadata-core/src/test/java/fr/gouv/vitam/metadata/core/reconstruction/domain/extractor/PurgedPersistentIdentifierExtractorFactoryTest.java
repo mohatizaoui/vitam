@@ -26,7 +26,6 @@
  */
 package fr.gouv.vitam.metadata.core.reconstruction.domain.extractor;
 
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -35,8 +34,6 @@ import static fr.gouv.vitam.metadata.core.reconstruction.model.ReportLine.Report
 import static fr.gouv.vitam.metadata.core.reconstruction.model.ReportLine.ReportLineType.TRANSFERRED_OBJECT_GROUP;
 import static fr.gouv.vitam.metadata.core.reconstruction.model.ReportLine.ReportLineType.TRANSFERRED_UNIT;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static org.junit.Assert.assertThrows;
-import static org.mockito.Mockito.mock;
 
 public class PurgedPersistentIdentifierExtractorFactoryTest {
 
@@ -70,11 +67,8 @@ public class PurgedPersistentIdentifierExtractorFactoryTest {
 
     @Test
     public void instance_ObjectGroupType_ReturnsObjectGroupInstance() throws Exception {
-
         PurgedPersistentIdentifierExtractor result = extractorFactory.instance(DELETED_OBJECT_GROUP);
 
         assertThat(result instanceof ObjectPurgedPersistentIdentifierExtractor).isTrue();
     }
-
-
 }

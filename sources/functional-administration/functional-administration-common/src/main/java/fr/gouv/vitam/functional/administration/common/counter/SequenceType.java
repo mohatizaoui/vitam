@@ -26,14 +26,11 @@
  */
 package fr.gouv.vitam.functional.administration.common.counter;
 
-
 import fr.gouv.vitam.functional.administration.common.server.FunctionalAdminCollections;
 
 import java.util.Arrays;
 
-
 public enum SequenceType {
-
     /**
      * Agencies Collection
      */
@@ -68,12 +65,10 @@ public enum SequenceType {
      */
     ARCHIVE_UNIT_PROFILE_SEQUENCE(FunctionalAdminCollections.ARCHIVE_UNIT_PROFILE, "AUP"),
 
-
     /**
      * Ontology collection
      */
     ONTOLOGY_SEQUENCE(FunctionalAdminCollections.ONTOLOGY, "ON"),
-
 
     /**
      * Context collection
@@ -108,7 +103,6 @@ public enum SequenceType {
      */
     SCHEMA_SEQUENCE(FunctionalAdminCollections.SCHEMA, "SCHEMA");
 
-
     public static final String BACK_UP_SEQUENCE_PREFIX = "BACKUP_";
 
     SequenceType(FunctionalAdminCollections collection, String prefix) {
@@ -141,9 +135,7 @@ public enum SequenceType {
         return collection;
     }
 
-    public static SequenceType fromFunctionalAdminCollections(
-        FunctionalAdminCollections functionalAdminCollection) {
-
+    public static SequenceType fromFunctionalAdminCollections(FunctionalAdminCollections functionalAdminCollection) {
         return Arrays.stream(SequenceType.values())
             .filter(i -> i.getCollection().equals(functionalAdminCollection))
             .findFirst()

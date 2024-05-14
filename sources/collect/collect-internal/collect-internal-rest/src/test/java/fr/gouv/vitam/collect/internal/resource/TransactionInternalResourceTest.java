@@ -71,18 +71,19 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
     private static final String TRANSACTION_ZIP_PATH = "streamZip/transaction.zip";
 
     private static final String UNITS_WITH_INHERITED_RULES_URI = "/unitsWithInheritedRules";
-    public static final String QUERY_INIT = "{ "
-        + "\"#id\": \"1\","
-        + "\"ArchivalAgencyIdentifier\": \"Identifier0\","
-        + "\"TransferringAgencyIdentifier\": \"Identifier3\","
-        + "\"OriginatingAgencyIdentifier\": \"FRAN_NP_009915\","
-        + "\"SubmissionAgencyIdentifier\": \"FRAN_NP_005061\","
-        + "\"MessageIdentifier\": \"20220302-000005\","
-        + "\"Name\": \"This is my Name\","
-        + "\"LegalStatus\": \"Archives privées\","
-        + "\"AcquisitionInformation\": \"Versement\","
-        + "\"ArchivalAgreement\":\"IC-000001\","
-        + "\"Comment\": \"Versement du service producteur : Cabinet de Michel Mercier\"}";
+    public static final String QUERY_INIT =
+        "{ " +
+        "\"#id\": \"1\"," +
+        "\"ArchivalAgencyIdentifier\": \"Identifier0\"," +
+        "\"TransferringAgencyIdentifier\": \"Identifier3\"," +
+        "\"OriginatingAgencyIdentifier\": \"FRAN_NP_009915\"," +
+        "\"SubmissionAgencyIdentifier\": \"FRAN_NP_005061\"," +
+        "\"MessageIdentifier\": \"20220302-000005\"," +
+        "\"Name\": \"This is my Name\"," +
+        "\"LegalStatus\": \"Archives privées\"," +
+        "\"AcquisitionInformation\": \"Versement\"," +
+        "\"ArchivalAgreement\":\"IC-000001\"," +
+        "\"Comment\": \"Versement du service producteur : Cabinet de Michel Mercier\"}";
 
     private static final String DATA2 =
         "{ \"#id\": \"aeaqaaaaaeaaaaakaarp4akuuf2ldmyaaaab\"," + "\"data\": \"data2\" }";
@@ -90,12 +91,11 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
     private static final String DATA_HTML =
         "{ \"#id\": \"<a href='www.culture.gouv.fr'>Culture</a>\"," + "\"data\": \"data2\" }";
 
-
     private static final String QUERY_TEST =
         "{ \"$query\" : [ { \"$eq\": { \"title\" : \"test\" } } ], " +
-            " \"$filter\": { \"$orderby\": \"#id\" }, " +
-            " \"$projection\" : { \"$fields\" : { \"#id\": 1, \"title\" : 2, \"transacdate\": 1 } } " +
-            " }";
+        " \"$filter\": { \"$orderby\": \"#id\" }, " +
+        " \"$projection\" : { \"$fields\" : { \"#id\": 1, \"title\" : 2, \"transacdate\": 1 } } " +
+        " }";
     private static final String EMPTY_QUERY = "{ \"$query\" : \"\", \"$roots\" : []  }";
 
     @Test
@@ -170,7 +170,8 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
     @Test
     public void updateTransaction_ko_with_not_found_error() throws Exception {
         doThrow(new CollectInternalNotFoundException("not found"))
-            .when(transactionService).replaceTransaction(any(TransactionDto.class));
+            .when(transactionService)
+            .replaceTransaction(any(TransactionDto.class));
         given()
             .contentType(ContentType.JSON)
             .accept(ContentType.JSON)
@@ -199,7 +200,8 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
     @Test
     public void updateTransaction_ko_with_parsing_error() throws Exception {
         doThrow(new IllegalArgumentException("error"))
-            .when(transactionService).replaceTransaction(any(TransactionDto.class));
+            .when(transactionService)
+            .replaceTransaction(any(TransactionDto.class));
         given()
             .contentType(ContentType.JSON)
             .accept(ContentType.JSON)
@@ -268,7 +270,8 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
         when(transactionService.findTransaction("1")).thenReturn(Optional.of(new TransactionModel()));
         when(transactionService.checkStatus(any(TransactionModel.class), eq(TransactionStatus.OPEN))).thenReturn(true);
         when(metadataService.saveArchiveUnit(any(), any(TransactionModel.class))).thenReturn(
-            JsonHandler.getFromString("{}"));
+            JsonHandler.getFromString("{}")
+        );
         given()
             .contentType(ContentType.JSON)
             .accept(ContentType.JSON)
@@ -279,7 +282,6 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
             .then()
             .statusCode(Response.Status.OK.getStatusCode());
     }
-
 
     @Test
     public void uploadArchiveUnit_ko_collect_error() throws Exception {
@@ -343,7 +345,8 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
     @Test
     public void testSelectUnitsByTransactionId_ko_collect_error() throws Exception {
         when(metadataService.selectUnitsByTransactionId(any(JsonNode.class), eq("15"))).thenThrow(
-            new CollectInternalException("error"));
+            new CollectInternalException("error")
+        );
         given()
             .contentType(ContentType.JSON)
             .accept(ContentType.JSON)
@@ -498,7 +501,8 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
     public void generateAndSendSip_ko_not_ready_error() throws Exception {
         when(transactionService.findTransaction("1")).thenReturn(Optional.of(new TransactionModel()));
         when(transactionService.findOneAndReplace(eq(TransactionStatus.READY), any(TransactionModel.class))).thenReturn(
-            false);
+            false
+        );
         given()
             .contentType(CommonMediaType.APPLICATION_OCTET_STREAM_TYPE.getType())
             .header(GlobalDataRest.X_TENANT_ID, TENANT)
@@ -512,7 +516,8 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
     public void generateAndSendSip_ko_digest_i_null() throws Exception {
         when(transactionService.findTransaction("1")).thenReturn(Optional.of(new TransactionModel()));
         when(transactionService.findOneAndReplace(eq(TransactionStatus.READY), any(TransactionModel.class))).thenReturn(
-            true);
+            true
+        );
         doNothing().when(transactionService).isTransactionContentEmpty(any());
         when(transactionService.changeTransactionToSendingIfBatchesNotKo(any())).thenReturn(true);
         when(sipService.generateSip(any())).thenReturn(null);
@@ -808,7 +813,8 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
         transactionModel.setProjectId("prId");
         when(transactionService.findTransaction("txId")).thenReturn(Optional.of(transactionModel));
         when(transactionService.checkStatus(any(TransactionModel.class), eq(TransactionStatus.OPEN))).thenReturn(true);
-        doThrow(new CollectInternalException("error")).when(transactionService)
+        doThrow(new CollectInternalException("error"))
+            .when(transactionService)
             .uploadTransactionZip(any(), any(), any());
         try (final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(TRANSACTION_ZIP_PATH)) {
             given()
@@ -828,12 +834,15 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
         TransactionModel transactionModel = new TransactionModel();
         transactionModel.setId("txId");
         transactionModel.setProjectId("prId");
-        when(transactionService.findTransaction("txId"))
-            .thenReturn(Optional.of(transactionModel));
+        when(transactionService.findTransaction("txId")).thenReturn(Optional.of(transactionModel));
         when(transactionService.checkStatus(any(TransactionModel.class), eq(TransactionStatus.OPEN))).thenReturn(true);
-        doThrow(new CollectInternalException(
-            "Mapping for File not found, expected one of [Content.DescriptionLevel, Content.Title]"))
-            .when(transactionService).uploadTransactionZip(any(), any(), any());
+        doThrow(
+            new CollectInternalException(
+                "Mapping for File not found, expected one of [Content.DescriptionLevel, Content.Title]"
+            )
+        )
+            .when(transactionService)
+            .uploadTransactionZip(any(), any(), any());
         try (final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(TRANSACTION_ZIP_PATH)) {
             given()
                 .contentType("application/zip")
@@ -844,8 +853,12 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
                 .post(TRANSACTIONS + "/txId/upload")
                 .then()
                 .statusCode(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode())
-                .body("message", CoreMatchers.equalTo(
-                    "Mapping for File not found, expected one of [Content.DescriptionLevel, Content.Title]"));
+                .body(
+                    "message",
+                    CoreMatchers.equalTo(
+                        "Mapping for File not found, expected one of [Content.DescriptionLevel, Content.Title]"
+                    )
+                );
         }
     }
 
@@ -872,9 +885,13 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
     public void should_upload_transaction_zip_when_transaction_is_open() throws Exception {
         // TODO to redo to follow the model of the other tests
         // Given
-        TransactionInternalResource transactionInternalResource =
-            new TransactionInternalResource(transactionService, sipService, metadataService,
-                projectService, bulkAtomicUpdateMetadataService);
+        TransactionInternalResource transactionInternalResource = new TransactionInternalResource(
+            transactionService,
+            sipService,
+            metadataService,
+            projectService,
+            bulkAtomicUpdateMetadataService
+        );
 
         final ProjectDto projectDto = new ProjectDto();
         String PROJECT_ID = "PROJECT_ID";
@@ -888,13 +905,11 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
         transactionModel.setProjectId(PROJECT_ID);
         when(transactionService.findTransaction(eq(TRANSACTION_ID))).thenReturn(Optional.of(transactionModel));
         when(projectService.findProject(eq(PROJECT_ID))).thenReturn(Optional.of(projectDto));
-        final InputStream inputStreamZip =
-            PropertiesUtils.getResourceAsStream("streamZip/transaction.zip");
+        final InputStream inputStreamZip = PropertiesUtils.getResourceAsStream("streamZip/transaction.zip");
 
         when(transactionService.checkStatus(any(), eq(TransactionStatus.OPEN))).thenReturn(true);
         ReflectionTestUtils.setField(TransactionService.class, transactionService, "fluxService", fluxService);
         when(transactionService.uploadTransactionZip(inputStreamZip, transactionModel, null)).thenCallRealMethod();
-
 
         // When
         Response result = transactionInternalResource.uploadTransactionZip(TRANSACTION_ID, inputStreamZip, null);
@@ -905,7 +920,8 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
     @Test
     public void selectUnitsByTransactionId_ko_when_collectService_error() throws Exception {
         when(metadataService.selectUnitsByTransactionId(any(JsonNode.class), eq("1"))).thenThrow(
-            new CollectInternalException("error"));
+            new CollectInternalException("error")
+        );
         given()
             .contentType(ContentType.JSON)
             .accept(ContentType.JSON)
@@ -920,7 +936,8 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
     @Test
     public void selectUnitsByTransactionId_ok_when_collectServie_ok() throws Exception {
         when(metadataService.selectUnitsByTransactionId(any(JsonNode.class), eq("10"))).thenReturn(
-            new RequestResponseOK<>());
+            new RequestResponseOK<>()
+        );
         given()
             .contentType(ContentType.JSON)
             .accept(ContentType.JSON)
@@ -932,14 +949,15 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
             .statusCode(Response.Status.OK.getStatusCode());
     }
 
-
     @Test
     public void givenStartedServer_WhenSelectUnitsWithInheritedRulesWithNotJsonRequest_ThenReturnError_UnsupportedMediaType()
         throws Exception {
         given()
             .contentType(ContentType.XML)
             .body(buildDSLWithOptions(QUERY_TEST, DATA2).asText())
-            .when().get(TRANSACTIONS + "/1" + UNITS_WITH_INHERITED_RULES_URI).then()
+            .when()
+            .get(TRANSACTIONS + "/1" + UNITS_WITH_INHERITED_RULES_URI)
+            .then()
             .statusCode(Response.Status.UNSUPPORTED_MEDIA_TYPE.getStatusCode());
     }
 
@@ -948,8 +966,10 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
         throws Exception {
         given()
             .contentType(ContentType.JSON)
-            .body(buildDSLWithRoots(DATA_HTML)).when()
-            .get(TRANSACTIONS + "/1" + UNITS_WITH_INHERITED_RULES_URI).then()
+            .body(buildDSLWithRoots(DATA_HTML))
+            .when()
+            .get(TRANSACTIONS + "/1" + UNITS_WITH_INHERITED_RULES_URI)
+            .then()
             .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
@@ -958,8 +978,10 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
         throws Exception {
         given()
             .contentType(ContentType.JSON)
-            .body(JsonHandler.getFromString(EMPTY_QUERY)).when()
-            .get(TRANSACTIONS + "/1" + UNITS_WITH_INHERITED_RULES_URI).then()
+            .body(JsonHandler.getFromString(EMPTY_QUERY))
+            .when()
+            .get(TRANSACTIONS + "/1" + UNITS_WITH_INHERITED_RULES_URI)
+            .then()
             .statusCode(Response.Status.FORBIDDEN.getStatusCode());
     }
 
@@ -969,8 +991,9 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
      * @throws InvalidParseOperationException
      */
     private static JsonNode buildDSLWithOptions(String query, String data) throws InvalidParseOperationException {
-        return JsonHandler
-            .getFromString("{ \"$roots\" : [], \"$query\" : [ " + query + " ], \"$data\" : " + data + " }");
+        return JsonHandler.getFromString(
+            "{ \"$roots\" : [], \"$query\" : [ " + query + " ], \"$data\" : " + data + " }"
+        );
     }
 
     /**
@@ -979,8 +1002,8 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
      * @throws InvalidParseOperationException
      */
     private static JsonNode buildDSLWithRoots(String data) throws InvalidParseOperationException {
-        return JsonHandler
-            .getFromString("{ \"$roots\" : [ " + data + " ], \"$query\" : [ \"\" ], \"$data\" : " + data + " }");
+        return JsonHandler.getFromString(
+            "{ \"$roots\" : [ " + data + " ], \"$query\" : [ \"\" ], \"$data\" : " + data + " }"
+        );
     }
-
 }

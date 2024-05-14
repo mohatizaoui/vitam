@@ -69,18 +69,23 @@ public class PersistentIdentifierGenerationService {
      * @param managementContractModel the management contract
      * @throws InvalidParseOperationException
      */
-    public void handlePersistentIdentifierForGot(Map<String, List<JsonNode>> objectsByQualifierMap,
-        ManagementContractModel managementContractModel, PersistentIdentifierPolicyTypeEnum persistentIdentifierType)
-        throws InvalidParseOperationException {
-
-        if (Objects.isNull(managementContractModel) ||
+    public void handlePersistentIdentifierForGot(
+        Map<String, List<JsonNode>> objectsByQualifierMap,
+        ManagementContractModel managementContractModel,
+        PersistentIdentifierPolicyTypeEnum persistentIdentifierType
+    ) throws InvalidParseOperationException {
+        if (
+            Objects.isNull(managementContractModel) ||
             ActivationStatus.INACTIVE.equals(managementContractModel.getStatus()) ||
-            Objects.isNull(managementContractModel.getPersistentIdentifierPolicyList())) {
+            Objects.isNull(managementContractModel.getPersistentIdentifierPolicyList())
+        ) {
             return;
         }
 
-        Optional<PersistentIdentifierPolicy> persistentIdentifierPolicyOpt =
-            retrievePolicyByPersistentType(managementContractModel, persistentIdentifierType);
+        Optional<PersistentIdentifierPolicy> persistentIdentifierPolicyOpt = retrievePolicyByPersistentType(
+            managementContractModel,
+            persistentIdentifierType
+        );
         if (persistentIdentifierPolicyOpt.isEmpty()) {
             return;
         }
@@ -91,8 +96,10 @@ public class PersistentIdentifierGenerationService {
         }
     }
 
-    private void manageArkIdentifiersGeneration(Map<String, List<JsonNode>> objectsByQualifierMap,
-        PersistentIdentifierPolicy persistentIdPolicy) throws InvalidParseOperationException {
+    private void manageArkIdentifiersGeneration(
+        Map<String, List<JsonNode>> objectsByQualifierMap,
+        PersistentIdentifierPolicy persistentIdPolicy
+    ) throws InvalidParseOperationException {
         for (PersistentIdentifierUsage usageNode : persistentIdPolicy.getPersistentIdentifierUsages()) {
             final List<String> qualifierList = getSortedQualifierList(objectsByQualifierMap, usageNode);
             if (qualifierList.isEmpty()) {
@@ -104,44 +111,56 @@ public class PersistentIdentifierGenerationService {
                 int version = Integer.parseInt(StringUtils.substringAfterLast(qualifier, "_"));
 
                 boolean isFirstVersion = (version == 1);
-                boolean concernLastVersionPolicy =
-                    VersionUsageModel.IntermediaryVersionEnum.LAST.equals(usageNode.getIntermediaryVersion());
-                boolean concernAllVersionsPolicy =
-                    VersionUsageModel.IntermediaryVersionEnum.ALL.equals(usageNode.getIntermediaryVersion());
+                boolean concernLastVersionPolicy = VersionUsageModel.IntermediaryVersionEnum.LAST.equals(
+                    usageNode.getIntermediaryVersion()
+                );
+                boolean concernAllVersionsPolicy = VersionUsageModel.IntermediaryVersionEnum.ALL.equals(
+                    usageNode.getIntermediaryVersion()
+                );
                 boolean hasSingleQualifier = (qualifierList.size() == 1);
 
-                if ((isFirstVersion && (usageNode.isInitialVersion() || concernAllVersionsPolicy ||
-                    (concernLastVersionPolicy && hasSingleQualifier))) ||
-                    (!isFirstVersion && (concernAllVersionsPolicy ||
-                        (concernLastVersionPolicy && isLatestVersion(qualifierList, version))))) {
+                if (
+                    (isFirstVersion &&
+                        (usageNode.isInitialVersion() ||
+                            concernAllVersionsPolicy ||
+                            (concernLastVersionPolicy && hasSingleQualifier))) ||
+                    (!isFirstVersion &&
+                        (concernAllVersionsPolicy ||
+                            (concernLastVersionPolicy && isLatestVersion(qualifierList, version))))
+                ) {
                     fillArkPersistentIdentifier(persistentIdPolicy, qualifiersToUpdate);
                 }
             }
         }
     }
 
-    private static List<String> getSortedQualifierList(Map<String, List<JsonNode>> objectsByQualifierMap,
-        PersistentIdentifierUsage usageNode) {
-        return objectsByQualifierMap.keySet().stream()
-            .filter(key -> key.startsWith(usageNode.getUsageName().getName())).sorted(
-                Comparator.comparingInt(key -> Integer.parseInt(StringUtils.substringAfterLast(key, "_"))))
+    private static List<String> getSortedQualifierList(
+        Map<String, List<JsonNode>> objectsByQualifierMap,
+        PersistentIdentifierUsage usageNode
+    ) {
+        return objectsByQualifierMap
+            .keySet()
+            .stream()
+            .filter(key -> key.startsWith(usageNode.getUsageName().getName()))
+            .sorted(Comparator.comparingInt(key -> Integer.parseInt(StringUtils.substringAfterLast(key, "_"))))
             .collect(toList());
-
     }
 
-    private void fillArkPersistentIdentifier(PersistentIdentifierPolicy persistentIdPolicy,
-        List<JsonNode> qualifiersToUpdate)
-        throws InvalidParseOperationException {
+    private void fillArkPersistentIdentifier(
+        PersistentIdentifierPolicy persistentIdPolicy,
+        List<JsonNode> qualifiersToUpdate
+    ) throws InvalidParseOperationException {
         for (JsonNode qualifierToUpdate : qualifiersToUpdate) {
             fillArkPersistentIdentifier(persistentIdPolicy, qualifierToUpdate);
         }
     }
 
     private boolean isLatestVersion(List<String> qualifierList, Integer version) {
-        Integer lastVersion =
-            qualifierList.stream()
-                .map(qualifier -> Integer.parseInt(StringUtils.substringAfterLast(qualifier, "_")))
-                .max(Integer::compare).orElseThrow();
+        Integer lastVersion = qualifierList
+            .stream()
+            .map(qualifier -> Integer.parseInt(StringUtils.substringAfterLast(qualifier, "_")))
+            .max(Integer::compare)
+            .orElseThrow();
         return version.equals(lastVersion);
     }
 
@@ -154,11 +173,11 @@ public class PersistentIdentifierGenerationService {
      */
     public void fillArkPersistentIdentifier(PersistentIdentifierPolicy policy, JsonNode qualifierToUpdate)
         throws InvalidParseOperationException {
-
         ObjectNode updatingQualifier = (ObjectNode) qualifierToUpdate;
         PersistentIdentifierModel vitamPersistentIdentifierModel = new PersistentIdentifierModel();
         vitamPersistentIdentifierModel.setPersistentIdentifierType(
-            policy.getPersistentIdentifierPolicyType().name().toLowerCase());
+            policy.getPersistentIdentifierPolicyType().name().toLowerCase()
+        );
 
         final String guid = updatingQualifier.get(SedaConstants.PREFIX_ID).asText();
 
@@ -168,24 +187,35 @@ public class PersistentIdentifierGenerationService {
 
         vitamPersistentIdentifierModel.setPersistentIdentifierReference(policy.getPersistentIdentifierAuthority());
         vitamPersistentIdentifierModel.setPersistentIdentifierContent(
-            PersistentIdentifierPolicyTypeEnum.ARK.name().toLowerCase() + ":/" +
-                policy.getPersistentIdentifierAuthority() + "/" + guid);
+            PersistentIdentifierPolicyTypeEnum.ARK.name().toLowerCase() +
+            ":/" +
+            policy.getPersistentIdentifierAuthority() +
+            "/" +
+            guid
+        );
 
         ArrayNode persistentIdentifierNode = (ArrayNode) updatingQualifier.get(PERSISTENT_IDENTIFIER_FIELD);
         persistentIdentifierNode.add(JsonHandler.toJsonNode(vitamPersistentIdentifierModel));
     }
 
-    public void handlePersistentIdentifierForUnit(final ArchiveUnitRoot archiveUnitRoot, final String unitGUID,
-        ManagementContractModel managementContractModel, PersistentIdentifierPolicyTypeEnum persistentIdentifierType) {
-
-        if (Objects.isNull(managementContractModel) ||
+    public void handlePersistentIdentifierForUnit(
+        final ArchiveUnitRoot archiveUnitRoot,
+        final String unitGUID,
+        ManagementContractModel managementContractModel,
+        PersistentIdentifierPolicyTypeEnum persistentIdentifierType
+    ) {
+        if (
+            Objects.isNull(managementContractModel) ||
             ActivationStatus.INACTIVE.equals(managementContractModel.getStatus()) ||
-            Objects.isNull(managementContractModel.getPersistentIdentifierPolicyList())) {
+            Objects.isNull(managementContractModel.getPersistentIdentifierPolicyList())
+        ) {
             return;
         }
 
-        Optional<PersistentIdentifierPolicy> persistentIdentifierPolicy =
-            retrievePolicyByPersistentTypeForUnit(managementContractModel, persistentIdentifierType);
+        Optional<PersistentIdentifierPolicy> persistentIdentifierPolicy = retrievePolicyByPersistentTypeForUnit(
+            managementContractModel,
+            persistentIdentifierType
+        );
         persistentIdentifierPolicy.ifPresent(persistentIdPolicy -> {
             String persistentIdAuthority = persistentIdPolicy.getPersistentIdentifierAuthority();
             PersistentIdentifierPolicyTypeEnum persistentIdPolicyType =
@@ -194,35 +224,48 @@ public class PersistentIdentifierGenerationService {
             PersistentIdentifierModel vitamPersistentIdentifierModel = new PersistentIdentifierModel();
 
             vitamPersistentIdentifierModel.setPersistentIdentifierReference(persistentIdAuthority);
-            vitamPersistentIdentifierModel.setPersistentIdentifierType(
-                persistentIdPolicyType.name().toLowerCase());
+            vitamPersistentIdentifierModel.setPersistentIdentifierType(persistentIdPolicyType.name().toLowerCase());
             vitamPersistentIdentifierModel.setPersistentIdentifierContent(
-                persistentIdPolicyType.name().toLowerCase() + ":/" + persistentIdAuthority + "/" + unitGUID);
-            if (Objects.isNull(archiveUnitRoot.getArchiveUnit().getDescriptiveMetadataModel()
-                .getPersistentIdentifier())) {
-                archiveUnitRoot.getArchiveUnit().getDescriptiveMetadataModel()
+                persistentIdPolicyType.name().toLowerCase() + ":/" + persistentIdAuthority + "/" + unitGUID
+            );
+            if (
+                Objects.isNull(archiveUnitRoot.getArchiveUnit().getDescriptiveMetadataModel().getPersistentIdentifier())
+            ) {
+                archiveUnitRoot
+                    .getArchiveUnit()
+                    .getDescriptiveMetadataModel()
                     .setPersistentIdentifier(new ArrayList<>());
             }
-            archiveUnitRoot.getArchiveUnit().getDescriptiveMetadataModel()
-                .getPersistentIdentifier().add(vitamPersistentIdentifierModel);
+            archiveUnitRoot
+                .getArchiveUnit()
+                .getDescriptiveMetadataModel()
+                .getPersistentIdentifier()
+                .add(vitamPersistentIdentifierModel);
         });
     }
 
-
-
     private Optional<PersistentIdentifierPolicy> retrievePolicyByPersistentTypeForUnit(
         ManagementContractModel managementContractModel,
-        PersistentIdentifierPolicyTypeEnum persistentIdentifierPolicyType) {
-        return managementContractModel.getPersistentIdentifierPolicyList().stream()
-            .filter(policy -> policy.isPersistentIdentifierUnit() &&
-                persistentIdentifierPolicyType.equals(policy.getPersistentIdentifierPolicyType()))
+        PersistentIdentifierPolicyTypeEnum persistentIdentifierPolicyType
+    ) {
+        return managementContractModel
+            .getPersistentIdentifierPolicyList()
+            .stream()
+            .filter(
+                policy ->
+                    policy.isPersistentIdentifierUnit() &&
+                    persistentIdentifierPolicyType.equals(policy.getPersistentIdentifierPolicyType())
+            )
             .findFirst();
     }
 
     private Optional<PersistentIdentifierPolicy> retrievePolicyByPersistentType(
         ManagementContractModel managementContractModel,
-        PersistentIdentifierPolicyTypeEnum persistentIdentifierPolicyType) {
-        return managementContractModel.getPersistentIdentifierPolicyList().stream()
+        PersistentIdentifierPolicyTypeEnum persistentIdentifierPolicyType
+    ) {
+        return managementContractModel
+            .getPersistentIdentifierPolicyList()
+            .stream()
             .filter(policy -> persistentIdentifierPolicyType.equals(policy.getPersistentIdentifierPolicyType()))
             .findFirst();
     }

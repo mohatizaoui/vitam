@@ -67,9 +67,7 @@ public enum SchemaErrorCode {
      */
     IMPORT_SCHEMA_MISSING_INFORMATION,
 
-
     IMPORT_SCHEMA_WRONG_PATH_FORMAT,
-
 
     /**
      * General import error

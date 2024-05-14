@@ -38,12 +38,11 @@ import fr.gouv.vitam.workspace.client.WorkspaceType;
 /**
  * Class ProcessEngineFactory Goal : create an instance of ProcessEngineImpl
  */
-final public class ProcessEngineFactoryTest {
+public final class ProcessEngineFactoryTest {
 
-    private final static ProcessEngineFactoryTest INSTANCE = new ProcessEngineFactoryTest();
+    private static final ProcessEngineFactoryTest INSTANCE = new ProcessEngineFactoryTest();
 
-    private ProcessEngineFactoryTest() {
-    }
+    private ProcessEngineFactoryTest() {}
 
     public static ProcessEngineFactoryTest get() {
         return INSTANCE;
@@ -56,15 +55,27 @@ final public class ProcessEngineFactoryTest {
      */
     public ProcessEngineImpl create(WorkerParameters workParams, ProcessDistributor processDistributor) {
         ParametersChecker.checkParameter("ProcessDistributor cannot be null", processDistributor);
-        return new ProcessEngineTest(workParams, processDistributor, LogbookOperationsClientFactory.getInstance(),
-            WorkspaceClientFactory.getInstance(WorkspaceType.VITAM));
+        return new ProcessEngineTest(
+            workParams,
+            processDistributor,
+            LogbookOperationsClientFactory.getInstance(),
+            WorkspaceClientFactory.getInstance(WorkspaceType.VITAM)
+        );
     }
 
     @VisibleForTesting
-    public ProcessEngineImpl create(WorkerParameters workParams, ProcessDistributor processDistributor,
-        LogbookOperationsClientFactory logbookOperationsClientFactory, WorkspaceClientFactory workspaceClientFactory) {
+    public ProcessEngineImpl create(
+        WorkerParameters workParams,
+        ProcessDistributor processDistributor,
+        LogbookOperationsClientFactory logbookOperationsClientFactory,
+        WorkspaceClientFactory workspaceClientFactory
+    ) {
         ParametersChecker.checkParameter("Params cannot be null", processDistributor, logbookOperationsClientFactory);
-        return new ProcessEngineTest(workParams, processDistributor, logbookOperationsClientFactory,
-            workspaceClientFactory);
+        return new ProcessEngineTest(
+            workParams,
+            processDistributor,
+            logbookOperationsClientFactory,
+            workspaceClientFactory
+        );
     }
 }

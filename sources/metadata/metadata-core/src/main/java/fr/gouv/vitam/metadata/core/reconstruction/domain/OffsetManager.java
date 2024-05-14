@@ -39,7 +39,6 @@ public class OffsetManager {
 
     private final OffsetRepository offsetRepository;
 
-
     public OffsetManager(OffsetRepository offsetRepository) {
         this.offsetRepository = offsetRepository;
     }
@@ -49,9 +48,9 @@ public class OffsetManager {
     }
 
     public LocalDateTime retrieveLastReconstructionDateFromOffset(Integer tenant) {
-
-        final long lastReconstructedOffset = Optional.of(offsetRepository
-            .findOffsetBy(tenant, VitamConfiguration.getDefaultStrategy(), "PERSISTENT_IDENTIFIER"))
+        final long lastReconstructedOffset = Optional.of(
+            offsetRepository.findOffsetBy(tenant, VitamConfiguration.getDefaultStrategy(), "PERSISTENT_IDENTIFIER")
+        )
             .filter(t -> t != 0)
             .orElse(Instant.EPOCH.toEpochMilli());
 
@@ -59,9 +58,12 @@ public class OffsetManager {
     }
 
     public void saveNextReconstructionDateInOffset(Integer tenant, LocalDateTime lastSuccessfulOperationDate) {
-
         long timestamp = lastSuccessfulOperationDate.atOffset(ZoneOffset.UTC).toInstant().toEpochMilli();
-        offsetRepository
-            .createOrUpdateOffset(tenant, VitamConfiguration.getDefaultStrategy(), "PERSISTENT_IDENTIFIER", timestamp);
+        offsetRepository.createOrUpdateOffset(
+            tenant,
+            VitamConfiguration.getDefaultStrategy(),
+            "PERSISTENT_IDENTIFIER",
+            timestamp
+        );
     }
 }

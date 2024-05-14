@@ -50,29 +50,40 @@ import static java.util.Optional.empty;
 import static java.util.Optional.ofNullable;
 
 public class AuditWorkflowLauncher {
+
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(AuditWorkflowLauncher.class);
     private static final String DSL = "dsl";
     private final AdminManagementClientFactory adminManagementClientFactory;
     private final AuditOperationFinder auditOperationFinder;
     private final AuditMetadataFetcher auditMetadataFetcher;
 
-    public AuditWorkflowLauncher(AdminManagementClientFactory adminManagementClientFactory,
+    public AuditWorkflowLauncher(
+        AdminManagementClientFactory adminManagementClientFactory,
         LogbookOperationsClientFactory logbookOperationsClientFactory,
         ProcessingManagementClientFactory processingManagementClientFactory,
-        MetaDataClientFactory metaDataClientFactory) {
-        this.auditOperationFinder =
-            new AuditOperationFinder(logbookOperationsClientFactory, processingManagementClientFactory);
+        MetaDataClientFactory metaDataClientFactory
+    ) {
+        this.auditOperationFinder = new AuditOperationFinder(
+            logbookOperationsClientFactory,
+            processingManagementClientFactory
+        );
         this.auditMetadataFetcher = new AuditMetadataFetcher(metaDataClientFactory);
         this.adminManagementClientFactory = adminManagementClientFactory;
     }
 
-    public Optional<String> launch(Integer tenantId, String operationId, int operationsDelayInMinutes,
-        String auditAction) {
+    public Optional<String> launch(
+        Integer tenantId,
+        String operationId,
+        int operationsDelayInMinutes,
+        String auditAction
+    ) {
         final LastOperationExecution auditOperation = auditOperationFinder.findLastAuditData(auditAction);
         ensureLastOperationCompleted(auditOperation);
         final String lastAuditDate = auditOperation.getLastUpdateDate();
-        final String lastUpdateDate =
-            auditMetadataFetcher.getLastUpdateDateFromLastUnitToAudit(operationsDelayInMinutes, lastAuditDate);
+        final String lastUpdateDate = auditMetadataFetcher.getLastUpdateDateFromLastUnitToAudit(
+            operationsDelayInMinutes,
+            lastAuditDate
+        );
         if (Objects.isNull(lastUpdateDate)) {
             LOGGER.info("Skip audit for tenant {} : no new data to audit", tenantId);
             return empty();
@@ -92,9 +103,11 @@ public class AuditWorkflowLauncher {
 
     private void ensureLastOperationCompleted(LastOperationExecution auditOperation) {
         if (!auditOperation.isHasCompleted()) {
-            final String message =
-                String.format("Could not run audit since another with id %s is being run or paused on tenantId %s",
-                    auditOperation.getLastOperationId(), auditOperation.getTenantId());
+            final String message = String.format(
+                "Could not run audit since another with id %s is being run or paused on tenantId %s",
+                auditOperation.getLastOperationId(),
+                auditOperation.getTenantId()
+            );
             throw new VitamRuntimeException(message);
         }
     }
@@ -117,5 +130,4 @@ public class AuditWorkflowLauncher {
         options.setAuditType(DSL);
         return options;
     }
-
 }

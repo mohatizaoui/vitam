@@ -111,9 +111,13 @@ public class TransactionService {
     private static final String PROCESS_SIP_UNITARY = "PROCESS_SIP_UNITARY";
 
     private static final Map<String, TransactionStatus> OPERATION_STATUS_TO_TRANSACTION_STATUS_MAP = Map.of(
-        StatusCode.OK.name(), TransactionStatus.ACK_OK,
-        StatusCode.KO.name(), TransactionStatus.ACK_KO,
-        StatusCode.WARNING.name(), TransactionStatus.ACK_WARNING);
+        StatusCode.OK.name(),
+        TransactionStatus.ACK_OK,
+        StatusCode.KO.name(),
+        TransactionStatus.ACK_KO,
+        StatusCode.WARNING.name(),
+        TransactionStatus.ACK_WARNING
+    );
     private static final int MAX_RETRY = 3;
 
     private final TransactionRepository transactionRepository;
@@ -125,11 +129,15 @@ public class TransactionService {
 
     private final IngestInternalClientFactory ingestInternalClientFactory;
 
-    public TransactionService(TransactionRepository transactionRepository, ProjectService projectService,
-        MetadataRepository metadataRepository, FluxService fluxService,
+    public TransactionService(
+        TransactionRepository transactionRepository,
+        ProjectService projectService,
+        MetadataRepository metadataRepository,
+        FluxService fluxService,
         WorkspaceClientFactory workspaceCollectClientFactory,
         AccessInternalClientFactory accessInternalClientFactory,
-        IngestInternalClientFactory ingestInternalClientFactory) {
+        IngestInternalClientFactory ingestInternalClientFactory
+    ) {
         this.transactionRepository = transactionRepository;
         this.projectService = projectService;
         this.metadataRepository = metadataRepository;
@@ -148,10 +156,17 @@ public class TransactionService {
         throws CollectInternalException {
         final String creationDate = LocalDateUtil.now().toString();
 
-        TransactionModel transactionModel = new TransactionModel(transactionDto.getId(), transactionDto.getName(),
-            CollectHelper.mapTransactionDtoToManifestContext(transactionDto, projectDto), TransactionStatus.OPEN,
+        TransactionModel transactionModel = new TransactionModel(
+            transactionDto.getId(),
+            transactionDto.getName(),
+            CollectHelper.mapTransactionDtoToManifestContext(transactionDto, projectDto),
+            TransactionStatus.OPEN,
             projectDto.getId(),
-            creationDate, creationDate, transactionDto.getTenant(), projectDto.getAutomaticIngest());
+            creationDate,
+            creationDate,
+            transactionDto.getTenant(),
+            projectDto.getAutomaticIngest()
+        );
 
         transactionRepository.createTransaction(transactionModel);
     }
@@ -202,10 +217,11 @@ public class TransactionService {
     public List<TransactionDto> findTransactionsByProjectId(String id) throws CollectInternalException {
         LOGGER.debug("Transaction id to find : {}", id);
         List<TransactionModel> listTransactions = transactionRepository.findTransactionsByQuery(eq(PROJECT_ID, id));
-        return listTransactions.stream().map(CollectHelper::convertTransactionModelToTransactionDto)
+        return listTransactions
+            .stream()
+            .map(CollectHelper::convertTransactionModelToTransactionDto)
             .collect(Collectors.toList());
     }
-
 
     public void checkReadyTransaction(TransactionModel transactionModel) throws CollectInternalException {
         if (!checkStatus(transactionModel, TransactionStatus.OPEN)) {
@@ -231,21 +247,27 @@ public class TransactionService {
         transactionRepository.replaceTransaction(transactionModel);
     }
 
-    public boolean findOneAndReplace(TransactionStatus transactionStatus,
-        TransactionModel transactionModel) throws InvalidParseOperationException {
+    public boolean findOneAndReplace(TransactionStatus transactionStatus, TransactionModel transactionModel)
+        throws InvalidParseOperationException {
         return transactionRepository.findOneAndReplace(transactionStatus, transactionModel);
     }
 
     public void checkAbortTransaction(TransactionModel transactionModel) throws CollectInternalException {
-        if (!checkStatus(transactionModel, TransactionStatus.OPEN,
-            TransactionStatus.READY, TransactionStatus.ACK_KO, TransactionStatus.KO)) {
+        if (
+            !checkStatus(
+                transactionModel,
+                TransactionStatus.OPEN,
+                TransactionStatus.READY,
+                TransactionStatus.ACK_KO,
+                TransactionStatus.KO
+            )
+        ) {
             throw new IllegalArgumentException(TRANSACTION_NOT_UPDATED);
         }
     }
 
     public void checkReopenTransaction(TransactionModel transactionModel) throws CollectInternalException {
-        if (!checkStatus(transactionModel, TransactionStatus.READY, TransactionStatus.ACK_KO,
-            TransactionStatus.KO)) {
+        if (!checkStatus(transactionModel, TransactionStatus.READY, TransactionStatus.ACK_KO, TransactionStatus.KO)) {
             throw new IllegalArgumentException(TRANSACTION_NOT_UPDATED);
         }
     }
@@ -286,9 +308,7 @@ public class TransactionService {
         replaceTransaction(transactionModel);
     }
 
-
-    public void attachVitamOperationId(String transactionId, String operationId)
-        throws CollectInternalException {
+    public void attachVitamOperationId(String transactionId, String operationId) throws CollectInternalException {
         Optional<TransactionModel> transactionModelOptional = findTransaction(transactionId);
         if (transactionModelOptional.isEmpty()) {
             throw new IllegalArgumentException(TRANSACTION_NOT_FOUND);
@@ -304,23 +324,25 @@ public class TransactionService {
         return transactionRepository.getListTransactionToDeleteByTenant(tenantId);
     }
 
-    private List<TransactionModel> prepareTransactionsToUpdate(Map<String, String> statusOperation,
-        List<TransactionModel> transactions) {
-
+    private List<TransactionModel> prepareTransactionsToUpdate(
+        Map<String, String> statusOperation,
+        List<TransactionModel> transactions
+    ) {
         List<TransactionModel> transactionsToUpdate = new ArrayList<>();
         for (TransactionModel transaction : transactions) {
-
             String operationStatus = statusOperation.get(transaction.getVitamOperationId());
 
             if (OPERATION_STATUS_TO_TRANSACTION_STATUS_MAP.containsKey(operationStatus)) {
-                transaction.setStatus(OPERATION_STATUS_TO_TRANSACTION_STATUS_MAP.get(
-                    statusOperation.get(transaction.getVitamOperationId())));
+                transaction.setStatus(
+                    OPERATION_STATUS_TO_TRANSACTION_STATUS_MAP.get(
+                        statusOperation.get(transaction.getVitamOperationId())
+                    )
+                );
                 transactionsToUpdate.add(transaction);
             }
         }
         return transactionsToUpdate;
     }
-
 
     private JsonNode getDslForSelectOperation(List<String> vitamOperationsIds) throws CollectInternalException {
         Select select = new Select();
@@ -334,11 +356,10 @@ public class TransactionService {
         return select.getFinalSelect();
     }
 
-
     private Map<String, String> getIngestOperationStatusesFromProcessing(List<TransactionModel> transactions)
         throws CollectInternalException {
-
-        Set<String> operationIds = transactions.stream()
+        Set<String> operationIds = transactions
+            .stream()
             .map(TransactionModel::getVitamOperationId)
             .collect(Collectors.toSet());
 
@@ -352,8 +373,8 @@ public class TransactionService {
             } else {
                 RequestResponseOK<ProcessDetail> requestResponseOK = (RequestResponseOK<ProcessDetail>) requestResponse;
 
-                return requestResponseOK.getResults()
-
+                return requestResponseOK
+                    .getResults()
                     .stream()
                     .filter(processDetail -> operationIds.contains(processDetail.getOperationId()))
                     .collect(Collectors.toMap(ProcessDetail::getOperationId, ProcessDetail::getStepStatus));
@@ -363,15 +384,14 @@ public class TransactionService {
         }
     }
 
-
     private Map<String, String> getIngestOperationStatusesFromLogbook(List<String> transactionIds)
         throws CollectInternalException {
-
         try (AccessInternalClient client = accessInternalClientFactory.getClient()) {
             Map<String, String> results = new HashMap<>();
-            for (List<String> batchTransactionIds :
-                Lists.partition(transactionIds, VitamConfiguration.getBatchSize())) {
-
+            for (List<String> batchTransactionIds : Lists.partition(
+                transactionIds,
+                VitamConfiguration.getBatchSize()
+            )) {
                 // FIXME : Add projection
                 JsonNode select = getDslForSelectOperation(batchTransactionIds);
                 RequestResponse<JsonNode> requestResponse = client.selectOperation(select, true, true);
@@ -380,26 +400,28 @@ public class TransactionService {
                     throw new CollectInternalException("Error from access client: " + requestResponse);
                 }
                 RequestResponseOK<JsonNode> requestResponseOK = (RequestResponseOK<JsonNode>) requestResponse;
-                List<LogbookOperation> logbookOperations =
-                    getFromJsonNodeList((requestResponseOK).getResults(),
-                        new TypeReference<>() {
-                        });
-                logbookOperations.forEach(logbookOperation -> results.put(logbookOperation.getId(),
-                    getOperationStatus(logbookOperation)));
+                List<LogbookOperation> logbookOperations = getFromJsonNodeList(
+                    (requestResponseOK).getResults(),
+                    new TypeReference<>() {}
+                );
+                logbookOperations.forEach(
+                    logbookOperation -> results.put(logbookOperation.getId(), getOperationStatus(logbookOperation))
+                );
             }
 
-            List<String> notFoundTransactionIds = transactionIds.stream()
+            List<String> notFoundTransactionIds = transactionIds
+                .stream()
                 .filter(transactionId -> !results.containsKey(transactionId))
                 .collect(Collectors.toList());
 
             if (CollectionUtils.isNotEmpty(notFoundTransactionIds)) {
                 LOGGER.error("Invalid state. Transactions ids have not been found " + notFoundTransactionIds);
                 throw new CollectInternalException(
-                    "Invalid state. At least one transaction have not been found in Vitam");
+                    "Invalid state. At least one transaction have not been found in Vitam"
+                );
             }
 
             return results;
-
         } catch (VitamClientException e) {
             LOGGER.error("Error when select operation: {}", e);
             throw new CollectInternalException(e);
@@ -409,20 +431,25 @@ public class TransactionService {
     }
 
     private String getOperationStatus(LogbookOperation logbookOperation) {
-        if (CollectionUtils.isNotEmpty(logbookOperation.getEvents())
-            && PROCESS_SIP_UNITARY.equals(
-            logbookOperation.getEvents().get(logbookOperation.getEvents().size() - 1).getEvType())) {
+        if (
+            CollectionUtils.isNotEmpty(logbookOperation.getEvents()) &&
+            PROCESS_SIP_UNITARY.equals(
+                logbookOperation.getEvents().get(logbookOperation.getEvents().size() - 1).getEvType()
+            )
+        ) {
             return logbookOperation.getEvents().get(logbookOperation.getEvents().size() - 1).getOutcome();
         }
 
         LOGGER.warn(
-            "Cannot retrieve ingest operation status from logbook operations for id " + logbookOperation.getId());
+            "Cannot retrieve ingest operation status from logbook operations for id " + logbookOperation.getId()
+        );
         return StatusCode.UNKNOWN.name();
     }
 
     public List<TransactionModel> findReadyAutoIngestTransactions() throws CollectInternalException {
         return this.transactionRepository.findTransactionsByQueryWithoutTenant(
-            and(eq(STATUS, TransactionStatus.READY.name()), eq(AUTOMATIC_INGEST, true)));
+                and(eq(STATUS, TransactionStatus.READY.name()), eq(AUTOMATIC_INGEST, true))
+            );
     }
 
     public void manageTransactionsStatus() throws CollectInternalException {
@@ -435,19 +462,20 @@ public class TransactionService {
 
         Map<String, String> statusOperationFromProcessing = getIngestOperationStatusesFromProcessing(transactions);
 
-        List<String> operationsWithoutStatusFromProcessing = transactions.stream()
+        List<String> operationsWithoutStatusFromProcessing = transactions
+            .stream()
             .map(TransactionModel::getVitamOperationId)
             .filter(id -> !statusOperationFromProcessing.containsKey(id))
             .collect(Collectors.toList());
 
         Map<String, String> operationStatusesFromLogbook = getIngestOperationStatusesFromLogbook(
-            operationsWithoutStatusFromProcessing);
+            operationsWithoutStatusFromProcessing
+        );
 
-        Map<String, String> operationStatuses =
-            Stream.concat(
-                statusOperationFromProcessing.entrySet().stream(),
-                operationStatusesFromLogbook.entrySet().stream()
-            ).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        Map<String, String> operationStatuses = Stream.concat(
+            statusOperationFromProcessing.entrySet().stream(),
+            operationStatusesFromLogbook.entrySet().stream()
+        ).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         List<TransactionModel> transactionsToUpdate = prepareTransactionsToUpdate(operationStatuses, transactions);
         this.transactionRepository.replaceTransactions(transactionsToUpdate);
@@ -465,11 +493,13 @@ public class TransactionService {
             throw new CollectInternalException("project with id " + projectId + " not found");
         }
         final String id = transactionDto.getId();
-        TransactionModel transactionModel =
-            findTransaction(id).orElseThrow(() -> new CollectInternalNotFoundException("transaction with id " + id + " not found"));
+        TransactionModel transactionModel = findTransaction(id).orElseThrow(
+            () -> new CollectInternalNotFoundException("transaction with id " + id + " not found")
+        );
         transactionModel.setName(transactionDto.getName());
         transactionModel.setManifestContext(
-            CollectHelper.mapTransactionDtoToManifestContext(transactionDto, projectOpt.get()));
+            CollectHelper.mapTransactionDtoToManifestContext(transactionDto, projectOpt.get())
+        );
         transactionModel.setLastUpdate(LocalDateUtil.getFormattedDateForMongo(LocalDateUtil.now()));
         transactionRepository.replaceTransaction(transactionModel);
         return transactionModel;
@@ -491,7 +521,6 @@ public class TransactionService {
         }
     }
 
-
     public void deleteTransactionContent(String transactionId) throws CollectInternalException {
         try (WorkspaceClient workspaceClient = workspaceCollectClientFactory.getClient()) {
             if (workspaceClient.isExistingContainer(transactionId)) {
@@ -507,18 +536,25 @@ public class TransactionService {
             queryProjection.setFields(Map.of(VitamFieldsHelper.id(), 1, VitamFieldsHelper.object(), 1));
             request.setProjection(JsonHandler.toJsonNode(queryProjection));
             final ScrollSpliterator<JsonNode> scrollRequest = metadataRepository.selectUnits(request, transactionId);
-            Iterator<List<JsonNode>> iterator =
-                Iterators.partition(new SpliteratorIterator<>(scrollRequest), VitamConfiguration.getBatchSize());
+            Iterator<List<JsonNode>> iterator = Iterators.partition(
+                new SpliteratorIterator<>(scrollRequest),
+                VitamConfiguration.getBatchSize()
+            );
 
             while (iterator.hasNext()) {
                 List<JsonNode> units = iterator.next();
-                final List<String> idObjectGroups =
-                    units.stream().map(e -> e.get(VitamFieldsHelper.object())).filter(Objects::nonNull)
-                        .map(JsonNode::asText).collect(Collectors.toList());
+                final List<String> idObjectGroups = units
+                    .stream()
+                    .map(e -> e.get(VitamFieldsHelper.object()))
+                    .filter(Objects::nonNull)
+                    .map(JsonNode::asText)
+                    .collect(Collectors.toList());
                 metadataRepository.deleteObjectGroups(idObjectGroups);
-                final List<String> idUnits =
-                    units.stream().map(e -> e.get(VitamFieldsHelper.id())).map(JsonNode::asText)
-                        .collect(Collectors.toList());
+                final List<String> idUnits = units
+                    .stream()
+                    .map(e -> e.get(VitamFieldsHelper.id()))
+                    .map(JsonNode::asText)
+                    .collect(Collectors.toList());
                 metadataRepository.deleteUnits(idUnits);
             }
         } catch (InvalidParseOperationException e) {
@@ -527,7 +563,6 @@ public class TransactionService {
     }
 
     private void purgeFailedUploadSilently(TransactionModel transactionModel) {
-
         String batchId = VitamThreadUtils.getVitamSession().getRequestId();
         Batch batch = new Batch();
         batch.setBatchId(batchId);
@@ -557,18 +592,14 @@ public class TransactionService {
         try {
             batch.setBatchStatus(BatchStatus.PURGED);
             traceTransaction(batches, newTransactionModel);
-
         } catch (CollectInternalException e) {
             LOGGER.info("unable to Update Transaction :", e);
         }
-
     }
-
 
     private Optional<TransactionModel> traceTransaction(List<Batch> batches, TransactionModel transactionModel)
         throws CollectInternalException {
         String errorMsg = "concurrency problem: The transaction was deleted by someone else";
-
 
         transactionModel.setBatches(batches);
 
@@ -578,8 +609,9 @@ public class TransactionService {
                 return Optional.of(transactionModel);
             }
             LOGGER.info("Failed to update transaction with the provided model. Retrying with findTransaction...");
-            Optional<TransactionModel> optionalTransaction =
-                transactionRepository.findTransaction(transactionModel.getId());
+            Optional<TransactionModel> optionalTransaction = transactionRepository.findTransaction(
+                transactionModel.getId()
+            );
 
             if (optionalTransaction.isEmpty()) {
                 LOGGER.error(errorMsg);
@@ -606,26 +638,27 @@ public class TransactionService {
         }
     }
 
-    public void purgeByBatchId(String batchId, TransactionModel transactionModel)
-        throws CollectInternalException {
+    public void purgeByBatchId(String batchId, TransactionModel transactionModel) throws CollectInternalException {
         String transactionId = transactionModel.getId();
         purgeObjectAndWorkspace(batchId, transactionId);
         purgeUnits(batchId, transactionId);
-
     }
 
-    private void purgeObjectAndWorkspace(String batchId, String transactionId)
-        throws CollectInternalException {
+    private void purgeObjectAndWorkspace(String batchId, String transactionId) throws CollectInternalException {
         Iterator<List<JsonNode>> selectObjectIterator;
         try {
             final Select select = buildSelectWithBatchId(batchId);
             final SelectMultiQuery selectObjectRequest = new SelectMultiQuery();
             selectObjectRequest.setQuery(select.getQuery());
             // Scroll through object groups
-            final ScrollSpliterator<JsonNode> selectObjectScrollRequest =
-                metadataRepository.selectObjectGroups(selectObjectRequest, transactionId);
-            selectObjectIterator = Iterators
-                .partition(new SpliteratorIterator<>(selectObjectScrollRequest), VitamConfiguration.getBatchSize());
+            final ScrollSpliterator<JsonNode> selectObjectScrollRequest = metadataRepository.selectObjectGroups(
+                selectObjectRequest,
+                transactionId
+            );
+            selectObjectIterator = Iterators.partition(
+                new SpliteratorIterator<>(selectObjectScrollRequest),
+                VitamConfiguration.getBatchSize()
+            );
         } catch (InvalidCreateOperationException e) {
             throw new CollectInternalException("Invalid operation during object creation : ", e);
         }
@@ -634,7 +667,6 @@ public class TransactionService {
             purgeWorkspace(objectsGroup, transactionId);
             deleteGots(objectsGroup);
         }
-
     }
 
     private void purgeWorkspace(List<JsonNode> objects, String transactionId) throws CollectInternalException {
@@ -644,13 +676,17 @@ public class TransactionService {
                     for (JsonNode version : qualifier.get("versions")) {
                         try (WorkspaceClient workspaceClient = workspaceCollectClientFactory.getClient()) {
                             String uri = version.get("Uri").textValue();
-                            if (workspaceClient.isExistingContainer(transactionId) &&
-                                workspaceClient.isExistingObject(transactionId, uri)) {
+                            if (
+                                workspaceClient.isExistingContainer(transactionId) &&
+                                workspaceClient.isExistingObject(transactionId, uri)
+                            ) {
                                 workspaceClient.deleteObject(transactionId, uri);
                             }
                         } catch (ContentAddressableStorageException e) {
                             throw new CollectInternalException(
-                                "Error when trying to delete stream from workspace: ", e);
+                                "Error when trying to delete stream from workspace: ",
+                                e
+                            );
                         }
                     }
                 }
@@ -659,13 +695,14 @@ public class TransactionService {
     }
 
     private void deleteGots(List<JsonNode> objects) throws CollectInternalException {
-        final List<String> idObjectGroups =
-            objects.stream().map(object -> object.get(VitamFieldsHelper.id()).textValue()).collect(Collectors.toList());
+        final List<String> idObjectGroups = objects
+            .stream()
+            .map(object -> object.get(VitamFieldsHelper.id()).textValue())
+            .collect(Collectors.toList());
         metadataRepository.deleteObjectGroups(idObjectGroups);
     }
 
-    private void purgeUnits(String batchId, String transactionId)
-        throws CollectInternalException {
+    private void purgeUnits(String batchId, String transactionId) throws CollectInternalException {
         try {
             final Select select = buildSelectWithBatchId(batchId);
             final SelectMultiQuery request = new SelectMultiQuery();
@@ -674,14 +711,18 @@ public class TransactionService {
 
             // Scroll through units
             final ScrollSpliterator<JsonNode> scrollRequest = metadataRepository.selectUnits(request, transactionId);
-            Iterator<List<JsonNode>> iterator =
-                Iterators.partition(new SpliteratorIterator<>(scrollRequest), VitamConfiguration.getBatchSize());
+            Iterator<List<JsonNode>> iterator = Iterators.partition(
+                new SpliteratorIterator<>(scrollRequest),
+                VitamConfiguration.getBatchSize()
+            );
 
             while (iterator.hasNext()) {
                 List<JsonNode> units = iterator.next();
                 // Collect unit ids
-                final List<String> idUnits =
-                    units.stream().map(e -> e.get(VitamFieldsHelper.id()).asText()).collect(Collectors.toList());
+                final List<String> idUnits = units
+                    .stream()
+                    .map(e -> e.get(VitamFieldsHelper.id()).asText())
+                    .collect(Collectors.toList());
                 metadataRepository.deleteUnits(idUnits);
             }
         } catch (InvalidCreateOperationException | InvalidParseOperationException e) {
@@ -689,20 +730,24 @@ public class TransactionService {
         }
     }
 
-
-    private Select buildSelectWithBatchId(String batchId)
-        throws InvalidCreateOperationException {
+    private Select buildSelectWithBatchId(String batchId) throws InvalidCreateOperationException {
         final Select select = new Select();
         select.setQuery(QueryHelper.eq((VitamFieldsHelper.batchId()), batchId));
         return select;
     }
 
-
-    public Response uploadTransactionZip(InputStream inputStreamObject, TransactionModel transactionModel, @Nullable String encoding)
-        throws CollectInternalException {
+    public Response uploadTransactionZip(
+        InputStream inputStreamObject,
+        TransactionModel transactionModel,
+        @Nullable String encoding
+    ) throws CollectInternalException {
         try {
             fluxService.processStream(
-                inputStreamObject, transactionModel.getProjectId(), transactionModel.getId(), encoding);
+                inputStreamObject,
+                transactionModel.getProjectId(),
+                transactionModel.getId(),
+                encoding
+            );
             return Response.ok().build();
         } catch (CollectInternalInvalidRequestException e) {
             LOGGER.error("An error occurs when try to upload the ZIP: {}", e);
@@ -715,18 +760,18 @@ public class TransactionService {
 
     public boolean changeTransactionToSendingIfBatchesNotKo(TransactionModel transaction)
         throws InvalidParseOperationException, CollectInternalException {
-        boolean hasBatchKo = transaction.getBatches() != null && transaction.getBatches()
-            .stream()
-            .anyMatch(batch -> BatchStatus.KO.equals(batch.getBatchStatus()));
+        boolean hasBatchKo =
+            transaction.getBatches() != null &&
+            transaction.getBatches().stream().anyMatch(batch -> BatchStatus.KO.equals(batch.getBatchStatus()));
         if (hasBatchKo) {
-            throw new CollectInternalException("impossible to generate the sip: this transaction has at least one KO batch");
+            throw new CollectInternalException(
+                "impossible to generate the sip: this transaction has at least one KO batch"
+            );
         }
 
         transaction.setStatus(TransactionStatus.SENDING);
 
         transaction.setLastUpdate(LocalDateUtil.now().toString());
         return findOneAndReplace(TransactionStatus.READY, transaction);
-
     }
-
 }

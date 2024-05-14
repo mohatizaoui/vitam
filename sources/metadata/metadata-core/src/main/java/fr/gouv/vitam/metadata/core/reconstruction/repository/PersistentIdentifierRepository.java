@@ -35,9 +35,11 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 public interface PersistentIdentifierRepository {
-
-    List<PurgedPersistentIdentifier> findByPersistentIdentifierAndTenant(String persistentIdentifier, Integer tenant, @Nullable String type)
-        throws DatabaseException;
+    List<PurgedPersistentIdentifier> findByPersistentIdentifierAndTenant(
+        String persistentIdentifier,
+        Integer tenant,
+        @Nullable String type
+    ) throws DatabaseException;
 
     void insert(List<Document> purgedPersistentIdentifiers) throws MetaDataExecutionException;
 }

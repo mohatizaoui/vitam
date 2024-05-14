@@ -84,13 +84,14 @@ public class TransactionExternalResourceTest extends ResteasyTestApplication {
     private static int port = junitHelper.findAvailablePort();
 
     @Rule
-    public RunWithCustomExecutorRule runInThread =
-        new RunWithCustomExecutorRule(VitamThreadPoolExecutor.getDefaultExecutor());
+    public RunWithCustomExecutorRule runInThread = new RunWithCustomExecutorRule(
+        VitamThreadPoolExecutor.getDefaultExecutor()
+    );
 
-    private final static BusinessApplicationTest businessApplicationTest = new BusinessApplicationTest();
-    private final static CollectInternalClientFactory collectInternalClientFactory =
+    private static final BusinessApplicationTest businessApplicationTest = new BusinessApplicationTest();
+    private static final CollectInternalClientFactory collectInternalClientFactory =
         businessApplicationTest.getCollectInternalClientFactory();
-    private final static CollectInternalClient collectInternalClient = mock(CollectInternalClient.class);
+    private static final CollectInternalClient collectInternalClient = mock(CollectInternalClient.class);
 
     @Override
     public Set<Object> getResources() {
@@ -115,10 +116,8 @@ public class TransactionExternalResourceTest extends ResteasyTestApplication {
             LOGGER.debug("Beginning tests");
         } catch (final VitamApplicationServerException e) {
             LOGGER.error(e);
-            throw new IllegalStateException(
-                "Cannot start the Collect Application Server", e);
+            throw new IllegalStateException("Cannot start the Collect Application Server", e);
         }
-
     }
 
     @Before
@@ -141,18 +140,18 @@ public class TransactionExternalResourceTest extends ResteasyTestApplication {
 
     @Test
     public void uploadArchiveUnit_OK() throws Exception {
-
         String transactionId = "myTxId";
-        doReturn(new RequestResponseOK<>())
-            .when(collectInternalClient).uploadArchiveUnit(any(), eq(transactionId));
+        doReturn(new RequestResponseOK<>()).when(collectInternalClient).uploadArchiveUnit(any(), eq(transactionId));
         given()
             .accept(ContentType.JSON)
             .contentType(ContentType.JSON)
             .header(GlobalDataRest.X_TENANT_ID, "0")
-            .body("{\n" +
+            .body(
+                "{\n" +
                 "  \"DescriptionLevel\": \"RecordGrp\",\n" +
                 "  \"Title\": \"Bulletins de salaire : mars 2020\"\n" +
-                "}")
+                "}"
+            )
             .when()
             .post("/transactions/" + transactionId + "/units")
             .then()
@@ -160,24 +159,23 @@ public class TransactionExternalResourceTest extends ResteasyTestApplication {
     }
 
     @Test
-    public void uploadArchiveUnit_with_bad_transaction_id()
-        throws Exception {
-        doThrow(new VitamClientException("Error"))
-            .when(collectInternalClient).uploadArchiveUnit(any(), anyString());
+    public void uploadArchiveUnit_with_bad_transaction_id() throws Exception {
+        doThrow(new VitamClientException("Error")).when(collectInternalClient).uploadArchiveUnit(any(), anyString());
         given()
             .accept(ContentType.JSON)
             .contentType(ContentType.JSON)
             .header(GlobalDataRest.X_TENANT_ID, "0")
-            .body("{\n" +
+            .body(
+                "{\n" +
                 "  \"DescriptionLevel\": \"RecordGrp\",\n" +
                 "  \"Title\": \"Bulletins de salaire : mars 2020\"\n" +
-                "}")
+                "}"
+            )
             .when()
             .post("/transactions/BAD_TRANSACTION_ID/units")
             .then()
             .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
     }
-
 
     @Test
     public void bad_endpoint_match_pattern() {
@@ -185,10 +183,12 @@ public class TransactionExternalResourceTest extends ResteasyTestApplication {
             .accept(ContentType.JSON)
             .contentType(ContentType.JSON)
             .header(GlobalDataRest.X_TENANT_ID, "0")
-            .body("{\n" +
+            .body(
+                "{\n" +
                 "  \"DescriptionLevel\": \"RecordGrp\",\n" +
                 "  \"Title\": \"Bulletins de salaire : mars 2020\"\n" +
-                "}")
+                "}"
+            )
             .when()
             .post("/transactions/units")
             .then()
@@ -201,10 +201,12 @@ public class TransactionExternalResourceTest extends ResteasyTestApplication {
             .accept(ContentType.JSON)
             .contentType(ContentType.JSON)
             .header(GlobalDataRest.X_TENANT_ID, "0")
-            .body("{\n" +
+            .body(
+                "{\n" +
                 "  \"DescriptionLevel\": \"RecordGrp\",\n" +
                 "  \"Title\": \"Bulletins de salaire : mars 2020\"\n" +
-                "}")
+                "}"
+            )
             .when()
             .post("/transactions//units")
             .then()
@@ -213,9 +215,9 @@ public class TransactionExternalResourceTest extends ResteasyTestApplication {
 
     @Test
     public void updateUnitsCsvDeprecated_BadRequest() throws Exception {
-
         doThrow(new CollectInternalClientInvalidRequestException("Error"))
-            .when(collectInternalClient).updateUnitsWithCsvMetadata(eq("myTx"), any());
+            .when(collectInternalClient)
+            .updateUnitsWithCsvMetadata(eq("myTx"), any());
         given()
             .accept(ContentType.JSON)
             .contentType(ContentType.BINARY)
@@ -229,9 +231,9 @@ public class TransactionExternalResourceTest extends ResteasyTestApplication {
 
     @Test
     public void updateUnitsCsvDeprecated_OK() throws Exception {
-
         doReturn(new RequestResponseOK<JsonNode>())
-            .when(collectInternalClient).updateUnitsWithCsvMetadata(eq("myTx"), any());
+            .when(collectInternalClient)
+            .updateUnitsWithCsvMetadata(eq("myTx"), any());
         given()
             .accept(ContentType.JSON)
             .contentType(ContentType.BINARY)
@@ -245,9 +247,9 @@ public class TransactionExternalResourceTest extends ResteasyTestApplication {
 
     @Test
     public void updateUnitsCsv_BadRequest() throws Exception {
-
         doThrow(new CollectInternalClientInvalidRequestException("Error"))
-            .when(collectInternalClient).updateUnitsWithCsvMetadata(eq("myTx"), any());
+            .when(collectInternalClient)
+            .updateUnitsWithCsvMetadata(eq("myTx"), any());
         given()
             .accept(ContentType.JSON)
             .contentType(TEXT_CSV)
@@ -261,9 +263,9 @@ public class TransactionExternalResourceTest extends ResteasyTestApplication {
 
     @Test
     public void updateUnitsCsv_OK() throws Exception {
-
         doReturn(new RequestResponseOK<JsonNode>())
-            .when(collectInternalClient).updateUnitsWithCsvMetadata(eq("myTx"), any());
+            .when(collectInternalClient)
+            .updateUnitsWithCsvMetadata(eq("myTx"), any());
         given()
             .accept(ContentType.JSON)
             .contentType(TEXT_CSV)
@@ -277,9 +279,9 @@ public class TransactionExternalResourceTest extends ResteasyTestApplication {
 
     @Test
     public void updateUnitsJsonl_BadRequest() throws Exception {
-
         doThrow(new CollectInternalClientInvalidRequestException("Error"))
-            .when(collectInternalClient).updateUnitsWithJsonlMetadata(eq("myTx"), any());
+            .when(collectInternalClient)
+            .updateUnitsWithJsonlMetadata(eq("myTx"), any());
         given()
             .accept(ContentType.JSON)
             .contentType(ContentType.BINARY)
@@ -293,9 +295,9 @@ public class TransactionExternalResourceTest extends ResteasyTestApplication {
 
     @Test
     public void updateUnitsJsonl_OK() throws Exception {
-
         doReturn(new RequestResponseOK<JsonNode>())
-            .when(collectInternalClient).updateUnitsWithCsvMetadata(eq("myTx"), any());
+            .when(collectInternalClient)
+            .updateUnitsWithCsvMetadata(eq("myTx"), any());
         given()
             .accept(ContentType.JSON)
             .contentType(ContentType.BINARY)
@@ -322,7 +324,11 @@ public class TransactionExternalResourceTest extends ResteasyTestApplication {
             .then()
             .statusCode(OK.getStatusCode());
 
-        verify(collectInternalClient).uploadZipToTransaction(eq("transaction-id"), any(InputStream.class), eq("MacRoman"));
+        verify(collectInternalClient).uploadZipToTransaction(
+            eq("transaction-id"),
+            any(InputStream.class),
+            eq("MacRoman")
+        );
     }
 
     @Test
@@ -341,5 +347,4 @@ public class TransactionExternalResourceTest extends ResteasyTestApplication {
 
         verify(collectInternalClient, never()).uploadZipToTransaction(any(), any(), any());
     }
-
 }

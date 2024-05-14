@@ -40,6 +40,7 @@ import fr.gouv.vitam.common.model.objectgroup.ObjectGroupResponse;
 import java.util.Collection;
 
 public class ObjectGroupMultiQuerySearchService implements MultiQuerySearchService<ObjectGroupResponse> {
+
     private final AccessInternalModule accessInternalModule;
 
     public ObjectGroupMultiQuerySearchService(final AccessInternalModule accessInternalModule) {

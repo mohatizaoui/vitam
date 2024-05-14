@@ -27,22 +27,14 @@
 
 package fr.gouv.vitam.worker.core.plugin.signingInformation;
 
-
-
 public enum SigningInformationEnum {
-    MANDATORY_SIGNED_DOCUMENT(
-        "Electronic document signing check: Unsigned document prohibited by entry contract"),
-    FORBIDDEN_SIGNED_DOCUMENT(
-        "Electronic document signing check: Signed document prohibited by entry contract"),
-    MISSING_DECLARED_SIGNATURE(
-        "Electronic document signing check: Missing mandatory associated signature"),
+    MANDATORY_SIGNED_DOCUMENT("Electronic document signing check: Unsigned document prohibited by entry contract"),
+    FORBIDDEN_SIGNED_DOCUMENT("Electronic document signing check: Signed document prohibited by entry contract"),
+    MISSING_DECLARED_SIGNATURE("Electronic document signing check: Missing mandatory associated signature"),
     MISSING_DECLARED_TIMESTAMP("Electronic document signing check: Missing mandatory timestamp"),
-    MISSING_DECLARED_ADDITIONAL_PROOF(
-        "Electronic document signing check: Missing mandatory additional proof");
+    MISSING_DECLARED_ADDITIONAL_PROOF("Electronic document signing check: Missing mandatory additional proof");
 
     private final String message;
-
-
 
     SigningInformationEnum(String message) {
         this.message = message;

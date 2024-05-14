@@ -47,7 +47,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-
 public class PurgedPersistentIdentifierBulkInserterTest {
 
     @Rule
@@ -63,7 +62,6 @@ public class PurgedPersistentIdentifierBulkInserterTest {
 
     @Before
     public void setUp() {
-
         when(metaDataConfiguration.getPersistentIdentifierReconstructionBulkSize()).thenReturn(4);
 
         bulkInserter = new PurgedPersistentIdentifierBulkInserter(
@@ -85,10 +83,8 @@ public class PurgedPersistentIdentifierBulkInserterTest {
         verify(persistentIdentifierRepository, never()).insert(anyList());
     }
 
-
     @Test
     public void append_AtBulkSize_InsertsAndClearsList() throws Exception {
-
         List<PersistentIdentifierModel> persistentIdentifier = new ArrayList<>();
         final PersistentIdentifierModel persistentIdentifierModel = new PersistentIdentifierModel();
         persistentIdentifierModel.setPersistentIdentifierType("ark");
@@ -149,7 +145,6 @@ public class PurgedPersistentIdentifierBulkInserterTest {
 
     @Test
     public void flush_NonEmptyList_InsertsAndClearsList() throws Exception {
-
         List<PersistentIdentifierModel> persistentIdentifier = new ArrayList<>();
         final PersistentIdentifierModel persistentIdentifierModel = new PersistentIdentifierModel();
         persistentIdentifierModel.setPersistentIdentifierType("ark");

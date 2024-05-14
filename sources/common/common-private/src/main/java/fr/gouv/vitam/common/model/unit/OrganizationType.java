@@ -34,11 +34,11 @@ public class OrganizationType {
 
     @JsonProperty("Identifier")
     private String identifier;
+
     @JsonProperty("OrganizationDescriptiveMetadata")
     private Map<String, Object> organizationDescriptiveMetadata;
 
-    public OrganizationType() {
-    }
+    public OrganizationType() {}
 
     public String getIdentifier() {
         return identifier;
@@ -53,8 +53,7 @@ public class OrganizationType {
         return organizationDescriptiveMetadata;
     }
 
-    public OrganizationType setOrganizationDescriptiveMetadata(
-        Map<String, Object> organizationDescriptiveMetadata) {
+    public OrganizationType setOrganizationDescriptiveMetadata(Map<String, Object> organizationDescriptiveMetadata) {
         this.organizationDescriptiveMetadata = organizationDescriptiveMetadata;
         return this;
     }

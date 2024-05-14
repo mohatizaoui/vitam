@@ -112,9 +112,7 @@ public class SchemaService {
     public static final String VITAM_UNIT_INTERNAL_SCHEMA_JSON = "vitam-unit-internal-schema.json";
     public static final String VITAM_OBJECT_GROUP_INTERNAL_SCHEMA_JSON = "vitam-object-group-internal-schema.json";
 
-
     private final MongoDbAccessAdminImpl mongoDbAccessReferential;
-
 
     private final FunctionalBackupService functionalBackupService;
 
@@ -126,22 +124,33 @@ public class SchemaService {
      * SchemaService Constructor
      */
 
-    public SchemaService(final MongoDbAccessAdminImpl mongoDbAccessReferential,
-        final FunctionalBackupService functionalBackupService, final OntologyService ontologyService) {
-        this(mongoDbAccessReferential, functionalBackupService, ontologyService,
-            LogbookOperationsClientFactory.getInstance());
+    public SchemaService(
+        final MongoDbAccessAdminImpl mongoDbAccessReferential,
+        final FunctionalBackupService functionalBackupService,
+        final OntologyService ontologyService
+    ) {
+        this(
+            mongoDbAccessReferential,
+            functionalBackupService,
+            ontologyService,
+            LogbookOperationsClientFactory.getInstance()
+        );
     }
 
     @VisibleForTesting
-    public SchemaService(final MongoDbAccessAdminImpl mongoDbAccessReferential,
+    public SchemaService(
+        final MongoDbAccessAdminImpl mongoDbAccessReferential,
         final FunctionalBackupService functionalBackupService,
         final OntologyService ontologyService,
-        final LogbookOperationsClientFactory logbookOperationsClientFactory) {
+        final LogbookOperationsClientFactory logbookOperationsClientFactory
+    ) {
         this.ontologyService = ontologyService;
         this.mongoDbAccessReferential = mongoDbAccessReferential;
         this.functionalBackupService = functionalBackupService;
-        this.schemaValidationService =
-            new SchemaValidationService(mongoDbAccessReferential, logbookOperationsClientFactory);
+        this.schemaValidationService = new SchemaValidationService(
+            mongoDbAccessReferential,
+            logbookOperationsClientFactory
+        );
     }
 
     /**
@@ -199,9 +208,10 @@ public class SchemaService {
     public List<SchemaResponse> findObjectGroupInternalSchema() throws InvalidParseOperationException, IOException {
         LOGGER.info("retrieving ObjectGroup schema ");
         InputStream isObjectGroupInternalSchema = loadObjectGroupInternalSchema();
-        List<SchemaResponse> objectGroupSchemaModels =
-            JsonHandler.getFromInputStreamAsTypeReference(isObjectGroupInternalSchema, new TypeReference<>() {
-            });
+        List<SchemaResponse> objectGroupSchemaModels = JsonHandler.getFromInputStreamAsTypeReference(
+            isObjectGroupInternalSchema,
+            new TypeReference<>() {}
+        );
         return objectGroupSchemaModels;
     }
 
@@ -214,7 +224,6 @@ public class SchemaService {
      */
     public RequestResponse<SchemaModel> importExternalSchemaElements(List<SchemaInputModel> externalSchemaList)
         throws VitamException {
-
         String operationId = VitamThreadUtils.getVitamSession().getRequestId();
         GUID importExternalSchemaOpId = GUIDReader.getGUID(operationId);
         SchemaImportReport schemaImportReport = SchemaCommonService.initSchemaImportReport(importExternalSchemaOpId);
@@ -224,75 +233,97 @@ public class SchemaService {
             schemaValidationService.startLogBook(importExternalSchemaOpId, SCHEMA_IMPORT_EVENT);
 
             List<OntologyModel> ontologiesElts = loadFullOntologiesElts();
-            Map<String, OntologyModel> ontologyEltsMapByIdentifier = ontologiesElts.stream().collect(
-                Collectors.toMap(OntologyModel::getIdentifier, ontologyElt -> ontologyElt));
+            Map<String, OntologyModel> ontologyEltsMapByIdentifier = ontologiesElts
+                .stream()
+                .collect(Collectors.toMap(OntologyModel::getIdentifier, ontologyElt -> ontologyElt));
 
             List<SchemaResponse> currentUnitSchemaList = new ArrayList<>(loadUnitInternalSchema());
             currentUnitSchemaList.addAll(this.findUnitExternalSchema(INCLUDE_ADMIN_TENANT));
 
+            schemaValidationService.validateExternalSchemaInputs(
+                externalSchemaList,
+                currentUnitSchemaList,
+                ontologyEltsMapByIdentifier,
+                importErrors
+            );
 
-            schemaValidationService.validateExternalSchemaInputs(externalSchemaList, currentUnitSchemaList,
-                ontologyEltsMapByIdentifier, importErrors);
-
-            List<Schema> dbSchemaModelList = SchemaCommonService.mapSchemaFromInputParameters(externalSchemaList, ontologyEltsMapByIdentifier);
+            List<Schema> dbSchemaModelList = SchemaCommonService.mapSchemaFromInputParameters(
+                externalSchemaList,
+                ontologyEltsMapByIdentifier
+            );
             persistImportedSchemaList(dbSchemaModelList);
 
             backupSchemaDatabaseToOffers(importExternalSchemaOpId);
-            SchemaCommonService.fillSchemaImportReportOK(schemaImportReport, dbSchemaModelList,
-                importExternalSchemaOpId);
+            SchemaCommonService.fillSchemaImportReportOK(
+                schemaImportReport,
+                dbSchemaModelList,
+                importExternalSchemaOpId
+            );
             backupReport(schemaImportReport, importExternalSchemaOpId);
             schemaValidationService.logSuccessLogBook(importExternalSchemaOpId, SCHEMA_IMPORT_EVENT);
             return new RequestResponseOK<SchemaModel>().setHttpCode(Response.Status.CREATED.getStatusCode());
         } catch (SchemaImportValidationException e) {
             LOGGER.error(e);
-            schemaValidationService.logValidationError(importExternalSchemaOpId, SCHEMA_IMPORT_EVENT,
-                e.getMessage());
+            schemaValidationService.logValidationError(importExternalSchemaOpId, SCHEMA_IMPORT_EVENT, e.getMessage());
             if (importErrors != null) {
-                SchemaCommonService.fillSchemaImportReportError(schemaImportReport, importErrors.keySet(),
-                    StatusCode.KO, importExternalSchemaOpId);
+                SchemaCommonService.fillSchemaImportReportError(
+                    schemaImportReport,
+                    importErrors.keySet(),
+                    StatusCode.KO,
+                    importExternalSchemaOpId
+                );
                 backupReport(schemaImportReport, importExternalSchemaOpId);
             }
 
-            return SchemaCommonService.getVitamError(VitamCode.SCHEMA_CHECK_ERROR.getItem(),
-                "Error importing schema : " + e.getMessage(), StatusCode.KO).setHttpCode(
-                Response.Status.BAD_REQUEST.getStatusCode());
+            return SchemaCommonService.getVitamError(
+                VitamCode.SCHEMA_CHECK_ERROR.getItem(),
+                "Error importing schema : " + e.getMessage(),
+                StatusCode.KO
+            ).setHttpCode(Response.Status.BAD_REQUEST.getStatusCode());
         } catch (Exception e) {
             LOGGER.error(e);
             if (importErrors != null) {
-                SchemaCommonService.fillSchemaImportReportError(schemaImportReport, importErrors.keySet(),
-                    StatusCode.FATAL, importExternalSchemaOpId);
+                SchemaCommonService.fillSchemaImportReportError(
+                    schemaImportReport,
+                    importErrors.keySet(),
+                    StatusCode.FATAL,
+                    importExternalSchemaOpId
+                );
                 backupReport(schemaImportReport, importExternalSchemaOpId);
             }
-            schemaValidationService.logError(importExternalSchemaOpId, SCHEMA_IMPORT_EVENT, null,
-                e.getMessage());
-            return SchemaCommonService.getVitamError(VitamCode.SCHEMA_CHECK_ERROR.getItem(),
-                "Error importing schema : " + e.getMessage(), StatusCode.KO).setHttpCode(
-                Response.Status.BAD_REQUEST.getStatusCode());
+            schemaValidationService.logError(importExternalSchemaOpId, SCHEMA_IMPORT_EVENT, null, e.getMessage());
+            return SchemaCommonService.getVitamError(
+                VitamCode.SCHEMA_CHECK_ERROR.getItem(),
+                "Error importing schema : " + e.getMessage(),
+                StatusCode.KO
+            ).setHttpCode(Response.Status.BAD_REQUEST.getStatusCode());
         }
     }
 
     private List<SchemaResponse> mapSchemaDbEntityToModel(List<SchemaModel> currentExternalSchemaList) {
-        return currentExternalSchemaList.stream().map(schemaElt -> {
-            final SchemaResponse schemaResponse = new SchemaResponse();
-            schemaResponse.setPath(schemaElt.getPath());
-            schemaResponse.setShortName(schemaElt.getShortName());
-            schemaResponse.setCardinality(schemaElt.getCardinality());
-            schemaResponse.setTenant(schemaElt.getTenant());
-            schemaResponse.setCollection(schemaElt.getCollection());
-            schemaResponse.setDescription(schemaElt.getDescription());
-            schemaResponse.setCategory(SchemaCategory.OTHER);
+        return currentExternalSchemaList
+            .stream()
+            .map(schemaElt -> {
+                final SchemaResponse schemaResponse = new SchemaResponse();
+                schemaResponse.setPath(schemaElt.getPath());
+                schemaResponse.setShortName(schemaElt.getShortName());
+                schemaResponse.setCardinality(schemaElt.getCardinality());
+                schemaResponse.setTenant(schemaElt.getTenant());
+                schemaResponse.setCollection(schemaElt.getCollection());
+                schemaResponse.setDescription(schemaElt.getDescription());
+                schemaResponse.setCategory(SchemaCategory.OTHER);
 
-            final String pathLeaf = SchemaCommonService.extractLeafFromPath(schemaElt.getPath());
-            schemaResponse.setFieldName(pathLeaf);
-            schemaResponse.setOrigin(schemaElt.getOrigin());
-            if (Boolean.TRUE.equals(schemaElt.getObject())) {
-                schemaResponse.setType(SchemaType.OBJECT);
-            }
-            // If not an OBJECT, type will be defined from ontology
-            return schemaResponse;
-        }).collect(Collectors.toList());
+                final String pathLeaf = SchemaCommonService.extractLeafFromPath(schemaElt.getPath());
+                schemaResponse.setFieldName(pathLeaf);
+                schemaResponse.setOrigin(schemaElt.getOrigin());
+                if (Boolean.TRUE.equals(schemaElt.getObject())) {
+                    schemaResponse.setType(SchemaType.OBJECT);
+                }
+                // If not an OBJECT, type will be defined from ontology
+                return schemaResponse;
+            })
+            .collect(Collectors.toList());
     }
-
 
     /**
      * Retrieve external schema for Admin and current tenant
@@ -304,7 +335,6 @@ public class SchemaService {
      */
     private List<SchemaModel> loadCurrentExternalSchema(TenantScope tenantScope)
         throws InvalidCreateOperationException, ReferentialException, InvalidParseOperationException {
-
         Set<Integer> filteredTenants = new HashSet<>();
         switch (tenantScope) {
             case INCLUDE_ADMIN_TENANT:
@@ -319,9 +349,9 @@ public class SchemaService {
                 break;
         }
 
-        RequestResponseOK<SchemaModel> schemasResponse =
-            findExternalSchemaByQueryDsl(
-                SchemaCommonService.buildDslQueryForExtractingSchema(filteredTenants, Collections.emptyList()));
+        RequestResponseOK<SchemaModel> schemasResponse = findExternalSchemaByQueryDsl(
+            SchemaCommonService.buildDslQueryForExtractingSchema(filteredTenants, Collections.emptyList())
+        );
         return schemasResponse.getResults();
     }
 
@@ -335,8 +365,7 @@ public class SchemaService {
      * @throws DocumentAlreadyExistsException
      */
     private void persistImportedSchemaList(List<Schema> externalSchemaList)
-        throws InvalidParseOperationException, ReferentialException,
-        DocumentAlreadyExistsException, SchemaValidationException {
+        throws InvalidParseOperationException, ReferentialException, DocumentAlreadyExistsException, SchemaValidationException {
         DbRequestResult dbRequestResult = null;
         try {
             if (externalSchemaList.isEmpty()) {
@@ -347,8 +376,10 @@ public class SchemaService {
                 final ObjectNode schemaModelToPersistNode = (ObjectNode) JsonHandler.toJsonNode(schemaModelToPersist);
                 schemaListToPersist.add(schemaModelToPersistNode);
             }
-            dbRequestResult =
-                mongoDbAccessReferential.insertDocuments(schemaListToPersist, FunctionalAdminCollections.SCHEMA);
+            dbRequestResult = mongoDbAccessReferential.insertDocuments(
+                schemaListToPersist,
+                FunctionalAdminCollections.SCHEMA
+            );
         } finally {
             if (dbRequestResult != null) {
                 dbRequestResult.close();
@@ -358,9 +389,12 @@ public class SchemaService {
 
     private void backupSchemaDatabaseToOffers(GUID eip) throws VitamException {
         //Store collection
-        functionalBackupService
-            .saveCollectionAndSequence(eip, BACKUP_SCHEMA_EVENT, FunctionalAdminCollections.SCHEMA,
-                eip.toString());
+        functionalBackupService.saveCollectionAndSequence(
+            eip,
+            BACKUP_SCHEMA_EVENT,
+            FunctionalAdminCollections.SCHEMA,
+            eip.toString()
+        );
     }
 
     /**
@@ -372,17 +406,21 @@ public class SchemaService {
      * @throws InvalidParseOperationException
      */
     private List<OntologyModel> loadFullOntologiesElts() throws ReferentialException, InvalidParseOperationException {
-        RequestResponseOK<OntologyModel> ontologiesResponse =
-            ontologyService.findOntologies(JsonHandler.createObjectNode());
+        RequestResponseOK<OntologyModel> ontologiesResponse = ontologyService.findOntologies(
+            JsonHandler.createObjectNode()
+        );
         return ontologiesResponse.getResults();
     }
 
     private List<SchemaResponse> loadUnitInternalSchema()
         throws IOException, InvalidParseOperationException, ReferentialException {
         LOGGER.info("loading internal schema from file vitam-unit-internal-schema.json ");
-        final InputStream unitInternalSchemaInputStream = PropertiesUtils.getResourceAsStream(VITAM_UNIT_INTERNAL_SCHEMA_JSON);
-        return decorateSchema(JsonHandler.getFromInputStreamAsTypeReference(unitInternalSchemaInputStream, new TypeReference<>() {
-        }));
+        final InputStream unitInternalSchemaInputStream = PropertiesUtils.getResourceAsStream(
+            VITAM_UNIT_INTERNAL_SCHEMA_JSON
+        );
+        return decorateSchema(
+            JsonHandler.getFromInputStreamAsTypeReference(unitInternalSchemaInputStream, new TypeReference<>() {})
+        );
     }
 
     private List<SchemaResponse> decorateSchema(List<SchemaResponse> unitSchemaResponses)
@@ -390,31 +428,39 @@ public class SchemaService {
         final Map<String, OntologyModel> mapOntologiesByIdentifier = ontologyService
             .findOntologies(new Select().getFinalSelect())
             .getResults()
-            .stream().collect(Collectors.toMap(OntologyModel::getIdentifier, ontologyModel -> ontologyModel));
+            .stream()
+            .collect(Collectors.toMap(OntologyModel::getIdentifier, ontologyModel -> ontologyModel));
 
-        return unitSchemaResponses.stream().peek(unitSchema -> {
-            if (!SchemaType.OBJECT.equals(unitSchema.getType())) {
-                final OntologyModel ontologyElt = mapOntologiesByIdentifier.get(unitSchema.getFieldName());
-                if (ontologyElt == null) {
-                    final String message = String.format("No ontology found for path %s", unitSchema.getPath());
-                    LOGGER.error(message);
-                    throw new IllegalStateException(message);
+        return unitSchemaResponses
+            .stream()
+            .peek(unitSchema -> {
+                if (!SchemaType.OBJECT.equals(unitSchema.getType())) {
+                    final OntologyModel ontologyElt = mapOntologiesByIdentifier.get(unitSchema.getFieldName());
+                    if (ontologyElt == null) {
+                        final String message = String.format("No ontology found for path %s", unitSchema.getPath());
+                        LOGGER.error(message);
+                        throw new IllegalStateException(message);
+                    }
+                    final TypeDetail typeDetail = ontologyElt.getTypeDetail();
+                    if (typeDetail == null) {
+                        final String message = String.format(
+                            "Ontology %s has no TypeDetail",
+                            ontologyElt.getIdentifier()
+                        );
+                        LOGGER.error(message);
+                        throw new IllegalStateException(message);
+                    }
+                    unitSchema.setTypeDetail(SchemaTypeDetail.valueOf(typeDetail.getType()));
+                    Optional.ofNullable(ontologyElt.getStringSize()).ifPresent(
+                        stringSize -> unitSchema.setStringSize(SchemaStringSizeType.valueOf(stringSize.getSize()))
+                    );
+                    unitSchema.setDescription(ontologyElt.getDescription());
+                    if (SchemaOrigin.EXTERNAL.equals(unitSchema.getOrigin()) && unitSchema.getType() == null) {
+                        unitSchema.setType(SchemaType.valueOf(ontologyElt.getType().getType()));
+                    }
                 }
-                final TypeDetail typeDetail = ontologyElt.getTypeDetail();
-                if (typeDetail == null) {
-                    final String message = String.format("Ontology %s has no TypeDetail", ontologyElt.getIdentifier());
-                    LOGGER.error(message);
-                    throw new IllegalStateException(message);
-                }
-                unitSchema.setTypeDetail(SchemaTypeDetail.valueOf(typeDetail.getType()));
-                Optional.ofNullable(ontologyElt.getStringSize()).ifPresent(
-                    stringSize -> unitSchema.setStringSize(SchemaStringSizeType.valueOf(stringSize.getSize())));
-                unitSchema.setDescription(ontologyElt.getDescription());
-                if (SchemaOrigin.EXTERNAL.equals(unitSchema.getOrigin()) && unitSchema.getType() == null) {
-                    unitSchema.setType(SchemaType.valueOf(ontologyElt.getType().getType()));
-                }
-            }
-        }).collect(Collectors.toList());
+            })
+            .collect(Collectors.toList());
     }
 
     private InputStream loadObjectGroupInternalSchema() throws IOException {
@@ -436,34 +482,46 @@ public class SchemaService {
 
     private RequestResponseOK<SchemaModel> findExternalSchemaByQueryDsl(JsonNode queryDsl)
         throws ReferentialException, InvalidParseOperationException {
-        try (DbRequestResult result =
-            mongoDbAccessReferential.findDocumentsWithoutRestrictionOnCurrentTenant(queryDsl,
-                FunctionalAdminCollections.SCHEMA)) {
+        try (
+            DbRequestResult result = mongoDbAccessReferential.findDocumentsWithoutRestrictionOnCurrentTenant(
+                queryDsl,
+                FunctionalAdminCollections.SCHEMA
+            )
+        ) {
             return result.getRequestResponseOK(queryDsl, Schema.class, SchemaModel.class);
         }
     }
 
     public void checkAndDeleteExternalSchemaElementsByPaths(List<String> pathsToDelete, boolean includeAllTenant)
-        throws InvalidCreateOperationException, ReferentialException, InvalidParseOperationException,
-        BadRequestException {
-        
+        throws InvalidCreateOperationException, ReferentialException, InvalidParseOperationException, BadRequestException {
         List<String> nonExistingPaths = getNonExistingPaths(pathsToDelete);
-        
+
         if (!nonExistingPaths.isEmpty()) {
             throw new BadRequestException(
-                "Some paths cannot be deleted because they do not exist: " + nonExistingPaths);
+                "Some paths cannot be deleted because they do not exist: " + nonExistingPaths
+            );
         }
 
-        final List<SchemaModel> unitExternalSchemas =
-            loadCurrentExternalSchema(includeAllTenant ? ALL_TENANTS : CURRENT_TENANT);
+        final List<SchemaModel> unitExternalSchemas = loadCurrentExternalSchema(
+            includeAllTenant ? ALL_TENANTS : CURRENT_TENANT
+        );
 
-        List<String> existingPaths = unitExternalSchemas.stream()
+        List<String> existingPaths = unitExternalSchemas
+            .stream()
             .map(SchemaModel::getPath)
             .collect(Collectors.toList());
 
-        List<String> nonDeletablePaths = pathsToDelete.stream()
-            .filter(pathToDelete -> existingPaths.stream().anyMatch(
-                existingPath -> existingPath.startsWith(pathToDelete) && !pathsToDelete.contains(existingPath)))
+        List<String> nonDeletablePaths = pathsToDelete
+            .stream()
+            .filter(
+                pathToDelete ->
+                    existingPaths
+                        .stream()
+                        .anyMatch(
+                            existingPath ->
+                                existingPath.startsWith(pathToDelete) && !pathsToDelete.contains(existingPath)
+                        )
+            )
             .collect(Collectors.toList());
 
         if (!nonDeletablePaths.isEmpty()) {
@@ -476,15 +534,15 @@ public class SchemaService {
 
     private List<String> getNonExistingPaths(List<String> pathsToDelete)
         throws InvalidCreateOperationException, ReferentialException, InvalidParseOperationException {
+        final List<SchemaModel> unitExternalSchemas = loadCurrentExternalSchema(CURRENT_TENANT);
 
-        final List<SchemaModel> unitExternalSchemas =
-            loadCurrentExternalSchema(CURRENT_TENANT);
-
-        List<String> existingPaths = unitExternalSchemas.stream()
+        List<String> existingPaths = unitExternalSchemas
+            .stream()
             .map(SchemaModel::getPath)
             .collect(Collectors.toList());
 
-        List<String> nonExistingPaths = pathsToDelete.stream()
+        List<String> nonExistingPaths = pathsToDelete
+            .stream()
             .filter(pathToDelete -> !existingPaths.contains(pathToDelete))
             .collect(Collectors.toList());
 
@@ -493,7 +551,6 @@ public class SchemaService {
 
     private void deleteExternalSchemaElementsByPaths(List<String> schemaPathsToDelete)
         throws BadRequestException, ReferentialException {
-
         final Delete delete = new Delete();
 
         try {
@@ -509,7 +566,6 @@ public class SchemaService {
     public enum TenantScope {
         INCLUDE_ADMIN_TENANT,
         CURRENT_TENANT,
-        ALL_TENANTS
+        ALL_TENANTS,
     }
-
 }

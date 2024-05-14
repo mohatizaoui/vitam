@@ -97,9 +97,12 @@ public class ProjectInternalResource {
 
     private final MetadataService metadataService;
 
-    public ProjectInternalResource(ProjectService projectService, FluxService fluxService,
+    public ProjectInternalResource(
+        ProjectService projectService,
+        FluxService fluxService,
         TransactionService transactionService,
-        MetadataService metadataService) {
+        MetadataService metadataService
+    ) {
         this.projectService = projectService;
         this.fluxService = fluxService;
         this.transactionService = transactionService;
@@ -177,7 +180,6 @@ public class ProjectInternalResource {
         }
     }
 
-
     @Path("/{projectId}")
     @GET
     @Consumes(APPLICATION_JSON)
@@ -236,9 +238,7 @@ public class ProjectInternalResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Deprecated
     public Response getUnitsByProjectId(@PathParam("projectId") String projectId, JsonNode queryDsl) {
-
         try {
-
             SanityChecker.checkParameter(projectId);
             SanityChecker.checkJsonAll(queryDsl);
             checkEmptyQuery(queryDsl);
@@ -249,9 +249,11 @@ public class ProjectInternalResource {
                 throw new CollectInternalException("Could not find transaction");
             }
 
-            List<JsonNode> units = metadataService.selectUnitsByTransactionId(queryDsl, transaction.get().getId())
+            List<JsonNode> units = metadataService
+                .selectUnitsByTransactionId(queryDsl, transaction.get().getId())
                 .getResults();
-            return Response.status(Response.Status.OK).entity(new RequestResponseOK<JsonNode>().addAllResults(units))
+            return Response.status(Response.Status.OK)
+                .entity(new RequestResponseOK<JsonNode>().addAllResults(units))
                 .build();
         } catch (CollectInternalException e) {
             LOGGER.error(ERROR_GETTING_UNITS_BY_PROJECT_ID_MSG, e);
@@ -312,7 +314,7 @@ public class ProjectInternalResource {
 
     @Path("/{projectId}/upload")
     @POST
-    @Consumes({CommonMediaType.ZIP})
+    @Consumes({ CommonMediaType.ZIP })
     @Produces(APPLICATION_JSON)
     public Response uploadZipToProject(
         @PathParam("projectId") String projectId,
@@ -355,5 +357,4 @@ public class ProjectInternalResource {
             throw new BadRequestException("Query cant be empty");
         }
     }
-
 }

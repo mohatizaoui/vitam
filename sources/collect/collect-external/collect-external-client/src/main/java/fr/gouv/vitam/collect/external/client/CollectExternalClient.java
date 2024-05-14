@@ -46,7 +46,6 @@ import java.io.InputStream;
  * Collect Client Interface
  */
 public interface CollectExternalClient extends MockOrRestClient {
-
     /**
      * Initialize a collect project
      *
@@ -57,7 +56,6 @@ public interface CollectExternalClient extends MockOrRestClient {
      */
     RequestResponse<JsonNode> initProject(VitamContext vitamContext, ProjectDto projectDto) throws VitamClientException;
 
-
     /**
      * Update a collect project
      *
@@ -66,8 +64,8 @@ public interface CollectExternalClient extends MockOrRestClient {
      * @return RequestResponse<JsonNode>
      * @throws VitamClientException exception occurs when parse operation failed
      */
-    RequestResponse<JsonNode> updateProject(VitamContext vitamContext,
-        ProjectDto projectDto) throws VitamClientException;
+    RequestResponse<JsonNode> updateProject(VitamContext vitamContext, ProjectDto projectDto)
+        throws VitamClientException;
 
     /**
      * get a collect project
@@ -90,7 +88,6 @@ public interface CollectExternalClient extends MockOrRestClient {
     RequestResponse<JsonNode> getTransactionByProjectId(VitamContext vitamContext, String projectId)
         throws VitamClientException;
 
-
     /**
      * get a collect transaction by ID
      *
@@ -99,8 +96,8 @@ public interface CollectExternalClient extends MockOrRestClient {
      * @return RequestResponse<JsonNode>
      * @throws VitamClientException exception occurs when parse operation failed
      */
-    RequestResponse<JsonNode> getTransactionById(VitamContext vitamContext,
-        String transactionId) throws VitamClientException;
+    RequestResponse<JsonNode> getTransactionById(VitamContext vitamContext, String transactionId)
+        throws VitamClientException;
 
     /**
      * get all collect project by tenant
@@ -145,7 +142,6 @@ public interface CollectExternalClient extends MockOrRestClient {
      */
     RequestResponse<JsonNode> getUnitById(VitamContext vitamContext, String unitId) throws VitamClientException;
 
-
     /**
      * get an archive unit by transaction Id
      *
@@ -154,8 +150,8 @@ public interface CollectExternalClient extends MockOrRestClient {
      * @return RequestResponse<JsonNode>
      * @throws VitamClientException exception occurs when parse operation failed
      */
-    RequestResponse<JsonNode> getUnitsByTransaction(VitamContext vitamContext,
-        String transactionId, JsonNode query) throws VitamClientException;
+    RequestResponse<JsonNode> getUnitsByTransaction(VitamContext vitamContext, String transactionId, JsonNode query)
+        throws VitamClientException;
 
     /**
      * get an object group by Id
@@ -167,7 +163,6 @@ public interface CollectExternalClient extends MockOrRestClient {
      */
     RequestResponse<JsonNode> getObjectById(VitamContext vitamContext, String gotId) throws VitamClientException;
 
-
     /**
      * Initialize a collect transaction
      *
@@ -176,9 +171,11 @@ public interface CollectExternalClient extends MockOrRestClient {
      * @return RequestResponse<JsonNode> guid created for the transaction
      * @throws VitamClientException exception occurs when parse operation failed
      */
-    RequestResponse<JsonNode> initTransaction(VitamContext vitamContext,
-        TransactionDto transactionDto, String projectId)
-        throws VitamClientException;
+    RequestResponse<JsonNode> initTransaction(
+        VitamContext vitamContext,
+        TransactionDto transactionDto,
+        String projectId
+    ) throws VitamClientException;
 
     /**
      * ADD Archive Unit
@@ -188,8 +185,7 @@ public interface CollectExternalClient extends MockOrRestClient {
      * @return RequestResponse<JsonNode> Archive Unit saved
      * @throws VitamClientException exception occurs when parse operation failed
      */
-    RequestResponse<JsonNode> uploadArchiveUnit(VitamContext vitamContext,
-        JsonNode unitJsonNode, String transactionId)
+    RequestResponse<JsonNode> uploadArchiveUnit(VitamContext vitamContext, JsonNode unitJsonNode, String transactionId)
         throws VitamClientException;
 
     /**
@@ -200,9 +196,13 @@ public interface CollectExternalClient extends MockOrRestClient {
      * @return RequestResponse<JsonNode> objectgroup saved
      * @throws VitamClientException exception occurs when parse operation failed
      */
-    RequestResponse<JsonNode> addObjectGroup(VitamContext vitamContext, String unitId,
-        Integer version, JsonNode objectJsonNode, String usage)
-        throws VitamClientException;
+    RequestResponse<JsonNode> addObjectGroup(
+        VitamContext vitamContext,
+        String unitId,
+        Integer version,
+        JsonNode objectJsonNode,
+        String usage
+    ) throws VitamClientException;
 
     /**
      * ADD Binary
@@ -212,10 +212,13 @@ public interface CollectExternalClient extends MockOrRestClient {
      * @return Response
      * @throws VitamClientException exception occurs when parse operation failed
      */
-    Response addBinary(VitamContext vitamContext, String unitId, Integer version,
+    Response addBinary(
+        VitamContext vitamContext,
+        String unitId,
+        Integer version,
         InputStream inputStreamUploaded,
-        String usage)
-        throws VitamClientException;
+        String usage
+    ) throws VitamClientException;
 
     /**
      * Close Transaction
@@ -227,7 +230,6 @@ public interface CollectExternalClient extends MockOrRestClient {
      */
     RequestResponse closeTransaction(VitamContext vitamContext, String transactionId) throws VitamClientException;
 
-
     /**
      * Generate SIP + Send to Vitam
      *
@@ -236,8 +238,7 @@ public interface CollectExternalClient extends MockOrRestClient {
      * @return RequestResponse<JsonNode>
      * @throws VitamClientException exception occurs when parse operation failed
      */
-    RequestResponse ingest(VitamContext vitamContext, String transactionId) throws
-        VitamClientException;
+    RequestResponse ingest(VitamContext vitamContext, String transactionId) throws VitamClientException;
 
     /**
      * Abort Transaction
@@ -249,7 +250,6 @@ public interface CollectExternalClient extends MockOrRestClient {
      */
     RequestResponse abortTransaction(VitamContext vitamContext, String transactionId) throws VitamClientException;
 
-
     /**
      * Reopen Transaction
      *
@@ -258,8 +258,7 @@ public interface CollectExternalClient extends MockOrRestClient {
      * @return RequestResponse<JsonNode>
      * @throws VitamClientException exception occurs when parse operation failed
      */
-    RequestResponse reopenTransaction(VitamContext vitamContext, String transactionId) throws
-        VitamClientException;
+    RequestResponse reopenTransaction(VitamContext vitamContext, String transactionId) throws VitamClientException;
 
     /**
      * Upload zip to a transaction.
@@ -270,9 +269,11 @@ public interface CollectExternalClient extends MockOrRestClient {
      * @deprecated Use uploadZipToTransaction() instead.
      */
     @Deprecated(forRemoval = true, since = "Vitam 7.1")
-    default RequestResponse<JsonNode> uploadProjectZip(VitamContext vitamContext, String transactionId,
-        InputStream inputStreamUploaded)
-        throws VitamClientException {
+    default RequestResponse<JsonNode> uploadProjectZip(
+        VitamContext vitamContext,
+        String transactionId,
+        InputStream inputStreamUploaded
+    ) throws VitamClientException {
         return uploadZipToTransaction(vitamContext, transactionId, inputStreamUploaded);
     }
 
@@ -285,9 +286,11 @@ public interface CollectExternalClient extends MockOrRestClient {
      * @throws VitamClientException exception occurs when parse operation failed
      */
     @Beta
-    RequestResponse<String> uploadZipToProject(VitamContext vitamContext, String projectId,
-        InputStream inputStreamUploaded)
-        throws VitamClientException;
+    RequestResponse<String> uploadZipToProject(
+        VitamContext vitamContext,
+        String projectId,
+        InputStream inputStreamUploaded
+    ) throws VitamClientException;
 
     /**
      * Upload zip to a project with automatic transaction management.
@@ -298,10 +301,12 @@ public interface CollectExternalClient extends MockOrRestClient {
      * @throws VitamClientException exception occurs when parse operation failed
      */
     @Beta
-    RequestResponse<String> uploadZipToProject(VitamContext vitamContext, String projectId,
-        InputStream inputStreamUploaded, @Nullable String encoding)
-        throws VitamClientException;
-
+    RequestResponse<String> uploadZipToProject(
+        VitamContext vitamContext,
+        String projectId,
+        InputStream inputStreamUploaded,
+        @Nullable String encoding
+    ) throws VitamClientException;
 
     /**
      * Upload zip to a transaction.
@@ -310,9 +315,11 @@ public interface CollectExternalClient extends MockOrRestClient {
      * @return RequestResponse<JsonNode>
      * @throws VitamClientException exception occurs when parse operation failed
      */
-    RequestResponse<JsonNode> uploadZipToTransaction(VitamContext vitamContext, String transactionId,
-        InputStream inputStreamUploaded)
-        throws VitamClientException;
+    RequestResponse<JsonNode> uploadZipToTransaction(
+        VitamContext vitamContext,
+        String transactionId,
+        InputStream inputStreamUploaded
+    ) throws VitamClientException;
 
     /**
      * Upload zip to a transaction.
@@ -321,9 +328,12 @@ public interface CollectExternalClient extends MockOrRestClient {
      * @return RequestResponse<JsonNode>
      * @throws VitamClientException exception occurs when parse operation failed
      */
-    RequestResponse<JsonNode> uploadZipToTransaction(VitamContext vitamContext, String transactionId,
-        InputStream inputStreamUploaded, @Nullable String encoding)
-        throws VitamClientException;
+    RequestResponse<JsonNode> uploadZipToTransaction(
+        VitamContext vitamContext,
+        String transactionId,
+        InputStream inputStreamUploaded,
+        @Nullable String encoding
+    ) throws VitamClientException;
 
     /**
      * Get all AU attached to transactions related to project Id param
@@ -338,7 +348,6 @@ public interface CollectExternalClient extends MockOrRestClient {
     Response getObjectStreamByUnitId(VitamContext vitamContext, String unitId, String usage, int version)
         throws VitamClientException;
 
-
     /**
      * get all projects by criteria
      *
@@ -349,8 +358,7 @@ public interface CollectExternalClient extends MockOrRestClient {
      * @return RequestResponse<JsonNode>
      * @throws VitamClientException exception occurs when parse operation failed
      */
-    RequestResponse searchProject(VitamContext vitamContext, CriteriaProjectDto criteria)
-        throws VitamClientException;
+    RequestResponse searchProject(VitamContext vitamContext, CriteriaProjectDto criteria) throws VitamClientException;
 
     /**
      * Update a collect transaction
@@ -360,8 +368,8 @@ public interface CollectExternalClient extends MockOrRestClient {
      * @return RequestResponse<JsonNode>
      * @throws VitamClientException exception occurs when parse operation failed
      */
-    RequestResponse<JsonNode> updateTransaction(VitamContext vitamContext,
-        TransactionDto transactionDto) throws VitamClientException;
+    RequestResponse<JsonNode> updateTransaction(VitamContext vitamContext, TransactionDto transactionDto)
+        throws VitamClientException;
 
     /**
      * Update transaction units using CSV metadata file.
@@ -384,8 +392,11 @@ public interface CollectExternalClient extends MockOrRestClient {
      * @return RequestResponse<JsonNode>
      * @throws VitamClientException exception occurs when parse operation failed
      */
-    RequestResponse<JsonNode> updateUnitsWithCsvMetadata(VitamContext vitamContext, String transactionId,
-        InputStream metadataCsvInputStream) throws VitamClientException;
+    RequestResponse<JsonNode> updateUnitsWithCsvMetadata(
+        VitamContext vitamContext,
+        String transactionId,
+        InputStream metadataCsvInputStream
+    ) throws VitamClientException;
 
     /**
      * Update transaction units using JSON-Lines (jsonl) metadata file
@@ -394,12 +405,17 @@ public interface CollectExternalClient extends MockOrRestClient {
      * @return RequestResponse<JsonNode>
      * @throws VitamClientException exception occurs when parse operation failed
      */
-    RequestResponse<JsonNode> updateUnitsWithJsonlMetadata(VitamContext vitamContext, String transactionId,
-        InputStream metadataJsonlInputStream) throws VitamClientException;
+    RequestResponse<JsonNode> updateUnitsWithJsonlMetadata(
+        VitamContext vitamContext,
+        String transactionId,
+        InputStream metadataJsonlInputStream
+    ) throws VitamClientException;
 
-    RequestResponse<JsonNode> selectUnitsWithInheritedRules(VitamContext vitamContext, String transactionId,
-        JsonNode selectQuery)
-        throws VitamClientException;
+    RequestResponse<JsonNode> selectUnitsWithInheritedRules(
+        VitamContext vitamContext,
+        String transactionId,
+        JsonNode selectQuery
+    ) throws VitamClientException;
 
     /**
      * Bulk atomic update of archive units with json queries of the provided collect transaction.
@@ -410,8 +426,9 @@ public interface CollectExternalClient extends MockOrRestClient {
      * @param transactionId the transaction Id. Must be a valid OPEN transaction.
      * @param updateQueriesJson the bulk update queries (null not allowed)
      */
-    RequestResponseOK<BulkAtomicUpdateResult> bulkAtomicUpdateUnits(VitamContext vitamContext, String transactionId,
-        JsonNode updateQueriesJson)
-        throws VitamClientException;
-
+    RequestResponseOK<BulkAtomicUpdateResult> bulkAtomicUpdateUnits(
+        VitamContext vitamContext,
+        String transactionId,
+        JsonNode updateQueriesJson
+    ) throws VitamClientException;
 }

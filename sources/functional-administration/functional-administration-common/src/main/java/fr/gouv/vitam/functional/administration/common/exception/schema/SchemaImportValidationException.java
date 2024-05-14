@@ -35,16 +35,13 @@ public class SchemaImportValidationException extends VitamException {
 
     private static final long serialVersionUID = 5667112701285198642L;
 
-
     public SchemaImportValidationException(String message) {
         super(message);
     }
 
-
     public SchemaImportValidationException(Throwable cause) {
         super(cause);
     }
-
 
     public SchemaImportValidationException(String message, Throwable cause) {
         super(message, cause);

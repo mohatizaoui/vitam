@@ -63,8 +63,12 @@ public class ScrollSpliterator<T> extends AbstractSpliterator<T> {
      * @param scrollTimeout scroll timeout
      * @param limit the limit
      */
-    public ScrollSpliterator(SelectMultiQuery query, Function<SelectMultiQuery, RequestResponse<T>> repository,
-        int scrollTimeout, int limit) {
+    public ScrollSpliterator(
+        SelectMultiQuery query,
+        Function<SelectMultiQuery, RequestResponse<T>> repository,
+        int scrollTimeout,
+        int limit
+    ) {
         super(Long.MAX_VALUE, DISTINCT | SIZED | NONNULL);
         this.query = query;
         this.repository = repository;
@@ -115,5 +119,4 @@ public class ScrollSpliterator<T> extends AbstractSpliterator<T> {
     public Stream<T> toStream() {
         return StreamSupport.stream(this, false);
     }
-
 }

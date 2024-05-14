@@ -69,15 +69,17 @@ public class OperationReportParser {
     public static final String TYPE = "type";
     public static final String TRANSFER_REPLY = "TRANSFER_REPLY";
 
-    final private OperationReportRepository operationReportRepository;
-    final private PurgedPersistentIdentifierExtractorFactory purgedPersistentIdentifierExtractorFactory;
+    private final OperationReportRepository operationReportRepository;
+    private final PurgedPersistentIdentifierExtractorFactory purgedPersistentIdentifierExtractorFactory;
     private final MetaDataConfiguration metaDataConfiguration;
     private final PersistentIdentifierRepository persistentIdentifierRepository;
 
-    public OperationReportParser(OperationReportRepository operationReportRepository,
+    public OperationReportParser(
+        OperationReportRepository operationReportRepository,
         MetaDataConfiguration metaDataConfiguration,
         PersistentIdentifierRepository persistentIdentifierRepository,
-        PurgedPersistentIdentifierExtractorFactory purgedPersistentIdentifierExtractorFactory) {
+        PurgedPersistentIdentifierExtractorFactory purgedPersistentIdentifierExtractorFactory
+    ) {
         this.operationReportRepository = operationReportRepository;
         this.purgedPersistentIdentifierExtractorFactory = purgedPersistentIdentifierExtractorFactory;
         this.metaDataConfiguration = metaDataConfiguration;
@@ -85,11 +87,13 @@ public class OperationReportParser {
     }
 
     public LocalDateTime processReportFromOperation(ReconstructionOperation operation) throws ReconstructionException {
-        final PurgedPersistentIdentifierBulkInserter purgedPersistentIdentifierBulkInserter = new PurgedPersistentIdentifierBulkInserter(metaDataConfiguration, persistentIdentifierRepository);
+        final PurgedPersistentIdentifierBulkInserter purgedPersistentIdentifierBulkInserter =
+            new PurgedPersistentIdentifierBulkInserter(metaDataConfiguration, persistentIdentifierRepository);
 
-        try (InputStream is = operationReportRepository.retrieveJsonReportForOperation(operation.getId());
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
-
+        try (
+            InputStream is = operationReportRepository.retrieveJsonReportForOperation(operation.getId());
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))
+        ) {
             Iterator<String> lines = bufferedReader.lines().iterator();
 
             while (lines.hasNext()) {
@@ -103,20 +107,28 @@ public class OperationReportParser {
                 .filter(date -> !date.isBlank())
                 .map(LocalDateUtil::parseMongoFormattedDate)
                 .orElse(LocalDateUtil.now());
-        } catch (ReconstructionException | IOException | InvalidParseOperationException | MetaDataExecutionException | DateTimeParseException e) {
+        } catch (
+            ReconstructionException
+            | IOException
+            | InvalidParseOperationException
+            | MetaDataExecutionException
+            | DateTimeParseException e
+        ) {
             throw new ReconstructionException("Could not process report operation : " + operation.getId(), e);
         }
     }
 
-    private void processJsonElement(JsonNode element, ReconstructionOperation operation, PurgedPersistentIdentifierBulkInserter purgedPersistentIdentifierBulkInserter)
-        throws MetaDataExecutionException {
-
+    private void processJsonElement(
+        JsonNode element,
+        ReconstructionOperation operation,
+        PurgedPersistentIdentifierBulkInserter purgedPersistentIdentifierBulkInserter
+    ) throws MetaDataExecutionException {
         final ReportLine reportLine = pullOutReportLineFromJsonElement(element, operation);
 
-        if(!UNDEFINED.equals(reportLine.getType())) {
-            List<PurgedPersistentIdentifier> purgedPersistentIdentifiers =
-                purgedPersistentIdentifierExtractorFactory.instance(reportLine.getType())
-                    .extractPurgedPersistentIdentifier(reportLine.getLine(), operation);
+        if (!UNDEFINED.equals(reportLine.getType())) {
+            List<PurgedPersistentIdentifier> purgedPersistentIdentifiers = purgedPersistentIdentifierExtractorFactory
+                .instance(reportLine.getType())
+                .extractPurgedPersistentIdentifier(reportLine.getLine(), operation);
 
             for (PurgedPersistentIdentifier purgedPersistentIdentifier : purgedPersistentIdentifiers) {
                 purgedPersistentIdentifierBulkInserter.append(purgedPersistentIdentifier);
@@ -158,8 +170,7 @@ public class OperationReportParser {
                     case OBJECT_GROUP:
                         return new ReportLine(params, DELETED_OBJECT_GROUP);
                     default:
-                        throw new MetaDataExecutionException(
-                            "Illegal reconstruction type parameter '" + type + "'");
+                        throw new MetaDataExecutionException("Illegal reconstruction type parameter '" + type + "'");
                 }
             }
         }
@@ -177,8 +188,7 @@ public class OperationReportParser {
                     case OBJECT_GROUP:
                         return new ReportLine(params, TRANSFERRED_OBJECT_GROUP);
                     default:
-                        throw new MetaDataExecutionException(
-                            "Illegal reconstruction type parameter '" + type + "'");
+                        throw new MetaDataExecutionException("Illegal reconstruction type parameter '" + type + "'");
                 }
             }
         }

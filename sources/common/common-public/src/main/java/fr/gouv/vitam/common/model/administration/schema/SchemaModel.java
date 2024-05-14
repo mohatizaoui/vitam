@@ -30,7 +30,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import fr.gouv.vitam.common.model.ModelConstants;
 
-
 /**
  * POJO java use for mapping @{@link fr.gouv.vitam.functional.administration.common.Schema}
  */
@@ -99,17 +98,14 @@ public class SchemaModel {
     @JsonProperty(ModelConstants.HASH + ModelConstants.TAG_TENANT)
     private Integer tenant;
 
-
     /**
      * document version
      */
     @JsonProperty(ModelConstants.HASH + ModelConstants.TAG_VERSION)
     private Integer version;
 
-
     @JsonProperty(TAG_COLLECTION)
     private String collection;
-
 
     /**
      * The description
@@ -229,28 +225,43 @@ public class SchemaModel {
      */
     @JsonProperty(CREATION_DATE)
     private String creationdate;
+
     /**
      * The schema element  lastupdate
      */
     @JsonProperty(LAST_UPDATE)
     private String lastupdate;
 
-
     @Override
     public String toString() {
-        return "SchemaModel{" +
-            "tenant=" + tenant +
-            ", collection=" + collection +
-            ", description='" + description + '\'' +
-            ", cardinality=" + cardinality +
-            ", isObject=" + isObject +
-            ", origin=" + origin +
-            ", shortName='" + shortName + '\'' +
-            ", creationdate='" + creationdate + '\'' +
-            ", lastupdate='" + lastupdate + '\'' +
-            ", path='" + path + '\'' +
-            '}';
+        return (
+            "SchemaModel{" +
+            "tenant=" +
+            tenant +
+            ", collection=" +
+            collection +
+            ", description='" +
+            description +
+            '\'' +
+            ", cardinality=" +
+            cardinality +
+            ", isObject=" +
+            isObject +
+            ", origin=" +
+            origin +
+            ", shortName='" +
+            shortName +
+            '\'' +
+            ", creationdate='" +
+            creationdate +
+            '\'' +
+            ", lastupdate='" +
+            lastupdate +
+            '\'' +
+            ", path='" +
+            path +
+            '\'' +
+            '}'
+        );
     }
 }
-
-

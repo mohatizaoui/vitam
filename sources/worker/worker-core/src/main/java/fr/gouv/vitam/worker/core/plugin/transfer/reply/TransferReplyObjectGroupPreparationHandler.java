@@ -39,8 +39,7 @@ import fr.gouv.vitam.worker.core.plugin.purge.PurgeReportService;
 public class TransferReplyObjectGroupPreparationHandler extends PurgeObjectGroupPreparationHandler {
 
     public static final String TRANSFER_REPLY_CONTEXT_JSON = "TransferReplyContext.json";
-    private static final String TRANSFER_REPLY_OBJECT_GROUP_PREPARATION =
-        "TRANSFER_REPLY_OBJECT_GROUP_PREPARATION";
+    private static final String TRANSFER_REPLY_OBJECT_GROUP_PREPARATION = "TRANSFER_REPLY_OBJECT_GROUP_PREPARATION";
 
     /**
      * Default constructor
@@ -56,9 +55,9 @@ public class TransferReplyObjectGroupPreparationHandler extends PurgeObjectGroup
     TransferReplyObjectGroupPreparationHandler(
         MetaDataClientFactory metaDataClientFactory,
         PurgeReportService purgeReportService,
-        int objectGroupBulkSize) {
-        super(TRANSFER_REPLY_OBJECT_GROUP_PREPARATION, metaDataClientFactory, purgeReportService,
-            objectGroupBulkSize);
+        int objectGroupBulkSize
+    ) {
+        super(TRANSFER_REPLY_OBJECT_GROUP_PREPARATION, metaDataClientFactory, purgeReportService, objectGroupBulkSize);
     }
 
     @Override

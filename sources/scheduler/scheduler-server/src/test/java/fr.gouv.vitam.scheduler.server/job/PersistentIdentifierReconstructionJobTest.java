@@ -52,12 +52,14 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 public class PersistentIdentifierReconstructionJobTest {
+
     @Rule
     public MockitoRule mockitoRule = MockitoJUnit.rule();
 
     @Rule
-    public RunWithCustomExecutorRule runInThread =
-        new RunWithCustomExecutorRule(VitamThreadPoolExecutor.getDefaultExecutor());
+    public RunWithCustomExecutorRule runInThread = new RunWithCustomExecutorRule(
+        VitamThreadPoolExecutor.getDefaultExecutor()
+    );
 
     @Mock
     private MetaDataClientFactory metaDataClientFactory;
@@ -93,6 +95,5 @@ public class PersistentIdentifierReconstructionJobTest {
         verify(metaDataClient, times(1)).reconstructPersistentIdentifiers(any());
         verify(metaDataClient).close();
         verifyNoMoreInteractions(metaDataClient);
-
     }
 }

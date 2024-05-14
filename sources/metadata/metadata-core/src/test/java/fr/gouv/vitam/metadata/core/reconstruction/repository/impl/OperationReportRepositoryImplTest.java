@@ -71,14 +71,18 @@ public class OperationReportRepositoryImplTest {
 
     @Test
     public void testRetrieveJsonReportForOperation() throws Exception {
-
         // Given
         final InputStream inputStream = PropertiesUtils.getResourceAsStream("eliminationReport.jsonl");
         Response mockResponse = mock(Response.class);
         String operationId = GUIDFactory.newGUID().getId();
-        when(storageClient.getContainerAsync(any(String.class), any(String.class), any(DataCategory.class),
-            any(AccessLogInfoModel.class)
-        )).thenReturn(mockResponse);
+        when(
+            storageClient.getContainerAsync(
+                any(String.class),
+                any(String.class),
+                any(DataCategory.class),
+                any(AccessLogInfoModel.class)
+            )
+        ).thenReturn(mockResponse);
         when(mockResponse.readEntity(InputStream.class)).thenReturn(inputStream);
 
         // When
@@ -88,5 +92,4 @@ public class OperationReportRepositoryImplTest {
         String resultJson = IOUtils.toString(result, StandardCharsets.UTF_8);
         assertThat(resultJson).isNotBlank();
     }
-
 }

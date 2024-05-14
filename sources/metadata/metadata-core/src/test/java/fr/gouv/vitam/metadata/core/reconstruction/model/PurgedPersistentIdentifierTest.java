@@ -41,7 +41,6 @@ public class PurgedPersistentIdentifierTest {
 
     @Test
     public void fromPurgedPersistentIdentifier_CreatesDocumentCorrectly() {
-
         PersistentIdentifierModel persistentIdentifierModel = new PersistentIdentifierModel();
         persistentIdentifierModel.setPersistentIdentifierType("ark");
         persistentIdentifierModel.setPersistentIdentifierContent("ark/2345/679934346673");
@@ -58,8 +57,7 @@ public class PurgedPersistentIdentifierTest {
             .setOperationLastPersistentDate("2023-01-01")
             .build();
 
-        Document result =
-            PurgedPersistentIdentifier.toDocument(purgedIdentifier);
+        Document result = PurgedPersistentIdentifier.toDocument(purgedIdentifier);
 
         assertThat(result).isNotNull();
         assertThat("1").isEqualTo(result.getString(VitamDocument.ID));
@@ -74,7 +72,6 @@ public class PurgedPersistentIdentifierTest {
 
     @Test
     public void convertListToDocumentList_CreatesDocumentListCorrectly() {
-
         PurgedPersistentIdentifier purgedIdentifier1 = new PurgedPersistentIdentifier.Builder()
             .setId("1")
             .setTenant(0)
@@ -101,8 +98,7 @@ public class PurgedPersistentIdentifierTest {
 
         List<PurgedPersistentIdentifier> purgedIdentifierList = Arrays.asList(purgedIdentifier1, purgedIdentifier2);
 
-        List<Document> result =
-            PurgedPersistentIdentifier.convertListToDocumentList(purgedIdentifierList);
+        List<Document> result = PurgedPersistentIdentifier.convertListToDocumentList(purgedIdentifierList);
 
         assertThat(result).isNotNull();
         assertThat(2).isEqualTo(result.size());
@@ -110,7 +106,6 @@ public class PurgedPersistentIdentifierTest {
 
     @Test
     public void test_fromDocument() throws Exception {
-
         Document persistentIdentifierModel = new Document();
         persistentIdentifierModel.put("PersistentIdentifierType", "ark");
         persistentIdentifierModel.put("PersistentIdentifierContent", "ark/2345/679934346673");

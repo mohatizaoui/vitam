@@ -35,19 +35,20 @@ import java.util.Objects;
 import java.util.Optional;
 
 public class PersistentIdentifierHelper {
-    public static Optional<VersionsModel> findVersion(final ObjectGroupResponse objectGroupResponse,
-        final String persistentIdentifier) {
-        if (objectGroupResponse.getQualifiers() == null)
-            return Optional.empty();
+
+    public static Optional<VersionsModel> findVersion(
+        final ObjectGroupResponse objectGroupResponse,
+        final String persistentIdentifier
+    ) {
+        if (objectGroupResponse.getQualifiers() == null) return Optional.empty();
         for (QualifiersModel qualifiersModel : objectGroupResponse.getQualifiers()) {
-            if (qualifiersModel.getVersions() == null)
-                continue;
+            if (qualifiersModel.getVersions() == null) continue;
             for (VersionsModel versionsModel : qualifiersModel.getVersions()) {
-                if (versionsModel.getPersistentIdentifier() == null)
-                    continue;
+                if (versionsModel.getPersistentIdentifier() == null) continue;
                 for (PersistentIdentifierModel persistentIdentifierModel : versionsModel.getPersistentIdentifier()) {
-                    if (Objects.equals(persistentIdentifierModel.getPersistentIdentifierContent(),
-                        persistentIdentifier)) {
+                    if (
+                        Objects.equals(persistentIdentifierModel.getPersistentIdentifierContent(), persistentIdentifier)
+                    ) {
                         return Optional.of(versionsModel);
                     }
                 }

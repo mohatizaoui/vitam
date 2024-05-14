@@ -29,12 +29,12 @@ package fr.gouv.vitam.collect.internal.core.common;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Batch {
+
     @JsonProperty("_batchId")
     private String batchId;
 
     @JsonProperty("_batchStatus")
     private BatchStatus batchStatus;
-
 
     public String getBatchId() {
         return batchId;

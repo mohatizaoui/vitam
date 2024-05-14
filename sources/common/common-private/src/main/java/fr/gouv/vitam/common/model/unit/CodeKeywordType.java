@@ -29,7 +29,6 @@ package fr.gouv.vitam.common.model.unit;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum CodeKeywordType {
-
     CORPNAME("corpname"),
     FAMNAME("famname"),
     GEOGNAME("geogname"),
@@ -39,6 +38,7 @@ public enum CodeKeywordType {
     SUBJECT("subject"),
     GENREFORM("genreform"),
     FUNCTION("function");
+
     private final String value;
 
     CodeKeywordType(String v) {
@@ -58,5 +58,4 @@ public enum CodeKeywordType {
         }
         throw new IllegalArgumentException(v);
     }
-
 }

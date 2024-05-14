@@ -30,8 +30,6 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import fr.gouv.vitam.common.model.administration.DataObjectVersionType;
-import fr.gouv.vitam.worker.common.utils.DataObjectValidator;
-import fr.gouv.vitam.worker.common.utils.InvalidDataObjectException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -72,11 +70,7 @@ public class DataObjectValidatorTest {
 
     @Test
     public void shouldThrowDataObjectExceptionWhenSuffixIsNotStrictlyPositive() {
-        assertDataObjectExceptionForInvalidVersions(
-            "BinaryMaster_0",
-            "BinaryMaster_00",
-            "BinaryMaster_-1"
-        );
+        assertDataObjectExceptionForInvalidVersions("BinaryMaster_0", "BinaryMaster_00", "BinaryMaster_-1");
     }
 
     @Test
@@ -99,8 +93,10 @@ public class DataObjectValidatorTest {
             .map(this::generateAllQualifierDataObjects)
             .flatMap(List::stream)
             .forEach(dataObjectVersion -> {
-                Assert.assertThrows(InvalidDataObjectException.class,
-                    () -> DataObjectValidator.validateVersionDataObject(dataObjectVersion));
+                Assert.assertThrows(
+                    InvalidDataObjectException.class,
+                    () -> DataObjectValidator.validateVersionDataObject(dataObjectVersion)
+                );
             });
     }
 

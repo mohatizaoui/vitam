@@ -54,6 +54,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class VitamReporter implements ConcurrentEventListener {
+
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(VitamReporter.class);
     private static final String RESET_COLOR = "\033[0m";
     private static final String RED_COLOR = "\033[0;31m";
@@ -121,8 +122,8 @@ public class VitamReporter implements ConcurrentEventListener {
         }
         reports.add(report);
 
-        String msg = "\n" + report.getFeature() + " - " + report.getDescription() +
-            "\n" + JsonHandler.prettyPrint(report);
+        String msg =
+            "\n" + report.getFeature() + " - " + report.getDescription() + "\n" + JsonHandler.prettyPrint(report);
         logEvents(msg, result.getStatus().isOk());
     }
 

@@ -84,7 +84,6 @@ import static fr.gouv.vitam.common.VitamTestHelper.readReportFile;
 import static fr.gouv.vitam.common.VitamTestHelper.verifyOperation;
 import static fr.gouv.vitam.common.VitamTestHelper.waitOperation;
 import static fr.gouv.vitam.common.model.StatusCode.OK;
-import static fr.gouv.vitam.common.model.StatusCode.WARNING;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -92,30 +91,33 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 
 public class ProbativeValueAuditIT extends VitamRuleRunner {
+
     private static final Integer TENANT_ID = 0;
     private static final String CONTRACT_ID = "contract";
     private static final String CONTEXT_ID = "Context_IT";
 
     @ClassRule
-    public static VitamServerRunner runner =
-        new VitamServerRunner(ProbativeValueAuditIT.class, mongoRule.getMongoDatabase().getName(),
-            ElasticsearchRule.getClusterName(),
-            Sets.newHashSet(
-                MetadataMain.class,
-                WorkerMain.class,
-                AdminManagementMain.class,
-                LogbookMain.class,
-                WorkspaceMain.class,
-                BatchReportMain.class,
-                StorageMain.class,
-                DefaultOfferMain.class,
-                ProcessManagementMain.class,
-                AccessInternalMain.class,
-                AccessExternalMain.class,
-                IngestInternalMain.class
-            ));
-    private static final DataLoader dataLoader
-        = new DataLoader("integration-ingest-internal");
+    public static VitamServerRunner runner = new VitamServerRunner(
+        ProbativeValueAuditIT.class,
+        mongoRule.getMongoDatabase().getName(),
+        ElasticsearchRule.getClusterName(),
+        Sets.newHashSet(
+            MetadataMain.class,
+            WorkerMain.class,
+            AdminManagementMain.class,
+            LogbookMain.class,
+            WorkspaceMain.class,
+            BatchReportMain.class,
+            StorageMain.class,
+            DefaultOfferMain.class,
+            ProcessManagementMain.class,
+            AccessInternalMain.class,
+            AccessExternalMain.class,
+            IngestInternalMain.class
+        )
+    );
+
+    private static final DataLoader dataLoader = new DataLoader("integration-ingest-internal");
 
     @Rule
     public LogicalClockRule logicalClock = new LogicalClockRule();
@@ -123,8 +125,9 @@ public class ProbativeValueAuditIT extends VitamRuleRunner {
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
         handleBeforeClass(Arrays.asList(0, 1), Collections.emptyMap());
-        String configurationPath = PropertiesUtils
-            .getResourcePath("integration-ingest-internal/format-identifiers.conf").toString();
+        String configurationPath = PropertiesUtils.getResourcePath(
+            "integration-ingest-internal/format-identifiers.conf"
+        ).toString();
         FormatIdentifierFactory.getInstance().changeConfigurationFile(configurationPath);
         dataLoader.prepareData();
     }
@@ -149,12 +152,13 @@ public class ProbativeValueAuditIT extends VitamRuleRunner {
     @Test
     @RunWithCustomExecutor
     public void should_execute_probative_value_audit_without_detached_signing_information() throws Exception {
-
         // Given
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
 
-        String ingestOperationId =
-            VitamTestHelper.doIngest(TENANT_ID, "ProbativeValue/ProbativeValue_SigningInformation.zip");
+        String ingestOperationId = VitamTestHelper.doIngest(
+            TENANT_ID,
+            "ProbativeValue/ProbativeValue_SigningInformation.zip"
+        );
         verifyOperation(ingestOperationId, OK);
 
         logicalClock.logicalSleep(5, ChronoUnit.MINUTES);
@@ -166,24 +170,33 @@ public class ProbativeValueAuditIT extends VitamRuleRunner {
         // When
         String evidenceAuditOperation;
         SelectMultiQuery query = new SelectMultiQuery();
-        query.setQuery(QueryHelper.and().add(
-            QueryHelper.in("OriginatingSystemId", "Unit1", "Unit2", "Unit6", "Unit10", "Unit16"),
-            QueryHelper.eq(VitamFieldsHelper.initialOperation(), ingestOperationId))
+        query.setQuery(
+            QueryHelper.and()
+                .add(
+                    QueryHelper.in("OriginatingSystemId", "Unit1", "Unit2", "Unit6", "Unit10", "Unit16"),
+                    QueryHelper.eq(VitamFieldsHelper.initialOperation(), ingestOperationId)
+                )
         );
 
         evidenceAuditOperation = runProbativeValueAudit(query.getFinalSelect(), false);
 
-        ProbativeReportV2 report = JsonHandler.getFromString(readReportFile(evidenceAuditOperation + ".json"),
-            ProbativeReportV2.class);
+        ProbativeReportV2 report = JsonHandler.getFromString(
+            readReportFile(evidenceAuditOperation + ".json"),
+            ProbativeReportV2.class
+        );
 
         // There might be WARNING due to no previous traceability operations in the system
         assertThat(report.getOperationSummary().getOutcome()).isIn("OK", "WARNING");
         assertThat(report.getReportEntries()).hasSize(4);
-        assertThat(report.getReportSummary().getVitamResults().getNbOk() +
-            report.getReportSummary().getVitamResults().getNbWarning()).isEqualTo(4);
+        assertThat(
+            report.getReportSummary().getVitamResults().getNbOk() +
+            report.getReportSummary().getVitamResults().getNbWarning()
+        ).isEqualTo(4);
         assertThat(report.getReportSummary().getVitamResults().getNbKo()).isEqualTo(0);
 
-        List<String> unitIds = report.getReportEntries().stream()
+        List<String> unitIds = report
+            .getReportEntries()
+            .stream()
             .flatMap(i -> i.getUnitIds().stream())
             .collect(Collectors.toList());
         try (MetaDataClient client = MetaDataClientFactory.getInstance().getClient()) {
@@ -195,20 +208,20 @@ public class ProbativeValueAuditIT extends VitamRuleRunner {
             for (JsonNode result : results) {
                 titles.add(result.get("Title").asText());
             }
-            assertThat(titles).containsExactlyInAnyOrder(
-                "Unit2", "Unit6", "Unit10", "Unit16");
+            assertThat(titles).containsExactlyInAnyOrder("Unit2", "Unit6", "Unit10", "Unit16");
         }
     }
 
     @Test
     @RunWithCustomExecutor
     public void should_execute_probative_value_audit_with_detached_signing_information() throws Exception {
-
         // Given
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
 
-        String ingestOperationId =
-            VitamTestHelper.doIngest(TENANT_ID, "ProbativeValue/ProbativeValue_SigningInformation.zip");
+        String ingestOperationId = VitamTestHelper.doIngest(
+            TENANT_ID,
+            "ProbativeValue/ProbativeValue_SigningInformation.zip"
+        );
         verifyOperation(ingestOperationId, OK);
 
         logicalClock.logicalSleep(5, ChronoUnit.MINUTES);
@@ -220,24 +233,33 @@ public class ProbativeValueAuditIT extends VitamRuleRunner {
         // When
         String evidenceAuditOperation;
         SelectMultiQuery query = new SelectMultiQuery();
-        query.setQuery(QueryHelper.and().add(
-            QueryHelper.in("OriginatingSystemId", "Unit1", "Unit2", "Unit6", "Unit10", "Unit16"),
-            QueryHelper.eq(VitamFieldsHelper.initialOperation(), ingestOperationId))
+        query.setQuery(
+            QueryHelper.and()
+                .add(
+                    QueryHelper.in("OriginatingSystemId", "Unit1", "Unit2", "Unit6", "Unit10", "Unit16"),
+                    QueryHelper.eq(VitamFieldsHelper.initialOperation(), ingestOperationId)
+                )
         );
 
         evidenceAuditOperation = runProbativeValueAudit(query.getFinalSelect(), true);
 
-        ProbativeReportV2 report = JsonHandler.getFromString(readReportFile(evidenceAuditOperation + ".json"),
-            ProbativeReportV2.class);
+        ProbativeReportV2 report = JsonHandler.getFromString(
+            readReportFile(evidenceAuditOperation + ".json"),
+            ProbativeReportV2.class
+        );
 
         // There might be WARNING due to no previous traceability operations in the system
         assertThat(report.getOperationSummary().getOutcome()).isIn("OK", "WARNING");
         assertThat(report.getReportEntries()).hasSize(7);
-        assertThat(report.getReportSummary().getVitamResults().getNbOk() +
-            report.getReportSummary().getVitamResults().getNbWarning()).isEqualTo(7);
+        assertThat(
+            report.getReportSummary().getVitamResults().getNbOk() +
+            report.getReportSummary().getVitamResults().getNbWarning()
+        ).isEqualTo(7);
         assertThat(report.getReportSummary().getVitamResults().getNbKo()).isEqualTo(0);
 
-        List<String> unitIds = report.getReportEntries().stream()
+        List<String> unitIds = report
+            .getReportEntries()
+            .stream()
             .flatMap(i -> i.getUnitIds().stream())
             .collect(Collectors.toList());
         try (MetaDataClient client = MetaDataClientFactory.getInstance().getClient()) {
@@ -250,17 +272,24 @@ public class ProbativeValueAuditIT extends VitamRuleRunner {
                 titles.add(result.get("Title").asText());
             }
             assertThat(titles).containsExactlyInAnyOrder(
-                "Unit2", "Unit6", "Unit10", "Unit13", "Unit14", "Unit16", "Unit17");
+                "Unit2",
+                "Unit6",
+                "Unit10",
+                "Unit13",
+                "Unit14",
+                "Unit16",
+                "Unit17"
+            );
         }
     }
 
     private String runProbativeValueAudit(JsonNode query, boolean includeDetachedSigningInformation)
         throws VitamClientException {
-
         try (AdminExternalClient adminExternalClient = AdminExternalClientFactory.getInstance().getClient()) {
-            RequestResponse<?> requestResponse =
-                adminExternalClient.exportProbativeValue(new VitamContext(TENANT_ID).setAccessContract(CONTRACT_ID),
-                    new ProbativeValueRequest(query, "BinaryMaster", "1", includeDetachedSigningInformation));
+            RequestResponse<?> requestResponse = adminExternalClient.exportProbativeValue(
+                new VitamContext(TENANT_ID).setAccessContract(CONTRACT_ID),
+                new ProbativeValueRequest(query, "BinaryMaster", "1", includeDetachedSigningInformation)
+            );
 
             assertThat(requestResponse.isOk()).isTrue();
             String operationId = requestResponse.getHeaderString(GlobalDataRest.X_REQUEST_ID);
@@ -270,5 +299,4 @@ public class ProbativeValueAuditIT extends VitamRuleRunner {
             return operationId;
         }
     }
-
 }

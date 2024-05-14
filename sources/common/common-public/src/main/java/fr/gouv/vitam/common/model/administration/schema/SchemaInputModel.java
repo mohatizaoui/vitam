@@ -28,12 +28,10 @@ package fr.gouv.vitam.common.model.administration.schema;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-
 /**
  * POJO for external input schema api
  */
 public class SchemaInputModel {
-
 
     /**
      * Api path
@@ -52,7 +50,6 @@ public class SchemaInputModel {
      * ShortName Tag
      */
     public static final String TAG_SHORT_NAME = "ShortName";
-
 
     /**
      * pathCardinality tag
@@ -91,7 +88,6 @@ public class SchemaInputModel {
 
     @JsonProperty(value = TAG_PATH, required = true)
     private String path;
-
 
     public String getDescription() {
         return description;
@@ -133,5 +129,3 @@ public class SchemaInputModel {
         this.path = path;
     }
 }
-
-

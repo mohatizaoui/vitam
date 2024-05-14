@@ -33,20 +33,22 @@ import fr.gouv.vitam.common.model.objectgroup.PersistentIdentifierModel;
 import java.util.List;
 
 public class TransferReplyUnitReportEntry {
-    private final static String ID = "id";
-    private final static String STATUS = "status";
-    public final static String PERSISTENT_IDENTIFIER = "persistentIdentifier";
+
+    private static final String ID = "id";
+    private static final String STATUS = "status";
+    public static final String PERSISTENT_IDENTIFIER = "persistentIdentifier";
 
     private final String id;
     private final String status;
 
     private final List<PersistentIdentifierModel> persistentIdentifier;
 
-
     @JsonCreator
-    public TransferReplyUnitReportEntry(@JsonProperty(ID) String id,
+    public TransferReplyUnitReportEntry(
+        @JsonProperty(ID) String id,
         @JsonProperty(STATUS) String status,
-        @JsonProperty(PERSISTENT_IDENTIFIER) List<PersistentIdentifierModel> persistentIdentifier) {
+        @JsonProperty(PERSISTENT_IDENTIFIER) List<PersistentIdentifierModel> persistentIdentifier
+    ) {
         this.id = id;
         this.status = status;
         this.persistentIdentifier = persistentIdentifier;

@@ -26,7 +26,6 @@
  */
 package fr.gouv.vitam.collect.internal.resource;
 
-
 import fr.gouv.vitam.collect.internal.core.configuration.CollectInternalConfiguration;
 import fr.gouv.vitam.collect.internal.core.service.BulkAtomicUpdateMetadataService;
 import fr.gouv.vitam.collect.internal.core.service.CollectService;
@@ -86,16 +85,21 @@ public class CollectInternalResourceBaseTest {
     protected static SipService sipService = mock(SipService.class);
     protected static FluxService fluxService = mock(FluxService.class);
     protected static CollectService collectService = mock(CollectService.class);
-    protected static BulkAtomicUpdateMetadataService bulkAtomicUpdateMetadataService =
-        mock(BulkAtomicUpdateMetadataService.class);
+    protected static BulkAtomicUpdateMetadataService bulkAtomicUpdateMetadataService = mock(
+        BulkAtomicUpdateMetadataService.class
+    );
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
         junitHelper = JunitHelper.getInstance();
         port = junitHelper.findAvailablePort();
         try {
-            application = new VitamStarter(CollectInternalConfiguration.class, COLLECT_CONF,
-                CollectInternalResourceBaseTest.BusinessApplication.class, AdminApplication.class);
+            application = new VitamStarter(
+                CollectInternalConfiguration.class,
+                COLLECT_CONF,
+                CollectInternalResourceBaseTest.BusinessApplication.class,
+                AdminApplication.class
+            );
             application.start();
             RestAssured.port = port;
             RestAssured.basePath = COLLECT_RESOURCE_URI;
@@ -103,10 +107,8 @@ public class CollectInternalResourceBaseTest {
             LOGGER.debug("Beginning tests");
         } catch (final VitamApplicationServerException e) {
             LOGGER.error(e);
-            throw new IllegalStateException(
-                "Cannot start the Access Application Server", e);
+            throw new IllegalStateException("Cannot start the Access Application Server", e);
         }
-
     }
 
     @AfterClass
@@ -134,7 +136,6 @@ public class CollectInternalResourceBaseTest {
         private Set<Object> singletons;
         private final Set<Class<?>> classes;
 
-
         public BusinessApplication(@Context ServletConfig servletConfig) {
             classes = new HashSet<>();
             classes.add(HeaderIdContainerFilter.class);
@@ -150,11 +151,19 @@ public class CollectInternalResourceBaseTest {
             if (singletons == null) {
                 singletons = new HashSet<>();
                 singletons.add(new SanityCheckerCommonFilter());
-                final ProjectInternalResource projectInternalResource =
-                    new ProjectInternalResource(projectService, fluxService, transactionService, metadataService);
-                final TransactionInternalResource transactionInternalResource =
-                    new TransactionInternalResource(transactionService, sipService, metadataService,
-                        projectService, bulkAtomicUpdateMetadataService);
+                final ProjectInternalResource projectInternalResource = new ProjectInternalResource(
+                    projectService,
+                    fluxService,
+                    transactionService,
+                    metadataService
+                );
+                final TransactionInternalResource transactionInternalResource = new TransactionInternalResource(
+                    transactionService,
+                    sipService,
+                    metadataService,
+                    projectService,
+                    bulkAtomicUpdateMetadataService
+                );
                 final CollectMetadataInternalResource collectMetadataInternalResource =
                     new CollectMetadataInternalResource(metadataService, collectService, transactionService);
                 singletons.add(projectInternalResource);

@@ -38,16 +38,19 @@ import java.util.List;
 
 public class PurgedPersistentIdentifierBulkInserter {
 
-    private static final VitamLogger LOGGER =
-        VitamLoggerFactory.getInstance(PurgedPersistentIdentifierBulkInserter.class);
+    private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(
+        PurgedPersistentIdentifierBulkInserter.class
+    );
 
-    final private Integer bulkSize;
-    final private PersistentIdentifierRepository persistentIdentifierRepository;
+    private final Integer bulkSize;
+    private final PersistentIdentifierRepository persistentIdentifierRepository;
 
     private List<PurgedPersistentIdentifier> purgedPersistentIdentifiers;
 
-    public PurgedPersistentIdentifierBulkInserter(MetaDataConfiguration metaDataConfiguration,
-        PersistentIdentifierRepository persistentIdentifierRepository) {
+    public PurgedPersistentIdentifierBulkInserter(
+        MetaDataConfiguration metaDataConfiguration,
+        PersistentIdentifierRepository persistentIdentifierRepository
+    ) {
         this.purgedPersistentIdentifiers = new ArrayList<>();
         this.bulkSize = metaDataConfiguration.getPersistentIdentifierReconstructionBulkSize();
         this.persistentIdentifierRepository = persistentIdentifierRepository;
@@ -55,8 +58,9 @@ public class PurgedPersistentIdentifierBulkInserter {
 
     public void append(PurgedPersistentIdentifier purgedPersistentIdentifier) throws MetaDataExecutionException {
         if (purgedPersistentIdentifiers.size() >= bulkSize) {
-            persistentIdentifierRepository
-                .insert(PurgedPersistentIdentifier.convertListToDocumentList(purgedPersistentIdentifiers));
+            persistentIdentifierRepository.insert(
+                PurgedPersistentIdentifier.convertListToDocumentList(purgedPersistentIdentifiers)
+            );
             purgedPersistentIdentifiers.clear();
         } else {
             purgedPersistentIdentifiers.add(purgedPersistentIdentifier);
@@ -65,8 +69,9 @@ public class PurgedPersistentIdentifierBulkInserter {
 
     public void flush() throws MetaDataExecutionException {
         if (!purgedPersistentIdentifiers.isEmpty()) {
-            persistentIdentifierRepository
-                .insert(PurgedPersistentIdentifier.convertListToDocumentList(purgedPersistentIdentifiers));
+            persistentIdentifierRepository.insert(
+                PurgedPersistentIdentifier.convertListToDocumentList(purgedPersistentIdentifiers)
+            );
             purgedPersistentIdentifiers.clear();
         }
     }

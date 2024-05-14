@@ -30,8 +30,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 public class ReportLine {
 
-    final private ReportLineType type;
-    final private JsonNode line;
+    private final ReportLineType type;
+    private final JsonNode line;
 
     public ReportLine(JsonNode line, ReportLineType type) {
         this.line = line;
@@ -52,8 +52,6 @@ public class ReportLine {
         DELETED_GOT_VERSION,
         TRANSFERRED_UNIT,
         TRANSFERRED_OBJECT_GROUP,
-        UNDEFINED
+        UNDEFINED,
     }
 }
-
-

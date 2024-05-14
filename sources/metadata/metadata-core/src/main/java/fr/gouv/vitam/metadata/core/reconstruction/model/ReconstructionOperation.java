@@ -35,7 +35,7 @@ public class ReconstructionOperation {
     private String type;
 
     private String lastPersistedDate;
-    
+
     private ReconstructionOperation(Builder builder) {
         this.id = builder.id;
         this.tenant = builder.tenant;
@@ -65,15 +65,11 @@ public class ReconstructionOperation {
 
     @Override
     public String toString() {
-        return "ReconstructionOperation{" +
-            "id='" + id + '\'' +
-            ", tenant=" + tenant +
-            ", type='" + type + '\'' +
-            '}';
+        return "ReconstructionOperation{" + "id='" + id + '\'' + ", tenant=" + tenant + ", type='" + type + '\'' + '}';
     }
 
-
     public static class Builder {
+
         private String id;
         private Integer tenant;
         private String type;
@@ -102,6 +98,5 @@ public class ReconstructionOperation {
         public ReconstructionOperation build() {
             return new ReconstructionOperation(this);
         }
-
     }
 }
