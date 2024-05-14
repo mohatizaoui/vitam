@@ -7200,7 +7200,7 @@
     "FieldName": "TimestampingInformation",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "Cardinality": "ONE",
+    "Cardinality": "MANY",
     "Indexed": true,
     "Path": "SigningInformation.TimestampingInformation",
     "ApiField": "TimestampingInformation",
