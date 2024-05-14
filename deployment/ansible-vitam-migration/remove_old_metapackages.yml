@@ -1,0 +1,45 @@
+---
+
+- hosts: localhost
+  any_errors_fatal: yes
+  gather_facts: no
+  vars_prompt:
+    name: "confirmation"
+    prompt: "/!\\ WARNING : This playbook will cleanup old metapackages.\n\nAre you sure you want to run this playbook ?\nAnswer with 'YES'"
+    default: "NO"
+    private: no
+  tasks:
+    - name: Check Confirmation
+      fail: msg="Playbook run confirmation failed"
+      when: confirmation|upper != "YES"
+      tags: always
+
+- hosts: hosts_kibana_log,hosts_kibana_data
+  vars:
+    service: vitam-kibana
+  roles:
+    - remove_old_metapackages
+
+- hosts: hosts_elasticsearch_data
+  vars:
+    service: vitam-elasticsearch-data
+  roles:
+    - remove_old_metapackages
+
+- hosts: hosts_elasticsearch_log
+  vars:
+    service: vitam-elasticsearch-log
+  roles:
+    - remove_old_metapackages
+
+- hosts: hosts_logstash
+  vars:
+    service: vitam-logstash
+  roles:
+    - remove_old_metapackages
+
+- hosts: hosts_grafana
+  vars:
+    service: vitam-grafana
+  roles:
+    - remove_old_metapackages

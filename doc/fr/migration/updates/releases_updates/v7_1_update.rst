@@ -226,15 +226,13 @@ Montée de version vers mongo 7.0
 
 .. caution:: Cette montée de version doit être effectuée AVANT la montée de version V7.1 de vitam et après la montée de version de MongoDB 6.0 ci-dessus.
 
-Exécutez le playbook suivant:
+Exécutez le playbook suivant à partir de l'ansiblerie de la V7.1 **sur tous les sites** :
 
 .. code-block:: bash
 
     ansible-playbook -i environments/<inventaire> ansible-vitam-migration/migration_mongodb_70.yml --ask-vault-pass
 
 ..
-
-Une fois les montées de version de MongoDB réalisées, la montée de version Vitam peut être réalisée.
 
 Arrêt complet de Vitam
 ----------------------
@@ -248,6 +246,17 @@ Vitam doit être arrêté sur **tous les sites** :
 .. code-block:: bash
 
     ansible-playbook -i environments/<inventaire> ansible-vitam-exploitation/stop_vitam.yml --ask-vault-pass
+
+..
+
+Suppression des anciens meta-packages de COTS
+---------------------------------------------
+
+Exécutez le playbook suivant à partir de l'ansiblerie de la V7.1 **sur tous les sites** :
+
+.. code-block:: bash
+
+    ansible-playbook -i environments/<inventaire> ansible-vitam-migration/remove_old_metapackages.yml --ask-vault-pass
 
 ..
 

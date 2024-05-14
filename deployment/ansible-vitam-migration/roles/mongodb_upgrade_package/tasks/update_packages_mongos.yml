@@ -30,6 +30,10 @@
     enabled: "{{ mongodb.at_boot | default(service_at_boot) }}"
     state: restarted
 
+- name: Pause for 15 seconds
+  pause:
+    seconds: 15
+
 - name: Check the service port
   wait_for:
     host: "{{ ip_service }}"
