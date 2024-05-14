@@ -43,33 +43,47 @@ import java.util.stream.StreamSupport;
 public class ObjectPurgedPersistentIdentifierExtractor extends PurgedPersistentIdentifierExtractor {
 
     public static final String OBJECT = "Object";
-    private static final VitamLogger LOGGER =
-        VitamLoggerFactory.getInstance(ObjectPurgedPersistentIdentifierExtractor.class);
+    private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(
+        ObjectPurgedPersistentIdentifierExtractor.class
+    );
 
     @Override
-    public List<PurgedPersistentIdentifier> extractPurgedPersistentIdentifier(JsonNode node,
-        ReconstructionOperation operation) {
-
+    public List<PurgedPersistentIdentifier> extractPurgedPersistentIdentifier(
+        JsonNode node,
+        ReconstructionOperation operation
+    ) {
         final String objectGroupId = node.get("id").asText();
 
         return Optional.ofNullable(node.get("objectVersions"))
             .filter(JsonNode::isArray)
-            .map(objectVersions -> StreamSupport.stream(objectVersions.spliterator(), false)
-                .filter(objectVersion -> objectVersion.has("persistentIdentifier")
-                    && !objectVersion.get("persistentIdentifier").isNull())
-                .map(objectVersion -> buildObjetPurgedPersistentIdentifier(objectGroupId, objectVersion, operation))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList()))
+            .map(
+                objectVersions ->
+                    StreamSupport.stream(objectVersions.spliterator(), false)
+                        .filter(
+                            objectVersion ->
+                                objectVersion.has("persistentIdentifier") &&
+                                !objectVersion.get("persistentIdentifier").isNull()
+                        )
+                        .map(
+                            objectVersion ->
+                                buildObjetPurgedPersistentIdentifier(objectGroupId, objectVersion, operation)
+                        )
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList())
+            )
             .orElse(Collections.emptyList());
     }
 
-    public PurgedPersistentIdentifier buildObjetPurgedPersistentIdentifier(String objectGroupId, JsonNode element,
-        ReconstructionOperation operation) {
-
+    public PurgedPersistentIdentifier buildObjetPurgedPersistentIdentifier(
+        String objectGroupId,
+        JsonNode element,
+        ReconstructionOperation operation
+    ) {
         if (!PurgedPersistentIdentifierValidator.validateFields(element, "id", "persistentIdentifier")) {
             LOGGER.warn(
                 "This element {} is ignored in the persistent identifier reconstruction because id or persistent identifier are not provided",
-                element);
+                element
+            );
             return null;
         }
 
@@ -80,7 +94,9 @@ public class ObjectPurgedPersistentIdentifierExtractor extends PurgedPersistentI
             .setVersion(0)
             .setType(OBJECT)
             .setObjectGroupId(objectGroupId)
-            .setArchivalAgencyIdentifier(Optional.ofNullable(element.get("archivalAgencyIdentifier")).map(JsonNode::asText).orElse(null))
+            .setArchivalAgencyIdentifier(
+                Optional.ofNullable(element.get("archivalAgencyIdentifier")).map(JsonNode::asText).orElse(null)
+            )
             .setOperationId(operation.getId())
             .setOperationType(operation.getType())
             .setOperationLastPersistentDate(operation.getLastPersistedDate())

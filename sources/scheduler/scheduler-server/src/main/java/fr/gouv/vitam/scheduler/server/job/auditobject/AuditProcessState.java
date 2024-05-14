@@ -55,7 +55,8 @@ public enum AuditProcessState {
         public boolean isWaitingForResponse(StatusCode statusCode) {
             return true;
         }
-    }, PAUSE(ProcessState.PAUSE) {
+    },
+    PAUSE(ProcessState.PAUSE) {
         @Override
         public boolean hasLastWorkflowCompleted() {
             return false;
@@ -71,7 +72,8 @@ public enum AuditProcessState {
         public boolean isWaitingForResponse(StatusCode statusCode) {
             return Objects.equals(statusCode, UNKNOWN);
         }
-    }, COMPLETED(ProcessState.COMPLETED) {
+    },
+    COMPLETED(ProcessState.COMPLETED) {
         @Override
         public boolean hasLastWorkflowCompleted() {
             return true;
@@ -104,7 +106,8 @@ public enum AuditProcessState {
 
     public static AuditProcessState wrap(ProcessState state) {
         return Arrays.stream(AuditProcessState.values())
-            .filter(auditProcessState -> Objects.equals(state, auditProcessState.state)).findAny()
+            .filter(auditProcessState -> Objects.equals(state, auditProcessState.state))
+            .findAny()
             .orElseThrow(IllegalStateException::new);
     }
 
@@ -113,5 +116,4 @@ public enum AuditProcessState {
     public abstract boolean hasLastWorkflowCompleted();
 
     public abstract boolean isWaitingForResponse(StatusCode statusCode);
-
 }

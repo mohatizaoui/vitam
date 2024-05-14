@@ -46,8 +46,6 @@ public class IngestContractChecker {
     private static final String ADDITIONAL_PROOF = "AdditionalProof";
     private static final String SIGNED_DOCUMENT = "SignedDocument";
 
-
-
     private JsonNode archiveUnit;
     private IngestContractModel ingestContractModel;
 
@@ -62,8 +60,6 @@ public class IngestContractChecker {
             validateSignedDocumentPolicy(signaturePolicy);
         }
     }
-
-
 
     private void validateSignedDocumentPolicy(SignaturePolicy signaturePolicy) throws SigningInformationException {
         SignaturePolicy.SignedDocumentPolicyEnum signedDocumentPolicy = signaturePolicy.getSignedDocument();
@@ -106,27 +102,32 @@ public class IngestContractChecker {
     }
 
     private void validateDeclaredFields(SignaturePolicy signaturePolicy) throws SigningInformationException {
-
-        validateFieldIfRequired(signaturePolicy.isDeclaredSignature(),
+        validateFieldIfRequired(
+            signaturePolicy.isDeclaredSignature(),
             SigningInformationEnum.MISSING_DECLARED_SIGNATURE,
-            SIGNATURE);
-        validateFieldIfRequired(signaturePolicy.isDeclaredTimestamp(),
+            SIGNATURE
+        );
+        validateFieldIfRequired(
+            signaturePolicy.isDeclaredTimestamp(),
             SigningInformationEnum.MISSING_DECLARED_TIMESTAMP,
-            TIMESTAMP);
-        validateFieldIfRequired(signaturePolicy.isDeclaredAdditionalProof(),
+            TIMESTAMP
+        );
+        validateFieldIfRequired(
+            signaturePolicy.isDeclaredAdditionalProof(),
             SigningInformationEnum.MISSING_DECLARED_ADDITIONAL_PROOF,
-            ADDITIONAL_PROOF);
-
+            ADDITIONAL_PROOF
+        );
     }
 
-    private void validateFieldIfRequired(Boolean isDeclared, SigningInformationEnum signingInformationEnum,
-        String value)
-        throws SigningInformationException {
+    private void validateFieldIfRequired(
+        Boolean isDeclared,
+        SigningInformationEnum signingInformationEnum,
+        String value
+    ) throws SigningInformationException {
         if (Boolean.TRUE.equals(isDeclared) && !hasSigningRoleAttributeWithValue(value)) {
             throw new SigningInformationException(signingInformationEnum);
         }
     }
-
 
     private boolean verifySigningRoleValue(String value) {
         JsonNode signingInformationNode = archiveUnit.path(TAG_ARCHIVE_UNIT).path(TAG_SIGNING_INFORMATION);
@@ -137,11 +138,11 @@ public class IngestContractChecker {
     private boolean hasSigningRoleAttributeWithValue(String value) {
         JsonNode signingInformationNode = archiveUnit.path(TAG_ARCHIVE_UNIT).path(TAG_SIGNING_INFORMATION);
 
-
-
         JsonNode detachedSigningRoleNode = signingInformationNode.path(TAG_DETACHED_SIGNING_ROLE);
-        return verifySigningRoleValue(value) ||
-            (!detachedSigningRoleNode.isMissingNode() && hasValue((ArrayNode) detachedSigningRoleNode, value));
+        return (
+            verifySigningRoleValue(value) ||
+            (!detachedSigningRoleNode.isMissingNode() && hasValue((ArrayNode) detachedSigningRoleNode, value))
+        );
     }
 
     private boolean hasValue(ArrayNode arrayNode, String targetValue) {
@@ -152,7 +153,4 @@ public class IngestContractChecker {
         }
         return false;
     }
-
-
 }
-

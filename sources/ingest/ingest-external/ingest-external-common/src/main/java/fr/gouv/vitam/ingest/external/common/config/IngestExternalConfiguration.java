@@ -68,8 +68,6 @@ public class IngestExternalConfiguration extends DefaultVitamApplicationConfigur
         return this;
     }
 
-
-
     /**
      * @return antiVirusScriptName
      */

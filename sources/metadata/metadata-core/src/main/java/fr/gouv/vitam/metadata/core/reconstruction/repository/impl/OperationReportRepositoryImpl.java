@@ -55,14 +55,22 @@ public class OperationReportRepositoryImpl implements OperationReportRepository 
 
     @Override
     public InputStream retrieveJsonReportForOperation(String operationId) throws ReconstructionException {
-        try (StorageClient storageClient = storageClientFactory.getClient();
-            Response reportResponse = storageClient.getContainerAsync(VitamConfiguration.getDefaultStrategy(),
-                operationId + JSONL, DataCategory.REPORT,
-                AccessLogUtils.getNoLogAccessLog())) {
+        try (
+            StorageClient storageClient = storageClientFactory.getClient();
+            Response reportResponse = storageClient.getContainerAsync(
+                VitamConfiguration.getDefaultStrategy(),
+                operationId + JSONL,
+                DataCategory.REPORT,
+                AccessLogUtils.getNoLogAccessLog()
+            )
+        ) {
             return reportResponse.readEntity(InputStream.class);
-        } catch (StorageNotFoundException | StorageUnavailableDataFromAsyncOfferClientException | StorageServerClientException e) {
+        } catch (
+            StorageNotFoundException
+            | StorageUnavailableDataFromAsyncOfferClientException
+            | StorageServerClientException e
+        ) {
             throw new ReconstructionException("Error retrieving JsonReport for operation" + operationId, e);
         }
     }
 }
-

@@ -49,102 +49,148 @@ public class JsonlMetadataFileValidatorTest {
 
     @Test
     public void testParseInvalidJsonlMetadataFile_InvalidFieldNames() throws Exception {
+        assertInvalid(
+            "update/metadata_invalid_field_name_dot.jsonl",
+            true,
+            "Invalid unit metadata at index: 0. Field name must be root-level field: 'Description.Level'"
+        );
 
-        assertInvalid("update/metadata_invalid_field_name_dot.jsonl", true,
-            "Invalid unit metadata at index: 0. Field name must be root-level field: 'Description.Level'");
+        assertInvalid(
+            "update/metadata_invalid_field_name_dash.jsonl",
+            true,
+            "Invalid unit metadata at index: 0. Forbidden field name '#id'"
+        );
 
-        assertInvalid("update/metadata_invalid_field_name_dash.jsonl", true,
-            "Invalid unit metadata at index: 0. Forbidden field name '#id'");
+        assertInvalid(
+            "update/metadata_invalid_field_name_spacing.jsonl",
+            true,
+            "Invalid unit metadata at index: 0. Illegal field name ' a'"
+        );
 
-        assertInvalid("update/metadata_invalid_field_name_spacing.jsonl", true,
-            "Invalid unit metadata at index: 0. Illegal field name ' a'");
+        assertInvalid(
+            "update/metadata_invalid_field_name_underscore.jsonl",
+            true,
+            "Invalid unit metadata at index: 0. Illegal field name '_id'"
+        );
 
-        assertInvalid("update/metadata_invalid_field_name_underscore.jsonl", true,
-            "Invalid unit metadata at index: 0. Illegal field name '_id'");
-
-        assertInvalid("update/metadata_invalid_field_name_dollar.jsonl", true,
-            "Invalid unit metadata at index: 0. Illegal field name '$myField'");
+        assertInvalid(
+            "update/metadata_invalid_field_name_dollar.jsonl",
+            true,
+            "Invalid unit metadata at index: 0. Illegal field name '$myField'"
+        );
     }
 
     @Test
     public void testParseInvalidJsonlMetadataSelector_InvalidKeys() throws Exception {
+        assertInvalid(
+            "update/metadata_invalid_selector_key_name_dollar.jsonl",
+            false,
+            "Invalid field name: 'a.$bad'  at index: 0"
+        );
 
-        assertInvalid("update/metadata_invalid_selector_key_name_dollar.jsonl", false,
-            "Invalid field name: 'a.$bad'  at index: 0");
+        assertInvalid(
+            "update/metadata_invalid_selector_key_name_underscore.jsonl",
+            false,
+            "Invalid field name: '_bad'  at index: 0"
+        );
 
-        assertInvalid("update/metadata_invalid_selector_key_name_underscore.jsonl", false,
-            "Invalid field name: '_bad'  at index: 0");
-
-        assertInvalid("update/metadata_invalid_selector_key_name_spacing.jsonl", false,
-            "Invalid field name: 'a a'  at index: 0");
+        assertInvalid(
+            "update/metadata_invalid_selector_key_name_spacing.jsonl",
+            false,
+            "Invalid field name: 'a a'  at index: 0"
+        );
     }
 
     @Test
     public void testParseInvalidJsonlMetadataFile_EmptyRequest() throws Exception {
+        assertInvalid("update/metadata_invalid_empty.jsonl", true, "Empty jsonl file");
 
-        assertInvalid("update/metadata_invalid_empty.jsonl", true,
-            "Empty jsonl file");
-
-        assertInvalid("update/metadata_invalid_empty_line.jsonl", true,
-            "Cannot validate json-lines request: Json is not valid from Sanitize check");
+        assertInvalid(
+            "update/metadata_invalid_empty_line.jsonl",
+            true,
+            "Cannot validate json-lines request: Json is not valid from Sanitize check"
+        );
     }
 
     @Test
     public void testParseInvalidJsonlMetadataFile_EmptyUnitContent() throws Exception {
+        assertInvalid(
+            "update/metadata_null_unit_content.jsonl",
+            false,
+            "Invalid unit metadata at index: 1. Empty metadata content"
+        );
 
-        assertInvalid("update/metadata_null_unit_content.jsonl", false,
-            "Invalid unit metadata at index: 1. Empty metadata content");
+        assertInvalid(
+            "update/metadata_empty_unit_content.jsonl",
+            false,
+            "Invalid unit metadata at index: 1. Empty metadata content"
+        );
 
-        assertInvalid("update/metadata_empty_unit_content.jsonl", false,
-            "Invalid unit metadata at index: 1. Empty metadata content");
-
-        assertInvalid("update/metadata_missing_unit_content.jsonl", false,
-            "Invalid unit metadata at index: 1. Empty metadata content");
+        assertInvalid(
+            "update/metadata_missing_unit_content.jsonl",
+            false,
+            "Invalid unit metadata at index: 1. Empty metadata content"
+        );
     }
 
     @Test
     public void testParseInvalidJsonlMetadataFile_SanityCheckKo() throws Exception {
-
-        assertInvalid("update/metadata_invalid_sanity_check_ko.jsonl", false,
-            "Cannot validate json-lines request: Json is not valid from Sanitize check");
+        assertInvalid(
+            "update/metadata_invalid_sanity_check_ko.jsonl",
+            false,
+            "Cannot validate json-lines request: Json is not valid from Sanitize check"
+        );
     }
 
     @Test
     public void testParseInvalidJsonlMetadataFile_UnitFormatKo() throws Exception {
-
-        assertInvalid("update/metadata_invalid_unit_format.jsonl", false,
-            "Cannot deserialize value of type `fr.gouv.vitam.common.model.unit.LevelType`");
+        assertInvalid(
+            "update/metadata_invalid_unit_format.jsonl",
+            false,
+            "Cannot deserialize value of type `fr.gouv.vitam.common.model.unit.LevelType`"
+        );
     }
 
     @Test
     public void testParseInvalidJsonlMetadataFile_UnitWithManagementRuleEndDate() throws Exception {
-
-        assertInvalid("update/metadata_invalid_unit_management_rule_end_date.jsonl", false,
-            "Invalid unit metadata at index: 0. Unit Appraisal Rules cannot contain 'EndDate' field.");
+        assertInvalid(
+            "update/metadata_invalid_unit_management_rule_end_date.jsonl",
+            false,
+            "Invalid unit metadata at index: 0. Unit Appraisal Rules cannot contain 'EndDate' field."
+        );
     }
 
     @Test
     public void testParseInvalidJsonlMetadataFile_MissingUnitIdentificationInformation() throws Exception {
-
-        assertInvalid("update/metadata_missing_unit_identification_information.jsonl", false,
-            "Invalid entry at index: 1. Missing metadata identification information.");
+        assertInvalid(
+            "update/metadata_missing_unit_identification_information.jsonl",
+            false,
+            "Invalid entry at index: 1. Missing metadata identification information."
+        );
     }
 
     @Test
     public void testParseInvalidJsonlMetadataFile_InvalidFile() throws Exception {
+        assertInvalid(
+            "update/metadata_empty_file.jsonl",
+            false,
+            "Invalid entry at index: 0. Empty unit file path '    '"
+        );
 
-        assertInvalid("update/metadata_empty_file.jsonl", false,
-            "Invalid entry at index: 0. Empty unit file path '    '");
-
-        assertInvalid("update/metadata_illegal_file.jsonl", false,
-            "Invalid entry at index: 0. Illegal unit file path 'toto/../tata'");
+        assertInvalid(
+            "update/metadata_illegal_file.jsonl",
+            false,
+            "Invalid entry at index: 0. Illegal unit file path 'toto/../tata'"
+        );
     }
 
     @Test
     public void testParseInvalidJsonlMetadataFile_InvalidUnitSelectorForFirstUpload() throws Exception {
-
-        assertInvalid("update/metadata_unit_selector_for_update_only.jsonl", true,
-            "Invalid selector key '#id' for upload operation at index: 0.");
+        assertInvalid(
+            "update/metadata_unit_selector_for_update_only.jsonl",
+            true,
+            "Invalid selector key '#id' for upload operation at index: 0."
+        );
     }
 
     @Test
@@ -165,8 +211,7 @@ public class JsonlMetadataFileValidatorTest {
     private static void assertValid(String resourcesFile, boolean isFirstUpload) throws Exception {
         JsonlMetadataFileValidator validator = new JsonlMetadataFileValidator();
         File jsonlMetadataFile = PropertiesUtils.getResourceFile(resourcesFile);
-        assertThatCode(() -> validator.validate(jsonlMetadataFile, isFirstUpload))
-            .doesNotThrowAnyException();
+        assertThatCode(() -> validator.validate(jsonlMetadataFile, isFirstUpload)).doesNotThrowAnyException();
     }
 
     private void assertInvalid(String resourcesFile, boolean isFirstUpload, String expectedMessage) throws Exception {

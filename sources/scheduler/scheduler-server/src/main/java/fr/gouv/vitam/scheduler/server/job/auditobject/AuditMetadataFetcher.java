@@ -71,19 +71,30 @@ public class AuditMetadataFetcher {
                 RequestResponseOK<JsonNode> requestResponse = RequestResponseOK.getFromJsonNode(result, JsonNode.class);
                 hits = requestResponse.getHits();
                 scrollId = hits.getScrollId();
-                selectMultiQuery.setScrollFilter(scrollId, GlobalDatasParser.DEFAULT_SCROLL_TIMEOUT,
-                    VitamConfiguration.getElasticSearchScrollLimit());
+                selectMultiQuery.setScrollFilter(
+                    scrollId,
+                    GlobalDatasParser.DEFAULT_SCROLL_TIMEOUT,
+                    VitamConfiguration.getElasticSearchScrollLimit()
+                );
                 size = (int) (size + hits.getSize());
                 JsonNode last = Iterables.getLast(requestResponse.getResults(), null);
                 if (last != null) {
                     lastUpdateDate = last.get(VitamFieldsHelper.approximateUpdateDate()).asText();
                 }
-            } while (hits.getSize() > 0 && hits.getSize() >= VitamConfiguration.getElasticSearchScrollLimit() &&
-                size < THRESHOLD);
+            } while (
+                hits.getSize() > 0 &&
+                hits.getSize() >= VitamConfiguration.getElasticSearchScrollLimit() &&
+                size < THRESHOLD
+            );
             clearScrollWhenPagingHasNotFinished(scrollId, client);
             return lastUpdateDate;
-        } catch (MetaDataExecutionException | MetaDataDocumentSizeException | MetaDataClientServerException |
-                 InvalidCreateOperationException | InvalidParseOperationException e) {
+        } catch (
+            MetaDataExecutionException
+            | MetaDataDocumentSizeException
+            | MetaDataClientServerException
+            | InvalidCreateOperationException
+            | InvalidParseOperationException e
+        ) {
             throw new VitamRuntimeException(e);
         }
     }
@@ -101,15 +112,21 @@ public class AuditMetadataFetcher {
         if (Objects.nonNull(lastAuditData)) {
             selectMultiQuery.addQueries(QueryHelper.gte(VitamFieldsHelper.approximateUpdateDate(), lastAuditData));
         }
-        selectMultiQuery.addQueries(QueryHelper.lt(VitamFieldsHelper.approximateUpdateDate(),
-            LocalDateUtil.getFormattedDateForMongo(LocalDateUtil.now().minusMinutes(operationsDelayInMinutes))));
+        selectMultiQuery.addQueries(
+            QueryHelper.lt(
+                VitamFieldsHelper.approximateUpdateDate(),
+                LocalDateUtil.getFormattedDateForMongo(LocalDateUtil.now().minusMinutes(operationsDelayInMinutes))
+            )
+        );
 
         selectMultiQuery.addUsedProjection(VitamFieldsHelper.id(), VitamFieldsHelper.approximateUpdateDate());
         selectMultiQuery.addOrderByAscFilter(VitamFieldsHelper.approximateUpdateDate());
         String scrollId = "START";
-        selectMultiQuery.setScrollFilter(scrollId, GlobalDatasParser.DEFAULT_SCROLL_TIMEOUT,
-            VitamConfiguration.getElasticSearchScrollLimit());
+        selectMultiQuery.setScrollFilter(
+            scrollId,
+            GlobalDatasParser.DEFAULT_SCROLL_TIMEOUT,
+            VitamConfiguration.getElasticSearchScrollLimit()
+        );
         return selectMultiQuery;
     }
-
 }

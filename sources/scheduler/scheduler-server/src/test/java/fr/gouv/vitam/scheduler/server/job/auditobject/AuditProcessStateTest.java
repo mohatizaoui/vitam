@@ -42,7 +42,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class AuditProcessStateTest {
 
-    @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
+    @Rule
+    public MockitoRule mockitoRule = MockitoJUnit.rule();
 
     @Before
     public void setup() {
@@ -98,5 +99,4 @@ public class AuditProcessStateTest {
         // THEN
         assertThat(result).isFalse();
     }
-
 }

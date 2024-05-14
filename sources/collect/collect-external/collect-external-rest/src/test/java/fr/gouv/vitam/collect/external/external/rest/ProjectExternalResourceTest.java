@@ -55,7 +55,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
@@ -79,7 +78,6 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-
 public class ProjectExternalResourceTest extends ResteasyTestApplication {
 
     static final String COLLECT_CONF = "collect-external-test.conf";
@@ -93,28 +91,30 @@ public class ProjectExternalResourceTest extends ResteasyTestApplication {
     private static int port = junitHelper.findAvailablePort();
 
     @Rule
-    public RunWithCustomExecutorRule runInThread =
-        new RunWithCustomExecutorRule(VitamThreadPoolExecutor.getDefaultExecutor());
+    public RunWithCustomExecutorRule runInThread = new RunWithCustomExecutorRule(
+        VitamThreadPoolExecutor.getDefaultExecutor()
+    );
 
-    private final static BusinessApplicationTest businessApplicationTest = new BusinessApplicationTest();
+    private static final BusinessApplicationTest businessApplicationTest = new BusinessApplicationTest();
     public static final String QUERY_SEARCH = "{ \"$query\" : \"search\" }";
 
     private static final String PROJECTS_URI = "/projects";
-    private final static CollectInternalClientFactory collectInternalClientFactory =
+    private static final CollectInternalClientFactory collectInternalClientFactory =
         businessApplicationTest.getCollectInternalClientFactory();
-    private final static CollectInternalClient collectInternalClient = mock(CollectInternalClient.class);
-    public static final String QUERY_INIT = "{ "
-        + "\"ArchivalAgencyIdentifier\": \"Identifier0\","
-        + "\"TransferringAgencyIdentifier\": \"Identifier3\","
-        + "\"OriginatingAgencyIdentifier\": \"FRAN_NP_009915\","
-        + "\"SubmissionAgencyIdentifier\": \"FRAN_NP_005061\","
-        + "\"MessageIdentifier\": \"20220302-000005\","
-        + "\"Name\": \"This is my Name\","
-        + "\"LegalStatus\": \"Archive privée\","
-        + "\"AcquisitionInformation\": \"Versement\","
-        + "\"ArchivalAgreement\":\"IC-00001\","
-        + "\"Comment\": \"Versement du service producteur : Cabinet de Michel Mercier\","
-        + "\"UnitUp\": \"aeaqaaaaaahgnz5dabg42amava5kfoqaaaba\"}";
+    private static final CollectInternalClient collectInternalClient = mock(CollectInternalClient.class);
+    public static final String QUERY_INIT =
+        "{ " +
+        "\"ArchivalAgencyIdentifier\": \"Identifier0\"," +
+        "\"TransferringAgencyIdentifier\": \"Identifier3\"," +
+        "\"OriginatingAgencyIdentifier\": \"FRAN_NP_009915\"," +
+        "\"SubmissionAgencyIdentifier\": \"FRAN_NP_005061\"," +
+        "\"MessageIdentifier\": \"20220302-000005\"," +
+        "\"Name\": \"This is my Name\"," +
+        "\"LegalStatus\": \"Archive privée\"," +
+        "\"AcquisitionInformation\": \"Versement\"," +
+        "\"ArchivalAgreement\":\"IC-00001\"," +
+        "\"Comment\": \"Versement du service producteur : Cabinet de Michel Mercier\"," +
+        "\"UnitUp\": \"aeaqaaaaaahgnz5dabg42amava5kfoqaaaba\"}";
 
     private static final int TENANT = 0;
     private static final String PROJECT_RESPONSE_TEST =
@@ -143,10 +143,8 @@ public class ProjectExternalResourceTest extends ResteasyTestApplication {
             LOGGER.debug("Beginning tests");
         } catch (final VitamApplicationServerException e) {
             LOGGER.error(e);
-            throw new IllegalStateException(
-                "Cannot start the Collect Application Server", e);
+            throw new IllegalStateException("Cannot start the Collect Application Server", e);
         }
-
     }
 
     @Before
@@ -167,12 +165,11 @@ public class ProjectExternalResourceTest extends ResteasyTestApplication {
         fr.gouv.vitam.common.external.client.VitamClientFactory.resetConnections();
     }
 
-
     @Test
     public void getProjects_ok() throws Exception {
-        final RequestResponse<JsonNode> responseProjects =
-            new RequestResponseOK<JsonNode>().addResult(JsonHandler.getFromString(PROJECT_RESPONSE_TEST))
-                .setHttpCode(200);
+        final RequestResponse<JsonNode> responseProjects = new RequestResponseOK<JsonNode>()
+            .addResult(JsonHandler.getFromString(PROJECT_RESPONSE_TEST))
+            .setHttpCode(200);
 
         when(collectInternalClient.getProjects()).thenReturn(responseProjects);
         given()
@@ -187,11 +184,9 @@ public class ProjectExternalResourceTest extends ResteasyTestApplication {
 
     @Test
     public void getProject_ById_ok_When_Id_found() throws Exception {
-
-
-        final RequestResponse<JsonNode> responseProjects =
-            new RequestResponseOK<JsonNode>().addResult(JsonHandler.getFromString(PROJECT_RESPONSE_TEST))
-                .setHttpCode(200);
+        final RequestResponse<JsonNode> responseProjects = new RequestResponseOK<JsonNode>()
+            .addResult(JsonHandler.getFromString(PROJECT_RESPONSE_TEST))
+            .setHttpCode(200);
         String PROJECT_ID = "SOME_ID";
         when(collectInternalClient.getProjectById(PROJECT_ID)).thenReturn(responseProjects);
         given()
@@ -208,7 +203,8 @@ public class ProjectExternalResourceTest extends ResteasyTestApplication {
     public void getProject_ById_ok_When_Id_Not_found() throws Exception {
         String PROJECT_ID = "SOME_ID";
         when(collectInternalClient.getProjectById(PROJECT_ID)).thenThrow(
-            new VitamClientException("Unable to find project Id or invalid status"));
+            new VitamClientException("Unable to find project Id or invalid status")
+        );
         given()
             .accept(ContentType.JSON)
             .header(GlobalDataRest.X_TENANT_ID, TENANT)
@@ -218,7 +214,6 @@ public class ProjectExternalResourceTest extends ResteasyTestApplication {
             .then()
             .statusCode(BAD_REQUEST.getStatusCode());
     }
-
 
     @Test
     public void getProjects_nok() throws VitamClientException {
@@ -240,9 +235,9 @@ public class ProjectExternalResourceTest extends ResteasyTestApplication {
         projectDto.setName("name");
         List<ProjectDto> projectDtoList = new ArrayList<>();
         projectDtoList.add(projectDto);
-        final RequestResponseOK<JsonNode> responseProjects =
-            new RequestResponseOK<JsonNode>().addResult(JsonHandler.toJsonNode(projectDtoList))
-                .setHttpCode(200);
+        final RequestResponseOK<JsonNode> responseProjects = new RequestResponseOK<JsonNode>()
+            .addResult(JsonHandler.toJsonNode(projectDtoList))
+            .setHttpCode(200);
 
         when(collectInternalClient.searchProject(any())).thenReturn(responseProjects);
         given()
@@ -258,14 +253,13 @@ public class ProjectExternalResourceTest extends ResteasyTestApplication {
 
     @Test
     public void initProject_ok() throws Exception {
-
         ProjectDto projectDto = new ProjectDto();
         projectDto.setTenant(0);
         projectDto.setId("1");
         projectDto.setName("name");
-        final RequestResponseOK<JsonNode> responseProject =
-            new RequestResponseOK<JsonNode>().addResult(JsonHandler.toJsonNode(projectDto))
-                .setHttpCode(200);
+        final RequestResponseOK<JsonNode> responseProject = new RequestResponseOK<JsonNode>()
+            .addResult(JsonHandler.toJsonNode(projectDto))
+            .setHttpCode(200);
 
         when(collectInternalClient.initProject(any())).thenReturn(responseProject);
         given()
@@ -282,8 +276,9 @@ public class ProjectExternalResourceTest extends ResteasyTestApplication {
     @Test
     public void updateProject() throws Exception {
         ProjectDto projectDto = new ProjectDto();
-        final RequestResponseOK<JsonNode> responseProjects =
-            new RequestResponseOK<JsonNode>().addResult(JsonHandler.toJsonNode(projectDto));
+        final RequestResponseOK<JsonNode> responseProjects = new RequestResponseOK<JsonNode>().addResult(
+            JsonHandler.toJsonNode(projectDto)
+        );
         when(collectInternalClient.updateProject(any())).thenReturn(responseProjects);
         given()
             .contentType(ContentType.JSON)
@@ -296,14 +291,11 @@ public class ProjectExternalResourceTest extends ResteasyTestApplication {
             .statusCode(Response.Status.OK.getStatusCode());
     }
 
-
     @Test
     public void deleteProjectById_ok_When_Id_found() throws Exception {
-
-
-        final RequestResponse<JsonNode> responseProjects =
-            new RequestResponseOK<JsonNode>().addResult(JsonHandler.getFromString(PROJECT_RESPONSE_TEST))
-                .setHttpCode(200);
+        final RequestResponse<JsonNode> responseProjects = new RequestResponseOK<JsonNode>()
+            .addResult(JsonHandler.getFromString(PROJECT_RESPONSE_TEST))
+            .setHttpCode(200);
         String PROJECT_ID = "SOME_ID";
         when(collectInternalClient.deleteProjectById(PROJECT_ID)).thenReturn(responseProjects);
         given()
@@ -412,7 +404,9 @@ public class ProjectExternalResourceTest extends ResteasyTestApplication {
             .post(PROJECTS_URI + "/prId/upload")
             .then()
             .statusCode(OK.getStatusCode())
-            .extract().body().as(RequestResponseOK.class);
+            .extract()
+            .body()
+            .as(RequestResponseOK.class);
 
         verify(collectInternalClient).uploadZipToProject(eq("prId"), any(InputStream.class), eq("Windows-1251"));
         assertThat(responseOK.getFirstResult()).isEqualTo("txId");
@@ -420,8 +414,9 @@ public class ProjectExternalResourceTest extends ResteasyTestApplication {
 
     @Test
     public void upload_zip_to_project_not_found() throws Exception {
-        when(collectInternalClient.uploadZipToProject(eq("prId"), any(), any()))
-            .thenThrow(new CollectInternalClientNotFoundException("Prb"));
+        when(collectInternalClient.uploadZipToProject(eq("prId"), any(), any())).thenThrow(
+            new CollectInternalClientNotFoundException("Prb")
+        );
 
         given()
             .contentType(CommonMediaType.ZIP)
@@ -436,8 +431,9 @@ public class ProjectExternalResourceTest extends ResteasyTestApplication {
 
     @Test
     public void upload_zip_to_project_KO() throws Exception {
-        when(collectInternalClient.uploadZipToProject(eq("prId"), any(), any()))
-            .thenThrow(new VitamClientException("Prb"));
+        when(collectInternalClient.uploadZipToProject(eq("prId"), any(), any())).thenThrow(
+            new VitamClientException("Prb")
+        );
 
         given()
             .contentType(CommonMediaType.ZIP)
@@ -466,5 +462,4 @@ public class ProjectExternalResourceTest extends ResteasyTestApplication {
 
         verify(collectInternalClient, never()).uploadZipToProject(any(), any(), any());
     }
-
 }

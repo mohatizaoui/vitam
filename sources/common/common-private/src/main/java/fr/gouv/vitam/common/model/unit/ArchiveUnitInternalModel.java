@@ -88,7 +88,6 @@ public class ArchiveUnitInternalModel {
     @JsonProperty("_managementContractId")
     private String managementContractId;
 
-
     /**
      * Constructor
      */
@@ -135,7 +134,6 @@ public class ArchiveUnitInternalModel {
     public void setManagement(ManagementModel management) {
         this.management = management;
     }
-
 
     public List<ArchiveUnitHistoryModel> getHistory() {
         return history;

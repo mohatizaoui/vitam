@@ -43,6 +43,7 @@ import fr.gouv.vitam.processing.management.client.ProcessingManagementClientFact
 import java.util.concurrent.TimeUnit;
 
 public class AuditPoller {
+
     public static final boolean UNSUCCESSFUL_TERMINATION = Boolean.FALSE;
     public static final boolean SUCCESSFUL_TERMINATION = Boolean.TRUE;
     public static final int AUDIT_EXECUTION_TIMEOUT = 30;
@@ -53,8 +54,11 @@ public class AuditPoller {
     private final Integer tenantId;
     private final String operationId;
 
-    public AuditPoller(ProcessingManagementClientFactory processingManagementClientFactory, Integer tenantId,
-        String operationId) {
+    public AuditPoller(
+        ProcessingManagementClientFactory processingManagementClientFactory,
+        Integer tenantId,
+        String operationId
+    ) {
         this.processingManagementClientFactory = processingManagementClientFactory;
         this.tenantId = tenantId;
         this.operationId = operationId;
@@ -88,10 +92,14 @@ public class AuditPoller {
         }
     }
 
-    private boolean hasCompletedOrTimeout(AuditProcessState auditProcessState, StatusCode globalStatus,
-        Stopwatch stopwatch) {
-        return !auditProcessState.isWaitingForResponse(globalStatus) ||
-            stopwatch.elapsed(TimeUnit.MINUTES) >= AUDIT_EXECUTION_TIMEOUT;
+    private boolean hasCompletedOrTimeout(
+        AuditProcessState auditProcessState,
+        StatusCode globalStatus,
+        Stopwatch stopwatch
+    ) {
+        return (
+            !auditProcessState.isWaitingForResponse(globalStatus) ||
+            stopwatch.elapsed(TimeUnit.MINUTES) >= AUDIT_EXECUTION_TIMEOUT
+        );
     }
-
 }

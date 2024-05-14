@@ -197,8 +197,7 @@ public class TapeOfferStorageIT {
 
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(TapeOfferStorageIT.class);
 
-    private static final TypeReference<ReportEntry> OFFER_DIFF_ENTRY_TYPE = new TypeReference<>() {
-    };
+    private static final TypeReference<ReportEntry> OFFER_DIFF_ENTRY_TYPE = new TypeReference<>() {};
 
     private static final int PORT_SERVICE_WORKSPACE = 8987;
     private static final String WORKSPACE_CONF_DIR = "workspace-conf/";
@@ -239,8 +238,9 @@ public class TapeOfferStorageIT {
     private static final String LTO_6 = "LTO-6";
 
     @ClassRule
-    public static RunWithCustomExecutorRule runInThread =
-        new RunWithCustomExecutorRule(VitamThreadPoolExecutor.getDefaultExecutor());
+    public static RunWithCustomExecutorRule runInThread = new RunWithCustomExecutorRule(
+        VitamThreadPoolExecutor.getDefaultExecutor()
+    );
 
     @ClassRule
     public static MongoRule mongoRuleOffer1 = new MongoRule(DB_OFFER1, MongoDbAccess.getMongoClientSettingsBuilder());
@@ -315,15 +315,17 @@ public class TapeOfferStorageIT {
         storageClient = StorageClientFactory.getInstance().getClient();
 
         objectReferentialRepository = new ObjectReferentialRepository(
-            mongoRuleOffer1.getMongoCollection(OfferCollections.TAPE_OBJECT_REFERENTIAL.getName()));
+            mongoRuleOffer1.getMongoCollection(OfferCollections.TAPE_OBJECT_REFERENTIAL.getName())
+        );
         archiveReferentialRepository = new ArchiveReferentialRepository(
-            mongoRuleOffer1.getMongoCollection(OfferCollections.TAPE_ARCHIVE_REFERENTIAL.getName()));
-        tapeCatalogRepository = new TapeCatalogRepository(mongoRuleOffer1
-            .getMongoCollection(OfferCollections.TAPE_CATALOG.getName()));
+            mongoRuleOffer1.getMongoCollection(OfferCollections.TAPE_ARCHIVE_REFERENTIAL.getName())
+        );
+        tapeCatalogRepository = new TapeCatalogRepository(
+            mongoRuleOffer1.getMongoCollection(OfferCollections.TAPE_CATALOG.getName())
+        );
     }
 
     public static void setupWorkspace() throws IOException, VitamApplicationServerException {
-
         String workspaceConfDir = PropertiesUtils.getResourceFile(WORKSPACE_CONF_DIR).getAbsolutePath();
         SystemPropertyUtil.set("vitam.conf.folder", workspaceConfDir);
         VitamConfiguration.getConfiguration().setConfig(workspaceConfDir);
@@ -335,8 +337,10 @@ public class TapeOfferStorageIT {
 
         final File workspaceConfigFile = PropertiesUtils.findFile(WORKSPACE_CONF_FILE);
 
-        fr.gouv.vitam.common.storage.StorageConfiguration workspaceConfiguration =
-            PropertiesUtils.readYaml(workspaceConfigFile, fr.gouv.vitam.common.storage.StorageConfiguration.class);
+        fr.gouv.vitam.common.storage.StorageConfiguration workspaceConfiguration = PropertiesUtils.readYaml(
+            workspaceConfigFile,
+            fr.gouv.vitam.common.storage.StorageConfiguration.class
+        );
         String workspaceDataDir = tempFolder.newFolder().getAbsolutePath();
         workspaceConfiguration.setStoragePath(workspaceDataDir);
 
@@ -356,7 +360,6 @@ public class TapeOfferStorageIT {
     }
 
     private static void setupOffer1() throws IOException, VitamApplicationServerException {
-
         for (OfferCollections offerCollection : OfferCollections.values()) {
             mongoRuleOffer1.addCollectionToBePurged(offerCollection.getName());
         }
@@ -366,7 +369,15 @@ public class TapeOfferStorageIT {
         Path offer1TmpTarOutputStorageFolder = tempFolder.newFolder("offer1-data", "tmpTarOutput").toPath();
         Path offer1CachedTarStorageFolder = tempFolder.newFolder("offer1-data", "cachedTars").toPath();
         tapeLibrarySimulatorRule = new TapeLibrarySimulatorRule(
-            offer1InputTarStorageFolder, offer1TmpTarOutputStorageFolder, 4, 50, 50, 5_000_000, LTO_6, 10);
+            offer1InputTarStorageFolder,
+            offer1TmpTarOutputStorageFolder,
+            4,
+            50,
+            50,
+            5_000_000,
+            LTO_6,
+            10
+        );
 
         String offer1ConfDir = PropertiesUtils.getResourceFile(OFFER1_CONF_DIR).getAbsolutePath();
         SystemPropertyUtil.set("vitam.conf.folder", offer1ConfDir);
@@ -380,13 +391,19 @@ public class TapeOfferStorageIT {
         ObjectNode offerStorageConfig = readYaml(offerStorageConfigFile, ObjectNode.class);
 
         ObjectNode tapeLibraryConfiguration = (ObjectNode) offerStorageConfig.get("tapeLibraryConfiguration");
-        tapeLibraryConfiguration.put("inputFileStorageFolder",
-            offer1InputFileStorageFolder.toAbsolutePath().toString());
+        tapeLibraryConfiguration.put(
+            "inputFileStorageFolder",
+            offer1InputFileStorageFolder.toAbsolutePath().toString()
+        );
         tapeLibraryConfiguration.put("inputTarStorageFolder", offer1InputTarStorageFolder.toAbsolutePath().toString());
-        tapeLibraryConfiguration.put("tmpTarOutputStorageFolder",
-            offer1TmpTarOutputStorageFolder.toAbsolutePath().toString());
-        tapeLibraryConfiguration.put("cachedTarStorageFolder",
-            offer1CachedTarStorageFolder.toAbsolutePath().toString());
+        tapeLibraryConfiguration.put(
+            "tmpTarOutputStorageFolder",
+            offer1TmpTarOutputStorageFolder.toAbsolutePath().toString()
+        );
+        tapeLibraryConfiguration.put(
+            "cachedTarStorageFolder",
+            offer1CachedTarStorageFolder.toAbsolutePath().toString()
+        );
         writeYaml(offerStorageConfigFile, offerStorageConfig);
 
         // Rewrite offer.conf file
@@ -412,10 +429,11 @@ public class TapeOfferStorageIT {
             .readTimeout(600, TimeUnit.SECONDS)
             .connectTimeout(600, TimeUnit.SECONDS)
             .build();
-        Retrofit retrofit =
-            new Retrofit.Builder().client(okHttpClient)
-                .baseUrl("http://localhost:" + PORT_ADMIN_OFFER1)
-                .addConverterFactory(JacksonConverterFactory.create()).build();
+        Retrofit retrofit = new Retrofit.Builder()
+            .client(okHttpClient)
+            .baseUrl("http://localhost:" + PORT_ADMIN_OFFER1)
+            .addConverterFactory(JacksonConverterFactory.create())
+            .build();
         tapeBackupAdminResource = retrofit.create(TapeBackupAdminResource.class);
     }
 
@@ -427,7 +445,6 @@ public class TapeOfferStorageIT {
     }
 
     private static void setupOffer2() throws IOException, VitamApplicationServerException {
-
         for (OfferCollections offerCollection : OfferCollections.values()) {
             mongoRuleOffer2.addCollectionToBePurged(offerCollection.getName());
         }
@@ -443,7 +460,8 @@ public class TapeOfferStorageIT {
         String offer2DataDir = tempFolder.newFolder().getAbsolutePath();
 
         File offerStorageConfigFile = PropertiesUtils.findFile(OFFER2_STORAGE_CONF_FILE);
-        writeYaml(offerStorageConfigFile,
+        writeYaml(
+            offerStorageConfigFile,
             JsonHandler.createObjectNode()
                 .put("storagePath", offer2DataDir)
                 .put("provider", StorageProvider.FILESYSTEM.getValue())
@@ -472,9 +490,7 @@ public class TapeOfferStorageIT {
         }
     }
 
-    private static void setupStorageEngine()
-        throws Exception {
-
+    private static void setupStorageEngine() throws Exception {
         String storageConfDir = PropertiesUtils.getResourceFile(STORAGE_CONF_DIR).getAbsolutePath();
         SystemPropertyUtil.set("vitam.conf.folder", storageConfDir);
         VitamConfiguration.getConfiguration().setConfig(storageConfDir);
@@ -511,10 +527,11 @@ public class TapeOfferStorageIT {
             .readTimeout(600, TimeUnit.SECONDS)
             .connectTimeout(600, TimeUnit.SECONDS)
             .build();
-        Retrofit retrofit =
-            new Retrofit.Builder().client(okHttpClient)
-                .baseUrl("http://localhost:" + PORT_ADMIN_STORAGE)
-                .addConverterFactory(JacksonConverterFactory.create()).build();
+        Retrofit retrofit = new Retrofit.Builder()
+            .client(okHttpClient)
+            .baseUrl("http://localhost:" + PORT_ADMIN_STORAGE)
+            .addConverterFactory(JacksonConverterFactory.create())
+            .build();
         offerSyncAdminResource = retrofit.create(OfferSyncAdminResource.class);
         offerDiffAdminResource = retrofit.create(OfferDiffAdminResource.class);
 
@@ -529,7 +546,6 @@ public class TapeOfferStorageIT {
 
     @Test
     public void testWriteObjectsToANonExpirableContainer() throws Exception {
-
         VitamThreadUtils.getVitamSession().setTenantId(0);
         String prefix = RandomStringUtils.randomAlphabetic(10) + "_";
 
@@ -605,7 +621,6 @@ public class TapeOfferStorageIT {
 
     @Test
     public void testWriteObjectsToAnExpirableContainer() throws Exception {
-
         VitamThreadUtils.getVitamSession().setTenantId(0);
         String prefix = RandomStringUtils.randomAlphabetic(10) + "_";
 
@@ -620,15 +635,20 @@ public class TapeOfferStorageIT {
 
         // Try override obj2 content
         File file2_bis = createRandomFile(RandomUtils.nextInt(800_000, 1_200_000));
-        assertThatThrownBy(() -> writeToOffers(file2_bis, DEFAULT_STRATEGY, OBJECT, objectNames.get(2)))
-            .isInstanceOf(StorageAlreadyExistsClientException.class);
+        assertThatThrownBy(() -> writeToOffers(file2_bis, DEFAULT_STRATEGY, OBJECT, objectNames.get(2))).isInstanceOf(
+            StorageAlreadyExistsClientException.class
+        );
 
         // Override obj1 with same content
         writeToOffers(files.get(1), DEFAULT_STRATEGY, OBJECT, objectNames.get(1));
 
         // Write dummy objects to drain incomplete tars
-        writeToOffers(createRandomFile(1_000_000), DEFAULT_STRATEGY, OBJECT,
-            prefix + "someDataForIncompleteTarDraining");
+        writeToOffers(
+            createRandomFile(1_000_000),
+            DEFAULT_STRATEGY,
+            OBJECT,
+            prefix + "someDataForIncompleteTarDraining"
+        );
 
         // Wait for archives to be written to tapes
         awaitFullObjectArchivalOnTape(0, OBJECT, objectNames, TEST_BUCKET);
@@ -696,7 +716,6 @@ public class TapeOfferStorageIT {
 
     @Test
     public void testBulkWriteAndAwaitObjectsToBeAvailable() throws Exception {
-
         VitamThreadUtils.getVitamSession().setTenantId(0);
         String prefix = RandomStringUtils.randomAlphabetic(10) + "_";
 
@@ -712,15 +731,18 @@ public class TapeOfferStorageIT {
 
         // Check object existence & digests
         checkObjectDigest(OFFER_IDS, OBJECT, objectNames.get(3), files.get(3));
-        checkObjectDigest(OFFER_IDS, OBJECT, objectNames.get(nbObjects - 1),
-            files.get(nbObjects - 1));
+        checkObjectDigest(OFFER_IDS, OBJECT, objectNames.get(nbObjects - 1), files.get(nbObjects - 1));
 
         checkObjectExistence(OFFER_IDS, OBJECT, objectNames.get(3));
         checkObjectExistence(OFFER_IDS, OBJECT, objectNames.get(nbObjects - 1));
 
         // Write dummy objects to drain incomplete tars
-        writeToOffers(createRandomFile(1_000_000), DEFAULT_STRATEGY, OBJECT,
-            prefix + "someDataForIncompleteTarDraining");
+        writeToOffers(
+            createRandomFile(1_000_000),
+            DEFAULT_STRATEGY,
+            OBJECT,
+            prefix + "someDataForIncompleteTarDraining"
+        );
 
         // Wait for archives to be written to tapes
         awaitFullObjectArchivalOnTape(0, OBJECT, objectNames, TEST_BUCKET);
@@ -739,8 +761,7 @@ public class TapeOfferStorageIT {
 
         // Read objects
         readAndValidateObjectFromTapeOffer(OBJECT, objectNames.get(3), files.get(3));
-        readAndValidateObjectFromTapeOffer(OBJECT, objectNames.get(nbObjects - 1),
-            files.get(nbObjects - 1));
+        readAndValidateObjectFromTapeOffer(OBJECT, objectNames.get(nbObjects - 1), files.get(nbObjects - 1));
 
         // Cleanup
         removeAccessRequest(accessRequestId);
@@ -748,7 +769,6 @@ public class TapeOfferStorageIT {
 
     @Test
     public void testBulkWriteIdempotency() throws Exception {
-
         VitamThreadUtils.getVitamSession().setTenantId(0);
         String prefix = RandomStringUtils.randomAlphabetic(10) + "_";
 
@@ -763,8 +783,12 @@ public class TapeOfferStorageIT {
         bulkWriteToOffers(DEFAULT_STRATEGY, OBJECT, files, objectNames);
 
         // Write dummy objects to drain incomplete tars
-        writeToOffers(createRandomFile(1_000_000), DEFAULT_STRATEGY, OBJECT,
-            prefix + "someDataForIncompleteTarDraining");
+        writeToOffers(
+            createRandomFile(1_000_000),
+            DEFAULT_STRATEGY,
+            OBJECT,
+            prefix + "someDataForIncompleteTarDraining"
+        );
 
         // Wait for archives to be written to tapes
         awaitFullObjectArchivalOnTape(0, OBJECT, objectNames, TEST_BUCKET);
@@ -774,8 +798,7 @@ public class TapeOfferStorageIT {
 
         // Check object digests OK
         checkObjectDigest(OFFER_IDS, OBJECT, objectNames.get(3), files.get(3));
-        checkObjectDigest(OFFER_IDS, OBJECT, objectNames.get(nbObjects - 1),
-            files.get(nbObjects - 1));
+        checkObjectDigest(OFFER_IDS, OBJECT, objectNames.get(nbObjects - 1), files.get(nbObjects - 1));
 
         checkObjectExistence(OFFER_IDS, OBJECT, objectNames.get(3));
         checkObjectExistence(OFFER_IDS, OBJECT, objectNames.get(nbObjects - 1));
@@ -791,8 +814,7 @@ public class TapeOfferStorageIT {
 
         // Read objects
         readAndValidateObjectFromTapeOffer(OBJECT, objectNames.get(3), files.get(3));
-        readAndValidateObjectFromTapeOffer(OBJECT, objectNames.get(nbObjects - 1),
-            files.get(nbObjects - 1));
+        readAndValidateObjectFromTapeOffer(OBJECT, objectNames.get(nbObjects - 1), files.get(nbObjects - 1));
 
         // Cleanup
         removeAccessRequest(accessRequestId);
@@ -800,7 +822,6 @@ public class TapeOfferStorageIT {
 
     @Test
     public void testBulkWriteOverrideRewritableContainerObjects() throws Exception {
-
         VitamThreadUtils.getVitamSession().setTenantId(0);
         String prefix = RandomStringUtils.randomAlphabetic(10) + "_";
 
@@ -816,13 +837,11 @@ public class TapeOfferStorageIT {
 
         files.set(3, createRandomFile(RandomUtils.nextInt(400_000, 600_000)));
 
-        assertThatCode(() -> bulkWriteToOffers(DEFAULT_STRATEGY, UNIT, files, objectNames))
-            .doesNotThrowAnyException();
+        assertThatCode(() -> bulkWriteToOffers(DEFAULT_STRATEGY, UNIT, files, objectNames)).doesNotThrowAnyException();
 
         // Check object existence & digests
         checkObjectDigest(OFFER_IDS, UNIT, objectNames.get(3), files.get(3));
-        checkObjectDigest(OFFER_IDS, UNIT, objectNames.get(nbObjects - 1),
-            files.get(nbObjects - 1));
+        checkObjectDigest(OFFER_IDS, UNIT, objectNames.get(nbObjects - 1), files.get(nbObjects - 1));
 
         checkObjectExistence(OFFER_IDS, UNIT, objectNames.get(3));
         checkObjectExistence(OFFER_IDS, UNIT, objectNames.get(nbObjects - 1));
@@ -838,8 +857,7 @@ public class TapeOfferStorageIT {
 
         // Check object existence & digests once again
         checkObjectDigest(OFFER_IDS, UNIT, objectNames.get(3), files.get(3));
-        checkObjectDigest(OFFER_IDS, UNIT, objectNames.get(nbObjects - 1),
-            files.get(nbObjects - 1));
+        checkObjectDigest(OFFER_IDS, UNIT, objectNames.get(nbObjects - 1), files.get(nbObjects - 1));
 
         checkObjectExistence(OFFER_IDS, UNIT, objectNames.get(3));
         checkObjectExistence(OFFER_IDS, UNIT, objectNames.get(nbObjects - 1));
@@ -849,13 +867,11 @@ public class TapeOfferStorageIT {
 
         // Check objects are readable
         readAndValidateObjectFromTapeOffer(UNIT, objectNames.get(3), files.get(3));
-        readAndValidateObjectFromTapeOffer(UNIT, objectNames.get(nbObjects - 1),
-            files.get(nbObjects - 1));
+        readAndValidateObjectFromTapeOffer(UNIT, objectNames.get(nbObjects - 1), files.get(nbObjects - 1));
     }
 
     @Test
     public void testDeleteObject() throws Exception {
-
         VitamThreadUtils.getVitamSession().setTenantId(0);
         String prefix = RandomStringUtils.randomAlphabetic(10) + "_";
 
@@ -874,8 +890,7 @@ public class TapeOfferStorageIT {
 
         // Then
         checkObjectDigest(OFFER_IDS, UNIT, objectNames.get(3), files.get(3));
-        checkObjectDigest(OFFER_IDS, UNIT, objectNames.get(nbObjects - 1),
-            files.get(nbObjects - 1));
+        checkObjectDigest(OFFER_IDS, UNIT, objectNames.get(nbObjects - 1), files.get(nbObjects - 1));
 
         checkObjectNotFound(OFFER_IDS, UNIT, objectNames.get(2));
 
@@ -890,29 +905,29 @@ public class TapeOfferStorageIT {
         removeAccessRequest(accessRequestId);
 
         // When delete an already deleted object, or non-existing object, or non-existing container, then OK
-        assertThatCode(() -> deleteObject(DEFAULT_STRATEGY, UNIT, objectNames.get(2)))
-            .doesNotThrowAnyException();
+        assertThatCode(() -> deleteObject(DEFAULT_STRATEGY, UNIT, objectNames.get(2))).doesNotThrowAnyException();
 
-        assertThatCode(() -> deleteObject(DEFAULT_STRATEGY, UNIT, "someNonExistingObjectName"))
-            .doesNotThrowAnyException();
+        assertThatCode(
+            () -> deleteObject(DEFAULT_STRATEGY, UNIT, "someNonExistingObjectName")
+        ).doesNotThrowAnyException();
 
-        assertThatCode(() ->
-            deleteObject(DEFAULT_STRATEGY, ACCESSION_REGISTER_SYMBOLIC, "anObjectFromNonExistingContainer")
+        assertThatCode(
+            () -> deleteObject(DEFAULT_STRATEGY, ACCESSION_REGISTER_SYMBOLIC, "anObjectFromNonExistingContainer")
         ).doesNotThrowAnyException();
 
         // When deleting an object from a non-deletable container then KO
         File someTraceabilityObject = createRandomFile(RandomUtils.nextInt(10_000, 500_000));
         writeToOffers(someTraceabilityObject, DEFAULT_STRATEGY, STORAGETRACEABILITY, "someTraceabilityObject.zip");
 
-        assertThatThrownBy(() -> deleteObject(DEFAULT_STRATEGY, STORAGETRACEABILITY, "someTraceabilityObject.zip"))
-            .isInstanceOf(StorageServerClientException.class);
+        assertThatThrownBy(
+            () -> deleteObject(DEFAULT_STRATEGY, STORAGETRACEABILITY, "someTraceabilityObject.zip")
+        ).isInstanceOf(StorageServerClientException.class);
 
         readAndValidateObjectFromTapeOffer(STORAGETRACEABILITY, "someTraceabilityObject.zip", someTraceabilityObject);
     }
 
     @Test
     public void testListContainerObjects() throws Exception {
-
         VitamThreadUtils.getVitamSession().setTenantId(2);
 
         String prefix = RandomStringUtils.randomAlphabetic(10) + "_";
@@ -944,9 +959,15 @@ public class TapeOfferStorageIT {
         deleteObject(DEFAULT_STRATEGY, OBJECTGROUP_GRAPH, objectNames.get(2));
 
         // When
-        try (CloseableIterator<ObjectEntry> objectIterator =
-            storageClient.listContainer(DEFAULT_STRATEGY, null, OBJECTGROUP_GRAPH)) {
-            assertThat(objectIterator).toIterable()
+        try (
+            CloseableIterator<ObjectEntry> objectIterator = storageClient.listContainer(
+                DEFAULT_STRATEGY,
+                null,
+                OBJECTGROUP_GRAPH
+            )
+        ) {
+            assertThat(objectIterator)
+                .toIterable()
                 .usingFieldByFieldElementComparator()
                 .containsExactly(
                     new ObjectEntry(prefix + "obj1", files.get(1).length()),
@@ -960,9 +981,17 @@ public class TapeOfferStorageIT {
         }
 
         Iterator<OfferLog> objectIterator = new StorageClientOfferLogIterator(
-            StorageClientFactory.getInstance(), DEFAULT_STRATEGY, null, Order.ASC, OBJECTGROUP_GRAPH, 5, 0L);
+            StorageClientFactory.getInstance(),
+            DEFAULT_STRATEGY,
+            null,
+            Order.ASC,
+            OBJECTGROUP_GRAPH,
+            5,
+            0L
+        );
 
-        assertThat(objectIterator).toIterable()
+        assertThat(objectIterator)
+            .toIterable()
             .extracting(OfferLog::getFileName, OfferLog::getAction)
             .containsExactly(
                 tuple(prefix + "obj0", OfferLogAction.WRITE),
@@ -986,7 +1015,6 @@ public class TapeOfferStorageIT {
 
     @Test
     public void testAccessFreshlyWrittenObjects() throws Exception {
-
         VitamThreadUtils.getVitamSession().setTenantId(0);
 
         String prefix = RandomStringUtils.randomAlphabetic(10) + "_";
@@ -997,19 +1025,21 @@ public class TapeOfferStorageIT {
         List<CompletableFuture<Void>> completableFutures = new ArrayList<>();
         for (int i = 0; i < 50; i++) {
             String objectName = prefix + "obj" + i;
-            CompletableFuture<Void> completableFuture = CompletableFuture.runAsync(() -> {
-                try {
+            CompletableFuture<Void> completableFuture = CompletableFuture.runAsync(
+                () -> {
+                    try {
+                        VitamThreadUtils.getVitamSession().setTenantId(0);
+                        VitamThreadUtils.getVitamSession().setRequestId(GUIDFactory.newGUID().getId());
 
-                    VitamThreadUtils.getVitamSession().setTenantId(0);
-                    VitamThreadUtils.getVitamSession().setRequestId(GUIDFactory.newGUID().getId());
-
-                    writeToOffers(randomFile, DEFAULT_STRATEGY, UNIT, objectName);
-                    readAndValidateObjectFromTapeOffer(UNIT, objectName, randomFile);
-                } catch (Exception e) {
-                    LOGGER.error("Writing object " + objectName + " failed with exception", e);
-                    throw new RuntimeException("Writing object " + objectName + " failed with exception", e);
-                }
-            }, executorService);
+                        writeToOffers(randomFile, DEFAULT_STRATEGY, UNIT, objectName);
+                        readAndValidateObjectFromTapeOffer(UNIT, objectName, randomFile);
+                    } catch (Exception e) {
+                        LOGGER.error("Writing object " + objectName + " failed with exception", e);
+                        throw new RuntimeException("Writing object " + objectName + " failed with exception", e);
+                    }
+                },
+                executorService
+            );
             completableFutures.add(completableFuture);
         }
 
@@ -1025,7 +1055,6 @@ public class TapeOfferStorageIT {
 
     @Test
     public void fullOfferSyncFromExpirableContainer() throws Exception {
-
         VitamThreadUtils.getVitamSession().setTenantId(3);
 
         String prefix = RandomStringUtils.randomAlphabetic(10) + "_";
@@ -1066,13 +1095,25 @@ public class TapeOfferStorageIT {
         checkObjectAvailabilityFromTapeOffer(OBJECT, objectNames, false);
 
         // Check offer2 is empty
-        try (CloseableIterator<ObjectEntry> objectIterator = storageClient.listContainer(OFFER2_ONLY_STRATEGY, null,
-            OBJECT)) {
+        try (
+            CloseableIterator<ObjectEntry> objectIterator = storageClient.listContainer(
+                OFFER2_ONLY_STRATEGY,
+                null,
+                OBJECT
+            )
+        ) {
             assertThat(objectIterator).toIterable().isEmpty();
         }
 
         Iterator<OfferLog> objectIterator = new StorageClientOfferLogIterator(
-            StorageClientFactory.getInstance(), OFFER2_ONLY_STRATEGY, null, Order.ASC, OBJECT, 5, 0L);
+            StorageClientFactory.getInstance(),
+            OFFER2_ONLY_STRATEGY,
+            null,
+            Order.ASC,
+            OBJECT,
+            5,
+            0L
+        );
         assertThat(objectIterator).toIterable().isEmpty();
 
         // When
@@ -1084,8 +1125,9 @@ public class TapeOfferStorageIT {
             .setStrategyId(DEFAULT_STRATEGY)
             .setOffset(0L);
 
-        Response<Void> offerSyncStatus =
-            offerSyncAdminResource.startSynchronization(offerSyncRequest, getBasicAuthnToken()).execute();
+        Response<Void> offerSyncStatus = offerSyncAdminResource
+            .startSynchronization(offerSyncRequest, getBasicAuthnToken())
+            .execute();
 
         // Then
         assertThat(offerSyncStatus.code()).isEqualTo(200);
@@ -1106,10 +1148,15 @@ public class TapeOfferStorageIT {
         checkObjectNotFound(OFFER_IDS, OBJECT, "unknown");
 
         // Check container entries & offer log
-        try (CloseableIterator<ObjectEntry> objectIteratorAfterSync =
-            storageClient.listContainer(OFFER2_ONLY_STRATEGY, null, OBJECT)) {
-
-            assertThat(objectIteratorAfterSync).toIterable()
+        try (
+            CloseableIterator<ObjectEntry> objectIteratorAfterSync = storageClient.listContainer(
+                OFFER2_ONLY_STRATEGY,
+                null,
+                OBJECT
+            )
+        ) {
+            assertThat(objectIteratorAfterSync)
+                .toIterable()
                 .usingFieldByFieldElementComparator()
                 .containsExactly(
                     new ObjectEntry(prefix + "obj1", files.get(1).length()),
@@ -1123,9 +1170,17 @@ public class TapeOfferStorageIT {
         }
 
         Iterator<OfferLog> objectIteratorAfterSync = new StorageClientOfferLogIterator(
-            StorageClientFactory.getInstance(), OFFER2_ONLY_STRATEGY, null, Order.ASC, OBJECT, 5, 0L);
+            StorageClientFactory.getInstance(),
+            OFFER2_ONLY_STRATEGY,
+            null,
+            Order.ASC,
+            OBJECT,
+            5,
+            0L
+        );
 
-        assertThat(objectIteratorAfterSync).toIterable()
+        assertThat(objectIteratorAfterSync)
+            .toIterable()
             .extracting(OfferLog::getFileName, OfferLog::getAction)
             .containsExactlyInAnyOrder(
                 tuple(prefix + "obj0", OfferLogAction.DELETE),
@@ -1144,7 +1199,6 @@ public class TapeOfferStorageIT {
 
     @Test
     public void partialOfferSyncFromExpirableContainer() throws Exception {
-
         VitamThreadUtils.getVitamSession().setTenantId(4);
 
         String prefix = RandomStringUtils.randomAlphabetic(10) + "_";
@@ -1186,28 +1240,30 @@ public class TapeOfferStorageIT {
 
         // Check that at least some objects are not available for immediate access from container 4_objects
         VitamThreadUtils.getVitamSession().setTenantId(4);
-        checkObjectAvailabilityFromTapeOffer(OBJECT,
-            List.of(prefix + "obj1", prefix + "obj2", prefix + "obj3"), false);
+        checkObjectAvailabilityFromTapeOffer(OBJECT, List.of(prefix + "obj1", prefix + "obj2", prefix + "obj3"), false);
 
         // When
         OfferPartialSyncRequest offerSyncRequest = new OfferPartialSyncRequest()
             .setSourceOffer(OFFER_1)
             .setTargetOffer(OFFER_2)
-            .setItemsToSynchronize(List.of(
-                new OfferPartialSyncItem()
-                    .setContainer(OBJECT.getCollectionName())
-                    .setFilenames(List.of(prefix + "obj2", prefix + "obj3", prefix + "obj4"))
-                    .setTenantId(4),
-                new OfferPartialSyncItem()
-                    .setContainer(UNIT.getCollectionName())
-                    .setFilenames(List.of(prefix + "unit1.json", prefix + "unit2.json"))
-                    .setTenantId(5)
-            ))
+            .setItemsToSynchronize(
+                List.of(
+                    new OfferPartialSyncItem()
+                        .setContainer(OBJECT.getCollectionName())
+                        .setFilenames(List.of(prefix + "obj2", prefix + "obj3", prefix + "obj4"))
+                        .setTenantId(4),
+                    new OfferPartialSyncItem()
+                        .setContainer(UNIT.getCollectionName())
+                        .setFilenames(List.of(prefix + "unit1.json", prefix + "unit2.json"))
+                        .setTenantId(5)
+                )
+            )
             .setStrategyId(DEFAULT_STRATEGY);
 
         VitamThreadUtils.getVitamSession().setTenantId(1);
-        Response<Void> offerSyncStatus =
-            offerSyncAdminResource.startSynchronization(offerSyncRequest, getBasicAuthnToken()).execute();
+        Response<Void> offerSyncStatus = offerSyncAdminResource
+            .startSynchronization(offerSyncRequest, getBasicAuthnToken())
+            .execute();
 
         // Then
         assertThat(offerSyncStatus.code()).isEqualTo(200);
@@ -1246,9 +1302,11 @@ public class TapeOfferStorageIT {
 
         // Ensure obj2 & obj3 copied to 4_object container, obj4 removed from 4_object container
         VitamThreadUtils.getVitamSession().setTenantId(4);
-        try (CloseableIterator<ObjectEntry> iterator = storageClient.listContainer(OFFER2_ONLY_STRATEGY, null,
-            OBJECT)) {
-            assertThat(iterator).toIterable()
+        try (
+            CloseableIterator<ObjectEntry> iterator = storageClient.listContainer(OFFER2_ONLY_STRATEGY, null, OBJECT)
+        ) {
+            assertThat(iterator)
+                .toIterable()
                 .usingFieldByFieldElementComparator()
                 .containsExactlyInAnyOrder(
                     new ObjectEntry(prefix + "obj2", objFile2.length()),
@@ -1258,9 +1316,17 @@ public class TapeOfferStorageIT {
         }
 
         Iterator<OfferLog> objectIteratorAfterSync = new StorageClientOfferLogIterator(
-            StorageClientFactory.getInstance(), OFFER2_ONLY_STRATEGY, null, Order.ASC, OBJECT, 5, 0L);
+            StorageClientFactory.getInstance(),
+            OFFER2_ONLY_STRATEGY,
+            null,
+            Order.ASC,
+            OBJECT,
+            5,
+            0L
+        );
 
-        assertThat(objectIteratorAfterSync).toIterable()
+        assertThat(objectIteratorAfterSync)
+            .toIterable()
             .extracting(OfferLog::getFileName, OfferLog::getAction)
             .containsExactlyInAnyOrder(
                 // Initial OfferLogs (before offer sync)
@@ -1281,24 +1347,38 @@ public class TapeOfferStorageIT {
 
         VitamThreadUtils.getVitamSession().setTenantId(4);
         Iterator<OfferLog> unit4IteratorAfterSync = new StorageClientOfferLogIterator(
-            StorageClientFactory.getInstance(), OFFER2_ONLY_STRATEGY, null, Order.ASC, UNIT, 5, 0L);
+            StorageClientFactory.getInstance(),
+            OFFER2_ONLY_STRATEGY,
+            null,
+            Order.ASC,
+            UNIT,
+            5,
+            0L
+        );
         assertThat(unit4IteratorAfterSync).toIterable().isEmpty();
 
         // Ensure unit2 copied to 5_unit container, and unit1 removed since not found (wrong tenant)
         VitamThreadUtils.getVitamSession().setTenantId(5);
         try (CloseableIterator<ObjectEntry> iterator = storageClient.listContainer(OFFER2_ONLY_STRATEGY, null, UNIT)) {
-            assertThat(iterator).toIterable()
+            assertThat(iterator)
+                .toIterable()
                 .usingFieldByFieldElementComparator()
-                .containsExactlyInAnyOrder(
-                    new ObjectEntry(prefix + "unit2.json", unitFile2.length())
-                );
+                .containsExactlyInAnyOrder(new ObjectEntry(prefix + "unit2.json", unitFile2.length()));
         }
 
         VitamThreadUtils.getVitamSession().setTenantId(5);
         Iterator<OfferLog> unit5IteratorAfterSync = new StorageClientOfferLogIterator(
-            StorageClientFactory.getInstance(), OFFER2_ONLY_STRATEGY, null, Order.ASC, UNIT, 5, 0L);
+            StorageClientFactory.getInstance(),
+            OFFER2_ONLY_STRATEGY,
+            null,
+            Order.ASC,
+            UNIT,
+            5,
+            0L
+        );
 
-        assertThat(unit5IteratorAfterSync).toIterable()
+        assertThat(unit5IteratorAfterSync)
+            .toIterable()
             .extracting(OfferLog::getFileName, OfferLog::getAction)
             .containsExactlyInAnyOrder(
                 tuple(prefix + "unit1.json", OfferLogAction.DELETE),
@@ -1308,7 +1388,6 @@ public class TapeOfferStorageIT {
 
     @Test
     public void testOfferDiff() throws Exception {
-
         String prefix = RandomStringUtils.randomAlphabetic(10) + "_";
 
         VitamThreadUtils.getVitamSession().setTenantId(0);
@@ -1351,16 +1430,18 @@ public class TapeOfferStorageIT {
             .setTenantId(0);
 
         VitamThreadUtils.getVitamSession().setTenantId(0);
-        Response<Void> offerSyncStatus =
-            offerDiffAdminResource.startOfferDiff(offerDiffRequest, getBasicAuthnToken()).execute();
+        Response<Void> offerSyncStatus = offerDiffAdminResource
+            .startOfferDiff(offerDiffRequest, getBasicAuthnToken())
+            .execute();
 
         // Then
         assertThat(offerSyncStatus.code()).isEqualTo(200);
 
         awaitDiffTermination();
 
-        Response<OfferDiffStatus> offerDiffStatusResponse =
-            offerDiffAdminResource.getLastOfferDiffStatus(getBasicAuthnToken()).execute();
+        Response<OfferDiffStatus> offerDiffStatusResponse = offerDiffAdminResource
+            .getLastOfferDiffStatus(getBasicAuthnToken())
+            .execute();
         assertThat(offerDiffStatusResponse.code()).isEqualTo(200);
         OfferDiffStatus offerDiffStatus = offerDiffStatusResponse.body();
         assertNotNull(offerDiffStatus);
@@ -1374,23 +1455,32 @@ public class TapeOfferStorageIT {
         // Check anomalies in report file
         String reportFileName = offerDiffStatus.getReportFileName();
         assertThat(reportFileName).startsWith(VitamConfiguration.getVitamTmpFolder());
-        SafeFileChecker.checkSafeFilePath(VitamConfiguration.getVitamTmpFolder(),
-            reportFileName.substring(VitamConfiguration.getVitamTmpFolder().length() + 1).split(File.separator));
+        SafeFileChecker.checkSafeFilePath(
+            VitamConfiguration.getVitamTmpFolder(),
+            reportFileName.substring(VitamConfiguration.getVitamTmpFolder().length() + 1).split(File.separator)
+        );
 
-        try (FileInputStream inputStream = new FileInputStream(reportFileName);
-            JsonLineGenericIterator<ReportEntry> iterator =
-                new JsonLineGenericIterator<>(inputStream, OFFER_DIFF_ENTRY_TYPE)) {
-
-            assertThat(iterator).toIterable()
+        try (
+            FileInputStream inputStream = new FileInputStream(reportFileName);
+            JsonLineGenericIterator<ReportEntry> iterator = new JsonLineGenericIterator<>(
+                inputStream,
+                OFFER_DIFF_ENTRY_TYPE
+            )
+        ) {
+            assertThat(iterator)
+                .toIterable()
                 .usingFieldByFieldElementComparator()
                 .containsExactlyInAnyOrder(
-                    new ReportEntry().setObjectId(prefix + "logbook1")
+                    new ReportEntry()
+                        .setObjectId(prefix + "logbook1")
                         .setSizeInOffer1(objFile1.length())
                         .setSizeInOffer2(null),
-                    new ReportEntry().setObjectId(prefix + "logbook3")
+                    new ReportEntry()
+                        .setObjectId(prefix + "logbook3")
                         .setSizeInOffer1(objFile3Offer1.length())
                         .setSizeInOffer2(objFile3Offer2.length()),
-                    new ReportEntry().setObjectId(prefix + "logbook4")
+                    new ReportEntry()
+                        .setObjectId(prefix + "logbook4")
                         .setSizeInOffer1(null)
                         .setSizeInOffer2(objFile4.length())
                 );
@@ -1399,7 +1489,6 @@ public class TapeOfferStorageIT {
 
     @Test
     public void ensureUnloadedTapeIsProperlyLoadedWhenDataAccessRequired() throws Exception {
-
         String prefix = RandomStringUtils.randomAlphabetic(10) + "_";
 
         // Write some data to "admin" bucket data
@@ -1410,8 +1499,12 @@ public class TapeOfferStorageIT {
         writeToOffers(file1, OFFER1_ONLY_STRATEGY, OBJECT, objName1);
 
         // Write dummy objects to drain incomplete tars
-        writeToOffers(createRandomFile(1_000_000), DEFAULT_STRATEGY, OBJECT,
-            prefix + "someDataForIncompleteTarDraining");
+        writeToOffers(
+            createRandomFile(1_000_000),
+            DEFAULT_STRATEGY,
+            OBJECT,
+            prefix + "someDataForIncompleteTarDraining"
+        );
 
         // Wait for archives to be written to tapes
         awaitFullObjectArchivalOnTape(1, OBJECT, List.of(objName1), ADMIN_BUCKET);
@@ -1438,23 +1531,31 @@ public class TapeOfferStorageIT {
 
         // Write dummy objects to drain incomplete tars
         VitamThreadUtils.getVitamSession().setTenantId(0);
-        writeToOffers(createRandomFile(1_000_000), DEFAULT_STRATEGY, OBJECT,
-            prefix + "someDataForIncompleteTarDraining");
+        writeToOffers(
+            createRandomFile(1_000_000),
+            DEFAULT_STRATEGY,
+            OBJECT,
+            prefix + "someDataForIncompleteTarDraining"
+        );
 
         VitamThreadUtils.getVitamSession().setTenantId(2);
-        writeToOffers(createRandomFile(1_000_000), DEFAULT_STRATEGY, OBJECT,
-            prefix + "someDataForIncompleteTarDraining");
+        writeToOffers(
+            createRandomFile(1_000_000),
+            DEFAULT_STRATEGY,
+            OBJECT,
+            prefix + "someDataForIncompleteTarDraining"
+        );
 
         // Wait for archives to be written to tapes
         awaitFullObjectArchivalOnTape(0, OBJECT, objectNames, TEST_BUCKET);
         awaitFullObjectArchivalOnTape(2, OBJECT, objectNames, PROD_BUCKET);
 
         // Ensure that "admin" tapes are no more loaded
-        List<TapeCatalog> tapes = tapeCatalogRepository.findTapes(List.of(
-            new QueryCriteria(TapeCatalog.BUCKET, ADMIN_BUCKET, QueryCriteriaOperator.EQ)));
+        List<TapeCatalog> tapes = tapeCatalogRepository.findTapes(
+            List.of(new QueryCriteria(TapeCatalog.BUCKET, ADMIN_BUCKET, QueryCriteriaOperator.EQ))
+        );
         assertThat(tapes).isNotEmpty();
-        assertThat(tapes)
-            .allMatch(tape -> tape.getCurrentLocation().getLocationType() == TapeLocationType.SLOT);
+        assertThat(tapes).allMatch(tape -> tape.getCurrentLocation().getLocationType() == TapeLocationType.SLOT);
 
         // Reset tape library speed
         tapeLibrarySimulatorRule.getTapeLibrarySimulator().setSleepDelayMillis(10);
@@ -1476,7 +1577,6 @@ public class TapeOfferStorageIT {
 
     @Test
     public void checkDigestValidation() throws Exception {
-
         String prefix = RandomStringUtils.randomAlphabetic(10) + "_";
 
         VitamThreadUtils.getVitamSession().setTenantId(0);
@@ -1497,26 +1597,30 @@ public class TapeOfferStorageIT {
         checkObjectAvailabilityFromTapeOffer(UNIT, List.of(objectName), true);
 
         // Corrupt digest in DB
-        TapeObjectReferentialEntity tapeObjectReferentialEntity =
-            objectReferentialRepository.find(buildContainerName(UNIT, "0"), objectName).orElseThrow();
+        TapeObjectReferentialEntity tapeObjectReferentialEntity = objectReferentialRepository
+            .find(buildContainerName(UNIT, "0"), objectName)
+            .orElseThrow();
         tapeObjectReferentialEntity.setDigest("BAD");
         objectReferentialRepository.insertOrUpdate(tapeObjectReferentialEntity);
 
         // Try read
         javax.ws.rs.core.Response response = storageClient.getContainerAsync(
-            DEFAULT_STRATEGY, objectName, UNIT, AccessLogUtils.getNoLogAccessLog());
+            DEFAULT_STRATEGY,
+            objectName,
+            UNIT,
+            AccessLogUtils.getNoLogAccessLog()
+        );
 
         try (InputStream inputStream = response.readEntity(InputStream.class)) {
             // assert that object cannot be read fully (an exception is thrown / logged by offer service)
-            assertThatThrownBy(() ->
-                IOUtils.consume(new ExactSizeInputStream(inputStream, files.get(0).length()))
+            assertThatThrownBy(
+                () -> IOUtils.consume(new ExactSizeInputStream(inputStream, files.get(0).length()))
             ).isInstanceOf(IOException.class);
         }
     }
 
     @Test
     public void testAccessRequestToDataBeingUpdated() throws Exception {
-
         VitamThreadUtils.getVitamSession().setTenantId(0);
         String prefix = RandomStringUtils.randomAlphabetic(10) + "_";
 
@@ -1527,8 +1631,12 @@ public class TapeOfferStorageIT {
         writeToOffers(file2, OFFER1_ONLY_STRATEGY, OBJECT, prefix + "obj2");
 
         // Write dummy objects to drain incomplete tars
-        writeToOffers(createRandomFile(1_000_000), DEFAULT_STRATEGY, OBJECT,
-            prefix + "someDataForIncompleteTarDraining");
+        writeToOffers(
+            createRandomFile(1_000_000),
+            DEFAULT_STRATEGY,
+            OBJECT,
+            prefix + "someDataForIncompleteTarDraining"
+        );
 
         // Wait for archives to be written to tapes
         awaitFullObjectArchivalOnTape(0, OBJECT, List.of(prefix + "obj1", prefix + "obj2"), TEST_BUCKET);
@@ -1540,8 +1648,11 @@ public class TapeOfferStorageIT {
         checkObjectAvailabilityFromTapeOffer(OBJECT, List.of(prefix + "obj1", prefix + "obj2", prefix + "obj3"), false);
 
         // Create access request and wait for data availability
-        String accessRequestId = createAccessRequest(OFFER_1, OBJECT,
-            List.of(prefix + "obj1", prefix + "obj2", prefix + "obj3", prefix + "obj4"));
+        String accessRequestId = createAccessRequest(
+            OFFER_1,
+            OBJECT,
+            List.of(prefix + "obj1", prefix + "obj2", prefix + "obj3", prefix + "obj4")
+        );
         awaitAccessRequestReadiness(accessRequestId);
 
         // Write obj3
@@ -1555,8 +1666,11 @@ public class TapeOfferStorageIT {
         checkAccessRequestStatus(accessRequestId, AccessRequestStatus.READY);
 
         // Ensure all objects became available for immediate access
-        checkObjectAvailabilityFromTapeOffer(OBJECT,
-            List.of(prefix + "obj1", prefix + "obj2", prefix + "obj3", prefix + "obj4"), true);
+        checkObjectAvailabilityFromTapeOffer(
+            OBJECT,
+            List.of(prefix + "obj1", prefix + "obj2", prefix + "obj3", prefix + "obj4"),
+            true
+        );
 
         readAndValidateObjectFromTapeOffer(OBJECT, prefix + "obj1", file1);
         checkObjectNotFound(List.of(OFFER_1), OBJECT, prefix + "obj2");
@@ -1569,7 +1683,6 @@ public class TapeOfferStorageIT {
 
     @Test
     public void readObjectBeingConcurrentlyUpdated() throws Exception {
-
         VitamThreadUtils.getVitamSession().setTenantId(0);
         String prefix = RandomStringUtils.randomAlphabetic(10) + "_";
 
@@ -1580,8 +1693,7 @@ public class TapeOfferStorageIT {
         writeToOffers(file1, OFFER1_ONLY_STRATEGY, UNIT, prefix + "obj1");
 
         // Write dummy objects to drain incomplete tars
-        writeToOffers(createRandomFile(1_000_000), DEFAULT_STRATEGY, UNIT,
-            prefix + "someDataForIncompleteTarDraining");
+        writeToOffers(createRandomFile(1_000_000), DEFAULT_STRATEGY, UNIT, prefix + "someDataForIncompleteTarDraining");
 
         // Wait for archives to be written to tapes
         awaitFullObjectArchivalOnTape(0, UNIT, List.of(prefix + "obj1"), TEST_BUCKET);
@@ -1589,9 +1701,11 @@ public class TapeOfferStorageIT {
         // Force cache eviction
         forceCacheEviction();
 
-        try (InputStream inputStream = storageClient.getContainerAsync(OFFER1_ONLY_STRATEGY, prefix + "obj1", UNIT,
-            AccessLogUtils.getNoLogAccessLog()).readEntity(InputStream.class)) {
-
+        try (
+            InputStream inputStream = storageClient
+                .getContainerAsync(OFFER1_ONLY_STRATEGY, prefix + "obj1", UNIT, AccessLogUtils.getNoLogAccessLog())
+                .readEntity(InputStream.class)
+        ) {
             Digest digest = new Digest(VitamConfiguration.getDefaultDigestType());
             InputStream digestInputStream = digest.getDigestInputStream(inputStream);
 
@@ -1616,7 +1730,6 @@ public class TapeOfferStorageIT {
 
     @Test
     public void readFreshlyWrittenObjectBeingConcurrentlyArchivedToTape() throws Exception {
-
         VitamThreadUtils.getVitamSession().setTenantId(0);
         String prefix = RandomStringUtils.randomAlphabetic(10) + "_";
 
@@ -1625,9 +1738,11 @@ public class TapeOfferStorageIT {
         writeToOffers(file1, OFFER1_ONLY_STRATEGY, OBJECT, prefix + "obj1");
 
         // Read object right away
-        try (InputStream inputStream = storageClient.getContainerAsync(OFFER1_ONLY_STRATEGY, prefix + "obj1", OBJECT,
-            AccessLogUtils.getNoLogAccessLog()).readEntity(InputStream.class)) {
-
+        try (
+            InputStream inputStream = storageClient
+                .getContainerAsync(OFFER1_ONLY_STRATEGY, prefix + "obj1", OBJECT, AccessLogUtils.getNoLogAccessLog())
+                .readEntity(InputStream.class)
+        ) {
             Digest digest = new Digest(VitamConfiguration.getDefaultDigestType());
             InputStream digestInputStream = digest.getDigestInputStream(inputStream);
 
@@ -1635,8 +1750,12 @@ public class TapeOfferStorageIT {
             IOUtils.consume(new BoundedInputStream(CloseShieldInputStream.wrap(digestInputStream), 123_456L));
 
             // Write dummy objects to drain incomplete tars of file-bucket
-            writeToOffers(createRandomFile(1_000_000), DEFAULT_STRATEGY, OBJECT,
-                prefix + "someDataForIncompleteTarDraining");
+            writeToOffers(
+                createRandomFile(1_000_000),
+                DEFAULT_STRATEGY,
+                OBJECT,
+                prefix + "someDataForIncompleteTarDraining"
+            );
 
             // Wait for archives to be written to tapes
             awaitFullObjectArchivalOnTape(0, OBJECT, List.of(prefix + "obj1"), TEST_BUCKET);
@@ -1660,7 +1779,6 @@ public class TapeOfferStorageIT {
 
     @Test
     public void readObjectPreventsCacheExpiration() throws Exception {
-
         VitamThreadUtils.getVitamSession().setTenantId(0);
         String prefix = RandomStringUtils.randomAlphabetic(10) + "_";
 
@@ -1669,8 +1787,12 @@ public class TapeOfferStorageIT {
         writeToOffers(file1, OFFER1_ONLY_STRATEGY, OBJECT, prefix + "obj1");
 
         // Write dummy objects to drain incomplete tars of file-bucket
-        writeToOffers(createRandomFile(1_000_000), DEFAULT_STRATEGY, OBJECT,
-            prefix + "someDataForIncompleteTarDraining");
+        writeToOffers(
+            createRandomFile(1_000_000),
+            DEFAULT_STRATEGY,
+            OBJECT,
+            prefix + "someDataForIncompleteTarDraining"
+        );
 
         // Wait for archives to be written to tapes
         awaitFullObjectArchivalOnTape(0, OBJECT, List.of(prefix + "obj1"), TEST_BUCKET);
@@ -1686,9 +1808,11 @@ public class TapeOfferStorageIT {
         awaitAccessRequestReadiness(accessRequestId);
 
         // Read object from cache
-        try (InputStream inputStream = storageClient.getContainerAsync(OFFER1_ONLY_STRATEGY, prefix + "obj1", OBJECT,
-            AccessLogUtils.getNoLogAccessLog()).readEntity(InputStream.class)) {
-
+        try (
+            InputStream inputStream = storageClient
+                .getContainerAsync(OFFER1_ONLY_STRATEGY, prefix + "obj1", OBJECT, AccessLogUtils.getNoLogAccessLog())
+                .readEntity(InputStream.class)
+        ) {
             Digest digest = new Digest(VitamConfiguration.getDefaultDigestType());
             InputStream digestInputStream = digest.getDigestInputStream(inputStream);
 
@@ -1720,17 +1844,14 @@ public class TapeOfferStorageIT {
 
     @Test
     public void testPutBackupArchives() throws Exception {
-
         VitamThreadUtils.getVitamSession().setTenantId(1);
 
         // Insert 2 backup  archives
         File backupFile1 = createRandomFile(RandomUtils.nextInt(800_000, 1_200_000));
-        Response<Void> response1 =
-            tapeBackupAdminResource.putBackupObject("backupArchive1.zip", backupFile1).execute();
+        Response<Void> response1 = tapeBackupAdminResource.putBackupObject("backupArchive1.zip", backupFile1).execute();
 
         File backupFile2 = createRandomFile(RandomUtils.nextInt(800_000, 1_200_000));
-        Response<Void> response2 =
-            tapeBackupAdminResource.putBackupObject("backupArchive2.zip", backupFile2).execute();
+        Response<Void> response2 = tapeBackupAdminResource.putBackupObject("backupArchive2.zip", backupFile2).execute();
 
         // Check response status codes
         assertThat(response1.code()).isEqualTo(CREATED.getStatusCode());
@@ -1739,15 +1860,16 @@ public class TapeOfferStorageIT {
         // Ensure archives end up being persisted on tape
         StopWatch stopWatch = StopWatch.createStarted();
         while (true) {
-
             Thread.sleep(100);
 
-            List<TapeArchiveReferentialEntity> tapeArchiveReferentialEntities =
-                archiveReferentialRepository.bulkFind(Set.of("backupArchive1.zip", "backupArchive2.zip"));
+            List<TapeArchiveReferentialEntity> tapeArchiveReferentialEntities = archiveReferentialRepository.bulkFind(
+                Set.of("backupArchive1.zip", "backupArchive2.zip")
+            );
 
             assertThat(tapeArchiveReferentialEntities).hasSize(2);
 
-            boolean allBackupArchivesPersistedOnTape = tapeArchiveReferentialEntities.stream()
+            boolean allBackupArchivesPersistedOnTape = tapeArchiveReferentialEntities
+                .stream()
                 .allMatch(archive -> archive.getLocation() instanceof TapeLibraryOnTapeArchiveStorageLocation);
             if (allBackupArchivesPersistedOnTape) {
                 break;
@@ -1759,23 +1881,26 @@ public class TapeOfferStorageIT {
         }
     }
 
-    private void awaitFullObjectArchivalOnTape(int tenantId, DataCategory dataCategory,
-        List<String> objectNames, String bucket)
-        throws ObjectReferentialException, ArchiveReferentialException, InterruptedException, TapeCatalogException {
-
+    private void awaitFullObjectArchivalOnTape(
+        int tenantId,
+        DataCategory dataCategory,
+        List<String> objectNames,
+        String bucket
+    ) throws ObjectReferentialException, ArchiveReferentialException, InterruptedException, TapeCatalogException {
         StopWatch stopWatch = StopWatch.createStarted();
 
         do {
-
             Thread.sleep(1000);
 
-            List<TapeObjectReferentialEntity> objectEntities =
-                objectReferentialRepository.bulkFind(buildContainerName(dataCategory, Integer.toString(tenantId)),
-                    new HashSet<>(objectNames));
+            List<TapeObjectReferentialEntity> objectEntities = objectReferentialRepository.bulkFind(
+                buildContainerName(dataCategory, Integer.toString(tenantId)),
+                new HashSet<>(objectNames)
+            );
 
             assertThat(objectEntities).hasSize(objectNames.size());
 
-            boolean allObjectsOnTar = objectEntities.stream()
+            boolean allObjectsOnTar = objectEntities
+                .stream()
                 .map(TapeObjectReferentialEntity::getLocation)
                 .allMatch(location -> location instanceof TapeLibraryTarObjectStorageLocation);
 
@@ -1785,7 +1910,8 @@ public class TapeOfferStorageIT {
             }
             LOGGER.info("All objects are packaged into tars");
 
-            Set<String> tarIds = objectEntities.stream()
+            Set<String> tarIds = objectEntities
+                .stream()
                 .map(TapeObjectReferentialEntity::getLocation)
                 .map(location -> (TapeLibraryTarObjectStorageLocation) location)
                 .map(TapeLibraryTarObjectStorageLocation::getTarEntries)
@@ -1793,11 +1919,13 @@ public class TapeOfferStorageIT {
                 .map(TarEntryDescription::getTarFileId)
                 .collect(Collectors.toSet());
 
-            List<TapeArchiveReferentialEntity> tapeArchiveReferentialEntities =
-                archiveReferentialRepository.bulkFind(tarIds);
+            List<TapeArchiveReferentialEntity> tapeArchiveReferentialEntities = archiveReferentialRepository.bulkFind(
+                tarIds
+            );
             assertThat(tapeArchiveReferentialEntities).hasSameSizeAs(tarIds);
 
-            boolean allTarsOnTape = tapeArchiveReferentialEntities.stream()
+            boolean allTarsOnTape = tapeArchiveReferentialEntities
+                .stream()
                 .map(TapeArchiveReferentialEntity::getLocation)
                 .allMatch(location -> location instanceof TapeLibraryOnTapeArchiveStorageLocation);
 
@@ -1809,14 +1937,18 @@ public class TapeOfferStorageIT {
             LOGGER.info("All tars are archived into tapes");
 
             // Check bucket
-            Set<String> tapeCodes = tapeArchiveReferentialEntities.stream()
+            Set<String> tapeCodes = tapeArchiveReferentialEntities
+                .stream()
                 .map(
-                    archiveEntity -> ((TapeLibraryOnTapeArchiveStorageLocation) archiveEntity.getLocation()).getTapeCode())
+                    archiveEntity ->
+                        ((TapeLibraryOnTapeArchiveStorageLocation) archiveEntity.getLocation()).getTapeCode()
+                )
                 .collect(Collectors.toSet());
 
             for (String tapeCode : tapeCodes) {
                 List<TapeCatalog> tapeCatalogs = tapeCatalogRepository.findTapes(
-                    List.of(new QueryCriteria(TapeCatalog.CODE, tapeCode, QueryCriteriaOperator.EQ)));
+                    List.of(new QueryCriteria(TapeCatalog.CODE, tapeCode, QueryCriteriaOperator.EQ))
+                );
 
                 assertThat(tapeCatalogs).hasSize(1);
                 assertThat(tapeCatalogs.get(0).getBucket()).isEqualTo(bucket);
@@ -1824,28 +1956,37 @@ public class TapeOfferStorageIT {
             }
 
             return;
-
         } while (stopWatch.getTime(TimeUnit.SECONDS) < 30);
 
         fail("Object archival to tars took too long");
     }
 
-    private void checkObjectDigest(List<String> offerIds, DataCategory dataCategory, String objectName,
-        File expectedContent)
-        throws StorageClientException, IOException {
-
+    private void checkObjectDigest(
+        List<String> offerIds,
+        DataCategory dataCategory,
+        String objectName,
+        File expectedContent
+    ) throws StorageClientException, IOException {
         String expectedObjectDigest = new Digest(DigestType.SHA512).update(expectedContent).toString();
 
         checkObjectDigest(offerIds, dataCategory, objectName, expectedObjectDigest, false);
         checkObjectDigest(offerIds, dataCategory, objectName, expectedObjectDigest, true);
     }
 
-    private void checkObjectDigest(List<String> offerIds, DataCategory dataCategory, String objectName,
-        String expectedObjectDigest, boolean noCache)
-        throws StorageClientException {
-
-        JsonNode objectDigests =
-            storageClient.getInformation(DEFAULT_STRATEGY, dataCategory, objectName, offerIds, noCache);
+    private void checkObjectDigest(
+        List<String> offerIds,
+        DataCategory dataCategory,
+        String objectName,
+        String expectedObjectDigest,
+        boolean noCache
+    ) throws StorageClientException {
+        JsonNode objectDigests = storageClient.getInformation(
+            DEFAULT_STRATEGY,
+            dataCategory,
+            objectName,
+            offerIds,
+            noCache
+        );
 
         assertThat(objectDigests.size()).isEqualTo(offerIds.size());
         for (String offerId : offerIds) {
@@ -1853,18 +1994,27 @@ public class TapeOfferStorageIT {
         }
     }
 
-    private void checkBulkObjectDigests(List<String> offerIds, DataCategory dataCategory, List<String> objectNames,
-        List<File> files) throws IOException, StorageServerClientException {
-
-        RequestResponseOK<BatchObjectInformationResponse> batchObjectInformation =
-            (RequestResponseOK<BatchObjectInformationResponse>) storageClient.getBatchObjectInformation(
-                DEFAULT_STRATEGY, dataCategory, offerIds, objectNames);
+    private void checkBulkObjectDigests(
+        List<String> offerIds,
+        DataCategory dataCategory,
+        List<String> objectNames,
+        List<File> files
+    ) throws IOException, StorageServerClientException {
+        RequestResponseOK<BatchObjectInformationResponse> batchObjectInformation = (RequestResponseOK<
+                BatchObjectInformationResponse
+            >) storageClient.getBatchObjectInformation(DEFAULT_STRATEGY, dataCategory, offerIds, objectNames);
 
         assertThat(batchObjectInformation.getResults()).hasSize(objectNames.size());
 
-        Map<String, Map<String, String>> offerDigestsByObjectId = batchObjectInformation.getResults().stream()
-            .collect(Collectors.toMap(BatchObjectInformationResponse::getObjectId,
-                BatchObjectInformationResponse::getOfferDigests));
+        Map<String, Map<String, String>> offerDigestsByObjectId = batchObjectInformation
+            .getResults()
+            .stream()
+            .collect(
+                Collectors.toMap(
+                    BatchObjectInformationResponse::getObjectId,
+                    BatchObjectInformationResponse::getOfferDigests
+                )
+            );
 
         assertThat(offerDigestsByObjectId.keySet()).containsExactlyInAnyOrderElementsOf(objectNames);
 
@@ -1878,15 +2028,16 @@ public class TapeOfferStorageIT {
         }
     }
 
-    private void awaitAccessRequestReadiness(String accessRequestId)
-        throws StorageClientException {
-
+    private void awaitAccessRequestReadiness(String accessRequestId) throws StorageClientException {
         StopWatch stopWatch = StopWatch.createStarted();
 
         do {
-            Map<String, AccessRequestStatus> accessRequestStatusMap =
-                storageClient.checkAccessRequestStatuses(DEFAULT_STRATEGY, OFFER_1, List.of(accessRequestId),
-                    false);
+            Map<String, AccessRequestStatus> accessRequestStatusMap = storageClient.checkAccessRequestStatuses(
+                DEFAULT_STRATEGY,
+                OFFER_1,
+                List.of(accessRequestId),
+                false
+            );
 
             if (accessRequestStatusMap.get(accessRequestId) == AccessRequestStatus.READY) {
                 return;
@@ -1900,18 +2051,26 @@ public class TapeOfferStorageIT {
 
     private String createAccessRequest(String explicitOfferId, DataCategory dataCategory, List<String> objectNames)
         throws StorageServerClientException {
-
-        Optional<String> accessRequestForUnits =
-            storageClient.createAccessRequestIfRequired(DEFAULT_STRATEGY, explicitOfferId, dataCategory, objectNames);
+        Optional<String> accessRequestForUnits = storageClient.createAccessRequestIfRequired(
+            DEFAULT_STRATEGY,
+            explicitOfferId,
+            dataCategory,
+            objectNames
+        );
 
         return accessRequestForUnits.orElseThrow(
-            () -> new IllegalStateException("Expected accessRequestId to be created for offer " + explicitOfferId));
+            () -> new IllegalStateException("Expected accessRequestId to be created for offer " + explicitOfferId)
+        );
     }
 
     private void checkAccessRequestStatus(String accessRequestId, AccessRequestStatus expectedStatus)
         throws StorageServerClientException, StorageIllegalOperationClientException {
-        Map<String, AccessRequestStatus> accessRequestStatusMap =
-            storageClient.checkAccessRequestStatuses(DEFAULT_STRATEGY, OFFER_1, List.of(accessRequestId), false);
+        Map<String, AccessRequestStatus> accessRequestStatusMap = storageClient.checkAccessRequestStatuses(
+            DEFAULT_STRATEGY,
+            OFFER_1,
+            List.of(accessRequestId),
+            false
+        );
 
         assertThat(accessRequestStatusMap.get(accessRequestId)).isEqualTo(expectedStatus);
     }
@@ -1923,7 +2082,6 @@ public class TapeOfferStorageIT {
 
     private void writeToOffers(File file, String strategy, DataCategory dataCategory, String objectName)
         throws IOException, ContentAddressableStorageException, StorageClientException {
-
         String containerName = "container-" + RandomStringUtils.randomAlphabetic(10);
 
         workspaceClient.createContainer(containerName);
@@ -1932,16 +2090,22 @@ public class TapeOfferStorageIT {
             workspaceClient.putObject(containerName, objectName, inputStream);
         }
 
-        storageClient.storeFileFromWorkspace(strategy, dataCategory, objectName,
-            new ObjectDescription(dataCategory, containerName, objectName, objectName));
+        storageClient.storeFileFromWorkspace(
+            strategy,
+            dataCategory,
+            objectName,
+            new ObjectDescription(dataCategory, containerName, objectName, objectName)
+        );
 
         workspaceClient.deleteContainer(containerName, true);
     }
 
-    private void bulkWriteToOffers(String strategy, DataCategory dataCategory, List<File> files,
-        List<String> objectNames)
-        throws IOException, ContentAddressableStorageException, StorageClientException {
-
+    private void bulkWriteToOffers(
+        String strategy,
+        DataCategory dataCategory,
+        List<File> files,
+        List<String> objectNames
+    ) throws IOException, ContentAddressableStorageException, StorageClientException {
         String containerName = "container1";
         workspaceClient.createContainer(containerName);
 
@@ -1955,41 +2119,69 @@ public class TapeOfferStorageIT {
             }
         }
 
-        storageClient.bulkStoreFilesFromWorkspace(strategy,
-            new BulkObjectStoreRequest(containerName, objectNames, dataCategory, objectNames));
+        storageClient.bulkStoreFilesFromWorkspace(
+            strategy,
+            new BulkObjectStoreRequest(containerName, objectNames, dataCategory, objectNames)
+        );
 
         workspaceClient.deleteContainer(containerName, true);
     }
 
-    private void checkObjectAvailabilityFromTapeOffer(DataCategory dataCategory, List<String> objectNames,
-        boolean shouldBeAvailable) throws StorageServerClientException {
-
+    private void checkObjectAvailabilityFromTapeOffer(
+        DataCategory dataCategory,
+        List<String> objectNames,
+        boolean shouldBeAvailable
+    ) throws StorageServerClientException {
         BulkObjectAvailabilityRequest request = new BulkObjectAvailabilityRequest(dataCategory, objectNames);
 
-        BulkObjectAvailabilityResponse bulkObjectAvailabilityResponse =
-            storageClient.checkBulkObjectAvailability(OFFER1_ONLY_STRATEGY, OFFER_1, request);
+        BulkObjectAvailabilityResponse bulkObjectAvailabilityResponse = storageClient.checkBulkObjectAvailability(
+            OFFER1_ONLY_STRATEGY,
+            OFFER_1,
+            request
+        );
 
         assertThat(bulkObjectAvailabilityResponse.getAreObjectsAvailable())
-            .withFailMessage("Expected objects " + objectNames + " of " + dataCategory +
-                " to" + (shouldBeAvailable ? "" : " NOT") + " be available")
+            .withFailMessage(
+                "Expected objects " +
+                objectNames +
+                " of " +
+                dataCategory +
+                " to" +
+                (shouldBeAvailable ? "" : " NOT") +
+                " be available"
+            )
             .isEqualTo(shouldBeAvailable);
     }
 
-    private void readAndValidateObjectFromTapeOffer(DataCategory dataCategory, String objectName,
-        File expectedFileContent) throws IOException, StorageException, StorageClientException {
-
-        try (InputStream is = storageClient.getContainerAsync(OFFER1_ONLY_STRATEGY, OFFER_1, objectName, dataCategory,
-            AccessLogUtils.getNoLogAccessLog()).readEntity(InputStream.class);
-            InputStream expectedContent = new FileInputStream(expectedFileContent)) {
+    private void readAndValidateObjectFromTapeOffer(
+        DataCategory dataCategory,
+        String objectName,
+        File expectedFileContent
+    ) throws IOException, StorageException, StorageClientException {
+        try (
+            InputStream is = storageClient
+                .getContainerAsync(
+                    OFFER1_ONLY_STRATEGY,
+                    OFFER_1,
+                    objectName,
+                    dataCategory,
+                    AccessLogUtils.getNoLogAccessLog()
+                )
+                .readEntity(InputStream.class);
+            InputStream expectedContent = new FileInputStream(expectedFileContent)
+        ) {
             assertThat(is).hasSameContentAs(expectedContent);
         }
     }
 
     private void checkObjectExistence(List<String> offerIds, DataCategory dataCategory, String objectName)
         throws StorageClientException {
-
-        Map<String, Boolean> objectByOfferId =
-            storageClient.exists(DEFAULT_STRATEGY, dataCategory, objectName, offerIds);
+        Map<String, Boolean> objectByOfferId = storageClient.exists(
+            DEFAULT_STRATEGY,
+            dataCategory,
+            objectName,
+            offerIds
+        );
 
         assertThat(objectByOfferId.keySet()).containsExactlyInAnyOrderElementsOf(offerIds);
         assertThat(objectByOfferId.values()).containsOnly(true);
@@ -1997,22 +2189,38 @@ public class TapeOfferStorageIT {
 
     private void checkObjectNotFound(List<String> offerIds, DataCategory dataCategory, String objectName)
         throws StorageClientException {
-
-        Map<String, Boolean> objectByOfferId =
-            storageClient.exists(DEFAULT_STRATEGY, dataCategory, objectName, offerIds);
+        Map<String, Boolean> objectByOfferId = storageClient.exists(
+            DEFAULT_STRATEGY,
+            dataCategory,
+            objectName,
+            offerIds
+        );
 
         assertThat(objectByOfferId.keySet()).containsExactlyInAnyOrderElementsOf(offerIds);
         assertThat(objectByOfferId.values())
-            .withFailMessage("Expecting " + objectName + " to not be found in any the the offers " + offerIds
-                + " but some offers do contain the object: " + objectByOfferId)
+            .withFailMessage(
+                "Expecting " +
+                objectName +
+                " to not be found in any the the offers " +
+                offerIds +
+                " but some offers do contain the object: " +
+                objectByOfferId
+            )
             .containsOnly(false);
 
         for (String offerId : offerIds) {
             assertThatThrownBy(
-                () -> storageClient.getContainerAsync(TapeOfferStorageIT.DEFAULT_STRATEGY, offerId, objectName,
-                    dataCategory,
-                    AccessLogUtils.getNoLogAccessLog()).readEntity(InputStream.class))
-                .isInstanceOf(StorageNotFoundException.class);
+                () ->
+                    storageClient
+                        .getContainerAsync(
+                            TapeOfferStorageIT.DEFAULT_STRATEGY,
+                            offerId,
+                            objectName,
+                            dataCategory,
+                            AccessLogUtils.getNoLogAccessLog()
+                        )
+                        .readEntity(InputStream.class)
+            ).isInstanceOf(StorageNotFoundException.class);
         }
     }
 
@@ -2029,9 +2237,9 @@ public class TapeOfferStorageIT {
     }
 
     private void verifyOfferSyncStatus() throws IOException {
-
-        Response<OfferSyncStatus> offerSyncStatusResponse =
-            offerSyncAdminResource.getLastOfferSynchronizationStatus(getBasicAuthnToken()).execute();
+        Response<OfferSyncStatus> offerSyncStatusResponse = offerSyncAdminResource
+            .getLastOfferSynchronizationStatus(getBasicAuthnToken())
+            .execute();
         assertThat(offerSyncStatusResponse.code()).isEqualTo(200);
         OfferSyncStatus offerSyncStatus = offerSyncStatusResponse.body();
         assertNotNull(offerSyncStatus);
@@ -2043,12 +2251,12 @@ public class TapeOfferStorageIT {
     }
 
     private void awaitSynchronizationTermination() throws IOException, InterruptedException {
-
         StopWatch stopWatch = StopWatch.createStarted();
         boolean isRunning = true;
         while (isRunning && stopWatch.getTime(TimeUnit.SECONDS) < 120) {
-            Response<Void> offerSynchronizationRunning =
-                offerSyncAdminResource.isOfferSynchronizationRunning(getBasicAuthnToken()).execute();
+            Response<Void> offerSynchronizationRunning = offerSyncAdminResource
+                .isOfferSynchronizationRunning(getBasicAuthnToken())
+                .execute();
             assertThat(offerSynchronizationRunning.code()).isEqualTo(200);
             isRunning = Boolean.parseBoolean(offerSynchronizationRunning.headers().get("Running"));
             if (isRunning) {
@@ -2065,8 +2273,7 @@ public class TapeOfferStorageIT {
         StopWatch stopWatch = StopWatch.createStarted();
         boolean isRunning = true;
         while (isRunning && stopWatch.getTime(TimeUnit.SECONDS) < 15) {
-            Response<Void> offerDiffRunning =
-                offerDiffAdminResource.isOfferDiffRunning(getBasicAuthnToken()).execute();
+            Response<Void> offerDiffRunning = offerDiffAdminResource.isOfferDiffRunning(getBasicAuthnToken()).execute();
             assertThat(offerDiffRunning.code()).isEqualTo(200);
             isRunning = Boolean.parseBoolean(offerDiffRunning.headers().get("Running"));
         }
@@ -2089,76 +2296,47 @@ public class TapeOfferStorageIT {
     }
 
     public interface OfferSyncAdminResource {
-
         @POST("/storage/v1/offerPartialSync")
-        @Headers({
-            "Accept: application/json",
-            "Content-Type: application/json"
-        })
+        @Headers({ "Accept: application/json", "Content-Type: application/json" })
         Call<Void> startSynchronization(
             @Body OfferPartialSyncRequest offerPartialSyncRequest,
-            @Header("Authorization") String basicAuthnToken);
+            @Header("Authorization") String basicAuthnToken
+        );
 
         @POST("/storage/v1/offerSync")
-        @Headers({
-            "Accept: application/json",
-            "Content-Type: application/json"
-        })
+        @Headers({ "Accept: application/json", "Content-Type: application/json" })
         Call<Void> startSynchronization(
             @Body OfferSyncRequest offerSyncRequest,
-            @Header("Authorization") String basicAuthnToken);
-
+            @Header("Authorization") String basicAuthnToken
+        );
 
         @HEAD("/storage/v1/offerSync")
-        Call<Void> isOfferSynchronizationRunning(
-            @Header("Authorization") String basicAuthnToken);
+        Call<Void> isOfferSynchronizationRunning(@Header("Authorization") String basicAuthnToken);
 
         @GET("/storage/v1/offerSync")
-        @Headers({
-            "Content-Type: application/json"
-        })
-        Call<OfferSyncStatus> getLastOfferSynchronizationStatus(
-            @Header("Authorization") String basicAuthnToken);
-
+        @Headers({ "Content-Type: application/json" })
+        Call<OfferSyncStatus> getLastOfferSynchronizationStatus(@Header("Authorization") String basicAuthnToken);
     }
-
 
     public interface OfferDiffAdminResource {
-
         @POST("/storage/v1/diff")
-        @Headers({
-            "Accept: application/json",
-            "Content-Type: application/json"
-        })
+        @Headers({ "Accept: application/json", "Content-Type: application/json" })
         Call<Void> startOfferDiff(
             @Body OfferDiffRequest offerDiffRequest,
-            @Header("Authorization") String basicAuthnToken);
-
+            @Header("Authorization") String basicAuthnToken
+        );
 
         @HEAD("/storage/v1/diff")
-        Call<Void> isOfferDiffRunning(
-            @Header("Authorization") String basicAuthnToken);
+        Call<Void> isOfferDiffRunning(@Header("Authorization") String basicAuthnToken);
 
         @GET("/storage/v1/diff")
-        @Headers({
-            "Content-Type: application/json"
-        })
-        Call<OfferDiffStatus> getLastOfferDiffStatus(
-            @Header("Authorization") String basicAuthnToken);
-
+        @Headers({ "Content-Type: application/json" })
+        Call<OfferDiffStatus> getLastOfferDiffStatus(@Header("Authorization") String basicAuthnToken);
     }
-
 
     public interface TapeBackupAdminResource {
-
         @PUT("/offer/v1/backup/{objectId}")
-        @Headers({
-            "Accept: application/json",
-            "Content-Type: application/octet-stream"
-        })
-        Call<Void> putBackupObject(
-            @retrofit2.http.Path("objectId") String objectId,
-            @Body File archiveFile);
+        @Headers({ "Accept: application/json", "Content-Type: application/octet-stream" })
+        Call<Void> putBackupObject(@retrofit2.http.Path("objectId") String objectId, @Body File archiveFile);
     }
-
 }

@@ -151,8 +151,11 @@ public class WorkspaceProcessDataManagement implements ProcessDataManagement {
         throws ProcessingStorageWorkspaceException, InvalidParseOperationException {
         LOGGER.debug("[PERSIST] workflow process with execution status : <{}>", processWorkflow.getState());
         try (WorkspaceClient client = workspaceClientFactory.getClient()) {
-            client.putObject(PROCESS_CONTAINER, getPathToObjectFromFolder(folderName, processWorkflow.getOperationId()),
-                JsonHandler.writeAsString(processWorkflow).getBytes());
+            client.putObject(
+                PROCESS_CONTAINER,
+                getPathToObjectFromFolder(folderName, processWorkflow.getOperationId()),
+                JsonHandler.writeAsString(processWorkflow).getBytes()
+            );
         } catch (ContentAddressableStorageServerException exc) {
             throw new ProcessingStorageWorkspaceException(exc);
         }
@@ -162,8 +165,11 @@ public class WorkspaceProcessDataManagement implements ProcessDataManagement {
     public void persistDistributorIndex(String fileName, DistributorIndex distributorIndex)
         throws ProcessingStorageWorkspaceException, InvalidParseOperationException {
         try (WorkspaceClient client = workspaceClientFactory.getClient()) {
-            client.putObject(PROCESS_CONTAINER, getPathToObjectFromFolder(DISTRIBUTOR_INDEX, fileName),
-                JsonHandler.writeAsString(distributorIndex).getBytes());
+            client.putObject(
+                PROCESS_CONTAINER,
+                getPathToObjectFromFolder(DISTRIBUTOR_INDEX, fileName),
+                JsonHandler.writeAsString(distributorIndex).getBytes()
+            );
         } catch (ContentAddressableStorageServerException exc) {
             throw new ProcessingStorageWorkspaceException(exc);
         }
@@ -180,8 +186,9 @@ public class WorkspaceProcessDataManagement implements ProcessDataManagement {
                 return Optional.of(JsonHandler.getFromInputStream(is, DistributorIndex.class));
             } else {
                 client.consumeAnyEntityAndClose(response);
-                throw new ProcessingStorageWorkspaceException("Workspace error: " + response.getStatusInfo()
-                    .getReasonPhrase());
+                throw new ProcessingStorageWorkspaceException(
+                    "Workspace error: " + response.getStatusInfo().getReasonPhrase()
+                );
             }
         } catch (ContentAddressableStorageServerException exc) {
             throw new ProcessingStorageWorkspaceException(exc);
@@ -191,7 +198,6 @@ public class WorkspaceProcessDataManagement implements ProcessDataManagement {
         } finally {
             DefaultClient.staticConsumeAnyEntityAndClose(response);
         }
-
     }
 
     @Override
@@ -205,17 +211,16 @@ public class WorkspaceProcessDataManagement implements ProcessDataManagement {
                 return JsonHandler.getFromInputStream(is, ProcessWorkflow.class);
             } else {
                 client.consumeAnyEntityAndClose(response);
-                throw new ProcessingStorageWorkspaceException("Workspace error: " + response.getStatusInfo()
-                    .getReasonPhrase());
+                throw new ProcessingStorageWorkspaceException(
+                    "Workspace error: " + response.getStatusInfo().getReasonPhrase()
+                );
             }
         } catch (ContentAddressableStorageServerException | ContentAddressableStorageNotFoundException exc) {
             throw new ProcessingStorageWorkspaceException(exc);
         } finally {
             DefaultClient.staticConsumeAnyEntityAndClose(response);
         }
-
     }
-
 
     @Override
     public void removeProcessWorkflow(String folderName, String asyncId) throws ProcessingStorageWorkspaceException {
@@ -234,16 +239,18 @@ public class WorkspaceProcessDataManagement implements ProcessDataManagement {
         throws ProcessingStorageWorkspaceException {
         Map<String, ProcessWorkflow> result = new ConcurrentHashMap<>();
         try (WorkspaceClient client = workspaceClientFactory.getClient()) {
-            List<URI> uris =
-                JsonHandler
-                    .getFromStringAsTypeReference(
-                        client.getListUriDigitalObjectFromFolder(PROCESS_CONTAINER, folderName)
-                            .toJsonNode().get("$results").get(0).toString(), new TypeReference<>() {
-                        });
+            List<URI> uris = JsonHandler.getFromStringAsTypeReference(
+                client
+                    .getListUriDigitalObjectFromFolder(PROCESS_CONTAINER, folderName)
+                    .toJsonNode()
+                    .get("$results")
+                    .get(0)
+                    .toString(),
+                new TypeReference<>() {}
+            );
             for (URI uri : uris) {
                 try {
-                    String processId = uri.getPath().substring(0,
-                        uri.getPath().lastIndexOf("."));
+                    String processId = uri.getPath().substring(0, uri.getPath().lastIndexOf("."));
                     ProcessWorkflow processWorkflow = getProcessWorkflow(folderName, processId);
                     if (ProcessState.RUNNING.equals(processWorkflow.getState())) {
                         processWorkflow.setState(ProcessState.PAUSE);
@@ -251,8 +258,10 @@ public class WorkspaceProcessDataManagement implements ProcessDataManagement {
                         processWorkflow.setPauseRecover(PauseRecover.RECOVER_FROM_SERVER_PAUSE);
                     }
 
-                    if (ProcessState.COMPLETED.equals(processWorkflow.getState()) &&
-                        null == processWorkflow.getProcessCompletedDate()) {
+                    if (
+                        ProcessState.COMPLETED.equals(processWorkflow.getState()) &&
+                        null == processWorkflow.getProcessCompletedDate()
+                    ) {
                         // The make the processWorkflow cleanable
                         processWorkflow.setProcessCompletedDate(LocalDateUtil.now());
                     }
@@ -271,8 +280,10 @@ public class WorkspaceProcessDataManagement implements ProcessDataManagement {
     }
 
     @Override
-    public boolean removeOperationContainer(ProcessWorkflow processWorkflow,
-        WorkspaceClientFactory workspaceClientFactory) {
+    public boolean removeOperationContainer(
+        ProcessWorkflow processWorkflow,
+        WorkspaceClientFactory workspaceClientFactory
+    ) {
         String operationId = processWorkflow.getOperationId();
 
         try (WorkspaceClient workspaceClient = workspaceClientFactory.getClient()) {
@@ -280,15 +291,22 @@ public class WorkspaceProcessDataManagement implements ProcessDataManagement {
                 workspaceClient.deleteContainer(operationId, true);
             }
 
-            if (workspaceClient
-                .isExistingObject(ProcessDataManagement.PROCESS_CONTAINER,
-                    DISTRIBUTOR_INDEX + "/" + operationId + ".json")) {
-                workspaceClient.deleteObject(ProcessDataManagement.PROCESS_CONTAINER,
-                    DISTRIBUTOR_INDEX + "/" + operationId + ".json");
+            if (
+                workspaceClient.isExistingObject(
+                    ProcessDataManagement.PROCESS_CONTAINER,
+                    DISTRIBUTOR_INDEX + "/" + operationId + ".json"
+                )
+            ) {
+                workspaceClient.deleteObject(
+                    ProcessDataManagement.PROCESS_CONTAINER,
+                    DISTRIBUTOR_INDEX + "/" + operationId + ".json"
+                );
             }
             return true;
         } catch (Exception e) {
-            String msg = "Error while clear the container " + operationId +
+            String msg =
+                "Error while clear the container " +
+                operationId +
                 " from the workspace. The background process workflow cleaner should retry to clean the operation container";
             LOGGER.warn(msg, e);
             return false;

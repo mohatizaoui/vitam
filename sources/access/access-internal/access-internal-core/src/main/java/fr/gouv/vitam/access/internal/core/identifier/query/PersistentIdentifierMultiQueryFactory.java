@@ -44,8 +44,12 @@ import static fr.gouv.vitam.common.database.utils.AccessContractRestrictionHelpe
 import static fr.gouv.vitam.common.thread.VitamThreadUtils.getVitamSession;
 
 public class PersistentIdentifierMultiQueryFactory {
-    public static SelectMultiQuery createSelectMultiQuery(final PurgedCollectionType purgedCollectionType,
-        final String persistentIdentifier, @Nullable JsonNode selectQuery) {
+
+    public static SelectMultiQuery createSelectMultiQuery(
+        final PurgedCollectionType purgedCollectionType,
+        final String persistentIdentifier,
+        @Nullable JsonNode selectQuery
+    ) {
         if (purgedCollectionType == PurgedCollectionType.UNIT) {
             return createUnitSelectMultiQuery(persistentIdentifier, selectQuery);
         } else if (purgedCollectionType == PurgedCollectionType.OBJECT) {
@@ -54,8 +58,10 @@ public class PersistentIdentifierMultiQueryFactory {
         throw new IllegalStateException("Purged collection type not supported");
     }
 
-    public static SelectMultiQuery createSelectMultiQuery(final PurgedCollectionType purgedCollectionType,
-        final String persistentIdentifier) {
+    public static SelectMultiQuery createSelectMultiQuery(
+        final PurgedCollectionType purgedCollectionType,
+        final String persistentIdentifier
+    ) {
         return createSelectMultiQuery(purgedCollectionType, persistentIdentifier, null);
     }
 
@@ -66,36 +72,56 @@ public class PersistentIdentifierMultiQueryFactory {
         return selectParserMultiple.getRequest();
     }
 
-    private static SelectMultiQuery createUnitSelectMultiQuery(final String persistentIdentifier, @Nullable JsonNode selectQuery) {
+    private static SelectMultiQuery createUnitSelectMultiQuery(
+        final String persistentIdentifier,
+        @Nullable JsonNode selectQuery
+    ) {
         try {
             final SelectParserMultiple query = new SelectParserMultiple();
             if (selectQuery != null) {
                 query.parse(selectQuery);
             }
-            final SelectMultiQuery multiQuery = (SelectMultiQuery) query.getRequest().addQueries(
-                eq("PersistentIdentifier.PersistentIdentifierContent", persistentIdentifier));
-            final JsonNode finalMultiQueryWithRestrictions =
-                applyAccessContractRestrictionForUnitForSelect(multiQuery.getFinalSelect(),
-                    getVitamSession().getContract());
+            final SelectMultiQuery multiQuery = (SelectMultiQuery) query
+                .getRequest()
+                .addQueries(eq("PersistentIdentifier.PersistentIdentifierContent", persistentIdentifier));
+            final JsonNode finalMultiQueryWithRestrictions = applyAccessContractRestrictionForUnitForSelect(
+                multiQuery.getFinalSelect(),
+                getVitamSession().getContract()
+            );
             return jsonNodeToSelectMultiQuery(finalMultiQueryWithRestrictions);
         } catch (InvalidCreateOperationException | InvalidParseOperationException e) {
             throw new VitamRuntimeException(e);
         }
     }
 
-    private static SelectMultiQuery createObjectSelectMultiQuery(final String persistentIdentifier, @Nullable JsonNode selectQuery) {
+    private static SelectMultiQuery createObjectSelectMultiQuery(
+        final String persistentIdentifier,
+        @Nullable JsonNode selectQuery
+    ) {
         try {
             final SelectParserMultiple query = new SelectParserMultiple();
             if (selectQuery != null) {
                 query.parse(selectQuery);
             }
-            final SelectMultiQuery multiQuery = (SelectMultiQuery) query.getRequest().addQueries(
-                nestedSearch("#qualifiers.versions", and().add(
-                    eq("#qualifiers.versions.PersistentIdentifier.PersistentIdentifierContent",
-                        persistentIdentifier)).getCurrentQuery()));
-            final JsonNode finalMultiQueryWithRestrictions =
-                applyAccessContractRestrictionForObjectGroupForSelect(multiQuery.getFinalSelect(),
-                    getVitamSession().getContract());
+            final SelectMultiQuery multiQuery = (SelectMultiQuery) query
+                .getRequest()
+                .addQueries(
+                    nestedSearch(
+                        "#qualifiers.versions",
+                        and()
+                            .add(
+                                eq(
+                                    "#qualifiers.versions.PersistentIdentifier.PersistentIdentifierContent",
+                                    persistentIdentifier
+                                )
+                            )
+                            .getCurrentQuery()
+                    )
+                );
+            final JsonNode finalMultiQueryWithRestrictions = applyAccessContractRestrictionForObjectGroupForSelect(
+                multiQuery.getFinalSelect(),
+                getVitamSession().getContract()
+            );
             return jsonNodeToSelectMultiQuery(finalMultiQueryWithRestrictions);
         } catch (InvalidCreateOperationException | InvalidParseOperationException e) {
             throw new VitamRuntimeException(e);

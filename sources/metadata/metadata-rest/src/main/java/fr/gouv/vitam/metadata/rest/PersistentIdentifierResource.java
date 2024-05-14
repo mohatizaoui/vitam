@@ -70,13 +70,18 @@ public class PersistentIdentifierResource {
     private final PersistentIdentifierReconstructionService persistentIdentifierReconstructionService;
     private final PersistentIdentifierRepository persistentIdentifierRepository;
 
-    PersistentIdentifierResource(PersistentIdentifierReconstructionManager persistentIdentifierReconstructionManager,
-        OffsetManager offsetManager, MetaDataConfiguration metaDataConfiguration,
-        PersistentIdentifierRepository persistentIdentifierRepository) {
+    PersistentIdentifierResource(
+        PersistentIdentifierReconstructionManager persistentIdentifierReconstructionManager,
+        OffsetManager offsetManager,
+        MetaDataConfiguration metaDataConfiguration,
+        PersistentIdentifierRepository persistentIdentifierRepository
+    ) {
         this.persistentIdentifierRepository = persistentIdentifierRepository;
-        this.persistentIdentifierReconstructionService =
-            new PersistentIdentifierReconstructionService(offsetManager, persistentIdentifierReconstructionManager,
-                metaDataConfiguration);
+        this.persistentIdentifierReconstructionService = new PersistentIdentifierReconstructionService(
+            offsetManager,
+            persistentIdentifierReconstructionManager,
+            metaDataConfiguration
+        );
     }
 
     /**
@@ -90,11 +95,14 @@ public class PersistentIdentifierResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response reconstructPersistentIdentifiers(PersistentIdentifierReconstructionRequest requestItem) {
-        ParametersChecker
-            .checkParameter(PERSISTENT_IDENTIFIER_RECONSTRUCTION_JSON_MANDATORY_PARAMETERS_MSG, requestItem);
+        ParametersChecker.checkParameter(
+            PERSISTENT_IDENTIFIER_RECONSTRUCTION_JSON_MANDATORY_PARAMETERS_MSG,
+            requestItem
+        );
 
-        LOGGER
-            .debug(String.format("Starting reconstruction Vitam service with the json parameters : (%s)", requestItem));
+        LOGGER.debug(
+            String.format("Starting reconstruction Vitam service with the json parameters : (%s)", requestItem)
+        );
 
         ReconstructionResponse reconstructionResponse;
         try {
@@ -106,11 +114,13 @@ public class PersistentIdentifierResource {
 
         switch (reconstructionResponse.status) {
             case SUCCESS:
-                return Response.ok(new RequestResponseOK<ReconstructionResponse>().addResult(reconstructionResponse))
-                    .build();
+                return Response.ok(
+                    new RequestResponseOK<ReconstructionResponse>().addResult(reconstructionResponse)
+                ).build();
             default:
                 return Response.serverError()
-                    .entity(new RequestResponseOK<ReconstructionResponse>().addResult(reconstructionResponse)).build();
+                    .entity(new RequestResponseOK<ReconstructionResponse>().addResult(reconstructionResponse))
+                    .build();
         }
     }
 
@@ -125,10 +135,14 @@ public class PersistentIdentifierResource {
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getPersistentIdentifiers(@PathParam("persistentIdentifier") String persistentIdentifier,
-        @QueryParam("type") @Nullable String type) {
-        ParametersChecker
-            .checkParameter(PERSISTENT_IDENTIFIER_RECONSTRUCTION_JSON_MANDATORY_PARAMETERS_MSG, persistentIdentifier);
+    public Response getPersistentIdentifiers(
+        @PathParam("persistentIdentifier") String persistentIdentifier,
+        @QueryParam("type") @Nullable String type
+    ) {
+        ParametersChecker.checkParameter(
+            PERSISTENT_IDENTIFIER_RECONSTRUCTION_JSON_MANDATORY_PARAMETERS_MSG,
+            persistentIdentifier
+        );
         final Integer tenant = ParameterHelper.getTenantParameter();
         try {
             final List<PurgedPersistentIdentifier> purgedPersistentIdentifiers =
@@ -138,7 +152,9 @@ public class PersistentIdentifierResource {
         } catch (DatabaseException e) {
             LOGGER.error(
                 "Internal Server error : cannot retrieve persistent identifiers > persistent identifier : {}, tenant {} ",
-                persistentIdentifier, tenant);
+                persistentIdentifier,
+                tenant
+            );
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }

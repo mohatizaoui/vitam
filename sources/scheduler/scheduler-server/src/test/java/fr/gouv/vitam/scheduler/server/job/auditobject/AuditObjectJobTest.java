@@ -83,28 +83,40 @@ import static org.mockito.Mockito.when;
 
 public class AuditObjectJobTest {
 
-    @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
+    @Rule
+    public MockitoRule mockitoRule = MockitoJUnit.rule();
 
-    @Rule public RunWithCustomExecutorRule runInThread =
-        new RunWithCustomExecutorRule(VitamThreadPoolExecutor.getDefaultExecutor());
+    @Rule
+    public RunWithCustomExecutorRule runInThread = new RunWithCustomExecutorRule(
+        VitamThreadPoolExecutor.getDefaultExecutor()
+    );
 
-    @Mock private MetaDataClientFactory metaDataClientFactory;
+    @Mock
+    private MetaDataClientFactory metaDataClientFactory;
 
-    @Mock private LogbookOperationsClientFactory logbookOperationsClientFactory;
+    @Mock
+    private LogbookOperationsClientFactory logbookOperationsClientFactory;
 
-    @Mock private ProcessingManagementClientFactory processingManagementClientFactory;
+    @Mock
+    private ProcessingManagementClientFactory processingManagementClientFactory;
 
-    @Mock private AdminManagementClientFactory adminManagementClientFactory;
+    @Mock
+    private AdminManagementClientFactory adminManagementClientFactory;
 
-    @Mock private MetaDataClient metaDataClient;
+    @Mock
+    private MetaDataClient metaDataClient;
 
-    @Mock private LogbookOperationsClient logbookOperationsClient;
+    @Mock
+    private LogbookOperationsClient logbookOperationsClient;
 
-    @Mock private AdminManagementClient adminManagementClient;
+    @Mock
+    private AdminManagementClient adminManagementClient;
 
-    @Mock private ProcessingManagementClient processingManagementClient;
+    @Mock
+    private ProcessingManagementClient processingManagementClient;
 
-    @Mock private JobExecutionContext context;
+    @Mock
+    private JobExecutionContext context;
 
     private AuditObjectJob auditObjectJob;
 
@@ -125,12 +137,17 @@ public class AuditObjectJobTest {
         Mockito.reset(adminManagementClient);
         doReturn(metaDataClient).when(metaDataClientFactory).getClient();
         doReturn(adminManagementClient).when(adminManagementClientFactory).getClient();
-        auditObjectJob = new AuditObjectJob(adminManagementClientFactory, logbookOperationsClientFactory,
-            processingManagementClientFactory, metaDataClientFactory);
+        auditObjectJob = new AuditObjectJob(
+            adminManagementClientFactory,
+            logbookOperationsClientFactory,
+            processingManagementClientFactory,
+            metaDataClientFactory
+        );
         VitamConfiguration.setAdminTenant(1);
         VitamConfiguration.setTenants(Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9));
         when(context.getMergedJobDataMap()).thenReturn(
-            new JobDataMap(Map.of("operationsDelayInMinutes", 5, "auditType", "Integrity")));
+            new JobDataMap(Map.of("operationsDelayInMinutes", 5, "auditType", "Integrity"))
+        );
     }
 
     @Before
@@ -146,25 +163,31 @@ public class AuditObjectJobTest {
     public void shouldLaunchAuditSuccessfullyWhenProcessIsAllowed() throws Exception {
         // GIVEN
         VitamConfiguration.setTenants(List.of(0));
-        JsonNode unit =
-            JsonHandler.getFromString("{\"#id\": \"UNIT_ID\", \"#approximate_update_date\": \"UNIT_TIME\"}");
+        JsonNode unit = JsonHandler.getFromString(
+            "{\"#id\": \"UNIT_ID\", \"#approximate_update_date\": \"UNIT_TIME\"}"
+        );
         JsonNode nonEmptyRequestResponseOK = JsonHandler.toJsonNode(new RequestResponseOK<>().addResult(unit));
         when(metaDataClient.selectUnits(any())).thenReturn(nonEmptyRequestResponseOK);
 
-        RequestResponseOK<LogbookOperation> logbookOperationRequestResponseOK =
-            LogbookOperationFixture.withFirstResult(LogbookOperationFixture.jobExecutionEvtType());
+        RequestResponseOK<LogbookOperation> logbookOperationRequestResponseOK = LogbookOperationFixture.withFirstResult(
+            LogbookOperationFixture.jobExecutionEvtType()
+        );
 
         given(logbookOperationsClient.selectOperation(any())).willAnswer(
-            invocationOnMock -> JsonHandler.toJsonNode(logbookOperationRequestResponseOK));
+            invocationOnMock -> JsonHandler.toJsonNode(logbookOperationRequestResponseOK)
+        );
         given(processingManagementClient.getOperationProcessStatus(any())).willReturn(
-            LogbookOperationFixture.itemStatus(COMPLETED, OK));
+            LogbookOperationFixture.itemStatus(COMPLETED, OK)
+        );
 
         // WHEN
         auditObjectJob.execute(context);
 
         // THEN
         verify(adminManagementClient).launchAuditWorkflow(
-            ArgumentMatchers.argThat(AuditObjectJobTest::usingLastAuditDate), eq(false));
+            ArgumentMatchers.argThat(AuditObjectJobTest::usingLastAuditDate),
+            eq(false)
+        );
     }
 
     @Test
@@ -172,24 +195,28 @@ public class AuditObjectJobTest {
     public void shouldNotLaunchAuditWhenProcessIsNotAllowed() throws Exception {
         // GIVEN
         VitamConfiguration.setTenants(List.of(0));
-        JsonNode unit =
-            JsonHandler.getFromString("{\"#id\": \"UNIT_ID\", \"#approximate_update_date\": \"UNIT_TIME\"}");
+        JsonNode unit = JsonHandler.getFromString(
+            "{\"#id\": \"UNIT_ID\", \"#approximate_update_date\": \"UNIT_TIME\"}"
+        );
         JsonNode nonEmptyRequestResponseOK = JsonHandler.toJsonNode(new RequestResponseOK<>().addResult(unit));
         when(metaDataClient.selectUnits(any())).thenReturn(nonEmptyRequestResponseOK);
 
-        RequestResponseOK<LogbookOperation> logbookOperationRequestResponseOK =
-            LogbookOperationFixture.withFirstResult(LogbookOperationFixture.jobExecutionEvtType());
+        RequestResponseOK<LogbookOperation> logbookOperationRequestResponseOK = LogbookOperationFixture.withFirstResult(
+            LogbookOperationFixture.jobExecutionEvtType()
+        );
 
         given(logbookOperationsClient.selectOperation(any())).willAnswer(
-            invocationOnMock -> JsonHandler.toJsonNode(logbookOperationRequestResponseOK));
+            invocationOnMock -> JsonHandler.toJsonNode(logbookOperationRequestResponseOK)
+        );
         given(processingManagementClient.getOperationProcessStatus(any())).willReturn(
-            LogbookOperationFixture.itemStatus(RUNNING, OK));
+            LogbookOperationFixture.itemStatus(RUNNING, OK)
+        );
 
         // WHEN
         assertThatThrownBy(() -> auditObjectJob.execute(context))
-
             // THEN
-            .hasCauseInstanceOf(VitamRuntimeException.class).hasMessageContaining("Could not run audit since another");
+            .hasCauseInstanceOf(VitamRuntimeException.class)
+            .hasMessageContaining("Could not run audit since another");
     }
 
     @Test
@@ -197,22 +224,25 @@ public class AuditObjectJobTest {
     public void shouldThrowExceptionWhenProcessDidNotFinishSuccessfully() throws Exception {
         // GIVEN
         VitamConfiguration.setTenants(List.of(0));
-        JsonNode unit =
-            JsonHandler.getFromString("{\"#id\": \"UNIT_ID\", \"#approximate_update_date\": \"UNIT_TIME\"}");
+        JsonNode unit = JsonHandler.getFromString(
+            "{\"#id\": \"UNIT_ID\", \"#approximate_update_date\": \"UNIT_TIME\"}"
+        );
         JsonNode nonEmptyRequestResponseOK = JsonHandler.toJsonNode(new RequestResponseOK<>().addResult(unit));
         when(metaDataClient.selectUnits(any())).thenReturn(nonEmptyRequestResponseOK);
 
-        RequestResponseOK<LogbookOperation> logbookOperationRequestResponseOK =
-            LogbookOperationFixture.withFirstResult(LogbookOperationFixture.jobExecutionEvtType());
+        RequestResponseOK<LogbookOperation> logbookOperationRequestResponseOK = LogbookOperationFixture.withFirstResult(
+            LogbookOperationFixture.jobExecutionEvtType()
+        );
 
         given(logbookOperationsClient.selectOperation(any())).willAnswer(
-            invocationOnMock -> JsonHandler.toJsonNode(logbookOperationRequestResponseOK));
+            invocationOnMock -> JsonHandler.toJsonNode(logbookOperationRequestResponseOK)
+        );
         given(processingManagementClient.getOperationProcessStatus(any())).willReturn(
-            LogbookOperationFixture.itemStatus(COMPLETED, KO));
+            LogbookOperationFixture.itemStatus(COMPLETED, KO)
+        );
 
         // WHEN
         assertThatThrownBy(() -> auditObjectJob.execute(context))
-
             // THEN
             .isInstanceOf(JobExecutionException.class)
             .hasMessageContaining("At least one tenant has integrity audit failed");
@@ -223,16 +253,19 @@ public class AuditObjectJobTest {
     public void shouldLaunchWorkflowWhenWorkflowIsNotFound() throws Exception {
         // GIVEN
         VitamConfiguration.setTenants(List.of(0));
-        JsonNode unit =
-            JsonHandler.getFromString("{\"#id\": \"UNIT_ID\", \"#approximate_update_date\": \"UNIT_TIME\"}");
+        JsonNode unit = JsonHandler.getFromString(
+            "{\"#id\": \"UNIT_ID\", \"#approximate_update_date\": \"UNIT_TIME\"}"
+        );
         JsonNode nonEmptyRequestResponseOK = JsonHandler.toJsonNode(new RequestResponseOK<>().addResult(unit));
         when(metaDataClient.selectUnits(any())).thenReturn(nonEmptyRequestResponseOK);
 
-        RequestResponseOK<LogbookOperation> logbookOperationRequestResponseOK =
-            LogbookOperationFixture.withFirstResult(LogbookOperationFixture.jobExecutionEvtType());
+        RequestResponseOK<LogbookOperation> logbookOperationRequestResponseOK = LogbookOperationFixture.withFirstResult(
+            LogbookOperationFixture.jobExecutionEvtType()
+        );
 
         given(logbookOperationsClient.selectOperation(any())).willAnswer(
-            invocationOnMock -> JsonHandler.toJsonNode(logbookOperationRequestResponseOK));
+            invocationOnMock -> JsonHandler.toJsonNode(logbookOperationRequestResponseOK)
+        );
         given(processingManagementClient.getOperationProcessStatus(any())).willThrow(new WorkflowNotFoundException(""));
 
         // WHEN
@@ -240,7 +273,9 @@ public class AuditObjectJobTest {
 
         // THEN
         verify(adminManagementClient).launchAuditWorkflow(
-            ArgumentMatchers.argThat(AuditObjectJobTest::usingLastAuditDate), eq(false));
+            ArgumentMatchers.argThat(AuditObjectJobTest::usingLastAuditDate),
+            eq(false)
+        );
     }
 
     @Test
@@ -248,27 +283,32 @@ public class AuditObjectJobTest {
     public void shouldLaunchWorkflowWithoutLastAuditDateWhenNull() throws Exception {
         // GIVEN
         VitamConfiguration.setTenants(List.of(0));
-        JsonNode unit =
-            JsonHandler.getFromString("{\"#id\": \"UNIT_ID\", \"#approximate_update_date\": \"UNIT_TIME\"}");
+        JsonNode unit = JsonHandler.getFromString(
+            "{\"#id\": \"UNIT_ID\", \"#approximate_update_date\": \"UNIT_TIME\"}"
+        );
         JsonNode nonEmptyRequestResponseOK = JsonHandler.toJsonNode(new RequestResponseOK<>().addResult(unit));
         when(metaDataClient.selectUnits(any())).thenReturn(nonEmptyRequestResponseOK);
 
-        RequestResponseOK<LogbookOperation> logbookOperationRequestResponseOK =
-            LogbookOperationFixture.withFirstResult(LogbookOperationFixture.jobExecutionEvtTypeWithoutDate());
+        RequestResponseOK<LogbookOperation> logbookOperationRequestResponseOK = LogbookOperationFixture.withFirstResult(
+            LogbookOperationFixture.jobExecutionEvtTypeWithoutDate()
+        );
 
         given(logbookOperationsClient.selectOperation(any())).willAnswer(
-            invocationOnMock -> JsonHandler.toJsonNode(logbookOperationRequestResponseOK));
+            invocationOnMock -> JsonHandler.toJsonNode(logbookOperationRequestResponseOK)
+        );
         given(processingManagementClient.getOperationProcessStatus(any())).willReturn(
-            LogbookOperationFixture.itemStatus(COMPLETED, OK));
+            LogbookOperationFixture.itemStatus(COMPLETED, OK)
+        );
 
         // WHEN
         auditObjectJob.execute(context);
 
         // THEN
         verify(adminManagementClient).launchAuditWorkflow(
-            ArgumentMatchers.argThat(AuditObjectJobTest::notUsingLastAuditDate), eq(false));
+            ArgumentMatchers.argThat(AuditObjectJobTest::notUsingLastAuditDate),
+            eq(false)
+        );
     }
-
 
     private static class LogbookOperationFixture {
 

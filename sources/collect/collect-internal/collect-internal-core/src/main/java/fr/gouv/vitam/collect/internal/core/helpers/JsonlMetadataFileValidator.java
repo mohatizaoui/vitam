@@ -59,36 +59,36 @@ import static fr.gouv.vitam.common.model.unit.RuleModel.END_DATE;
 
 public class JsonlMetadataFileValidator {
 
-    private static final Set<String> ALLOWED_RESERVED_FIELD_NAMES =
-        Set.of(VitamFieldsHelper.management(), VitamFieldsHelper.history());
+    private static final Set<String> ALLOWED_RESERVED_FIELD_NAMES = Set.of(
+        VitamFieldsHelper.management(),
+        VitamFieldsHelper.history()
+    );
 
-    private static final TypeReference<ArchiveUnitModel>
-        ARCHIVE_UNIT_MODEL_TYPE_REFERENCE = new TypeReference<>() {
-    };
+    private static final TypeReference<ArchiveUnitModel> ARCHIVE_UNIT_MODEL_TYPE_REFERENCE = new TypeReference<>() {};
 
-    public void validate(File jsonlMetadataFile, boolean isFirstUpload)
-        throws CollectInternalException {
-
+    public void validate(File jsonlMetadataFile, boolean isFirstUpload) throws CollectInternalException {
         doSanityChecks(jsonlMetadataFile);
 
         try (
             InputStream inputStream = new FileInputStream(jsonlMetadataFile);
-            CloseableIterator<CollectJsonMetadataLine> iterator =
-                new JsonLineGenericIterator<>(inputStream, CollectJsonMetadataLine.TYPE_REFERENCE)) {
-
+            CloseableIterator<CollectJsonMetadataLine> iterator = new JsonLineGenericIterator<>(
+                inputStream,
+                CollectJsonMetadataLine.TYPE_REFERENCE
+            )
+        ) {
             for (int lineIndex = 0; iterator.hasNext(); lineIndex++) {
                 CollectJsonMetadataLine entry = iterator.next();
 
                 // Validate line
                 validateMetadataIdentificationInformation(entry, lineIndex, isFirstUpload);
                 validateUnitContent(entry.getUnitContent(), lineIndex);
-
             }
         } catch (IOException e) {
             throw new CollectInternalServerSideException(
-                "An internal error occurred during jsonl metadata file validation", e);
+                "An internal error occurred during jsonl metadata file validation",
+                e
+            );
         }
-
     }
 
     private static void doSanityChecks(File jsonlMetadataFile)
@@ -100,26 +100,38 @@ public class JsonlMetadataFileValidator {
             SanityChecker.checkJsonLines(jsonlMetadataFile);
         } catch (IOException e) {
             throw new CollectInternalServerSideException(
-                "An internal error occurred during jsonl metadata file processing", e);
+                "An internal error occurred during jsonl metadata file processing",
+                e
+            );
         } catch (IllegalArgumentException | InvalidParseOperationException e) {
             throw new CollectInternalInvalidRequestException(
-                "Cannot validate json-lines request: " + e.getLocalizedMessage(), e);
+                "Cannot validate json-lines request: " + e.getLocalizedMessage(),
+                e
+            );
         }
     }
 
-    private void validateMetadataIdentificationInformation(CollectJsonMetadataLine entry, int lineIndex,
-        boolean isFirstUpload)
-        throws CollectInternalInvalidRequestException {
-
+    private void validateMetadataIdentificationInformation(
+        CollectJsonMetadataLine entry,
+        int lineIndex,
+        boolean isFirstUpload
+    ) throws CollectInternalInvalidRequestException {
         if (entry.getFile() == null && entry.getSelector() == null) {
-            throw new CollectInternalInvalidRequestException("Invalid entry at index: " + lineIndex +
-                ". Missing metadata identification information.");
+            throw new CollectInternalInvalidRequestException(
+                "Invalid entry at index: " + lineIndex + ". Missing metadata identification information."
+            );
         }
 
         if (entry.getFile() != null && entry.getSelector() != null) {
-            throw new CollectInternalInvalidRequestException("Invalid entry at index: " + lineIndex +
-                ". Fields '" + CollectJsonMetadataLine.FILE_FIELD + "' and '" + CollectJsonMetadataLine.SELECTOR_FIELD +
-                "' are mutually exclusive.");
+            throw new CollectInternalInvalidRequestException(
+                "Invalid entry at index: " +
+                lineIndex +
+                ". Fields '" +
+                CollectJsonMetadataLine.FILE_FIELD +
+                "' and '" +
+                CollectJsonMetadataLine.SELECTOR_FIELD +
+                "' are mutually exclusive."
+            );
         }
 
         if (entry.getFile() != null) {
@@ -133,27 +145,28 @@ public class JsonlMetadataFileValidator {
 
     private void validateFileIdentifier(String fileValue, int lineIndex) throws CollectInternalInvalidRequestException {
         if (StringUtils.isBlank(fileValue)) {
-            throw new CollectInternalInvalidRequestException("Invalid entry at index: " + lineIndex +
-                ". Empty unit file path '" + fileValue + "'");
+            throw new CollectInternalInvalidRequestException(
+                "Invalid entry at index: " + lineIndex + ". Empty unit file path '" + fileValue + "'"
+            );
         }
         String path = FilenameUtils.normalize(fileValue);
         if (!FilenameUtils.equals(fileValue, path)) {
-            throw new CollectInternalInvalidRequestException("Invalid entry at index: " + lineIndex +
-                ". Illegal unit file path '" + fileValue + "'");
+            throw new CollectInternalInvalidRequestException(
+                "Invalid entry at index: " + lineIndex + ". Illegal unit file path '" + fileValue + "'"
+            );
         }
     }
-
 
     private void validateSelector(CollectJsonMetadataSelector selectorValue, int lineIndex, boolean isFirstUpload)
         throws CollectInternalInvalidRequestException {
         if (selectorValue.getEntries().isEmpty()) {
-            throw new CollectInternalInvalidRequestException("Invalid entry at index: " + lineIndex +
-                ". Empty selectors");
+            throw new CollectInternalInvalidRequestException(
+                "Invalid entry at index: " + lineIndex + ". Empty selectors"
+            );
         }
         for (Map.Entry<String, ValueNode> entry : selectorValue.getEntries().entrySet()) {
             validateSelectorKey(entry.getKey(), lineIndex, isFirstUpload);
             validateSelectorValue(entry.getKey(), entry.getValue(), lineIndex);
-
             // TODO / Possible improvement - Check ontology type :
             //   - Exact match types are OK (keyword, long, double, bool, date).
             //   - Analyzed texts should not queried (otherwise, we won't be able to manage direct inserts, we'll be stuck forever using insert + update)
@@ -162,32 +175,43 @@ public class JsonlMetadataFileValidator {
 
     private void validateSelectorKey(String key, int lineIndex, boolean isFirstUpload)
         throws CollectInternalInvalidRequestException {
-
         validateKeyNameFormat(key, lineIndex);
 
         if (isFirstUpload && !VitamFieldsHelper.uploadPath().equals(key)) {
-            throw new CollectInternalInvalidRequestException("Invalid selector key '" + key
-                + "' for upload operation at index: " + lineIndex + ". Only " + CollectJsonMetadataLine.FILE_FIELD +
-                " field Or " + CollectJsonMetadataLine.SELECTOR_FIELD + "." + VitamFieldsHelper.uploadPath()
-                + " selector allowed for upload operations.");
+            throw new CollectInternalInvalidRequestException(
+                "Invalid selector key '" +
+                key +
+                "' for upload operation at index: " +
+                lineIndex +
+                ". Only " +
+                CollectJsonMetadataLine.FILE_FIELD +
+                " field Or " +
+                CollectJsonMetadataLine.SELECTOR_FIELD +
+                "." +
+                VitamFieldsHelper.uploadPath() +
+                " selector allowed for upload operations."
+            );
         }
     }
 
-    private static void validateKeyNameFormat(String key, int lineIndex)
-        throws CollectInternalInvalidRequestException {
+    private static void validateKeyNameFormat(String key, int lineIndex) throws CollectInternalInvalidRequestException {
         // TODO: Field name checks should be unified
         if (StringUtils.isBlank(key)) {
             throw new CollectInternalInvalidRequestException(
-                "Invalid field name: '" + key + "'  at index: " + lineIndex);
+                "Invalid field name: '" + key + "'  at index: " + lineIndex
+            );
         }
         String[] fieldNames = StringUtils.split(key, '.');
         for (String fieldName : fieldNames) {
-            if (fieldName.isEmpty()
-                || StringUtils.containsWhitespace(fieldName)
-                || fieldName.startsWith("_")
-                || fieldName.startsWith("$")) {
+            if (
+                fieldName.isEmpty() ||
+                StringUtils.containsWhitespace(fieldName) ||
+                fieldName.startsWith("_") ||
+                fieldName.startsWith("$")
+            ) {
                 throw new CollectInternalInvalidRequestException(
-                    "Invalid field name: '" + key + "'  at index: " + lineIndex);
+                    "Invalid field name: '" + key + "'  at index: " + lineIndex
+                );
             }
         }
     }
@@ -201,11 +225,13 @@ public class JsonlMetadataFileValidator {
                 // OK
                 break;
             case ARRAY:
-                throw new CollectInternalInvalidRequestException("Invalid selector value for '" + key + "'." +
-                    ". Arrays are not supported");
+                throw new CollectInternalInvalidRequestException(
+                    "Invalid selector value for '" + key + "'." + ". Arrays are not supported"
+                );
             case NULL:
-                throw new CollectInternalInvalidRequestException("Invalid selector value for '" + key + "'." +
-                    ". Null value");
+                throw new CollectInternalInvalidRequestException(
+                    "Invalid selector value for '" + key + "'." + ". Null value"
+                );
             case BINARY:
             case MISSING:
             case OBJECT:
@@ -225,8 +251,9 @@ public class JsonlMetadataFileValidator {
     private void checkNonEmptyUnit(ObjectNode unitContent, int lineIndex)
         throws CollectInternalInvalidRequestException {
         if (unitContent == null || unitContent.isEmpty()) {
-            throw new CollectInternalInvalidRequestException("Invalid unit metadata at index: " + lineIndex +
-                ". Empty metadata content");
+            throw new CollectInternalInvalidRequestException(
+                "Invalid unit metadata at index: " + lineIndex + ". Empty metadata content"
+            );
         }
     }
 
@@ -236,30 +263,41 @@ public class JsonlMetadataFileValidator {
         while (it.hasNext()) {
             String fieldName = it.next();
             if (StringUtils.containsWhitespace(fieldName) || fieldName.startsWith("$") || fieldName.startsWith("_")) {
-                throw new CollectInternalInvalidRequestException("Invalid unit metadata at index: " + lineIndex +
-                    ". Illegal field name '" + fieldName + "'");
+                throw new CollectInternalInvalidRequestException(
+                    "Invalid unit metadata at index: " + lineIndex + ". Illegal field name '" + fieldName + "'"
+                );
             }
             if (fieldName.startsWith("#") && !ALLOWED_RESERVED_FIELD_NAMES.contains(fieldName)) {
-                throw new CollectInternalInvalidRequestException("Invalid unit metadata at index: " + lineIndex +
-                    ". Forbidden field name '" + fieldName + "'");
+                throw new CollectInternalInvalidRequestException(
+                    "Invalid unit metadata at index: " + lineIndex + ". Forbidden field name '" + fieldName + "'"
+                );
             }
             if (fieldName.contains(".")) {
-                throw new CollectInternalInvalidRequestException("Invalid unit metadata at index: " + lineIndex +
-                    ". Field name must be root-level field: '" + fieldName + "'");
+                throw new CollectInternalInvalidRequestException(
+                    "Invalid unit metadata at index: " +
+                    lineIndex +
+                    ". Field name must be root-level field: '" +
+                    fieldName +
+                    "'"
+                );
             }
         }
     }
 
     private static void validateUnitFormat(ObjectNode unitContent, int lineIndex)
         throws CollectInternalInvalidRequestException {
-
         ArchiveUnitModel archiveUnitModel;
         try {
             // Use strict deserializer to validate unit content structure & format
             archiveUnitModel = JsonHandler.getFromStrictJsonNode(unitContent, ARCHIVE_UNIT_MODEL_TYPE_REFERENCE);
         } catch (InvalidParseOperationException e) {
-            throw new CollectInternalInvalidRequestException("Invalid unit metadata at index: " + lineIndex +
-                ". Unit format validation failed: " + e.getLocalizedMessage(), e);
+            throw new CollectInternalInvalidRequestException(
+                "Invalid unit metadata at index: " +
+                lineIndex +
+                ". Unit format validation failed: " +
+                e.getLocalizedMessage(),
+                e
+            );
         }
 
         validateUnitRulesEndDates(archiveUnitModel, lineIndex);
@@ -285,8 +323,15 @@ public class JsonlMetadataFileValidator {
         }
         for (RuleModel rule : ruleCategoryModel.getRules()) {
             if (rule.getEndDate() != null) {
-                throw new CollectInternalInvalidRequestException("Invalid unit metadata at index: " + lineIndex +
-                    ". Unit " + ruleCategory + " Rules cannot contain '" + END_DATE + "' field.");
+                throw new CollectInternalInvalidRequestException(
+                    "Invalid unit metadata at index: " +
+                    lineIndex +
+                    ". Unit " +
+                    ruleCategory +
+                    " Rules cannot contain '" +
+                    END_DATE +
+                    "' field."
+                );
             }
         }
     }

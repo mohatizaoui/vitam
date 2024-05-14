@@ -50,20 +50,22 @@ public class VersionPurgedPersistentIdentifierExtractorTest {
 
     @Before
     public void setup() throws Exception {
-        versionPurgedPersistentIdentifierExtractor =
-            new VersionPurgedPersistentIdentifierExtractor();
+        versionPurgedPersistentIdentifierExtractor = new VersionPurgedPersistentIdentifierExtractor();
     }
 
     @Test
     public void testExtractAndSavePurgedPersistentIdentifier() throws Exception {
-
         ReconstructionOperation operation = createSampleOperation();
 
-        final JsonNode reportLineAsJsonNode =
-            JsonHandler.getFromFile(PropertiesUtils.getResourceFile("deleting_versions_expectedReport_line.json"));
+        final JsonNode reportLineAsJsonNode = JsonHandler.getFromFile(
+            PropertiesUtils.getResourceFile("deleting_versions_expectedReport_line.json")
+        );
 
-        final List<PurgedPersistentIdentifier> purgedPersistentIdentifiers = versionPurgedPersistentIdentifierExtractor
-            .extractPurgedPersistentIdentifier(reportLineAsJsonNode, operation);
+        final List<PurgedPersistentIdentifier> purgedPersistentIdentifiers =
+            versionPurgedPersistentIdentifierExtractor.extractPurgedPersistentIdentifier(
+                reportLineAsJsonNode,
+                operation
+            );
 
         assertThat(purgedPersistentIdentifiers).isNotEmpty();
 
@@ -72,9 +74,7 @@ public class VersionPurgedPersistentIdentifierExtractorTest {
         assertThat(purgedPersistentIdentifiers.get(0).getPersistentIdentifier().size()).isEqualTo(2);
     }
 
-
     private ReconstructionOperation createSampleOperation() {
-
         return ReconstructionOperation.builder()
             .setTenant(0)
             .setId("aeeaaaaaace6eg5mabvsaamkdsdfzeaaaaaq")

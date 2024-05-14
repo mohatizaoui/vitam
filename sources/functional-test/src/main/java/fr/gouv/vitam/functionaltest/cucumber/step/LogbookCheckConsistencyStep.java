@@ -26,8 +26,6 @@
  */
 package fr.gouv.vitam.functionaltest.cucumber.step;
 
-import io.cucumber.java.en.Then;
-import io.cucumber.java.en.When;
 import fr.gouv.vitam.common.client.VitamContext;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.exception.VitamException;
@@ -38,6 +36,8 @@ import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.logbook.common.model.coherence.LogbookCheckResult;
 import fr.gouv.vitam.storage.engine.client.exception.StorageServerClientException;
 import fr.gouv.vitam.storage.engine.common.exception.StorageException;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -82,10 +82,8 @@ public class LogbookCheckConsistencyStep extends CommonStep {
         throws StorageException, StorageServerClientException, InvalidParseOperationException {
         assertThat(result).as("Le rapport du test de cohérence des journaux n'est pas disponible").isNotNull();
         String resultAsString = JsonHandler.prettyPrint(JsonHandler.toJsonNode(result));
-        assertThat(result.getCheckErrors()).as(
-                "Le rapport du test de cohérence des journaux contient une ou plusieurs erreurs : " + resultAsString)
+        assertThat(result.getCheckErrors())
+            .as("Le rapport du test de cohérence des journaux contient une ou plusieurs erreurs : " + resultAsString)
             .isNullOrEmpty();
     }
-
 }
-

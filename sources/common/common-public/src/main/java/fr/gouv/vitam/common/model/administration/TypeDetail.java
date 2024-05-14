@@ -57,6 +57,9 @@ public enum TypeDetail {
     }
 
     public static TypeDetail fromOntologyType(OntologyType ontologyType) {
-        return Arrays.stream(TypeDetail.values()).filter(typeDetail -> typeDetail.isCompatibleWithType(ontologyType)).findFirst().orElseThrow();
+        return Arrays.stream(TypeDetail.values())
+            .filter(typeDetail -> typeDetail.isCompatibleWithType(ontologyType))
+            .findFirst()
+            .orElseThrow();
     }
 }

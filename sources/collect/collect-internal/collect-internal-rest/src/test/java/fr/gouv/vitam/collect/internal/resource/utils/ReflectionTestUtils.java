@@ -27,11 +27,10 @@
 
 package fr.gouv.vitam.collect.internal.resource.utils;
 
-
-
 import java.lang.reflect.Field;
 
 public class ReflectionTestUtils {
+
     public static void setField(Class clazz, Object targetObject, String fieldName, Object value)
         throws IllegalAccessException, NoSuchFieldException {
         Field field = clazz.getDeclaredField(fieldName);

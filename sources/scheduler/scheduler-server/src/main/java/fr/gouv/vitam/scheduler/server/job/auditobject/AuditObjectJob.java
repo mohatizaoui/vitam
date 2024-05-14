@@ -25,7 +25,6 @@
  * accept its terms.
  */
 
-
 package fr.gouv.vitam.scheduler.server.job.auditobject;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -53,6 +52,7 @@ import java.util.stream.Stream;
 
 @DisallowConcurrentExecution
 public class AuditObjectJob implements Job {
+
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(AuditObjectJob.class);
     private static final int AUDIT_POOL_SIZE = 5;
     private static final Boolean EMPTY_RESULT_IS_SUCCESSFUL = Boolean.TRUE;
@@ -67,10 +67,12 @@ public class AuditObjectJob implements Job {
     private final MetaDataClientFactory metaDataClientFactory;
 
     @VisibleForTesting
-    AuditObjectJob(AdminManagementClientFactory adminManagementClientFactory,
+    AuditObjectJob(
+        AdminManagementClientFactory adminManagementClientFactory,
         LogbookOperationsClientFactory logbookOperationsClientFactory,
         ProcessingManagementClientFactory processingManagementClientFactory,
-        MetaDataClientFactory metaDataClientFactory) {
+        MetaDataClientFactory metaDataClientFactory
+    ) {
         this.adminManagementClientFactory = adminManagementClientFactory;
         this.logbookOperationsClientFactory = logbookOperationsClientFactory;
         this.processingManagementClientFactory = processingManagementClientFactory;
@@ -78,15 +80,20 @@ public class AuditObjectJob implements Job {
     }
 
     public AuditObjectJob() {
-        this(AdminManagementClientFactory.getInstance(), LogbookOperationsClientFactory.getInstance(),
-            ProcessingManagementClientFactory.getInstance(), MetaDataClientFactory.getInstance());
+        this(
+            AdminManagementClientFactory.getInstance(),
+            LogbookOperationsClientFactory.getInstance(),
+            ProcessingManagementClientFactory.getInstance(),
+            MetaDataClientFactory.getInstance()
+        );
     }
 
     public void execute(JobExecutionContext context) throws JobExecutionException {
         LOGGER.info("Integrity audit job in progress...");
         final ThreadPoolExecutor executorService = ExecutorUtils.createScalableBatchExecutorService(AUDIT_POOL_SIZE);
         try {
-            final CompletableFuture<Optional<Boolean>>[] completableFutures = VitamConfiguration.getTenants().stream()
+            final CompletableFuture<Optional<Boolean>>[] completableFutures = VitamConfiguration.getTenants()
+                .stream()
                 .map(tenantId -> launchWorkflowAndPoll(context, executorService, tenantId))
                 .toArray(CompletableFuture[]::new);
             CompletableFuture.allOf(completableFutures).join();
@@ -99,32 +106,53 @@ public class AuditObjectJob implements Job {
         }
     }
 
-    private CompletableFuture<Optional<Boolean>> launchWorkflowAndPoll(JobExecutionContext context,
-        ThreadPoolExecutor executorService, Integer tenantId) {
-        final AuditWorkflowLauncher auditWorkflowLauncher =
-            new AuditWorkflowLauncher(adminManagementClientFactory, logbookOperationsClientFactory,
-                processingManagementClientFactory, metaDataClientFactory);
-        return CompletableFuture.supplyAsync(() -> {
-            VitamThreadUtils.getVitamSession().setTenantId(tenantId);
-            final GUID operationId = GUIDFactory.newRequestIdGUID(tenantId);
-            VitamThreadUtils.getVitamSession().setRequestId(operationId);
-            final JobDataMap jobDataMap = context.getMergedJobDataMap();
-            final int operationsDelayInMinutes = jobDataMap.getIntValue(OPERATIONS_DELAY_IN_MINUTES_KEY);
-            final String auditAction = getAuditAction(jobDataMap.getString(AUDIT_TYPE_KEY));
-            return launchAndWait(auditWorkflowLauncher, tenantId, operationId.getId(), operationsDelayInMinutes,
-                auditAction);
-        }, executorService);
+    private CompletableFuture<Optional<Boolean>> launchWorkflowAndPoll(
+        JobExecutionContext context,
+        ThreadPoolExecutor executorService,
+        Integer tenantId
+    ) {
+        final AuditWorkflowLauncher auditWorkflowLauncher = new AuditWorkflowLauncher(
+            adminManagementClientFactory,
+            logbookOperationsClientFactory,
+            processingManagementClientFactory,
+            metaDataClientFactory
+        );
+        return CompletableFuture.supplyAsync(
+            () -> {
+                VitamThreadUtils.getVitamSession().setTenantId(tenantId);
+                final GUID operationId = GUIDFactory.newRequestIdGUID(tenantId);
+                VitamThreadUtils.getVitamSession().setRequestId(operationId);
+                final JobDataMap jobDataMap = context.getMergedJobDataMap();
+                final int operationsDelayInMinutes = jobDataMap.getIntValue(OPERATIONS_DELAY_IN_MINUTES_KEY);
+                final String auditAction = getAuditAction(jobDataMap.getString(AUDIT_TYPE_KEY));
+                return launchAndWait(
+                    auditWorkflowLauncher,
+                    tenantId,
+                    operationId.getId(),
+                    operationsDelayInMinutes,
+                    auditAction
+                );
+            },
+            executorService
+        );
     }
 
-    private Optional<Boolean> launchAndWait(AuditWorkflowLauncher auditWorkflowLauncher, Integer tenantId,
-        String operationId, int operationsDelayInMinutes, String auditAction) {
-        return auditWorkflowLauncher.launch(tenantId, operationId, operationsDelayInMinutes, auditAction)
+    private Optional<Boolean> launchAndWait(
+        AuditWorkflowLauncher auditWorkflowLauncher,
+        Integer tenantId,
+        String operationId,
+        int operationsDelayInMinutes,
+        String auditAction
+    ) {
+        return auditWorkflowLauncher
+            .launch(tenantId, operationId, operationsDelayInMinutes, auditAction)
             .map(id -> new AuditPoller(processingManagementClientFactory, tenantId, id))
             .map(AuditPoller::waitForTermination);
     }
 
     private boolean hasAllJobsFinishedSuccessfully(CompletableFuture<Optional<Boolean>>[] completableFutures) {
-        return Stream.of(completableFutures).map(CompletableFuture::join)
+        return Stream.of(completableFutures)
+            .map(CompletableFuture::join)
             .allMatch(value -> value.orElse(EMPTY_RESULT_IS_SUCCESSFUL));
     }
 
@@ -139,5 +167,4 @@ public class AuditObjectJob implements Job {
         }
         throw new IllegalStateException("Cannot find audit type = " + auditType);
     }
-
 }

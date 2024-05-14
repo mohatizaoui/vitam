@@ -84,9 +84,7 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
     }
 
     @Override
-    public RequestResponse<JsonNode> initProject(
-        ProjectDto projectDto) throws VitamClientException {
-
+    public RequestResponse<JsonNode> initProject(ProjectDto projectDto) throws VitamClientException {
         VitamRequestBuilder request = post()
             .withPath(PROJECT_PATH)
             .withHeader(EXPECT, EXPECT_CONTINUE)
@@ -101,9 +99,7 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
     }
 
     @Override
-    public RequestResponse<JsonNode> updateProject(
-        ProjectDto projectDto) throws VitamClientException {
-
+    public RequestResponse<JsonNode> updateProject(ProjectDto projectDto) throws VitamClientException {
         VitamRequestBuilder request = put()
             .withPath(PROJECT_PATH)
             .withBody(projectDto)
@@ -117,27 +113,8 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
     }
 
     @Override
-    public RequestResponse<JsonNode> getProjectById(
-        String projectId) throws VitamClientException {
-
-        VitamRequestBuilder request = get()
-            .withPath(PROJECT_PATH + "/" + projectId)
-            .withJsonAccept();
-
-        try (Response response = make(request)) {
-            check(response);
-            return RequestResponse.parseFromResponse(response, JsonNode.class);
-        }
-    }
-
-
-    @Override
-    public RequestResponse<JsonNode> getTransactionById(
-        String transactionId) throws VitamClientException {
-
-        VitamRequestBuilder request = get()
-            .withPath(TRANSACTION_PATH + "/" + transactionId)
-            .withJsonAccept();
+    public RequestResponse<JsonNode> getProjectById(String projectId) throws VitamClientException {
+        VitamRequestBuilder request = get().withPath(PROJECT_PATH + "/" + projectId).withJsonAccept();
 
         try (Response response = make(request)) {
             check(response);
@@ -146,9 +123,17 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
     }
 
     @Override
-    public RequestResponse<JsonNode> getTransactionByProjectId(
-        String projectId) throws VitamClientException {
+    public RequestResponse<JsonNode> getTransactionById(String transactionId) throws VitamClientException {
+        VitamRequestBuilder request = get().withPath(TRANSACTION_PATH + "/" + transactionId).withJsonAccept();
 
+        try (Response response = make(request)) {
+            check(response);
+            return RequestResponse.parseFromResponse(response, JsonNode.class);
+        }
+    }
+
+    @Override
+    public RequestResponse<JsonNode> getTransactionByProjectId(String projectId) throws VitamClientException {
         VitamRequestBuilder request = get()
             .withPath(PROJECT_PATH + "/" + projectId + TRANSACTION_PATH)
             .withJsonAccept();
@@ -159,14 +144,9 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
         }
     }
 
-
     @Override
-    public RequestResponse<JsonNode> deleteProjectById(
-        String projectId) throws VitamClientException {
-
-        VitamRequestBuilder request = delete()
-            .withPath(PROJECT_PATH + "/" + projectId)
-            .withJsonAccept();
+    public RequestResponse<JsonNode> deleteProjectById(String projectId) throws VitamClientException {
+        VitamRequestBuilder request = delete().withPath(PROJECT_PATH + "/" + projectId).withJsonAccept();
 
         try (Response response = make(request)) {
             check(response);
@@ -175,12 +155,8 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
     }
 
     @Override
-    public RequestResponse<JsonNode> deleteTransactionById(
-        String transactionId) throws VitamClientException {
-
-        VitamRequestBuilder request = delete()
-            .withPath(TRANSACTION_PATH + "/" + transactionId)
-            .withJsonAccept();
+    public RequestResponse<JsonNode> deleteTransactionById(String transactionId) throws VitamClientException {
+        VitamRequestBuilder request = delete().withPath(TRANSACTION_PATH + "/" + transactionId).withJsonAccept();
 
         try (Response response = make(request)) {
             check(response);
@@ -190,10 +166,7 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
 
     @Override
     public RequestResponse<JsonNode> getProjects() throws VitamClientException {
-
-        VitamRequestBuilder request = get()
-            .withPath(PROJECT_PATH)
-            .withJsonAccept();
+        VitamRequestBuilder request = get().withPath(PROJECT_PATH).withJsonAccept();
 
         try (Response response = make(request)) {
             check(response);
@@ -202,12 +175,8 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
     }
 
     @Override
-    public RequestResponseOK<JsonNode> getUnitById(String unitId)
-        throws VitamClientException {
-
-        VitamRequestBuilder request = get()
-            .withPath(UNITS_PATH + "/" + unitId)
-            .withJsonAccept();
+    public RequestResponseOK<JsonNode> getUnitById(String unitId) throws VitamClientException {
+        VitamRequestBuilder request = get().withPath(UNITS_PATH + "/" + unitId).withJsonAccept();
 
         try (Response response = make(request)) {
             check(response);
@@ -217,9 +186,8 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
     }
 
     @Override
-    public RequestResponseOK<JsonNode> getUnitsByTransaction(
-        String transactionId, JsonNode query) throws VitamClientException {
-
+    public RequestResponseOK<JsonNode> getUnitsByTransaction(String transactionId, JsonNode query)
+        throws VitamClientException {
         VitamRequestBuilder request = get()
             .withPath(TRANSACTION_PATH + "/" + transactionId + UNITS_PATH)
             .withJson()
@@ -232,12 +200,8 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
     }
 
     @Override
-    public RequestResponseOK<JsonNode> getObjectById(
-        String gotId) throws VitamClientException {
-
-        VitamRequestBuilder request = get()
-            .withPath(OBJECTS_PATH + "/" + gotId)
-            .withJsonAccept();
+    public RequestResponseOK<JsonNode> getObjectById(String gotId) throws VitamClientException {
+        VitamRequestBuilder request = get().withPath(OBJECTS_PATH + "/" + gotId).withJsonAccept();
 
         try (Response response = make(request)) {
             check(response);
@@ -247,10 +211,8 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
     }
 
     @Override
-    public RequestResponse<JsonNode> initTransaction(
-        TransactionDto transactionDto, String projectId)
+    public RequestResponse<JsonNode> initTransaction(TransactionDto transactionDto, String projectId)
         throws VitamClientException {
-
         VitamRequestBuilder request = post()
             .withPath(PROJECT_PATH + "/" + projectId + TRANSACTION_PATH)
             .withBody(transactionDto)
@@ -263,13 +225,13 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
     }
 
     @Override
-    public RequestResponseOK<JsonNode> uploadArchiveUnit(
-        JsonNode unitJsonNode, String transactionId)
+    public RequestResponseOK<JsonNode> uploadArchiveUnit(JsonNode unitJsonNode, String transactionId)
         throws VitamClientException {
-        try (Response response = make(
-            post().withPath(TRANSACTION_PATH + "/" + transactionId + UNITS_PATH)
-                .withBody(unitJsonNode)
-                .withJson())) {
+        try (
+            Response response = make(
+                post().withPath(TRANSACTION_PATH + "/" + transactionId + UNITS_PATH).withBody(unitJsonNode).withJson()
+            )
+        ) {
             check(response);
             RequestResponse<JsonNode> result = RequestResponse.parseFromResponse(response, JsonNode.class);
             return (RequestResponseOK<JsonNode>) result;
@@ -278,11 +240,19 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
 
     @Override
     public RequestResponseOK<JsonNode> addObjectGroup(
-        String unitId, Integer version, JsonNode objectJsonNode, String usage) throws VitamClientException {
-        try (Response response = make(
-            post().withPath(UNITS_PATH + "/" + unitId + OBJECTS_PATH + "/" + usage + "/" + version)
-                .withBody(objectJsonNode)
-                .withJson())) {
+        String unitId,
+        Integer version,
+        JsonNode objectJsonNode,
+        String usage
+    ) throws VitamClientException {
+        try (
+            Response response = make(
+                post()
+                    .withPath(UNITS_PATH + "/" + unitId + OBJECTS_PATH + "/" + usage + "/" + version)
+                    .withBody(objectJsonNode)
+                    .withJson()
+            )
+        ) {
             check(response);
             RequestResponse<JsonNode> result = RequestResponse.parseFromResponse(response, JsonNode.class);
             return (RequestResponseOK<JsonNode>) result;
@@ -290,14 +260,21 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
     }
 
     @Override
-    public RequestResponse<JsonNode> addBinary(String unitId, Integer version,
-        InputStream inputStreamUploaded, String usage)
-        throws VitamClientException {
-        try (Response response = make(post()
-            .withPath(UNITS_PATH + "/" + unitId + OBJECTS_PATH + "/" + usage + "/" + version + "/binary")
-            .withBody(inputStreamUploaded)
-            .withJsonAccept()
-            .withOctetContentType())) {
+    public RequestResponse<JsonNode> addBinary(
+        String unitId,
+        Integer version,
+        InputStream inputStreamUploaded,
+        String usage
+    ) throws VitamClientException {
+        try (
+            Response response = make(
+                post()
+                    .withPath(UNITS_PATH + "/" + unitId + OBJECTS_PATH + "/" + usage + "/" + version + "/binary")
+                    .withBody(inputStreamUploaded)
+                    .withJsonAccept()
+                    .withOctetContentType()
+            )
+        ) {
             check(response);
             return RequestResponse.parseFromResponse(response, JsonNode.class);
         }
@@ -305,22 +282,21 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
 
     @Override
     public Response closeTransaction(String transactionId) throws VitamClientException {
-        try (Response response = make(post()
-            .withPath(TRANSACTION_PATH + "/" + transactionId + "/close")
-            .withJsonAccept())) {
+        try (
+            Response response = make(
+                post().withPath(TRANSACTION_PATH + "/" + transactionId + "/close").withJsonAccept()
+            )
+        ) {
             check(response);
             return response;
         }
     }
 
     @Override
-    public InputStream generateSip(String transactionId)
-        throws VitamClientException {
+    public InputStream generateSip(String transactionId) throws VitamClientException {
         Response response = null;
         try {
-            response = make(post()
-                .withPath(TRANSACTION_PATH + "/" + transactionId + "/send")
-                .withOctetAccept());
+            response = make(post().withPath(TRANSACTION_PATH + "/" + transactionId + "/send").withOctetAccept());
             check(response);
             return response.readEntity(InputStream.class);
         } finally {
@@ -332,33 +308,41 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
 
     @Override
     public Response abortTransaction(String transactionId) throws VitamClientException {
-        try (Response response = make(put()
-            .withPath(TRANSACTION_PATH + "/" + transactionId + "/abort")
-            .withJsonAccept())) {
+        try (
+            Response response = make(put().withPath(TRANSACTION_PATH + "/" + transactionId + "/abort").withJsonAccept())
+        ) {
             check(response);
             return response;
         }
     }
 
     @Override
-    public Response reopenTransaction(String transactionId)
-        throws VitamClientException {
-        try (Response response = make(put()
-            .withPath(TRANSACTION_PATH + "/" + transactionId + "/reopen")
-            .withJsonAccept())) {
+    public Response reopenTransaction(String transactionId) throws VitamClientException {
+        try (
+            Response response = make(
+                put().withPath(TRANSACTION_PATH + "/" + transactionId + "/reopen").withJsonAccept()
+            )
+        ) {
             check(response);
             return response;
         }
     }
 
     @Override
-    public void uploadZipToTransaction(String transactionId, InputStream inputStreamUploaded, @Nullable String encoding)
-        throws VitamClientException {
-        try (Response response = make(post()
-            .withPath(TRANSACTION_PATH + "/" + transactionId + "/upload")
-            .withOptionalHeader(GlobalDataRest.X_ENCODING, encoding)
-            .withBody(inputStreamUploaded)
-            .withContentType(CommonMediaType.ZIP_TYPE))) {
+    public void uploadZipToTransaction(
+        String transactionId,
+        InputStream inputStreamUploaded,
+        @Nullable String encoding
+    ) throws VitamClientException {
+        try (
+            Response response = make(
+                post()
+                    .withPath(TRANSACTION_PATH + "/" + transactionId + "/upload")
+                    .withOptionalHeader(GlobalDataRest.X_ENCODING, encoding)
+                    .withBody(inputStreamUploaded)
+                    .withContentType(CommonMediaType.ZIP_TYPE)
+            )
+        ) {
             check(response);
         }
     }
@@ -366,12 +350,16 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
     @Override
     public String uploadZipToProject(String projectId, InputStream inputStreamUploaded, @Nullable String encoding)
         throws VitamClientException {
-        try (Response response = make(post()
-            .withPath(PROJECT_PATH + "/" + projectId + "/upload")
-            .withBody(inputStreamUploaded)
-            .withOptionalHeader(GlobalDataRest.X_ENCODING, encoding)
-            .withContentType(CommonMediaType.ZIP_TYPE)
-            .withJsonAccept())) {
+        try (
+            Response response = make(
+                post()
+                    .withPath(PROJECT_PATH + "/" + projectId + "/upload")
+                    .withBody(inputStreamUploaded)
+                    .withOptionalHeader(GlobalDataRest.X_ENCODING, encoding)
+                    .withContentType(CommonMediaType.ZIP_TYPE)
+                    .withJsonAccept()
+            )
+        ) {
             check(response);
             RequestResponse<String> requestResponse = RequestResponse.parseFromResponse(response, String.class);
             return ((RequestResponseOK<String>) requestResponse).getFirstResult();
@@ -379,12 +367,13 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
     }
 
     @Override
-    public RequestResponseOK<JsonNode> getUnitsByProjectId(
-        String projectId, JsonNode dslQuery) throws VitamClientException {
-        try (Response response = make(
-            get().withPath(PROJECT_PATH + "/" + projectId + UNITS_PATH)
-                .withBody(dslQuery)
-                .withJson())) {
+    public RequestResponseOK<JsonNode> getUnitsByProjectId(String projectId, JsonNode dslQuery)
+        throws VitamClientException {
+        try (
+            Response response = make(
+                get().withPath(PROJECT_PATH + "/" + projectId + UNITS_PATH).withBody(dslQuery).withJson()
+            )
+        ) {
             check(response);
             RequestResponse<JsonNode> result = RequestResponse.parseFromResponse(response, JsonNode.class);
             return (RequestResponseOK<JsonNode>) result;
@@ -392,8 +381,7 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
     }
 
     @Override
-    public Response getObjectStreamByUnitId(String unitId, String usage, int version)
-        throws VitamClientException {
+    public Response getObjectStreamByUnitId(String unitId, String usage, int version) throws VitamClientException {
         VitamRequestBuilder request = get()
             .withPath(UNITS_PATH + "/" + unitId + OBJECTS_PATH + "/" + usage + "/" + version + BINARY_PATH)
             .withOctetAccept();
@@ -410,12 +398,8 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
     }
 
     @Override
-    public RequestResponseOK<JsonNode> searchProject(CriteriaProjectDto criteria)
-        throws VitamClientException {
-        try (Response response = make(
-            get().withPath(PROJECT_PATH)
-                .withBody(criteria)
-                .withJson())) {
+    public RequestResponseOK<JsonNode> searchProject(CriteriaProjectDto criteria) throws VitamClientException {
+        try (Response response = make(get().withPath(PROJECT_PATH).withBody(criteria).withJson())) {
             check(response);
             RequestResponse<JsonNode> result = RequestResponse.parseFromResponse(response, JsonNode.class);
             return (RequestResponseOK<JsonNode>) result;
@@ -423,13 +407,19 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
     }
 
     @Override
-    public RequestResponseOK<JsonNode> updateUnitsWithCsvMetadata(String transactionId,
-        InputStream metadataCsvInputStream) throws VitamClientException {
-        try (Response response = make(
-            put().withPath(TRANSACTION_PATH + "/" + transactionId + UNITS_METADATA_CSV_PATH)
-                .withBody(metadataCsvInputStream)
-                .withContentType(TEXT_CSV_MEDIATYPE)
-                .withJsonAccept())) {
+    public RequestResponseOK<JsonNode> updateUnitsWithCsvMetadata(
+        String transactionId,
+        InputStream metadataCsvInputStream
+    ) throws VitamClientException {
+        try (
+            Response response = make(
+                put()
+                    .withPath(TRANSACTION_PATH + "/" + transactionId + UNITS_METADATA_CSV_PATH)
+                    .withBody(metadataCsvInputStream)
+                    .withContentType(TEXT_CSV_MEDIATYPE)
+                    .withJsonAccept()
+            )
+        ) {
             check(response);
             RequestResponse<JsonNode> result = RequestResponse.parseFromResponse(response, JsonNode.class);
             return (RequestResponseOK<JsonNode>) result;
@@ -437,13 +427,19 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
     }
 
     @Override
-    public RequestResponseOK<JsonNode> updateUnitsWithJsonlMetadata(String transactionId,
-        InputStream metadataJsonlInputStream) throws VitamClientException {
-        try (Response response = make(
-            put().withPath(TRANSACTION_PATH + "/" + transactionId + UNITS_METADATA_JSONL_PATH)
-                .withBody(metadataJsonlInputStream)
-                .withOctetContentType()
-                .withJsonAccept())) {
+    public RequestResponseOK<JsonNode> updateUnitsWithJsonlMetadata(
+        String transactionId,
+        InputStream metadataJsonlInputStream
+    ) throws VitamClientException {
+        try (
+            Response response = make(
+                put()
+                    .withPath(TRANSACTION_PATH + "/" + transactionId + UNITS_METADATA_JSONL_PATH)
+                    .withBody(metadataJsonlInputStream)
+                    .withOctetContentType()
+                    .withJsonAccept()
+            )
+        ) {
             check(response);
             RequestResponse<JsonNode> result = RequestResponse.parseFromResponse(response, JsonNode.class);
             return (RequestResponseOK<JsonNode>) result;
@@ -510,9 +506,7 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
     }
 
     @Override
-    public RequestResponse<JsonNode> updateTransaction(
-        TransactionDto transactionDto) throws VitamClientException {
-
+    public RequestResponse<JsonNode> updateTransaction(TransactionDto transactionDto) throws VitamClientException {
         VitamRequestBuilder request = put()
             .withPath(TRANSACTION_PATH)
             .withBody(transactionDto)
@@ -525,23 +519,22 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
         }
     }
 
-
     @Override
     public Response changeTransactionStatus(String transactionId, TransactionStatus transactionStatus)
         throws VitamClientException {
-        try (Response response = make(put()
-            .withPath(TRANSACTION_PATH + "/" + transactionId + "/status/" + transactionStatus)
-            .withJsonAccept())) {
+        try (
+            Response response = make(
+                put().withPath(TRANSACTION_PATH + "/" + transactionId + "/status/" + transactionStatus).withJsonAccept()
+            )
+        ) {
             check(response);
             return response;
         }
     }
 
-
     @Override
     public RequestResponse<JsonNode> selectUnitsWithInheritedRules(String transactionId, JsonNode selectQuery)
         throws VitamClientException {
-
         VitamRequestBuilder request = get()
             .withPath(TRANSACTION_PATH + "/" + transactionId + UNITS_WITH_INHERITED_RULES)
             .withBody(selectQuery, BLANK_DSL)
@@ -554,20 +547,19 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
 
     @Override
     public Response attachVitamOperationId(String transactionId, String operationId) throws VitamClientException {
-        try (Response response = make(put()
-            .withPath(TRANSACTION_PATH + "/" + transactionId + "/operation-id/" + operationId)
-            .withJsonAccept())) {
+        try (
+            Response response = make(
+                put().withPath(TRANSACTION_PATH + "/" + transactionId + "/operation-id/" + operationId).withJsonAccept()
+            )
+        ) {
             check(response);
             return response;
         }
     }
 
     @Override
-    public RequestResponse<JsonNode> getTransactionsToAutomaticallyIngest() throws
-        VitamClientException {
-        VitamRequestBuilder request = get()
-            .withPath(TRANSACTION_PATH + "/withAutomaticIngest")
-            .withJsonAccept();
+    public RequestResponse<JsonNode> getTransactionsToAutomaticallyIngest() throws VitamClientException {
+        VitamRequestBuilder request = get().withPath(TRANSACTION_PATH + "/withAutomaticIngest").withJsonAccept();
         try (Response response = make(request)) {
             check(response);
             return RequestResponse.parseFromResponse(response, JsonNode.class);
@@ -575,18 +567,20 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
     }
 
     @Override
-    public RequestResponseOK<BulkAtomicUpdateResult> bulkAtomicUpdateUnits(String transactionId,
-        JsonNode updateQueriesJson)
-        throws VitamClientException {
+    public RequestResponseOK<BulkAtomicUpdateResult> bulkAtomicUpdateUnits(
+        String transactionId,
+        JsonNode updateQueriesJson
+    ) throws VitamClientException {
         VitamRequestBuilder request = post()
             .withPath(TRANSACTION_PATH + "/" + transactionId + UNITS_BULK)
             .withBody(updateQueriesJson)
             .withJson();
         try (Response response = make(request)) {
             check(response);
-            return (RequestResponseOK<BulkAtomicUpdateResult>)
-                RequestResponse.parseFromResponse(response, BulkAtomicUpdateResult.class);
+            return (RequestResponseOK<BulkAtomicUpdateResult>) RequestResponse.parseFromResponse(
+                response,
+                BulkAtomicUpdateResult.class
+            );
         }
     }
-
 }

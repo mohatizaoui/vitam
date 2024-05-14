@@ -51,6 +51,7 @@ import static fr.gouv.vitam.common.serverv2.application.ApplicationParameter.CON
  * module declaring business resource
  */
 public class BusinessApplication extends Application {
+
     private final Set<Object> singletons;
 
     private final CommonBusinessApplication commonBusinessApplication;
@@ -68,18 +69,19 @@ public class BusinessApplication extends Application {
         SecureEndpointScanner secureEndpointScanner = new SecureEndpointScanner(secureEndpointRegistry);
 
         try (final InputStream yamlIS = PropertiesUtils.getConfigAsStream(configurationFile)) {
-            final CollectExternalConfiguration configuration =
-                PropertiesUtils.readYaml(yamlIS, CollectExternalConfiguration.class);
+            final CollectExternalConfiguration configuration = PropertiesUtils.readYaml(
+                yamlIS,
+                CollectExternalConfiguration.class
+            );
             commonBusinessApplication = new CommonBusinessApplication(true);
 
-            final CollectExternalResource collectExternalResource =
-                new CollectExternalResource(secureEndpointRegistry);
+            final CollectExternalResource collectExternalResource = new CollectExternalResource(secureEndpointRegistry);
             final CollectMetadataExternalResource collectMetadataExternalResource =
                 new CollectMetadataExternalResource();
-            final ProjectExternalResource projectExternalResource =
-                new ProjectExternalResource();
-            final TransactionExternalResource transactionExternalResource =
-                new TransactionExternalResource(configuration);
+            final ProjectExternalResource projectExternalResource = new ProjectExternalResource();
+            final TransactionExternalResource transactionExternalResource = new TransactionExternalResource(
+                configuration
+            );
 
             new AutomaticIngestThread(configuration);
 
@@ -103,5 +105,4 @@ public class BusinessApplication extends Application {
     public Set<Object> getSingletons() {
         return singletons;
     }
-
 }

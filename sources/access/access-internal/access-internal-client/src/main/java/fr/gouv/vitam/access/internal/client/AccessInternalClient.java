@@ -61,7 +61,6 @@ import java.util.Optional;
  * Access client interface
  */
 public interface AccessInternalClient extends MockOrRestClient {
-
     /**
      * Select Units by persistent identifier
      *
@@ -74,8 +73,7 @@ public interface AccessInternalClient extends MockOrRestClient {
      * @throws BadRequestException if empty query is found
      */
     Response selectUnitsByUnitPersistentIdentifier(String persistentIdentifier, JsonNode selectQuery)
-        throws InvalidParseOperationException, AccessInternalClientServerException,
-        AccessInternalClientNotFoundException, AccessUnauthorizedException, BadRequestException;
+        throws InvalidParseOperationException, AccessInternalClientServerException, AccessInternalClientNotFoundException, AccessUnauthorizedException, BadRequestException;
 
     /**
      * Select Objects by persistent identifier
@@ -88,9 +86,11 @@ public interface AccessInternalClient extends MockOrRestClient {
      * @throws AccessUnauthorizedException
      * @throws BadRequestException if empty query is found
      */
-    RequestResponse<JsonNode> selectObjectsByObjectPersistentIdentifier(String persistentIdentifier, JsonNode selectQuery)
-        throws InvalidParseOperationException, AccessInternalClientServerException,
-        AccessInternalClientNotFoundException, AccessUnauthorizedException, BadRequestException;
+    RequestResponse<JsonNode> selectObjectsByObjectPersistentIdentifier(
+        String persistentIdentifier,
+        JsonNode selectQuery
+    )
+        throws InvalidParseOperationException, AccessInternalClientServerException, AccessInternalClientNotFoundException, AccessUnauthorizedException, BadRequestException;
 
     /**
      * Download object by its persistent identifier.
@@ -98,9 +98,7 @@ public interface AccessInternalClient extends MockOrRestClient {
      * @param persistentIdentifier object's persistent identifier
      * @return object binary
      */
-    Response downloadObjectByPersistentIdentifier(String persistentIdentifier)
-        throws VitamClientException;
-
+    Response downloadObjectByPersistentIdentifier(String persistentIdentifier) throws VitamClientException;
 
     /**
      * Download object by unit persistent identifier and other criteria.
@@ -110,8 +108,11 @@ public interface AccessInternalClient extends MockOrRestClient {
      * @param version the object version, if not provided, the latest is selected
      * @return object binary
      */
-    Response downloadObjectsByUnitPersistentIdentifier(String unitPersistentIdentifier,String qualifier,
-        Integer version) throws VitamClientException;
+    Response downloadObjectsByUnitPersistentIdentifier(
+        String unitPersistentIdentifier,
+        String qualifier,
+        Integer version
+    ) throws VitamClientException;
 
     /**
      * Select Units
@@ -125,8 +126,7 @@ public interface AccessInternalClient extends MockOrRestClient {
      * @throws BadRequestException if empty query is found
      */
     RequestResponse<JsonNode> selectUnits(JsonNode selectQuery)
-        throws InvalidParseOperationException, AccessInternalClientServerException,
-        AccessInternalClientNotFoundException, AccessUnauthorizedException, BadRequestException;
+        throws InvalidParseOperationException, AccessInternalClientServerException, AccessInternalClientNotFoundException, AccessUnauthorizedException, BadRequestException;
 
     Response streamUnits(JsonNode selectQuery)
         throws AccessInternalClientServerException, ExpectationFailedClientException, AccessUnauthorizedException;
@@ -146,8 +146,7 @@ public interface AccessInternalClient extends MockOrRestClient {
      * @throws AccessUnauthorizedException
      */
     RequestResponse<JsonNode> selectUnitbyId(JsonNode sqlQuery, String id)
-        throws InvalidParseOperationException, AccessInternalClientServerException,
-        AccessInternalClientNotFoundException, AccessUnauthorizedException;
+        throws InvalidParseOperationException, AccessInternalClientServerException, AccessInternalClientNotFoundException, AccessUnauthorizedException;
 
     /**
      * update Unit By Id
@@ -162,8 +161,7 @@ public interface AccessInternalClient extends MockOrRestClient {
      * @throws AccessInternalRuleExecutionException
      */
     RequestResponse<JsonNode> updateUnitbyId(JsonNode updateQuery, String unitId)
-        throws InvalidParseOperationException, AccessInternalClientServerException,
-        AccessInternalClientNotFoundException, NoWritingPermissionException, AccessUnauthorizedException;
+        throws InvalidParseOperationException, AccessInternalClientServerException, AccessInternalClientNotFoundException, NoWritingPermissionException, AccessUnauthorizedException;
 
     /**
      * Mass update of archive units with dsl query.
@@ -177,8 +175,7 @@ public interface AccessInternalClient extends MockOrRestClient {
      * @throws AccessInternalRuleExecutionException
      */
     RequestResponse<JsonNode> updateUnits(JsonNode updateQuery)
-        throws InvalidParseOperationException, AccessInternalClientServerException, NoWritingPermissionException,
-        AccessUnauthorizedException;
+        throws InvalidParseOperationException, AccessInternalClientServerException, NoWritingPermissionException, AccessUnauthorizedException;
 
     /**
      * Mass update of archive units rules.
@@ -192,9 +189,7 @@ public interface AccessInternalClient extends MockOrRestClient {
      * @throws AccessInternalRuleExecutionException
      */
     RequestResponse<JsonNode> updateUnitsRules(MassUpdateUnitRuleRequest massUpdateUnitRuleRequest)
-        throws InvalidParseOperationException, AccessInternalClientServerException, NoWritingPermissionException,
-        AccessUnauthorizedException;
-
+        throws InvalidParseOperationException, AccessInternalClientServerException, NoWritingPermissionException, AccessUnauthorizedException;
 
     /**
      * Bulk atomic update of archive units with dsl query.
@@ -208,8 +203,7 @@ public interface AccessInternalClient extends MockOrRestClient {
      * @throws AccessInternalRuleExecutionException
      */
     RequestResponse<JsonNode> bulkAtomicUpdateUnits(JsonNode updateQueries)
-        throws InvalidParseOperationException, AccessInternalClientServerException, NoWritingPermissionException,
-        AccessUnauthorizedException;
+        throws InvalidParseOperationException, AccessInternalClientServerException, NoWritingPermissionException, AccessUnauthorizedException;
 
     /**
      * Retrieve an ObjectGroup as Json data based on the provided ObjectGroup id
@@ -223,8 +217,7 @@ public interface AccessInternalClient extends MockOrRestClient {
      * @throws AccessUnauthorizedException
      */
     RequestResponse<JsonNode> selectObjectbyId(JsonNode selectObjectQuery, String objectId)
-        throws InvalidParseOperationException, AccessInternalClientServerException,
-        AccessInternalClientNotFoundException, AccessUnauthorizedException;
+        throws InvalidParseOperationException, AccessInternalClientServerException, AccessInternalClientNotFoundException, AccessUnauthorizedException;
 
     /**
      * Retrieve an Object data as an input stream
@@ -241,9 +234,7 @@ public interface AccessInternalClient extends MockOrRestClient {
      * @throws AccessInternalClientUnavailableDataFromAsyncOfferException if access to the requested object requires an Access Request.
      */
     Response getObject(String objectGroupId, String usage, int version, String unitId)
-        throws InvalidParseOperationException, AccessInternalClientServerException,
-        AccessInternalClientNotFoundException, AccessUnauthorizedException,
-        AccessInternalClientUnavailableDataFromAsyncOfferException;
+        throws InvalidParseOperationException, AccessInternalClientServerException, AccessInternalClientNotFoundException, AccessUnauthorizedException, AccessInternalClientUnavailableDataFromAsyncOfferException;
 
     /**
      * selectOperation
@@ -271,9 +262,12 @@ public interface AccessInternalClient extends MockOrRestClient {
      * @throws InvalidParseOperationException
      * @throws AccessUnauthorizedException
      */
-    RequestResponse<JsonNode> selectOperationById(String processId, JsonNode queryDsl, boolean isSliced,
-        boolean isCrossTenant)
-        throws LogbookClientException, InvalidParseOperationException, AccessUnauthorizedException;
+    RequestResponse<JsonNode> selectOperationById(
+        String processId,
+        JsonNode queryDsl,
+        boolean isSliced,
+        boolean isCrossTenant
+    ) throws LogbookClientException, InvalidParseOperationException, AccessUnauthorizedException;
 
     /**
      * selectOperationbyId
@@ -330,8 +324,7 @@ public interface AccessInternalClient extends MockOrRestClient {
      * @throws AccessUnauthorizedException
      */
     Response downloadTraceabilityFile(String operationId)
-        throws AccessInternalClientServerException, AccessInternalClientNotFoundException,
-        InvalidParseOperationException, AccessUnauthorizedException;
+        throws AccessInternalClientServerException, AccessInternalClientNotFoundException, InvalidParseOperationException, AccessUnauthorizedException;
 
     /**
      * launch a DIP operation by a DSL query
@@ -391,8 +384,7 @@ public interface AccessInternalClient extends MockOrRestClient {
      * @throws BadRequestException if empty query is found
      */
     RequestResponse<JsonNode> selectObjects(JsonNode selectQuery)
-        throws InvalidParseOperationException, AccessInternalClientServerException,
-        AccessInternalClientNotFoundException, AccessUnauthorizedException, BadRequestException;
+        throws InvalidParseOperationException, AccessInternalClientServerException, AccessInternalClientNotFoundException, AccessUnauthorizedException, BadRequestException;
 
     /**
      * Select units with inherited rules by select query (DSL)
@@ -406,8 +398,7 @@ public interface AccessInternalClient extends MockOrRestClient {
      * @throws BadRequestException if empty query is found
      */
     RequestResponse<JsonNode> selectUnitsWithInheritedRules(JsonNode selectQuery)
-        throws InvalidParseOperationException, AccessInternalClientServerException,
-        AccessInternalClientNotFoundException, AccessUnauthorizedException, BadRequestException;
+        throws InvalidParseOperationException, AccessInternalClientServerException, AccessInternalClientNotFoundException, AccessUnauthorizedException, BadRequestException;
 
     /**
      * Get Zipped AccessLog files as Stream
@@ -419,8 +410,7 @@ public interface AccessInternalClient extends MockOrRestClient {
      * @throws AccessUnauthorizedException
      */
     Response downloadAccessLogFile(JsonNode params)
-        throws AccessInternalClientServerException, AccessInternalClientNotFoundException,
-        InvalidParseOperationException, AccessUnauthorizedException;
+        throws AccessInternalClientServerException, AccessInternalClientNotFoundException, InvalidParseOperationException, AccessUnauthorizedException;
 
     /**
      * Performs an elimination analysis workflow.
@@ -482,14 +472,12 @@ public interface AccessInternalClient extends MockOrRestClient {
         throws AccessInternalClientServerException;
 
     RequestResponse<JsonNode> revertUnits(RevertUpdateOptions revertUpdateOptions)
-        throws AccessInternalClientServerException, InvalidParseOperationException, AccessUnauthorizedException,
-        NoWritingPermissionException, InvalidFormatException;
+        throws AccessInternalClientServerException, InvalidParseOperationException, AccessUnauthorizedException, NoWritingPermissionException, InvalidFormatException;
 
     Optional<AccessRequestReference> createObjectAccessRequest(String idObjectGroup, String qualifier, int version)
         throws AccessInternalClientServerException, AccessInternalClientNotFoundException, AccessUnauthorizedException;
 
-    List<StatusByAccessRequest> checkAccessRequestStatuses(
-        List<AccessRequestReference> accessRequestReferences)
+    List<StatusByAccessRequest> checkAccessRequestStatuses(List<AccessRequestReference> accessRequestReferences)
         throws AccessInternalClientServerException, AccessInternalClientIllegalOperationException;
 
     void removeAccessRequest(AccessRequestReference accessRequestReference)

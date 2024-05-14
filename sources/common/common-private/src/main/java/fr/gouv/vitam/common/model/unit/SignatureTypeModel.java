@@ -37,15 +37,17 @@ public class SignatureTypeModel {
 
     @JsonProperty("Signer")
     private List<ValidatorOrSignerModel> signer;
+
     @JsonProperty("Validator")
     private ValidatorOrSignerModel validator;
+
     @JsonProperty("Masterdata")
     private String masterdata;
+
     @JsonProperty("ReferencedObject")
     protected ReferencedObjectTypeModel referencedObject;
 
-    public SignatureTypeModel() {
-    }
+    public SignatureTypeModel() {}
 
     public List<ValidatorOrSignerModel> getSigner() {
         return signer;

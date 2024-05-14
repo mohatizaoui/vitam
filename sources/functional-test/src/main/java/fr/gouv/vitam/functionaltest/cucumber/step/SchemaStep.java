@@ -26,12 +26,8 @@
  */
 package fr.gouv.vitam.functionaltest.cucumber.step;
 
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.cucumber.java.en.Given;
-import io.cucumber.java.en.Then;
-import io.cucumber.java.en.When;
 import fr.gouv.vitam.access.external.common.exception.AccessExternalClientException;
 import fr.gouv.vitam.common.GlobalDataRest;
 import fr.gouv.vitam.common.client.VitamContext;
@@ -42,6 +38,9 @@ import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.administration.schema.SchemaOrigin;
 import fr.gouv.vitam.common.model.administration.schema.SchemaResponse;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -57,7 +56,6 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SchemaStep extends CommonStep {
-
 
     public SchemaStep(World world) {
         super(world);
@@ -81,14 +79,13 @@ public class SchemaStep extends CommonStep {
     @When("^j'importe le schema externe$")
     public void importExternalSchema()
         throws InvalidParseOperationException, AccessExternalClientException, IOException {
-
         try (InputStream inputStream = Files.newInputStream(fileName, StandardOpenOption.READ)) {
-
             VitamContext vitamContext = new VitamContext(world.getTenantId());
             vitamContext.setApplicationSessionId(world.getApplicationSessionId());
 
-            RequestResponse requestResponse =
-                world.getAdminClient().importUnitExternalSchema(vitamContext, inputStream);
+            RequestResponse requestResponse = world
+                .getAdminClient()
+                .importUnitExternalSchema(vitamContext, inputStream);
             final String operationId = requestResponse.getHeaderString(GlobalDataRest.X_REQUEST_ID);
             world.setOperationId(operationId);
 
@@ -101,14 +98,11 @@ public class SchemaStep extends CommonStep {
         }
     }
 
-
-
     @When("^je recupère le schema$")
     public void searchSchemaByPath() throws VitamClientException {
         VitamContext vitamContext = new VitamContext(world.getTenantId());
         vitamContext.setApplicationSessionId(world.getApplicationSessionId());
-        RequestResponse<SchemaResponse> requestResponse =
-            world.getAdminClient().getUnitSchema(vitamContext);
+        RequestResponse<SchemaResponse> requestResponse = world.getAdminClient().getUnitSchema(vitamContext);
         assertThat(requestResponse.isOk()).isTrue();
 
         unitSchemas = ((RequestResponseOK) requestResponse).getResults();
@@ -126,10 +120,12 @@ public class SchemaStep extends CommonStep {
 
     private SchemaResponse doSearchSchema(String path) {
         assertThat(unitSchemas).isNotEmpty();
-        final Optional<SchemaResponse> schemaResponse =
-            unitSchemas.stream().filter(unitSchema -> SchemaOrigin.EXTERNAL.equals(unitSchema.getOrigin()) &&
-                    path.equals(unitSchema.getPath()))
-                .findFirst();
+        final Optional<SchemaResponse> schemaResponse = unitSchemas
+            .stream()
+            .filter(
+                unitSchema -> SchemaOrigin.EXTERNAL.equals(unitSchema.getOrigin()) && path.equals(unitSchema.getPath())
+            )
+            .findFirst();
         assertThat(schemaResponse).isPresent();
         return schemaResponse.get();
     }
@@ -153,8 +149,9 @@ public class SchemaStep extends CommonStep {
         throws InvalidParseOperationException, AccessExternalClientException {
         VitamContext vitamContext = new VitamContext(world.getTenantId());
         vitamContext.setApplicationSessionId(world.getApplicationSessionId());
-        RequestResponse<Void> requestResponse =
-            world.getAdminClient().deleteUnitExternalSchemas(vitamContext, Collections.singletonList((path)));
+        RequestResponse<Void> requestResponse = world
+            .getAdminClient()
+            .deleteUnitExternalSchemas(vitamContext, Collections.singletonList((path)));
 
         String httpCode = String.valueOf(requestResponse.getHttpCode());
         ObjectNode responseCode = JsonHandler.createObjectNode();

@@ -28,14 +28,19 @@
 package fr.gouv.vitam.scheduler.server.job.auditobject;
 
 public class LastOperationExecution {
+
     public static final LastOperationExecution NOT_FOUND_EXECUTION = new LastOperationExecution(null, null, null, true);
     private final String lastOperationId;
     private final Integer tenantId;
     private final String lastUpdateDate;
     private final boolean hasCompleted;
 
-    public LastOperationExecution(String lastOperationId, Integer tenantId, String lastUpdateDate,
-        boolean hasCompleted) {
+    public LastOperationExecution(
+        String lastOperationId,
+        Integer tenantId,
+        String lastUpdateDate,
+        boolean hasCompleted
+    ) {
         this.lastOperationId = lastOperationId;
         this.tenantId = tenantId;
         this.lastUpdateDate = lastUpdateDate;

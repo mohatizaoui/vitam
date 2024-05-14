@@ -84,6 +84,7 @@ import static fr.gouv.vitam.common.model.unit.SigningInformationTypeModel.SIGNIN
 import static fr.gouv.vitam.worker.core.utils.PluginHelper.buildItemStatus;
 
 public class ProbativeCreateDistributionFile extends ActionHandler {
+
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(ProbativeCreateDistributionFile.class);
 
     private static final String HANDLER_ID = "PROBATIVE_VALUE_CREATE_DISTRIBUTION_FILE";
@@ -101,24 +102,26 @@ public class ProbativeCreateDistributionFile extends ActionHandler {
 
     @Override
     public ItemStatus execute(WorkerParameters param, HandlerIO handler) throws ProcessingException {
-
         try {
-
             ProbativeValueRequest probativeValueRequest = loadRequest(handler);
 
             List<SelectedUnit> selectedUnitsWithInitialQuery = selectInitialQueryUnits(probativeValueRequest);
 
-            Collection<SelectedUnit> extendedResultSet =
-                extendResultSetWithDetachedSigningInformation(selectedUnitsWithInitialQuery, probativeValueRequest);
+            Collection<SelectedUnit> extendedResultSet = extendResultSetWithDetachedSigningInformation(
+                selectedUnitsWithInitialQuery,
+                probativeValueRequest
+            );
 
-            String usageVersion =
-                String.format("%s_%s", probativeValueRequest.getUsage(), probativeValueRequest.getVersion());
+            String usageVersion = String.format(
+                "%s_%s",
+                probativeValueRequest.getUsage(),
+                probativeValueRequest.getVersion()
+            );
             File objectGroupsToCheck = generateDistributionFile(handler, extendedResultSet, usageVersion);
 
             handler.transferFileToWorkspace("distributionFile.jsonl", objectGroupsToCheck, false, false);
 
             return buildItemStatus(HANDLER_ID, OK, EventDetails.of("Creation of distribution file succeed."));
-
         } catch (Exception e) {
             LOGGER.error(e);
             return buildItemStatus(HANDLER_ID, KO, EventDetails.of("Creation of distribution file error."));
@@ -129,8 +132,12 @@ public class ProbativeCreateDistributionFile extends ActionHandler {
         try {
             InputStream request = handler.getInputStreamFromWorkspace("request");
             return JsonHandler.getFromInputStream(request, ProbativeValueRequest.class);
-        } catch (IOException | ContentAddressableStorageNotFoundException | ContentAddressableStorageServerException |
-                 InvalidParseOperationException e) {
+        } catch (
+            IOException
+            | ContentAddressableStorageNotFoundException
+            | ContentAddressableStorageServerException
+            | InvalidParseOperationException e
+        ) {
             throw new ProcessingStatusException(StatusCode.FATAL, "Cannot load request from workspace", e);
         }
     }
@@ -143,11 +150,9 @@ public class ProbativeCreateDistributionFile extends ActionHandler {
 
     private SelectMultiQuery buildInitialSelectQuery(ProbativeValueRequest probativeValueRequest)
         throws ProcessingStatusException {
-
         boolean signingInformationAuditMode = includeDetachedSigningInformation(probativeValueRequest);
 
         try {
-
             JsonNode initialQuery = probativeValueRequest.getDslQuery();
             JsonNode restrictedQuery = getRestrictedQueryWithAccessContract(initialQuery);
 
@@ -163,8 +168,9 @@ public class ProbativeCreateDistributionFile extends ActionHandler {
                 int lastQueryIndex = select.getQueries().size() - 1;
                 Query lastQuery = select.getQueries().get(lastQueryIndex);
                 int lastQueryDepth = lastQuery.getParserRelativeDepth();
-                Query queryExistObject =
-                    and().add(lastQuery, unitsHavingObjectGroupsQuery).setDepthLimit(lastQueryDepth);
+                Query queryExistObject = and()
+                    .add(lastQuery, unitsHavingObjectGroupsQuery)
+                    .setDepthLimit(lastQueryDepth);
                 select.getQueries().set(lastQueryIndex, queryExistObject);
             }
 
@@ -175,48 +181,51 @@ public class ProbativeCreateDistributionFile extends ActionHandler {
             }
 
             return select;
-
         } catch (InvalidParseOperationException | InvalidCreateOperationException e) {
             throw new ProcessingStatusException(StatusCode.FATAL, "Could not build select query", e);
         }
     }
 
-    private List<SelectedUnit> executeQuery(SelectMultiQuery selectQuery)
-        throws ProcessingStatusException {
-
+    private List<SelectedUnit> executeQuery(SelectMultiQuery selectQuery) throws ProcessingStatusException {
         try (MetaDataClient metadataClient = metaDataClientFactory.getClient()) {
+            ScrollSpliterator<JsonNode> scrollRequest = ScrollSpliteratorHelper.createUnitScrollSplitIterator(
+                metadataClient,
+                selectQuery
+            );
 
-            ScrollSpliterator<JsonNode> scrollRequest =
-                ScrollSpliteratorHelper.createUnitScrollSplitIterator(metadataClient, selectQuery);
-
-            return scrollRequest.toStream()
+            return scrollRequest
+                .toStream()
                 .filter(unit -> unit.hasNonNull(VitamFieldsHelper.object()))
                 .map(SelectedUnit::fromUnit)
                 .collect(Collectors.toList());
-
         } catch (RuntimeException e) {
             throw new ProcessingStatusException(StatusCode.FATAL, "Could not execute select query", e);
         }
     }
 
-    private Collection<SelectedUnit> extendResultSetWithDetachedSigningInformation(List<SelectedUnit> initialResultSet,
-        ProbativeValueRequest probativeValueRequest) throws ProcessingStatusException {
-
+    private Collection<SelectedUnit> extendResultSetWithDetachedSigningInformation(
+        List<SelectedUnit> initialResultSet,
+        ProbativeValueRequest probativeValueRequest
+    ) throws ProcessingStatusException {
         if (!includeDetachedSigningInformation(probativeValueRequest)) {
             LOGGER.info("No need for Detached SigningInformation to be added to result set");
             return initialResultSet;
         }
 
-        Map<String, SelectedUnit> totalSelectedUnitsByUnitId = initialResultSet.stream()
+        Map<String, SelectedUnit> totalSelectedUnitsByUnitId = initialResultSet
+            .stream()
             .collect(Collectors.toMap(SelectedUnit::getUnitId, selectedUnit -> selectedUnit));
 
-        Iterator<String> unitIdsWithDetachedSigningRoles = initialResultSet.stream()
+        Iterator<String> unitIdsWithDetachedSigningRoles = initialResultSet
+            .stream()
             .filter(SelectedUnit::isHaveDetachedSigningRoles)
             .map(SelectedUnit::getUnitId)
             .iterator();
 
-        Iterator<List<String>> partitionedUnitIdsWithDetachedSigningRoles =
-            Iterators.partition(unitIdsWithDetachedSigningRoles, VitamConfiguration.getMaxElasticsearchBulk());
+        Iterator<List<String>> partitionedUnitIdsWithDetachedSigningRoles = Iterators.partition(
+            unitIdsWithDetachedSigningRoles,
+            VitamConfiguration.getMaxElasticsearchBulk()
+        );
 
         while (partitionedUnitIdsWithDetachedSigningRoles.hasNext()) {
             List<String> unitIds = partitionedUnitIdsWithDetachedSigningRoles.next();
@@ -234,20 +243,28 @@ public class ProbativeCreateDistributionFile extends ActionHandler {
     private static SelectMultiQuery buildSelectQueryForDetachedSigningInformationChildUnits(Collection<String> unitIds)
         throws ProcessingStatusException {
         try {
-
             SelectMultiQuery select = new SelectMultiQuery();
-            select.addQueries(QueryHelper.and()
-                .add(QueryHelper.in(VitamFieldsHelper.unitups(), unitIds.toArray(String[]::new)),
-                    QueryHelper.exists(SIGNING_INFORMATION + "." + SIGNING_ROLE),
-                    QueryHelper.ne(SIGNING_INFORMATION + "." + SIGNING_ROLE,
-                        SigningRoleType.SIGNED_DOCUMENT.getValue())));
+            select.addQueries(
+                QueryHelper.and()
+                    .add(
+                        QueryHelper.in(VitamFieldsHelper.unitups(), unitIds.toArray(String[]::new)),
+                        QueryHelper.exists(SIGNING_INFORMATION + "." + SIGNING_ROLE),
+                        QueryHelper.ne(
+                            SIGNING_INFORMATION + "." + SIGNING_ROLE,
+                            SigningRoleType.SIGNED_DOCUMENT.getValue()
+                        )
+                    )
+            );
             select.addUsedProjection(VitamFieldsHelper.id(), VitamFieldsHelper.object());
             select.addOrderByAscFilter(VitamFieldsHelper.object());
 
             return select;
         } catch (InvalidCreateOperationException | InvalidParseOperationException e) {
-            throw new ProcessingStatusException(StatusCode.FATAL,
-                "Could not select detached SigningInformation entries", e);
+            throw new ProcessingStatusException(
+                StatusCode.FATAL,
+                "Could not select detached SigningInformation entries",
+                e
+            );
         }
     }
 
@@ -265,13 +282,16 @@ public class ProbativeCreateDistributionFile extends ActionHandler {
         return Boolean.TRUE.equals(probativeValueRequest.getIncludeDetachedSigningInformation());
     }
 
-    private File generateDistributionFile(HandlerIO handler, Collection<SelectedUnit> extendedResult,
-        String usageVersion)
-        throws IOException, InvalidParseOperationException {
+    private File generateDistributionFile(
+        HandlerIO handler,
+        Collection<SelectedUnit> extendedResult,
+        String usageVersion
+    ) throws IOException, InvalidParseOperationException {
         File objectGroupsToCheck = handler.getNewLocalFile("OBJECT_GROUP_TO_CHECK.jsonl");
-        try (FileOutputStream fileOutputStream = new FileOutputStream(objectGroupsToCheck);
-            JsonLineWriter writer = new JsonLineWriter(fileOutputStream)) {
-
+        try (
+            FileOutputStream fileOutputStream = new FileOutputStream(objectGroupsToCheck);
+            JsonLineWriter writer = new JsonLineWriter(fileOutputStream)
+        ) {
             // Group UnitIds by ObjectGroupId
             MultiValuedMap<String, String> unitIdsByObjectGroupId = new ArrayListValuedHashMap<>();
             for (SelectedUnit selectedUnit : extendedResult) {

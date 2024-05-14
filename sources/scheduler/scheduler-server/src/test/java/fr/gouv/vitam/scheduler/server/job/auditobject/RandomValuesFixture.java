@@ -44,5 +44,4 @@ public class RandomValuesFixture {
         int x = SECURE_RANDOM.nextInt(clazz.getEnumConstants().length);
         return clazz.getEnumConstants()[x];
     }
-
 }

@@ -40,12 +40,10 @@ public class ErrorReportSchema {
      */
     private SchemaInputModel schemaInputModel;
 
-
     /**
      * The message of the error
      */
     private String message;
-
 
     public ErrorReportSchema() {
         super();

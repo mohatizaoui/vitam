@@ -65,8 +65,9 @@ public class OffsetManagerTest {
         int tenant = 1;
         long lastReconstructedOffset = 1635586800L;
 
-        when(offsetRepository.findOffsetBy(tenant, VitamConfiguration.getDefaultStrategy(), "PERSISTENT_IDENTIFIER"))
-            .thenReturn(lastReconstructedOffset);
+        when(
+            offsetRepository.findOffsetBy(tenant, VitamConfiguration.getDefaultStrategy(), "PERSISTENT_IDENTIFIER")
+        ).thenReturn(lastReconstructedOffset);
 
         LocalDateTime expectedDate = Instant.ofEpochMilli(lastReconstructedOffset)
             .atZone(ZoneOffset.UTC)
@@ -82,14 +83,18 @@ public class OffsetManagerTest {
         final LocalDateTime lastSuccessfulOperationDate = LocalDateTime.now().minusDays(1);
         long timestamp = lastSuccessfulOperationDate.atOffset(ZoneOffset.UTC).toInstant().toEpochMilli();
 
-        doNothing().when(offsetRepository)
+        doNothing()
+            .when(offsetRepository)
             .createOrUpdateOffset(tenant, VitamConfiguration.getDefaultStrategy(), "PERSISTENT_IDENTIFIER", timestamp);
 
         offsetManager.saveNextReconstructionDateInOffset(tenant, lastSuccessfulOperationDate);
 
-        verify(offsetRepository)
-            .createOrUpdateOffset(tenant, VitamConfiguration.getDefaultStrategy(), "PERSISTENT_IDENTIFIER", timestamp);
-
+        verify(offsetRepository).createOrUpdateOffset(
+            tenant,
+            VitamConfiguration.getDefaultStrategy(),
+            "PERSISTENT_IDENTIFIER",
+            timestamp
+        );
     }
 
     @Test
@@ -98,12 +103,12 @@ public class OffsetManagerTest {
         LocalDateTime lastReconstructionDate = LocalDateUtil.parseMongoFormattedDate("2017-10-31T15:11:18.678");
         long lastReconstructedOffset = lastReconstructionDate.toInstant(ZoneOffset.UTC).toEpochMilli();
 
-        when(offsetRepository.findOffsetBy(tenant, VitamConfiguration.getDefaultStrategy(), "PERSISTENT_IDENTIFIER"))
-            .thenReturn(lastReconstructedOffset);
+        when(
+            offsetRepository.findOffsetBy(tenant, VitamConfiguration.getDefaultStrategy(), "PERSISTENT_IDENTIFIER")
+        ).thenReturn(lastReconstructedOffset);
 
         LocalDateTime result = offsetManager.retrieveLastReconstructionDateFromOffset(tenant);
 
         assertThat(lastReconstructionDate).isEqualTo(result);
     }
-
 }

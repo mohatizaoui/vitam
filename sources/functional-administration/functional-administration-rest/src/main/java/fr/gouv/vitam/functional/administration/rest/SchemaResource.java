@@ -61,6 +61,7 @@ import java.util.List;
 @ApplicationPath("webresources")
 @Tag(name = "Functional-Administration")
 public class SchemaResource {
+
     private static final String FUNCTIONAL_ADMINISTRATION_MODULE = "FUNCTIONAL_ADMINISTRATION_MODULE";
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(SchemaResource.class);
     public static final String UNIT_SCHEMA_URI = "/schema/unit";
@@ -87,14 +88,13 @@ public class SchemaResource {
             LOGGER.info(" retrieving unit schema elements");
             List<SchemaResponse> unitSchema = schemaService.findUnitSchema();
             return Response.ok(unitSchema).build();
-        } catch (InvalidParseOperationException | IOException | ReferentialException |
-                 InvalidCreateOperationException e) {
+        } catch (
+            InvalidParseOperationException | IOException | ReferentialException | InvalidCreateOperationException e
+        ) {
             LOGGER.error("Cannot retrieve unit schema ", e);
             return Response.serverError().build();
         }
     }
-
-
 
     @Path(OBJECTGROUP_SCHEMA_URI)
     @GET
@@ -133,8 +133,9 @@ public class SchemaResource {
         ParametersChecker.checkParameter(SCHEMA_JSON_IS_MANDATORY_PARAMETER, externalSchemaList);
 
         try {
-            RequestResponse<SchemaModel> requestResponse =
-                schemaService.importExternalSchemaElements(externalSchemaList);
+            RequestResponse<SchemaModel> requestResponse = schemaService.importExternalSchemaElements(
+                externalSchemaList
+            );
 
             if (!requestResponse.isOk()) {
                 return Response.status(requestResponse.getHttpCode()).entity(requestResponse).build();
@@ -144,8 +145,14 @@ public class SchemaResource {
         } catch (Exception exp) {
             LOGGER.error("Unexpected server error {}", exp);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity(ResponseErrorUtils.getErrorEntity(Response.Status.INTERNAL_SERVER_ERROR, exp.getMessage(),
-                    FUNCTIONAL_ADMINISTRATION_MODULE)).build();
+                .entity(
+                    ResponseErrorUtils.getErrorEntity(
+                        Response.Status.INTERNAL_SERVER_ERROR,
+                        exp.getMessage(),
+                        FUNCTIONAL_ADMINISTRATION_MODULE
+                    )
+                )
+                .build();
         }
     }
 
@@ -158,18 +165,33 @@ public class SchemaResource {
 
         try {
             Integer tenantId = ParameterHelper.getTenantParameter();
-            schemaService.checkAndDeleteExternalSchemaElementsByPaths(paths, tenantId.equals(VitamConfiguration.getAdminTenant()));
+            schemaService.checkAndDeleteExternalSchemaElementsByPaths(
+                paths,
+                tenantId.equals(VitamConfiguration.getAdminTenant())
+            );
             return Response.status(Response.Status.OK).build();
-        } catch (BadRequestException exp){
+        } catch (BadRequestException exp) {
             LOGGER.error("Bad Request Error {}", exp);
             return Response.status(Response.Status.BAD_REQUEST)
-                .entity(ResponseErrorUtils.getErrorEntity(Response.Status.BAD_REQUEST, exp.getMessage(),
-                    FUNCTIONAL_ADMINISTRATION_MODULE)).build();
+                .entity(
+                    ResponseErrorUtils.getErrorEntity(
+                        Response.Status.BAD_REQUEST,
+                        exp.getMessage(),
+                        FUNCTIONAL_ADMINISTRATION_MODULE
+                    )
+                )
+                .build();
         } catch (Exception exp) {
             LOGGER.error("Unexpected server error {}", exp);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                .entity(ResponseErrorUtils.getErrorEntity(Response.Status.INTERNAL_SERVER_ERROR, exp.getMessage(),
-                    FUNCTIONAL_ADMINISTRATION_MODULE)).build();
+                .entity(
+                    ResponseErrorUtils.getErrorEntity(
+                        Response.Status.INTERNAL_SERVER_ERROR,
+                        exp.getMessage(),
+                        FUNCTIONAL_ADMINISTRATION_MODULE
+                    )
+                )
+                .build();
         }
     }
 }

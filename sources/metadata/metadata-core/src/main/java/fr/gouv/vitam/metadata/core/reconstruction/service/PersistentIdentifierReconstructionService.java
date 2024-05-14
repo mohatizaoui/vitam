@@ -48,17 +48,20 @@ import static fr.gouv.vitam.metadata.core.reconstruction.repository.Reconstructi
 
 public class PersistentIdentifierReconstructionService {
 
-    private static final VitamLogger LOGGER =
-        VitamLoggerFactory.getInstance(PersistentIdentifierReconstructionService.class);
+    private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(
+        PersistentIdentifierReconstructionService.class
+    );
 
-    final private OffsetManager offsetManager;
-    final private PersistentIdentifierReconstructionManager persistentIdentifierReconstructionManager;
+    private final OffsetManager offsetManager;
+    private final PersistentIdentifierReconstructionManager persistentIdentifierReconstructionManager;
     private final int persistentIdentifierReconstructionThreadPoolSize;
     private final long persistentIdentifierReconstructionDelayInMinutes;
 
-    public PersistentIdentifierReconstructionService(OffsetManager offsetManager,
+    public PersistentIdentifierReconstructionService(
+        OffsetManager offsetManager,
         PersistentIdentifierReconstructionManager persistentIdentifierReconstructionManager,
-        MetaDataConfiguration metaDataConfiguration) {
+        MetaDataConfiguration metaDataConfiguration
+    ) {
         this.offsetManager = offsetManager;
         this.persistentIdentifierReconstructionManager = persistentIdentifierReconstructionManager;
         this.persistentIdentifierReconstructionThreadPoolSize =
@@ -68,37 +71,57 @@ public class PersistentIdentifierReconstructionService {
     }
 
     public ReconstructionResponse reconstruct(PersistentIdentifierReconstructionRequest request) {
-
         String requestId = VitamThreadUtils.getVitamSession().getRequestId();
-        final List<Integer> tenantList = ParametersChecker
-            .checkNullOrEmptyParameters("List of tenants cannot be null and must contain at least one element",
-                request.getTenants());
+        final List<Integer> tenantList = ParametersChecker.checkNullOrEmptyParameters(
+            "List of tenants cannot be null and must contain at least one element",
+            request.getTenants()
+        );
 
-        ExecutorService executorService =
-            createExecutorService(Math.min(this.persistentIdentifierReconstructionThreadPoolSize, tenantList.size()));
+        ExecutorService executorService = createExecutorService(
+            Math.min(this.persistentIdentifierReconstructionThreadPoolSize, tenantList.size())
+        );
         List<CompletableFuture<Void>> completableFutures = new ArrayList<>();
 
         try {
             ReconstructionResponse globalResponse = new ReconstructionResponse.Builder().status(INIT).build();
             for (Integer tenant : tenantList) {
-                CompletableFuture<Void> reconstructionFuture = CompletableFuture.runAsync(() -> {
-                    configureThreadAndSession(tenant, requestId);
-                    LocalDateTime startDate = offsetManager.retrieveLastReconstructionDateFromOffset(tenant);
-                    LocalDateTime endDate = offsetManager
-                        .retrieveEndDateWithDelay(persistentIdentifierReconstructionDelayInMinutes);
-                    LOGGER.info("Start of reconstruction between dates {} and {} for tenant {}", startDate, endDate,
-                        tenant);
-                    ReconstructionResponse response =
-                        persistentIdentifierReconstructionManager.reconstruct(startDate, endDate);
-                    offsetManager.saveNextReconstructionDateInOffset(tenant, response.getLastSuccessfulOperationDate());
-                    LOGGER.info("End of reconstruction between dates {} and {} for tenant {}", startDate, endDate,
-                        tenant);
-                    LOGGER.info(
-                        "Date of the last operation processed in the persistent identifier reconstruction : {} for tenant {}",
-                        response.getLastSuccessfulOperationDate(), tenant);
+                CompletableFuture<Void> reconstructionFuture = CompletableFuture.runAsync(
+                    () -> {
+                        configureThreadAndSession(tenant, requestId);
+                        LocalDateTime startDate = offsetManager.retrieveLastReconstructionDateFromOffset(tenant);
+                        LocalDateTime endDate = offsetManager.retrieveEndDateWithDelay(
+                            persistentIdentifierReconstructionDelayInMinutes
+                        );
+                        LOGGER.info(
+                            "Start of reconstruction between dates {} and {} for tenant {}",
+                            startDate,
+                            endDate,
+                            tenant
+                        );
+                        ReconstructionResponse response = persistentIdentifierReconstructionManager.reconstruct(
+                            startDate,
+                            endDate
+                        );
+                        offsetManager.saveNextReconstructionDateInOffset(
+                            tenant,
+                            response.getLastSuccessfulOperationDate()
+                        );
+                        LOGGER.info(
+                            "End of reconstruction between dates {} and {} for tenant {}",
+                            startDate,
+                            endDate,
+                            tenant
+                        );
+                        LOGGER.info(
+                            "Date of the last operation processed in the persistent identifier reconstruction : {} for tenant {}",
+                            response.getLastSuccessfulOperationDate(),
+                            tenant
+                        );
 
-                    globalResponse.accumulate(response);
-                }, executorService);
+                        globalResponse.accumulate(response);
+                    },
+                    executorService
+                );
                 completableFutures.add(reconstructionFuture);
             }
             CompletableFuture.allOf(completableFutures.toArray(new CompletableFuture[0])).join();
@@ -119,5 +142,4 @@ public class PersistentIdentifierReconstructionService {
         VitamThreadUtils.getVitamSession().setTenantId(tenant);
         VitamThreadUtils.getVitamSession().setRequestId(requestId);
     }
-
 }

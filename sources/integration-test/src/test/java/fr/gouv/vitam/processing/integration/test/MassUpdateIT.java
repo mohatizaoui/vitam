@@ -145,8 +145,7 @@ public class MassUpdateIT extends VitamRuleRunner {
         "integration-processing/mass-update/unit_06.json";
     private static final String INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_07_JSON =
         "integration-processing/mass-update/unit_07.json";
-    private static final String MASS_UPDATE_QUERY_KO =
-        "integration-processing/mass-update/update_query_KO.json";
+    private static final String MASS_UPDATE_QUERY_KO = "integration-processing/mass-update/update_query_KO.json";
     private static final String INTEGRATION_PROCESSING_MASS_UPDATE_UPDATE_QUERY_01_JSON =
         "integration-processing/mass-update/update_query_01.json";
     private static final String INTEGRATION_PROCESSING_MASS_UPDATE_UPDATE_QUERY_02_JSON =
@@ -198,7 +197,7 @@ public class MassUpdateIT extends VitamRuleRunner {
     private static final String RULES = "Rules";
     private static final String RULE = "Rule";
     private static final String STARTDATE = "StartDate";
-    
+
     private static final String UNIT_ID = "aeaqaaaaaagbcaacaang6ak4ts6paliaaaaq";
 
     private static final String INTEGRATION_PROCESSING_MASS_UPDATE_ADD_PREVENT_RULES =
@@ -227,28 +226,28 @@ public class MassUpdateIT extends VitamRuleRunner {
     private static final String MASS_UPDATE_OK = "MASS_UPDATE_FINALIZE.OK";
 
     private static final String MASS_UPDATE_UNIT_RULE_KO = "MASS_UPDATE_UNIT_RULE.KO";
-    
-    private static final String RULES_FILE =  "Rules.json";
-    
+
+    private static final String RULES_FILE = "Rules.json";
 
     @ClassRule
-    public static VitamServerRunner runner =
-        new VitamServerRunner(ProcessingIT.class, mongoRule.getMongoDatabase().getName(),
-            ElasticsearchRule.getClusterName(),
-            Sets.newHashSet(
-                MetadataMain.class,
-                WorkerMain.class,
-                AdminManagementMain.class,
-                LogbookMain.class,
-                WorkspaceMain.class,
-                ProcessManagementMain.class,
-                StorageMain.class,
-                DefaultOfferMain.class,
-                BatchReportMain.class
-            ));
+    public static VitamServerRunner runner = new VitamServerRunner(
+        ProcessingIT.class,
+        mongoRule.getMongoDatabase().getName(),
+        ElasticsearchRule.getClusterName(),
+        Sets.newHashSet(
+            MetadataMain.class,
+            WorkerMain.class,
+            AdminManagementMain.class,
+            LogbookMain.class,
+            WorkspaceMain.class,
+            ProcessManagementMain.class,
+            StorageMain.class,
+            DefaultOfferMain.class,
+            BatchReportMain.class
+        )
+    );
 
-    private static final TypeReference<List<Document>> TYPE_LIST_UNIT = new TypeReference<>() {
-    };
+    private static final TypeReference<List<Document>> TYPE_LIST_UNIT = new TypeReference<>() {};
 
     private WorkspaceClient workspaceClient;
     private ProcessingManagementClient processingClient;
@@ -280,18 +279,19 @@ public class MassUpdateIT extends VitamRuleRunner {
         VitamThreadUtils.getVitamSession().setContextId(CONTEXT_ID);
 
         ProcessDataAccessImpl.getInstance().clearWorkflow();
-        runAfterMongo(Sets.newHashSet(
-            MetadataCollections.UNIT.getName(),
-            MetadataCollections.OBJECTGROUP.getName(),
-            FunctionalAdminCollections.ACCESSION_REGISTER_SUMMARY.getName(),
-            FunctionalAdminCollections.ACCESSION_REGISTER_DETAIL.getName(),
-            LogbookCollections.OPERATION.getName(),
-            LogbookCollections.LIFECYCLE_UNIT.getName(),
-            LogbookCollections.LIFECYCLE_OBJECTGROUP.getName(),
-            LogbookCollections.LIFECYCLE_OBJECTGROUP.getName(),
-            LogbookCollections.LIFECYCLE_UNIT_IN_PROCESS.getName()
-
-        ));
+        runAfterMongo(
+            Sets.newHashSet(
+                MetadataCollections.UNIT.getName(),
+                MetadataCollections.OBJECTGROUP.getName(),
+                FunctionalAdminCollections.ACCESSION_REGISTER_SUMMARY.getName(),
+                FunctionalAdminCollections.ACCESSION_REGISTER_DETAIL.getName(),
+                LogbookCollections.OPERATION.getName(),
+                LogbookCollections.LIFECYCLE_UNIT.getName(),
+                LogbookCollections.LIFECYCLE_OBJECTGROUP.getName(),
+                LogbookCollections.LIFECYCLE_OBJECTGROUP.getName(),
+                LogbookCollections.LIFECYCLE_UNIT_IN_PROCESS.getName()
+            )
+        );
 
         runAfterEs(
             ElasticsearchIndexAlias.ofMultiTenantCollection(MetadataCollections.UNIT.getName(), 0),
@@ -300,10 +300,12 @@ public class MassUpdateIT extends VitamRuleRunner {
             ElasticsearchIndexAlias.ofMultiTenantCollection(MetadataCollections.OBJECTGROUP.getName(), 1),
             ElasticsearchIndexAlias.ofMultiTenantCollection(LogbookCollections.OPERATION.getName(), 0),
             ElasticsearchIndexAlias.ofMultiTenantCollection(LogbookCollections.OPERATION.getName(), 1),
-            ElasticsearchIndexAlias
-                .ofCrossTenantCollection(FunctionalAdminCollections.ACCESSION_REGISTER_DETAIL.getName()),
-            ElasticsearchIndexAlias
-                .ofCrossTenantCollection(FunctionalAdminCollections.ACCESSION_REGISTER_SUMMARY.getName())
+            ElasticsearchIndexAlias.ofCrossTenantCollection(
+                FunctionalAdminCollections.ACCESSION_REGISTER_DETAIL.getName()
+            ),
+            ElasticsearchIndexAlias.ofCrossTenantCollection(
+                FunctionalAdminCollections.ACCESSION_REGISTER_SUMMARY.getName()
+            )
         );
     }
 
@@ -323,31 +325,33 @@ public class MassUpdateIT extends VitamRuleRunner {
 
         // insert units
         VitamThreadUtils.getVitamSession().setRequestId(GUIDFactory.newOperationLogbookGUID(TENANT_0));
-        List<Document> units = JsonHandler.getFromFileAsTypeReference(PropertiesUtils.getResourceFile(
-                INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_00_JSON),
-            TYPE_LIST_UNIT);
-        VitamRepositoryFactory.get().getVitamMongoRepository(MetadataCollections.UNIT.getVitamCollection())
-            .save(units);
-        VitamRepositoryFactory.get().getVitamESRepository(MetadataCollections.UNIT.getVitamCollection(),
-                metadataIndexManager.getElasticsearchIndexAliasResolver(MetadataCollections.UNIT))
+        List<Document> units = JsonHandler.getFromFileAsTypeReference(
+            PropertiesUtils.getResourceFile(INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_00_JSON),
+            TYPE_LIST_UNIT
+        );
+        VitamRepositoryFactory.get().getVitamMongoRepository(MetadataCollections.UNIT.getVitamCollection()).save(units);
+        VitamRepositoryFactory.get()
+            .getVitamESRepository(
+                MetadataCollections.UNIT.getVitamCollection(),
+                metadataIndexManager.getElasticsearchIndexAliasResolver(MetadataCollections.UNIT)
+            )
             .save(units);
 
         // import contract
         VitamThreadUtils.getVitamSession().setRequestId(GUIDFactory.newOperationLogbookGUID(TENANT_0));
 
-        JsonNode query =
-            JsonHandler.getFromFile(
-                PropertiesUtils.findFile(
-                    INTEGRATION_PROCESSING_MASS_UPDATE_UPDATE_QUERY_01_JSON));     // <- no units matching this query
-        workspaceClient
-            .putObject(operationGuid.getId(), QUERY, JsonHandler.writeToInpustream(query));
+        JsonNode query = JsonHandler.getFromFile(
+            PropertiesUtils.findFile(INTEGRATION_PROCESSING_MASS_UPDATE_UPDATE_QUERY_01_JSON)
+        ); // <- no units matching this query
+        workspaceClient.putObject(operationGuid.getId(), QUERY, JsonHandler.writeToInpustream(query));
         VitamThreadUtils.getVitamSession().setRequestId(operationGuid);
         processingClient = ProcessingManagementClientFactory.getInstance().getClient();
-        processingClient
-            .initVitamProcess(containerName, Contexts.MASS_UPDATE_UNIT_DESC.name());
+        processingClient.initVitamProcess(containerName, Contexts.MASS_UPDATE_UNIT_DESC.name());
 
-        RequestResponse<ItemStatus> ret =
-            processingClient.updateOperationActionProcess(ProcessAction.RESUME.getValue(), containerName);
+        RequestResponse<ItemStatus> ret = processingClient.updateOperationActionProcess(
+            ProcessAction.RESUME.getValue(),
+            containerName
+        );
         assertNotNull(ret);
         assertEquals(Response.Status.ACCEPTED.getStatusCode(), ret.getStatus());
 
@@ -355,9 +359,7 @@ public class MassUpdateIT extends VitamRuleRunner {
         ProcessWorkflow processWorkflow = processMonitoring.findOneProcessWorkflow(containerName, TENANT_0);
         assertNotNull(processWorkflow);
         assertEquals(ProcessState.COMPLETED, processWorkflow.getState());
-        assertEquals(StatusCode.WARNING,
-            processWorkflow.getStatus());                                   // <- workflow WARNING
-
+        assertEquals(StatusCode.WARNING, processWorkflow.getStatus()); // <- workflow WARNING
     }
 
     @RunWithCustomExecutor
@@ -379,25 +381,34 @@ public class MassUpdateIT extends VitamRuleRunner {
         workspaceClient.createContainer(containerName);
 
         // insert 2 units and LFC
-        insertUnitAndLFC(INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_00_JSON,
-            INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_LFC_00_JSON);
-        insertUnitAndLFC(INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_05_JSON,
-            INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_LFC_05_JSON);
+        insertUnitAndLFC(
+            INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_00_JSON,
+            INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_LFC_00_JSON
+        );
+        insertUnitAndLFC(
+            INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_05_JSON,
+            INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_LFC_05_JSON
+        );
 
         // import contract
         VitamThreadUtils.getVitamSession().setRequestId(GUIDFactory.newOperationLogbookGUID(TENANT_0));
 
         processingClient = ProcessingManagementClientFactory.getInstance().getClient();
-        JsonNode query =
-            JsonHandler.getFromFile(PropertiesUtils.findFile(INTEGRATION_PROCESSING_MASS_UPDATE_UPDATE_QUERY_02_JSON));
+        JsonNode query = JsonHandler.getFromFile(
+            PropertiesUtils.findFile(INTEGRATION_PROCESSING_MASS_UPDATE_UPDATE_QUERY_02_JSON)
+        );
         workspaceClient.putObject(operationGuid.getId(), QUERY, JsonHandler.writeToInpustream(query));
-        workspaceClient
-            .putObject(operationGuid.getId(), ACTION, JsonHandler.writeToInpustream(JsonHandler.createObjectNode()));
+        workspaceClient.putObject(
+            operationGuid.getId(),
+            ACTION,
+            JsonHandler.writeToInpustream(JsonHandler.createObjectNode())
+        );
         processingClient.initVitamProcess(containerName, Contexts.MASS_UPDATE_UNIT_DESC.name());
 
         VitamTestHelper.runStepByStepUntilStepReached(containerName, "STP_CHECK_AND_COMPUTE");
         // delete unit to create a KO
-        VitamRepositoryFactory.get().getVitamMongoRepository(MetadataCollections.UNIT.getVitamCollection())
+        VitamRepositoryFactory.get()
+            .getVitamMongoRepository(MetadataCollections.UNIT.getVitamCollection())
             .delete(Collections.singletonList(UNIT_ID), TENANT_0);
 
         processingClient.updateOperationActionProcess(ProcessAction.RESUME.getValue(), containerName);
@@ -410,16 +421,16 @@ public class MassUpdateIT extends VitamRuleRunner {
         VitamTestHelper.verifyLogbook(containerName, "MASS_UPDATE_UNITS", StatusCode.KO.name());
         VitamTestHelper.verifyLogbook(containerName, "MASS_UPDATE_FINALIZE", StatusCode.WARNING.name());
 
-        Optional<Document> updatedUnit =
-            VitamRepositoryFactory.get().getVitamMongoRepository(MetadataCollections.UNIT.getVitamCollection())
-                .getByID("aeaqaaaaaagbcaacaang6ak4ts6paliaaaas", TENANT_0);
+        Optional<Document> updatedUnit = VitamRepositoryFactory.get()
+            .getVitamMongoRepository(MetadataCollections.UNIT.getVitamCollection())
+            .getByID("aeaqaaaaaagbcaacaang6ak4ts6paliaaaas", TENANT_0);
         assertTrue(updatedUnit.isPresent());
         String expected = "update old title sous fonds \"émouvant สวัสดี";
         assertThat(updatedUnit.get()).containsEntry(TITLE, expected);
 
-        Optional<Document> deletedUnit =
-            VitamRepositoryFactory.get().getVitamMongoRepository(MetadataCollections.UNIT.getVitamCollection())
-                .getByID(UNIT_ID, TENANT_0);
+        Optional<Document> deletedUnit = VitamRepositoryFactory.get()
+            .getVitamMongoRepository(MetadataCollections.UNIT.getVitamCollection())
+            .getByID(UNIT_ID, TENANT_0);
         assertTrue(deletedUnit.isEmpty());
     }
 
@@ -444,29 +455,41 @@ public class MassUpdateIT extends VitamRuleRunner {
         workspaceClient.createContainer(containerName);
 
         // insert units and LFC
-        insertUnitAndLFC(INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_00_JSON,
-            INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_LFC_00_JSON);
-        insertUnitAndLFC(INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_05_JSON,
-            INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_LFC_05_JSON);
-        insertUnitAndLFC(INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_06_JSON,
-            INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_LFC_06_JSON);
+        insertUnitAndLFC(
+            INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_00_JSON,
+            INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_LFC_00_JSON
+        );
+        insertUnitAndLFC(
+            INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_05_JSON,
+            INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_LFC_05_JSON
+        );
+        insertUnitAndLFC(
+            INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_06_JSON,
+            INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_LFC_06_JSON
+        );
 
         // import contract
         VitamThreadUtils.getVitamSession().setRequestId(GUIDFactory.newOperationLogbookGUID(TENANT_0));
 
         processingClient = ProcessingManagementClientFactory.getInstance().getClient();
-        JsonNode query =
-            JsonHandler.getFromFile(PropertiesUtils.findFile(INTEGRATION_PROCESSING_MASS_UPDATE_UPDATE_QUERY_02_JSON));
+        JsonNode query = JsonHandler.getFromFile(
+            PropertiesUtils.findFile(INTEGRATION_PROCESSING_MASS_UPDATE_UPDATE_QUERY_02_JSON)
+        );
         workspaceClient.putObject(operationGuid.getId(), QUERY, JsonHandler.writeToInpustream(query));
-        workspaceClient
-            .putObject(operationGuid.getId(), ACTION, JsonHandler.writeToInpustream(JsonHandler.createObjectNode()));
+        workspaceClient.putObject(
+            operationGuid.getId(),
+            ACTION,
+            JsonHandler.writeToInpustream(JsonHandler.createObjectNode())
+        );
         processingClient.initVitamProcess(containerName, Contexts.MASS_UPDATE_UNIT_DESC.name());
 
         VitamTestHelper.runStepByStepUntilStepReached(containerName, "STP_CHECK_AND_COMPUTE");
         // delete unit to create a KO
-        VitamRepositoryFactory.get().getVitamMongoRepository(MetadataCollections.UNIT.getVitamCollection())
+        VitamRepositoryFactory.get()
+            .getVitamMongoRepository(MetadataCollections.UNIT.getVitamCollection())
             .delete(Collections.singletonList(UNIT_ID), TENANT_0);
-        VitamRepositoryFactory.get().getVitamMongoRepository(MetadataCollections.UNIT.getVitamCollection())
+        VitamRepositoryFactory.get()
+            .getVitamMongoRepository(MetadataCollections.UNIT.getVitamCollection())
             .delete(Collections.singletonList("aeaqaaaaaagbcaacaang6ak4ts6paliaaaah"), TENANT_0);
 
         processingClient.updateOperationActionProcess(ProcessAction.RESUME.getValue(), containerName);
@@ -479,19 +502,18 @@ public class MassUpdateIT extends VitamRuleRunner {
         VitamTestHelper.verifyLogbook(containerName, "MASS_UPDATE_UNITS", StatusCode.KO.name());
         VitamTestHelper.verifyLogbook(containerName, "MASS_UPDATE_FINALIZE", StatusCode.WARNING.name());
 
-        Optional<Document> updatedUnit =
-            VitamRepositoryFactory.get().getVitamMongoRepository(MetadataCollections.UNIT.getVitamCollection())
-                .getByID("aeaqaaaaaagbcaacaang6ak4ts6paliaaaas", TENANT_0);
+        Optional<Document> updatedUnit = VitamRepositoryFactory.get()
+            .getVitamMongoRepository(MetadataCollections.UNIT.getVitamCollection())
+            .getByID("aeaqaaaaaagbcaacaang6ak4ts6paliaaaas", TENANT_0);
         assertTrue(updatedUnit.isPresent());
         String expected = "update old title sous fonds \"émouvant สวัสดี";
         assertThat(updatedUnit.get()).containsEntry(TITLE, expected);
 
-        Optional<Document> deletedUnit =
-            VitamRepositoryFactory.get().getVitamMongoRepository(MetadataCollections.UNIT.getVitamCollection())
-                .getByID(UNIT_ID, TENANT_0);
+        Optional<Document> deletedUnit = VitamRepositoryFactory.get()
+            .getVitamMongoRepository(MetadataCollections.UNIT.getVitamCollection())
+            .getByID(UNIT_ID, TENANT_0);
         assertTrue(deletedUnit.isEmpty());
     }
-
 
     @RunWithCustomExecutor
     @Test
@@ -508,30 +530,31 @@ public class MassUpdateIT extends VitamRuleRunner {
         workspaceClient.createContainer(containerName);
 
         VitamThreadUtils.getVitamSession().setRequestId(GUIDFactory.newOperationLogbookGUID(TENANT_0));
-        List<Document> units = JsonHandler.getFromFileAsTypeReference(PropertiesUtils.getResourceFile(
-                INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_00_JSON),
-            TYPE_LIST_UNIT);
-        VitamRepositoryFactory.get().getVitamMongoRepository(MetadataCollections.UNIT.getVitamCollection())
-            .save(units);
-        VitamRepositoryFactory.get().getVitamESRepository(MetadataCollections.UNIT.getVitamCollection(),
-                metadataIndexManager.getElasticsearchIndexAliasResolver(MetadataCollections.UNIT))
+        List<Document> units = JsonHandler.getFromFileAsTypeReference(
+            PropertiesUtils.getResourceFile(INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_00_JSON),
+            TYPE_LIST_UNIT
+        );
+        VitamRepositoryFactory.get().getVitamMongoRepository(MetadataCollections.UNIT.getVitamCollection()).save(units);
+        VitamRepositoryFactory.get()
+            .getVitamESRepository(
+                MetadataCollections.UNIT.getVitamCollection(),
+                metadataIndexManager.getElasticsearchIndexAliasResolver(MetadataCollections.UNIT)
+            )
             .save(units);
 
         VitamThreadUtils.getVitamSession().setRequestId(GUIDFactory.newOperationLogbookGUID(TENANT_0));
 
         // When
-        JsonNode query =
-            JsonHandler.getFromFile(
-                PropertiesUtils.findFile(MASS_UPDATE_QUERY_KO));
-        workspaceClient
-            .putObject(operationGuid.getId(), QUERY, JsonHandler.writeToInpustream(query));
+        JsonNode query = JsonHandler.getFromFile(PropertiesUtils.findFile(MASS_UPDATE_QUERY_KO));
+        workspaceClient.putObject(operationGuid.getId(), QUERY, JsonHandler.writeToInpustream(query));
         VitamThreadUtils.getVitamSession().setRequestId(operationGuid);
         processingClient = ProcessingManagementClientFactory.getInstance().getClient();
-        processingClient
-            .initVitamProcess(containerName, Contexts.MASS_UPDATE_UNIT_DESC.name());
+        processingClient.initVitamProcess(containerName, Contexts.MASS_UPDATE_UNIT_DESC.name());
 
-        RequestResponse<ItemStatus> ret =
-            processingClient.updateOperationActionProcess(ProcessAction.RESUME.getValue(), containerName);
+        RequestResponse<ItemStatus> ret = processingClient.updateOperationActionProcess(
+            ProcessAction.RESUME.getValue(),
+            containerName
+        );
 
         // Then
         assertNotNull(ret);
@@ -561,27 +584,31 @@ public class MassUpdateIT extends VitamRuleRunner {
         workspaceClient.createContainer(containerName);
 
         // insert units and LFC
-        insertUnitAndLFC(INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_00_JSON,
-            INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_LFC_00_JSON);
+        insertUnitAndLFC(
+            INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_00_JSON,
+            INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_LFC_00_JSON
+        );
 
         // import contract
         VitamThreadUtils.getVitamSession().setRequestId(GUIDFactory.newOperationLogbookGUID(TENANT_0));
 
         VitamThreadUtils.getVitamSession().setRequestId(operationGuid);
         processingClient = ProcessingManagementClientFactory.getInstance().getClient();
-        JsonNode query =
-            JsonHandler.getFromFile(
-                PropertiesUtils.findFile(INTEGRATION_PROCESSING_MASS_UPDATE_UPDATE_QUERY_02_JSON));
-        workspaceClient
-            .putObject(operationGuid.getId(), QUERY, JsonHandler.writeToInpustream(query));
-        workspaceClient
-            .putObject(operationGuid.getId(), ACTION,
-                JsonHandler.writeToInpustream(JsonHandler.createObjectNode()));
-        processingClient
-            .initVitamProcess(containerName, Contexts.MASS_UPDATE_UNIT_DESC.name());
+        JsonNode query = JsonHandler.getFromFile(
+            PropertiesUtils.findFile(INTEGRATION_PROCESSING_MASS_UPDATE_UPDATE_QUERY_02_JSON)
+        );
+        workspaceClient.putObject(operationGuid.getId(), QUERY, JsonHandler.writeToInpustream(query));
+        workspaceClient.putObject(
+            operationGuid.getId(),
+            ACTION,
+            JsonHandler.writeToInpustream(JsonHandler.createObjectNode())
+        );
+        processingClient.initVitamProcess(containerName, Contexts.MASS_UPDATE_UNIT_DESC.name());
 
-        RequestResponse<ItemStatus> ret =
-            processingClient.updateOperationActionProcess(ProcessAction.RESUME.getValue(), containerName);
+        RequestResponse<ItemStatus> ret = processingClient.updateOperationActionProcess(
+            ProcessAction.RESUME.getValue(),
+            containerName
+        );
         assertNotNull(ret);
         assertEquals(Response.Status.ACCEPTED.getStatusCode(), ret.getStatus());
 
@@ -591,9 +618,9 @@ public class MassUpdateIT extends VitamRuleRunner {
         assertEquals(ProcessState.COMPLETED, processWorkflow.getState());
         assertEquals(StatusCode.OK, processWorkflow.getStatus());
 
-        Optional<Document> updatedUnit =
-            VitamRepositoryFactory.get().getVitamMongoRepository(MetadataCollections.UNIT.getVitamCollection())
-                .getByID(UNIT_ID, TENANT_0);
+        Optional<Document> updatedUnit = VitamRepositoryFactory.get()
+            .getVitamMongoRepository(MetadataCollections.UNIT.getVitamCollection())
+            .getByID(UNIT_ID, TENANT_0);
         assertTrue(updatedUnit.isPresent());
         String expected = "update old title sous fonds \"émouvant สวัสดี";
 
@@ -609,8 +636,10 @@ public class MassUpdateIT extends VitamRuleRunner {
         verifyEvent(events, "MASS_UPDATE_UNIT_DESC.OK");
 
         LogbookLifeCyclesClient logbookLifeCyclesClient = LogbookLifeCyclesClientFactory.getInstance().getClient();
-        JsonNode unitLfc = logbookLifeCyclesClient
-            .selectUnitLifeCycleById(updatedUnit.get().get("_id", String.class), new Select().getFinalSelectById());
+        JsonNode unitLfc = logbookLifeCyclesClient.selectUnitLifeCycleById(
+            updatedUnit.get().get("_id", String.class),
+            new Select().getFinalSelectById()
+        );
 
         JsonNode lfcEvents = unitLfc.get("$results").get(0).get("events");
         final JsonNode lastEvent = lfcEvents.get(lfcEvents.size() - 1);
@@ -625,7 +654,9 @@ public class MassUpdateIT extends VitamRuleRunner {
 
         // Ensure logbook operation does not contain evDetData for distributed step STP_UPDATE / action MASS_UPDATE_UNITS
         LogbookOperation logbookOperation = getLogbookInformation(containerName);
-        List<LogbookEventOperation> updateEvents = logbookOperation.getEvents().stream()
+        List<LogbookEventOperation> updateEvents = logbookOperation
+            .getEvents()
+            .stream()
             .filter(ev -> ev.getOutDetail().equals("MASS_UPDATE_UNITS.OK"))
             .collect(Collectors.toList());
         assertThat(updateEvents).hasSize(1);
@@ -633,7 +664,9 @@ public class MassUpdateIT extends VitamRuleRunner {
     }
 
     private void verifyEvent(JsonNode events, String s) {
-        List<JsonNode> massUpdateFinalized = events.findValues(OUT_DETAIL).stream()
+        List<JsonNode> massUpdateFinalized = events
+            .findValues(OUT_DETAIL)
+            .stream()
             .filter(e -> e.asText().equals(s))
             .collect(Collectors.toList());
         assertThat(massUpdateFinalized).isNotEmpty();
@@ -655,30 +688,36 @@ public class MassUpdateIT extends VitamRuleRunner {
         workspaceClient.createContainer(containerName);
 
         // insert units and LFC
-        insertUnitAndLFC(INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_01_JSON,
-            INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_LFC_01_JSON);
+        insertUnitAndLFC(
+            INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_01_JSON,
+            INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_LFC_01_JSON
+        );
 
-        insertUnitAndLFC(INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_02_JSON,
-            INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_LFC_02_JSON);
+        insertUnitAndLFC(
+            INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_02_JSON,
+            INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_LFC_02_JSON
+        );
 
         // import contract
         VitamThreadUtils.getVitamSession().setRequestId(GUIDFactory.newOperationLogbookGUID(TENANT_0));
 
         VitamThreadUtils.getVitamSession().setRequestId(operationGuid);
         processingClient = ProcessingManagementClientFactory.getInstance().getClient();
-        JsonNode query =
-            JsonHandler.getFromFile(
-                PropertiesUtils.findFile(INTEGRATION_PROCESSING_MASS_UPDATE_UPDATE_QUERY_03_JSON));
-        workspaceClient
-            .putObject(operationGuid.getId(), QUERY, JsonHandler.writeToInpustream(query));
-        workspaceClient
-            .putObject(operationGuid.getId(), ACTION,
-                JsonHandler.writeToInpustream(JsonHandler.createObjectNode()));
-        processingClient
-            .initVitamProcess(containerName, Contexts.MASS_UPDATE_UNIT_DESC.name());
+        JsonNode query = JsonHandler.getFromFile(
+            PropertiesUtils.findFile(INTEGRATION_PROCESSING_MASS_UPDATE_UPDATE_QUERY_03_JSON)
+        );
+        workspaceClient.putObject(operationGuid.getId(), QUERY, JsonHandler.writeToInpustream(query));
+        workspaceClient.putObject(
+            operationGuid.getId(),
+            ACTION,
+            JsonHandler.writeToInpustream(JsonHandler.createObjectNode())
+        );
+        processingClient.initVitamProcess(containerName, Contexts.MASS_UPDATE_UNIT_DESC.name());
 
-        RequestResponse<ItemStatus> ret =
-            processingClient.updateOperationActionProcess(ProcessAction.RESUME.getValue(), containerName);
+        RequestResponse<ItemStatus> ret = processingClient.updateOperationActionProcess(
+            ProcessAction.RESUME.getValue(),
+            containerName
+        );
         assertNotNull(ret);
         assertEquals(Response.Status.ACCEPTED.getStatusCode(), ret.getStatus());
 
@@ -688,22 +727,23 @@ public class MassUpdateIT extends VitamRuleRunner {
         assertEquals(ProcessState.COMPLETED, processWorkflow.getState());
         assertEquals(StatusCode.OK, processWorkflow.getStatus());
 
-        Optional<Document> updatedUnit =
-            VitamRepositoryFactory.get().getVitamMongoRepository(MetadataCollections.UNIT.getVitamCollection())
-                .getByID("aeaqaaaaaagbcaacaang6ak4ts6palibbbbq", TENANT_0);
+        Optional<Document> updatedUnit = VitamRepositoryFactory.get()
+            .getVitamMongoRepository(MetadataCollections.UNIT.getVitamCollection())
+            .getByID("aeaqaaaaaagbcaacaang6ak4ts6palibbbbq", TENANT_0);
         assertTrue(updatedUnit.isPresent());
         assertThat(updatedUnit.get()).containsEntry(TITLE, "Reportage photographique juillet n°17642");
 
-        Optional<Document> updatedUnit2 =
-            VitamRepositoryFactory.get().getVitamMongoRepository(MetadataCollections.UNIT.getVitamCollection())
-                .getByID("aeaqaaaaaagbcaacaang6ak4ts6paliccccq", TENANT_0);
+        Optional<Document> updatedUnit2 = VitamRepositoryFactory.get()
+            .getVitamMongoRepository(MetadataCollections.UNIT.getVitamCollection())
+            .getByID("aeaqaaaaaagbcaacaang6ak4ts6paliccccq", TENANT_0);
         assertTrue(updatedUnit2.isPresent());
-        assertThat(updatedUnit2.get()).containsEntry(TITLE,
-            "Le Reportage photographique juillet n°17642 est réalisé en 1789 sous le titre: Reportage photographique juillet n°17642");
+        assertThat(updatedUnit2.get()).containsEntry(
+            TITLE,
+            "Le Reportage photographique juillet n°17642 est réalisé en 1789 sous le titre: Reportage photographique juillet n°17642"
+        );
 
         LogbookOperationsClient logbookClient = LogbookOperationsClientFactory.getInstance().getClient();
-        Select selectQuery =
-            new Select();
+        Select selectQuery = new Select();
         selectQuery.setQuery(QueryHelper.eq(EV_ID_PROC, containerName));
         JsonNode logbookResult = logbookClient.selectOperation(selectQuery.getFinalSelect());
         JsonNode events = logbookResult.get(RESULTS).get(0).get(EVENTS);
@@ -714,7 +754,6 @@ public class MassUpdateIT extends VitamRuleRunner {
         events = logbookResult2.get(RESULTS).get(0).get(EVENTS);
         verifyEvent(events, MASS_UPDATE_OK);
         verifyEvent(events, "MASS_UPDATE_UNIT_DESC.OK");
-
     }
 
     @RunWithCustomExecutor
@@ -733,26 +772,30 @@ public class MassUpdateIT extends VitamRuleRunner {
         workspaceClient.createContainer(containerName);
 
         // insert units and LFC
-        insertUnitAndLFC(INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_01_JSON,
-            INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_LFC_01_JSON);
+        insertUnitAndLFC(
+            INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_01_JSON,
+            INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_LFC_01_JSON
+        );
 
         // import contract
         VitamThreadUtils.getVitamSession().setRequestId(GUIDFactory.newOperationLogbookGUID(TENANT_0));
         VitamThreadUtils.getVitamSession().setRequestId(operationGuid);
         processingClient = ProcessingManagementClientFactory.getInstance().getClient();
-        JsonNode query =
-            JsonHandler.getFromFile(
-                PropertiesUtils.findFile(INTEGRATION_PROCESSING_MASS_UPDATE_UPDATE_QUERY_04_JSON));
-        workspaceClient
-            .putObject(operationGuid.getId(), QUERY, JsonHandler.writeToInpustream(query));
-        workspaceClient
-            .putObject(operationGuid.getId(), ACTION,
-                JsonHandler.writeToInpustream(JsonHandler.createObjectNode()));
-        processingClient
-            .initVitamProcess(containerName, Contexts.MASS_UPDATE_UNIT_DESC.name());
+        JsonNode query = JsonHandler.getFromFile(
+            PropertiesUtils.findFile(INTEGRATION_PROCESSING_MASS_UPDATE_UPDATE_QUERY_04_JSON)
+        );
+        workspaceClient.putObject(operationGuid.getId(), QUERY, JsonHandler.writeToInpustream(query));
+        workspaceClient.putObject(
+            operationGuid.getId(),
+            ACTION,
+            JsonHandler.writeToInpustream(JsonHandler.createObjectNode())
+        );
+        processingClient.initVitamProcess(containerName, Contexts.MASS_UPDATE_UNIT_DESC.name());
 
-        RequestResponse<ItemStatus> ret =
-            processingClient.updateOperationActionProcess(ProcessAction.RESUME.getValue(), containerName);
+        RequestResponse<ItemStatus> ret = processingClient.updateOperationActionProcess(
+            ProcessAction.RESUME.getValue(),
+            containerName
+        );
         assertNotNull(ret);
         assertEquals(Response.Status.ACCEPTED.getStatusCode(), ret.getStatus());
 
@@ -762,21 +805,19 @@ public class MassUpdateIT extends VitamRuleRunner {
         assertEquals(ProcessState.COMPLETED, processWorkflow.getState());
         assertEquals(StatusCode.OK, processWorkflow.getStatus());
 
-        Optional<Document> updatedUnit =
-            VitamRepositoryFactory.get().getVitamMongoRepository(MetadataCollections.UNIT.getVitamCollection())
-                .getByID("aeaqaaaaaagbcaacaang6ak4ts6palibbbbq", TENANT_0);
+        Optional<Document> updatedUnit = VitamRepositoryFactory.get()
+            .getVitamMongoRepository(MetadataCollections.UNIT.getVitamCollection())
+            .getByID("aeaqaaaaaagbcaacaang6ak4ts6palibbbbq", TENANT_0);
         assertTrue(updatedUnit.isPresent());
-        assertThat(((Document) updatedUnit.get().get(TITLE_))).containsEntry("fr" , "Good title");
+        assertThat(((Document) updatedUnit.get().get(TITLE_))).containsEntry("fr", "Good title");
 
         LogbookOperationsClient logbookClient = LogbookOperationsClientFactory.getInstance().getClient();
-        Select selectQuery =
-            new Select();
+        Select selectQuery = new Select();
         selectQuery.setQuery(QueryHelper.eq(EV_ID_PROC, containerName));
         JsonNode logbookResult = logbookClient.selectOperation(selectQuery.getFinalSelect());
         JsonNode events = logbookResult.get(RESULTS).get(0).get(EVENTS);
         verifyEvent(events, MASS_UPDATE_OK);
         verifyEvent(events, "MASS_UPDATE_UNIT_DESC.OK");
-
     }
 
     @RunWithCustomExecutor
@@ -797,27 +838,31 @@ public class MassUpdateIT extends VitamRuleRunner {
         workspaceClient.createContainer(containerName);
 
         // insert units and LFC
-        insertUnitAndLFC(INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_04_JSON,
-            INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_LFC_04_JSON);
+        insertUnitAndLFC(
+            INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_04_JSON,
+            INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_LFC_04_JSON
+        );
 
         // import contract
         VitamThreadUtils.getVitamSession().setRequestId(GUIDFactory.newOperationLogbookGUID(TENANT_0));
 
         VitamThreadUtils.getVitamSession().setRequestId(operationGuid);
         processingClient = ProcessingManagementClientFactory.getInstance().getClient();
-        JsonNode query =
-            JsonHandler.getFromFile(
-                PropertiesUtils.findFile(INTEGRATION_PROCESSING_MASS_UPDATE_UPDATE_QUERY_03_JSON));
-        workspaceClient
-            .putObject(operationGuid.getId(), QUERY, JsonHandler.writeToInpustream(query));
-        workspaceClient
-            .putObject(operationGuid.getId(), ACTION,
-                JsonHandler.writeToInpustream(JsonHandler.createObjectNode()));
-        processingClient
-            .initVitamProcess(containerName, Contexts.MASS_UPDATE_UNIT_DESC.name());
+        JsonNode query = JsonHandler.getFromFile(
+            PropertiesUtils.findFile(INTEGRATION_PROCESSING_MASS_UPDATE_UPDATE_QUERY_03_JSON)
+        );
+        workspaceClient.putObject(operationGuid.getId(), QUERY, JsonHandler.writeToInpustream(query));
+        workspaceClient.putObject(
+            operationGuid.getId(),
+            ACTION,
+            JsonHandler.writeToInpustream(JsonHandler.createObjectNode())
+        );
+        processingClient.initVitamProcess(containerName, Contexts.MASS_UPDATE_UNIT_DESC.name());
 
-        RequestResponse<ItemStatus> ret =
-            processingClient.updateOperationActionProcess(ProcessAction.RESUME.getValue(), containerName);
+        RequestResponse<ItemStatus> ret = processingClient.updateOperationActionProcess(
+            ProcessAction.RESUME.getValue(),
+            containerName
+        );
         assertNotNull(ret);
         assertEquals(Response.Status.ACCEPTED.getStatusCode(), ret.getStatus());
 
@@ -838,15 +883,14 @@ public class MassUpdateIT extends VitamRuleRunner {
         assertEquals(ProcessState.COMPLETED, processWorkflow.getState());
         assertEquals(StatusCode.OK, processWorkflow.getStatus());
 
-        Optional<Document> updatedUnit =
-            VitamRepositoryFactory.get().getVitamMongoRepository(MetadataCollections.UNIT.getVitamCollection())
-                .getByID(unitId, TENANT_0);
+        Optional<Document> updatedUnit = VitamRepositoryFactory.get()
+            .getVitamMongoRepository(MetadataCollections.UNIT.getVitamCollection())
+            .getByID(unitId, TENANT_0);
         assertTrue(updatedUnit.isPresent());
         assertThat(updatedUnit.get()).containsEntry(TITLE, "Reportage photographique juillet n°17642");
 
         LogbookOperationsClient logbookClient = LogbookOperationsClientFactory.getInstance().getClient();
-        Select selectQuery =
-            new Select();
+        Select selectQuery = new Select();
         selectQuery.setQuery(QueryHelper.eq(EV_ID_PROC, containerName));
         JsonNode logbookResult = logbookClient.selectOperation(selectQuery.getFinalSelect());
 
@@ -859,18 +903,20 @@ public class MassUpdateIT extends VitamRuleRunner {
         verifyEvent(events, MASS_UPDATE_OK);
 
         LogbookLifeCyclesClient logbookLifeCyclesClient = LogbookLifeCyclesClientFactory.getInstance().getClient();
-        JsonNode unitLfc = logbookLifeCyclesClient
-            .selectUnitLifeCycleById(updatedUnit.get().get("_id", String.class), new Select().getFinalSelectById());
+        JsonNode unitLfc = logbookLifeCyclesClient.selectUnitLifeCycleById(
+            updatedUnit.get().get("_id", String.class),
+            new Select().getFinalSelectById()
+        );
 
         JsonNode lfcJsonNode = unitLfc.get("$results").get(0);
         LogbookLifecycle lfc = JsonHandler.getFromJsonNode(lfcJsonNode, LogbookLifecycle.class);
         List<LogbookEvent> lfcEvents = lfc.getEvents();
-        List<LogbookEvent> updateEvents = lfcEvents.stream()
+        List<LogbookEvent> updateEvents = lfcEvents
+            .stream()
             .filter(e -> "LFC.UNIT_METADATA_UPDATE".equals(e.getEvType()) && containerName.equals(e.getEvIdProc()))
             .collect(Collectors.toList());
 
         assertEquals(1, updateEvents.size());
-
     }
 
     /**
@@ -885,22 +931,27 @@ public class MassUpdateIT extends VitamRuleRunner {
     private void insertUnitAndLFC(final String unitFile, final String lfcFile)
         throws fr.gouv.vitam.common.exception.InvalidParseOperationException, FileNotFoundException, DatabaseException {
         VitamThreadUtils.getVitamSession().setRequestId(GUIDFactory.newOperationLogbookGUID(TENANT_0));
-        List<Document> units = JsonHandler.getFromFileAsTypeReference(PropertiesUtils.getResourceFile(
-                unitFile),
-            TYPE_LIST_UNIT);
-        VitamRepositoryFactory.get().getVitamMongoRepository(MetadataCollections.UNIT.getVitamCollection())
-            .save(units);
-        VitamRepositoryFactory.get().getVitamESRepository(MetadataCollections.UNIT.getVitamCollection(),
-                metadataIndexManager.getElasticsearchIndexAliasResolver(MetadataCollections.UNIT))
+        List<Document> units = JsonHandler.getFromFileAsTypeReference(
+            PropertiesUtils.getResourceFile(unitFile),
+            TYPE_LIST_UNIT
+        );
+        VitamRepositoryFactory.get().getVitamMongoRepository(MetadataCollections.UNIT.getVitamCollection()).save(units);
+        VitamRepositoryFactory.get()
+            .getVitamESRepository(
+                MetadataCollections.UNIT.getVitamCollection(),
+                metadataIndexManager.getElasticsearchIndexAliasResolver(MetadataCollections.UNIT)
+            )
             .save(units);
 
         VitamThreadUtils.getVitamSession().setRequestId(GUIDFactory.newOperationLogbookGUID(TENANT_0));
-        List<JsonNode> unitsLfc = JsonHandler.getFromFileAsTypeReference(PropertiesUtils.getResourceFile(
-                lfcFile),
-            new TypeReference<>() {
-            });
-        List<Document> lfcs = unitsLfc.stream()
-            .map(item -> Document.parse(JsonHandler.unprettyPrint(item))).collect(Collectors.toList());
+        List<JsonNode> unitsLfc = JsonHandler.getFromFileAsTypeReference(
+            PropertiesUtils.getResourceFile(lfcFile),
+            new TypeReference<>() {}
+        );
+        List<Document> lfcs = unitsLfc
+            .stream()
+            .map(item -> Document.parse(JsonHandler.unprettyPrint(item)))
+            .collect(Collectors.toList());
 
         new VitamMongoRepository(LogbookCollections.LIFECYCLE_UNIT.getCollection()).save(lfcs);
     }
@@ -918,19 +969,24 @@ public class MassUpdateIT extends VitamRuleRunner {
      */
     private void createLogbookOperation(GUID operationId, GUID objectId, String type, LogbookTypeProcess typeProc)
         throws LogbookClientBadRequestException, LogbookClientAlreadyExistsException, LogbookClientServerException {
-
         final LogbookOperationsClient logbookClient = LogbookOperationsClientFactory.getInstance().getClient();
         if (type == null) {
             type = STP_MASS_UPDATE_UNIT;
         }
         final LogbookOperationParameters initParameters = LogbookParameterHelper.newLogbookOperationParameters(
-            operationId, type, objectId,
-            typeProc, StatusCode.STARTED,
+            operationId,
+            type,
+            objectId,
+            typeProc,
+            StatusCode.STARTED,
             operationId != null ? operationId.toString() : "outcomeDetailMessage",
-            operationId);
+            operationId
+        );
         if (STP_MASS_UPDATE_UNIT.equals(type)) {
-            initParameters.putParameterValue(LogbookParameterName.outcomeDetailMessage,
-                VitamLogbookMessages.getLabelOp(STP_MASS_UPDATE_UNIT + ".STARTED") + " : " + operationId);
+            initParameters.putParameterValue(
+                LogbookParameterName.outcomeDetailMessage,
+                VitamLogbookMessages.getLabelOp(STP_MASS_UPDATE_UNIT + ".STARTED") + " : " + operationId
+            );
         }
         logbookClient.create(initParameters);
     }
@@ -952,33 +1008,34 @@ public class MassUpdateIT extends VitamRuleRunner {
             workspaceClient.createContainer(containerName);
 
             // insert units and LFC
-            insertUnitAndLFC(INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_01_JSON,
-                INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_LFC_01_JSON);
+            insertUnitAndLFC(
+                INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_01_JSON,
+                INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_LFC_01_JSON
+            );
 
             // import contract
             VitamThreadUtils.getVitamSession().setRequestId(GUIDFactory.newOperationLogbookGUID(TENANT_0));
-            adminManagementClient
-                .importRulesFile(getClass().getResourceAsStream(INTEGRATION_PROCESSING_MASS_UPDATE_RULE),
-                    RULES_FILE);
+            adminManagementClient.importRulesFile(
+                getClass().getResourceAsStream(INTEGRATION_PROCESSING_MASS_UPDATE_RULE),
+                RULES_FILE
+            );
 
             VitamThreadUtils.getVitamSession().setRequestId(operationGuid);
             processingClient = ProcessingManagementClientFactory.getInstance().getClient();
-            JsonNode query =
-                JsonHandler.getFromFile(
-                    PropertiesUtils.findFile(INTEGRATION_PROCESSING_MASS_UPDATE_UPDATE_QUERY_05_JSON));
-            workspaceClient
-                .putObject(operationGuid.getId(), QUERY, JsonHandler.writeToInpustream(query));
-            JsonNode action =
-                JsonHandler.getFromFile(
-                    PropertiesUtils.findFile(INTEGRATION_PROCESSING_MASS_UPDATE_ADD_RULE));
-            workspaceClient
-                .putObject(operationGuid.getId(), ACTION,
-                    JsonHandler.writeToInpustream(action));
-            processingClient
-                .initVitamProcess(containerName, Contexts.MASS_UPDATE_UNIT_RULE.name());
+            JsonNode query = JsonHandler.getFromFile(
+                PropertiesUtils.findFile(INTEGRATION_PROCESSING_MASS_UPDATE_UPDATE_QUERY_05_JSON)
+            );
+            workspaceClient.putObject(operationGuid.getId(), QUERY, JsonHandler.writeToInpustream(query));
+            JsonNode action = JsonHandler.getFromFile(
+                PropertiesUtils.findFile(INTEGRATION_PROCESSING_MASS_UPDATE_ADD_RULE)
+            );
+            workspaceClient.putObject(operationGuid.getId(), ACTION, JsonHandler.writeToInpustream(action));
+            processingClient.initVitamProcess(containerName, Contexts.MASS_UPDATE_UNIT_RULE.name());
 
-            RequestResponse<ItemStatus> ret =
-                processingClient.updateOperationActionProcess(ProcessAction.RESUME.getValue(), containerName);
+            RequestResponse<ItemStatus> ret = processingClient.updateOperationActionProcess(
+                ProcessAction.RESUME.getValue(),
+                containerName
+            );
             assertNotNull(ret);
             assertEquals(Response.Status.ACCEPTED.getStatusCode(), ret.getStatus());
 
@@ -988,17 +1045,22 @@ public class MassUpdateIT extends VitamRuleRunner {
             assertEquals(ProcessState.COMPLETED, processWorkflow.getState());
             assertEquals(StatusCode.OK, processWorkflow.getStatus());
 
-            Optional<Document> updatedUnit =
-                VitamRepositoryFactory.get().getVitamMongoRepository(MetadataCollections.UNIT.getVitamCollection())
-                    .getByID("aeaqaaaaaagbcaacaang6ak4ts6palibbbbq", TENANT_0);
+            Optional<Document> updatedUnit = VitamRepositoryFactory.get()
+                .getVitamMongoRepository(MetadataCollections.UNIT.getVitamCollection())
+                .getByID("aeaqaaaaaagbcaacaang6ak4ts6palibbbbq", TENANT_0);
             assertTrue(updatedUnit.isPresent());
             assertThat(
-                updatedUnit.get().get(MGT, Document.class).get(REUSERULE, Document.class).getList(RULES, Document.class)
-                    .get(0).getString(RULE)).isEqualTo("REU-00001");
+                updatedUnit
+                    .get()
+                    .get(MGT, Document.class)
+                    .get(REUSERULE, Document.class)
+                    .getList(RULES, Document.class)
+                    .get(0)
+                    .getString(RULE)
+            ).isEqualTo("REU-00001");
 
             LogbookOperationsClient logbookClient = LogbookOperationsClientFactory.getInstance().getClient();
-            Select selectQuery =
-                new Select();
+            Select selectQuery = new Select();
             selectQuery.setQuery(QueryHelper.eq(EV_ID_PROC, containerName));
             JsonNode logbookResult = logbookClient.selectOperation(selectQuery.getFinalSelect());
             JsonNode events = logbookResult.get(RESULTS).get(0).get(EVENTS);
@@ -1023,33 +1085,34 @@ public class MassUpdateIT extends VitamRuleRunner {
             workspaceClient.createContainer(containerName);
 
             // insert units and LFC
-            insertUnitAndLFC(INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_03_JSON,
-                INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_LFC_01_JSON);
+            insertUnitAndLFC(
+                INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_03_JSON,
+                INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_LFC_01_JSON
+            );
 
             // import contract
             VitamThreadUtils.getVitamSession().setRequestId(GUIDFactory.newOperationLogbookGUID(TENANT_0));
-            adminManagementClient
-                .importRulesFile(getClass().getResourceAsStream(INTEGRATION_PROCESSING_MASS_UPDATE_RULE),
-                    RULES_FILE);
+            adminManagementClient.importRulesFile(
+                getClass().getResourceAsStream(INTEGRATION_PROCESSING_MASS_UPDATE_RULE),
+                RULES_FILE
+            );
 
             VitamThreadUtils.getVitamSession().setRequestId(operationGuid);
             processingClient = ProcessingManagementClientFactory.getInstance().getClient();
-            JsonNode query =
-                JsonHandler.getFromFile(
-                    PropertiesUtils.findFile(INTEGRATION_PROCESSING_MASS_UPDATE_UPDATE_QUERY_05_JSON));
-            workspaceClient
-                .putObject(operationGuid.getId(), QUERY, JsonHandler.writeToInpustream(query));
-            JsonNode action =
-                JsonHandler.getFromFile(
-                    PropertiesUtils.findFile(INTEGRATION_PROCESSING_MASS_UPDATE_UPDATE_RULE));
-            workspaceClient
-                .putObject(operationGuid.getId(), ACTION,
-                    JsonHandler.writeToInpustream(action));
-            processingClient
-                .initVitamProcess(containerName, Contexts.MASS_UPDATE_UNIT_RULE.name());
+            JsonNode query = JsonHandler.getFromFile(
+                PropertiesUtils.findFile(INTEGRATION_PROCESSING_MASS_UPDATE_UPDATE_QUERY_05_JSON)
+            );
+            workspaceClient.putObject(operationGuid.getId(), QUERY, JsonHandler.writeToInpustream(query));
+            JsonNode action = JsonHandler.getFromFile(
+                PropertiesUtils.findFile(INTEGRATION_PROCESSING_MASS_UPDATE_UPDATE_RULE)
+            );
+            workspaceClient.putObject(operationGuid.getId(), ACTION, JsonHandler.writeToInpustream(action));
+            processingClient.initVitamProcess(containerName, Contexts.MASS_UPDATE_UNIT_RULE.name());
 
-            RequestResponse<ItemStatus> ret =
-                processingClient.updateOperationActionProcess(ProcessAction.RESUME.getValue(), containerName);
+            RequestResponse<ItemStatus> ret = processingClient.updateOperationActionProcess(
+                ProcessAction.RESUME.getValue(),
+                containerName
+            );
             assertNotNull(ret);
             assertEquals(Response.Status.ACCEPTED.getStatusCode(), ret.getStatus());
 
@@ -1059,18 +1122,22 @@ public class MassUpdateIT extends VitamRuleRunner {
             assertEquals(ProcessState.COMPLETED, processWorkflow.getState());
             assertEquals(StatusCode.OK, processWorkflow.getStatus());
 
-            Optional<Document> updatedUnit =
-                VitamRepositoryFactory.get().getVitamMongoRepository(MetadataCollections.UNIT.getVitamCollection())
-                    .getByID("aeaqaaaaaagbcaacaang6ak4ts6palibbbbq", TENANT_0);
+            Optional<Document> updatedUnit = VitamRepositoryFactory.get()
+                .getVitamMongoRepository(MetadataCollections.UNIT.getVitamCollection())
+                .getByID("aeaqaaaaaagbcaacaang6ak4ts6palibbbbq", TENANT_0);
             assertTrue(updatedUnit.isPresent());
             assertThat(
-                updatedUnit.get().get(MGT, Document.class).get(REUSERULE, Document.class).getList(RULES, Document.class)
-                    .get(0).getString(STARTDATE)).isEqualTo("2019-10-11");
-
+                updatedUnit
+                    .get()
+                    .get(MGT, Document.class)
+                    .get(REUSERULE, Document.class)
+                    .getList(RULES, Document.class)
+                    .get(0)
+                    .getString(STARTDATE)
+            ).isEqualTo("2019-10-11");
 
             LogbookOperationsClient logbookClient = LogbookOperationsClientFactory.getInstance().getClient();
-            Select selectQuery =
-                new Select();
+            Select selectQuery = new Select();
             selectQuery.setQuery(QueryHelper.eq(EV_ID_PROC, containerName));
             JsonNode logbookResult = logbookClient.selectOperation(selectQuery.getFinalSelect());
             JsonNode events = logbookResult.get(RESULTS).get(0).get(EVENTS);
@@ -1095,33 +1162,34 @@ public class MassUpdateIT extends VitamRuleRunner {
             workspaceClient.createContainer(containerName);
 
             // insert units and LFC
-            insertUnitAndLFC(INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_03_JSON,
-                INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_LFC_01_JSON);
+            insertUnitAndLFC(
+                INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_03_JSON,
+                INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_LFC_01_JSON
+            );
 
             // import contract
             VitamThreadUtils.getVitamSession().setRequestId(GUIDFactory.newOperationLogbookGUID(TENANT_0));
-            adminManagementClient
-                .importRulesFile(getClass().getResourceAsStream(INTEGRATION_PROCESSING_MASS_UPDATE_RULE),
-                    RULES_FILE);
+            adminManagementClient.importRulesFile(
+                getClass().getResourceAsStream(INTEGRATION_PROCESSING_MASS_UPDATE_RULE),
+                RULES_FILE
+            );
 
             VitamThreadUtils.getVitamSession().setRequestId(operationGuid);
             processingClient = ProcessingManagementClientFactory.getInstance().getClient();
-            JsonNode query =
-                JsonHandler.getFromFile(
-                    PropertiesUtils.findFile(INTEGRATION_PROCESSING_MASS_UPDATE_UPDATE_QUERY_05_JSON));
-            workspaceClient
-                .putObject(operationGuid.getId(), QUERY, JsonHandler.writeToInpustream(query));
-            JsonNode action =
-                JsonHandler.getFromFile(
-                    PropertiesUtils.findFile(INTEGRATION_PROCESSING_MASS_UPDATE_DELETE_RULE));
-            workspaceClient
-                .putObject(operationGuid.getId(), ACTION,
-                    JsonHandler.writeToInpustream(action));
-            processingClient
-                .initVitamProcess(containerName, Contexts.MASS_UPDATE_UNIT_RULE.name());
+            JsonNode query = JsonHandler.getFromFile(
+                PropertiesUtils.findFile(INTEGRATION_PROCESSING_MASS_UPDATE_UPDATE_QUERY_05_JSON)
+            );
+            workspaceClient.putObject(operationGuid.getId(), QUERY, JsonHandler.writeToInpustream(query));
+            JsonNode action = JsonHandler.getFromFile(
+                PropertiesUtils.findFile(INTEGRATION_PROCESSING_MASS_UPDATE_DELETE_RULE)
+            );
+            workspaceClient.putObject(operationGuid.getId(), ACTION, JsonHandler.writeToInpustream(action));
+            processingClient.initVitamProcess(containerName, Contexts.MASS_UPDATE_UNIT_RULE.name());
 
-            RequestResponse<ItemStatus> ret =
-                processingClient.updateOperationActionProcess(ProcessAction.RESUME.getValue(), containerName);
+            RequestResponse<ItemStatus> ret = processingClient.updateOperationActionProcess(
+                ProcessAction.RESUME.getValue(),
+                containerName
+            );
             assertNotNull(ret);
             assertEquals(Response.Status.ACCEPTED.getStatusCode(), ret.getStatus());
 
@@ -1131,17 +1199,16 @@ public class MassUpdateIT extends VitamRuleRunner {
             assertEquals(ProcessState.COMPLETED, processWorkflow.getState());
             assertEquals(StatusCode.OK, processWorkflow.getStatus());
 
-            Optional<Document> updatedUnit =
-                VitamRepositoryFactory.get().getVitamMongoRepository(MetadataCollections.UNIT.getVitamCollection())
-                    .getByID("aeaqaaaaaagbcaacaang6ak4ts6palibbbbq", TENANT_0);
+            Optional<Document> updatedUnit = VitamRepositoryFactory.get()
+                .getVitamMongoRepository(MetadataCollections.UNIT.getVitamCollection())
+                .getByID("aeaqaaaaaagbcaacaang6ak4ts6palibbbbq", TENANT_0);
             assertTrue(updatedUnit.isPresent());
             assertThat(
-                updatedUnit.get().get(MGT, Document.class).get(REUSERULE, Document.class).getList(RULES, Document.class)).isEmpty();
-
+                updatedUnit.get().get(MGT, Document.class).get(REUSERULE, Document.class).getList(RULES, Document.class)
+            ).isEmpty();
 
             LogbookOperationsClient logbookClient = LogbookOperationsClientFactory.getInstance().getClient();
-            Select selectQuery =
-                new Select();
+            Select selectQuery = new Select();
             selectQuery.setQuery(QueryHelper.eq(EV_ID_PROC, containerName));
             JsonNode logbookResult = logbookClient.selectOperation(selectQuery.getFinalSelect());
             JsonNode events = logbookResult.get(RESULTS).get(0).get(EVENTS);
@@ -1166,32 +1233,34 @@ public class MassUpdateIT extends VitamRuleRunner {
             workspaceClient.createContainer(containerName);
 
             // insert units and LFC
-            insertUnitAndLFC(INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_07_JSON,
-                INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_LFC_07_JSON);
+            insertUnitAndLFC(
+                INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_07_JSON,
+                INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_LFC_07_JSON
+            );
 
             // import contract
             VitamThreadUtils.getVitamSession().setRequestId(GUIDFactory.newOperationLogbookGUID(TENANT_0));
-            functionalClient.importRulesFile(getClass().getResourceAsStream(INTEGRATION_PROCESSING_MASS_UPDATE_RULE),
-                RULES_FILE);
+            functionalClient.importRulesFile(
+                getClass().getResourceAsStream(INTEGRATION_PROCESSING_MASS_UPDATE_RULE),
+                RULES_FILE
+            );
 
             VitamThreadUtils.getVitamSession().setRequestId(operationGuid);
             processingClient = ProcessingManagementClientFactory.getInstance().getClient();
-            JsonNode query =
-                JsonHandler.getFromFile(
-                    PropertiesUtils.findFile(INTEGRATION_PROCESSING_MASS_UPDATE_UPDATE_QUERY_06_JSON));
-            workspaceClient
-                .putObject(operationGuid.getId(), QUERY, JsonHandler.writeToInpustream(query));
-            JsonNode action =
-                JsonHandler.getFromFile(
-                    PropertiesUtils.findFile(INTEGRATION_PROCESSING_MASS_UPDATE_COMPLEX_ADD_UPDATE_DELETE_RULES));
-            workspaceClient
-                .putObject(operationGuid.getId(), ACTION,
-                    JsonHandler.writeToInpustream(action));
-            processingClient
-                .initVitamProcess(containerName, Contexts.MASS_UPDATE_UNIT_RULE.name());
+            JsonNode query = JsonHandler.getFromFile(
+                PropertiesUtils.findFile(INTEGRATION_PROCESSING_MASS_UPDATE_UPDATE_QUERY_06_JSON)
+            );
+            workspaceClient.putObject(operationGuid.getId(), QUERY, JsonHandler.writeToInpustream(query));
+            JsonNode action = JsonHandler.getFromFile(
+                PropertiesUtils.findFile(INTEGRATION_PROCESSING_MASS_UPDATE_COMPLEX_ADD_UPDATE_DELETE_RULES)
+            );
+            workspaceClient.putObject(operationGuid.getId(), ACTION, JsonHandler.writeToInpustream(action));
+            processingClient.initVitamProcess(containerName, Contexts.MASS_UPDATE_UNIT_RULE.name());
 
-            RequestResponse<ItemStatus> ret =
-                processingClient.updateOperationActionProcess(ProcessAction.RESUME.getValue(), containerName);
+            RequestResponse<ItemStatus> ret = processingClient.updateOperationActionProcess(
+                ProcessAction.RESUME.getValue(),
+                containerName
+            );
             assertNotNull(ret);
             assertEquals(Response.Status.ACCEPTED.getStatusCode(), ret.getStatus());
 
@@ -1201,20 +1270,20 @@ public class MassUpdateIT extends VitamRuleRunner {
             assertEquals(ProcessState.COMPLETED, processWorkflow.getState());
             assertEquals(StatusCode.OK, processWorkflow.getStatus());
 
-            Optional<Document> updatedUnit =
-                VitamRepositoryFactory.get().getVitamMongoRepository(MetadataCollections.UNIT.getVitamCollection())
-                    .getByID(UNIT_ID_UPDATE, TENANT_0);
+            Optional<Document> updatedUnit = VitamRepositoryFactory.get()
+                .getVitamMongoRepository(MetadataCollections.UNIT.getVitamCollection())
+                .getByID(UNIT_ID_UPDATE, TENANT_0);
             assertTrue(updatedUnit.isPresent());
             JsonNode unitJsonNode = BsonHelper.fromDocumentToJsonNode(updatedUnit.get());
             String actualManagementNode = JsonHandler.unprettyPrint(unitJsonNode.get(MGT));
             String expectedManagementNode = PropertiesUtils.getResourceAsString(
-                EXPECTED_UNIT_7_MGT_AFTER_COMPLEX_ADD_UPDATE_DELETE_RULES_JSON);
+                EXPECTED_UNIT_7_MGT_AFTER_COMPLEX_ADD_UPDATE_DELETE_RULES_JSON
+            );
 
             JsonAssert.assertJsonEquals(expectedManagementNode, actualManagementNode);
 
             LogbookOperationsClient logbookClient = LogbookOperationsClientFactory.getInstance().getClient();
-            Select selectQuery =
-                new Select();
+            Select selectQuery = new Select();
             selectQuery.setQuery(QueryHelper.eq(EV_ID_PROC, containerName));
             JsonNode logbookResult = logbookClient.selectOperation(selectQuery.getFinalSelect());
             JsonNode events = logbookResult.get(RESULTS).get(0).get(EVENTS);
@@ -1239,32 +1308,34 @@ public class MassUpdateIT extends VitamRuleRunner {
             workspaceClient.createContainer(containerName);
 
             // insert units and LFC
-            insertUnitAndLFC(INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_07_JSON,
-                INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_LFC_07_JSON);
+            insertUnitAndLFC(
+                INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_07_JSON,
+                INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_LFC_07_JSON
+            );
 
             // import contract
             VitamThreadUtils.getVitamSession().setRequestId(GUIDFactory.newOperationLogbookGUID(TENANT_0));
-            functionalClient.importRulesFile(getClass().getResourceAsStream(INTEGRATION_PROCESSING_MASS_UPDATE_RULE),
-                RULES_FILE);
+            functionalClient.importRulesFile(
+                getClass().getResourceAsStream(INTEGRATION_PROCESSING_MASS_UPDATE_RULE),
+                RULES_FILE
+            );
 
             VitamThreadUtils.getVitamSession().setRequestId(operationGuid);
             processingClient = ProcessingManagementClientFactory.getInstance().getClient();
-            JsonNode query =
-                JsonHandler.getFromFile(
-                    PropertiesUtils.findFile(INTEGRATION_PROCESSING_MASS_UPDATE_UPDATE_QUERY_06_JSON));
-            workspaceClient
-                .putObject(operationGuid.getId(), QUERY, JsonHandler.writeToInpustream(query));
-            JsonNode action =
-                JsonHandler.getFromFile(
-                    PropertiesUtils.findFile(INTEGRATION_PROCESSING_MASS_UPDATE_ADD_PREVENT_RULES));
-            workspaceClient
-                .putObject(operationGuid.getId(), ACTION,
-                    JsonHandler.writeToInpustream(action));
-            processingClient
-                .initVitamProcess(containerName, Contexts.MASS_UPDATE_UNIT_RULE.name());
+            JsonNode query = JsonHandler.getFromFile(
+                PropertiesUtils.findFile(INTEGRATION_PROCESSING_MASS_UPDATE_UPDATE_QUERY_06_JSON)
+            );
+            workspaceClient.putObject(operationGuid.getId(), QUERY, JsonHandler.writeToInpustream(query));
+            JsonNode action = JsonHandler.getFromFile(
+                PropertiesUtils.findFile(INTEGRATION_PROCESSING_MASS_UPDATE_ADD_PREVENT_RULES)
+            );
+            workspaceClient.putObject(operationGuid.getId(), ACTION, JsonHandler.writeToInpustream(action));
+            processingClient.initVitamProcess(containerName, Contexts.MASS_UPDATE_UNIT_RULE.name());
 
-            RequestResponse<ItemStatus> ret =
-                processingClient.updateOperationActionProcess(ProcessAction.RESUME.getValue(), containerName);
+            RequestResponse<ItemStatus> ret = processingClient.updateOperationActionProcess(
+                ProcessAction.RESUME.getValue(),
+                containerName
+            );
             assertNotNull(ret);
             assertEquals(Response.Status.ACCEPTED.getStatusCode(), ret.getStatus());
 
@@ -1274,20 +1345,20 @@ public class MassUpdateIT extends VitamRuleRunner {
             assertEquals(ProcessState.COMPLETED, processWorkflow.getState());
             assertEquals(StatusCode.OK, processWorkflow.getStatus());
 
-            Optional<Document> updatedUnit =
-                VitamRepositoryFactory.get().getVitamMongoRepository(MetadataCollections.UNIT.getVitamCollection())
-                    .getByID(UNIT_ID_UPDATE, TENANT_0);
+            Optional<Document> updatedUnit = VitamRepositoryFactory.get()
+                .getVitamMongoRepository(MetadataCollections.UNIT.getVitamCollection())
+                .getByID(UNIT_ID_UPDATE, TENANT_0);
             assertTrue(updatedUnit.isPresent());
             JsonNode unitJsonNode = BsonHelper.fromDocumentToJsonNode(updatedUnit.get());
             String actualManagementNode = JsonHandler.unprettyPrint(unitJsonNode.get(MGT));
             String expectedManagementNode = PropertiesUtils.getResourceAsString(
-                EXPECTED_UNIT_MGT_AFTER_ADD_PREVENT_RULES_JSON);
+                EXPECTED_UNIT_MGT_AFTER_ADD_PREVENT_RULES_JSON
+            );
 
             JsonAssert.assertJsonEquals(expectedManagementNode, actualManagementNode);
 
             LogbookOperationsClient logbookClient = LogbookOperationsClientFactory.getInstance().getClient();
-            Select selectQuery =
-                new Select();
+            Select selectQuery = new Select();
             selectQuery.setQuery(QueryHelper.eq(EV_ID_PROC, containerName));
             JsonNode logbookResult = logbookClient.selectOperation(selectQuery.getFinalSelect());
             JsonNode events = logbookResult.get(RESULTS).get(0).get(EVENTS);
@@ -1312,32 +1383,34 @@ public class MassUpdateIT extends VitamRuleRunner {
             workspaceClient.createContainer(containerName);
 
             // insert units and LFC
-            insertUnitAndLFC(INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_07_JSON,
-                INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_LFC_07_JSON);
+            insertUnitAndLFC(
+                INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_07_JSON,
+                INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_LFC_07_JSON
+            );
 
             // import contract
             VitamThreadUtils.getVitamSession().setRequestId(GUIDFactory.newOperationLogbookGUID(TENANT_0));
-            functionalClient.importRulesFile(getClass().getResourceAsStream(INTEGRATION_PROCESSING_MASS_UPDATE_RULE),
-                RULES_FILE);
+            functionalClient.importRulesFile(
+                getClass().getResourceAsStream(INTEGRATION_PROCESSING_MASS_UPDATE_RULE),
+                RULES_FILE
+            );
 
             VitamThreadUtils.getVitamSession().setRequestId(operationGuid);
             processingClient = ProcessingManagementClientFactory.getInstance().getClient();
-            JsonNode query =
-                JsonHandler.getFromFile(
-                    PropertiesUtils.findFile(INTEGRATION_PROCESSING_MASS_UPDATE_UPDATE_QUERY_06_JSON));
-            workspaceClient
-                .putObject(operationGuid.getId(), QUERY, JsonHandler.writeToInpustream(query));
-            JsonNode action =
-                JsonHandler.getFromFile(
-                    PropertiesUtils.findFile(INTEGRATION_PROCESSING_MASS_UPDATE_DELETE_PREVENT_RULES));
-            workspaceClient
-                .putObject(operationGuid.getId(), ACTION,
-                    JsonHandler.writeToInpustream(action));
-            processingClient
-                .initVitamProcess(containerName, Contexts.MASS_UPDATE_UNIT_RULE.name());
+            JsonNode query = JsonHandler.getFromFile(
+                PropertiesUtils.findFile(INTEGRATION_PROCESSING_MASS_UPDATE_UPDATE_QUERY_06_JSON)
+            );
+            workspaceClient.putObject(operationGuid.getId(), QUERY, JsonHandler.writeToInpustream(query));
+            JsonNode action = JsonHandler.getFromFile(
+                PropertiesUtils.findFile(INTEGRATION_PROCESSING_MASS_UPDATE_DELETE_PREVENT_RULES)
+            );
+            workspaceClient.putObject(operationGuid.getId(), ACTION, JsonHandler.writeToInpustream(action));
+            processingClient.initVitamProcess(containerName, Contexts.MASS_UPDATE_UNIT_RULE.name());
 
-            RequestResponse<ItemStatus> ret =
-                processingClient.updateOperationActionProcess(ProcessAction.RESUME.getValue(), containerName);
+            RequestResponse<ItemStatus> ret = processingClient.updateOperationActionProcess(
+                ProcessAction.RESUME.getValue(),
+                containerName
+            );
             assertNotNull(ret);
             assertEquals(Response.Status.ACCEPTED.getStatusCode(), ret.getStatus());
 
@@ -1347,20 +1420,20 @@ public class MassUpdateIT extends VitamRuleRunner {
             assertEquals(ProcessState.COMPLETED, processWorkflow.getState());
             assertEquals(StatusCode.OK, processWorkflow.getStatus());
 
-            Optional<Document> updatedUnit =
-                VitamRepositoryFactory.get().getVitamMongoRepository(MetadataCollections.UNIT.getVitamCollection())
-                    .getByID(UNIT_ID_UPDATE, TENANT_0);
+            Optional<Document> updatedUnit = VitamRepositoryFactory.get()
+                .getVitamMongoRepository(MetadataCollections.UNIT.getVitamCollection())
+                .getByID(UNIT_ID_UPDATE, TENANT_0);
             assertTrue(updatedUnit.isPresent());
             JsonNode unitJsonNode = BsonHelper.fromDocumentToJsonNode(updatedUnit.get());
             String actualManagementNode = JsonHandler.unprettyPrint(unitJsonNode.get(MGT));
             String expectedManagementNode = PropertiesUtils.getResourceAsString(
-                EXPECTED_UNIT_MGT_AFTER_DELETE_PREVENT_RULES_JSON);
+                EXPECTED_UNIT_MGT_AFTER_DELETE_PREVENT_RULES_JSON
+            );
 
             JsonAssert.assertJsonEquals(expectedManagementNode, actualManagementNode);
 
             LogbookOperationsClient logbookClient = LogbookOperationsClientFactory.getInstance().getClient();
-            Select selectQuery =
-                new Select();
+            Select selectQuery = new Select();
             selectQuery.setQuery(QueryHelper.eq(EV_ID_PROC, containerName));
             JsonNode logbookResult = logbookClient.selectOperation(selectQuery.getFinalSelect());
             JsonNode events = logbookResult.get(RESULTS).get(0).get(EVENTS);
@@ -1385,32 +1458,34 @@ public class MassUpdateIT extends VitamRuleRunner {
             workspaceClient.createContainer(containerName);
 
             // insert units and LFC
-            insertUnitAndLFC(INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_07_JSON,
-                INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_LFC_07_JSON);
+            insertUnitAndLFC(
+                INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_07_JSON,
+                INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_LFC_07_JSON
+            );
 
             // import contract
             VitamThreadUtils.getVitamSession().setRequestId(GUIDFactory.newOperationLogbookGUID(TENANT_0));
-            functionalClient.importRulesFile(getClass().getResourceAsStream(INTEGRATION_PROCESSING_MASS_UPDATE_RULE),
-                RULES_FILE);
+            functionalClient.importRulesFile(
+                getClass().getResourceAsStream(INTEGRATION_PROCESSING_MASS_UPDATE_RULE),
+                RULES_FILE
+            );
 
             VitamThreadUtils.getVitamSession().setRequestId(operationGuid);
             processingClient = ProcessingManagementClientFactory.getInstance().getClient();
-            JsonNode query =
-                JsonHandler.getFromFile(
-                    PropertiesUtils.findFile(INTEGRATION_PROCESSING_MASS_UPDATE_UPDATE_QUERY_06_JSON));
-            workspaceClient
-                .putObject(operationGuid.getId(), QUERY, JsonHandler.writeToInpustream(query));
-            JsonNode action =
-                JsonHandler.getFromFile(
-                    PropertiesUtils.findFile(INTEGRATION_PROCESSING_MASS_UPDATE_BAD_DELETE_PREVENT_RULES));
-            workspaceClient
-                .putObject(operationGuid.getId(), ACTION,
-                    JsonHandler.writeToInpustream(action));
-            processingClient
-                .initVitamProcess(containerName, Contexts.MASS_UPDATE_UNIT_RULE.name());
+            JsonNode query = JsonHandler.getFromFile(
+                PropertiesUtils.findFile(INTEGRATION_PROCESSING_MASS_UPDATE_UPDATE_QUERY_06_JSON)
+            );
+            workspaceClient.putObject(operationGuid.getId(), QUERY, JsonHandler.writeToInpustream(query));
+            JsonNode action = JsonHandler.getFromFile(
+                PropertiesUtils.findFile(INTEGRATION_PROCESSING_MASS_UPDATE_BAD_DELETE_PREVENT_RULES)
+            );
+            workspaceClient.putObject(operationGuid.getId(), ACTION, JsonHandler.writeToInpustream(action));
+            processingClient.initVitamProcess(containerName, Contexts.MASS_UPDATE_UNIT_RULE.name());
 
-            RequestResponse<ItemStatus> ret =
-                processingClient.updateOperationActionProcess(ProcessAction.RESUME.getValue(), containerName);
+            RequestResponse<ItemStatus> ret = processingClient.updateOperationActionProcess(
+                ProcessAction.RESUME.getValue(),
+                containerName
+            );
             assertNotNull(ret);
             assertEquals(Response.Status.ACCEPTED.getStatusCode(), ret.getStatus());
 
@@ -1420,20 +1495,20 @@ public class MassUpdateIT extends VitamRuleRunner {
             assertEquals(ProcessState.COMPLETED, processWorkflow.getState());
             assertEquals(StatusCode.KO, processWorkflow.getStatus());
 
-            Optional<Document> updatedUnit =
-                VitamRepositoryFactory.get().getVitamMongoRepository(MetadataCollections.UNIT.getVitamCollection())
-                    .getByID(UNIT_ID_UPDATE, TENANT_0);
+            Optional<Document> updatedUnit = VitamRepositoryFactory.get()
+                .getVitamMongoRepository(MetadataCollections.UNIT.getVitamCollection())
+                .getByID(UNIT_ID_UPDATE, TENANT_0);
             assertTrue(updatedUnit.isPresent());
             JsonNode unitJsonNode = BsonHelper.fromDocumentToJsonNode(updatedUnit.get());
             String actualManagementNode = JsonHandler.unprettyPrint(unitJsonNode.get(MGT));
             String expectedManagementNode = PropertiesUtils.getResourceAsString(
-                EXPECTED_UNIT_MGT_AFTER_BAD_UPDATE_PREVENT_RULES_JSON);
+                EXPECTED_UNIT_MGT_AFTER_BAD_UPDATE_PREVENT_RULES_JSON
+            );
 
             JsonAssert.assertJsonEquals(expectedManagementNode, actualManagementNode);
 
             LogbookOperationsClient logbookClient = LogbookOperationsClientFactory.getInstance().getClient();
-            Select selectQuery =
-                new Select();
+            Select selectQuery = new Select();
             selectQuery.setQuery(QueryHelper.eq(EV_ID_PROC, containerName));
             JsonNode logbookResult = logbookClient.selectOperation(selectQuery.getFinalSelect());
             JsonNode events = logbookResult.get(RESULTS).get(0).get(EVENTS);
@@ -1458,32 +1533,34 @@ public class MassUpdateIT extends VitamRuleRunner {
             workspaceClient.createContainer(containerName);
 
             // insert units and LFC
-            insertUnitAndLFC(INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_07_JSON,
-                INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_LFC_07_JSON);
+            insertUnitAndLFC(
+                INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_07_JSON,
+                INTEGRATION_PROCESSING_MASS_UPDATE_UNIT_LFC_07_JSON
+            );
 
             // import contract
             VitamThreadUtils.getVitamSession().setRequestId(GUIDFactory.newOperationLogbookGUID(TENANT_0));
-            functionalClient.importRulesFile(getClass().getResourceAsStream(INTEGRATION_PROCESSING_MASS_UPDATE_RULE),
-                RULES_FILE);
+            functionalClient.importRulesFile(
+                getClass().getResourceAsStream(INTEGRATION_PROCESSING_MASS_UPDATE_RULE),
+                RULES_FILE
+            );
 
             VitamThreadUtils.getVitamSession().setRequestId(operationGuid);
             processingClient = ProcessingManagementClientFactory.getInstance().getClient();
-            JsonNode query =
-                JsonHandler.getFromFile(
-                    PropertiesUtils.findFile(INTEGRATION_PROCESSING_MASS_UPDATE_UPDATE_QUERY_06_JSON));
-            workspaceClient
-                .putObject(operationGuid.getId(), QUERY, JsonHandler.writeToInpustream(query));
-            JsonNode action =
-                JsonHandler.getFromFile(
-                    PropertiesUtils.findFile(INTEGRATION_PROCESSING_MASS_UPDATE_BAD_ADD_PREVENT_RULES));
-            workspaceClient
-                .putObject(operationGuid.getId(), ACTION,
-                    JsonHandler.writeToInpustream(action));
-            processingClient
-                .initVitamProcess(containerName, Contexts.MASS_UPDATE_UNIT_RULE.name());
+            JsonNode query = JsonHandler.getFromFile(
+                PropertiesUtils.findFile(INTEGRATION_PROCESSING_MASS_UPDATE_UPDATE_QUERY_06_JSON)
+            );
+            workspaceClient.putObject(operationGuid.getId(), QUERY, JsonHandler.writeToInpustream(query));
+            JsonNode action = JsonHandler.getFromFile(
+                PropertiesUtils.findFile(INTEGRATION_PROCESSING_MASS_UPDATE_BAD_ADD_PREVENT_RULES)
+            );
+            workspaceClient.putObject(operationGuid.getId(), ACTION, JsonHandler.writeToInpustream(action));
+            processingClient.initVitamProcess(containerName, Contexts.MASS_UPDATE_UNIT_RULE.name());
 
-            RequestResponse<ItemStatus> ret =
-                processingClient.updateOperationActionProcess(ProcessAction.RESUME.getValue(), containerName);
+            RequestResponse<ItemStatus> ret = processingClient.updateOperationActionProcess(
+                ProcessAction.RESUME.getValue(),
+                containerName
+            );
             assertNotNull(ret);
             assertEquals(Response.Status.ACCEPTED.getStatusCode(), ret.getStatus());
 
@@ -1493,20 +1570,20 @@ public class MassUpdateIT extends VitamRuleRunner {
             assertEquals(ProcessState.COMPLETED, processWorkflow.getState());
             assertEquals(StatusCode.KO, processWorkflow.getStatus());
 
-            Optional<Document> updatedUnit =
-                VitamRepositoryFactory.get().getVitamMongoRepository(MetadataCollections.UNIT.getVitamCollection())
-                    .getByID(UNIT_ID_UPDATE, TENANT_0);
+            Optional<Document> updatedUnit = VitamRepositoryFactory.get()
+                .getVitamMongoRepository(MetadataCollections.UNIT.getVitamCollection())
+                .getByID(UNIT_ID_UPDATE, TENANT_0);
             assertTrue(updatedUnit.isPresent());
             JsonNode unitJsonNode = BsonHelper.fromDocumentToJsonNode(updatedUnit.get());
             String actualManagementNode = JsonHandler.unprettyPrint(unitJsonNode.get(MGT));
             String expectedManagementNode = PropertiesUtils.getResourceAsString(
-                EXPECTED_UNIT_MGT_AFTER_BAD_UPDATE_PREVENT_RULES_JSON);
+                EXPECTED_UNIT_MGT_AFTER_BAD_UPDATE_PREVENT_RULES_JSON
+            );
 
             JsonAssert.assertJsonEquals(expectedManagementNode, actualManagementNode);
 
             LogbookOperationsClient logbookClient = LogbookOperationsClientFactory.getInstance().getClient();
-            Select selectQuery =
-                new Select();
+            Select selectQuery = new Select();
             selectQuery.setQuery(QueryHelper.eq(EV_ID_PROC, containerName));
             JsonNode logbookResult = logbookClient.selectOperation(selectQuery.getFinalSelect());
             JsonNode events = logbookResult.get(RESULTS).get(0).get(EVENTS);

@@ -131,7 +131,6 @@ public enum FunctionalAdminCollections {
      */
     SECURITY_PROFILE(SecurityProfile.class, false, false),
 
-
     GRIFFIN(Griffin.class, false, false),
 
     PRESERVATION_SCENARIO(PreservationScenario.class, true, false),
@@ -146,21 +145,23 @@ public enum FunctionalAdminCollections {
      */
     SCHEMA(Schema.class, true, false);
 
-
-
     private final VitamDescriptionResolver vitamDescriptionResolver;
     private final VitamCollection<? extends VitamDocument<?>> vitamCollection;
 
-    final private boolean multitenant;
+    private final boolean multitenant;
 
     FunctionalAdminCollections(final Class<? extends VitamDocument<?>> clasz, boolean multiTenant, boolean usingScore) {
         this.multitenant = multiTenant;
         VitamDescriptionLoader vitamDescriptionLoader = new VitamDescriptionLoader(clasz.getSimpleName());
         vitamDescriptionResolver = vitamDescriptionLoader.getVitamDescriptionResolver();
-        vitamCollection =
-            VitamCollectionHelper.getCollection(clasz, multiTenant, usingScore, "", vitamDescriptionResolver);
+        vitamCollection = VitamCollectionHelper.getCollection(
+            clasz,
+            multiTenant,
+            usingScore,
+            "",
+            vitamDescriptionResolver
+        );
     }
-
 
     public static List<Class<?>> getClasses() {
         List<Class<?>> classes = new ArrayList<>();

@@ -78,13 +78,16 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class SchemaValidationService {
+
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(SchemaValidationService.class);
     private static final Pattern PATH_PATTERN = Pattern.compile("^\\w+(\\.\\w+)*$");
     private final MongoDbAccessReferential mongoDbAccessReferential;
     private final LogbookOperationsClientFactory logbookOperationsClientFactory;
 
-    public SchemaValidationService(MongoDbAccessReferential mongoDbAccessReferential,
-        LogbookOperationsClientFactory logbookOperationsClientFactory) {
+    public SchemaValidationService(
+        MongoDbAccessReferential mongoDbAccessReferential,
+        LogbookOperationsClientFactory logbookOperationsClientFactory
+    ) {
         this.mongoDbAccessReferential = mongoDbAccessReferential;
         this.logbookOperationsClientFactory = logbookOperationsClientFactory;
     }
@@ -98,17 +101,20 @@ public class SchemaValidationService {
      * @throws VitamException
      * @throws InvalidCreateOperationException
      */
-    public void validateExternalSchemaInputs(List<SchemaInputModel> externalSchemaInputList,
-        List<SchemaResponse> currentUnitSchemaList, Map<String, OntologyModel> ontologyEltsMapByIdentifier,
-        Map<String, List<ErrorReportSchema>> importErrors)
-        throws VitamException, InvalidCreateOperationException {
-
+    public void validateExternalSchemaInputs(
+        List<SchemaInputModel> externalSchemaInputList,
+        List<SchemaResponse> currentUnitSchemaList,
+        Map<String, OntologyModel> ontologyEltsMapByIdentifier,
+        Map<String, List<ErrorReportSchema>> importErrors
+    ) throws VitamException, InvalidCreateOperationException {
         validateExternalSchemaInputsConsistency(externalSchemaInputList, importErrors);
 
-        Map<String, SchemaInputModel> externalSchemaInputsMapByPath = externalSchemaInputList.stream().collect(
-            Collectors.toMap(SchemaInputModel::getPath, schemaModel -> schemaModel));
-        Map<String, SchemaResponse> currentUnitSchemaMapByPath = currentUnitSchemaList.stream().collect(
-            Collectors.toMap(SchemaResponse::getPath, schemaModel -> schemaModel));
+        Map<String, SchemaInputModel> externalSchemaInputsMapByPath = externalSchemaInputList
+            .stream()
+            .collect(Collectors.toMap(SchemaInputModel::getPath, schemaModel -> schemaModel));
+        Map<String, SchemaResponse> currentUnitSchemaMapByPath = currentUnitSchemaList
+            .stream()
+            .collect(Collectors.toMap(SchemaResponse::getPath, schemaModel -> schemaModel));
 
         Integer currentTenant = ParameterHelper.getTenantParameter();
         if (currentTenant.equals(VitamConfiguration.getAdminTenant())) {
@@ -119,74 +125,102 @@ public class SchemaValidationService {
         checkFullPathsReturnNotfound(currentUnitSchemaMapByPath, externalSchemaInputsMapByPath, importErrors);
 
         checkPathsWithOntology(externalSchemaInputsMapByPath, ontologyEltsMapByIdentifier, importErrors);
-
     }
 
     private void checkExistingPathsAllTenantSchemaForAdminTenant(
         Map<String, SchemaInputModel> externalSchemaInputsMapByPath,
-        Map<String, List<ErrorReportSchema>> importErrors) throws VitamException, InvalidCreateOperationException {
+        Map<String, List<ErrorReportSchema>> importErrors
+    ) throws VitamException, InvalidCreateOperationException {
         LOGGER.debug("Checking if paths already in schema of all tenants ");
 
         Set<Integer> tenants = VitamConfiguration.getTenants().stream().collect(Collectors.toSet());
-        RequestResponseOK<SchemaModel> schemasResponse =
-            findExternalSchema(
-                SchemaCommonService.buildDslQueryForExtractingSchema(tenants, Collections.emptyList()));
+        RequestResponseOK<SchemaModel> schemasResponse = findExternalSchema(
+            SchemaCommonService.buildDslQueryForExtractingSchema(tenants, Collections.emptyList())
+        );
         List<SchemaModel> unitSchemaForAllTenants = schemasResponse.getResults();
 
-        Map<String, SchemaModel> currentUnitSchemaForAllTenantsMapByPath = unitSchemaForAllTenants.stream().collect(
-            Collectors.toMap(SchemaModel::getPath, schemaModel -> schemaModel));
+        Map<String, SchemaModel> currentUnitSchemaForAllTenantsMapByPath = unitSchemaForAllTenants
+            .stream()
+            .collect(Collectors.toMap(SchemaModel::getPath, schemaModel -> schemaModel));
 
-        List<String> existingPathsInCurrentSchema =
-            externalSchemaInputsMapByPath.keySet().stream().filter(externalSchemaPath ->
-                currentUnitSchemaForAllTenantsMapByPath.containsKey(externalSchemaPath)).collect(Collectors.toList());
+        List<String> existingPathsInCurrentSchema = externalSchemaInputsMapByPath
+            .keySet()
+            .stream()
+            .filter(externalSchemaPath -> currentUnitSchemaForAllTenantsMapByPath.containsKey(externalSchemaPath))
+            .collect(Collectors.toList());
 
         if (!CollectionUtils.isEmpty(existingPathsInCurrentSchema)) {
             LOGGER.error("Paths already in current schema for the current or other tenants");
-            existingPathsInCurrentSchema.stream().forEach(
-                schemaPath ->
-                    addError(schemaPath, new ErrorReportSchema(SchemaErrorCode.IMPORT_SCHEMA_PATH_ALREADY_IN_SCHEMA,
-                        externalSchemaInputsMapByPath.get(schemaPath),
-                        "Paths already in current schema for the current or other tenants"), importErrors)
-            );
+            existingPathsInCurrentSchema
+                .stream()
+                .forEach(
+                    schemaPath ->
+                        addError(
+                            schemaPath,
+                            new ErrorReportSchema(
+                                SchemaErrorCode.IMPORT_SCHEMA_PATH_ALREADY_IN_SCHEMA,
+                                externalSchemaInputsMapByPath.get(schemaPath),
+                                "Paths already in current schema for the current or other tenants"
+                            ),
+                            importErrors
+                        )
+                );
 
-            String message = String.format("Paths already in current schema for the current or other tenants =  %s  ",
-                existingPathsInCurrentSchema.stream().collect(Collectors.joining(", ")));
+            String message = String.format(
+                "Paths already in current schema for the current or other tenants =  %s  ",
+                existingPathsInCurrentSchema.stream().collect(Collectors.joining(", "))
+            );
             throw new SchemaImportValidationException(message);
         }
     }
 
-    private void checkExistingPathsInCurrentSchema(Map<String, SchemaResponse> currentUnitSchemaMapByPath,
+    private void checkExistingPathsInCurrentSchema(
+        Map<String, SchemaResponse> currentUnitSchemaMapByPath,
         Map<String, SchemaInputModel> externalSchemaInputsMapByPath,
-        Map<String, List<ErrorReportSchema>> importErrors) throws VitamException {
+        Map<String, List<ErrorReportSchema>> importErrors
+    ) throws VitamException {
         LOGGER.debug("Checking paths already in current schema");
 
         Integer currentTenant = ParameterHelper.getTenantParameter();
         if (currentTenant.equals(VitamConfiguration.getAdminTenant())) {
             List<Integer> tenants = VitamConfiguration.getTenants();
-
         }
 
-        List<String> existingPathsInCurrentSchema =
-            externalSchemaInputsMapByPath.keySet().stream().filter(externalSchemaPath ->
-                currentUnitSchemaMapByPath.containsKey(externalSchemaPath)).collect(Collectors.toList());
+        List<String> existingPathsInCurrentSchema = externalSchemaInputsMapByPath
+            .keySet()
+            .stream()
+            .filter(externalSchemaPath -> currentUnitSchemaMapByPath.containsKey(externalSchemaPath))
+            .collect(Collectors.toList());
 
         if (!CollectionUtils.isEmpty(existingPathsInCurrentSchema)) {
             LOGGER.error("Paths already in current schema");
-            existingPathsInCurrentSchema.stream().forEach(
-                schemaPath ->
-                    addError(schemaPath, new ErrorReportSchema(SchemaErrorCode.IMPORT_SCHEMA_PATH_ALREADY_IN_SCHEMA,
-                        externalSchemaInputsMapByPath.get(schemaPath), "Path already in current schema"), importErrors)
-            );
+            existingPathsInCurrentSchema
+                .stream()
+                .forEach(
+                    schemaPath ->
+                        addError(
+                            schemaPath,
+                            new ErrorReportSchema(
+                                SchemaErrorCode.IMPORT_SCHEMA_PATH_ALREADY_IN_SCHEMA,
+                                externalSchemaInputsMapByPath.get(schemaPath),
+                                "Path already in current schema"
+                            ),
+                            importErrors
+                        )
+                );
 
-            String message = String.format("Paths already in current schema =  %s  ",
-                existingPathsInCurrentSchema.stream().collect(Collectors.joining(", ")));
+            String message = String.format(
+                "Paths already in current schema =  %s  ",
+                existingPathsInCurrentSchema.stream().collect(Collectors.joining(", "))
+            );
             throw new SchemaImportValidationException(message);
         }
     }
 
-    private void validateExternalSchemaInputsConsistency(List<SchemaInputModel> externalSchemaInputList,
-        Map<String, List<ErrorReportSchema>> importErrors)
-        throws SchemaImportValidationException {
+    private void validateExternalSchemaInputsConsistency(
+        List<SchemaInputModel> externalSchemaInputList,
+        Map<String, List<ErrorReportSchema>> importErrors
+    ) throws SchemaImportValidationException {
         LOGGER.debug("Validating external schema inputs consistency ");
         if (CollectionUtils.isEmpty(externalSchemaInputList)) {
             LOGGER.error("Empty schema list ");
@@ -202,18 +236,31 @@ public class SchemaValidationService {
         }
         if (!CollectionUtils.isEmpty(schemaInputsWithErrors)) {
             LOGGER.error("Some paths wrong path format ");
-            schemaInputsWithErrors.stream().forEach(
-                schema ->
-                    addError(schema.getPath(), new ErrorReportSchema(SchemaErrorCode.IMPORT_SCHEMA_WRONG_PATH_FORMAT,
-                        schema, "Wrong path format"), importErrors));
+            schemaInputsWithErrors
+                .stream()
+                .forEach(
+                    schema ->
+                        addError(
+                            schema.getPath(),
+                            new ErrorReportSchema(
+                                SchemaErrorCode.IMPORT_SCHEMA_WRONG_PATH_FORMAT,
+                                schema,
+                                "Wrong path format"
+                            ),
+                            importErrors
+                        )
+                );
 
-            String message = String.format("Some paths wrong path format  =  %s  ",
-                schemaInputsWithErrors.stream().map(schemaInputModel -> schemaInputModel.getPath())
-                    .collect(Collectors.joining(", ")));
+            String message = String.format(
+                "Some paths wrong path format  =  %s  ",
+                schemaInputsWithErrors
+                    .stream()
+                    .map(schemaInputModel -> schemaInputModel.getPath())
+                    .collect(Collectors.joining(", "))
+            );
             throw new SchemaImportValidationException(message);
         }
     }
-
 
     /**
      * Check that all paths exist in requested list or in internal or external
@@ -223,24 +270,42 @@ public class SchemaValidationService {
      * @throws VitamException
      */
 
-    private void checkFullPathsReturnNotfound(Map<String, SchemaResponse> currentUnitSchemaMapByPath,
-        Map<String, SchemaInputModel> externalSchemaInputsMapByPath, Map<String, List<ErrorReportSchema>> importErrors)
-        throws VitamException {
+    private void checkFullPathsReturnNotfound(
+        Map<String, SchemaResponse> currentUnitSchemaMapByPath,
+        Map<String, SchemaInputModel> externalSchemaInputsMapByPath,
+        Map<String, List<ErrorReportSchema>> importErrors
+    ) throws VitamException {
         LOGGER.debug("Checking parents paths ");
         List<String> pathsWithErrors = new ArrayList<>();
         for (Map.Entry<String, SchemaInputModel> schemaModelEntry : externalSchemaInputsMapByPath.entrySet()) {
-            checkExistingParentPath(currentUnitSchemaMapByPath, externalSchemaInputsMapByPath,
-                schemaModelEntry.getKey(), pathsWithErrors);
+            checkExistingParentPath(
+                currentUnitSchemaMapByPath,
+                externalSchemaInputsMapByPath,
+                schemaModelEntry.getKey(),
+                pathsWithErrors
+            );
         }
         if (!CollectionUtils.isEmpty(pathsWithErrors)) {
             LOGGER.error("Some paths with missing parents ");
-            pathsWithErrors.stream().forEach(
-                schemaPath ->
-                    addError(schemaPath, new ErrorReportSchema(SchemaErrorCode.IMPORT_SCHEMA_PATH_PARENT_MISSED,
-                        externalSchemaInputsMapByPath.get(schemaPath), "Paths with missing parents"), importErrors));
+            pathsWithErrors
+                .stream()
+                .forEach(
+                    schemaPath ->
+                        addError(
+                            schemaPath,
+                            new ErrorReportSchema(
+                                SchemaErrorCode.IMPORT_SCHEMA_PATH_PARENT_MISSED,
+                                externalSchemaInputsMapByPath.get(schemaPath),
+                                "Paths with missing parents"
+                            ),
+                            importErrors
+                        )
+                );
 
-            String message = String.format("Paths with missing parents =  %s  ",
-                pathsWithErrors.stream().collect(Collectors.joining(", ")));
+            String message = String.format(
+                "Paths with missing parents =  %s  ",
+                pathsWithErrors.stream().collect(Collectors.joining(", "))
+            );
             throw new SchemaImportValidationException(message);
         }
     }
@@ -250,10 +315,13 @@ public class SchemaValidationService {
         final Map<String, OntologyModel> ontologyEltsMapByIdentifier,
         final Map<String, List<ErrorReportSchema>> importErrors
     ) throws SchemaImportValidationException {
-        final List<String> pathsWithMissedLeavesErrors = externalSchemaInputsMapByPath.values().stream()
+        final List<String> pathsWithMissedLeavesErrors = externalSchemaInputsMapByPath
+            .values()
+            .stream()
             .filter(schemaModelElt -> !Boolean.TRUE.equals(schemaModelElt.isObject()))
             .map(schemaModelElt -> SchemaCommonService.extractLeafFromPath(schemaModelElt.getPath()))
-            .collect(Collectors.toSet()).stream()
+            .collect(Collectors.toSet())
+            .stream()
             .filter(leaf -> !ontologyEltsMapByIdentifier.containsKey(leaf))
             .collect(Collectors.toList());
         if (!CollectionUtils.isEmpty(pathsWithMissedLeavesErrors)) {
@@ -274,10 +342,13 @@ public class SchemaValidationService {
         final Map<String, List<ErrorReportSchema>> importErrors
     ) throws SchemaImportValidationException {
         final String separator = ".";
-        final List<String> pathsWithOntologyConflicts = externalSchemaInputsMapByPath.values().stream()
+        final List<String> pathsWithOntologyConflicts = externalSchemaInputsMapByPath
+            .values()
+            .stream()
             .map(inputElement -> {
-                final String path = inputElement.isObject() ? inputElement.getPath() :
-                    StringUtils.substringBeforeLast(inputElement.getPath(), separator);
+                final String path = inputElement.isObject()
+                    ? inputElement.getPath()
+                    : StringUtils.substringBeforeLast(inputElement.getPath(), separator);
                 return StringUtils.splitByWholeSeparator(path, separator);
             })
             .flatMap(Arrays::stream)
@@ -313,11 +384,13 @@ public class SchemaValidationService {
         final Map<String, SchemaInputModel> externalSchemaInputsMapByPath,
         final Map<String, List<ErrorReportSchema>> importErrors
     ) throws SchemaImportValidationException {
-        errorPaths.forEach(schemaPath -> addError(
-                schemaPath,
-                new ErrorReportSchema(errorCode, externalSchemaInputsMapByPath.get(schemaPath), baseMessage),
-                importErrors
-            )
+        errorPaths.forEach(
+            schemaPath ->
+                addError(
+                    schemaPath,
+                    new ErrorReportSchema(errorCode, externalSchemaInputsMapByPath.get(schemaPath), baseMessage),
+                    importErrors
+                )
         );
 
         final String conflictingPaths = String.join(", ", errorPaths);
@@ -343,11 +416,12 @@ public class SchemaValidationService {
         );
     }
 
-
-    private void checkExistingParentPath(Map<String, SchemaResponse> currentUnitSchemaMapByPath,
-        Map<String, SchemaInputModel> externalInputSchemaMapByPath, String schemaPath,
-        List<String> pathsWithErrors) {
-
+    private void checkExistingParentPath(
+        Map<String, SchemaResponse> currentUnitSchemaMapByPath,
+        Map<String, SchemaInputModel> externalInputSchemaMapByPath,
+        String schemaPath,
+        List<String> pathsWithErrors
+    ) {
         LOGGER.debug("Checking parent paths of {}  ", schemaPath);
 
         if (currentUnitSchemaMapByPath.containsKey(schemaPath)) {
@@ -370,9 +444,12 @@ public class SchemaValidationService {
 
     private RequestResponseOK<SchemaModel> findExternalSchema(JsonNode queryDsl)
         throws ReferentialException, InvalidParseOperationException {
-        try (DbRequestResult result =
-            mongoDbAccessReferential.findDocumentsWithoutRestrictionOnCurrentTenant(queryDsl,
-                FunctionalAdminCollections.SCHEMA)) {
+        try (
+            DbRequestResult result = mongoDbAccessReferential.findDocumentsWithoutRestrictionOnCurrentTenant(
+                queryDsl,
+                FunctionalAdminCollections.SCHEMA
+            )
+        ) {
             return result.getRequestResponseOK(queryDsl, Schema.class, SchemaModel.class);
         }
     }
@@ -382,22 +459,29 @@ public class SchemaValidationService {
      *
      * @param errorsDetails
      */
-    public void logValidationError(GUID operationGuid, String eventType, String errorsDetails)
-        throws VitamException {
+    public void logValidationError(GUID operationGuid, String eventType, String errorsDetails) throws VitamException {
         LOGGER.error("Validation errors on the input file {}", errorsDetails);
         final GUID eipId = GUIDFactory.newOperationLogbookGUID(ParameterHelper.getTenantParameter());
-        final LogbookOperationParameters logbookParameters = LogbookParameterHelper
-            .newLogbookOperationParameters(eipId, eventType, operationGuid, LogbookTypeProcess.MASTERDATA,
-                StatusCode.KO,
-                VitamLogbookMessages.getCodeOp(eventType, StatusCode.KO), operationGuid);
+        final LogbookOperationParameters logbookParameters = LogbookParameterHelper.newLogbookOperationParameters(
+            eipId,
+            eventType,
+            operationGuid,
+            LogbookTypeProcess.MASTERDATA,
+            StatusCode.KO,
+            VitamLogbookMessages.getCodeOp(eventType, StatusCode.KO),
+            operationGuid
+        );
         logbookMessageError(null, errorsDetails, logbookParameters);
         try (LogbookOperationsClient logbookOperationsClient = logbookOperationsClientFactory.getClient()) {
             logbookOperationsClient.update(logbookParameters);
         }
     }
 
-    private void logbookMessageError(String objectId, String errorsDetails,
-        LogbookOperationParameters logbookParameters) {
+    private void logbookMessageError(
+        String objectId,
+        String errorsDetails,
+        LogbookOperationParameters logbookParameters
+    ) {
         if (null != errorsDetails && !errorsDetails.isEmpty()) {
             try {
                 final ObjectNode object = JsonHandler.createObjectNode();
@@ -416,11 +500,15 @@ public class SchemaValidationService {
 
     public void startLogBook(GUID importExternalSchemaOpId, String eventType)
         throws LogbookClientBadRequestException, LogbookClientAlreadyExistsException, LogbookClientServerException {
-        final LogbookOperationParameters logbookParameters = LogbookParameterHelper
-            .newLogbookOperationParameters(importExternalSchemaOpId, eventType, importExternalSchemaOpId,
-                LogbookTypeProcess.MASTERDATA,
-                StatusCode.STARTED,
-                VitamLogbookMessages.getCodeOp(eventType, StatusCode.STARTED), importExternalSchemaOpId);
+        final LogbookOperationParameters logbookParameters = LogbookParameterHelper.newLogbookOperationParameters(
+            importExternalSchemaOpId,
+            eventType,
+            importExternalSchemaOpId,
+            LogbookTypeProcess.MASTERDATA,
+            StatusCode.STARTED,
+            VitamLogbookMessages.getCodeOp(eventType, StatusCode.STARTED),
+            importExternalSchemaOpId
+        );
 
         try (LogbookOperationsClient logbookOperationsClient = logbookOperationsClientFactory.getClient()) {
             logbookOperationsClient.create(logbookParameters);
@@ -431,9 +519,15 @@ public class SchemaValidationService {
         throws VitamException {
         LOGGER.error("Validation errors on the input file {}", errorsDetails);
         final GUID eipId = GUIDFactory.newOperationLogbookGUID(ParameterHelper.getTenantParameter());
-        final LogbookOperationParameters logbookParameters = LogbookParameterHelper
-            .newLogbookOperationParameters(eipId, eventType, importExternalSchemaOpId, LogbookTypeProcess.MASTERDATA,
-                StatusCode.KO, VitamLogbookMessages.getCodeOp(eventType, StatusCode.KO), importExternalSchemaOpId);
+        final LogbookOperationParameters logbookParameters = LogbookParameterHelper.newLogbookOperationParameters(
+            eipId,
+            eventType,
+            importExternalSchemaOpId,
+            LogbookTypeProcess.MASTERDATA,
+            StatusCode.KO,
+            VitamLogbookMessages.getCodeOp(eventType, StatusCode.KO),
+            importExternalSchemaOpId
+        );
 
         logbookMessageError(objectId, errorsDetails, logbookParameters);
         try (LogbookOperationsClient logbookOperationsClient = logbookOperationsClientFactory.getClient()) {
@@ -441,12 +535,17 @@ public class SchemaValidationService {
         }
     }
 
-    public void logSuccessLogBook(GUID importExternalSchemaOpId, String eventType)
-        throws VitamException {
+    public void logSuccessLogBook(GUID importExternalSchemaOpId, String eventType) throws VitamException {
         final GUID eipId = GUIDFactory.newOperationLogbookGUID(ParameterHelper.getTenantParameter());
-        final LogbookOperationParameters logbookParameters = LogbookParameterHelper
-            .newLogbookOperationParameters(eipId, eventType, importExternalSchemaOpId, LogbookTypeProcess.MASTERDATA,
-                StatusCode.OK, VitamLogbookMessages.getCodeOp(eventType, StatusCode.OK), importExternalSchemaOpId);
+        final LogbookOperationParameters logbookParameters = LogbookParameterHelper.newLogbookOperationParameters(
+            eipId,
+            eventType,
+            importExternalSchemaOpId,
+            LogbookTypeProcess.MASTERDATA,
+            StatusCode.OK,
+            VitamLogbookMessages.getCodeOp(eventType, StatusCode.OK),
+            importExternalSchemaOpId
+        );
 
         try (LogbookOperationsClient logbookOperationsClient = logbookOperationsClientFactory.getClient()) {
             logbookOperationsClient.update(logbookParameters);

@@ -68,20 +68,23 @@ public class PersistentIdentifierRepositoryImpl implements PersistentIdentifierR
     private final MongoCollection<Document> purgedPersistentIdentifierCollection;
 
     public PersistentIdentifierRepositoryImpl(MongoDbAccessMetadataImpl mongoDbAccess) {
-        this.purgedPersistentIdentifierCollection = mongoDbAccess.getMongoDatabase()
+        this.purgedPersistentIdentifierCollection = mongoDbAccess
+            .getMongoDatabase()
             .getCollection(PURGED_PERSISTENT_IDENTIFIER_COLLECTION);
-
     }
 
     public PersistentIdentifierRepositoryImpl(MongoDbAccessMetadataImpl mongoDbAccess, String prefix) {
-        this.purgedPersistentIdentifierCollection = mongoDbAccess.getMongoDatabase()
+        this.purgedPersistentIdentifierCollection = mongoDbAccess
+            .getMongoDatabase()
             .getCollection(prefix + PURGED_PERSISTENT_IDENTIFIER_COLLECTION);
     }
 
-
     @Override
-    public List<PurgedPersistentIdentifier> findByPersistentIdentifierAndTenant(String persistentIdentifier,
-        Integer tenant, @Nullable String type) throws DatabaseException {
+    public List<PurgedPersistentIdentifier> findByPersistentIdentifierAndTenant(
+        String persistentIdentifier,
+        Integer tenant,
+        @Nullable String type
+    ) throws DatabaseException {
         ParametersChecker.checkParameter(ALL_PARAMS_REQUIRED, persistentIdentifier, tenant);
         final List<Bson> filters = Lists.newArrayList(
             eq("persistentIdentifier.PersistentIdentifierContent", persistentIdentifier),
@@ -103,30 +106,36 @@ public class PersistentIdentifierRepositoryImpl implements PersistentIdentifierR
                 String.format(
                     "Error while findByPersistentIdentifierAndTenant > persistentIdentifier : %s and tenant: %s",
                     persistentIdentifier,
-                    tenant), e);
+                    tenant
+                ),
+                e
+            );
         }
     }
 
     @Override
-    public void insert(List<Document> purgedPersistentIdentifiers)
-        throws MetaDataExecutionException {
+    public void insert(List<Document> purgedPersistentIdentifiers) throws MetaDataExecutionException {
         BulkWriteOptions options = new BulkWriteOptions().ordered(false);
         try {
-            List<InsertOneModel<Document>> insertModels = purgedPersistentIdentifiers.stream()
+            List<InsertOneModel<Document>> insertModels = purgedPersistentIdentifiers
+                .stream()
                 .map(document -> {
                     document.append(VERSION, 0);
                     document.append(TENANT_ID, getTenantParameter());
                     document.append(LAST_PERSISTENT_DATE, LocalDateUtil.getFormattedDateForMongo(LocalDateUtil.now()));
                     return new InsertOneModel<>(document);
-                }).collect(Collectors.toList());
+                })
+                .collect(Collectors.toList());
             purgedPersistentIdentifierCollection.bulkWrite(insertModels, options);
         } catch (MongoBulkWriteException e) {
             boolean hasBlockerErrors = false;
             for (BulkWriteError bulkWriteError : e.getWriteErrors()) {
                 if (bulkWriteError.getCategory() == ErrorCategory.DUPLICATE_KEY) {
-                    LOGGER.info("Document already exists " +
+                    LOGGER.info(
+                        "Document already exists " +
                         purgedPersistentIdentifiers.get(bulkWriteError.getIndex()) +
-                        ". Ignoring quietly (idempotency)");
+                        ". Ignoring quietly (idempotency)"
+                    );
                 } else {
                     hasBlockerErrors = true;
                     LOGGER.error("An error occurred during metadata insert " + bulkWriteError);

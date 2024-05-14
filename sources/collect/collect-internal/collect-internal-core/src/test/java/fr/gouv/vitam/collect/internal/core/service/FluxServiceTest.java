@@ -99,29 +99,39 @@ public class FluxServiceTest {
 
     private static final String TRANSACTION_ZIP_PATH = "streamZip/transaction.zip";
 
-    private static final String TRANSACTION_ZIP_WITH_METADATA_CSV_PATH
-        = "streamZip/transaction_with_metadata_csv.zip";
+    private static final String TRANSACTION_ZIP_WITH_METADATA_CSV_PATH = "streamZip/transaction_with_metadata_csv.zip";
 
-    private static final String TRANSACTION_ZIP_WITH_METADATA_JSONL_PATH
-        = "streamZip/transaction_with_metadata_jsonl.zip";
+    private static final String TRANSACTION_ZIP_WITH_METADATA_JSONL_PATH =
+        "streamZip/transaction_with_metadata_jsonl.zip";
 
     private static final String TRANSACTION_WITHOUT_FILE_COLUMN_ZIP_PATH =
         "streamZip/transaction_without_file_column.zip";
 
-    @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
+    @Rule
+    public MockitoRule mockitoRule = MockitoJUnit.rule();
 
-    @Rule public TempFolderRule tempFolder = new TempFolderRule();
+    @Rule
+    public TempFolderRule tempFolder = new TempFolderRule();
 
-    @Rule public RunWithCustomExecutorRule runInThread =
-        new RunWithCustomExecutorRule(VitamThreadPoolExecutor.getDefaultExecutor());
+    @Rule
+    public RunWithCustomExecutorRule runInThread = new RunWithCustomExecutorRule(
+        VitamThreadPoolExecutor.getDefaultExecutor()
+    );
 
-    @Mock private CollectService collectService;
-    @Mock private MetadataService metadataService;
+    @Mock
+    private CollectService collectService;
 
-    @Mock private ProjectRepository projectRepository;
-    @Mock private MetadataRepository metadataRepository;
+    @Mock
+    private MetadataService metadataService;
 
-    @InjectMocks private FluxService fluxService;
+    @Mock
+    private ProjectRepository projectRepository;
+
+    @Mock
+    private MetadataRepository metadataRepository;
+
+    @InjectMocks
+    private FluxService fluxService;
 
     private TransactionModel transactionModel;
     private ProjectModel projectModel;
@@ -139,7 +149,8 @@ public class FluxServiceTest {
 
         projectModel.setManifestContext(new ManifestContext());
         when(collectService.detectFileFormat(any(File.class))).thenReturn(
-            Optional.of(new FormatIdentifierResponse("", "", "", "")));
+            Optional.of(new FormatIdentifierResponse("", "", "", ""))
+        );
     }
 
     @Test
@@ -154,7 +165,8 @@ public class FluxServiceTest {
                 units.put(unit.get(VitamFieldsHelper.id()).asText(), unit);
             }
             return JsonHandler.toJsonNode(
-                new RequestResponseOK<>(JsonHandler.createObjectNode(), unitsToSave, unitsToSave.size()));
+                new RequestResponseOK<>(JsonHandler.createObjectNode(), unitsToSave, unitsToSave.size())
+            );
         });
 
         when(metadataRepository.saveObjectGroups(anyList())).thenAnswer(e -> {
@@ -163,34 +175,54 @@ public class FluxServiceTest {
                 objectGroups.put(og.get(VitamFieldsHelper.id()).asText(), og);
             }
             return JsonHandler.toJsonNode(
-                new RequestResponseOK<>(JsonHandler.createObjectNode(), ogToSave, ogToSave.size()));
+                new RequestResponseOK<>(JsonHandler.createObjectNode(), ogToSave, ogToSave.size())
+            );
         });
 
         when(metadataService.prepareAttachmentUnits(any(), anyString())).thenReturn(new HashMap<>());
-
 
         try (final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(TRANSACTION_ZIP_PATH)) {
             fluxService.processStream(resourceAsStream, PROJECT_ID, TRANSACTION_ID, null);
         }
 
-
         final JsonNode expectedUnits = JsonHandler.getFromFile(PropertiesUtils.getResourceFile(UNITS_PATH));
 
-        JsonAssert.assertJsonEquals(units.values(), expectedUnits, JsonAssert.when(Option.IGNORING_ARRAY_ORDER)
-            .whenIgnoringPaths(List.of("[*]." + VitamFieldsHelper.id(), "[*]." + VitamFieldsHelper.unitups(),
-                "[*]." + VitamFieldsHelper.object(),
-                "[*]." + VitamFieldsHelper.batchId())));
+        JsonAssert.assertJsonEquals(
+            units.values(),
+            expectedUnits,
+            JsonAssert.when(Option.IGNORING_ARRAY_ORDER).whenIgnoringPaths(
+                List.of(
+                    "[*]." + VitamFieldsHelper.id(),
+                    "[*]." + VitamFieldsHelper.unitups(),
+                    "[*]." + VitamFieldsHelper.object(),
+                    "[*]." + VitamFieldsHelper.batchId()
+                )
+            )
+        );
 
         final JsonNode expectedGots = JsonHandler.getFromFile(PropertiesUtils.getResourceFile(OBJECTGROUPS_PATH));
 
-        JsonAssert.assertJsonEquals(JsonHandler.toJsonNode(objectGroups.values()), expectedGots,
-            JsonAssert.when(Option.IGNORING_ARRAY_ORDER).whenIgnoringPaths(List.of("[*]." + VitamFieldsHelper.id(),
-                "[*]." + VitamFieldsHelper.batchId(),
-                "[*]." + VitamFieldsHelper.qualifiers() + "[*]." + TAG_VERSIONS + "[*]." + VitamFieldsHelper.id(),
-                "[*]." + TAG_FILE_INFO + "." + FileInfoModel.LAST_MODIFIED,
-                "[*]." + VitamFieldsHelper.qualifiers() + "[*]." + TAG_VERSIONS + "[*]." + TAG_FILE_INFO + "." +
+        JsonAssert.assertJsonEquals(
+            JsonHandler.toJsonNode(objectGroups.values()),
+            expectedGots,
+            JsonAssert.when(Option.IGNORING_ARRAY_ORDER).whenIgnoringPaths(
+                List.of(
+                    "[*]." + VitamFieldsHelper.id(),
+                    "[*]." + VitamFieldsHelper.batchId(),
+                    "[*]." + VitamFieldsHelper.qualifiers() + "[*]." + TAG_VERSIONS + "[*]." + VitamFieldsHelper.id(),
+                    "[*]." + TAG_FILE_INFO + "." + FileInfoModel.LAST_MODIFIED,
+                    "[*]." +
+                    VitamFieldsHelper.qualifiers() +
+                    "[*]." +
+                    TAG_VERSIONS +
+                    "[*]." +
+                    TAG_FILE_INFO +
+                    "." +
                     FileInfoModel.LAST_MODIFIED,
-                "[*]." + VitamFieldsHelper.qualifiers() + "[*]." + TAG_VERSIONS + "[*]." + TAG_URI)));
+                    "[*]." + VitamFieldsHelper.qualifiers() + "[*]." + TAG_VERSIONS + "[*]." + TAG_URI
+                )
+            )
+        );
     }
 
     @Test
@@ -209,25 +241,37 @@ public class FluxServiceTest {
             .when(metadataService)
             .updateUnitsWithJsonlMetadataFile(eq("TRANSACTION_ID"), any());
 
-        try (final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(
-            TRANSACTION_ZIP_WITH_METADATA_CSV_PATH)) {
+        try (
+            final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(
+                TRANSACTION_ZIP_WITH_METADATA_CSV_PATH
+            )
+        ) {
             fluxService.processStream(resourceAsStream, PROJECT_ID, TRANSACTION_ID, null);
         }
 
-        JsonNode transformedMetadataFileLines =
-            JsonHandler.toJsonNode(
-                new JsonLineGenericIterator<JsonNode>(new ByteArrayInputStream(transformedMetadataFile.get()),
-                    new TypeReference<>() {
-                    }).stream().toArray());
+        JsonNode transformedMetadataFileLines = JsonHandler.toJsonNode(
+            new JsonLineGenericIterator<JsonNode>(
+                new ByteArrayInputStream(transformedMetadataFile.get()),
+                new TypeReference<>() {}
+            )
+                .stream()
+                .toArray()
+        );
 
-        JsonNode expectedTransformedMetadataFileLines =
-            JsonHandler.toJsonNode(new JsonLineGenericIterator<JsonNode>(
+        JsonNode expectedTransformedMetadataFileLines = JsonHandler.toJsonNode(
+            new JsonLineGenericIterator<JsonNode>(
                 PropertiesUtils.getResourceAsStream("streamZip/expected_transformed_metadata_from_csv.jsonl"),
-                new TypeReference<>() {
-                }).stream().toArray());
+                new TypeReference<>() {}
+            )
+                .stream()
+                .toArray()
+        );
 
-        JsonAssert.assertJsonEquals(expectedTransformedMetadataFileLines, transformedMetadataFileLines,
-            JsonAssert.when(Option.IGNORING_ARRAY_ORDER));
+        JsonAssert.assertJsonEquals(
+            expectedTransformedMetadataFileLines,
+            transformedMetadataFileLines,
+            JsonAssert.when(Option.IGNORING_ARRAY_ORDER)
+        );
     }
 
     @Test
@@ -246,25 +290,37 @@ public class FluxServiceTest {
             .when(metadataService)
             .updateUnitsWithJsonlMetadataFile(eq("TRANSACTION_ID"), any());
 
-        try (final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(
-            TRANSACTION_ZIP_WITH_METADATA_JSONL_PATH)) {
+        try (
+            final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(
+                TRANSACTION_ZIP_WITH_METADATA_JSONL_PATH
+            )
+        ) {
             fluxService.processStream(resourceAsStream, PROJECT_ID, TRANSACTION_ID, null);
         }
 
-        JsonNode transformedMetadataFileLines =
-            JsonHandler.toJsonNode(
-                new JsonLineGenericIterator<JsonNode>(new ByteArrayInputStream(transformedMetadataFile.get()),
-                    new TypeReference<>() {
-                    }).stream().toArray());
+        JsonNode transformedMetadataFileLines = JsonHandler.toJsonNode(
+            new JsonLineGenericIterator<JsonNode>(
+                new ByteArrayInputStream(transformedMetadataFile.get()),
+                new TypeReference<>() {}
+            )
+                .stream()
+                .toArray()
+        );
 
-        JsonNode expectedTransformedMetadataFileLines =
-            JsonHandler.toJsonNode(new JsonLineGenericIterator<JsonNode>(
+        JsonNode expectedTransformedMetadataFileLines = JsonHandler.toJsonNode(
+            new JsonLineGenericIterator<JsonNode>(
                 PropertiesUtils.getResourceAsStream("streamZip/expected_transformed_metadata_from_jsonl.jsonl"),
-                new TypeReference<>() {
-                }).stream().toArray());
+                new TypeReference<>() {}
+            )
+                .stream()
+                .toArray()
+        );
 
-        JsonAssert.assertJsonEquals(expectedTransformedMetadataFileLines, transformedMetadataFileLines,
-            JsonAssert.when(Option.IGNORING_ARRAY_ORDER));
+        JsonAssert.assertJsonEquals(
+            expectedTransformedMetadataFileLines,
+            transformedMetadataFileLines,
+            JsonAssert.when(Option.IGNORING_ARRAY_ORDER)
+        );
     }
 
     @Test
@@ -275,23 +331,32 @@ public class FluxServiceTest {
         final AtomicReference<File> fileReference = new AtomicReference<>();
         when(metadataService.prepareAttachmentUnits(any(), anyString())).thenReturn(new HashMap<>());
         when(collectService.pushStreamToWorkspace(any(), any(InputStream.class), eq(METADATA_CSV_FILE))).thenAnswer(
-            (e) -> {
+            e -> {
                 final InputStream is = e.getArgument(1);
                 final File file = tempFolder.newFile(METADATA_CSV_FILE);
                 Files.copy(is, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
                 fileReference.set(file);
                 return "";
-            });
+            }
+        );
         when(collectService.getInputStreamFromWorkspace(any(), eq(METADATA_CSV_FILE))).thenAnswer(
-            (e) -> new FileInputStream(fileReference.get()));
+            e -> new FileInputStream(fileReference.get())
+        );
 
         // When
-        try (final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(
-            TRANSACTION_WITHOUT_FILE_COLUMN_ZIP_PATH)) {
-            CollectInternalException exception = Assert.assertThrows(CollectInternalException.class,
-                () -> fluxService.processStream(resourceAsStream, PROJECT_ID, TRANSACTION_ID, null));
-            Assert.assertEquals("Mapping for File not found, expected one of [Content.DescriptionLevel, Content.Title]",
-                exception.getMessage());
+        try (
+            final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(
+                TRANSACTION_WITHOUT_FILE_COLUMN_ZIP_PATH
+            )
+        ) {
+            CollectInternalException exception = Assert.assertThrows(
+                CollectInternalException.class,
+                () -> fluxService.processStream(resourceAsStream, PROJECT_ID, TRANSACTION_ID, null)
+            );
+            Assert.assertEquals(
+                "Mapping for File not found, expected one of [Content.DescriptionLevel, Content.Title]",
+                exception.getMessage()
+            );
         }
 
         // Then
@@ -305,9 +370,13 @@ public class FluxServiceTest {
     @RunWithCustomExecutor
     public void processStream_with_attachment_params_should_be_ok() throws Exception {
         final ProjectModel project = JsonHandler.getFromString(
-            PropertiesUtils.getResourceAsString("json/01_project_flux_auto_attach_param.json"), ProjectModel.class);
+            PropertiesUtils.getResourceAsString("json/01_project_flux_auto_attach_param.json"),
+            ProjectModel.class
+        );
         final TransactionModel transaction = JsonHandler.getFromString(
-            PropertiesUtils.getResourceAsString("json/01_transaction.json"), TransactionModel.class);
+            PropertiesUtils.getResourceAsString("json/01_transaction.json"),
+            TransactionModel.class
+        );
 
         when(projectRepository.findProjectById(anyString())).thenReturn(Optional.of(project));
         Map<String, JsonNode> units = new HashMap<>();
@@ -318,7 +387,8 @@ public class FluxServiceTest {
                 units.put(unit.get(VitamFieldsHelper.id()).asText(), unit);
             }
             return JsonHandler.toJsonNode(
-                new RequestResponseOK<>(JsonHandler.createObjectNode(), unitsToSave, unitsToSave.size()));
+                new RequestResponseOK<>(JsonHandler.createObjectNode(), unitsToSave, unitsToSave.size())
+            );
         });
         when(metadataRepository.saveObjectGroups(anyList())).thenAnswer(e -> {
             final List<ObjectNode> ogToSave = e.getArgument(0);
@@ -326,7 +396,8 @@ public class FluxServiceTest {
                 objectGroups.put(og.get(VitamFieldsHelper.id()).asText(), og);
             }
             return JsonHandler.toJsonNode(
-                new RequestResponseOK<>(JsonHandler.createObjectNode(), ogToSave, ogToSave.size()));
+                new RequestResponseOK<>(JsonHandler.createObjectNode(), ogToSave, ogToSave.size())
+            );
         });
         when(metadataService.prepareAttachmentUnits(any(), anyString())).thenReturn(new HashMap<>());
 
@@ -335,24 +406,46 @@ public class FluxServiceTest {
         }
 
         final JsonNode expectedUnits = JsonHandler.getFromFile(
-            PropertiesUtils.getResourceFile("json/01_expected_units.json"));
-        JsonAssert.assertJsonEquals(units.values(), expectedUnits, JsonAssert.when(Option.IGNORING_ARRAY_ORDER)
-            .whenIgnoringPaths(List.of("[*]." + VitamFieldsHelper.id(), "[*]." + VitamFieldsHelper.batchId(),
-                "[*]." + VitamFieldsHelper.unitups(),
-                "[*]." + VitamFieldsHelper.object())));
+            PropertiesUtils.getResourceFile("json/01_expected_units.json")
+        );
+        JsonAssert.assertJsonEquals(
+            units.values(),
+            expectedUnits,
+            JsonAssert.when(Option.IGNORING_ARRAY_ORDER).whenIgnoringPaths(
+                List.of(
+                    "[*]." + VitamFieldsHelper.id(),
+                    "[*]." + VitamFieldsHelper.batchId(),
+                    "[*]." + VitamFieldsHelper.unitups(),
+                    "[*]." + VitamFieldsHelper.object()
+                )
+            )
+        );
 
         final JsonNode expectedGots = JsonHandler.getFromFile(
-            PropertiesUtils.getResourceFile("json/01_expected_got.json"));
-        JsonAssert.assertJsonEquals(JsonHandler.toJsonNode(objectGroups.values()), expectedGots,
-            JsonAssert.when(Option.IGNORING_ARRAY_ORDER).whenIgnoringPaths(List.of("[*]." + VitamFieldsHelper.id(),
-                "[*]." + VitamFieldsHelper.batchId(),
-                "[*]." + VitamFieldsHelper.qualifiers() + "[*]." + TAG_VERSIONS + "[*]." + VitamFieldsHelper.id(),
-                "[*]." + TAG_FILE_INFO + "." + FileInfoModel.LAST_MODIFIED,
-                "[*]." + VitamFieldsHelper.qualifiers() + "[*]." + TAG_VERSIONS + "[*]." + TAG_FILE_INFO + "." +
+            PropertiesUtils.getResourceFile("json/01_expected_got.json")
+        );
+        JsonAssert.assertJsonEquals(
+            JsonHandler.toJsonNode(objectGroups.values()),
+            expectedGots,
+            JsonAssert.when(Option.IGNORING_ARRAY_ORDER).whenIgnoringPaths(
+                List.of(
+                    "[*]." + VitamFieldsHelper.id(),
+                    "[*]." + VitamFieldsHelper.batchId(),
+                    "[*]." + VitamFieldsHelper.qualifiers() + "[*]." + TAG_VERSIONS + "[*]." + VitamFieldsHelper.id(),
+                    "[*]." + TAG_FILE_INFO + "." + FileInfoModel.LAST_MODIFIED,
+                    "[*]." +
+                    VitamFieldsHelper.qualifiers() +
+                    "[*]." +
+                    TAG_VERSIONS +
+                    "[*]." +
+                    TAG_FILE_INFO +
+                    "." +
                     FileInfoModel.LAST_MODIFIED,
-                "[*]." + VitamFieldsHelper.qualifiers() + "[*]." + TAG_VERSIONS + "[*]." + TAG_URI)));
+                    "[*]." + VitamFieldsHelper.qualifiers() + "[*]." + TAG_VERSIONS + "[*]." + TAG_URI
+                )
+            )
+        );
     }
-
 
     @Test
     @RunWithCustomExecutor
@@ -368,14 +461,17 @@ public class FluxServiceTest {
                 units.put(unit.get(VitamFieldsHelper.id()).asText(), unit);
             }
             return JsonHandler.toJsonNode(
-                new RequestResponseOK<>(JsonHandler.createObjectNode(), unitsToSave, unitsToSave.size()));
+                new RequestResponseOK<>(JsonHandler.createObjectNode(), unitsToSave, unitsToSave.size())
+            );
         });
         when(metadataRepository.saveObjectGroups(anyList())).thenAnswer(e -> {
             final List<ObjectNode> ogToSave = e.getArgument(0);
             for (ObjectNode og : ogToSave) {
                 objectGroups.put(og.get(VitamFieldsHelper.id()).asText(), og);
             }
-            return JsonHandler.toJsonNode(new RequestResponseOK<>(JsonHandler.createObjectNode(), ogToSave, ogToSave.size()));
+            return JsonHandler.toJsonNode(
+                new RequestResponseOK<>(JsonHandler.createObjectNode(), ogToSave, ogToSave.size())
+            );
         });
 
         try (final InputStream resourceAsStream = getResourceAsStream(ARBORESCENCE_WITH_ACCENTS_WINDOWS_ZIP)) {
@@ -384,23 +480,42 @@ public class FluxServiceTest {
 
         JsonAssert.assertJsonEquals(
             JsonHandler.getFromFile(PropertiesUtils.getResourceFile(ARBORESCENCE_WITH_ACCENTS_UNITS)),
-            units.values(), JsonAssert.when(Option.IGNORING_ARRAY_ORDER)
-                .whenIgnoringPaths(List.of("[*]." + VitamFieldsHelper.id(), "[*]." + VitamFieldsHelper.unitups(),
+            units.values(),
+            JsonAssert.when(Option.IGNORING_ARRAY_ORDER).whenIgnoringPaths(
+                List.of(
+                    "[*]." + VitamFieldsHelper.id(),
+                    "[*]." + VitamFieldsHelper.unitups(),
                     "[*]." + VitamFieldsHelper.object(),
-                    "[*]." + VitamFieldsHelper.batchId())));
+                    "[*]." + VitamFieldsHelper.batchId()
+                )
+            )
+        );
         JsonAssert.assertJsonEquals(
             JsonHandler.getFromFile(PropertiesUtils.getResourceFile(ARBORESCENCE_WITH_ACCENTS_OBJECTGROUPS)),
             JsonHandler.toJsonNode(objectGroups.values()),
-            JsonAssert.when(Option.IGNORING_ARRAY_ORDER).whenIgnoringPaths(List.of("[*]." + VitamFieldsHelper.id(),
-                "[*]." + VitamFieldsHelper.batchId(),
-                "[*]." + VitamFieldsHelper.qualifiers() + "[*]." + TAG_VERSIONS + "[*]." + VitamFieldsHelper.id(),
-                "[*]." + TAG_FILE_INFO + "." + FileInfoModel.LAST_MODIFIED,
-                "[*]." + VitamFieldsHelper.qualifiers() + "[*]." + TAG_VERSIONS + "[*]." + TAG_FILE_INFO + "." + FileInfoModel.LAST_MODIFIED,
-                "[*]." + VitamFieldsHelper.qualifiers() + "[*]." + TAG_VERSIONS + "[*]." + TAG_URI)));
+            JsonAssert.when(Option.IGNORING_ARRAY_ORDER).whenIgnoringPaths(
+                List.of(
+                    "[*]." + VitamFieldsHelper.id(),
+                    "[*]." + VitamFieldsHelper.batchId(),
+                    "[*]." + VitamFieldsHelper.qualifiers() + "[*]." + TAG_VERSIONS + "[*]." + VitamFieldsHelper.id(),
+                    "[*]." + TAG_FILE_INFO + "." + FileInfoModel.LAST_MODIFIED,
+                    "[*]." +
+                    VitamFieldsHelper.qualifiers() +
+                    "[*]." +
+                    TAG_VERSIONS +
+                    "[*]." +
+                    TAG_FILE_INFO +
+                    "." +
+                    FileInfoModel.LAST_MODIFIED,
+                    "[*]." + VitamFieldsHelper.qualifiers() + "[*]." + TAG_VERSIONS + "[*]." + TAG_URI
+                )
+            )
+        );
     }
 
-    private static final String ARBORESCENCE_WITH_ACCENTS_WINDOWS_ZIP = "streamZip/arborescence_with_accents_windows.zip";
-    private static final String ARBORESCENCE_WITH_ACCENTS_OBJECTGROUPS = "streamZip/arborescence_with_accents_objectgroups.json";
+    private static final String ARBORESCENCE_WITH_ACCENTS_WINDOWS_ZIP =
+        "streamZip/arborescence_with_accents_windows.zip";
+    private static final String ARBORESCENCE_WITH_ACCENTS_OBJECTGROUPS =
+        "streamZip/arborescence_with_accents_objectgroups.json";
     private static final String ARBORESCENCE_WITH_ACCENTS_UNITS = "streamZip/arborescence_with_accents_units.json";
-
 }

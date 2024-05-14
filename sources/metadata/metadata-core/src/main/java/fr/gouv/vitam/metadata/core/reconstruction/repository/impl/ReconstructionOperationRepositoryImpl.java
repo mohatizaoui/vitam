@@ -29,7 +29,6 @@ package fr.gouv.vitam.metadata.core.reconstruction.repository.impl;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.gouv.vitam.common.LocalDateUtil;
-import fr.gouv.vitam.common.database.builder.query.CompareQuery;
 import fr.gouv.vitam.common.database.builder.query.InQuery;
 import fr.gouv.vitam.common.database.builder.query.QueryHelper;
 import fr.gouv.vitam.common.database.builder.query.RangeQuery;
@@ -75,26 +74,29 @@ public class ReconstructionOperationRepositoryImpl implements ReconstructionOper
     public List<ReconstructionOperation> fetchReconstructionOperations(LocalDateTime startDate, LocalDateTime endDate)
         throws ReconstructionException {
         try (LogbookOperationsClient client = logbookOperationsClientFactory.getClient()) {
-
             JsonNode queryDsl = getDslForSelectOperation(startDate, endDate);
 
             final JsonNode result = client.selectOperation(queryDsl, false, false);
             RequestResponseOK<JsonNode> requestResponse = RequestResponseOK.getFromJsonNode(result);
-            List<LogbookOperation> logbookOperations = getFromJsonNodeList((requestResponse).getResults(),
-                new TypeReference<>() {
-                });
+            List<LogbookOperation> logbookOperations = getFromJsonNodeList(
+                (requestResponse).getResults(),
+                new TypeReference<>() {}
+            );
 
-            return logbookOperations.stream()
-                .map(logbookOperation ->
-                    ReconstructionOperation.builder()
-                        .setId(logbookOperation.getId())
-                        .setTenant(logbookOperation.getTenant())
-                        .setType(logbookOperation.getEvType())
-                        .setLastPersistedDate(Optional.ofNullable(logbookOperation.getLastPersistentDate()).orElse(""))
-                        .build()
+            return logbookOperations
+                .stream()
+                .map(
+                    logbookOperation ->
+                        ReconstructionOperation.builder()
+                            .setId(logbookOperation.getId())
+                            .setTenant(logbookOperation.getTenant())
+                            .setType(logbookOperation.getEvType())
+                            .setLastPersistedDate(
+                                Optional.ofNullable(logbookOperation.getLastPersistentDate()).orElse("")
+                            )
+                            .build()
                 )
                 .collect(Collectors.toList());
-
         } catch (final LogbookClientException | InvalidParseOperationException e) {
             throw new ReconstructionException("Error fetching reconstruction operations", e);
         }
@@ -103,14 +105,18 @@ public class ReconstructionOperationRepositoryImpl implements ReconstructionOper
     JsonNode getDslForSelectOperation(LocalDateTime startDate, LocalDateTime endDate) {
         Select select = new Select();
         try {
-
             final Date from = LocalDateUtil.getDate(startDate);
             final Date to = LocalDateUtil.getDate(endDate);
 
             RangeQuery range = QueryHelper.range(VitamFieldsHelper.lastPersistedDate(), from, true, to, false);
-            final String[] evTypes = {"ELIMINATION_ACTION", "DELETE_GOT_VERSIONS", "TRANSFER_REPLY"};
+            final String[] evTypes = { "ELIMINATION_ACTION", "DELETE_GOT_VERSIONS", "TRANSFER_REPLY" };
             final InQuery type = QueryHelper.in("evType", evTypes);
-            final String[] operationOutDetails = {"ELIMINATION_ACTION.OK", "ELIMINATION_ACTION.WARNING", "DELETE_GOT_VERSIONS.OK", "TRANSFER_REPLY.OK"};
+            final String[] operationOutDetails = {
+                "ELIMINATION_ACTION.OK",
+                "ELIMINATION_ACTION.WARNING",
+                "DELETE_GOT_VERSIONS.OK",
+                "TRANSFER_REPLY.OK",
+            };
             final InQuery status = QueryHelper.in("events" + "." + "outDetail", operationOutDetails);
             select.setLimitFilter(0, 10000);
             select.addOrderByAscFilter(VitamFieldsHelper.lastPersistedDate());

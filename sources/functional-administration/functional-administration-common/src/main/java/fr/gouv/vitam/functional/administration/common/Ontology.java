@@ -30,8 +30,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import fr.gouv.vitam.common.database.server.mongodb.VitamDocument;
 import fr.gouv.vitam.common.model.administration.OntologyOrigin;
 import fr.gouv.vitam.common.model.administration.OntologyType;
-import fr.gouv.vitam.common.model.administration.TypeDetail;
 import fr.gouv.vitam.common.model.administration.StringSize;
+import fr.gouv.vitam.common.model.administration.TypeDetail;
 import org.bson.Document;
 
 import java.util.ArrayList;
@@ -107,8 +107,7 @@ public class Ontology extends VitamDocument<Ontology> {
     /**
      * Empty Constructor
      */
-    public Ontology() {
-    }
+    public Ontology() {}
 
     /**
      * Constructor
@@ -154,7 +153,6 @@ public class Ontology extends VitamDocument<Ontology> {
         return this;
     }
 
-
     /**
      * The ontology id
      *
@@ -194,7 +192,6 @@ public class Ontology extends VitamDocument<Ontology> {
         append(SEDAFIELD, sedaField);
         return this;
     }
-
 
     /**
      * The ontology api field
@@ -236,7 +233,6 @@ public class Ontology extends VitamDocument<Ontology> {
         return this;
     }
 
-
     /**
      * Get the ontology type
      *
@@ -257,8 +253,6 @@ public class Ontology extends VitamDocument<Ontology> {
         return this;
     }
 
-
-
     /**
      * Get the ontology origin
      *
@@ -278,8 +272,6 @@ public class Ontology extends VitamDocument<Ontology> {
         append(ORIGIN, origin);
         return this;
     }
-
-
 
     /**
      * Get the ontology ShortName
@@ -305,7 +297,6 @@ public class Ontology extends VitamDocument<Ontology> {
         return (List<String>) get(COLLECTIONS);
     }
 
-
     /**
      * Set or change the ontology collections
      *
@@ -320,7 +311,6 @@ public class Ontology extends VitamDocument<Ontology> {
         }
         return this;
     }
-
 
     /**
      * @return creation date of ontology
@@ -385,5 +375,4 @@ public class Ontology extends VitamDocument<Ontology> {
         append(STRING_SIZE, stringSize);
         return this;
     }
-
 }

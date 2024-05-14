@@ -46,15 +46,13 @@ public class SchemaImportReport {
     @JsonProperty(STATUS_CODE)
     private StatusCode statusCode;
 
-
     @JsonProperty(CREATED_SCHEMA_TAG)
     private Set<String> createdSchemaPaths = new HashSet<>();
 
     @JsonProperty(ERROR_SCHEMA_TAG)
     private Set<String> errorSchemaPaths = new HashSet<>();
 
-    public SchemaImportReport() {
-    }
+    public SchemaImportReport() {}
 
     public SchemaImportReport setOperation(FunctionalOperationModel operation) {
         this.operation = operation;

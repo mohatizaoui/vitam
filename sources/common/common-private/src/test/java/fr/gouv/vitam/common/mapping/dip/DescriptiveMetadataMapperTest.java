@@ -59,14 +59,16 @@ public class DescriptiveMetadataMapperTest {
         // Given
         DescriptiveMetadataModel descriptiveMetadataModel = new DescriptiveMetadataModel();
         descriptiveMetadataModel.setTitle("titre_default");
-        TextByLang title_ = new TextByLang()
-            .setTextByLang("en", "title");
+        TextByLang title_ = new TextByLang().setTextByLang("en", "title");
 
         descriptiveMetadataModel.setTitle_(title_);
 
         // When
-        DescriptiveMetadataContentType contentType =
-            descriptiveMetadataMapper.map(descriptiveMetadataModel, new ArrayList<>(), SupportedSedaVersions.SEDA_2_3);
+        DescriptiveMetadataContentType contentType = descriptiveMetadataMapper.map(
+            descriptiveMetadataModel,
+            new ArrayList<>(),
+            SupportedSedaVersions.SEDA_2_3
+        );
 
         // Then
         assertThat(contentType.getTitle())
@@ -81,14 +83,16 @@ public class DescriptiveMetadataMapperTest {
         // Given
         DescriptiveMetadataModel descriptiveMetadataModel = new DescriptiveMetadataModel();
         descriptiveMetadataModel.setDescription("description_default");
-        TextByLang description_ = new TextByLang()
-            .setTextByLang("en", "description");
+        TextByLang description_ = new TextByLang().setTextByLang("en", "description");
 
         descriptiveMetadataModel.setDescription_(description_);
 
         // When
-        DescriptiveMetadataContentType contentType =
-            descriptiveMetadataMapper.map(descriptiveMetadataModel, new ArrayList<>(), SupportedSedaVersions.SEDA_2_3);
+        DescriptiveMetadataContentType contentType = descriptiveMetadataMapper.map(
+            descriptiveMetadataModel,
+            new ArrayList<>(),
+            SupportedSedaVersions.SEDA_2_3
+        );
 
         // Then
         assertThat(contentType.getDescription())
@@ -112,8 +116,10 @@ public class DescriptiveMetadataMapperTest {
         listeCustodialHistoryItemType.add(custodialHistoryItemType);
         listeCustodialHistoryItemType.add(custodialHistoryItemType2);
 
-        List<String> custodialHistoryItem =
-            listeCustodialHistoryItemType.stream().map(x -> x.getValue()).collect(Collectors.toList());
+        List<String> custodialHistoryItem = listeCustodialHistoryItemType
+            .stream()
+            .map(x -> x.getValue())
+            .collect(Collectors.toList());
 
         DataObjectReference reference = new DataObjectReference();
         reference.setDataObjectReferenceId("ID222");
@@ -125,13 +131,16 @@ public class DescriptiveMetadataMapperTest {
         descriptiveMetadataModel.setCustodialHistory(custodialHistoryModel);
 
         // When
-        DescriptiveMetadataContentType contentType =
-            descriptiveMetadataMapper.map(descriptiveMetadataModel, new ArrayList<>(), SupportedSedaVersions.SEDA_2_3);
+        DescriptiveMetadataContentType contentType = descriptiveMetadataMapper.map(
+            descriptiveMetadataModel,
+            new ArrayList<>(),
+            SupportedSedaVersions.SEDA_2_3
+        );
 
         // Then
-        assertThat(contentType.getCustodialHistory().getCustodialHistoryFile().getDataObjectReferenceId())
-            .isEqualTo(reference.getDataObjectReferenceId());
+        assertThat(contentType.getCustodialHistory().getCustodialHistoryFile().getDataObjectReferenceId()).isEqualTo(
+            reference.getDataObjectReferenceId()
+        );
         assertThat(contentType.getCustodialHistory().getCustodialHistoryItem().size()).isEqualTo(2);
     }
-
 }

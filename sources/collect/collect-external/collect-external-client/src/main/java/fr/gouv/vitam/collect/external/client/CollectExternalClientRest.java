@@ -85,9 +85,8 @@ public class CollectExternalClientRest extends DefaultClient implements CollectE
     }
 
     @Override
-    public RequestResponse<JsonNode> initProject(VitamContext vitamContext,
-        ProjectDto projectDto) throws VitamClientException {
-
+    public RequestResponse<JsonNode> initProject(VitamContext vitamContext, ProjectDto projectDto)
+        throws VitamClientException {
         VitamRequestBuilder request = post()
             .withPath(PROJECT_PATH)
             .withHeaders(vitamContext.getHeaders())
@@ -103,9 +102,8 @@ public class CollectExternalClientRest extends DefaultClient implements CollectE
     }
 
     @Override
-    public RequestResponse<JsonNode> updateProject(VitamContext vitamContext,
-        ProjectDto projectDto) throws VitamClientException {
-
+    public RequestResponse<JsonNode> updateProject(VitamContext vitamContext, ProjectDto projectDto)
+        throws VitamClientException {
         VitamRequestBuilder request = put()
             .withPath(PROJECT_PATH)
             .withHeaders(vitamContext.getHeaders())
@@ -121,9 +119,8 @@ public class CollectExternalClientRest extends DefaultClient implements CollectE
     }
 
     @Override
-    public RequestResponse<JsonNode> getProjectById(VitamContext vitamContext,
-        String projectId) throws VitamClientException {
-
+    public RequestResponse<JsonNode> getProjectById(VitamContext vitamContext, String projectId)
+        throws VitamClientException {
         VitamRequestBuilder request = get()
             .withPath(PROJECT_PATH + "/" + projectId)
             .withHeaders(vitamContext.getHeaders())
@@ -136,11 +133,9 @@ public class CollectExternalClientRest extends DefaultClient implements CollectE
         }
     }
 
-
     @Override
-    public RequestResponse<JsonNode> getTransactionById(VitamContext vitamContext,
-        String transactionId) throws VitamClientException {
-
+    public RequestResponse<JsonNode> getTransactionById(VitamContext vitamContext, String transactionId)
+        throws VitamClientException {
         VitamRequestBuilder request = get()
             .withPath(TRANSACTION_PATH + "/" + transactionId)
             .withHeaders(vitamContext.getHeaders())
@@ -154,9 +149,8 @@ public class CollectExternalClientRest extends DefaultClient implements CollectE
     }
 
     @Override
-    public RequestResponse<JsonNode> getTransactionByProjectId(VitamContext vitamContext,
-        String projectId) throws VitamClientException {
-
+    public RequestResponse<JsonNode> getTransactionByProjectId(VitamContext vitamContext, String projectId)
+        throws VitamClientException {
         VitamRequestBuilder request = get()
             .withPath(PROJECT_PATH + "/" + projectId + TRANSACTION_PATH)
             .withHeaders(vitamContext.getHeaders())
@@ -169,11 +163,9 @@ public class CollectExternalClientRest extends DefaultClient implements CollectE
         }
     }
 
-
     @Override
-    public RequestResponse<JsonNode> deleteProjectById(VitamContext vitamContext,
-        String projectId) throws VitamClientException {
-
+    public RequestResponse<JsonNode> deleteProjectById(VitamContext vitamContext, String projectId)
+        throws VitamClientException {
         VitamRequestBuilder request = delete()
             .withPath(PROJECT_PATH + "/" + projectId)
             .withHeaders(vitamContext.getHeaders())
@@ -187,9 +179,8 @@ public class CollectExternalClientRest extends DefaultClient implements CollectE
     }
 
     @Override
-    public RequestResponse<JsonNode> deleteTransactionById(VitamContext vitamContext,
-        String transactionId) throws VitamClientException {
-
+    public RequestResponse<JsonNode> deleteTransactionById(VitamContext vitamContext, String transactionId)
+        throws VitamClientException {
         VitamRequestBuilder request = delete()
             .withPath(TRANSACTION_PATH + "/" + transactionId)
             .withHeaders(vitamContext.getHeaders())
@@ -204,7 +195,6 @@ public class CollectExternalClientRest extends DefaultClient implements CollectE
 
     @Override
     public RequestResponse<JsonNode> getProjects(VitamContext vitamContext) throws VitamClientException {
-
         VitamRequestBuilder request = get()
             .withPath(PROJECT_PATH)
             .withHeaders(vitamContext.getHeaders())
@@ -218,9 +208,7 @@ public class CollectExternalClientRest extends DefaultClient implements CollectE
     }
 
     @Override
-    public RequestResponse<JsonNode> getUnitById(VitamContext vitamContext, String unitId)
-        throws VitamClientException {
-
+    public RequestResponse<JsonNode> getUnitById(VitamContext vitamContext, String unitId) throws VitamClientException {
         VitamRequestBuilder request = get()
             .withPath(UNITS_PATH + "/" + unitId)
             .withHeaders(vitamContext.getHeaders())
@@ -234,9 +222,11 @@ public class CollectExternalClientRest extends DefaultClient implements CollectE
     }
 
     @Override
-    public RequestResponse<JsonNode> getUnitsByTransaction(VitamContext vitamContext,
-        String transactionId, JsonNode query) throws VitamClientException {
-
+    public RequestResponse<JsonNode> getUnitsByTransaction(
+        VitamContext vitamContext,
+        String transactionId,
+        JsonNode query
+    ) throws VitamClientException {
         VitamRequestBuilder request = get()
             .withPath(TRANSACTION_PATH + "/" + transactionId + UNITS_PATH)
             .withHeaders(vitamContext.getHeaders())
@@ -251,9 +241,8 @@ public class CollectExternalClientRest extends DefaultClient implements CollectE
     }
 
     @Override
-    public RequestResponse<JsonNode> getObjectById(VitamContext vitamContext,
-        String gotId) throws VitamClientException {
-
+    public RequestResponse<JsonNode> getObjectById(VitamContext vitamContext, String gotId)
+        throws VitamClientException {
         VitamRequestBuilder request = get()
             .withPath("/objects/" + gotId)
             .withHeaders(vitamContext.getHeaders())
@@ -267,10 +256,11 @@ public class CollectExternalClientRest extends DefaultClient implements CollectE
     }
 
     @Override
-    public RequestResponse<JsonNode> initTransaction(VitamContext vitamContext,
-        TransactionDto transactionDto, String projectId)
-        throws VitamClientException {
-
+    public RequestResponse<JsonNode> initTransaction(
+        VitamContext vitamContext,
+        TransactionDto transactionDto,
+        String projectId
+    ) throws VitamClientException {
         VitamRequestBuilder request = post()
             .withPath(PROJECT_PATH + "/" + projectId + TRANSACTION_PATH)
             .withHeaders(vitamContext.getHeaders())
@@ -285,40 +275,64 @@ public class CollectExternalClientRest extends DefaultClient implements CollectE
     }
 
     @Override
-    public RequestResponse<JsonNode> uploadArchiveUnit(VitamContext vitamContext,
-        JsonNode unitJsonNode, String transactionId)
-        throws VitamClientException {
-        try (Response response = make(
-            post().withPath(TRANSACTION_PATH + "/" + transactionId + UNITS_PATH).withHeaders(vitamContext.getHeaders())
-                .withBody(unitJsonNode)
-                .withJson())) {
+    public RequestResponse<JsonNode> uploadArchiveUnit(
+        VitamContext vitamContext,
+        JsonNode unitJsonNode,
+        String transactionId
+    ) throws VitamClientException {
+        try (
+            Response response = make(
+                post()
+                    .withPath(TRANSACTION_PATH + "/" + transactionId + UNITS_PATH)
+                    .withHeaders(vitamContext.getHeaders())
+                    .withBody(unitJsonNode)
+                    .withJson()
+            )
+        ) {
             check(response);
             return RequestResponse.parseFromResponse(response, JsonNode.class);
         }
     }
 
     @Override
-    public RequestResponse<JsonNode> addObjectGroup(VitamContext vitamContext,
-        String unitId, Integer version, JsonNode objectJsonNode, String usage) throws VitamClientException {
-        try (Response response = make(
-            post().withPath(UNITS_PATH + "/" + unitId + "/objects/" + usage + "/" + version)
-                .withHeaders(vitamContext.getHeaders())
-                .withBody(objectJsonNode)
-                .withJson())) {
+    public RequestResponse<JsonNode> addObjectGroup(
+        VitamContext vitamContext,
+        String unitId,
+        Integer version,
+        JsonNode objectJsonNode,
+        String usage
+    ) throws VitamClientException {
+        try (
+            Response response = make(
+                post()
+                    .withPath(UNITS_PATH + "/" + unitId + "/objects/" + usage + "/" + version)
+                    .withHeaders(vitamContext.getHeaders())
+                    .withBody(objectJsonNode)
+                    .withJson()
+            )
+        ) {
             check(response);
             return RequestResponse.parseFromResponse(response, JsonNode.class);
         }
     }
 
     @Override
-    public Response addBinary(VitamContext vitamContext, String unitId, Integer version,
-        InputStream inputStreamUploaded, String usage)
-        throws VitamClientException {
-        try (Response response = make(post()
-            .withPath(UNITS_PATH + "/" + unitId + "/objects/" + usage + "/" + version + "/binary")
-            .withHeaders(vitamContext.getHeaders())
-            .withBody(inputStreamUploaded)
-            .withOctetContentType())) {
+    public Response addBinary(
+        VitamContext vitamContext,
+        String unitId,
+        Integer version,
+        InputStream inputStreamUploaded,
+        String usage
+    ) throws VitamClientException {
+        try (
+            Response response = make(
+                post()
+                    .withPath(UNITS_PATH + "/" + unitId + "/objects/" + usage + "/" + version + "/binary")
+                    .withHeaders(vitamContext.getHeaders())
+                    .withBody(inputStreamUploaded)
+                    .withOctetContentType()
+            )
+        ) {
             check(response);
             return response;
         }
@@ -327,23 +341,30 @@ public class CollectExternalClientRest extends DefaultClient implements CollectE
     @Override
     public RequestResponse<JsonNode> closeTransaction(VitamContext vitamContext, String transactionId)
         throws VitamClientException {
-        try (Response response = make(post()
-            .withPath(TRANSACTION_PATH + "/" + transactionId + "/close")
-            .withHeaders(vitamContext.getHeaders())
-            .withJsonAccept())) {
+        try (
+            Response response = make(
+                post()
+                    .withPath(TRANSACTION_PATH + "/" + transactionId + "/close")
+                    .withHeaders(vitamContext.getHeaders())
+                    .withJsonAccept()
+            )
+        ) {
             check(response);
             return RequestResponse.parseFromResponse(response, JsonNode.class);
         }
     }
 
     @Override
-    public RequestResponse<JsonNode> ingest(VitamContext vitamContext,
-        String transactionId)
+    public RequestResponse<JsonNode> ingest(VitamContext vitamContext, String transactionId)
         throws VitamClientException {
-        try (Response response = make(post()
-            .withPath(TRANSACTION_PATH + "/" + transactionId + "/send")
-            .withHeaders(vitamContext.getHeaders())
-            .withJson())) {
+        try (
+            Response response = make(
+                post()
+                    .withPath(TRANSACTION_PATH + "/" + transactionId + "/send")
+                    .withHeaders(vitamContext.getHeaders())
+                    .withJson()
+            )
+        ) {
             check(response);
             return RequestResponse.parseFromResponse(response, JsonNode.class);
         }
@@ -352,10 +373,14 @@ public class CollectExternalClientRest extends DefaultClient implements CollectE
     @Override
     public RequestResponse<JsonNode> abortTransaction(VitamContext vitamContext, String transactionId)
         throws VitamClientException {
-        try (Response response = make(put()
-            .withPath(TRANSACTION_PATH + "/" + transactionId + "/abort")
-            .withHeaders(vitamContext.getHeaders())
-            .withJsonAccept())) {
+        try (
+            Response response = make(
+                put()
+                    .withPath(TRANSACTION_PATH + "/" + transactionId + "/abort")
+                    .withHeaders(vitamContext.getHeaders())
+                    .withJsonAccept()
+            )
+        ) {
             check(response);
             return RequestResponse.parseFromResponse(response, JsonNode.class);
         }
@@ -364,54 +389,78 @@ public class CollectExternalClientRest extends DefaultClient implements CollectE
     @Override
     public RequestResponse<JsonNode> reopenTransaction(VitamContext vitamContext, String transactionId)
         throws VitamClientException {
-        try (Response response = make(put()
-            .withPath(TRANSACTION_PATH + "/" + transactionId + "/reopen")
-            .withHeaders(vitamContext.getHeaders())
-            .withJsonAccept())) {
+        try (
+            Response response = make(
+                put()
+                    .withPath(TRANSACTION_PATH + "/" + transactionId + "/reopen")
+                    .withHeaders(vitamContext.getHeaders())
+                    .withJsonAccept()
+            )
+        ) {
             check(response);
             return RequestResponse.parseFromResponse(response, JsonNode.class);
         }
     }
 
     @Override
-    public RequestResponse<JsonNode> uploadZipToTransaction(VitamContext vitamContext, String transactionId,
-        InputStream inputStreamUploaded)
-        throws VitamClientException {
+    public RequestResponse<JsonNode> uploadZipToTransaction(
+        VitamContext vitamContext,
+        String transactionId,
+        InputStream inputStreamUploaded
+    ) throws VitamClientException {
         return uploadZipToTransaction(vitamContext, transactionId, inputStreamUploaded, null);
     }
 
     @Override
-    public RequestResponse<JsonNode> uploadZipToTransaction(VitamContext vitamContext, String transactionId,
-        InputStream inputStreamUploaded, @Nullable String encoding)
-        throws VitamClientException {
-        try (Response response = make(post()
-            .withPath(TRANSACTION_PATH + "/" + transactionId + "/upload")
-            .withHeaders(vitamContext.getHeaders())
-            .withOptionalHeader(GlobalDataRest.X_ENCODING, encoding)
-            .withBody(inputStreamUploaded)
-            .withContentType(CommonMediaType.ZIP_TYPE)
-            .withJsonAccept())) {
+    public RequestResponse<JsonNode> uploadZipToTransaction(
+        VitamContext vitamContext,
+        String transactionId,
+        InputStream inputStreamUploaded,
+        @Nullable String encoding
+    ) throws VitamClientException {
+        try (
+            Response response = make(
+                post()
+                    .withPath(TRANSACTION_PATH + "/" + transactionId + "/upload")
+                    .withHeaders(vitamContext.getHeaders())
+                    .withOptionalHeader(GlobalDataRest.X_ENCODING, encoding)
+                    .withBody(inputStreamUploaded)
+                    .withContentType(CommonMediaType.ZIP_TYPE)
+                    .withJsonAccept()
+            )
+        ) {
             check(response);
             return RequestResponse.parseFromResponse(response, JsonNode.class);
         }
     }
 
     @Override
-    public RequestResponse<String> uploadZipToProject(VitamContext vitamContext, String projectId,
-        InputStream inputStreamUploaded) throws VitamClientException {
+    public RequestResponse<String> uploadZipToProject(
+        VitamContext vitamContext,
+        String projectId,
+        InputStream inputStreamUploaded
+    ) throws VitamClientException {
         return uploadZipToProject(vitamContext, projectId, inputStreamUploaded, null);
     }
 
     @Override
-    public RequestResponse<String> uploadZipToProject(VitamContext vitamContext, String projectId,
-        InputStream inputStreamUploaded, @Nullable String encoding) throws VitamClientException {
-        try (Response response = make(post()
-            .withPath(PROJECT_PATH + "/" + projectId + "/upload")
-            .withHeaders(vitamContext.getHeaders())
-            .withOptionalHeader(GlobalDataRest.X_ENCODING, encoding)
-            .withBody(inputStreamUploaded)
-            .withContentType(CommonMediaType.ZIP_TYPE)
-            .withJsonAccept())) {
+    public RequestResponse<String> uploadZipToProject(
+        VitamContext vitamContext,
+        String projectId,
+        InputStream inputStreamUploaded,
+        @Nullable String encoding
+    ) throws VitamClientException {
+        try (
+            Response response = make(
+                post()
+                    .withPath(PROJECT_PATH + "/" + projectId + "/upload")
+                    .withHeaders(vitamContext.getHeaders())
+                    .withOptionalHeader(GlobalDataRest.X_ENCODING, encoding)
+                    .withBody(inputStreamUploaded)
+                    .withContentType(CommonMediaType.ZIP_TYPE)
+                    .withJsonAccept()
+            )
+        ) {
             check(response);
             return RequestResponse.parseFromResponse(response, String.class);
         }
@@ -440,39 +489,53 @@ public class CollectExternalClientRest extends DefaultClient implements CollectE
     @Override
     public RequestResponse<JsonNode> searchProject(VitamContext vitamContext, CriteriaProjectDto criteria)
         throws VitamClientException {
-        try (Response response = make(
-            get().withPath(PROJECT_PATH)
-                .withHeaders(vitamContext.getHeaders())
-                .withBody(criteria)
-                .withJson())) {
+        try (
+            Response response = make(
+                get().withPath(PROJECT_PATH).withHeaders(vitamContext.getHeaders()).withBody(criteria).withJson()
+            )
+        ) {
             check(response);
             return RequestResponse.parseFromResponse(response, JsonNode.class);
         }
     }
 
     @Override
-    public RequestResponse<JsonNode> updateUnitsWithCsvMetadata(VitamContext vitamContext, String transactionId,
-        InputStream metadataCsvInputStream) throws VitamClientException {
-        try (Response response = make(
-            put().withPath(TRANSACTION_PATH + "/" + transactionId + UNITS_METADATA_CSV_PATH)
-                .withHeaders(vitamContext.getHeaders())
-                .withBody(metadataCsvInputStream)
-                .withContentType(TEXT_CSV_MEDIATYPE)
-                .withJsonAccept())) {
+    public RequestResponse<JsonNode> updateUnitsWithCsvMetadata(
+        VitamContext vitamContext,
+        String transactionId,
+        InputStream metadataCsvInputStream
+    ) throws VitamClientException {
+        try (
+            Response response = make(
+                put()
+                    .withPath(TRANSACTION_PATH + "/" + transactionId + UNITS_METADATA_CSV_PATH)
+                    .withHeaders(vitamContext.getHeaders())
+                    .withBody(metadataCsvInputStream)
+                    .withContentType(TEXT_CSV_MEDIATYPE)
+                    .withJsonAccept()
+            )
+        ) {
             check(response);
             return RequestResponse.parseFromResponse(response, JsonNode.class);
         }
     }
 
     @Override
-    public RequestResponse<JsonNode> updateUnitsWithJsonlMetadata(VitamContext vitamContext, String transactionId,
-        InputStream metadataJsonlInputStream) throws VitamClientException {
-        try (Response response = make(
-            put().withPath(TRANSACTION_PATH + "/" + transactionId + UNITS_METADATA_JSONL_PATH)
-                .withHeaders(vitamContext.getHeaders())
-                .withBody(metadataJsonlInputStream)
-                .withOctetContentType()
-                .withJsonAccept())) {
+    public RequestResponse<JsonNode> updateUnitsWithJsonlMetadata(
+        VitamContext vitamContext,
+        String transactionId,
+        InputStream metadataJsonlInputStream
+    ) throws VitamClientException {
+        try (
+            Response response = make(
+                put()
+                    .withPath(TRANSACTION_PATH + "/" + transactionId + UNITS_METADATA_JSONL_PATH)
+                    .withHeaders(vitamContext.getHeaders())
+                    .withBody(metadataJsonlInputStream)
+                    .withOctetContentType()
+                    .withJsonAccept()
+            )
+        ) {
             check(response);
             return RequestResponse.parseFromResponse(response, JsonNode.class);
         }
@@ -539,9 +602,8 @@ public class CollectExternalClientRest extends DefaultClient implements CollectE
     }
 
     @Override
-    public RequestResponse<JsonNode> updateTransaction(VitamContext vitamContext,
-        TransactionDto transactionDto) throws VitamClientException {
-
+    public RequestResponse<JsonNode> updateTransaction(VitamContext vitamContext, TransactionDto transactionDto)
+        throws VitamClientException {
         VitamRequestBuilder request = put()
             .withPath(TRANSACTION_PATH)
             .withHeaders(vitamContext.getHeaders())
@@ -557,10 +619,11 @@ public class CollectExternalClientRest extends DefaultClient implements CollectE
     }
 
     @Override
-    public RequestResponse<JsonNode> selectUnitsWithInheritedRules(VitamContext vitamContext, String transactionId,
-        JsonNode selectQuery)
-        throws VitamClientException {
-
+    public RequestResponse<JsonNode> selectUnitsWithInheritedRules(
+        VitamContext vitamContext,
+        String transactionId,
+        JsonNode selectQuery
+    ) throws VitamClientException {
         VitamRequestBuilder request = get()
             .withPath(TRANSACTION_PATH + "/" + transactionId + UNITS_WITH_INHERITED_RULES)
             .withBody(selectQuery, BLANK_DSL)
@@ -574,8 +637,11 @@ public class CollectExternalClientRest extends DefaultClient implements CollectE
     }
 
     @Override
-    public RequestResponseOK<BulkAtomicUpdateResult> bulkAtomicUpdateUnits(VitamContext vitamContext,
-        String transactionId, JsonNode updateQueriesJson) throws VitamClientException {
+    public RequestResponseOK<BulkAtomicUpdateResult> bulkAtomicUpdateUnits(
+        VitamContext vitamContext,
+        String transactionId,
+        JsonNode updateQueriesJson
+    ) throws VitamClientException {
         VitamRequestBuilder request = post()
             .withPath(TRANSACTION_PATH + "/" + transactionId + UNITS_BULK)
             .withBody(updateQueriesJson)
@@ -583,9 +649,10 @@ public class CollectExternalClientRest extends DefaultClient implements CollectE
             .withJson();
         try (Response response = make(request)) {
             check(response);
-            return (RequestResponseOK<BulkAtomicUpdateResult>) RequestResponse.parseFromResponse(response,
-                BulkAtomicUpdateResult.class);
+            return (RequestResponseOK<BulkAtomicUpdateResult>) RequestResponse.parseFromResponse(
+                response,
+                BulkAtomicUpdateResult.class
+            );
         }
     }
-
 }

@@ -29,5 +29,5 @@ package fr.gouv.vitam.common.model.administration.schema;
 public enum SchemaCategory {
     DESCRIPTION,
     MANAGEMENT,
-    OTHER;
+    OTHER,
 }

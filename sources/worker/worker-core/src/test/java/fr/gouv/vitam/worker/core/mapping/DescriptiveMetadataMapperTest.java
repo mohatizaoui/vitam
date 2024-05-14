@@ -66,7 +66,6 @@ public class DescriptiveMetadataMapperTest {
             .containsExactly(new ImmutablePair<>("fr", "titre"));
     }
 
-
     @Test
     public void should_fill_title_if_title_has_default_lang() {
         // Given
@@ -135,8 +134,8 @@ public class DescriptiveMetadataMapperTest {
         // Then
         assertThat(descriptiveMetadataModel.getPersistentIdentifier()).isNotNull();
         assertThat(descriptiveMetadataModel.getPersistentIdentifier()).hasSize(1);
-        assertThat(
-            descriptiveMetadataModel.getPersistentIdentifier().get(0)).isEqualToComparingFieldByField(
-            persistentIdentifierModel);
+        assertThat(descriptiveMetadataModel.getPersistentIdentifier().get(0)).isEqualToComparingFieldByField(
+            persistentIdentifierModel
+        );
     }
 }

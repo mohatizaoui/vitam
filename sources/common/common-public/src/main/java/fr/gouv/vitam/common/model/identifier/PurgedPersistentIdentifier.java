@@ -32,29 +32,36 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 public class PurgedPersistentIdentifier {
+
     @JsonProperty("id")
     private String id;
+
     @JsonProperty("tenant")
     private Integer tenant;
+
     @JsonProperty("version")
     private Integer version;
+
     @JsonProperty("persistentIdentifier")
     private List<PersistentIdentifier> persistentIdentifiers;
+
     @JsonProperty("type")
     private PurgedCollectionType type;
+
     @JsonProperty("operationId")
     private String operationId;
+
     @JsonProperty("operationType")
     private String operationType;
+
     @JsonProperty("operationLastPersistentDate")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS", timezone = "UTC")
     private String operationLastPersistentDate;
+
     @JsonProperty("objectGroupId")
     private String objectGroupId;
 
-    public PurgedPersistentIdentifier() {
-
-    }
+    public PurgedPersistentIdentifier() {}
 
     public String getId() {
         return id;
@@ -84,8 +91,7 @@ public class PurgedPersistentIdentifier {
         return persistentIdentifiers;
     }
 
-    public void setPersistentIdentifiers(
-        List<PersistentIdentifier> persistentIdentifiers) {
+    public void setPersistentIdentifiers(List<PersistentIdentifier> persistentIdentifiers) {
         this.persistentIdentifiers = persistentIdentifiers;
     }
 

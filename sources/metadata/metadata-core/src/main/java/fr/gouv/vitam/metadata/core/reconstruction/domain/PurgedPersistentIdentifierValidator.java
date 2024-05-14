@@ -32,30 +32,29 @@ interface FieldValidator {
     boolean validate(JsonNode fieldNode);
 }
 
-
 class StringFieldValidator implements FieldValidator {
+
     @Override
     public boolean validate(JsonNode fieldNode) {
         return !fieldNode.asText().trim().isEmpty();
     }
 }
 
-
 class ArrayFieldValidator implements FieldValidator {
+
     @Override
     public boolean validate(JsonNode fieldNode) {
         return fieldNode.size() > 0;
     }
 }
 
-
 class SimpleFieldValidator implements FieldValidator {
+
     @Override
     public boolean validate(JsonNode fieldNode) {
         return true;
     }
 }
-
 
 public class PurgedPersistentIdentifierValidator {
 
@@ -88,6 +87,4 @@ public class PurgedPersistentIdentifierValidator {
             return new SimpleFieldValidator();
         }
     }
-
-
 }

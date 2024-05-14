@@ -68,8 +68,7 @@ public class VitamObjectMapper {
         serializationObjectMapper.registerModule(module1);
     }
 
-    private VitamObjectMapper() {
-    }
+    private VitamObjectMapper() {}
 
     public static ObjectMapper getDeserializationObjectMapper() {
         return deserializationObjectMapper;
@@ -78,5 +77,4 @@ public class VitamObjectMapper {
     public static ObjectMapper getSerializationObjectMapper() {
         return serializationObjectMapper;
     }
-
 }

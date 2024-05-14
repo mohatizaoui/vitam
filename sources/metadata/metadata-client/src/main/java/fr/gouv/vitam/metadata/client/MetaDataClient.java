@@ -65,10 +65,8 @@ import java.util.Set;
  * Metadata client interface
  */
 public interface MetaDataClient extends BasicClient {
-
     JsonNode insertUnitBulk(BulkUnitInsertRequest request)
-        throws InvalidParseOperationException, MetaDataExecutionException, MetaDataNotFoundException,
-        MetaDataDocumentSizeException, MetaDataClientServerException;
+        throws InvalidParseOperationException, MetaDataExecutionException, MetaDataNotFoundException, MetaDataDocumentSizeException, MetaDataClientServerException;
 
     /**
      * Search units by select query (DSL)
@@ -83,8 +81,7 @@ public interface MetaDataClient extends BasicClient {
      * @throws MetaDataClientServerException
      */
     JsonNode selectUnits(JsonNode selectQuery)
-        throws MetaDataExecutionException, MetaDataDocumentSizeException, InvalidParseOperationException,
-        MetaDataClientServerException;
+        throws MetaDataExecutionException, MetaDataDocumentSizeException, InvalidParseOperationException, MetaDataClientServerException;
 
     /**
      * Bulk Search units by a list of select query (DSL)
@@ -100,8 +97,7 @@ public interface MetaDataClient extends BasicClient {
      * @throws MetaDataClientServerException
      */
     List<RequestResponseOK<JsonNode>> selectUnitsBulk(List<JsonNode> selectQueryBulk)
-        throws MetaDataExecutionException, MetaDataDocumentSizeException, InvalidParseOperationException,
-        MetaDataClientServerException;
+        throws MetaDataExecutionException, MetaDataDocumentSizeException, InvalidParseOperationException, MetaDataClientServerException;
 
     /**
      * Search units by query (DSL) and path unit id
@@ -118,8 +114,7 @@ public interface MetaDataClient extends BasicClient {
      * @throws MetaDataClientServerException
      */
     JsonNode selectUnitbyId(JsonNode selectQuery, String unitId)
-        throws MetaDataExecutionException, MetaDataDocumentSizeException, InvalidParseOperationException,
-        MetaDataClientServerException;
+        throws MetaDataExecutionException, MetaDataDocumentSizeException, InvalidParseOperationException, MetaDataClientServerException;
 
     /**
      * Search Object Group by query (DSL) and path objectGroup id
@@ -138,8 +133,7 @@ public interface MetaDataClient extends BasicClient {
      * @throws MetaDataClientServerException
      */
     JsonNode selectObjectGrouptbyId(JsonNode selectQuery, String objectGroupId)
-        throws MetaDataExecutionException, MetaDataNotFoundException, MetaDataDocumentSizeException,
-        InvalidParseOperationException, MetadataInvalidSelectException, MetaDataClientServerException;
+        throws MetaDataExecutionException, MetaDataNotFoundException, MetaDataDocumentSizeException, InvalidParseOperationException, MetadataInvalidSelectException, MetaDataClientServerException;
 
     /**
      * Update units by query (DSL) and path unit id
@@ -157,8 +151,7 @@ public interface MetaDataClient extends BasicClient {
      * @throws MetaDataClientServerException
      */
     JsonNode updateUnitById(JsonNode updateQuery, String unitId)
-        throws MetaDataNotFoundException, MetaDataExecutionException, MetaDataDocumentSizeException,
-        InvalidParseOperationException, MetaDataClientServerException;
+        throws MetaDataNotFoundException, MetaDataExecutionException, MetaDataDocumentSizeException, InvalidParseOperationException, MetaDataClientServerException;
 
     /**
      * @param insertQuery as String
@@ -170,8 +163,7 @@ public interface MetaDataClient extends BasicClient {
      * @throws MetaDataClientServerException
      */
     JsonNode insertObjectGroup(JsonNode insertQuery)
-        throws InvalidParseOperationException, MetaDataExecutionException, MetaDataNotFoundException,
-        MetaDataDocumentSizeException, MetaDataClientServerException;
+        throws InvalidParseOperationException, MetaDataExecutionException, MetaDataNotFoundException, MetaDataDocumentSizeException, MetaDataClientServerException;
 
     /**
      * Update ObjectGroup
@@ -186,8 +178,7 @@ public interface MetaDataClient extends BasicClient {
         throws InvalidParseOperationException, MetaDataClientServerException, MetaDataExecutionException;
 
     JsonNode insertObjectGroups(List<JsonNode> insertQuery)
-        throws InvalidParseOperationException, MetaDataExecutionException, MetaDataNotFoundException,
-        MetaDataDocumentSizeException, MetaDataClientServerException;
+        throws InvalidParseOperationException, MetaDataExecutionException, MetaDataNotFoundException, MetaDataDocumentSizeException, MetaDataClientServerException;
 
     /**
      * @param operationId
@@ -218,8 +209,7 @@ public interface MetaDataClient extends BasicClient {
      * @throws MetaDataClientServerException
      */
     JsonNode selectObjectGroups(JsonNode selectQuery)
-        throws MetaDataExecutionException, MetaDataDocumentSizeException, InvalidParseOperationException,
-        MetaDataClientServerException;
+        throws MetaDataExecutionException, MetaDataDocumentSizeException, InvalidParseOperationException, MetaDataClientServerException;
 
     /**
      * @return True if the Units index is refreshed
@@ -316,15 +306,15 @@ public interface MetaDataClient extends BasicClient {
      */
     GraphComputeResponse computeGraph(GraphComputeAction action, Set<String> ids) throws VitamClientException;
 
-  /** Reconstruct Persistent Identifiers
-   * @param requestItem
-   * @return
-   * @throws MetaDataNotFoundException
-   * @throws InvalidParseOperationException
-   * @throws MetaDataClientServerException
-   */
-  RequestResponse<JsonNode> reconstructPersistentIdentifiers(PersistentIdentifierReconstructionRequest requestItem)
-      throws MetaDataNotFoundException, InvalidParseOperationException, MetaDataClientServerException;
+    /** Reconstruct Persistent Identifiers
+     * @param requestItem
+     * @return
+     * @throws MetaDataNotFoundException
+     * @throws InvalidParseOperationException
+     * @throws MetaDataClientServerException
+     */
+    RequestResponse<JsonNode> reconstructPersistentIdentifiers(PersistentIdentifierReconstructionRequest requestItem)
+        throws MetaDataNotFoundException, InvalidParseOperationException, MetaDataClientServerException;
 
     JsonNode getPurgedPersistentIdentifiers(String persistentIdentifier, @Nullable PurgedCollectionType type)
         throws MetaDataNotFoundException, InvalidParseOperationException, MetaDataClientServerException;
@@ -339,8 +329,7 @@ public interface MetaDataClient extends BasicClient {
      * @throws MetaDataNotFoundException
      */
     RequestResponse<JsonNode> updateUnitBulk(JsonNode updateQuery)
-        throws InvalidParseOperationException, MetaDataExecutionException, MetaDataNotFoundException,
-        MetaDataDocumentSizeException, MetaDataClientServerException;
+        throws InvalidParseOperationException, MetaDataExecutionException, MetaDataNotFoundException, MetaDataDocumentSizeException, MetaDataClientServerException;
 
     /**
      * Bulk Update units by a list of update query (DSL)
@@ -355,8 +344,7 @@ public interface MetaDataClient extends BasicClient {
      * @throws MetaDataNotFoundException
      */
     RequestResponse<JsonNode> atomicUpdateBulk(List<JsonNode> updateQueries)
-        throws InvalidParseOperationException, MetaDataExecutionException, MetaDataNotFoundException,
-        MetaDataDocumentSizeException, MetaDataClientServerException;
+        throws InvalidParseOperationException, MetaDataExecutionException, MetaDataNotFoundException, MetaDataDocumentSizeException, MetaDataClientServerException;
 
     /**
      * Update units rules Bulk.
@@ -368,10 +356,12 @@ public interface MetaDataClient extends BasicClient {
      * @throws MetaDataExecutionException
      * @throws MetaDataNotFoundException
      */
-    RequestResponse<JsonNode> updateUnitsRulesBulk(List<String> unitsIds, RuleActions actions,
-        Map<String, DurationData> rulesToDurationData)
-        throws InvalidParseOperationException, MetaDataExecutionException, MetaDataNotFoundException,
-        MetaDataDocumentSizeException, MetaDataClientServerException;
+    RequestResponse<JsonNode> updateUnitsRulesBulk(
+        List<String> unitsIds,
+        RuleActions actions,
+        Map<String, DurationData> rulesToDurationData
+    )
+        throws InvalidParseOperationException, MetaDataExecutionException, MetaDataNotFoundException, MetaDataDocumentSizeException, MetaDataClientServerException;
 
     /**
      * Export all units and object groups that are a descendants of the provided units to workspace for graph update.
@@ -379,8 +369,11 @@ public interface MetaDataClient extends BasicClient {
      * @param ids the unit ids for which all descendant nodes (units and object groups) are to be updated.
      * @throws VitamClientException
      */
-    void exportReclassificationChildNodes(Set<String> ids, String unitsToUpdateJsonLineFileName,
-        String objectGroupsToUpdateJsonLineFileName) throws VitamClientException, MetaDataExecutionException;
+    void exportReclassificationChildNodes(
+        Set<String> ids,
+        String unitsToUpdateJsonLineFileName,
+        String objectGroupsToUpdateJsonLineFileName
+    ) throws VitamClientException, MetaDataExecutionException;
 
     /**
      * Select units with inherited rules by select query (DSL)
@@ -392,8 +385,7 @@ public interface MetaDataClient extends BasicClient {
      * @throws MetaDataClientServerException
      */
     JsonNode selectUnitsWithInheritedRules(JsonNode selectQuery)
-        throws MetaDataDocumentSizeException, InvalidParseOperationException, MetaDataClientServerException,
-        MetaDataExecutionException;
+        throws MetaDataDocumentSizeException, InvalidParseOperationException, MetaDataClientServerException, MetaDataExecutionException;
 
     /**
      * Creates the AccessionRegisterSymbolics from ElasticSearch aggregations and nested aggregation request.
@@ -430,8 +422,8 @@ public interface MetaDataClient extends BasicClient {
      * @throws MetaDataExecutionException MetaDataExecutionException
      * @throws MetaDataClientServerException MetaDataClientServerException
      */
-    Response storeGraph() throws MetaDataNotFoundException, MetaDataDocumentSizeException, MetaDataExecutionException,
-        InvalidParseOperationException, MetaDataClientServerException;
+    Response storeGraph()
+        throws MetaDataNotFoundException, MetaDataDocumentSizeException, MetaDataExecutionException, InvalidParseOperationException, MetaDataClientServerException;
 
     /**
      * API to access and launch the Vitam reconstruction service for metadatas.<br/>
@@ -480,12 +472,10 @@ public interface MetaDataClient extends BasicClient {
         throws MetaDataNotFoundException, InvalidParseOperationException, MetaDataClientServerException;
 
     Response streamUnits(JsonNode selectQuery)
-        throws MetaDataClientServerException, MetadataScrollThresholdExceededException,
-        MetadataScrollLimitExceededException;
+        throws MetaDataClientServerException, MetadataScrollThresholdExceededException, MetadataScrollLimitExceededException;
 
     Response streamObjects(JsonNode selectQuery)
-        throws MetaDataClientServerException, MetadataScrollThresholdExceededException,
-        MetadataScrollLimitExceededException;
+        throws MetaDataClientServerException, MetadataScrollThresholdExceededException, MetadataScrollLimitExceededException;
 
     Response clearESScrollFilter(String scrollId) throws MetaDataClientServerException;
 }

@@ -32,8 +32,10 @@ public class KeywordsType {
 
     @JsonProperty("KeywordContent")
     private String keywordContent;
+
     @JsonProperty("KeywordReference")
     private String keywordReference;
+
     @JsonProperty("KeywordType")
     private CodeKeywordType keywordType;
 

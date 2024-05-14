@@ -83,7 +83,6 @@ import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.fromStatusCode;
 
-
 @Path("/collect-external/v1/projects")
 @Tag(name = "Collect")
 public class ProjectExternalResource extends ApplicationStatusResource {
@@ -97,7 +96,6 @@ public class ProjectExternalResource extends ApplicationStatusResource {
     private static final String PROJECT_NOT_FOUND = "Unable to find project Id or invalid status";
 
     private final CollectInternalClientFactory collectInternalClientFactory;
-
 
     ProjectExternalResource() {
         this(CollectInternalClientFactory.getInstance());
@@ -152,8 +150,10 @@ public class ProjectExternalResource extends ApplicationStatusResource {
         } catch (VitamClientException e) {
             final String message = e.getLocalizedMessage();
             LOGGER.error("Client error : {}", message);
-            return CollectRequestResponse.toVitamError(fromStatusCode(e.getVitamError().getStatus()),
-                e.getVitamError().getMessage());
+            return CollectRequestResponse.toVitamError(
+                fromStatusCode(e.getVitamError().getStatus()),
+                e.getVitamError().getMessage()
+            );
         }
 
         return Response.status(Response.Status.OK).entity(listProjectsResponse).build();
@@ -296,9 +296,12 @@ public class ProjectExternalResource extends ApplicationStatusResource {
 
     @Path("/{projectId}/upload")
     @POST
-    @Consumes({CommonMediaType.ZIP})
+    @Consumes({ CommonMediaType.ZIP })
     @Produces(APPLICATION_JSON)
-    @Secured(permission = PROJECT_ID_ZIP_CREATE, description = "Verser une archive arborescente ZIP à un projet de versement automatique sans transaction")
+    @Secured(
+        permission = PROJECT_ID_ZIP_CREATE,
+        description = "Verser une archive arborescente ZIP à un projet de versement automatique sans transaction"
+    )
     @Beta
     public Response uploadZipToProject(
         @PathParam("projectId") String projectId,
@@ -333,5 +336,4 @@ public class ProjectExternalResource extends ApplicationStatusResource {
             return CollectRequestResponse.toVitamError(INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
         }
     }
-
 }

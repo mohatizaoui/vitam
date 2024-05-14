@@ -33,8 +33,10 @@ public class CoverageType {
 
     @XmlElement(name = "Spatial")
     private List<String> spatial;
+
     @XmlElement(name = "Temporal")
     private List<String> temporal;
+
     @XmlElement(name = "Juridictional")
     private List<String> juridictional;
 

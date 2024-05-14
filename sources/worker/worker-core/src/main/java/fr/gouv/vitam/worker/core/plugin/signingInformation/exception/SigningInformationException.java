@@ -33,13 +33,10 @@ public class SigningInformationException extends Exception {
 
     private final String errorCode;
 
-    public SigningInformationException(
-        SigningInformationEnum signingInformationEnum) {
+    public SigningInformationException(SigningInformationEnum signingInformationEnum) {
         super(signingInformationEnum.getMessage());
         this.errorCode = signingInformationEnum.name();
     }
-
-
 
     public String getErrorCode() {
         return errorCode;

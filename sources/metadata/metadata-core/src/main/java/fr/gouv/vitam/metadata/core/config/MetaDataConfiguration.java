@@ -88,8 +88,10 @@ public class MetaDataConfiguration extends DbConfigurationImpl {
 
     @JsonProperty("isDataConsistencyAuditRunnable")
     private Boolean isDataConsistencyAuditRunnable;
+
     @JsonProperty("dataConsistencyAuditOplogMaxSize")
     private Integer dataConsistencyAuditOplogMaxSize;
+
     @JsonProperty("mongodShardsConf")
     private MongoDbShardConf mongodShardsConf;
 
@@ -101,8 +103,13 @@ public class MetaDataConfiguration extends DbConfigurationImpl {
      * @param clusterName cluster name
      * @param elasticsearchNodes elasticsearch nodes
      */
-    public MetaDataConfiguration(List<MongoDbNode> mongoDbNodes, String dbName, String clusterName,
-        List<ElasticsearchNode> elasticsearchNodes, MappingLoader mappingLoader) {
+    public MetaDataConfiguration(
+        List<MongoDbNode> mongoDbNodes,
+        String dbName,
+        String clusterName,
+        List<ElasticsearchNode> elasticsearchNodes,
+        MappingLoader mappingLoader
+    ) {
         super(mongoDbNodes, dbName);
         ParametersChecker.checkParameter("elasticsearch cluster name is a mandatory parameter", clusterName);
         ParametersChecker.checkParameter("elasticsearch nodes are a mandatory parameter", elasticsearchNodes);
@@ -122,9 +129,16 @@ public class MetaDataConfiguration extends DbConfigurationImpl {
      * @param dbUserName db user name
      * @param dbPassword db password
      */
-    public MetaDataConfiguration(List<MongoDbNode> mongoDbNodes, String dbName, String clusterName,
-        List<ElasticsearchNode> elasticsearchNodes, boolean dbAuthentication, String dbUserName, String dbPassword,
-        MappingLoader mappingLoader) {
+    public MetaDataConfiguration(
+        List<MongoDbNode> mongoDbNodes,
+        String dbName,
+        String clusterName,
+        List<ElasticsearchNode> elasticsearchNodes,
+        boolean dbAuthentication,
+        String dbUserName,
+        String dbPassword,
+        MappingLoader mappingLoader
+    ) {
         super(mongoDbNodes, dbName, dbAuthentication, dbUserName, dbPassword);
         ParametersChecker.checkParameter("elasticsearch cluster name is a mandatory parameter", clusterName);
         ParametersChecker.checkParameter("elasticsearch nodes are a mandatory parameter", elasticsearchNodes);
@@ -160,9 +174,7 @@ public class MetaDataConfiguration extends DbConfigurationImpl {
     /**
      * MetaDataConfiguration empty constructor for YAMLFactory
      */
-    public MetaDataConfiguration() {
-    }
-
+    public MetaDataConfiguration() {}
 
     /**
      * @return the clusterName
@@ -196,7 +208,6 @@ public class MetaDataConfiguration extends DbConfigurationImpl {
         return this;
     }
 
-
     public String getWorkspaceUrl() {
         return workspaceUrl;
     }
@@ -220,7 +231,8 @@ public class MetaDataConfiguration extends DbConfigurationImpl {
     }
 
     public MetaDataConfiguration setArchiveUnitProfileCacheTimeoutInSeconds(
-        int archiveUnitProfileCacheTimeoutInSeconds) {
+        int archiveUnitProfileCacheTimeoutInSeconds
+    ) {
         this.archiveUnitProfileCacheTimeoutInSeconds = archiveUnitProfileCacheTimeoutInSeconds;
         return this;
     }
@@ -280,7 +292,8 @@ public class MetaDataConfiguration extends DbConfigurationImpl {
     }
 
     public void setElasticsearchExternalMetadataMappings(
-        List<ElasticsearchExternalMetadataMapping> elasticsearchExternalMetadataMappings) {
+        List<ElasticsearchExternalMetadataMapping> elasticsearchExternalMetadataMappings
+    ) {
         this.elasticsearchExternalMetadataMappings = elasticsearchExternalMetadataMappings;
     }
 
@@ -320,8 +333,7 @@ public class MetaDataConfiguration extends DbConfigurationImpl {
         return indexationConfiguration;
     }
 
-    public MetaDataConfiguration setIndexationConfiguration(
-        MetadataIndexationConfiguration indexationConfiguration) {
+    public MetaDataConfiguration setIndexationConfiguration(MetadataIndexationConfiguration indexationConfiguration) {
         this.indexationConfiguration = indexationConfiguration;
         return this;
     }
@@ -352,8 +364,11 @@ public class MetaDataConfiguration extends DbConfigurationImpl {
 
     @JsonIgnore
     public TimeToLiveConfiguration getTimeToLiveConfiguration() {
-        return new TimeToLiveConfiguration(dipTimeToLiveInMinutes, criticalDipTimeToLiveInMinutes,
-            transfersSIPTimeToLiveInMinutes);
+        return new TimeToLiveConfiguration(
+            dipTimeToLiveInMinutes,
+            criticalDipTimeToLiveInMinutes,
+            transfersSIPTimeToLiveInMinutes
+        );
     }
 
     public int getReconstructionMetricsCacheDurationInMinutes() {
@@ -364,12 +379,13 @@ public class MetaDataConfiguration extends DbConfigurationImpl {
         this.reconstructionMetricsCacheDurationInMinutes = reconstructionMetricsCacheDurationInMinutes;
     }
 
-
     public long getPersistentIdentifierReconstructionDelayInMinutes() {
         return persistentIdentifierReconstructionDelayInMinutes;
     }
 
-    public void setPersistentIdentifierReconstructionDelayInMinutes(long persistentIdentifierReconstructionDelayInMinutes) {
+    public void setPersistentIdentifierReconstructionDelayInMinutes(
+        long persistentIdentifierReconstructionDelayInMinutes
+    ) {
         this.persistentIdentifierReconstructionDelayInMinutes = persistentIdentifierReconstructionDelayInMinutes;
     }
 
@@ -383,7 +399,9 @@ public class MetaDataConfiguration extends DbConfigurationImpl {
         return persistentIdentifierReconstructionThreadPoolSize;
     }
 
-    public void setPersistentIdentifierReconstructionThreadPoolSize(int persistentIdentifierReconstructionThreadPoolSize) {
+    public void setPersistentIdentifierReconstructionThreadPoolSize(
+        int persistentIdentifierReconstructionThreadPoolSize
+    ) {
         this.persistentIdentifierReconstructionThreadPoolSize = persistentIdentifierReconstructionThreadPoolSize;
     }
 

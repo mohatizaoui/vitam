@@ -41,12 +41,14 @@ public class ResponseErrorUtils {
      * @return
      */
     public static VitamError<SchemaResponse> getErrorEntity(Response.Status status, String message, String context) {
-        String aMessage = (message != null && !message.trim().isEmpty()) ?
-            message :
-            (status.getReasonPhrase() != null ? status.getReasonPhrase() : status.name());
-        return new VitamError<SchemaResponse>(String.valueOf(status.getStatusCode())).setHttpCode(
-                status.getStatusCode())
-            .setContext(context).setState("ko").setMessage(status.getReasonPhrase())
+        String aMessage = (message != null && !message.trim().isEmpty())
+            ? message
+            : (status.getReasonPhrase() != null ? status.getReasonPhrase() : status.name());
+        return new VitamError<SchemaResponse>(String.valueOf(status.getStatusCode()))
+            .setHttpCode(status.getStatusCode())
+            .setContext(context)
+            .setState("ko")
+            .setMessage(status.getReasonPhrase())
             .setDescription(aMessage);
     }
 }

@@ -118,6 +118,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class AccessExternalIT extends VitamRuleRunner {
+
     private static final Integer TENANT_ID = 0;
     private static final String APPLICATION_SESSION_ID = "ApplicationSessionId";
     private static final String ACCESS_CONTRACT = "aName3";
@@ -128,25 +129,27 @@ public class AccessExternalIT extends VitamRuleRunner {
     private static final String EXTERNAL_UNIT_SCHEMA_JSON = "schema/external-unit-schema.json";
 
     @ClassRule
-    public static VitamServerRunner runner =
-        new VitamServerRunner(AccessExternalIT.class, mongoRule.getMongoDatabase().getName(),
-            ElasticsearchRule.getClusterName(),
-            Sets.newHashSet(
-                MetadataMain.class,
-                WorkerMain.class,
-                AdminManagementMain.class,
-                LogbookMain.class,
-                WorkspaceMain.class,
-                ProcessManagementMain.class,
-                AccessInternalMain.class,
-                IngestInternalMain.class,
-                AccessExternalMain.class,
-                IngestExternalMain.class));
+    public static VitamServerRunner runner = new VitamServerRunner(
+        AccessExternalIT.class,
+        mongoRule.getMongoDatabase().getName(),
+        ElasticsearchRule.getClusterName(),
+        Sets.newHashSet(
+            MetadataMain.class,
+            WorkerMain.class,
+            AdminManagementMain.class,
+            LogbookMain.class,
+            WorkspaceMain.class,
+            ProcessManagementMain.class,
+            AccessInternalMain.class,
+            IngestInternalMain.class,
+            AccessExternalMain.class,
+            IngestExternalMain.class
+        )
+    );
 
     private static AccessExternalClient accessExternalClient;
     private static IngestExternalClient ingestExternalClient;
     private static AdminExternalClient adminExternalClient;
-
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
@@ -162,15 +165,16 @@ public class AccessExternalIT extends VitamRuleRunner {
         ingest_ok();
     }
 
-
     public static void ingest_ok() throws Exception {
-        try (InputStream inputStream =
-            PropertiesUtils.getResourceAsStream(INTEGRATION_PROCESSING_FULL_SEDA)) {
-            RequestResponse<Void> response = ingestExternalClient
-                .ingest(
-                    new VitamContext(TENANT_ID).setApplicationSessionId(APPLICATION_SESSION_ID)
-                        .setAccessContract(ACCESS_CONTRACT),
-                    inputStream, DEFAULT_WORKFLOW.name(), ProcessAction.RESUME.name());
+        try (InputStream inputStream = PropertiesUtils.getResourceAsStream(INTEGRATION_PROCESSING_FULL_SEDA)) {
+            RequestResponse<Void> response = ingestExternalClient.ingest(
+                new VitamContext(TENANT_ID)
+                    .setApplicationSessionId(APPLICATION_SESSION_ID)
+                    .setAccessContract(ACCESS_CONTRACT),
+                inputStream,
+                DEFAULT_WORKFLOW.name(),
+                ProcessAction.RESUME.name()
+            );
 
             assertThat(response.isOk()).as(JsonHandler.unprettyPrint(response)).isTrue();
 
@@ -179,17 +183,19 @@ public class AccessExternalIT extends VitamRuleRunner {
             assertThat(operationId).as(format("%s not found for request", X_REQUEST_ID)).isNotNull();
 
             final VitamPoolingClient vitamPoolingClient = new VitamPoolingClient(adminExternalClient);
-            boolean process_timeout = vitamPoolingClient
-                .wait(TENANT_ID, operationId, ProcessState.COMPLETED, 1800, 1_000L, TimeUnit.MILLISECONDS);
+            boolean process_timeout = vitamPoolingClient.wait(
+                TENANT_ID,
+                operationId,
+                ProcessState.COMPLETED,
+                1800,
+                1_000L,
+                TimeUnit.MILLISECONDS
+            );
             if (!process_timeout) {
                 Assertions.fail("Sip processing not finished : operation (" + operationId + "). Timeout exceeded.");
             }
-
-
-
         }
     }
-
 
     @After
     public void after() {
@@ -198,13 +204,10 @@ public class AccessExternalIT extends VitamRuleRunner {
 
     @AfterClass
     public static void tearDownAfterClass() {
-
         handleAfterClass();
         runAfter();
         fr.gouv.vitam.common.client.VitamClientFactory.resetConnections();
         fr.gouv.vitam.common.external.client.VitamClientFactory.resetConnections();
-
-
     }
 
     @RunWithCustomExecutor
@@ -216,22 +219,28 @@ public class AccessExternalIT extends VitamRuleRunner {
             .setAccessContract(ACCESS_CONTRACT);
 
         // WHEN
-        RequestResponse<JsonNode> unitsWithPrecision = getMetadataWithTrackTotalHits(true, vitamContext,
-            MetadataCollections.UNIT);
-        RequestResponse<JsonNode> unitsWithoutPrecision = getMetadataWithTrackTotalHits(false, vitamContext,
-            MetadataCollections.UNIT);
+        RequestResponse<JsonNode> unitsWithPrecision = getMetadataWithTrackTotalHits(
+            true,
+            vitamContext,
+            MetadataCollections.UNIT
+        );
+        RequestResponse<JsonNode> unitsWithoutPrecision = getMetadataWithTrackTotalHits(
+            false,
+            vitamContext,
+            MetadataCollections.UNIT
+        );
 
         // THEN
         assertFalse(unitsWithPrecision.isOk());
         assertThat(unitsWithPrecision.getStatus()).isEqualTo(Status.UNAUTHORIZED.getStatusCode());
         assertThat(((VitamError<JsonNode>) unitsWithPrecision).getDescription()).contains(
-            "$track_total_hits is not authorized!");
+            "$track_total_hits is not authorized!"
+        );
 
         List<JsonNode> resultsWithoutPrecision = ((RequestResponseOK<JsonNode>) unitsWithoutPrecision).getResults();
         assertNotNull(resultsWithoutPrecision);
         assertThat(resultsWithoutPrecision.size()).isGreaterThan(0);
     }
-
 
     @RunWithCustomExecutor
     @Test
@@ -241,8 +250,7 @@ public class AccessExternalIT extends VitamRuleRunner {
             .setApplicationSessionId(APPLICATION_SESSION_ID)
             .setAccessContract(ACCESS_CONTRACT);
 
-        final List<String> declaredBlackListedFieldsForGotInMetadatConf =
-            List.of(FILENAME, LAST_MODIFIED, OPERATIONS);
+        final List<String> declaredBlackListedFieldsForGotInMetadatConf = List.of(FILENAME, LAST_MODIFIED, OPERATIONS);
 
         SelectMultiQuery query = new SelectMultiQuery();
         query.addQueries(QueryHelper.exists(VitamFieldsHelper.id()));
@@ -251,10 +259,13 @@ public class AccessExternalIT extends VitamRuleRunner {
         // THEN
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         RequestResponseOK<JsonNode> jsonNode = (RequestResponseOK<JsonNode>) response;
-        jsonNode.getResults().forEach(result -> {
-            declaredBlackListedFieldsForGotInMetadatConf.forEach(
-                field -> assertFalse(result.toString().contains(field)));
-        });
+        jsonNode
+            .getResults()
+            .forEach(result -> {
+                declaredBlackListedFieldsForGotInMetadatConf.forEach(
+                    field -> assertFalse(result.toString().contains(field))
+                );
+            });
     }
 
     @RunWithCustomExecutor
@@ -270,8 +281,10 @@ public class AccessExternalIT extends VitamRuleRunner {
         query.addProjection(JsonHandler.createObjectNode().put(VitamFieldsHelper.id(), 1));
 
         // WHEN
-        final JsonLineIterator<JsonNode> iterator =
-            accessExternalClient.streamUnits(vitamContext, query.getFinalSelect());
+        final JsonLineIterator<JsonNode> iterator = accessExternalClient.streamUnits(
+            vitamContext,
+            query.getFinalSelect()
+        );
         // THEN
         AtomicInteger size = new AtomicInteger();
         iterator.forEachRemaining(e -> size.getAndIncrement());
@@ -282,11 +295,22 @@ public class AccessExternalIT extends VitamRuleRunner {
     @Test
     public void shouldStreamUnitsWithExceedExecutionLimitKO() throws Exception {
         // given
-        mongoRule.getMongoCollection(SNAPSHOT_COLLECTION, MetadataSnapshot.class).insertOne(new MetadataSnapshot(
-            "{ \"_id\" : \"aeaaaaaaaaeaaaabag5swal7ivc47uqaaaaq\", \"Name\" : \"UnitsScrollNumber\", \"_tenant\" : 0, \"Value\" : 3 }"));
-        mongoRule.getMongoCollection(SNAPSHOT_COLLECTION, MetadataSnapshot.class).insertOne(new MetadataSnapshot(
-            "{ \"_id\" : \"aeaaaaaaaaeaaaabahd72al7ivfrywiaaaaq\", \"Name\" : \"UnitsScrollDate\", \"_tenant\" : 0, \"Value\" : \"" +
-                LocalDateUtil.getFormattedDateForMongo(LocalDate.now().atStartOfDay()) + "\" }"));
+        mongoRule
+            .getMongoCollection(SNAPSHOT_COLLECTION, MetadataSnapshot.class)
+            .insertOne(
+                new MetadataSnapshot(
+                    "{ \"_id\" : \"aeaaaaaaaaeaaaabag5swal7ivc47uqaaaaq\", \"Name\" : \"UnitsScrollNumber\", \"_tenant\" : 0, \"Value\" : 3 }"
+                )
+            );
+        mongoRule
+            .getMongoCollection(SNAPSHOT_COLLECTION, MetadataSnapshot.class)
+            .insertOne(
+                new MetadataSnapshot(
+                    "{ \"_id\" : \"aeaaaaaaaaeaaaabahd72al7ivfrywiaaaaq\", \"Name\" : \"UnitsScrollDate\", \"_tenant\" : 0, \"Value\" : \"" +
+                    LocalDateUtil.getFormattedDateForMongo(LocalDate.now().atStartOfDay()) +
+                    "\" }"
+                )
+            );
         VitamContext vitamContext = new VitamContext(TENANT_ID)
             .setApplicationSessionId(APPLICATION_SESSION_ID)
             .setAccessContract(ACCESS_CONTRACT);
@@ -296,19 +320,31 @@ public class AccessExternalIT extends VitamRuleRunner {
         query.addProjection(JsonHandler.createObjectNode().put(VitamFieldsHelper.id(), 1));
 
         // THEN
-        assertThatCode(() -> accessExternalClient.streamUnits(vitamContext, query.getFinalSelect()))
-            .isInstanceOf(VitamClientException.class);
+        assertThatCode(() -> accessExternalClient.streamUnits(vitamContext, query.getFinalSelect())).isInstanceOf(
+            VitamClientException.class
+        );
     }
 
     @RunWithCustomExecutor
     @Test
     public void shouldStreamUnitsWithExceedExecutionLimitNextDayOK() throws Exception {
         // given
-        mongoRule.getMongoCollection(SNAPSHOT_COLLECTION, MetadataSnapshot.class).insertOne(new MetadataSnapshot(
-            "{ \"_id\" : \"aeaaaaaaaaeaaaabag5swal7ivc47uqaaaaq\", \"Name\" : \"UnitsScrollNumber\", \"_tenant\" : 0, \"Value\" : 3 }"));
-        mongoRule.getMongoCollection(SNAPSHOT_COLLECTION, MetadataSnapshot.class).insertOne(new MetadataSnapshot(
-            "{ \"_id\" : \"aeaaaaaaaaeaaaabahd72al7ivfrywiaaaaq\", \"Name\" : \"UnitsScrollDate\", \"_tenant\" : 0, \"Value\" : \"" +
-                LocalDateUtil.getFormattedDateForMongo(LocalDate.now().minusDays(1).atStartOfDay()) + "\" }"));
+        mongoRule
+            .getMongoCollection(SNAPSHOT_COLLECTION, MetadataSnapshot.class)
+            .insertOne(
+                new MetadataSnapshot(
+                    "{ \"_id\" : \"aeaaaaaaaaeaaaabag5swal7ivc47uqaaaaq\", \"Name\" : \"UnitsScrollNumber\", \"_tenant\" : 0, \"Value\" : 3 }"
+                )
+            );
+        mongoRule
+            .getMongoCollection(SNAPSHOT_COLLECTION, MetadataSnapshot.class)
+            .insertOne(
+                new MetadataSnapshot(
+                    "{ \"_id\" : \"aeaaaaaaaaeaaaabahd72al7ivfrywiaaaaq\", \"Name\" : \"UnitsScrollDate\", \"_tenant\" : 0, \"Value\" : \"" +
+                    LocalDateUtil.getFormattedDateForMongo(LocalDate.now().minusDays(1).atStartOfDay()) +
+                    "\" }"
+                )
+            );
         VitamContext vitamContext = new VitamContext(TENANT_ID)
             .setApplicationSessionId(APPLICATION_SESSION_ID)
             .setAccessContract(ACCESS_CONTRACT);
@@ -318,8 +354,10 @@ public class AccessExternalIT extends VitamRuleRunner {
         query.addProjection(JsonHandler.createObjectNode().put(VitamFieldsHelper.id(), 1));
 
         // WHEN
-        final JsonLineIterator<JsonNode> iterator =
-            accessExternalClient.streamUnits(vitamContext, query.getFinalSelect());
+        final JsonLineIterator<JsonNode> iterator = accessExternalClient.streamUnits(
+            vitamContext,
+            query.getFinalSelect()
+        );
         // THEN
         AtomicInteger size = new AtomicInteger();
         iterator.forEachRemaining(e -> size.getAndIncrement());
@@ -340,8 +378,9 @@ public class AccessExternalIT extends VitamRuleRunner {
         query.setThreshold(12000L);
 
         // THEN
-        assertThatCode(() -> accessExternalClient.streamUnits(vitamContext, query.getFinalSelect()))
-            .isInstanceOf(VitamClientException.class);
+        assertThatCode(() -> accessExternalClient.streamUnits(vitamContext, query.getFinalSelect())).isInstanceOf(
+            VitamClientException.class
+        );
     }
 
     @RunWithCustomExecutor
@@ -357,8 +396,10 @@ public class AccessExternalIT extends VitamRuleRunner {
         query.addProjection(JsonHandler.createObjectNode().put(VitamFieldsHelper.id(), 1));
 
         // WHEN
-        final JsonLineIterator<JsonNode> iterator =
-            accessExternalClient.streamObjects(vitamContext, query.getFinalSelect());
+        final JsonLineIterator<JsonNode> iterator = accessExternalClient.streamObjects(
+            vitamContext,
+            query.getFinalSelect()
+        );
         // THEN
         AtomicInteger size = new AtomicInteger();
         iterator.forEachRemaining(e -> size.getAndIncrement());
@@ -369,11 +410,22 @@ public class AccessExternalIT extends VitamRuleRunner {
     @Test
     public void shouldStreamObjectsWithExceedExecutionLimitKO() throws Exception {
         // given
-        mongoRule.getMongoCollection(SNAPSHOT_COLLECTION, MetadataSnapshot.class).insertOne(new MetadataSnapshot(
-            "{ \"_id\" : \"aeaaaaaaaaeaaaabag5swal7ivc47uqaaaaq\", \"Name\" : \"ObjectsScrollNumber\", \"_tenant\" : 0, \"Value\" : 3 }"));
-        mongoRule.getMongoCollection(SNAPSHOT_COLLECTION, MetadataSnapshot.class).insertOne(new MetadataSnapshot(
-            "{ \"_id\" : \"aeaaaaaaaaeaaaabahd72al7ivfrywiaaaaq\", \"Name\" : \"ObjectsScrollDate\", \"_tenant\" : 0, \"Value\" : \"" +
-                LocalDateUtil.getFormattedDateForMongo(LocalDate.now().atStartOfDay()) + "\" }"));
+        mongoRule
+            .getMongoCollection(SNAPSHOT_COLLECTION, MetadataSnapshot.class)
+            .insertOne(
+                new MetadataSnapshot(
+                    "{ \"_id\" : \"aeaaaaaaaaeaaaabag5swal7ivc47uqaaaaq\", \"Name\" : \"ObjectsScrollNumber\", \"_tenant\" : 0, \"Value\" : 3 }"
+                )
+            );
+        mongoRule
+            .getMongoCollection(SNAPSHOT_COLLECTION, MetadataSnapshot.class)
+            .insertOne(
+                new MetadataSnapshot(
+                    "{ \"_id\" : \"aeaaaaaaaaeaaaabahd72al7ivfrywiaaaaq\", \"Name\" : \"ObjectsScrollDate\", \"_tenant\" : 0, \"Value\" : \"" +
+                    LocalDateUtil.getFormattedDateForMongo(LocalDate.now().atStartOfDay()) +
+                    "\" }"
+                )
+            );
         VitamContext vitamContext = new VitamContext(TENANT_ID)
             .setApplicationSessionId(APPLICATION_SESSION_ID)
             .setAccessContract(ACCESS_CONTRACT);
@@ -383,19 +435,31 @@ public class AccessExternalIT extends VitamRuleRunner {
         query.addProjection(JsonHandler.createObjectNode().put(VitamFieldsHelper.id(), 1));
 
         // THEN
-        assertThatCode(() -> accessExternalClient.streamObjects(vitamContext, query.getFinalSelect()))
-            .isInstanceOf(VitamClientException.class);
+        assertThatCode(() -> accessExternalClient.streamObjects(vitamContext, query.getFinalSelect())).isInstanceOf(
+            VitamClientException.class
+        );
     }
 
     @RunWithCustomExecutor
     @Test
     public void shouldStreamObjectsWithExceedExecutionLimitNextDayOK() throws Exception {
         // given
-        mongoRule.getMongoCollection(SNAPSHOT_COLLECTION, MetadataSnapshot.class).insertOne(new MetadataSnapshot(
-            "{ \"_id\" : \"aeaaaaaaaaeaaaabag5swal7ivc47uqaaaaq\", \"Name\" : \"Scroll\", \"_tenant\" : 0, \"Value\" : 3 }"));
-        mongoRule.getMongoCollection(SNAPSHOT_COLLECTION, MetadataSnapshot.class).insertOne(new MetadataSnapshot(
-            "{ \"_id\" : \"aeaaaaaaaaeaaaabahd72al7ivfrywiaaaaq\", \"Name\" : \"LastScrollRequestDate\", \"_tenant\" : 0, \"Value\" : \"" +
-                LocalDateUtil.getFormattedDateForMongo(LocalDate.now().minusDays(1).atStartOfDay()) + "\" }"));
+        mongoRule
+            .getMongoCollection(SNAPSHOT_COLLECTION, MetadataSnapshot.class)
+            .insertOne(
+                new MetadataSnapshot(
+                    "{ \"_id\" : \"aeaaaaaaaaeaaaabag5swal7ivc47uqaaaaq\", \"Name\" : \"Scroll\", \"_tenant\" : 0, \"Value\" : 3 }"
+                )
+            );
+        mongoRule
+            .getMongoCollection(SNAPSHOT_COLLECTION, MetadataSnapshot.class)
+            .insertOne(
+                new MetadataSnapshot(
+                    "{ \"_id\" : \"aeaaaaaaaaeaaaabahd72al7ivfrywiaaaaq\", \"Name\" : \"LastScrollRequestDate\", \"_tenant\" : 0, \"Value\" : \"" +
+                    LocalDateUtil.getFormattedDateForMongo(LocalDate.now().minusDays(1).atStartOfDay()) +
+                    "\" }"
+                )
+            );
         VitamContext vitamContext = new VitamContext(TENANT_ID)
             .setApplicationSessionId(APPLICATION_SESSION_ID)
             .setAccessContract(ACCESS_CONTRACT);
@@ -405,8 +469,10 @@ public class AccessExternalIT extends VitamRuleRunner {
         query.addProjection(JsonHandler.createObjectNode().put(VitamFieldsHelper.id(), 1));
 
         // WHEN
-        final JsonLineIterator<JsonNode> iterator =
-            accessExternalClient.streamObjects(vitamContext, query.getFinalSelect());
+        final JsonLineIterator<JsonNode> iterator = accessExternalClient.streamObjects(
+            vitamContext,
+            query.getFinalSelect()
+        );
         // THEN
         AtomicInteger size = new AtomicInteger();
         iterator.forEachRemaining(e -> size.getAndIncrement());
@@ -426,8 +492,9 @@ public class AccessExternalIT extends VitamRuleRunner {
         query.setThreshold(1L);
 
         // THEN
-        assertThatCode(() -> accessExternalClient.streamObjects(vitamContext, query.getFinalSelect()))
-            .isInstanceOf(VitamClientException.class);
+        assertThatCode(() -> accessExternalClient.streamObjects(vitamContext, query.getFinalSelect())).isInstanceOf(
+            VitamClientException.class
+        );
     }
 
     @RunWithCustomExecutor
@@ -441,11 +508,15 @@ public class AccessExternalIT extends VitamRuleRunner {
         // WHEN
         assertThatThrownBy(() -> {
             getMetadataWithTrackTotalHits(true, vitamContext, MetadataCollections.OBJECTGROUP);
-        }).isInstanceOf(VitamClientException.class)
+        })
+            .isInstanceOf(VitamClientException.class)
             .hasMessageContaining("Error with the response, get status: '401' and reason 'Unauthorized'.");
 
-        RequestResponse<JsonNode> gotsWithoutPrecision =
-            getMetadataWithTrackTotalHits(false, vitamContext, MetadataCollections.OBJECTGROUP);
+        RequestResponse<JsonNode> gotsWithoutPrecision = getMetadataWithTrackTotalHits(
+            false,
+            vitamContext,
+            MetadataCollections.OBJECTGROUP
+        );
 
         // THEN
         List<JsonNode> resultsWithoutPrecision = ((RequestResponseOK<JsonNode>) gotsWithoutPrecision).getResults();
@@ -457,44 +528,52 @@ public class AccessExternalIT extends VitamRuleRunner {
         throws InvalidParseOperationException, FileNotFoundException, MetaDataExecutionException {
         insertUnits(unitFile);
 
-        List<LogbookLifeCycleUnit> unitsLfc = JsonHandler.getFromFileAsTypeReference(PropertiesUtils.getResourceFile(
-                lfcFile),
-            new TypeReference<>() {
-            });
+        List<LogbookLifeCycleUnit> unitsLfc = JsonHandler.getFromFileAsTypeReference(
+            PropertiesUtils.getResourceFile(lfcFile),
+            new TypeReference<>() {}
+        );
 
-        LogbookCollections.LIFECYCLE_UNIT.<LogbookLifeCycleUnit>getVitamCollection().getCollection()
+        LogbookCollections.LIFECYCLE_UNIT.<LogbookLifeCycleUnit>getVitamCollection()
+            .getCollection()
             .insertMany(unitsLfc);
     }
 
     private static void insertUnits(String unitFile)
         throws InvalidParseOperationException, FileNotFoundException, MetaDataExecutionException {
-        List<Unit> units =
-            JsonHandler.getFromFileAsTypeReference(PropertiesUtils.getResourceFile(unitFile), new TypeReference<>() {
-            });
+        List<Unit> units = JsonHandler.getFromFileAsTypeReference(
+            PropertiesUtils.getResourceFile(unitFile),
+            new TypeReference<>() {}
+        );
         MetadataCollections.UNIT.<Unit>getVitamCollection().getCollection().insertMany(units);
         MetadataCollections.UNIT.getEsClient().insertFullDocuments(MetadataCollections.UNIT, TENANT_ID, units);
     }
 
     private static void insertGots(String gotFile)
         throws InvalidParseOperationException, FileNotFoundException, MetaDataExecutionException {
-        List<ObjectGroup> gots =
-            JsonHandler.getFromFileAsTypeReference(PropertiesUtils.getResourceFile(gotFile), new TypeReference<>() {
-            });
+        List<ObjectGroup> gots = JsonHandler.getFromFileAsTypeReference(
+            PropertiesUtils.getResourceFile(gotFile),
+            new TypeReference<>() {}
+        );
         MetadataCollections.OBJECTGROUP.<ObjectGroup>getVitamCollection().getCollection().insertMany(gots);
         MetadataCollections.OBJECTGROUP.getEsClient()
             .insertFullDocuments(MetadataCollections.OBJECTGROUP, TENANT_ID, gots);
     }
 
-    private RequestResponse<JsonNode> getMetadataWithTrackTotalHits(boolean shouldTrackTotalHits,
-        VitamContext vitamContext, MetadataCollections collection)
-        throws VitamClientException, InvalidParseOperationException, InvalidCreateOperationException {
+    private RequestResponse<JsonNode> getMetadataWithTrackTotalHits(
+        boolean shouldTrackTotalHits,
+        VitamContext vitamContext,
+        MetadataCollections collection
+    ) throws VitamClientException, InvalidParseOperationException, InvalidCreateOperationException {
         SelectMultiQuery select = new SelectMultiQuery();
         select.addQueries(QueryHelper.exists(VitamFieldsHelper.id()));
         select.trackTotalHits(shouldTrackTotalHits);
         select.setProjection(
-            JsonHandler.createObjectNode().set(
-                BuilderToken.PROJECTION.FIELDS.name(),
-                JsonHandler.createObjectNode().put(VitamFieldsHelper.id(), 1)));
+            JsonHandler.createObjectNode()
+                .set(
+                    BuilderToken.PROJECTION.FIELDS.name(),
+                    JsonHandler.createObjectNode().put(VitamFieldsHelper.id(), 1)
+                )
+        );
         if (collection.equals(MetadataCollections.UNIT)) {
             return accessExternalClient.selectUnits(vitamContext, select.getFinalSelect());
         }
@@ -511,9 +590,11 @@ public class AccessExternalIT extends VitamRuleRunner {
             .setAccessContract(ACCESS_CONTRACT);
 
         // WHEN
-        RequestResponse<JsonNode> result =
-            accessExternalClient.selectUnitsByUnitPersistentIdentifier(vitamContext,
-                new SelectMultiQuery().getFinalSelectById(), arkIdentifier);
+        RequestResponse<JsonNode> result = accessExternalClient.selectUnitsByUnitPersistentIdentifier(
+            vitamContext,
+            new SelectMultiQuery().getFinalSelectById(),
+            arkIdentifier
+        );
 
         // THEN
         assertTrue(result.isOk());
@@ -537,9 +618,11 @@ public class AccessExternalIT extends VitamRuleRunner {
             .setAccessContract(ACCESS_CONTRACT);
 
         // WHEN
-        RequestResponse<JsonNode> result =
-            accessExternalClient.selectUnitsByUnitPersistentIdentifier(vitamContext,
-                new SelectMultiQuery().getFinalSelectById(), arkIdentifier);
+        RequestResponse<JsonNode> result = accessExternalClient.selectUnitsByUnitPersistentIdentifier(
+            vitamContext,
+            new SelectMultiQuery().getFinalSelectById(),
+            arkIdentifier
+        );
 
         // THEN
         assertTrue(result.isOk());
@@ -558,9 +641,11 @@ public class AccessExternalIT extends VitamRuleRunner {
             .setAccessContract(ACCESS_CONTRACT);
 
         // WHEN
-        RequestResponse<JsonNode> result =
-            accessExternalClient.selectUnitsByUnitPersistentIdentifier(vitamContext,
-                new SelectMultiQuery().getFinalSelectById(), arkIdentifier);
+        RequestResponse<JsonNode> result = accessExternalClient.selectUnitsByUnitPersistentIdentifier(
+            vitamContext,
+            new SelectMultiQuery().getFinalSelectById(),
+            arkIdentifier
+        );
 
         // THEN
         assertTrue(result.isOk());
@@ -579,8 +664,12 @@ public class AccessExternalIT extends VitamRuleRunner {
             .setAccessContract(ACCESS_CONTRACT);
 
         // WHEN
-        Response result =
-            accessExternalClient.getObjectByUnitPersistentIdentifier(vitamContext, arkIdentifier, null, null);
+        Response result = accessExternalClient.getObjectByUnitPersistentIdentifier(
+            vitamContext,
+            arkIdentifier,
+            null,
+            null
+        );
 
         // THEN
         assertEquals(result.getStatus(), 200);
@@ -597,8 +686,12 @@ public class AccessExternalIT extends VitamRuleRunner {
             .setAccessContract(ACCESS_CONTRACT);
 
         // WHEN
-        Response result =
-            accessExternalClient.getObjectByUnitPersistentIdentifier(vitamContext, arkIdentifier, "BinaryMaster", null);
+        Response result = accessExternalClient.getObjectByUnitPersistentIdentifier(
+            vitamContext,
+            arkIdentifier,
+            "BinaryMaster",
+            null
+        );
 
         // THEN
         assertEquals(result.getStatus(), 200);
@@ -615,8 +708,12 @@ public class AccessExternalIT extends VitamRuleRunner {
             .setAccessContract(ACCESS_CONTRACT);
 
         // WHEN
-        Response result =
-            accessExternalClient.getObjectByUnitPersistentIdentifier(vitamContext, arkIdentifier, "BinaryMaster", "1");
+        Response result = accessExternalClient.getObjectByUnitPersistentIdentifier(
+            vitamContext,
+            arkIdentifier,
+            "BinaryMaster",
+            "1"
+        );
 
         // THEN
         assertEquals(result.getStatus(), 200);
@@ -633,9 +730,11 @@ public class AccessExternalIT extends VitamRuleRunner {
             .setAccessContract(ACCESS_CONTRACT);
 
         // WHEN
-        RequestResponse<JsonNode> result =
-            accessExternalClient.selectUnitsByUnitPersistentIdentifier(vitamContext,
-                new SelectMultiQuery().getFinalSelectById(), arkIdentifier);
+        RequestResponse<JsonNode> result = accessExternalClient.selectUnitsByUnitPersistentIdentifier(
+            vitamContext,
+            new SelectMultiQuery().getFinalSelectById(),
+            arkIdentifier
+        );
 
         // THEN
         assertTrue(result.isOk());
@@ -661,9 +760,10 @@ public class AccessExternalIT extends VitamRuleRunner {
         List<SchemaResponse> schemaModelUnit = ((RequestResponseOK<SchemaResponse>) response).getResults();
         assertNotNull(schemaModelUnit);
         assertThat(schemaModelUnit).isNotEmpty();
-        Optional<SchemaResponse> addressBirthPlaceAdressSchemaEltOpt =
-            schemaModelUnit.stream().filter(schemaElt -> "Addressee.BirthPlace.Address".equals(schemaElt.getPath()))
-                .findAny();
+        Optional<SchemaResponse> addressBirthPlaceAdressSchemaEltOpt = schemaModelUnit
+            .stream()
+            .filter(schemaElt -> "Addressee.BirthPlace.Address".equals(schemaElt.getPath()))
+            .findAny();
         assertThat(addressBirthPlaceAdressSchemaEltOpt).isPresent();
         SchemaResponse addressBirthPlaceAdressSchemaElt = addressBirthPlaceAdressSchemaEltOpt.get();
 
@@ -675,11 +775,10 @@ public class AccessExternalIT extends VitamRuleRunner {
         assertThat(addressBirthPlaceAdressSchemaElt.getSedaVersions().contains("2.2"));
         assertThat(addressBirthPlaceAdressSchemaElt.getSedaVersions().contains("2.3"));
 
-
-        Optional<SchemaResponse> persistentIdentifierContentSchemaEltOpt =
-            schemaModelUnit.stream()
-                .filter(schemaElt -> "PersistentIdentifier.PersistentIdentifierContent".equals(schemaElt.getPath()))
-                .findAny();
+        Optional<SchemaResponse> persistentIdentifierContentSchemaEltOpt = schemaModelUnit
+            .stream()
+            .filter(schemaElt -> "PersistentIdentifier.PersistentIdentifierContent".equals(schemaElt.getPath()))
+            .findAny();
         assertThat(persistentIdentifierContentSchemaEltOpt).isPresent();
         SchemaResponse persistentIdentifierContentElt = persistentIdentifierContentSchemaEltOpt.get();
 
@@ -692,12 +791,10 @@ public class AccessExternalIT extends VitamRuleRunner {
         assertThat(!persistentIdentifierContentElt.getSedaVersions().contains("2.1"));
     }
 
-
     @RunWithCustomExecutor
     @Test
     public void should_call_importing_external_schema() throws Exception {
-        try (InputStream inputStream =
-            PropertiesUtils.getResourceAsStream(EXTERNAL_UNIT_SCHEMA_JSON)) {
+        try (InputStream inputStream = PropertiesUtils.getResourceAsStream(EXTERNAL_UNIT_SCHEMA_JSON)) {
             // given
             VitamContext vitamContext = new VitamContext(TENANT_ID)
                 .setApplicationSessionId(APPLICATION_SESSION_ID)
@@ -705,14 +802,12 @@ public class AccessExternalIT extends VitamRuleRunner {
 
             // WHEN
 
-            RequestResponse<Void> response =
-                adminExternalClient.importUnitExternalSchema(vitamContext, inputStream);
+            RequestResponse<Void> response = adminExternalClient.importUnitExternalSchema(vitamContext, inputStream);
             // THEN
             assertThat(response.isOk()).isTrue();
 
             // WHEN
-            RequestResponse<SchemaResponse> responseRetrieveSchema =
-                adminExternalClient.getUnitSchema(vitamContext);
+            RequestResponse<SchemaResponse> responseRetrieveSchema = adminExternalClient.getUnitSchema(vitamContext);
 
             // THEN
             assertThat(response.isOk()).isTrue();
@@ -720,9 +815,10 @@ public class AccessExternalIT extends VitamRuleRunner {
                 ((RequestResponseOK<SchemaResponse>) responseRetrieveSchema).getResults();
             assertNotNull(schemaModelUnit);
             assertThat(schemaModelUnit).isNotEmpty();
-            Optional<SchemaResponse> addressBirthPlaceAdressSchemaEltOpt =
-                schemaModelUnit.stream().filter(schemaElt -> "Addressee.BirthPlace.Address".equals(schemaElt.getPath()))
-                    .findAny();
+            Optional<SchemaResponse> addressBirthPlaceAdressSchemaEltOpt = schemaModelUnit
+                .stream()
+                .filter(schemaElt -> "Addressee.BirthPlace.Address".equals(schemaElt.getPath()))
+                .findAny();
 
             assertThat(addressBirthPlaceAdressSchemaEltOpt).isPresent();
             SchemaResponse addressBirthPlaceAdressSchemaElt = addressBirthPlaceAdressSchemaEltOpt.get();
@@ -735,23 +831,26 @@ public class AccessExternalIT extends VitamRuleRunner {
             assertThat(addressBirthPlaceAdressSchemaElt.getSedaVersions().contains("2.2"));
             assertThat(addressBirthPlaceAdressSchemaElt.getSedaVersions().contains("2.3"));
 
-
-            List<SchemaResponse> externalSchemaElts =
-                schemaModelUnit.stream().filter(schemaElt -> SchemaOrigin.EXTERNAL == schemaElt.getOrigin())
-                    .collect(Collectors.toList());
+            List<SchemaResponse> externalSchemaElts = schemaModelUnit
+                .stream()
+                .filter(schemaElt -> SchemaOrigin.EXTERNAL == schemaElt.getOrigin())
+                .collect(Collectors.toList());
 
             assertThat(externalSchemaElts).isNotEmpty();
-            Optional<SchemaResponse> invoiceOpt =
-                externalSchemaElts.stream().filter(schemaModel -> "Invoice".equals(schemaModel.getPath())).findAny();
+            Optional<SchemaResponse> invoiceOpt = externalSchemaElts
+                .stream()
+                .filter(schemaModel -> "Invoice".equals(schemaModel.getPath()))
+                .findAny();
             assertThat(invoiceOpt).isPresent();
             SchemaResponse invoiceSchema = invoiceOpt.get();
             assertThat(invoiceSchema.getType()).isEqualTo(SchemaType.OBJECT);
             assertThat(invoiceSchema.getTenant()).isEqualTo(TENANT_ID);
             assertThat(invoiceSchema.getCardinality()).isEqualTo(SchemaCardinality.ONE);
 
-            Optional<SchemaResponse> birthDateProvideOpt =
-                externalSchemaElts.stream()
-                    .filter(schemaModel -> "Invoice.Provider.BirthDate".equals(schemaModel.getPath())).findAny();
+            Optional<SchemaResponse> birthDateProvideOpt = externalSchemaElts
+                .stream()
+                .filter(schemaModel -> "Invoice.Provider.BirthDate".equals(schemaModel.getPath()))
+                .findAny();
             assertThat(birthDateProvideOpt).isPresent();
             SchemaResponse birthDateProvideSchema = birthDateProvideOpt.get();
             assertThat(birthDateProvideSchema.getType()).isEqualTo(SchemaType.DATE);
@@ -777,10 +876,10 @@ public class AccessExternalIT extends VitamRuleRunner {
         List<SchemaResponse> schemaModelUnit = ((RequestResponseOK<SchemaResponse>) response).getResults();
         assertNotNull(schemaModelUnit);
         assertThat(schemaModelUnit).isNotEmpty();
-        Optional<SchemaResponse> algorithSchemaEltOpt =
-            schemaModelUnit.stream().filter(
-                    schemaElt -> "_qualifiers.versions.Algorithm".equals(schemaElt.getPath()))
-                .findAny();
+        Optional<SchemaResponse> algorithSchemaEltOpt = schemaModelUnit
+            .stream()
+            .filter(schemaElt -> "_qualifiers.versions.Algorithm".equals(schemaElt.getPath()))
+            .findAny();
         assertThat(algorithSchemaEltOpt).isPresent();
         SchemaResponse algorithSchemaElt = algorithSchemaEltOpt.get();
 
@@ -794,12 +893,13 @@ public class AccessExternalIT extends VitamRuleRunner {
         assertThat(algorithSchemaElt.getSedaVersions().contains("2.2"));
         assertThat(algorithSchemaElt.getSedaVersions().contains("2.3"));
 
-
-        Optional<SchemaResponse> persistentIdentifierContentSchemaEltOpt =
-            schemaModelUnit.stream()
-                .filter(schemaElt -> "_qualifiers.versions.PersistentIdentifier.PersistentIdentifierContent".equals(
-                    schemaElt.getPath()))
-                .findAny();
+        Optional<SchemaResponse> persistentIdentifierContentSchemaEltOpt = schemaModelUnit
+            .stream()
+            .filter(
+                schemaElt ->
+                    "_qualifiers.versions.PersistentIdentifier.PersistentIdentifierContent".equals(schemaElt.getPath())
+            )
+            .findAny();
         assertThat(persistentIdentifierContentSchemaEltOpt).isPresent();
         SchemaResponse persistentIdentifierContentElt = persistentIdentifierContentSchemaEltOpt.get();
 
@@ -810,7 +910,5 @@ public class AccessExternalIT extends VitamRuleRunner {
         assertThat(persistentIdentifierContentElt.getSedaVersions().contains("2.2"));
         assertThat(persistentIdentifierContentElt.getSedaVersions().contains("2.3"));
         assertThat(!persistentIdentifierContentElt.getSedaVersions().contains("2.1"));
-
     }
-
 }

@@ -97,12 +97,16 @@ public class CheckAtrAndAddItToWorkspacePluginTest {
 
         // Then
         assertThat(JsonHandler.getFromFile(file, TransferReplyContext.class)).isEqualTo(
-            new TransferReplyContext(atr.getMessageRequestIdentifier().getValue(),
-                atr.getMessageIdentifier(), Optional.ofNullable(atr)
-                .map(ArchiveTransferReplyType::getArchivalAgency)
-                .map(OrganizationWithIdType::getIdentifier)
-                .map(IdentifierType::getValue)
-                .orElse(null)));
+            new TransferReplyContext(
+                atr.getMessageRequestIdentifier().getValue(),
+                atr.getMessageIdentifier(),
+                Optional.ofNullable(atr)
+                    .map(ArchiveTransferReplyType::getArchivalAgency)
+                    .map(OrganizationWithIdType::getIdentifier)
+                    .map(IdentifierType::getValue)
+                    .orElse(null)
+            )
+        );
     }
 
     private ArchiveTransferReplyType createATR(String name) {

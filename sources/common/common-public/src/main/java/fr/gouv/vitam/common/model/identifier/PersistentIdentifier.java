@@ -46,8 +46,7 @@ public class PersistentIdentifier {
         return persistentIdentifierType;
     }
 
-    public void setPersistentIdentifierType(
-        String persistentIdentifierType) {
+    public void setPersistentIdentifierType(String persistentIdentifierType) {
         this.persistentIdentifierType = persistentIdentifierType;
     }
 

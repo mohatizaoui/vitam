@@ -54,6 +54,7 @@ import static fr.gouv.vitam.common.model.StatusCode.WARNING;
 import static fr.gouv.vitam.worker.core.utils.PluginHelper.buildItemStatus;
 
 public class CheckAtrAndAddItToWorkspacePlugin extends ActionHandler {
+
     public static final String PLUGIN_NAME = "CHECK_ATR_AND_ADD_IT_TO_WORKSPACE";
 
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(CheckAtrAndAddItToWorkspacePlugin.class);
@@ -67,8 +68,11 @@ public class CheckAtrAndAddItToWorkspacePlugin extends ActionHandler {
             String messageIdentifier = atr.getMessageIdentifier();
 
             if (!isValidStatus(atr)) {
-                return buildItemStatus(PLUGIN_NAME, KO,
-                    EventDetails.of(String.format("ATR '%s' is KO, workflow will stop here.", messageIdentifier)));
+                return buildItemStatus(
+                    PLUGIN_NAME,
+                    KO,
+                    EventDetails.of(String.format("ATR '%s' is KO, workflow will stop here.", messageIdentifier))
+                );
             }
 
             File tempFile = handler.getNewLocalFile(handler.getOutput(TRANSFER_REPLY_CONTEXT_OUT_RANK).getPath());
@@ -76,8 +80,11 @@ public class CheckAtrAndAddItToWorkspacePlugin extends ActionHandler {
             handler.addOutputResult(TRANSFER_REPLY_CONTEXT_OUT_RANK, tempFile, true, false);
             handler.addOutputResult(TRANSFER_REPLY_ATR_RANK, atr);
 
-            return buildItemStatus(PLUGIN_NAME, OK,
-                EventDetails.of(String.format("ATR '%s' is OK.", messageIdentifier)));
+            return buildItemStatus(
+                PLUGIN_NAME,
+                OK,
+                EventDetails.of(String.format("ATR '%s' is OK.", messageIdentifier))
+            );
         } catch (IOException | InvalidParseOperationException e) {
             LOGGER.error(e);
             return buildItemStatus(PLUGIN_NAME, FATAL, EventDetails.of(e.getMessage()));
@@ -85,19 +92,20 @@ public class CheckAtrAndAddItToWorkspacePlugin extends ActionHandler {
     }
 
     private boolean isValidStatus(ArchiveTransferReplyType atr) {
-        return OK.name().equalsIgnoreCase(atr.getReplyCode())
-            || WARNING.name().equalsIgnoreCase(atr.getReplyCode());
+        return OK.name().equalsIgnoreCase(atr.getReplyCode()) || WARNING.name().equalsIgnoreCase(atr.getReplyCode());
     }
 
     private InputStream streamFromIds(ArchiveTransferReplyType atr) throws InvalidParseOperationException {
-        return JsonHandler.writeToInpustream(new TransferReplyContext(
-            atr.getMessageRequestIdentifier().getValue(),
-            atr.getMessageIdentifier(),
-            Optional.ofNullable(atr)
-                .map(ArchiveTransferReplyType::getArchivalAgency)
-                .map(OrganizationWithIdType::getIdentifier)
-                .map(IdentifierType::getValue)
-                .orElse(null)
-        ));
+        return JsonHandler.writeToInpustream(
+            new TransferReplyContext(
+                atr.getMessageRequestIdentifier().getValue(),
+                atr.getMessageIdentifier(),
+                Optional.ofNullable(atr)
+                    .map(ArchiveTransferReplyType::getArchivalAgency)
+                    .map(OrganizationWithIdType::getIdentifier)
+                    .map(IdentifierType::getValue)
+                    .orElse(null)
+            )
+        );
     }
 }

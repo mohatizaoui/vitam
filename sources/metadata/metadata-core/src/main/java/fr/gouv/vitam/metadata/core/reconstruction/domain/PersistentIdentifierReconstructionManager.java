@@ -45,47 +45,60 @@ import static fr.gouv.vitam.metadata.core.reconstruction.repository.Reconstructi
 
 public class PersistentIdentifierReconstructionManager {
 
-    private static final VitamLogger LOGGER =
-        VitamLoggerFactory.getInstance(PersistentIdentifierReconstructionManager.class);
+    private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(
+        PersistentIdentifierReconstructionManager.class
+    );
 
-    final private OperationReportParser operationReportParser;
-    final private ReconstructionOperationRepository reconstructionOperationRepository;
+    private final OperationReportParser operationReportParser;
+    private final ReconstructionOperationRepository reconstructionOperationRepository;
 
-    public PersistentIdentifierReconstructionManager(OperationReportRepository operationReportRepository,
+    public PersistentIdentifierReconstructionManager(
+        OperationReportRepository operationReportRepository,
         ReconstructionOperationRepository reconstructionOperationRepository,
         MetaDataConfiguration metaDataConfiguration,
-        PersistentIdentifierRepository persistentIdentifierRepository) {
+        PersistentIdentifierRepository persistentIdentifierRepository
+    ) {
         this.reconstructionOperationRepository = reconstructionOperationRepository;
-        this.operationReportParser =
-            new OperationReportParser(operationReportRepository, metaDataConfiguration, persistentIdentifierRepository,
-                new PurgedPersistentIdentifierExtractorFactory());
+        this.operationReportParser = new OperationReportParser(
+            operationReportRepository,
+            metaDataConfiguration,
+            persistentIdentifierRepository,
+            new PurgedPersistentIdentifierExtractorFactory()
+        );
     }
 
     public PersistentIdentifierReconstructionManager(
         ReconstructionOperationRepository reconstructionOperationRepository,
-        OperationReportParser operationReportParser) {
+        OperationReportParser operationReportParser
+    ) {
         this.reconstructionOperationRepository = reconstructionOperationRepository;
         this.operationReportParser = operationReportParser;
     }
 
     public ReconstructionResponse reconstruct(LocalDateTime startDate, LocalDateTime endDate) {
-
         LocalDateTime lastSuccessfulOperationDate = startDate;
         try {
-            final List<ReconstructionOperation> reconstructionOperations = reconstructionOperationRepository
-                .fetchReconstructionOperations(startDate, endDate);
+            final List<ReconstructionOperation> reconstructionOperations =
+                reconstructionOperationRepository.fetchReconstructionOperations(startDate, endDate);
             LOGGER.info(
                 "Persistent Identifier Reconstruction : number of operations to reconstruct between dates {} and {} : {}",
-                startDate, endDate, reconstructionOperations.size());
+                startDate,
+                endDate,
+                reconstructionOperations.size()
+            );
             for (ReconstructionOperation operation : reconstructionOperations) {
                 lastSuccessfulOperationDate = operationReportParser.processReportFromOperation(operation);
             }
         } catch (ReconstructionException e) {
             LOGGER.error("Persistent Identifier Reconstruction failed ", e);
-            return new ReconstructionResponse.Builder().status(FAILURE)
-                .lastSuccessfulOperationDate(lastSuccessfulOperationDate).build();
+            return new ReconstructionResponse.Builder()
+                .status(FAILURE)
+                .lastSuccessfulOperationDate(lastSuccessfulOperationDate)
+                .build();
         }
-        return new ReconstructionResponse.Builder().status(SUCCESS)
-            .lastSuccessfulOperationDate(lastSuccessfulOperationDate).build();
+        return new ReconstructionResponse.Builder()
+            .status(SUCCESS)
+            .lastSuccessfulOperationDate(lastSuccessfulOperationDate)
+            .build();
     }
 }

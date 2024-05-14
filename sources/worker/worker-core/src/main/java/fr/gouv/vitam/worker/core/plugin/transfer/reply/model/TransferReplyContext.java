@@ -32,6 +32,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
 
 public class TransferReplyContext {
+
     private final String transferMessageRequestIdentifier;
     private final String atrMessageIdentifier;
     private final String archivalAgencyIdentifier;
@@ -40,7 +41,8 @@ public class TransferReplyContext {
     public TransferReplyContext(
         @JsonProperty("transferMessageRequestIdentifier") String transferMessageRequestIdentifier,
         @JsonProperty("atrMessageIdentifier") String atrMessageIdentifier,
-        @JsonProperty("archivalAgencyIdentifier") String archivalAgencyIdentifier) {
+        @JsonProperty("archivalAgencyIdentifier") String archivalAgencyIdentifier
+    ) {
         this.transferMessageRequestIdentifier = transferMessageRequestIdentifier;
         this.atrMessageIdentifier = atrMessageIdentifier;
         this.archivalAgencyIdentifier = archivalAgencyIdentifier;
@@ -63,13 +65,14 @@ public class TransferReplyContext {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
         TransferReplyContext that = (TransferReplyContext) o;
-        return transferMessageRequestIdentifier.equals(that.transferMessageRequestIdentifier) &&
-            atrMessageIdentifier.equals(that.atrMessageIdentifier) && (archivalAgencyIdentifier==null || archivalAgencyIdentifier.equals(that.archivalAgencyIdentifier));
+        return (
+            transferMessageRequestIdentifier.equals(that.transferMessageRequestIdentifier) &&
+            atrMessageIdentifier.equals(that.atrMessageIdentifier) &&
+            (archivalAgencyIdentifier == null || archivalAgencyIdentifier.equals(that.archivalAgencyIdentifier))
+        );
     }
 
     @Override
@@ -79,10 +82,18 @@ public class TransferReplyContext {
 
     @Override
     public String toString() {
-        return "SharedTransferReplyIds{" +
-            "transferMessageRequestIdentifier='" + transferMessageRequestIdentifier + '\'' +
-            ", atrMessageIdentifier='" + atrMessageIdentifier + '\'' +
-            ", archivalAgencyIdentifier='" + archivalAgencyIdentifier + '\'' +
-            '}';
+        return (
+            "SharedTransferReplyIds{" +
+            "transferMessageRequestIdentifier='" +
+            transferMessageRequestIdentifier +
+            '\'' +
+            ", atrMessageIdentifier='" +
+            atrMessageIdentifier +
+            '\'' +
+            ", archivalAgencyIdentifier='" +
+            archivalAgencyIdentifier +
+            '\'' +
+            '}'
+        );
     }
 }

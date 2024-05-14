@@ -26,12 +26,8 @@
  */
 package fr.gouv.vitam.functionaltest.cucumber.step;
 
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.cucumber.java.en.Given;
-import io.cucumber.java.en.Then;
-import io.cucumber.java.en.When;
 import fr.gouv.vitam.access.external.common.exception.AccessExternalClientException;
 import fr.gouv.vitam.common.GlobalDataRest;
 import fr.gouv.vitam.common.client.VitamContext;
@@ -41,6 +37,9 @@ import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.administration.OntologyModel;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,7 +53,6 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class OntologyStep extends CommonStep {
-
 
     public OntologyStep(World world) {
         super(world);
@@ -88,12 +86,12 @@ public class OntologyStep extends CommonStep {
     private void importOntology(boolean forceUpdate)
         throws IOException, InvalidParseOperationException, AccessExternalClientException {
         try (InputStream inputStream = Files.newInputStream(fileName, StandardOpenOption.READ)) {
-
             VitamContext vitamContext = new VitamContext(world.getTenantId());
             vitamContext.setApplicationSessionId(world.getApplicationSessionId());
 
-            RequestResponse requestResponse =
-                world.getAdminClient().importOntologies(forceUpdate, vitamContext, inputStream);
+            RequestResponse requestResponse = world
+                .getAdminClient()
+                .importOntologies(forceUpdate, vitamContext, inputStream);
             final String operationId = requestResponse.getHeaderString(GlobalDataRest.X_REQUEST_ID);
             world.setOperationId(operationId);
 
@@ -110,8 +108,7 @@ public class OntologyStep extends CommonStep {
     public void searchOntologyByIdentifier(String identifier) throws VitamClientException {
         VitamContext vitamContext = new VitamContext(world.getTenantId());
         vitamContext.setApplicationSessionId(world.getApplicationSessionId());
-        RequestResponse requestResponse =
-            world.getAdminClient().findOntologyById(vitamContext, identifier);
+        RequestResponse requestResponse = world.getAdminClient().findOntologyById(vitamContext, identifier);
         assertThat(requestResponse.isOk()).isTrue();
 
         ontologyModel = (OntologyModel) ((RequestResponseOK) requestResponse).getFirstResult();

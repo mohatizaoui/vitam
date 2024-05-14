@@ -67,6 +67,7 @@ import java.util.concurrent.TimeUnit;
  */
 
 public class CheckArchiveUnitSchemaActionPlugin extends ActionHandler {
+
     private static final String WORKSPACE_SERVER_ERROR = "Workspace Server Error";
 
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(CheckArchiveUnitSchemaActionPlugin.class);
@@ -94,12 +95,11 @@ public class CheckArchiveUnitSchemaActionPlugin extends ActionHandler {
      */
     static final String CONSISTENCY = "CONSISTENCY";
 
-    private static final TypeReference<List<OntologyModel>> LIST_TYPE_REFERENCE =
-        new TypeReference<List<OntologyModel>>() {
-        };
+    private static final TypeReference<List<OntologyModel>> LIST_TYPE_REFERENCE = new TypeReference<
+        List<OntologyModel>
+    >() {};
 
     private final MetadataValidationProvider metadataValidationProvider;
-
 
     public CheckArchiveUnitSchemaActionPlugin() {
         this(MetadataValidationProvider.getInstance());
@@ -115,80 +115,71 @@ public class CheckArchiveUnitSchemaActionPlugin extends ActionHandler {
         final ItemStatus itemStatus = new ItemStatus(CHECK_UNIT_SCHEMA_TASK_ID);
 
         try {
-
             ObjectNode archiveUnit = loadArchiveUnit(handler, params, itemStatus);
             checkAUJsonAgainstSchema(handler, params, archiveUnit);
-
 
             Stopwatch checkUnitTime = Stopwatch.createStarted();
             IngestContractModel contractModel = loadIngestContractFromWorkspace(handler);
             IngestContractChecker checkUnitActionHandler = new IngestContractChecker(archiveUnit, contractModel);
             checkUnitActionHandler.check();
             PerformanceLogger.getInstance()
-                .log("STP_UNIT_CHECK_AND_PROCESS", CHECK_UNIT_SCHEMA_TASK_ID, "checkUnit",
-                    checkUnitTime.elapsed(TimeUnit.MILLISECONDS));
-
+                .log(
+                    "STP_UNIT_CHECK_AND_PROCESS",
+                    CHECK_UNIT_SCHEMA_TASK_ID,
+                    "checkUnit",
+                    checkUnitTime.elapsed(TimeUnit.MILLISECONDS)
+                );
 
             itemStatus.increment(StatusCode.OK);
-            return new ItemStatus(CHECK_UNIT_SCHEMA_TASK_ID).setItemsStatus(CHECK_UNIT_SCHEMA_TASK_ID,
-                itemStatus);
-
+            return new ItemStatus(CHECK_UNIT_SCHEMA_TASK_ID).setItemsStatus(CHECK_UNIT_SCHEMA_TASK_ID, itemStatus);
         } catch (MetadataValidationException e) {
-
             LOGGER.warn("Unit schema validation failed " + params.getObjectName(), e);
 
             switch (e.getErrorCode()) {
-
                 case SCHEMA_VALIDATION_FAILURE: {
-
                     itemStatus.setGlobalOutcomeDetailSubcode(INVALID_UNIT);
 
                     final ObjectNode object = JsonHandler.createObjectNode();
                     object.put(SedaConstants.EV_DET_TECH_DATA, e.getMessage());
                     itemStatus.increment(StatusCode.KO);
                     itemStatus.setEvDetailData(JsonHandler.unprettyPrint(object));
-                    return new ItemStatus(itemStatus.getItemId()).setItemsStatus(itemStatus.getItemId(),
-                        itemStatus);
+                    return new ItemStatus(itemStatus.getItemId()).setItemsStatus(itemStatus.getItemId(), itemStatus);
                 }
                 case ONTOLOGY_VALIDATION_FAILURE: {
-
                     itemStatus.setItemId(ONTOLOGY_VALIDATION);
                     itemStatus.increment(StatusCode.KO);
                     final ObjectNode object = JsonHandler.createObjectNode();
                     object.put(SedaConstants.EV_DET_TECH_DATA, e.getMessage());
                     itemStatus.setEvDetailData(JsonHandler.unprettyPrint(object));
-                    return new ItemStatus(CHECK_UNIT_SCHEMA_TASK_ID).setItemsStatus(CHECK_UNIT_SCHEMA_TASK_ID,
-                        itemStatus);
+                    return new ItemStatus(CHECK_UNIT_SCHEMA_TASK_ID).setItemsStatus(
+                        CHECK_UNIT_SCHEMA_TASK_ID,
+                        itemStatus
+                    );
                 }
                 case INVALID_UNIT_DATE_FORMAT: {
-
                     itemStatus.setGlobalOutcomeDetailSubcode(DATE_FORMAT);
                     itemStatus.increment(StatusCode.KO);
                     itemStatus.setEvDetailData(e.getMessage());
-                    return new ItemStatus(itemStatus.getItemId()).setItemsStatus(itemStatus.getItemId(),
-                        itemStatus);
+                    return new ItemStatus(itemStatus.getItemId()).setItemsStatus(itemStatus.getItemId(), itemStatus);
                 }
                 case INVALID_START_END_DATE: {
-
                     itemStatus.setGlobalOutcomeDetailSubcode(CONSISTENCY);
                     itemStatus.increment(StatusCode.KO);
                     final ObjectNode object = JsonHandler.createObjectNode();
                     object.put(SedaConstants.EV_DET_TECH_DATA, e.getMessage());
                     itemStatus.setEvDetailData(JsonHandler.unprettyPrint(object));
-                    return new ItemStatus(itemStatus.getItemId()).setItemsStatus(itemStatus.getItemId(),
-                        itemStatus);
+                    return new ItemStatus(itemStatus.getItemId()).setItemsStatus(itemStatus.getItemId(), itemStatus);
                 }
                 case ARCHIVE_UNIT_PROFILE_SCHEMA_VALIDATION_FAILURE:
                 case ARCHIVE_UNIT_PROFILE_SCHEMA_INACTIVE:
                 case UNKNOWN_ARCHIVE_UNIT_PROFILE:
                 case EMPTY_ARCHIVE_UNIT_PROFILE_SCHEMA:
-                    // Should never occur (no AUP validation is done is this plugin)
+                // Should never occur (no AUP validation is done is this plugin)
                 case RULE_UPDATE_HOLD_END_DATE_BEFORE_START_DATE:
                 case RULE_UPDATE_UNEXPECTED_HOLD_END_DATE:
-                    // Should never occur (unit rule update only)
+                // Should never occur (unit rule update only)
                 default:
                     throw new IllegalStateException("Unexpected value: " + e.getErrorCode());
-
             }
         } catch (final MetaDataContainSpecialCharactersException e) {
             LOGGER.error(e);
@@ -197,8 +188,7 @@ public class CheckArchiveUnitSchemaActionPlugin extends ActionHandler {
             final ObjectNode object = JsonHandler.createObjectNode();
             object.put(SedaConstants.EV_DET_TECH_DATA, e.getMessage());
             itemStatus.setEvDetailData(JsonHandler.unprettyPrint(object));
-            return new ItemStatus(CHECK_UNIT_SCHEMA_TASK_ID).setItemsStatus(CHECK_UNIT_SCHEMA_TASK_ID,
-                itemStatus);
+            return new ItemStatus(CHECK_UNIT_SCHEMA_TASK_ID).setItemsStatus(CHECK_UNIT_SCHEMA_TASK_ID, itemStatus);
         } catch (SigningInformationException e) {
             LOGGER.error(e.getMessage());
             itemStatus.setGlobalOutcomeDetailSubcode(e.getErrorCode());
@@ -206,8 +196,7 @@ public class CheckArchiveUnitSchemaActionPlugin extends ActionHandler {
             final ObjectNode object = JsonHandler.createObjectNode();
             object.put(SedaConstants.EV_DET_TECH_DATA, e.getMessage());
             itemStatus.setEvDetailData(JsonHandler.unprettyPrint(object));
-            return new ItemStatus(itemStatus.getItemId()).setItemsStatus(itemStatus.getItemId(),
-                itemStatus);
+            return new ItemStatus(itemStatus.getItemId()).setItemsStatus(itemStatus.getItemId(), itemStatus);
         } catch (final Exception e) {
             LOGGER.error(e);
             itemStatus.increment(StatusCode.FATAL);
@@ -223,19 +212,29 @@ public class CheckArchiveUnitSchemaActionPlugin extends ActionHandler {
         Stopwatch ontologyTime = Stopwatch.createStarted();
 
         JsonNode archiveUnitJson = archiveUnit.get(SedaConstants.TAG_ARCHIVE_UNIT);
-        ObjectNode updatedArchiveUnitJson =
-            metadataValidationProvider.getUnitOntologyValidator().verifyAndReplaceFields(archiveUnitJson);
+        ObjectNode updatedArchiveUnitJson = metadataValidationProvider
+            .getUnitOntologyValidator()
+            .verifyAndReplaceFields(archiveUnitJson);
         archiveUnit.set(SedaConstants.TAG_ARCHIVE_UNIT, updatedArchiveUnitJson);
         boolean isUpdateJsonMandatory = !archiveUnitJson.equals(updatedArchiveUnitJson);
 
         PerformanceLogger.getInstance()
-            .log("STP_UNIT_CHECK_AND_PROCESS", CHECK_UNIT_SCHEMA_TASK_ID, "validationOntology",
-                ontologyTime.elapsed(TimeUnit.MILLISECONDS));
+            .log(
+                "STP_UNIT_CHECK_AND_PROCESS",
+                CHECK_UNIT_SCHEMA_TASK_ID,
+                "validationOntology",
+                ontologyTime.elapsed(TimeUnit.MILLISECONDS)
+            );
 
         handlerIO.addOutputResult(UNIT_OUT_RANK, archiveUnit, true, false);
         if (isUpdateJsonMandatory) {
-            handlerIO.transferJsonToWorkspace(IngestWorkflowConstants.ARCHIVE_UNIT_FOLDER, objectName, archiveUnit,
-                false, false);
+            handlerIO.transferJsonToWorkspace(
+                IngestWorkflowConstants.ARCHIVE_UNIT_FOLDER,
+                objectName,
+                archiveUnit,
+                false,
+                false
+            );
         }
 
         // Start / End Date validation + Internal schema validation
@@ -245,23 +244,31 @@ public class CheckArchiveUnitSchemaActionPlugin extends ActionHandler {
 
         this.metadataValidationProvider.getUnitValidator().validateInternalSchema(updatedArchiveUnitJson);
 
-        PerformanceLogger.getInstance().log("STP_UNIT_CHECK_AND_PROCESS", CHECK_UNIT_SCHEMA_TASK_ID, "validationJson",
-            validationJson.elapsed(TimeUnit.MILLISECONDS));
+        PerformanceLogger.getInstance()
+            .log(
+                "STP_UNIT_CHECK_AND_PROCESS",
+                CHECK_UNIT_SCHEMA_TASK_ID,
+                "validationJson",
+                validationJson.elapsed(TimeUnit.MILLISECONDS)
+            );
     }
 
     private ObjectNode loadArchiveUnit(HandlerIO handlerIO, WorkerParameters params, ItemStatus itemStatus)
         throws ProcessingException {
         ObjectNode archiveUnit;
         final String objectName = params.getObjectName();
-        try (InputStream archiveUnitToJson =
-            handlerIO.getInputStreamFromWorkspace(IngestWorkflowConstants.ARCHIVE_UNIT_FOLDER +
-                File.separator + objectName)) {
-
+        try (
+            InputStream archiveUnitToJson = handlerIO.getInputStreamFromWorkspace(
+                IngestWorkflowConstants.ARCHIVE_UNIT_FOLDER + File.separator + objectName
+            )
+        ) {
             archiveUnit = (ObjectNode) JsonHandler.getFromInputStream(archiveUnitToJson);
-
-        } catch (InvalidParseOperationException |
-            ContentAddressableStorageNotFoundException | ContentAddressableStorageServerException |
-            IOException e) {
+        } catch (
+            InvalidParseOperationException
+            | ContentAddressableStorageNotFoundException
+            | ContentAddressableStorageServerException
+            | IOException e
+        ) {
             throw new ProcessingException(WORKSPACE_SERVER_ERROR, e);
         }
 
@@ -279,9 +286,10 @@ public class CheckArchiveUnitSchemaActionPlugin extends ActionHandler {
 
     private IngestContractModel loadIngestContractFromWorkspace(HandlerIO handlerIO)
         throws InvalidParseOperationException {
-        ContractsDetailsModel contractsDetailsModel =
-            JsonHandler.getFromFile((File) handlerIO.getInput(REFERENTIAL_INGEST_CONTRACT_IN_RANK),
-                ContractsDetailsModel.class);
+        ContractsDetailsModel contractsDetailsModel = JsonHandler.getFromFile(
+            (File) handlerIO.getInput(REFERENTIAL_INGEST_CONTRACT_IN_RANK),
+            ContractsDetailsModel.class
+        );
         return contractsDetailsModel.getIngestContractModel();
     }
 }

@@ -52,7 +52,6 @@ public class CollectExternalConfiguration extends DefaultVitamApplicationConfigu
         this.allowSslClientHeader = allowSslClientHeader;
     }
 
-
     public int getIngestionThreadPoolSize() {
         return ingestionThreadPoolSize;
     }

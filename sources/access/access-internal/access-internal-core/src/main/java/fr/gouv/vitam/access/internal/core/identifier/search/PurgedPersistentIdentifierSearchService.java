@@ -42,6 +42,7 @@ import java.util.Comparator;
 import java.util.stream.Collectors;
 
 public class PurgedPersistentIdentifierSearchService {
+
     private final AccessInternalModule accessInternalModule;
 
     public PurgedPersistentIdentifierSearchService(final AccessInternalModule accessInternalModule) {
@@ -52,18 +53,20 @@ public class PurgedPersistentIdentifierSearchService {
         this(new AccessInternalModuleImpl());
     }
 
-    public Collection<PurgedPersistentIdentifier> search(final String persistentIdentifier, @Nullable
-    PurgedCollectionType type) {
+    public Collection<PurgedPersistentIdentifier> search(
+        final String persistentIdentifier,
+        @Nullable PurgedCollectionType type
+    ) {
         try {
             return JsonHandler.getFromJsonNode(
-                    accessInternalModule.selectPurgedPersistentIdentifier(persistentIdentifier, type),
-                    new TypeReference<Collection<PurgedPersistentIdentifier>>() {
-                    }).stream()
+                accessInternalModule.selectPurgedPersistentIdentifier(persistentIdentifier, type),
+                new TypeReference<Collection<PurgedPersistentIdentifier>>() {}
+            )
+                .stream()
                 .sorted(Comparator.comparing(PurgedPersistentIdentifier::getOperationLastPersistentDate))
                 .collect(Collectors.toList());
         } catch (InvalidParseOperationException e) {
-            throw new VitamRuntimeException("Something wrong with persistent identifier search parsing or mapping",
-                e);
+            throw new VitamRuntimeException("Something wrong with persistent identifier search parsing or mapping", e);
         } catch (AccessInternalException e) {
             throw new VitamRuntimeException("Something wrong during persistent identifier search", e);
         }

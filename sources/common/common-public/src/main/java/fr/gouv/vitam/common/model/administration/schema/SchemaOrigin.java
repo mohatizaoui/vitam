@@ -31,5 +31,5 @@ package fr.gouv.vitam.common.model.administration.schema;
  */
 public enum SchemaOrigin {
     INTERNAL,
-    EXTERNAL
+    EXTERNAL,
 }

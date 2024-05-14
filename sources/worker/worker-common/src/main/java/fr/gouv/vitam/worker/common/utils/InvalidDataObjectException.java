@@ -27,8 +27,8 @@
 package fr.gouv.vitam.worker.common.utils;
 
 public class InvalidDataObjectException extends Exception {
+
     public InvalidDataObjectException(final String message) {
         super(message);
     }
-
 }

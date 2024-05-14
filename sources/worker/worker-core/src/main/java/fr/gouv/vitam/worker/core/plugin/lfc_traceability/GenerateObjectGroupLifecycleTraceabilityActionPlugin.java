@@ -52,11 +52,11 @@ import java.io.InputStream;
  * FinalizeObjectGroupLifecycleTraceabilityActionPlugin Plugin
  */
 public class GenerateObjectGroupLifecycleTraceabilityActionPlugin extends GenerateLifecycleTraceabilityActionPlugin {
-    private static final VitamLogger LOGGER =
-        VitamLoggerFactory.getInstance(
-            GenerateObjectGroupLifecycleTraceabilityActionPlugin.class);
-    private static final TypeReference<JsonNode> TYPE_REFERENCE = new TypeReference<>() {
-    };
+
+    private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(
+        GenerateObjectGroupLifecycleTraceabilityActionPlugin.class
+    );
+    private static final TypeReference<JsonNode> TYPE_REFERENCE = new TypeReference<>() {};
 
     private static final String ACTION_HANDLER_ID = "GENERATE_OG_LFC_TRACEABILITY";
 
@@ -69,16 +69,17 @@ public class GenerateObjectGroupLifecycleTraceabilityActionPlugin extends Genera
      * Empty constructor
      */
     public GenerateObjectGroupLifecycleTraceabilityActionPlugin() {
-        this(LogbookOperationsClientFactory.getInstance(),
-            WorkspaceClientFactory.getInstance(WorkspaceType.VITAM));
+        this(LogbookOperationsClientFactory.getInstance(), WorkspaceClientFactory.getInstance(WorkspaceType.VITAM));
     }
 
     /**
      * Constructor for testing
      */
     @VisibleForTesting
-    GenerateObjectGroupLifecycleTraceabilityActionPlugin(LogbookOperationsClientFactory logbookOperationsClientFactory,
-        WorkspaceClientFactory workspaceClientFactory) {
+    GenerateObjectGroupLifecycleTraceabilityActionPlugin(
+        LogbookOperationsClientFactory logbookOperationsClientFactory,
+        WorkspaceClientFactory workspaceClientFactory
+    ) {
         this.logbookOperationsClientFactory = logbookOperationsClientFactory;
         this.workspaceClientFactory = workspaceClientFactory;
     }
@@ -89,20 +90,27 @@ public class GenerateObjectGroupLifecycleTraceabilityActionPlugin extends Genera
 
         File traceabilityDataFile = (File) handler.getInput(TRACEABILITY_DATA_IN_RANK);
 
-        try (final LogbookOperationsClient logbookOperationsClient = logbookOperationsClientFactory.getClient();
+        try (
+            final LogbookOperationsClient logbookOperationsClient = logbookOperationsClientFactory.getClient();
             InputStream is = new FileInputStream(traceabilityDataFile);
-            JsonLineGenericIterator<JsonNode> traceabilityDataIterator =
-                new JsonLineGenericIterator<>(is, TYPE_REFERENCE)) {
-
-            LogbookLifeCycleTraceabilityHelper helper =
-                new LogbookObjectGroupLifeCycleTraceabilityHelper(handler, logbookOperationsClient, itemStatus,
-                    params.getContainerName(), workspaceClientFactory, traceabilityDataIterator,
-                    TRACEABILITY_EVENT_FILE_NAME,
-                    TRACEABILITY_ZIP_FILE_NAME);
+            JsonLineGenericIterator<JsonNode> traceabilityDataIterator = new JsonLineGenericIterator<>(
+                is,
+                TYPE_REFERENCE
+            )
+        ) {
+            LogbookLifeCycleTraceabilityHelper helper = new LogbookObjectGroupLifeCycleTraceabilityHelper(
+                handler,
+                logbookOperationsClient,
+                itemStatus,
+                params.getContainerName(),
+                workspaceClientFactory,
+                traceabilityDataIterator,
+                TRACEABILITY_EVENT_FILE_NAME,
+                TRACEABILITY_ZIP_FILE_NAME
+            );
 
             generateLifecycleTraceabilityFile(helper);
             itemStatus.increment(StatusCode.OK);
-
         } catch (TraceabilityException | IOException e) {
             LOGGER.error("Exception while finalizing", e);
             itemStatus.increment(StatusCode.FATAL);

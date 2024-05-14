@@ -51,18 +51,31 @@ import static org.mockito.BDDMockito.given;
 public class AuditOperationFinderTest {
 
     private static final String AUDIT_ACTION = "SOME AUDIT ACTION";
-    @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
-    @Mock private LogbookOperationsClientFactory logbookOperationsClientFactory;
-    @Mock private ProcessingManagementClientFactory processingManagementClientFactory;
-    @Mock private LogbookOperationsClient logbookOperationsClient;
-    @Mock private ProcessingManagementClient processingManagementClient;
+
+    @Rule
+    public MockitoRule mockitoRule = MockitoJUnit.rule();
+
+    @Mock
+    private LogbookOperationsClientFactory logbookOperationsClientFactory;
+
+    @Mock
+    private ProcessingManagementClientFactory processingManagementClientFactory;
+
+    @Mock
+    private LogbookOperationsClient logbookOperationsClient;
+
+    @Mock
+    private ProcessingManagementClient processingManagementClient;
+
     private AuditOperationFinder auditOperationFinder;
 
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        this.auditOperationFinder =
-            new AuditOperationFinder(logbookOperationsClientFactory, processingManagementClientFactory);
+        this.auditOperationFinder = new AuditOperationFinder(
+            logbookOperationsClientFactory,
+            processingManagementClientFactory
+        );
         given(logbookOperationsClientFactory.getClient()).willReturn(logbookOperationsClient);
         given(processingManagementClientFactory.getClient()).willReturn(processingManagementClient);
     }
@@ -71,14 +84,15 @@ public class AuditOperationFinderTest {
     public void shouldThrowVitamRuntimeExceptionWhenClientThrowsAnException()
         throws LogbookClientException, InvalidParseOperationException {
         // GIVEN
-        Class<? extends VitamException>[] nokVitanExceptions =
-            new Class[] {InvalidParseOperationException.class, LogbookClientException.class};
+        Class<? extends VitamException>[] nokVitanExceptions = new Class[] {
+            InvalidParseOperationException.class,
+            LogbookClientException.class,
+        };
         given(logbookOperationsClient.selectOperation(any())).willThrow(randomVitamException(nokVitanExceptions));
 
         // WHEN
-        Assertions.assertThatThrownBy(() -> auditOperationFinder.findLastAuditData(AUDIT_ACTION))
-
-            // THEN
-            .isInstanceOf(VitamRuntimeException.class);
+        Assertions.assertThatThrownBy(() -> auditOperationFinder.findLastAuditData(AUDIT_ACTION)).isInstanceOf( // THEN
+            VitamRuntimeException.class
+        );
     }
 }

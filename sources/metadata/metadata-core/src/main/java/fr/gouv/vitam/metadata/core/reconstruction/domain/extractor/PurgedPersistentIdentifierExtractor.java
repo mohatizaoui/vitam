@@ -42,23 +42,21 @@ import static fr.gouv.vitam.common.json.JsonHandler.getFromJsonNode;
 
 public abstract class PurgedPersistentIdentifierExtractor {
 
-    private static final VitamLogger LOGGER =
-        VitamLoggerFactory.getInstance(PurgedPersistentIdentifierExtractor.class);
+    private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(PurgedPersistentIdentifierExtractor.class);
     public static final String OBJECT = "Object";
     public static final String UNIT = "Unit";
 
-    public abstract List<PurgedPersistentIdentifier> extractPurgedPersistentIdentifier(JsonNode node,
-        ReconstructionOperation operation)
-        throws MetaDataExecutionException;
+    public abstract List<PurgedPersistentIdentifier> extractPurgedPersistentIdentifier(
+        JsonNode node,
+        ReconstructionOperation operation
+    ) throws MetaDataExecutionException;
 
     protected List<PersistentIdentifierModel> extractPersistentIdentifiers(JsonNode element) {
         try {
-            return getFromJsonNode(element, new TypeReference<>() {
-            });
+            return getFromJsonNode(element, new TypeReference<>() {});
         } catch (InvalidParseOperationException e) {
             LOGGER.error("Invalid parse json element : " + element, e);
             return null;
         }
     }
-
 }

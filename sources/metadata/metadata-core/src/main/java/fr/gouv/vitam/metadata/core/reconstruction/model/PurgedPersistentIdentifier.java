@@ -73,8 +73,10 @@ public class PurgedPersistentIdentifier {
         Document document = new Document();
 
         document.append(VitamDocument.ID, purgedIdentifier.getId());
-        document.append("persistentIdentifier",
-            convertPersistentIdentifierModelListToDocuments(purgedIdentifier.getPersistentIdentifier()));
+        document.append(
+            "persistentIdentifier",
+            convertPersistentIdentifierModelListToDocuments(purgedIdentifier.getPersistentIdentifier())
+        );
         document.append(VitamDocument.TENANT_ID, purgedIdentifier.getTenant());
         document.append(VitamDocument.VERSION, 0);
         document.append("type", purgedIdentifier.getType());
@@ -88,14 +90,16 @@ public class PurgedPersistentIdentifier {
     }
 
     public static PurgedPersistentIdentifier fromDocument(Document document) throws InvalidParseOperationException {
-
         List<PersistentIdentifierModel> persistentIdentifierModels = new ArrayList<>();
 
-        final List<Document> persistentIdentifiersAsDocuments =
-            document.getList("persistentIdentifier", Document.class);
+        final List<Document> persistentIdentifiersAsDocuments = document.getList(
+            "persistentIdentifier",
+            Document.class
+        );
         for (Document persistentIdentifier : persistentIdentifiersAsDocuments) {
-            persistentIdentifierModels
-                .add(BsonHelper.fromDocumentToObject(persistentIdentifier, PersistentIdentifierModel.class));
+            persistentIdentifierModels.add(
+                BsonHelper.fromDocumentToObject(persistentIdentifier, PersistentIdentifierModel.class)
+            );
         }
 
         return PurgedPersistentIdentifier.builder()
@@ -113,8 +117,7 @@ public class PurgedPersistentIdentifier {
             .build();
     }
 
-    public static List<Document> convertListToDocumentList(
-        List<PurgedPersistentIdentifier> purgedIdentifierList) {
+    public static List<Document> convertListToDocumentList(List<PurgedPersistentIdentifier> purgedIdentifierList) {
         List<Document> documentList = new ArrayList<>();
         for (PurgedPersistentIdentifier purgedIdentifier : purgedIdentifierList) {
             Document document = toDocument(purgedIdentifier);
@@ -124,7 +127,8 @@ public class PurgedPersistentIdentifier {
     }
 
     private static BasicDBList convertPersistentIdentifierModelListToDocuments(
-        List<PersistentIdentifierModel> persistentIdentifierModels) {
+        List<PersistentIdentifierModel> persistentIdentifierModels
+    ) {
         BasicDBList bsonArray = new BasicDBList();
         for (PersistentIdentifierModel persistentIdentifierModel : persistentIdentifierModels) {
             bsonArray.add(Document.parse(JsonHandler.unprettyPrint(persistentIdentifierModel)));
@@ -172,7 +176,7 @@ public class PurgedPersistentIdentifier {
         return operationLastPersistentDate;
     }
 
-    public String getLastPersistentDate(){
+    public String getLastPersistentDate() {
         return lastPersistentDate;
     }
 
@@ -190,8 +194,7 @@ public class PurgedPersistentIdentifier {
         private String archivalAgencyIdentifier;
         public String lastPersistentDate;
 
-        public Builder() {
-        }
+        public Builder() {}
 
         public Builder setId(String id) {
             this.id = id;
@@ -251,7 +254,5 @@ public class PurgedPersistentIdentifier {
         public PurgedPersistentIdentifier build() {
             return new PurgedPersistentIdentifier(this);
         }
-
     }
-
 }

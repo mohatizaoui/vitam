@@ -30,24 +30,19 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.gouv.vitam.common.json.JsonHandler;
-import fr.gouv.vitam.metadata.core.reconstruction.domain.PurgedPersistentIdentifierBulkInserter;
-import fr.gouv.vitam.metadata.core.reconstruction.domain.extractor.UnitPurgedPersistentIdentifierExtractor;
 import fr.gouv.vitam.metadata.core.reconstruction.model.PurgedPersistentIdentifier;
 import fr.gouv.vitam.metadata.core.reconstruction.model.ReconstructionOperation;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doNothing;
 
 public class UnitPurgedPersistentIdentifierExtractorTest {
-
 
     public static final String PERSISTENT_IDENTIFIER =
         "[{\"PersistentIdentifierType\":\"ark\",\"PersistentIdentifierContent\":\"ark:/666567/001a957db5eadaac\"},{\"PersistentIdentifierType\":\"ark\",\"PersistentIdentifierContent\":\"ark:/26661/001d957db5eadaac\"}]";
@@ -59,13 +54,11 @@ public class UnitPurgedPersistentIdentifierExtractorTest {
 
     @Before
     public void setup() throws Exception {
-        unitPurgedPersistentIdentifierExtractor =
-            new UnitPurgedPersistentIdentifierExtractor();
+        unitPurgedPersistentIdentifierExtractor = new UnitPurgedPersistentIdentifierExtractor();
     }
 
     @Test
     public void testExtractAndSavePurgedPersistentIdentifier() throws Exception {
-
         // Given
         JsonNode element = createSampleJsonNode();
         ReconstructionOperation operation = createSampleOperation();
@@ -85,8 +78,8 @@ public class UnitPurgedPersistentIdentifierExtractorTest {
         ReconstructionOperation operation = createSampleOperation();
 
         // When
-        final PurgedPersistentIdentifier purgedPersistentIdentifier = unitPurgedPersistentIdentifierExtractor
-            .buildUnitPurgedPersistentIdentifier(element, operation);
+        final PurgedPersistentIdentifier purgedPersistentIdentifier =
+            unitPurgedPersistentIdentifierExtractor.buildUnitPurgedPersistentIdentifier(element, operation);
 
         // Then
         assertThat(purgedPersistentIdentifier.getId()).isEqualTo("aeaqaaaaaae6eg5mabudoamkdsdghiiaaaba");
@@ -107,7 +100,6 @@ public class UnitPurgedPersistentIdentifierExtractorTest {
     }
 
     private ReconstructionOperation createSampleOperation() {
-
         return ReconstructionOperation.builder()
             .setTenant(0)
             .setId("aeeaaaaaace6eg5mabvsaamkdsdfzeaaaaaq")

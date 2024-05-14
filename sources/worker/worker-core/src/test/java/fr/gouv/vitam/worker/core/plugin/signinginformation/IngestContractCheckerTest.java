@@ -41,139 +41,178 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 
-
 public class IngestContractCheckerTest {
-
 
     private JsonNode archiveUnit;
 
-    public IngestContractCheckerTest() {
-    }
+    public IngestContractCheckerTest() {}
 
     @Before
     public void initData() throws FileNotFoundException, InvalidParseOperationException {
-        this.archiveUnit = JsonHandler
-            .getFromFile(PropertiesUtils.getResourceFile("SigningInformation/archiveUnitForSigningInformation.json"));
+        this.archiveUnit = JsonHandler.getFromFile(
+            PropertiesUtils.getResourceFile("SigningInformation/archiveUnitForSigningInformation.json")
+        );
     }
 
     @Test
-    public void testMandatorySignedDocument()  {
+    public void testMandatorySignedDocument() {
         JsonNode archiveUnit = modifyArchiveUnit(false, false, false, false, true);
-        IngestContractModel ingestContractModel =
-            createSampleIngestContractModel(SignaturePolicy.SignedDocumentPolicyEnum.MANDATORY, true, false, false);
+        IngestContractModel ingestContractModel = createSampleIngestContractModel(
+            SignaturePolicy.SignedDocumentPolicyEnum.MANDATORY,
+            true,
+            false,
+            false
+        );
         IngestContractChecker ingestContractChecker = new IngestContractChecker(archiveUnit, ingestContractModel);
-        SigningInformationException exception =
-            assertThrows(SigningInformationException.class, ingestContractChecker::check);
+        SigningInformationException exception = assertThrows(
+            SigningInformationException.class,
+            ingestContractChecker::check
+        );
         assertEquals(SigningInformationEnum.MANDATORY_SIGNED_DOCUMENT.name(), exception.getErrorCode());
-
     }
 
     @Test
     public void testMandatorySignedDocumentWithoutSignedDocument() {
         JsonNode archiveUnit = modifyArchiveUnit(false, false, false, false, false);
-        IngestContractModel ingestContractModel =
-            createSampleIngestContractModel(SignaturePolicy.SignedDocumentPolicyEnum.MANDATORY, true, false, false);
+        IngestContractModel ingestContractModel = createSampleIngestContractModel(
+            SignaturePolicy.SignedDocumentPolicyEnum.MANDATORY,
+            true,
+            false,
+            false
+        );
         IngestContractChecker ingestContractChecker = new IngestContractChecker(archiveUnit, ingestContractModel);
-        SigningInformationException exception =
-            assertThrows(SigningInformationException.class, ingestContractChecker::check);
+        SigningInformationException exception = assertThrows(
+            SigningInformationException.class,
+            ingestContractChecker::check
+        );
         assertEquals(SigningInformationEnum.MANDATORY_SIGNED_DOCUMENT.name(), exception.getErrorCode());
-
     }
 
     @Test
     public void testForbiddenSignedDocument() {
         JsonNode archiveUnit = modifyArchiveUnit(true, false, false, false, true);
-        IngestContractModel ingestContractModel =
-            createSampleIngestContractModel(SignaturePolicy.SignedDocumentPolicyEnum.FORBIDDEN, false, false, false);
+        IngestContractModel ingestContractModel = createSampleIngestContractModel(
+            SignaturePolicy.SignedDocumentPolicyEnum.FORBIDDEN,
+            false,
+            false,
+            false
+        );
         IngestContractChecker ingestContractChecker = new IngestContractChecker(archiveUnit, ingestContractModel);
         assertThrows(SigningInformationException.class, ingestContractChecker::check);
-        SigningInformationException exception =
-            assertThrows(SigningInformationException.class, ingestContractChecker::check);
+        SigningInformationException exception = assertThrows(
+            SigningInformationException.class,
+            ingestContractChecker::check
+        );
         assertEquals(SigningInformationEnum.FORBIDDEN_SIGNED_DOCUMENT.name(), exception.getErrorCode());
-
     }
 
     @Test
-    public void testDeclaredFieldsMandatory()
-        throws SigningInformationException {
+    public void testDeclaredFieldsMandatory() throws SigningInformationException {
         JsonNode archiveUnit = modifyArchiveUnit(true, true, true, true, true);
-        IngestContractModel ingestContractModel =
-            createSampleIngestContractModel(SignaturePolicy.SignedDocumentPolicyEnum.MANDATORY, true, true, false);
+        IngestContractModel ingestContractModel = createSampleIngestContractModel(
+            SignaturePolicy.SignedDocumentPolicyEnum.MANDATORY,
+            true,
+            true,
+            false
+        );
         IngestContractChecker ingestContractChecker = new IngestContractChecker(archiveUnit, ingestContractModel);
         ingestContractChecker.check();
     }
 
     @Test
-    public void testDeclaredFieldsMandatoryWithoutSignedDocument()
-        throws SigningInformationException {
+    public void testDeclaredFieldsMandatoryWithoutSignedDocument() throws SigningInformationException {
         JsonNode archiveUnit = modifyArchiveUnit(true, false, true, true, false);
-        IngestContractModel ingestContractModel =
-            createSampleIngestContractModel(SignaturePolicy.SignedDocumentPolicyEnum.MANDATORY, true, true, false);
+        IngestContractModel ingestContractModel = createSampleIngestContractModel(
+            SignaturePolicy.SignedDocumentPolicyEnum.MANDATORY,
+            true,
+            true,
+            false
+        );
         IngestContractChecker ingestContractChecker = new IngestContractChecker(archiveUnit, ingestContractModel);
         ingestContractChecker.check();
     }
 
-
     @Test
-    public void testDeclaredFieldsForbidden(){
+    public void testDeclaredFieldsForbidden() {
         JsonNode archiveUnit = modifyArchiveUnit(true, true, false, false, true);
-        IngestContractModel ingestContractModel =
-            createSampleIngestContractModel(SignaturePolicy.SignedDocumentPolicyEnum.FORBIDDEN, true, false, false);
+        IngestContractModel ingestContractModel = createSampleIngestContractModel(
+            SignaturePolicy.SignedDocumentPolicyEnum.FORBIDDEN,
+            true,
+            false,
+            false
+        );
         IngestContractChecker ingestContractChecker = new IngestContractChecker(archiveUnit, ingestContractModel);
-        SigningInformationException exception =
-            assertThrows(SigningInformationException.class, ingestContractChecker::check);
+        SigningInformationException exception = assertThrows(
+            SigningInformationException.class,
+            ingestContractChecker::check
+        );
         assertEquals(SigningInformationEnum.FORBIDDEN_SIGNED_DOCUMENT.name(), exception.getErrorCode());
-
     }
 
     @Test
-    public void testMissingDeclaredSignature()  {
+    public void testMissingDeclaredSignature() {
         JsonNode archiveUnit = modifyArchiveUnit(true, false, true, true, true);
-        IngestContractModel ingestContractModel =
-            createSampleIngestContractModel(SignaturePolicy.SignedDocumentPolicyEnum.MANDATORY, true, true, false);
+        IngestContractModel ingestContractModel = createSampleIngestContractModel(
+            SignaturePolicy.SignedDocumentPolicyEnum.MANDATORY,
+            true,
+            true,
+            false
+        );
         IngestContractChecker ingestContractChecker = new IngestContractChecker(archiveUnit, ingestContractModel);
-        SigningInformationException exception =
-            assertThrows(SigningInformationException.class, ingestContractChecker::check);
+        SigningInformationException exception = assertThrows(
+            SigningInformationException.class,
+            ingestContractChecker::check
+        );
         assertEquals(SigningInformationEnum.MISSING_DECLARED_SIGNATURE.name(), exception.getErrorCode());
-
     }
 
     @Test
     public void testMissingDeclaredTimestamp() {
         JsonNode archiveUnit = modifyArchiveUnit(true, true, false, true, true);
-        IngestContractModel ingestContractModel =
-            createSampleIngestContractModel(SignaturePolicy.SignedDocumentPolicyEnum.MANDATORY, true, true, false);
+        IngestContractModel ingestContractModel = createSampleIngestContractModel(
+            SignaturePolicy.SignedDocumentPolicyEnum.MANDATORY,
+            true,
+            true,
+            false
+        );
         IngestContractChecker ingestContractChecker = new IngestContractChecker(archiveUnit, ingestContractModel);
-        SigningInformationException exception =
-            assertThrows(SigningInformationException.class, ingestContractChecker::check);
+        SigningInformationException exception = assertThrows(
+            SigningInformationException.class,
+            ingestContractChecker::check
+        );
         assertEquals(SigningInformationEnum.MISSING_DECLARED_TIMESTAMP.name(), exception.getErrorCode());
-
     }
 
     @Test
     public void testMissingDeclaredAdditionalProof() {
-
         JsonNode archiveUnit = modifyArchiveUnit(true, true, true, false, true);
-        IngestContractModel ingestContractModel =
-            createSampleIngestContractModel(SignaturePolicy.SignedDocumentPolicyEnum.MANDATORY, true, true, true);
+        IngestContractModel ingestContractModel = createSampleIngestContractModel(
+            SignaturePolicy.SignedDocumentPolicyEnum.MANDATORY,
+            true,
+            true,
+            true
+        );
         IngestContractChecker ingestContractChecker = new IngestContractChecker(archiveUnit, ingestContractModel);
-        SigningInformationException exception =
-            assertThrows(SigningInformationException.class, ingestContractChecker::check);
+        SigningInformationException exception = assertThrows(
+            SigningInformationException.class,
+            ingestContractChecker::check
+        );
         assertEquals(SigningInformationEnum.MISSING_DECLARED_ADDITIONAL_PROOF.name(), exception.getErrorCode());
-
     }
 
     // Add more test cases as needed
 
-
-    private JsonNode modifyArchiveUnit(boolean hasSigningInformation, boolean hasSignature, boolean hasTimestamp,
-        boolean hasAdditionalProof, boolean hasSignedDocument) {
-
+    private JsonNode modifyArchiveUnit(
+        boolean hasSigningInformation,
+        boolean hasSignature,
+        boolean hasTimestamp,
+        boolean hasAdditionalProof,
+        boolean hasSignedDocument
+    ) {
         JsonNode archiveUnit = this.archiveUnit.deepCopy();
         ObjectNode signingInformationNode = (ObjectNode) archiveUnit.path("ArchiveUnit").path("SigningInformation");
 
@@ -193,8 +232,6 @@ public class IngestContractCheckerTest {
             if (hasAdditionalProof) {
                 signingRole.add("AdditionalProof");
             }
-
-
         } else {
             // Remove the SigningInformation node
             //signingInformationNode.removeAll();
@@ -202,19 +239,18 @@ public class IngestContractCheckerTest {
             return archiveUnit;
         }
 
-
         return archiveUnit;
     }
 
-
-
     private IngestContractModel createSampleIngestContractModel(
         SignaturePolicy.SignedDocumentPolicyEnum signedDocumentPolicy,
-        boolean isDeclaredSignature, boolean isDeclaredTimestamp, boolean isDeclaredAdditionalProof) {
+        boolean isDeclaredSignature,
+        boolean isDeclaredTimestamp,
+        boolean isDeclaredAdditionalProof
+    ) {
         IngestContractModel ingestContractModel = new IngestContractModel();
         SignaturePolicy signaturePolicy = new SignaturePolicy();
-        signaturePolicy
-            .setSignedDocument(signedDocumentPolicy);
+        signaturePolicy.setSignedDocument(signedDocumentPolicy);
         signaturePolicy.setDeclaredSignature(isDeclaredSignature);
         signaturePolicy.setDeclaredTimestamp(isDeclaredTimestamp);
 
@@ -227,21 +263,26 @@ public class IngestContractCheckerTest {
     public void testDeclaredFieldsAllowedWithoutSigningInformation() throws SigningInformationException {
         JsonNode archiveUnit = modifyArchiveUnit(false, false, false, false, false);
         IngestContractModel ingestContractModel = createSampleIngestContractModel(
-            SignaturePolicy.SignedDocumentPolicyEnum.ALLOWED, true, false, false);
+            SignaturePolicy.SignedDocumentPolicyEnum.ALLOWED,
+            true,
+            false,
+            false
+        );
         IngestContractChecker ingestContractChecker = new IngestContractChecker(archiveUnit, ingestContractModel);
         ingestContractChecker.check();
-
     }
-
 
     @Test
     public void testDeclaredFieldsAllowedWithoutSignedDocument() throws SigningInformationException {
         JsonNode archiveUnit = modifyArchiveUnit(true, false, false, false, false);
         IngestContractModel ingestContractModel = createSampleIngestContractModel(
-            SignaturePolicy.SignedDocumentPolicyEnum.ALLOWED, true, false, false);
+            SignaturePolicy.SignedDocumentPolicyEnum.ALLOWED,
+            true,
+            false,
+            false
+        );
         IngestContractChecker ingestContractChecker = new IngestContractChecker(archiveUnit, ingestContractModel);
         ingestContractChecker.check();
-
     }
 
     @Test
@@ -255,10 +296,12 @@ public class IngestContractCheckerTest {
         signingRole.add("SignedDocument");
         signingRole.add("Signature");
         IngestContractModel ingestContractModel = createSampleIngestContractModel(
-            SignaturePolicy.SignedDocumentPolicyEnum.ALLOWED, true, false, false);
+            SignaturePolicy.SignedDocumentPolicyEnum.ALLOWED,
+            true,
+            false,
+            false
+        );
         IngestContractChecker ingestContractChecker = new IngestContractChecker(archiveUnit, ingestContractModel);
         ingestContractChecker.check();
-
     }
-
 }

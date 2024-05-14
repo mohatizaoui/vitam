@@ -73,11 +73,19 @@ public class TransactionModel {
     @JsonProperty("_v")
     private int version;
 
-    public TransactionModel() {
-    }
+    public TransactionModel() {}
 
-    public TransactionModel(String id, String name, ManifestContext manifestContext, TransactionStatus status,
-        String projectId, String creationDate, String lastUpdate, Integer tenant, Boolean automaticIngest) {
+    public TransactionModel(
+        String id,
+        String name,
+        ManifestContext manifestContext,
+        TransactionStatus status,
+        String projectId,
+        String creationDate,
+        String lastUpdate,
+        Integer tenant,
+        Boolean automaticIngest
+    ) {
         this.id = id;
         this.name = name;
         this.manifestContext = manifestContext;
@@ -177,16 +185,18 @@ public class TransactionModel {
         this.batches = batches;
     }
 
-    public int getVersion() { return version; }
+    public int getVersion() {
+        return version;
+    }
 
-    public void setVersion(Integer version) { this.version = version; }
+    public void setVersion(Integer version) {
+        this.version = version;
+    }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
         TransactionModel that = (TransactionModel) o;
         return Objects.equals(id, that.id);
     }
@@ -195,5 +205,4 @@ public class TransactionModel {
     public int hashCode() {
         return Objects.hash(id);
     }
-
 }

@@ -79,11 +79,12 @@ import static org.mockito.Mockito.verify;
 
 public class PurgeReportServiceTest {
 
-
     private static final String PROC_ID = "procId";
+
     @Rule
-    public RunWithCustomExecutorRule runInThread =
-        new RunWithCustomExecutorRule(VitamThreadPoolExecutor.getDefaultExecutor());
+    public RunWithCustomExecutorRule runInThread = new RunWithCustomExecutorRule(
+        VitamThreadPoolExecutor.getDefaultExecutor()
+    );
 
     @Rule
     public MockitoRule mockitoRule = MockitoJUnit.rule();
@@ -108,7 +109,6 @@ public class PurgeReportServiceTest {
 
     @Before
     public void setUp() throws Exception {
-
         VitamThreadUtils.getVitamSession().setTenantId(0);
         VitamThreadUtils.getVitamSession().setRequestId("opId");
 
@@ -119,7 +119,6 @@ public class PurgeReportServiceTest {
     @Test
     @RunWithCustomExecutor
     public void appendUnitEntries() throws Exception {
-
         List<PersistentIdentifierModel> persistentIdentifiers = new ArrayList<>();
         PersistentIdentifierModel persistentIdentifier1 = new PersistentIdentifierModel();
         PersistentIdentifierModel persistentIdentifier2 = new PersistentIdentifierModel();
@@ -132,18 +131,37 @@ public class PurgeReportServiceTest {
 
         // Given
         List<PurgeUnitReportEntry> entries = Arrays.asList(
-            new PurgeUnitReportEntry("unit1", "sp1", "opi1", "got1", PurgeUnitStatus.DELETED.name(), "identifier4", null, null,
-                "INGEST"),
-            new PurgeUnitReportEntry("unit2", "sp2", "opi2", "got2",
-                PurgeUnitStatus.NON_DESTROYABLE_HAS_CHILD_UNITS.name(), "identifier4", null, persistentIdentifiers, "INGEST")
+            new PurgeUnitReportEntry(
+                "unit1",
+                "sp1",
+                "opi1",
+                "got1",
+                PurgeUnitStatus.DELETED.name(),
+                "identifier4",
+                null,
+                null,
+                "INGEST"
+            ),
+            new PurgeUnitReportEntry(
+                "unit2",
+                "sp2",
+                "opi2",
+                "got2",
+                PurgeUnitStatus.NON_DESTROYABLE_HAS_CHILD_UNITS.name(),
+                "identifier4",
+                null,
+                persistentIdentifiers,
+                "INGEST"
+            )
         );
 
         // When
         instance.appendUnitEntries(PROC_ID, entries);
 
         // Then
-        ArgumentCaptor<ReportBody<PurgeUnitReportEntry>> reportBodyArgumentCaptor =
-            ArgumentCaptor.forClass(ReportBody.class);
+        ArgumentCaptor<ReportBody<PurgeUnitReportEntry>> reportBodyArgumentCaptor = ArgumentCaptor.forClass(
+            ReportBody.class
+        );
         verify(batchReportClient).appendReportEntries(reportBodyArgumentCaptor.capture());
 
         ReportBody<PurgeUnitReportEntry> reportBody = reportBodyArgumentCaptor.getValue();
@@ -162,7 +180,6 @@ public class PurgeReportServiceTest {
     @Test
     @RunWithCustomExecutor
     public void appendEntries() throws Exception {
-
         // Given
         List<PersistentIdentifierModel> persistentIdentifier = new ArrayList<>();
         final PersistentIdentifierModel persistentIdentifierModel = new PersistentIdentifierModel();
@@ -172,23 +189,52 @@ public class PurgeReportServiceTest {
         persistentIdentifierModel.setPersistentIdentifierReference("Agency-00221");
         persistentIdentifier.add(persistentIdentifierModel);
         List<PurgeObjectGroupReportEntry> entries = Arrays.asList(
-            new PurgeObjectGroupReportEntry("got1", "sp1", "opi1",
-                null, new HashSet<>(Arrays.asList("o1", "o2")), PurgeObjectGroupStatus.DELETED.name(), "identifier4",
+            new PurgeObjectGroupReportEntry(
+                "got1",
+                "sp1",
+                "opi1",
+                null,
+                new HashSet<>(Arrays.asList("o1", "o2")),
+                PurgeObjectGroupStatus.DELETED.name(),
+                "identifier4",
                 Arrays.asList(
-                    new PurgeObjectGroupObjectVersion("1234", "opi_o_1", 10L, "BinaryMaster_1", "BinaryMaster", persistentIdentifier),
-                    new PurgeObjectGroupObjectVersion("4321", "opi_o_2", 100L, "BinaryMaster_1", "BinaryMaster", persistentIdentifier))),
-            new PurgeObjectGroupReportEntry("got2", "sp2", "opi2",
-                new HashSet<>(Collections.singletonList("unit3")), null,
-                PurgeObjectGroupStatus.PARTIAL_DETACHMENT.name(), "identifier4",
-                null)
+                    new PurgeObjectGroupObjectVersion(
+                        "1234",
+                        "opi_o_1",
+                        10L,
+                        "BinaryMaster_1",
+                        "BinaryMaster",
+                        persistentIdentifier
+                    ),
+                    new PurgeObjectGroupObjectVersion(
+                        "4321",
+                        "opi_o_2",
+                        100L,
+                        "BinaryMaster_1",
+                        "BinaryMaster",
+                        persistentIdentifier
+                    )
+                )
+            ),
+            new PurgeObjectGroupReportEntry(
+                "got2",
+                "sp2",
+                "opi2",
+                new HashSet<>(Collections.singletonList("unit3")),
+                null,
+                PurgeObjectGroupStatus.PARTIAL_DETACHMENT.name(),
+                "identifier4",
+                null
+            )
         );
 
         // When
         instance.appendObjectGroupEntries(PROC_ID, entries);
 
         // Then
-        ArgumentCaptor<ReportBody<PurgeObjectGroupReportEntry>> reportBodyArgumentCaptor =
-            ArgumentCaptor.forClass(ReportBody.class);
+        ArgumentCaptor<ReportBody<PurgeObjectGroupReportEntry>> reportBodyArgumentCaptor = ArgumentCaptor.forClass(
+            ReportBody.class
+        );
         verify(batchReportClient).appendReportEntries(reportBodyArgumentCaptor.capture());
 
         ReportBody<PurgeObjectGroupReportEntry> reportBody = reportBodyArgumentCaptor.getValue();
@@ -218,31 +264,31 @@ public class PurgeReportServiceTest {
     @Test
     @RunWithCustomExecutor
     public void exportDistinctObjectGroupsThenGenerateReportOnWorkspace() throws Exception {
-
         // Given
         HandlerIO handlerIO = mock(HandlerIO.class);
         File unitObjectGroupsFile = tempFolder.newFile();
         doReturn(unitObjectGroupsFile).when(handlerIO).getNewLocalFile("unitObjectGroups.jsonl");
         doReturn(false).when(workspaceClient).isExistingObject(anyString(), eq(DISTINCT_REPORT_JSONL));
 
-        File reportFile =
-            PropertiesUtils
-                .getResourceFile("EliminationAction/EliminationActionUnitReportService/unitObjectGroups.jsonl");
+        File reportFile = PropertiesUtils.getResourceFile(
+            "EliminationAction/EliminationActionUnitReportService/unitObjectGroups.jsonl"
+        );
         Response response = mock(Response.class);
         doReturn(new FileInputStream(reportFile)).when(response).readEntity(InputStream.class);
         doReturn(response).when(workspaceClient).getObject(PROC_ID, DISTINCT_REPORT_JSONL);
 
         // When
-        CloseableIterator<String> entries =
-            instance.exportDistinctObjectGroups(handlerIO, PROC_ID);
+        CloseableIterator<String> entries = instance.exportDistinctObjectGroups(handlerIO, PROC_ID);
 
         // Then
-        ArgumentCaptor<ReportExportRequest> reportExportRequestArgumentCaptor =
-            ArgumentCaptor.forClass(ReportExportRequest.class);
-        verify(batchReportClient).generatePurgeDistinctObjectGroupInUnitReport(eq(PROC_ID),
-            reportExportRequestArgumentCaptor.capture());
-        assertThat(reportExportRequestArgumentCaptor.getValue().getFilename())
-            .isEqualTo(DISTINCT_REPORT_JSONL);
+        ArgumentCaptor<ReportExportRequest> reportExportRequestArgumentCaptor = ArgumentCaptor.forClass(
+            ReportExportRequest.class
+        );
+        verify(batchReportClient).generatePurgeDistinctObjectGroupInUnitReport(
+            eq(PROC_ID),
+            reportExportRequestArgumentCaptor.capture()
+        );
+        assertThat(reportExportRequestArgumentCaptor.getValue().getFilename()).isEqualTo(DISTINCT_REPORT_JSONL);
 
         assertThat(IteratorUtils.toList(entries)).containsExactly("got1", "got2");
         verify(handlerIO).getNewLocalFile("unitObjectGroups.jsonl");
@@ -252,23 +298,21 @@ public class PurgeReportServiceTest {
     @Test
     @RunWithCustomExecutor
     public void exportDistinctObjectGroupsWithExistingReportOnWorkspaceThenDoNotRegenerateReport() throws Exception {
-
         // Given
         HandlerIO handlerIO = mock(HandlerIO.class);
         File unitObjectGroupsFile = tempFolder.newFile();
         doReturn(unitObjectGroupsFile).when(handlerIO).getNewLocalFile("unitObjectGroups.jsonl");
         doReturn(true).when(workspaceClient).isExistingObject(anyString(), eq(DISTINCT_REPORT_JSONL));
 
-        File reportFile =
-            PropertiesUtils
-                .getResourceFile("EliminationAction/EliminationActionUnitReportService/unitObjectGroups.jsonl");
+        File reportFile = PropertiesUtils.getResourceFile(
+            "EliminationAction/EliminationActionUnitReportService/unitObjectGroups.jsonl"
+        );
         Response response = mock(Response.class);
         doReturn(new FileInputStream(reportFile)).when(response).readEntity(InputStream.class);
         doReturn(response).when(workspaceClient).getObject(PROC_ID, DISTINCT_REPORT_JSONL);
 
         // When
-        CloseableIterator<String> entries =
-            instance.exportDistinctObjectGroups(handlerIO, PROC_ID);
+        CloseableIterator<String> entries = instance.exportDistinctObjectGroups(handlerIO, PROC_ID);
 
         // Then
         verify(batchReportClient, never()).generatePurgeDistinctObjectGroupInUnitReport(anyString(), any());
@@ -281,10 +325,10 @@ public class PurgeReportServiceTest {
     @Test
     @RunWithCustomExecutor
     public void exportAccessionRegisters() throws Exception {
-
         // Given
         InputStream is = PropertiesUtils.getResourceAsStream(
-            "EliminationAction/EliminationActionObjectGroupReportService/objectGroupReport.jsonl");
+            "EliminationAction/EliminationActionObjectGroupReportService/objectGroupReport.jsonl"
+        );
         Response response = mock(Response.class);
         doReturn(is).when(response).readEntity(InputStream.class);
         doReturn(response).when(workspaceClient).getObject(PROC_ID, OBJECT_GROUP_REPORT_JSONL);
@@ -294,21 +338,25 @@ public class PurgeReportServiceTest {
         instance.exportAccessionRegisters(PROC_ID);
 
         // Then
-        ArgumentCaptor<ReportExportRequest> reportExportRequestArgumentCaptor =
-            ArgumentCaptor.forClass(ReportExportRequest.class);
-        verify(batchReportClient)
-            .generatePurgeAccessionRegisterReport(eq(PROC_ID), reportExportRequestArgumentCaptor.capture());
-        assertThat(reportExportRequestArgumentCaptor.getValue().getFilename())
-            .isEqualTo(ACCESSION_REGISTER_REPORT_JSONL);
+        ArgumentCaptor<ReportExportRequest> reportExportRequestArgumentCaptor = ArgumentCaptor.forClass(
+            ReportExportRequest.class
+        );
+        verify(batchReportClient).generatePurgeAccessionRegisterReport(
+            eq(PROC_ID),
+            reportExportRequestArgumentCaptor.capture()
+        );
+        assertThat(reportExportRequestArgumentCaptor.getValue().getFilename()).isEqualTo(
+            ACCESSION_REGISTER_REPORT_JSONL
+        );
     }
 
     @Test
     @RunWithCustomExecutor
     public void exportAccessionRegistersWithExistingReportOnWorkspaceThenDoNotRegenerateReport() throws Exception {
-
         // Given
         InputStream is = PropertiesUtils.getResourceAsStream(
-            "EliminationAction/EliminationActionObjectGroupReportService/objectGroupReport.jsonl");
+            "EliminationAction/EliminationActionObjectGroupReportService/objectGroupReport.jsonl"
+        );
         Response response = mock(Response.class);
         doReturn(is).when(response).readEntity(InputStream.class);
         doReturn(response).when(workspaceClient).getObject(PROC_ID, OBJECT_GROUP_REPORT_JSONL);
@@ -318,14 +366,12 @@ public class PurgeReportServiceTest {
         instance.exportAccessionRegisters(PROC_ID);
 
         // Then
-        verify(batchReportClient, never())
-            .generatePurgeAccessionRegisterReport(anyString(), any());
+        verify(batchReportClient, never()).generatePurgeAccessionRegisterReport(anyString(), any());
     }
 
     @Test
     @RunWithCustomExecutor
     public void cleanupReport() throws Exception {
-
         // Given / When
         instance.cleanupReport(PROC_ID);
 

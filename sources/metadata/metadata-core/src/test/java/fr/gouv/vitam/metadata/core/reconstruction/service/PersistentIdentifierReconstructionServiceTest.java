@@ -63,10 +63,13 @@ import static org.mockito.Mockito.when;
 public class PersistentIdentifierReconstructionServiceTest {
 
     @ClassRule
-    public static RunWithCustomExecutorRule runInThread =
-        new RunWithCustomExecutorRule(VitamThreadPoolExecutor.getDefaultExecutor());
+    public static RunWithCustomExecutorRule runInThread = new RunWithCustomExecutorRule(
+        VitamThreadPoolExecutor.getDefaultExecutor()
+    );
+
     @Rule
     public MockitoRule mockitoRule = MockitoJUnit.rule();
+
     @Mock
     private OffsetManager offsetManager;
 
@@ -81,9 +84,11 @@ public class PersistentIdentifierReconstructionServiceTest {
     @Before
     public void setup() {
         when(metaDataConfiguration.getPersistentIdentifierReconstructionThreadPoolSize()).thenReturn(10);
-        persistentIdentifierReconstructionService =
-            new PersistentIdentifierReconstructionService(offsetManager, persistentIdentifierReconstructionManager,
-                metaDataConfiguration);
+        persistentIdentifierReconstructionService = new PersistentIdentifierReconstructionService(
+            offsetManager,
+            persistentIdentifierReconstructionManager,
+            metaDataConfiguration
+        );
     }
 
     @Test
@@ -98,28 +103,28 @@ public class PersistentIdentifierReconstructionServiceTest {
         PersistentIdentifierReconstructionRequest persistentIdentifierReconstructionRequest =
             new PersistentIdentifierReconstructionRequest();
         persistentIdentifierReconstructionRequest.setTenants(tenantList);
-        when(offsetManager.retrieveLastReconstructionDateFromOffset(any(Integer.class)))
-            .thenReturn(startDate);
-        when(offsetManager.retrieveEndDateWithDelay(anyLong()))
-            .thenReturn(endDate.minusDays(1));
-        when(persistentIdentifierReconstructionManager.reconstruct(startDate, endDate.minusDays(1)))
-            .thenReturn(
-                new ReconstructionResponse.Builder().status(SUCCESS).lastSuccessfulOperationDate(endDate.minusDays(1))
-                    .build());
+        when(offsetManager.retrieveLastReconstructionDateFromOffset(any(Integer.class))).thenReturn(startDate);
+        when(offsetManager.retrieveEndDateWithDelay(anyLong())).thenReturn(endDate.minusDays(1));
+        when(persistentIdentifierReconstructionManager.reconstruct(startDate, endDate.minusDays(1))).thenReturn(
+            new ReconstructionResponse.Builder()
+                .status(SUCCESS)
+                .lastSuccessfulOperationDate(endDate.minusDays(1))
+                .build()
+        );
         //When
         persistentIdentifierReconstructionService.reconstruct(persistentIdentifierReconstructionRequest);
 
         //Then
-        verify(persistentIdentifierReconstructionManager, times(3))
-            .reconstruct(startDate, endDate.minusDays(1)); // 3 tenants
-        verify(offsetManager, times(3)).saveNextReconstructionDateInOffset(any(Integer.class),
-            any(LocalDateTime.class)); // 3 tenants
+        verify(persistentIdentifierReconstructionManager, times(3)).reconstruct(startDate, endDate.minusDays(1)); // 3 tenants
+        verify(offsetManager, times(3)).saveNextReconstructionDateInOffset(
+            any(Integer.class),
+            any(LocalDateTime.class)
+        ); // 3 tenants
     }
 
     @Test
     @RunWithCustomExecutor
     public void reconstruct_Failure() {
-
         VitamThreadUtils.getVitamSession().setTenantId(0);
 
         List<Integer> tenantList = Arrays.asList(1, 2, 3);
@@ -127,11 +132,13 @@ public class PersistentIdentifierReconstructionServiceTest {
             new PersistentIdentifierReconstructionRequest();
         persistentIdentifierReconstructionRequest.setTenants(tenantList);
 
-        when(offsetManager.retrieveLastReconstructionDateFromOffset(anyInt()))
-            .thenThrow(new RuntimeException("Simulated exception"));
+        when(offsetManager.retrieveLastReconstructionDateFromOffset(anyInt())).thenThrow(
+            new RuntimeException("Simulated exception")
+        );
 
-        ReconstructionResponse response =
-            persistentIdentifierReconstructionService.reconstruct(persistentIdentifierReconstructionRequest);
+        ReconstructionResponse response = persistentIdentifierReconstructionService.reconstruct(
+            persistentIdentifierReconstructionRequest
+        );
 
         assertThat(FAILURE).isEqualTo(response.status);
     }
@@ -143,10 +150,13 @@ public class PersistentIdentifierReconstructionServiceTest {
             new PersistentIdentifierReconstructionRequest();
         persistentIdentifierReconstructionRequest.setTenants(tenants);
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-            () -> persistentIdentifierReconstructionService.reconstruct(persistentIdentifierReconstructionRequest));
+        IllegalArgumentException exception = assertThrows(
+            IllegalArgumentException.class,
+            () -> persistentIdentifierReconstructionService.reconstruct(persistentIdentifierReconstructionRequest)
+        );
 
-        assertThat("List of tenants cannot be null and must contain at least one element")
-            .isEqualTo(exception.getMessage());
+        assertThat("List of tenants cannot be null and must contain at least one element").isEqualTo(
+            exception.getMessage()
+        );
     }
 }

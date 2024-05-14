@@ -108,6 +108,7 @@ import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 import static javax.ws.rs.core.Response.Status.fromStatusCode;
 
 public class AdminExternalClientRest extends DefaultClient implements AdminExternalClient {
+
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(AdminExternalClientRest.class);
 
     private static final String ACCESS_EXTERNAL_MODULE = "AccessExternalModule";
@@ -128,92 +129,118 @@ public class AdminExternalClientRest extends DefaultClient implements AdminExter
     }
 
     @Override
-    public RequestResponse<FileFormatModel> findFormats(VitamContext vitamContext,
-        JsonNode select)
+    public RequestResponse<FileFormatModel> findFormats(VitamContext vitamContext, JsonNode select)
         throws VitamClientException {
         return internalFindDocuments(vitamContext, AdminCollections.FORMATS, select, FileFormatModel.class);
     }
 
     @Override
-    public RequestResponse<FileRulesModel> findRules(VitamContext vitamContext,
-        JsonNode select)
+    public RequestResponse<FileRulesModel> findRules(VitamContext vitamContext, JsonNode select)
         throws VitamClientException {
         return internalFindDocuments(vitamContext, AdminCollections.RULES, select, FileRulesModel.class);
     }
 
     @Override
-    public RequestResponse<IngestContractModel> findIngestContracts(
-        VitamContext vitamContext, JsonNode select)
+    public RequestResponse<IngestContractModel> findIngestContracts(VitamContext vitamContext, JsonNode select)
         throws VitamClientException {
-        return internalFindDocuments(vitamContext, AdminCollections.INGEST_CONTRACTS, select,
-            IngestContractModel.class);
+        return internalFindDocuments(
+            vitamContext,
+            AdminCollections.INGEST_CONTRACTS,
+            select,
+            IngestContractModel.class
+        );
     }
 
     @Override
-    public RequestResponse<AccessContractModel> findAccessContracts(
-        VitamContext vitamContext, JsonNode select)
+    public RequestResponse<AccessContractModel> findAccessContracts(VitamContext vitamContext, JsonNode select)
         throws VitamClientException {
-        return internalFindDocuments(vitamContext, AdminCollections.ACCESS_CONTRACTS, select,
-            AccessContractModel.class);
+        return internalFindDocuments(
+            vitamContext,
+            AdminCollections.ACCESS_CONTRACTS,
+            select,
+            AccessContractModel.class
+        );
     }
 
     @Override
-    public RequestResponse<ManagementContractModel> findManagementContracts(
-        VitamContext vitamContext, JsonNode select)
+    public RequestResponse<ManagementContractModel> findManagementContracts(VitamContext vitamContext, JsonNode select)
         throws VitamClientException {
-        return internalFindDocuments(vitamContext, AdminCollections.MANAGEMENT_CONTRACTS, select,
-            ManagementContractModel.class);
+        return internalFindDocuments(
+            vitamContext,
+            AdminCollections.MANAGEMENT_CONTRACTS,
+            select,
+            ManagementContractModel.class
+        );
     }
 
     @Override
-    public RequestResponse<ContextModel> findContexts(VitamContext vitamContext,
-        JsonNode select)
+    public RequestResponse<ContextModel> findContexts(VitamContext vitamContext, JsonNode select)
         throws VitamClientException {
         return internalFindDocuments(vitamContext, AdminCollections.CONTEXTS, select, ContextModel.class);
     }
 
     @Override
-    public RequestResponse<ProfileModel> findProfiles(VitamContext vitamContext,
-        JsonNode select)
+    public RequestResponse<ProfileModel> findProfiles(VitamContext vitamContext, JsonNode select)
         throws VitamClientException {
         return internalFindDocuments(vitamContext, AdminCollections.PROFILE, select, ProfileModel.class);
     }
 
     @Override
     public RequestResponse<AccessionRegisterSummaryModel> findAccessionRegister(
-        VitamContext vitamContext, JsonNode select)
-        throws VitamClientException {
-        return internalFindDocuments(vitamContext, AdminCollections.ACCESSION_REGISTERS, select,
-            AccessionRegisterSummaryModel.class);
+        VitamContext vitamContext,
+        JsonNode select
+    ) throws VitamClientException {
+        return internalFindDocuments(
+            vitamContext,
+            AdminCollections.ACCESSION_REGISTERS,
+            select,
+            AccessionRegisterSummaryModel.class
+        );
     }
 
     @Override
     public RequestResponse<AccessionRegisterDetailModel> findAccessionRegisterDetails(
-        VitamContext vitamContext, JsonNode select)
-        throws VitamClientException {
-        return internalFindDocuments(vitamContext, AdminCollections.ACCESSION_REGISTER_DETAILS, select,
-            AccessionRegisterDetailModel.class);
+        VitamContext vitamContext,
+        JsonNode select
+    ) throws VitamClientException {
+        return internalFindDocuments(
+            vitamContext,
+            AdminCollections.ACCESSION_REGISTER_DETAILS,
+            select,
+            AccessionRegisterDetailModel.class
+        );
     }
 
     @Override
     public RequestResponse<AccessionRegisterSymbolicModel> findAccessionRegisterSymbolic(
-        VitamContext vitamContext, JsonNode select)
-        throws VitamClientException {
-        return internalFindDocuments(vitamContext, ACCESSION_REGISTERS_SYMBOLIC, select,
-            AccessionRegisterSymbolicModel.class);
+        VitamContext vitamContext,
+        JsonNode select
+    ) throws VitamClientException {
+        return internalFindDocuments(
+            vitamContext,
+            ACCESSION_REGISTERS_SYMBOLIC,
+            select,
+            AccessionRegisterSymbolicModel.class
+        );
     }
 
     @Override
-    public RequestResponse<SecurityProfileModel> findSecurityProfiles(
-        VitamContext vitamContext, JsonNode select)
+    public RequestResponse<SecurityProfileModel> findSecurityProfiles(VitamContext vitamContext, JsonNode select)
         throws VitamClientException {
-        return internalFindDocuments(vitamContext, AdminCollections.SECURITY_PROFILES, select,
-            SecurityProfileModel.class);
+        return internalFindDocuments(
+            vitamContext,
+            AdminCollections.SECURITY_PROFILES,
+            select,
+            SecurityProfileModel.class
+        );
     }
 
-    private <T> RequestResponse<T> internalFindDocuments(VitamContext vitamContext, AdminCollections documentType,
-        JsonNode select, Class<T> clazz)
-        throws VitamClientException {
+    private <T> RequestResponse<T> internalFindDocuments(
+        VitamContext vitamContext,
+        AdminCollections documentType,
+        JsonNode select,
+        Class<T> clazz
+    ) throws VitamClientException {
         VitamRequestBuilder request = get()
             .withPath(documentType.getName())
             .withHeaders(vitamContext.getHeaders())
@@ -229,10 +256,8 @@ public class AdminExternalClientRest extends DefaultClient implements AdminExter
     }
 
     @Override
-    public RequestResponse getAccessionRegisterDetail(VitamContext vitamContext, String id,
-        JsonNode query)
-        throws InvalidParseOperationException, AccessExternalClientServerException,
-        AccessExternalClientNotFoundException {
+    public RequestResponse getAccessionRegisterDetail(VitamContext vitamContext, String id, JsonNode query)
+        throws InvalidParseOperationException, AccessExternalClientServerException, AccessExternalClientNotFoundException {
         VitamRequestBuilder request = post()
             .withPath(ACCESSION_REGISTERS_API + "/" + id + "/" + ACCESSION_REGISTERS_DETAIL)
             .withHeaders(vitamContext.getHeaders())
@@ -246,16 +271,15 @@ public class AdminExternalClientRest extends DefaultClient implements AdminExter
             throw new AccessExternalClientServerException(e);
         } catch (AdminExternalClientException e) {
             LOGGER.error(e);
-            return e.getVitamError()
+            return e
+                .getVitamError()
                 .setMessage(ACCESS_EXTERNAL_GET_ACCESSION_REGISTER_DETAIL_ERROR.getMessage())
                 .setDescription(ACCESS_EXTERNAL_GET_ACCESSION_REGISTER_DETAIL_ERROR.getMessage());
-
         }
     }
 
     @Override
-    public RequestResponse updateAccessContract(VitamContext vitamContext, String id,
-        JsonNode queryDsl)
+    public RequestResponse updateAccessContract(VitamContext vitamContext, String id, JsonNode queryDsl)
         throws AccessExternalClientException {
         VitamRequestBuilder request = put()
             .withPath(UPDATE_ACCESS_CONTRACT + id)
@@ -274,8 +298,7 @@ public class AdminExternalClientRest extends DefaultClient implements AdminExter
     }
 
     @Override
-    public RequestResponse updateIngestContract(VitamContext vitamContext, String id,
-        JsonNode queryDsl)
+    public RequestResponse updateIngestContract(VitamContext vitamContext, String id, JsonNode queryDsl)
         throws InvalidParseOperationException, AccessExternalClientException {
         VitamRequestBuilder request = put()
             .withPath(UPDATE_INGEST_CONTRACT + id)
@@ -294,8 +317,7 @@ public class AdminExternalClientRest extends DefaultClient implements AdminExter
     }
 
     @Override
-    public RequestResponse updateManagementContract(VitamContext vitamContext, String id,
-        JsonNode queryDsl)
+    public RequestResponse updateManagementContract(VitamContext vitamContext, String id, JsonNode queryDsl)
         throws AccessExternalClientException {
         VitamRequestBuilder request = put()
             .withPath(UPDATE_MANAGEMENT_CONTRACT + id)
@@ -335,8 +357,7 @@ public class AdminExternalClientRest extends DefaultClient implements AdminExter
     }
 
     @Override
-    public RequestResponse createProfileFile(VitamContext vitamContext,
-        String profileMetadataId, InputStream profile)
+    public RequestResponse createProfileFile(VitamContext vitamContext, String profileMetadataId, InputStream profile)
         throws InvalidParseOperationException, AccessExternalClientException {
         ParametersChecker.checkParameter(profileMetadataId, "The profile id is mandatory");
         VitamRequestBuilder request = put()
@@ -358,8 +379,7 @@ public class AdminExternalClientRest extends DefaultClient implements AdminExter
 
     @Override
     public Response downloadProfileFile(VitamContext vitamContext, String profileMetadataId)
-        throws AccessExternalClientException,
-        AccessExternalNotFoundException {
+        throws AccessExternalClientException, AccessExternalNotFoundException {
         ParametersChecker.checkParameter("Profile is is required", profileMetadataId);
         VitamRequestBuilder request = get()
             .withPath(AdminCollections.PROFILE.getName() + "/" + profileMetadataId)
@@ -403,8 +423,7 @@ public class AdminExternalClientRest extends DefaultClient implements AdminExter
     }
 
     @Override
-    public RequestResponse updateContext(VitamContext vitamContext, String id,
-        JsonNode queryDsl)
+    public RequestResponse updateContext(VitamContext vitamContext, String id, JsonNode queryDsl)
         throws AccessExternalClientException {
         VitamRequestBuilder request = put()
             .withPath(UPDATE_CONTEXT + id)
@@ -443,8 +462,7 @@ public class AdminExternalClientRest extends DefaultClient implements AdminExter
 
     @Override
     @Deprecated
-    public RequestResponse checkTraceabilityOperation(VitamContext vitamContext,
-        JsonNode query)
+    public RequestResponse checkTraceabilityOperation(VitamContext vitamContext, JsonNode query)
         throws AccessExternalClientServerException {
         VitamRequestBuilder request = post()
             .withPath(TRACEABILITY.getCheckURI())
@@ -458,14 +476,13 @@ public class AdminExternalClientRest extends DefaultClient implements AdminExter
             throw new AccessExternalClientServerException(e);
         } catch (AdminExternalClientException e) {
             LOGGER.error(e);
-            return e.getVitamError()
-                .setMessage(ACCESS_EXTERNAL_CHECK_TRACEABILITY_OPERATION_ERROR.getMessage());
+            return e.getVitamError().setMessage(ACCESS_EXTERNAL_CHECK_TRACEABILITY_OPERATION_ERROR.getMessage());
         }
     }
 
     @Override
-    public RequestResponse<JsonNode> checkTraceabilityOperations(VitamContext vitamContext,
-        JsonNode query) throws AccessExternalClientServerException {
+    public RequestResponse<JsonNode> checkTraceabilityOperations(VitamContext vitamContext, JsonNode query)
+        throws AccessExternalClientServerException {
         VitamRequestBuilder request = post()
             .withPath(TRACEABILITY_API + "/linkedchecks")
             .withHeaders(vitamContext.getHeaders())
@@ -478,14 +495,14 @@ public class AdminExternalClientRest extends DefaultClient implements AdminExter
             throw new AccessExternalClientServerException(e);
         } catch (AdminExternalClientException e) {
             LOGGER.error(e);
-            return e.<JsonNode>getVitamError()
+            return e
+                .<JsonNode>getVitamError()
                 .setMessage(ACCESS_EXTERNAL_CHECK_TRACEABILITY_OPERATION_ERROR.getMessage());
         }
     }
 
     @Override
-    public Response downloadTraceabilityOperationFile(VitamContext vitamContext,
-        String operationId)
+    public Response downloadTraceabilityOperationFile(VitamContext vitamContext, String operationId)
         throws AccessExternalClientServerException, AccessUnauthorizedException {
         Response response = null;
         try {
@@ -529,10 +546,12 @@ public class AdminExternalClientRest extends DefaultClient implements AdminExter
         }
     }
 
-    private <T> RequestResponse<T> internalFindDocumentById(VitamContext vitamContext, AdminCollections documentType,
+    private <T> RequestResponse<T> internalFindDocumentById(
+        VitamContext vitamContext,
+        AdminCollections documentType,
         String documentId,
-        Class<T> clazz)
-        throws VitamClientException {
+        Class<T> clazz
+    ) throws VitamClientException {
         VitamRequestBuilder request = get()
             .withPath(documentType.getName() + "/" + documentId)
             .withHeaders(vitamContext.getHeaders())
@@ -549,87 +568,98 @@ public class AdminExternalClientRest extends DefaultClient implements AdminExter
     }
 
     @Override
-    public RequestResponse<FileFormatModel> findFormatById(VitamContext vitamContext,
-        String formatId)
+    public RequestResponse<FileFormatModel> findFormatById(VitamContext vitamContext, String formatId)
         throws VitamClientException {
         return internalFindDocumentById(vitamContext, AdminCollections.FORMATS, formatId, FileFormatModel.class);
     }
 
     @Override
-    public RequestResponse<FileRulesModel> findRuleById(VitamContext vitamContext,
-        String ruleId)
+    public RequestResponse<FileRulesModel> findRuleById(VitamContext vitamContext, String ruleId)
         throws VitamClientException {
         return internalFindDocumentById(vitamContext, AdminCollections.RULES, ruleId, FileRulesModel.class);
     }
 
     @Override
-    public RequestResponse<IngestContractModel> findIngestContractById(
-        VitamContext vitamContext, String contractId)
+    public RequestResponse<IngestContractModel> findIngestContractById(VitamContext vitamContext, String contractId)
         throws VitamClientException {
-        return internalFindDocumentById(vitamContext, AdminCollections.INGEST_CONTRACTS, contractId,
-            IngestContractModel.class);
+        return internalFindDocumentById(
+            vitamContext,
+            AdminCollections.INGEST_CONTRACTS,
+            contractId,
+            IngestContractModel.class
+        );
     }
 
     @Override
-    public RequestResponse<AccessContractModel> findAccessContractById(
-        VitamContext vitamContext, String contractId)
+    public RequestResponse<AccessContractModel> findAccessContractById(VitamContext vitamContext, String contractId)
         throws VitamClientException {
-        return internalFindDocumentById(vitamContext, AdminCollections.ACCESS_CONTRACTS, contractId,
-            AccessContractModel.class);
+        return internalFindDocumentById(
+            vitamContext,
+            AdminCollections.ACCESS_CONTRACTS,
+            contractId,
+            AccessContractModel.class
+        );
     }
 
     @Override
     public RequestResponse<ManagementContractModel> findManagementContractById(
-        VitamContext vitamContext, String contractId)
-        throws VitamClientException {
-        return internalFindDocumentById(vitamContext, AdminCollections.MANAGEMENT_CONTRACTS, contractId,
-            ManagementContractModel.class);
+        VitamContext vitamContext,
+        String contractId
+    ) throws VitamClientException {
+        return internalFindDocumentById(
+            vitamContext,
+            AdminCollections.MANAGEMENT_CONTRACTS,
+            contractId,
+            ManagementContractModel.class
+        );
     }
 
     @Override
-    public RequestResponse<ContextModel> findContextById(VitamContext vitamContext,
-        String contextId)
+    public RequestResponse<ContextModel> findContextById(VitamContext vitamContext, String contextId)
         throws VitamClientException {
         return internalFindDocumentById(vitamContext, AdminCollections.CONTEXTS, contextId, ContextModel.class);
     }
 
     @Override
-    public RequestResponse<ProfileModel> findProfileById(VitamContext vitamContext,
-        String profileId)
+    public RequestResponse<ProfileModel> findProfileById(VitamContext vitamContext, String profileId)
         throws VitamClientException {
         return internalFindDocumentById(vitamContext, AdminCollections.PROFILE, profileId, ProfileModel.class);
     }
 
-
     @Override
     public RequestResponse<AccessionRegisterSummaryModel> findAccessionRegisterById(
-        VitamContext vitamContext, String accessionRegisterId)
-        throws VitamClientException {
-        return internalFindDocumentById(vitamContext, AdminCollections.ACCESSION_REGISTERS, accessionRegisterId,
-            AccessionRegisterSummaryModel.class);
+        VitamContext vitamContext,
+        String accessionRegisterId
+    ) throws VitamClientException {
+        return internalFindDocumentById(
+            vitamContext,
+            AdminCollections.ACCESSION_REGISTERS,
+            accessionRegisterId,
+            AccessionRegisterSummaryModel.class
+        );
     }
 
     @Override
     public RequestResponse<AgenciesModel> findAgencies(VitamContext vitamContext, JsonNode query)
         throws VitamClientException {
-        return internalFindDocuments(vitamContext, AdminCollections.AGENCIES, query,
-            AgenciesModel.class);
+        return internalFindDocuments(vitamContext, AdminCollections.AGENCIES, query, AgenciesModel.class);
     }
 
     @Override
-    public RequestResponse<AgenciesModel> findAgencyByID(
-        VitamContext vitamContext, String agencyId)
+    public RequestResponse<AgenciesModel> findAgencyByID(VitamContext vitamContext, String agencyId)
         throws VitamClientException {
-        return internalFindDocumentById(vitamContext, AdminCollections.AGENCIES, agencyId,
-            AgenciesModel.class);
+        return internalFindDocumentById(vitamContext, AdminCollections.AGENCIES, agencyId, AgenciesModel.class);
     }
 
     @Override
-    public RequestResponse<SecurityProfileModel> findSecurityProfileById(
-        VitamContext vitamContext, String identifier)
+    public RequestResponse<SecurityProfileModel> findSecurityProfileById(VitamContext vitamContext, String identifier)
         throws VitamClientException {
-        return internalFindDocumentById(vitamContext, AdminCollections.SECURITY_PROFILES, identifier,
-            SecurityProfileModel.class);
+        return internalFindDocumentById(
+            vitamContext,
+            AdminCollections.SECURITY_PROFILES,
+            identifier,
+            SecurityProfileModel.class
+        );
     }
 
     @Override
@@ -650,8 +680,7 @@ public class AdminExternalClientRest extends DefaultClient implements AdminExter
     }
 
     @Override
-    public RequestResponse<ProcessDetail> listOperationsDetails(VitamContext vitamContext,
-        ProcessQuery query)
+    public RequestResponse<ProcessDetail> listOperationsDetails(VitamContext vitamContext, ProcessQuery query)
         throws VitamClientException {
         VitamRequestBuilder request = get()
             .withPath(OPERATIONS_API)
@@ -671,9 +700,10 @@ public class AdminExternalClientRest extends DefaultClient implements AdminExter
 
     @Override
     public RequestResponse<ItemStatus> updateOperationActionProcess(
-        VitamContext vitamContext, String actionId,
-        String operationId)
-        throws VitamClientException {
+        VitamContext vitamContext,
+        String actionId,
+        String operationId
+    ) throws VitamClientException {
         ParametersChecker.checkParameter(BLANK_OPERATION_ID, operationId);
         ParametersChecker.checkParameter(BLANK_TENANT_ID, vitamContext.getTenantId());
         ParametersChecker.checkParameter(BLANK_ACTION_ID, actionId);
@@ -693,10 +723,8 @@ public class AdminExternalClientRest extends DefaultClient implements AdminExter
         }
     }
 
-
     @Override
-    public RequestResponse<ItemStatus> getOperationProcessStatus(VitamContext vitamContext,
-        String id)
+    public RequestResponse<ItemStatus> getOperationProcessStatus(VitamContext vitamContext, String id)
         throws VitamClientException {
         ParametersChecker.checkParameter(BLANK_OPERATION_ID, id);
         VitamRequestBuilder request = VitamRequestBuilder.head()
@@ -709,9 +737,7 @@ public class AdminExternalClientRest extends DefaultClient implements AdminExter
                 .setGlobalState(ProcessState.valueOf(response.getHeaderString(X_GLOBAL_EXECUTION_STATE)))
                 .setLogbookTypeProcess(response.getHeaderString(X_CONTEXT_ID))
                 .increment(StatusCode.valueOf(response.getHeaderString(X_GLOBAL_EXECUTION_STATUS)));
-            return new RequestResponseOK<ItemStatus>()
-                .addResult(itemStatus)
-                .setHttpCode(response.getStatus());
+            return new RequestResponseOK<ItemStatus>().addResult(itemStatus).setHttpCode(response.getStatus());
         } catch (VitamClientInternalException e) {
             throw new VitamClientException(e);
         } catch (AdminExternalClientException e) {
@@ -721,8 +747,7 @@ public class AdminExternalClientRest extends DefaultClient implements AdminExter
     }
 
     @Override
-    public RequestResponse<ItemStatus> cancelOperationProcessExecution(
-        VitamContext vitamContext, String id)
+    public RequestResponse<ItemStatus> cancelOperationProcessExecution(VitamContext vitamContext, String id)
         throws VitamClientException, IllegalArgumentException {
         ParametersChecker.checkParameter(BLANK_OPERATION_ID, id);
         ParametersChecker.checkParameter(BLANK_TENANT_ID, vitamContext.getTenantId());
@@ -742,8 +767,7 @@ public class AdminExternalClientRest extends DefaultClient implements AdminExter
     }
 
     @Override
-    public RequestResponse<ItemStatus> getOperationProcessExecutionDetails(
-        VitamContext vitamContext, String id)
+    public RequestResponse<ItemStatus> getOperationProcessExecutionDetails(VitamContext vitamContext, String id)
         throws VitamClientException {
         ParametersChecker.checkParameter(BLANK_OPERATION_ID, id);
         ParametersChecker.checkParameter(BLANK_TENANT_ID, vitamContext.getTenantId());
@@ -780,10 +804,13 @@ public class AdminExternalClientRest extends DefaultClient implements AdminExter
         }
     }
 
-
-    private RequestResponse internalCreateDocument(VitamContext vitamContext, AdminCollections documentType,
-        InputStream stream, String filename, MediaType type)
-        throws AccessExternalClientException {
+    private RequestResponse internalCreateDocument(
+        VitamContext vitamContext,
+        AdminCollections documentType,
+        InputStream stream,
+        String filename,
+        MediaType type
+    ) throws AccessExternalClientException {
         ParametersChecker.checkParameter("The document type is mandatory", documentType);
         VitamRequestBuilder request = post()
             .withPath(documentType.getName())
@@ -808,30 +835,52 @@ public class AdminExternalClientRest extends DefaultClient implements AdminExter
     @Override
     public RequestResponse createAgencies(VitamContext vitamContext, InputStream agencies, String filename)
         throws AccessExternalClientException {
-        return internalCreateDocument(vitamContext, AdminCollections.AGENCIES, agencies, filename,
-            MediaType.APPLICATION_OCTET_STREAM_TYPE);
+        return internalCreateDocument(
+            vitamContext,
+            AdminCollections.AGENCIES,
+            agencies,
+            filename,
+            MediaType.APPLICATION_OCTET_STREAM_TYPE
+        );
     }
 
     @Override
     public RequestResponse createFormats(VitamContext vitamContext, InputStream formats, String filename)
         throws AccessExternalClientException {
-        return internalCreateDocument(vitamContext, AdminCollections.FORMATS, formats, filename,
-            MediaType.APPLICATION_OCTET_STREAM_TYPE);
+        return internalCreateDocument(
+            vitamContext,
+            AdminCollections.FORMATS,
+            formats,
+            filename,
+            MediaType.APPLICATION_OCTET_STREAM_TYPE
+        );
     }
 
     @Override
     public RequestResponse createRules(VitamContext vitamContext, InputStream rules, String filename)
         throws AccessExternalClientException {
-        return internalCreateDocument(vitamContext, AdminCollections.RULES, rules, filename,
-            MediaType.APPLICATION_OCTET_STREAM_TYPE);
+        return internalCreateDocument(
+            vitamContext,
+            AdminCollections.RULES,
+            rules,
+            filename,
+            MediaType.APPLICATION_OCTET_STREAM_TYPE
+        );
     }
 
     @Override
-    public RequestResponse createSecurityProfiles(VitamContext vitamContext, InputStream securityProfiles,
-        String filename)
-        throws AccessExternalClientException {
-        return internalCreateDocument(vitamContext, AdminCollections.SECURITY_PROFILES, securityProfiles, filename,
-            MediaType.APPLICATION_JSON_TYPE);
+    public RequestResponse createSecurityProfiles(
+        VitamContext vitamContext,
+        InputStream securityProfiles,
+        String filename
+    ) throws AccessExternalClientException {
+        return internalCreateDocument(
+            vitamContext,
+            AdminCollections.SECURITY_PROFILES,
+            securityProfiles,
+            filename,
+            MediaType.APPLICATION_JSON_TYPE
+        );
     }
 
     @Override
@@ -849,9 +898,11 @@ public class AdminExternalClientRest extends DefaultClient implements AdminExter
         return internalCheckDocuments(vitamContext, AdminCollections.AGENCIES, agencies);
     }
 
-    private Response internalCheckDocuments(VitamContext vitamContext, AdminCollections documentType,
-        InputStream stream)
-        throws VitamClientException {
+    private Response internalCheckDocuments(
+        VitamContext vitamContext,
+        AdminCollections documentType,
+        InputStream stream
+    ) throws VitamClientException {
         VitamRequestBuilder request = post()
             .withPath(documentType.getCheckURI())
             .withHeaders(vitamContext.getHeaders())
@@ -862,7 +913,6 @@ public class AdminExternalClientRest extends DefaultClient implements AdminExter
             response = make(request);
             check(response);
             return response;
-
         } catch (AdminExternalClientException e) {
             LOGGER.error(e);
             return response;
@@ -875,9 +925,11 @@ public class AdminExternalClientRest extends DefaultClient implements AdminExter
         }
     }
 
-    private RequestResponse internalCreateContracts(VitamContext vitamContext, InputStream contracts,
-        AdminCollections collection)
-        throws AccessExternalClientException {
+    private RequestResponse internalCreateContracts(
+        VitamContext vitamContext,
+        InputStream contracts,
+        AdminCollections collection
+    ) throws AccessExternalClientException {
         ParametersChecker.checkParameter("The collection parameter is mandatory", collection);
         VitamRequestBuilder request = post()
             .withPath(collection.getName())
@@ -916,8 +968,7 @@ public class AdminExternalClientRest extends DefaultClient implements AdminExter
     }
 
     @Override
-    public Response downloadDistributionReport(VitamContext vitamContext, String opId)
-        throws VitamClientException {
+    public Response downloadDistributionReport(VitamContext vitamContext, String opId) throws VitamClientException {
         ParametersChecker.checkParameter(BLANK_OBJECT_ID, opId);
         VitamRequestBuilder request = get()
             .withPath(AccessExtAPI.DISTRIBUTION_REPORT_API + "/" + opId)
@@ -959,8 +1010,7 @@ public class AdminExternalClientRest extends DefaultClient implements AdminExter
     }
 
     @Override
-    public Response downloadRulesReport(VitamContext vitamContext, String opId)
-        throws VitamClientException {
+    public Response downloadRulesReport(VitamContext vitamContext, String opId) throws VitamClientException {
         ParametersChecker.checkParameter(BLANK_OBJECT_ID, opId);
         VitamRequestBuilder request = get()
             .withPath(AccessExtAPI.RULES_REPORT_API + "/" + opId)
@@ -981,8 +1031,7 @@ public class AdminExternalClientRest extends DefaultClient implements AdminExter
     }
 
     @Override
-    public Response downloadAgenciesCsvAsStream(VitamContext vitamContext, String opId)
-        throws VitamClientException {
+    public Response downloadAgenciesCsvAsStream(VitamContext vitamContext, String opId) throws VitamClientException {
         ParametersChecker.checkParameter(BLANK_OBJECT_ID, opId);
         VitamRequestBuilder request = get()
             .withPath(AccessExtAPI.AGENCIES_REFERENTIAL_CSV_DOWNLOAD + "/" + opId)
@@ -1003,8 +1052,7 @@ public class AdminExternalClientRest extends DefaultClient implements AdminExter
     }
 
     @Override
-    public Response downloadRulesCsvAsStream(VitamContext vitamContext, String opId)
-        throws VitamClientException {
+    public Response downloadRulesCsvAsStream(VitamContext vitamContext, String opId) throws VitamClientException {
         ParametersChecker.checkParameter(BLANK_OBJECT_ID, opId);
         VitamRequestBuilder request = get()
             .withPath(AccessExtAPI.RULES_REFERENTIAL_CSV_DOWNLOAD + "/" + opId)
@@ -1025,8 +1073,7 @@ public class AdminExternalClientRest extends DefaultClient implements AdminExter
     }
 
     @Override
-    public RequestResponse evidenceAudit(VitamContext vitamContext, JsonNode dslQuery)
-        throws VitamClientException {
+    public RequestResponse evidenceAudit(VitamContext vitamContext, JsonNode dslQuery) throws VitamClientException {
         VitamRequestBuilder request = post()
             .withPath(AccessExtAPI.UNIT_EVIDENCE_AUDIT_API)
             .withHeaders(vitamContext.getHeaders())
@@ -1103,21 +1150,31 @@ public class AdminExternalClientRest extends DefaultClient implements AdminExter
     @Override
     public RequestResponse<ArchiveUnitProfileModel> findArchiveUnitProfileById(VitamContext vitamContext, String id)
         throws VitamClientException {
-        return internalFindDocumentById(vitamContext, AdminCollections.ARCHIVE_UNIT_PROFILE, id,
-            ArchiveUnitProfileModel.class);
+        return internalFindDocumentById(
+            vitamContext,
+            AdminCollections.ARCHIVE_UNIT_PROFILE,
+            id,
+            ArchiveUnitProfileModel.class
+        );
     }
 
     @Override
     public RequestResponse<ArchiveUnitProfileModel> findArchiveUnitProfiles(VitamContext vitamContext, JsonNode query)
         throws VitamClientException {
-        return internalFindDocuments(vitamContext, AdminCollections.ARCHIVE_UNIT_PROFILE, query,
-            ArchiveUnitProfileModel.class);
+        return internalFindDocuments(
+            vitamContext,
+            AdminCollections.ARCHIVE_UNIT_PROFILE,
+            query,
+            ArchiveUnitProfileModel.class
+        );
     }
 
     @Override
-    public RequestResponse updateArchiveUnitProfile(VitamContext vitamContext, String archiveUnitprofileId,
-        JsonNode queryDSL)
-        throws InvalidParseOperationException, AccessExternalClientException {
+    public RequestResponse updateArchiveUnitProfile(
+        VitamContext vitamContext,
+        String archiveUnitprofileId,
+        JsonNode queryDSL
+    ) throws InvalidParseOperationException, AccessExternalClientException {
         VitamRequestBuilder request = put()
             .withPath(UPDATE_AU_PROFILE + archiveUnitprofileId)
             .withHeaders(vitamContext.getHeaders())
@@ -1159,51 +1216,72 @@ public class AdminExternalClientRest extends DefaultClient implements AdminExter
     @Override
     public RequestResponse<OntologyModel> findOntologyById(VitamContext vitamContext, String id)
         throws VitamClientException {
-        return internalFindDocumentById(vitamContext, AdminCollections.ONTOLOGY, id,
-            OntologyModel.class);
+        return internalFindDocumentById(vitamContext, AdminCollections.ONTOLOGY, id, OntologyModel.class);
     }
 
     @Override
     public RequestResponse<OntologyModel> findOntologies(VitamContext vitamContext, JsonNode query)
         throws VitamClientException {
-        return internalFindDocuments(vitamContext, AdminCollections.ONTOLOGY, query,
-            OntologyModel.class);
+        return internalFindDocuments(vitamContext, AdminCollections.ONTOLOGY, query, OntologyModel.class);
     }
 
     @Override
     public RequestResponse importGriffin(VitamContext vitamContext, InputStream griffinStream, String filename)
         throws AccessExternalClientException {
-        return internalCreateDocument(vitamContext, AdminCollections.GRIFFIN, griffinStream, filename,
-            MediaType.APPLICATION_JSON_TYPE);
+        return internalCreateDocument(
+            vitamContext,
+            AdminCollections.GRIFFIN,
+            griffinStream,
+            filename,
+            MediaType.APPLICATION_JSON_TYPE
+        );
     }
 
     @Override
-    public RequestResponse importPreservationScenario(VitamContext vitamContext, InputStream scenarios, String fileName)
-        throws AccessExternalClientException {
-        return internalCreateDocument(vitamContext, AdminCollections.PRESERVATION_SCENARIO, scenarios, fileName,
-            MediaType.APPLICATION_JSON_TYPE);
+    public RequestResponse importPreservationScenario(
+        VitamContext vitamContext,
+        InputStream scenarios,
+        String fileName
+    ) throws AccessExternalClientException {
+        return internalCreateDocument(
+            vitamContext,
+            AdminCollections.PRESERVATION_SCENARIO,
+            scenarios,
+            fileName,
+            MediaType.APPLICATION_JSON_TYPE
+        );
     }
 
     @Override
     public RequestResponse<GriffinModel> findGriffinById(VitamContext vitamContext, String id)
         throws VitamClientException {
-        return internalFindDocumentById(vitamContext, AdminCollections.GRIFFIN, id,
-            GriffinModel.class);
+        return internalFindDocumentById(vitamContext, AdminCollections.GRIFFIN, id, GriffinModel.class);
     }
 
     @Override
-    public RequestResponse<PreservationScenarioModel> findPreservationScenarioById(VitamContext vitamContext, String id)
-        throws VitamClientException {
-        return internalFindDocumentById(vitamContext, AdminCollections.PRESERVATION_SCENARIO, id,
-            PreservationScenarioModel.class);
+    public RequestResponse<PreservationScenarioModel> findPreservationScenarioById(
+        VitamContext vitamContext,
+        String id
+    ) throws VitamClientException {
+        return internalFindDocumentById(
+            vitamContext,
+            AdminCollections.PRESERVATION_SCENARIO,
+            id,
+            PreservationScenarioModel.class
+        );
     }
 
     @Override
-    public RequestResponse<PreservationScenarioModel> findPreservationScenario(VitamContext vitamContext,
-        JsonNode select)
-        throws VitamClientException {
-        return internalFindDocuments(vitamContext, AdminCollections.PRESERVATION_SCENARIO, select,
-            PreservationScenarioModel.class);
+    public RequestResponse<PreservationScenarioModel> findPreservationScenario(
+        VitamContext vitamContext,
+        JsonNode select
+    ) throws VitamClientException {
+        return internalFindDocuments(
+            vitamContext,
+            AdminCollections.PRESERVATION_SCENARIO,
+            select,
+            PreservationScenarioModel.class
+        );
     }
 
     @Override
@@ -1213,9 +1291,10 @@ public class AdminExternalClientRest extends DefaultClient implements AdminExter
     }
 
     @Override
-    public RequestResponse createExternalOperation(VitamContext vitamContext,
-        LogbookOperationParameters logbookOperationparams)
-        throws LogbookExternalClientException {
+    public RequestResponse createExternalOperation(
+        VitamContext vitamContext,
+        LogbookOperationParameters logbookOperationparams
+    ) throws LogbookExternalClientException {
         VitamRequestBuilder request = post()
             .withPath(AccessExtAPI.LOGBOOK_OPERATIONS)
             .withHeaders(vitamContext.getHeaders())
@@ -1287,8 +1366,7 @@ public class AdminExternalClientRest extends DefaultClient implements AdminExter
     }
 
     @Override
-    public RequestResponse<SchemaResponse> getObjectGroupSchema(VitamContext vitamContext)
-        throws VitamClientException {
+    public RequestResponse<SchemaResponse> getObjectGroupSchema(VitamContext vitamContext) throws VitamClientException {
         VitamRequestBuilder request = get()
             .withPath(AccessExtAPI.OBJECTGROUP_SCHEMA)
             .withHeaders(vitamContext.getHeaders())
@@ -1299,17 +1377,17 @@ public class AdminExternalClientRest extends DefaultClient implements AdminExter
         }
     }
 
-
-
     private void check(Response response) throws AdminExternalClientException {
         Response.Status status = response.getStatusInfo().toEnum();
         if (SUCCESSFUL.equals(status.getFamily())) {
             return;
         }
 
-        String message =
-            String.format("Error with the response, get status: '%d' and reason '%s'.", response.getStatus(),
-                fromStatusCode(response.getStatus()).getReasonPhrase());
+        String message = String.format(
+            "Error with the response, get status: '%d' and reason '%s'.",
+            response.getStatus(),
+            fromStatusCode(response.getStatus()).getReasonPhrase()
+        );
         VitamError<JsonNode> vitamError = new VitamError<JsonNode>(message)
             .setDescription(message)
             .setHttpCode(status.getStatusCode())
@@ -1322,5 +1400,3 @@ public class AdminExternalClientRest extends DefaultClient implements AdminExter
         throw new AdminExternalClientException(message, status, vitamError);
     }
 }
-
-

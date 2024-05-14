@@ -75,15 +75,15 @@ public class SchemaValidationServiceTest {
     private static final OntologyService ontologyService = Mockito.mock(OntologyServiceImpl.class);
     private static MongoDbAccessReferential mongoDbAccessReferential = Mockito.mock(MongoDbAccessReferential.class);
     private static SchemaValidationService schemaValidationService;
-    private final TypeReference<List<SchemaInputModel>> listOfSchemaInputType = new TypeReference<>() {
-    };
-    private final TypeReference<List<Schema>> listOfSchemaType = new TypeReference<>() {
-    };
-    private final TypeReference<List<OntologyModel>> listOfOntologyType = new TypeReference<>() {
-    };
+    private final TypeReference<List<SchemaInputModel>> listOfSchemaInputType = new TypeReference<>() {};
+    private final TypeReference<List<Schema>> listOfSchemaType = new TypeReference<>() {};
+    private final TypeReference<List<OntologyModel>> listOfOntologyType = new TypeReference<>() {};
+
     @Rule
     public RunWithCustomExecutorRule runInThread = new RunWithCustomExecutorRule(
-        VitamThreadPoolExecutor.getDefaultExecutor());
+        VitamThreadPoolExecutor.getDefaultExecutor()
+    );
+
     private List<SchemaResponse> internalSchemaList;
 
     @BeforeClass
@@ -91,8 +91,10 @@ public class SchemaValidationServiceTest {
         VitamConfiguration.setAdminTenant(ADMIN_TENANT);
         VitamConfiguration.setTenants(List.of(ADMIN_TENANT, TENANT_ID));
         LogbookOperationsClientFactory.changeMode(null);
-        schemaValidationService =
-            new SchemaValidationService(mongoDbAccessReferential, LogbookOperationsClientFactory.getInstance());
+        schemaValidationService = new SchemaValidationService(
+            mongoDbAccessReferential,
+            LogbookOperationsClientFactory.getInstance()
+        );
     }
 
     @Before
@@ -107,96 +109,125 @@ public class SchemaValidationServiceTest {
     public void should_success_when_importing_correct_external_paths() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(ADMIN_TENANT);
 
-        final File fileSchema =
-            PropertiesUtils.getResourceFile("schema/external-schema-ok.json");
-        final List<SchemaInputModel> schemaModelList =
-            JsonHandler.getFromFileAsTypeReference(fileSchema, listOfSchemaInputType);
+        final File fileSchema = PropertiesUtils.getResourceFile("schema/external-schema-ok.json");
+        final List<SchemaInputModel> schemaModelList = JsonHandler.getFromFileAsTypeReference(
+            fileSchema,
+            listOfSchemaInputType
+        );
 
         final File ontologyFile = PropertiesUtils.getResourceFile("schema/ok-ontologies.json");
 
-        final List<OntologyModel> ontologyModelList =
-            JsonHandler.getFromFileAsTypeReference(ontologyFile, listOfOntologyType);
-        Map<String, OntologyModel> ontologyEltsMapByIdentifier = ontologyModelList.stream().collect(
-            Collectors.toMap(OntologyModel::getIdentifier, ontologyElt -> ontologyElt));
+        final List<OntologyModel> ontologyModelList = JsonHandler.getFromFileAsTypeReference(
+            ontologyFile,
+            listOfOntologyType
+        );
+        Map<String, OntologyModel> ontologyEltsMapByIdentifier = ontologyModelList
+            .stream()
+            .collect(Collectors.toMap(OntologyModel::getIdentifier, ontologyElt -> ontologyElt));
 
-        RequestResponseOK<OntologyModel> ontologyResponse = new RequestResponseOK<OntologyModel>
-            ().addAllResults(ontologyModelList);
+        RequestResponseOK<OntologyModel> ontologyResponse = new RequestResponseOK<OntologyModel>().addAllResults(
+            ontologyModelList
+        );
         when(ontologyService.findOntologies(any())).thenReturn(ontologyResponse);
         DbRequestResult result = new DbRequestResult().setCount(0).setTotal(0).setOffset(0);
-        when(mongoDbAccessReferential.findDocumentsWithoutRestrictionOnCurrentTenant(any(), any())).thenReturn(
-            result);
+        when(mongoDbAccessReferential.findDocumentsWithoutRestrictionOnCurrentTenant(any(), any())).thenReturn(result);
         Map<String, List<ErrorReportSchema>> importErrors = new HashMap<>();
-        schemaValidationService.validateExternalSchemaInputs(schemaModelList, internalSchemaList,
-            ontologyEltsMapByIdentifier, importErrors);
+        schemaValidationService.validateExternalSchemaInputs(
+            schemaModelList,
+            internalSchemaList,
+            ontologyEltsMapByIdentifier,
+            importErrors
+        );
     }
-
 
     @Test
     @RunWithCustomExecutor
     public void should_fail_when_importing_some_paths_already_in_internal_schema() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(ADMIN_TENANT);
-        final File fileSchema =
-            PropertiesUtils.getResourceFile("schema/schema-with-paths-already-in-internal-schema.json");
-        final List<SchemaInputModel> schemaModelList =
-            JsonHandler.getFromFileAsTypeReference(fileSchema, listOfSchemaInputType);
+        final File fileSchema = PropertiesUtils.getResourceFile(
+            "schema/schema-with-paths-already-in-internal-schema.json"
+        );
+        final List<SchemaInputModel> schemaModelList = JsonHandler.getFromFileAsTypeReference(
+            fileSchema,
+            listOfSchemaInputType
+        );
 
         final File ontologyFile = PropertiesUtils.getResourceFile("schema/ok-ontologies.json");
 
-        final List<OntologyModel> ontologyModelList =
-            JsonHandler.getFromFileAsTypeReference(ontologyFile, listOfOntologyType);
-        Map<String, OntologyModel> ontologyEltsMapByIdentifier = ontologyModelList.stream().collect(
-            Collectors.toMap(OntologyModel::getIdentifier, ontologyElt -> ontologyElt));
+        final List<OntologyModel> ontologyModelList = JsonHandler.getFromFileAsTypeReference(
+            ontologyFile,
+            listOfOntologyType
+        );
+        Map<String, OntologyModel> ontologyEltsMapByIdentifier = ontologyModelList
+            .stream()
+            .collect(Collectors.toMap(OntologyModel::getIdentifier, ontologyElt -> ontologyElt));
 
-        RequestResponseOK<OntologyModel> ontologyResponse = new RequestResponseOK<OntologyModel>
-            ().addAllResults(ontologyModelList);
+        RequestResponseOK<OntologyModel> ontologyResponse = new RequestResponseOK<OntologyModel>().addAllResults(
+            ontologyModelList
+        );
         when(ontologyService.findOntologies(any())).thenReturn(ontologyResponse);
 
         DbRequestResult result = new DbRequestResult().setCount(0).setTotal(0).setOffset(0);
-        when(mongoDbAccessReferential.findDocumentsWithoutRestrictionOnCurrentTenant(any(), any())).thenReturn(
-            result);
-
+        when(mongoDbAccessReferential.findDocumentsWithoutRestrictionOnCurrentTenant(any(), any())).thenReturn(result);
 
         // When / then
-        assertThatThrownBy(() -> schemaValidationService
-            .validateExternalSchemaInputs(schemaModelList, internalSchemaList, ontologyEltsMapByIdentifier, new HashMap<>()))
+        assertThatThrownBy(
+            () ->
+                schemaValidationService.validateExternalSchemaInputs(
+                    schemaModelList,
+                    internalSchemaList,
+                    ontologyEltsMapByIdentifier,
+                    new HashMap<>()
+                )
+        )
             .isInstanceOf(SchemaImportValidationException.class)
             .withFailMessage(
-                "Paths already in internal schema =  Addressee.BirthPlace.City, Addressee.BirthPlace.Country");
-
+                "Paths already in internal schema =  Addressee.BirthPlace.City, Addressee.BirthPlace.Country"
+            );
     }
 
     @Test
     @RunWithCustomExecutor
     public void should_fail_when_importing_some_paths_with_wrong_format() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(ADMIN_TENANT);
-        final File fileSchema =
-            PropertiesUtils.getResourceFile("schema/schema-with-paths-having_bad_format.json");
-        final List<SchemaInputModel> schemaModelList =
-            JsonHandler.getFromFileAsTypeReference(fileSchema, listOfSchemaInputType);
+        final File fileSchema = PropertiesUtils.getResourceFile("schema/schema-with-paths-having_bad_format.json");
+        final List<SchemaInputModel> schemaModelList = JsonHandler.getFromFileAsTypeReference(
+            fileSchema,
+            listOfSchemaInputType
+        );
 
         final File ontologyFile = PropertiesUtils.getResourceFile("schema/ok-ontologies.json");
 
-        final List<OntologyModel> ontologyModelList =
-            JsonHandler.getFromFileAsTypeReference(ontologyFile, listOfOntologyType);
-        Map<String, OntologyModel> ontologyEltsMapByIdentifier = ontologyModelList.stream().collect(
-            Collectors.toMap(OntologyModel::getIdentifier, ontologyElt -> ontologyElt));
+        final List<OntologyModel> ontologyModelList = JsonHandler.getFromFileAsTypeReference(
+            ontologyFile,
+            listOfOntologyType
+        );
+        Map<String, OntologyModel> ontologyEltsMapByIdentifier = ontologyModelList
+            .stream()
+            .collect(Collectors.toMap(OntologyModel::getIdentifier, ontologyElt -> ontologyElt));
 
-        RequestResponseOK<OntologyModel> ontologyResponse = new RequestResponseOK<OntologyModel>
-            ().addAllResults(ontologyModelList);
+        RequestResponseOK<OntologyModel> ontologyResponse = new RequestResponseOK<OntologyModel>().addAllResults(
+            ontologyModelList
+        );
         when(ontologyService.findOntologies(any())).thenReturn(ontologyResponse);
 
         DbRequestResult result = new DbRequestResult().setCount(0).setTotal(0).setOffset(0);
-        when(mongoDbAccessReferential.findDocumentsWithoutRestrictionOnCurrentTenant(any(), any())).thenReturn(
-            result);
-
+        when(mongoDbAccessReferential.findDocumentsWithoutRestrictionOnCurrentTenant(any(), any())).thenReturn(result);
 
         // When / then
-        assertThatThrownBy(() -> schemaValidationService
-            .validateExternalSchemaInputs(schemaModelList, internalSchemaList, ontologyEltsMapByIdentifier, new HashMap<>()))
+        assertThatThrownBy(
+            () ->
+                schemaValidationService.validateExternalSchemaInputs(
+                    schemaModelList,
+                    internalSchemaList,
+                    ontologyEltsMapByIdentifier,
+                    new HashMap<>()
+                )
+        )
             .isInstanceOf(SchemaImportValidationException.class)
             .withFailMessage(
-                "Paths already in internal schema =  Addressee.BirthPlace.City, Addressee.BirthPlace.Country");
-
+                "Paths already in internal schema =  Addressee.BirthPlace.City, Addressee.BirthPlace.Country"
+            );
     }
 
     @Test
@@ -204,26 +235,37 @@ public class SchemaValidationServiceTest {
     public void should_fail_when_importing_some_paths_with_parents_not_found() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(ADMIN_TENANT);
         final File fileSchema = PropertiesUtils.getResourceFile("schema/schema-with-missed-parent-paths.json");
-        final List<SchemaInputModel> schemaModelList =
-            JsonHandler.getFromFileAsTypeReference(fileSchema, listOfSchemaInputType);
+        final List<SchemaInputModel> schemaModelList = JsonHandler.getFromFileAsTypeReference(
+            fileSchema,
+            listOfSchemaInputType
+        );
 
         final File ontologyFile = PropertiesUtils.getResourceFile("schema/ok-ontologies.json");
 
-        final List<OntologyModel> ontologyModelList =
-            JsonHandler.getFromFileAsTypeReference(ontologyFile, listOfOntologyType);
-        Map<String, OntologyModel> ontologyEltsMapByIdentifier = ontologyModelList.stream().collect(
-            Collectors.toMap(OntologyModel::getIdentifier, ontologyElt -> ontologyElt));
+        final List<OntologyModel> ontologyModelList = JsonHandler.getFromFileAsTypeReference(
+            ontologyFile,
+            listOfOntologyType
+        );
+        Map<String, OntologyModel> ontologyEltsMapByIdentifier = ontologyModelList
+            .stream()
+            .collect(Collectors.toMap(OntologyModel::getIdentifier, ontologyElt -> ontologyElt));
 
-        RequestResponseOK<OntologyModel> ontologyResponse = new RequestResponseOK<OntologyModel>
-            ().addAllResults(ontologyModelList);
+        RequestResponseOK<OntologyModel> ontologyResponse = new RequestResponseOK<OntologyModel>().addAllResults(
+            ontologyModelList
+        );
         when(ontologyService.findOntologies(any())).thenReturn(ontologyResponse);
         DbRequestResult result = new DbRequestResult().setCount(0).setTotal(0).setOffset(0);
-        when(mongoDbAccessReferential.findDocumentsWithoutRestrictionOnCurrentTenant(any(), any())).thenReturn(
-            result);
+        when(mongoDbAccessReferential.findDocumentsWithoutRestrictionOnCurrentTenant(any(), any())).thenReturn(result);
         // When / then
-        assertThatThrownBy(() -> schemaValidationService
-            .validateExternalSchemaInputs(schemaModelList, internalSchemaList, ontologyEltsMapByIdentifier, new HashMap<>()))
-            .isInstanceOf(SchemaImportValidationException.class);
+        assertThatThrownBy(
+            () ->
+                schemaValidationService.validateExternalSchemaInputs(
+                    schemaModelList,
+                    internalSchemaList,
+                    ontologyEltsMapByIdentifier,
+                    new HashMap<>()
+                )
+        ).isInstanceOf(SchemaImportValidationException.class);
     }
 
     @Test
@@ -231,51 +273,74 @@ public class SchemaValidationServiceTest {
     public void should_fail_when_importing_some_paths_with_not_found_leaf() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(ADMIN_TENANT);
         final File fileSchema = PropertiesUtils.getResourceFile("schema/schema-with-missed-leaf.json");
-        final List<SchemaInputModel> schemaModelList =
-            JsonHandler.getFromFileAsTypeReference(fileSchema, listOfSchemaInputType);
+        final List<SchemaInputModel> schemaModelList = JsonHandler.getFromFileAsTypeReference(
+            fileSchema,
+            listOfSchemaInputType
+        );
 
         final File ontologyFile = PropertiesUtils.getResourceFile("schema/ok-ontologies.json");
 
-        final List<OntologyModel> ontologyModelList =
-            JsonHandler.getFromFileAsTypeReference(ontologyFile, listOfOntologyType);
-        Map<String, OntologyModel> ontologyEltsMapByIdentifier = ontologyModelList.stream().collect(
-            Collectors.toMap(OntologyModel::getIdentifier, ontologyElt -> ontologyElt));
+        final List<OntologyModel> ontologyModelList = JsonHandler.getFromFileAsTypeReference(
+            ontologyFile,
+            listOfOntologyType
+        );
+        Map<String, OntologyModel> ontologyEltsMapByIdentifier = ontologyModelList
+            .stream()
+            .collect(Collectors.toMap(OntologyModel::getIdentifier, ontologyElt -> ontologyElt));
 
         DbRequestResult result = new DbRequestResult().setCount(0).setTotal(0).setOffset(0);
-        when(mongoDbAccessReferential.findDocumentsWithoutRestrictionOnCurrentTenant(any(), any())).thenReturn(
-            result);
-        RequestResponseOK<OntologyModel> ontologyResponse = new RequestResponseOK<OntologyModel>
-            ().addAllResults(ontologyModelList);
+        when(mongoDbAccessReferential.findDocumentsWithoutRestrictionOnCurrentTenant(any(), any())).thenReturn(result);
+        RequestResponseOK<OntologyModel> ontologyResponse = new RequestResponseOK<OntologyModel>().addAllResults(
+            ontologyModelList
+        );
         when(ontologyService.findOntologies(any())).thenReturn(ontologyResponse);
 
-
         // When / then
-        assertThatThrownBy(() -> schemaValidationService
-            .validateExternalSchemaInputs(schemaModelList, internalSchemaList, ontologyEltsMapByIdentifier, new HashMap<>()))
+        assertThatThrownBy(
+            () ->
+                schemaValidationService.validateExternalSchemaInputs(
+                    schemaModelList,
+                    internalSchemaList,
+                    ontologyEltsMapByIdentifier,
+                    new HashMap<>()
+                )
+        )
             .isInstanceOf(SchemaImportValidationException.class)
-            .withFailMessage(
-                "Import schema errors : Paths leaf missed =  Invoice, Provider, SomeDate");
+            .withFailMessage("Import schema errors : Paths leaf missed =  Invoice, Provider, SomeDate");
     }
 
     @Test
     @RunWithCustomExecutor
     public void should_fail_when_importing_some_paths_with_path_as_objects_in_ontology() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(ADMIN_TENANT);
-        final File fileSchema =
-            PropertiesUtils.getResourceFile("schema/schema-with-conflicts-objects-and-ontology.json");
-        final List<SchemaInputModel> schemaModelList =
-            JsonHandler.getFromFileAsTypeReference(fileSchema, listOfSchemaInputType);
+        final File fileSchema = PropertiesUtils.getResourceFile(
+            "schema/schema-with-conflicts-objects-and-ontology.json"
+        );
+        final List<SchemaInputModel> schemaModelList = JsonHandler.getFromFileAsTypeReference(
+            fileSchema,
+            listOfSchemaInputType
+        );
         final File ontologyFile = PropertiesUtils.getResourceFile("schema/ok-ontologies.json");
-        final List<OntologyModel> ontologyModelList =
-            JsonHandler.getFromFileAsTypeReference(ontologyFile, listOfOntologyType);
-        Map<String, OntologyModel> ontologyEltsMapByIdentifier = ontologyModelList.stream().collect(
-            Collectors.toMap(OntologyModel::getIdentifier, ontologyElt -> ontologyElt));
-        final RequestResponseOK<OntologyModel> ontologyResponse = new RequestResponseOK<OntologyModel>
-            ().addAllResults(ontologyModelList);
+        final List<OntologyModel> ontologyModelList = JsonHandler.getFromFileAsTypeReference(
+            ontologyFile,
+            listOfOntologyType
+        );
+        Map<String, OntologyModel> ontologyEltsMapByIdentifier = ontologyModelList
+            .stream()
+            .collect(Collectors.toMap(OntologyModel::getIdentifier, ontologyElt -> ontologyElt));
+        final RequestResponseOK<OntologyModel> ontologyResponse = new RequestResponseOK<OntologyModel>().addAllResults(
+            ontologyModelList
+        );
         when(ontologyService.findOntologies(any())).thenReturn(ontologyResponse);
-        assertThatThrownBy(() -> schemaValidationService
-            .validateExternalSchemaInputs(schemaModelList, internalSchemaList, ontologyEltsMapByIdentifier, new HashMap<>()))
-            .isInstanceOf(SchemaImportValidationException.class);
+        assertThatThrownBy(
+            () ->
+                schemaValidationService.validateExternalSchemaInputs(
+                    schemaModelList,
+                    internalSchemaList,
+                    ontologyEltsMapByIdentifier,
+                    new HashMap<>()
+                )
+        ).isInstanceOf(SchemaImportValidationException.class);
     }
 
     @Test
@@ -283,52 +348,63 @@ public class SchemaValidationServiceTest {
     public void should_fail_when_importing_for_admin_tenant_and_some_paths_already_in_other_tenant_schema()
         throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(ADMIN_TENANT);
-        final File fileSchema =
-            PropertiesUtils.getResourceFile("schema/external-schema-ok.json");
-        final List<SchemaInputModel> schemaModelList =
-            JsonHandler.getFromFileAsTypeReference(fileSchema, listOfSchemaInputType);
+        final File fileSchema = PropertiesUtils.getResourceFile("schema/external-schema-ok.json");
+        final List<SchemaInputModel> schemaModelList = JsonHandler.getFromFileAsTypeReference(
+            fileSchema,
+            listOfSchemaInputType
+        );
 
         final File ontologyFile = PropertiesUtils.getResourceFile("schema/ok-ontologies.json");
 
-        final List<OntologyModel> ontologyModelList =
-            JsonHandler.getFromFileAsTypeReference(ontologyFile, listOfOntologyType);
-        Map<String, OntologyModel> ontologyEltsMapByIdentifier = ontologyModelList.stream().collect(
-            Collectors.toMap(OntologyModel::getIdentifier, ontologyElt -> ontologyElt));
+        final List<OntologyModel> ontologyModelList = JsonHandler.getFromFileAsTypeReference(
+            ontologyFile,
+            listOfOntologyType
+        );
+        Map<String, OntologyModel> ontologyEltsMapByIdentifier = ontologyModelList
+            .stream()
+            .collect(Collectors.toMap(OntologyModel::getIdentifier, ontologyElt -> ontologyElt));
 
-        RequestResponseOK<OntologyModel> ontologyResponse = new RequestResponseOK<OntologyModel>
-            ().addAllResults(ontologyModelList);
+        RequestResponseOK<OntologyModel> ontologyResponse = new RequestResponseOK<OntologyModel>().addAllResults(
+            ontologyModelList
+        );
         when(ontologyService.findOntologies(any())).thenReturn(ontologyResponse);
 
-        final File fileSchemaOtherTenants =
-            PropertiesUtils.getResourceFile("schema/schema-with-paths-already-in-other-tenants-schema.json");
-        final List<Schema> currentSchemaList =
-            JsonHandler.getFromFileAsTypeReference(fileSchemaOtherTenants, listOfSchemaType);
+        final File fileSchemaOtherTenants = PropertiesUtils.getResourceFile(
+            "schema/schema-with-paths-already-in-other-tenants-schema.json"
+        );
+        final List<Schema> currentSchemaList = JsonHandler.getFromFileAsTypeReference(
+            fileSchemaOtherTenants,
+            listOfSchemaType
+        );
 
         VitamMongoCursor cursor = mock(VitamMongoCursor.class);
-        when(cursor.hasNext())
-            .thenReturn(true)
-            .thenReturn(true)
-            .thenReturn(true)
-            .thenReturn(false);
+        when(cursor.hasNext()).thenReturn(true).thenReturn(true).thenReturn(true).thenReturn(false);
         when(cursor.next())
             .thenReturn(currentSchemaList.get(0))
             .thenReturn(currentSchemaList.get(1))
             .thenReturn(currentSchemaList.get(2));
 
-        DbRequestResult result =
-            new DbRequestResult().setCount(currentSchemaList.size()).setTotal(currentSchemaList.size()).setOffset(0)
-                .setCursor(cursor);
-        when(mongoDbAccessReferential.findDocumentsWithoutRestrictionOnCurrentTenant(any(), any())).thenReturn(
-            result);
-
+        DbRequestResult result = new DbRequestResult()
+            .setCount(currentSchemaList.size())
+            .setTotal(currentSchemaList.size())
+            .setOffset(0)
+            .setCursor(cursor);
+        when(mongoDbAccessReferential.findDocumentsWithoutRestrictionOnCurrentTenant(any(), any())).thenReturn(result);
 
         // When / then
-        assertThatThrownBy(() -> schemaValidationService
-            .validateExternalSchemaInputs(schemaModelList, internalSchemaList, ontologyEltsMapByIdentifier, new HashMap<>()))
+        assertThatThrownBy(
+            () ->
+                schemaValidationService.validateExternalSchemaInputs(
+                    schemaModelList,
+                    internalSchemaList,
+                    ontologyEltsMapByIdentifier,
+                    new HashMap<>()
+                )
+        )
             .isInstanceOf(SchemaImportValidationException.class)
             .withFailMessage(
-                "Paths already in internal schema =  Addressee.BirthPlace.City, Addressee.BirthPlace.Country");
-
+                "Paths already in internal schema =  Addressee.BirthPlace.City, Addressee.BirthPlace.Country"
+            );
     }
 
     private InputStream loadUnitInternalSchema() throws IOException {
@@ -337,9 +413,10 @@ public class SchemaValidationServiceTest {
 
     public List<SchemaResponse> findUnitInternalSchema() throws InvalidParseOperationException, IOException {
         InputStream isUnitInternalSchema = loadUnitInternalSchema();
-        List<SchemaResponse> unitSchemaModels =
-            JsonHandler.getFromInputStreamAsTypeReference(isUnitInternalSchema, new TypeReference<>() {
-            });
+        List<SchemaResponse> unitSchemaModels = JsonHandler.getFromInputStreamAsTypeReference(
+            isUnitInternalSchema,
+            new TypeReference<>() {}
+        );
         return unitSchemaModels;
     }
 }

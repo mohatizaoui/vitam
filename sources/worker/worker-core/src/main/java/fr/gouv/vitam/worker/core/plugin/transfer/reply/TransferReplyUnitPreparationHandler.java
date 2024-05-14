@@ -52,6 +52,7 @@ import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.stream.StreamUtils;
 import fr.gouv.vitam.common.stream.VitamAsyncInputStream;
+import fr.gouv.vitam.common.utils.BufferedConsumer;
 import fr.gouv.vitam.metadata.api.exception.MetaDataClientServerException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataDocumentSizeException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataExecutionException;
@@ -72,7 +73,6 @@ import fr.gouv.vitam.worker.core.exception.ProcessingStatusException;
 import fr.gouv.vitam.worker.core.handler.ActionHandler;
 import fr.gouv.vitam.worker.core.plugin.transfer.reply.model.TransferReplyContext;
 import fr.gouv.vitam.worker.core.plugin.transfer.reply.utils.SortedLevelJsonLineWriter;
-import fr.gouv.vitam.common.utils.BufferedConsumer;
 import org.apache.commons.collections4.SetUtils;
 
 import java.io.File;
@@ -94,17 +94,14 @@ import static fr.gouv.vitam.worker.core.utils.PluginHelper.buildItemStatus;
  */
 public class TransferReplyUnitPreparationHandler extends ActionHandler {
 
-    private static final VitamLogger LOGGER =
-        VitamLoggerFactory.getInstance(TransferReplyUnitPreparationHandler.class);
+    private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(TransferReplyUnitPreparationHandler.class);
 
     private static final String TRANSFER_REPLY_UNIT_PREPARATION = "TRANSFER_REPLY_UNIT_PREPARATION";
     private static final int TRANSFER_REPLY_CONTEXT_IN_RANK = 0;
     private static final int TRANSFER_REPLY_ATR_RANK = 1;
 
     private static final String UNITS_TO_DELETE_JSONL = "units_to_delete.jsonl";
-    public static final TypeReference<JsonLineModel>
-        JSON_NODE_TYPE_REFERENCE = new TypeReference<>() {
-    };
+    public static final TypeReference<JsonLineModel> JSON_NODE_TYPE_REFERENCE = new TypeReference<>() {};
     public static final String PERSISTENT_IDENTIFIER_FIELD = "PersistentIdentifier";
     public static final String ARCHIVAL_AGENCY_IDENTIFIER = "#archivalAgencyIdentifier";
 
@@ -116,10 +113,7 @@ public class TransferReplyUnitPreparationHandler extends ActionHandler {
      * Default constructor
      */
     public TransferReplyUnitPreparationHandler() {
-        this(
-            MetaDataClientFactory.getInstance(),
-            StorageClientFactory.getInstance(),
-            new TransferReplyReportService());
+        this(MetaDataClientFactory.getInstance(), StorageClientFactory.getInstance(), new TransferReplyReportService());
     }
 
     /***
@@ -129,53 +123,62 @@ public class TransferReplyUnitPreparationHandler extends ActionHandler {
     TransferReplyUnitPreparationHandler(
         MetaDataClientFactory metaDataClientFactory,
         StorageClientFactory storageClientFactory,
-        TransferReplyReportService transferReplyReportService) {
+        TransferReplyReportService transferReplyReportService
+    ) {
         this.metaDataClientFactory = metaDataClientFactory;
         this.storageClientFactory = storageClientFactory;
         this.transferReplyReportService = transferReplyReportService;
     }
 
     @Override
-    public ItemStatus execute(WorkerParameters param, HandlerIO handler)
-        throws ProcessingException {
-
+    public ItemStatus execute(WorkerParameters param, HandlerIO handler) throws ProcessingException {
         try (CloseableIterator<String> transferUnitIdIterator = loadUnitIdsFromTransferReport(handler)) {
             exportUnitDistributionFiles(transferUnitIdIterator, handler);
 
             LOGGER.info("Transfer reply unit preparation succeeded");
             return buildItemStatus(TRANSFER_REPLY_UNIT_PREPARATION, StatusCode.OK, null);
-
         } catch (ProcessingStatusException e) {
             LOGGER.error("Transfer reply unit preparation failed with status [" + e.getStatusCode() + "]", e);
             return buildItemStatus(TRANSFER_REPLY_UNIT_PREPARATION, e.getStatusCode(), null);
         }
     }
 
-    private void exportUnitDistributionFiles(CloseableIterator<String> transferUnitIdIterator,
-        HandlerIO handler) throws ProcessingStatusException {
-        ArchiveTransferReplyType archiveTransferReplyType = (ArchiveTransferReplyType) handler.getInput(TRANSFER_REPLY_ATR_RANK);
-        try (MetaDataClient metaDataClient = metaDataClientFactory.getClient();
-            BufferedConsumer<TransferReplyUnitReportEntry> reportAppender =
-                createReportAppender(handler.getContainerName());
+    private void exportUnitDistributionFiles(CloseableIterator<String> transferUnitIdIterator, HandlerIO handler)
+        throws ProcessingStatusException {
+        ArchiveTransferReplyType archiveTransferReplyType = (ArchiveTransferReplyType) handler.getInput(
+            TRANSFER_REPLY_ATR_RANK
+        );
+        try (
+            MetaDataClient metaDataClient = metaDataClientFactory.getClient();
+            BufferedConsumer<TransferReplyUnitReportEntry> reportAppender = createReportAppender(
+                handler.getContainerName()
+            );
             SortedLevelJsonLineWriter unitToPurgeWriter = new SortedLevelJsonLineWriter(handler);
         ) {
-
             // Iterate over unit Ids by bulk
-            Iterator<List<String>> bulkUnitIds = Iterators.partition(transferUnitIdIterator,
-                VitamConfiguration.getBatchSize());
+            Iterator<List<String>> bulkUnitIds = Iterators.partition(
+                transferUnitIdIterator,
+                VitamConfiguration.getBatchSize()
+            );
 
             while (bulkUnitIds.hasNext()) {
                 Set<String> unitIds = new HashSet<>(bulkUnitIds.next());
 
                 // Check non existing units in DB => ALREADY_DELETED
                 List<JsonNode> jsonUnits = selectUnits(metaDataClient, unitIds);
-                Set<String> foundUnitIds = jsonUnits.stream()
+                Set<String> foundUnitIds = jsonUnits
+                    .stream()
                     .map(unit -> unit.get(VitamFieldsHelper.id()).asText())
                     .collect(Collectors.toSet());
                 Set<String> notFoundUnitIds = SetUtils.difference(unitIds, foundUnitIds);
                 for (String notFoundUnitId : notFoundUnitIds) {
-                    reportAppender.accept(new TransferReplyUnitReportEntry(notFoundUnitId,
-                        TransferReplyUnitStatus.ALREADY_DELETED.name(), null));
+                    reportAppender.accept(
+                        new TransferReplyUnitReportEntry(
+                            notFoundUnitId,
+                            TransferReplyUnitStatus.ALREADY_DELETED.name(),
+                            null
+                        )
+                    );
                 }
                 // Append units to delete sorted by #max (
                 for (JsonNode unit : jsonUnits) {
@@ -183,11 +186,13 @@ public class TransferReplyUnitPreparationHandler extends ActionHandler {
                     int level = unit.get(VitamFieldsHelper.max()).asInt();
                     if (unit.isObject()) {
                         ((ObjectNode) unit).put(
-                            ARCHIVAL_AGENCY_IDENTIFIER, Optional.ofNullable(archiveTransferReplyType)
-                                .map(ArchiveTransferReplyType::getArchivalAgency)
-                                .map(OrganizationWithIdType::getIdentifier)
-                                .map(IdentifierType::getValue)
-                                .orElse(null));
+                                ARCHIVAL_AGENCY_IDENTIFIER,
+                                Optional.ofNullable(archiveTransferReplyType)
+                                    .map(ArchiveTransferReplyType::getArchivalAgency)
+                                    .map(OrganizationWithIdType::getIdentifier)
+                                    .map(IdentifierType::getValue)
+                                    .orElse(null)
+                            );
                     }
                     unitToPurgeWriter.addEntry(new JsonLineModel(unitId, level, unit));
                 }
@@ -195,10 +200,12 @@ public class TransferReplyUnitPreparationHandler extends ActionHandler {
 
             // Export units sorted by level in descending order (start by purging leaves, then higher levels...)
             unitToPurgeWriter.exportToWorkspace(UNITS_TO_DELETE_JSONL, false);
-
         } catch (IOException | ProcessingException e) {
-            throw new ProcessingStatusException(StatusCode.FATAL,
-                "An error occurred during transfer reply distribution generation", e);
+            throw new ProcessingStatusException(
+                StatusCode.FATAL,
+                "An error occurred during transfer reply distribution generation",
+                e
+            );
         }
     }
 
@@ -214,24 +221,25 @@ public class TransferReplyUnitPreparationHandler extends ActionHandler {
 
     private List<JsonNode> selectUnits(MetaDataClient metaDataClient, Collection<String> unitIds)
         throws ProcessingStatusException {
-
         try {
-
             SelectMultiQuery request = buildRequestWithProjection(unitIds);
 
             JsonNode selectUnits = metaDataClient.selectUnits(request.getFinalSelect());
             RequestResponseOK<JsonNode> requestResponseOK = RequestResponseOK.getFromJsonNode(selectUnits);
             return requestResponseOK.getResults();
-
-        } catch (InvalidParseOperationException | InvalidCreateOperationException | MetaDataExecutionException |
-                 MetaDataDocumentSizeException | MetaDataClientServerException e) {
+        } catch (
+            InvalidParseOperationException
+            | InvalidCreateOperationException
+            | MetaDataExecutionException
+            | MetaDataDocumentSizeException
+            | MetaDataClientServerException e
+        ) {
             throw new ProcessingStatusException(StatusCode.FATAL, "Could not select units", e);
         }
     }
 
     private static SelectMultiQuery buildRequestWithProjection(Collection<String> ids)
         throws InvalidCreateOperationException, InvalidParseOperationException {
-
         SelectMultiQuery selectQuery = new SelectMultiQuery();
         selectQuery.setQuery(QueryHelper.in(VitamFieldsHelper.id(), ids.toArray(new String[0])));
         selectQuery.addUsedProjection(
@@ -241,25 +249,27 @@ public class TransferReplyUnitPreparationHandler extends ActionHandler {
             VitamFieldsHelper.originatingAgency(),
             VitamFieldsHelper.max(),
             VitamFieldsHelper.storage(),
-            PERSISTENT_IDENTIFIER_FIELD);
+            PERSISTENT_IDENTIFIER_FIELD
+        );
 
         return selectQuery;
     }
 
     private CloseableIterator<String> loadUnitIdsFromTransferReport(HandlerIO handler)
         throws ProcessingStatusException {
-
         InputStream inputStream = null;
         try {
-
-            TransferReplyContext transferReplyContext =
-                JsonHandler.getFromFile((File) handler.getInput(TRANSFER_REPLY_CONTEXT_IN_RANK),
-                    TransferReplyContext.class);
+            TransferReplyContext transferReplyContext = JsonHandler.getFromFile(
+                (File) handler.getInput(TRANSFER_REPLY_CONTEXT_IN_RANK),
+                TransferReplyContext.class
+            );
 
             inputStream = loadTransferReport(transferReplyContext.getTransferMessageRequestIdentifier());
 
-            JsonLineGenericIterator<JsonLineModel> lineGenericIterator = new JsonLineGenericIterator<>(inputStream,
-                JSON_NODE_TYPE_REFERENCE);
+            JsonLineGenericIterator<JsonLineModel> lineGenericIterator = new JsonLineGenericIterator<>(
+                inputStream,
+                JSON_NODE_TYPE_REFERENCE
+            );
 
             // Skip header + context
             lineGenericIterator.skip();
@@ -267,21 +277,29 @@ public class TransferReplyUnitPreparationHandler extends ActionHandler {
 
             // map iterator (line -> id)
             return CloseableIteratorUtils.map(lineGenericIterator, JsonLineModel::getId);
-
-        } catch (StorageServerClientException | StorageNotFoundException | UncheckedIOException |
-                 InvalidParseOperationException | StorageUnavailableDataFromAsyncOfferClientException e) {
+        } catch (
+            StorageServerClientException
+            | StorageNotFoundException
+            | UncheckedIOException
+            | InvalidParseOperationException
+            | StorageUnavailableDataFromAsyncOfferClientException e
+        ) {
             StreamUtils.closeSilently(inputStream);
             throw new ProcessingStatusException(StatusCode.FATAL, "Could not load transfer report", e);
         }
     }
 
     private InputStream loadTransferReport(String transferRequestId)
-        throws StorageNotFoundException, StorageServerClientException,
-        StorageUnavailableDataFromAsyncOfferClientException {
+        throws StorageNotFoundException, StorageServerClientException, StorageUnavailableDataFromAsyncOfferClientException {
         try (StorageClient storageClient = this.storageClientFactory.getClient()) {
-            return new VitamAsyncInputStream(storageClient
-                .getContainerAsync(VitamConfiguration.getDefaultStrategy(), transferRequestId + ".jsonl",
-                    DataCategory.REPORT, AccessLogUtils.getNoLogAccessLog()));
+            return new VitamAsyncInputStream(
+                storageClient.getContainerAsync(
+                    VitamConfiguration.getDefaultStrategy(),
+                    transferRequestId + ".jsonl",
+                    DataCategory.REPORT,
+                    AccessLogUtils.getNoLogAccessLog()
+                )
+            );
         }
     }
 

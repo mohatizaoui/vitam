@@ -50,9 +50,16 @@ public class AuditPollerTest {
 
     private static final Integer SOME_TENANT_ID = 1;
     private static final String SOME_OPERATION_ID = "SOME ID";
-    @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
-    @Mock private ProcessingManagementClientFactory processingManagementClientFactory;
-    @Mock private ProcessingManagementClient processingManagementClient;
+
+    @Rule
+    public MockitoRule mockitoRule = MockitoJUnit.rule();
+
+    @Mock
+    private ProcessingManagementClientFactory processingManagementClientFactory;
+
+    @Mock
+    private ProcessingManagementClient processingManagementClient;
+
     private AuditPoller auditPoller;
 
     @Before
@@ -67,7 +74,8 @@ public class AuditPollerTest {
         throws VitamClientException, InternalServerException, BadRequestException {
         // GIVEN
         given(processingManagementClient.getOperationProcessStatus(SOME_OPERATION_ID)).willThrow(
-            WorkflowNotFoundException.class);
+            WorkflowNotFoundException.class
+        );
 
         // WHEN
         boolean result = auditPoller.waitForTermination();
@@ -80,8 +88,11 @@ public class AuditPollerTest {
     public void shouldReturnFalseWhenAnExceptionIsThrown()
         throws VitamClientException, InternalServerException, BadRequestException {
         // GIVEN
-        Class<? extends VitamException>[] nokVitanExceptions =
-            new Class[] {VitamClientException.class, InternalServerException.class, BadRequestException.class};
+        Class<? extends VitamException>[] nokVitanExceptions = new Class[] {
+            VitamClientException.class,
+            InternalServerException.class,
+            BadRequestException.class,
+        };
         Class<? extends VitamException> someException = randomVitamException(nokVitanExceptions);
         given(processingManagementClient.getOperationProcessStatus(SOME_OPERATION_ID)).willThrow(someException);
 
@@ -91,5 +102,4 @@ public class AuditPollerTest {
         // THEN
         assertThat(result).isFalse();
     }
-
 }

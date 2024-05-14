@@ -26,7 +26,6 @@
  */
 package fr.gouv.vitam.functional.administration.common.schema;
 
-
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.gouv.vitam.common.database.server.mongodb.VitamDocument;
 import org.bson.Document;
@@ -83,8 +82,7 @@ public class Schema extends VitamDocument<Schema> {
     /**
      * Empty Constructor
      */
-    public Schema() {
-    }
+    public Schema() {}
 
     /**
      * Constructor
@@ -150,7 +148,6 @@ public class Schema extends VitamDocument<Schema> {
         return this;
     }
 
-
     /**
      * The schema collection of the element
      *
@@ -170,7 +167,6 @@ public class Schema extends VitamDocument<Schema> {
         append(TAG_COLLECTION, collection);
         return this;
     }
-
 
     /**
      * The schema origin

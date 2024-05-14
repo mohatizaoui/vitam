@@ -55,8 +55,7 @@ import static org.junit.Assert.assertTrue;
 
 public class PersistentIdentifierGenerationServiceTest {
 
-    private static final String MULTI_USAGES_OBJECTS =
-        "PersistentIdentifiers/objects-multi-usages.json";
+    private static final String MULTI_USAGES_OBJECTS = "PersistentIdentifiers/objects-multi-usages.json";
 
     private PersistentIdentifierGenerationService persistentIdentifierGenerationService =
         new PersistentIdentifierGenerationService();
@@ -65,17 +64,18 @@ public class PersistentIdentifierGenerationServiceTest {
 
     @Before
     public void setUp() throws Exception {
-        final File multiUsagesObjectsFile =
-            PropertiesUtils.getResourceFile(MULTI_USAGES_OBJECTS);
+        final File multiUsagesObjectsFile = PropertiesUtils.getResourceFile(MULTI_USAGES_OBJECTS);
         multiUsagesObjects = IteratorUtils.toList(JsonHandler.getFromFile(multiUsagesObjectsFile).elements());
     }
 
-    private List<JsonNode> filterObjectsNodesByQualifierPrefix(List<JsonNode> initialNodes,
-        String qualifierPrefix) {
-        return initialNodes.stream().filter(
-                node -> node.has("DataObjectVersion") && node.get("DataObjectVersion").asText().startsWith(qualifierPrefix))
-            .collect(
-                Collectors.toList());
+    private List<JsonNode> filterObjectsNodesByQualifierPrefix(List<JsonNode> initialNodes, String qualifierPrefix) {
+        return initialNodes
+            .stream()
+            .filter(
+                node ->
+                    node.has("DataObjectVersion") && node.get("DataObjectVersion").asText().startsWith(qualifierPrefix)
+            )
+            .collect(Collectors.toList());
     }
 
     @Test
@@ -96,24 +96,28 @@ public class PersistentIdentifierGenerationServiceTest {
 
         Map<String, List<JsonNode>> objectsByQualifierMap = convertListJsonNodeMapByUsage(multiUsagesObjects);
 
-        persistentIdentifierGenerationService.handlePersistentIdentifierForGot(objectsByQualifierMap,
-            managementContractModel, PersistentIdentifierPolicyTypeEnum.ARK);
-        List<JsonNode> initialVersionsResults =
-            filterObjectsNodesByQualifierPrefix(multiUsagesObjects, "BinaryMaster_1");
+        persistentIdentifierGenerationService.handlePersistentIdentifierForGot(
+            objectsByQualifierMap,
+            managementContractModel,
+            PersistentIdentifierPolicyTypeEnum.ARK
+        );
+        List<JsonNode> initialVersionsResults = filterObjectsNodesByQualifierPrefix(
+            multiUsagesObjects,
+            "BinaryMaster_1"
+        );
         assertNotNull(initialVersionsResults);
-        initialVersionsResults.stream().forEach(
-            qualifier -> {
+        initialVersionsResults
+            .stream()
+            .forEach(qualifier -> {
                 Assert.assertNotNull(qualifier.get("PersistentIdentifier"));
                 JsonNode persistentNode = qualifier.get("PersistentIdentifier");
-                assertEquals("NAAN-TEST",
-                    persistentNode.get(0).get("PersistentIdentifierReference").asText());
-                assertEquals("ark:/NAAN-TEST/BinaryMaster_1",
+                assertEquals("NAAN-TEST", persistentNode.get(0).get("PersistentIdentifierReference").asText());
+                assertEquals(
+                    "ark:/NAAN-TEST/BinaryMaster_1",
                     persistentNode.get(0).get("PersistentIdentifierContent").asText()
                 );
-            }
-        );
+            });
     }
-
 
     @Test
     @RunWithCustomExecutor
@@ -134,34 +138,49 @@ public class PersistentIdentifierGenerationServiceTest {
 
         Map<String, List<JsonNode>> objectsByQualifierMap = convertListJsonNodeMapByUsage(multiUsagesObjects);
 
-        persistentIdentifierGenerationService.handlePersistentIdentifierForGot(objectsByQualifierMap,
-            managementContractModel, PersistentIdentifierPolicyTypeEnum.ARK);
-        List<JsonNode> generatedResults =
-            filterObjectsNodesByQualifierPrefix(multiUsagesObjects, "BinaryMaster_");
+        persistentIdentifierGenerationService.handlePersistentIdentifierForGot(
+            objectsByQualifierMap,
+            managementContractModel,
+            PersistentIdentifierPolicyTypeEnum.ARK
+        );
+        List<JsonNode> generatedResults = filterObjectsNodesByQualifierPrefix(multiUsagesObjects, "BinaryMaster_");
         assertNotNull(generatedResults);
-        generatedResults.stream().filter(element -> element.has("DataObjectVersion") &&
-            !"BinaryMaster_2".equals(element.get("DataObjectVersion").asText())).forEach(
-            qualifier -> {
+        generatedResults
+            .stream()
+            .filter(
+                element ->
+                    element.has("DataObjectVersion") &&
+                    !"BinaryMaster_2".equals(element.get("DataObjectVersion").asText())
+            )
+            .forEach(qualifier -> {
                 Assert.assertNotNull(qualifier.get("PersistentIdentifier"));
                 JsonNode persistentNode = qualifier.get("PersistentIdentifier");
-                assertEquals("NAAN-TEST", persistentNode.get(0).get("PersistentIdentifierReference").asText()
-                );
+                assertEquals("NAAN-TEST", persistentNode.get(0).get("PersistentIdentifierReference").asText());
 
-                assertTrue("ark:/NAAN-TEST/BinaryMaster_1".equals(
-                    persistentNode.get(0).get("PersistentIdentifierContent").asText()) ||
+                assertTrue(
+                    "ark:/NAAN-TEST/BinaryMaster_1".equals(
+                            persistentNode.get(0).get("PersistentIdentifierContent").asText()
+                        ) ||
                     "ark:/NAAN-TEST/BinaryMaster_3".equals(
-                        persistentNode.get(0).get("PersistentIdentifierContent").asText()));
-            }
-        );
-        JsonNode binaryMaster2Node = generatedResults.stream().filter(element -> element.has("DataObjectVersion") &&
-            "BinaryMaster_2".equals(element.get("DataObjectVersion").asText())).findAny().get();
+                            persistentNode.get(0).get("PersistentIdentifierContent").asText()
+                        )
+                );
+            });
+        JsonNode binaryMaster2Node = generatedResults
+            .stream()
+            .filter(
+                element ->
+                    element.has("DataObjectVersion") &&
+                    "BinaryMaster_2".equals(element.get("DataObjectVersion").asText())
+            )
+            .findAny()
+            .get();
         assertFalse(binaryMaster2Node.has("PersistentIdentifierContent"));
     }
 
     @Test
     @RunWithCustomExecutor
-    public void should_generate_all_when_management_contract_allow_just_all()
-        throws InvalidParseOperationException {
+    public void should_generate_all_when_management_contract_allow_just_all() throws InvalidParseOperationException {
         ManagementContractModel managementContractModel = new ManagementContractModel();
         managementContractModel.setIdentifier("test mgt contract");
         managementContractModel.setId("test mgt contract");
@@ -176,33 +195,37 @@ public class PersistentIdentifierGenerationServiceTest {
 
         Map<String, List<JsonNode>> objectsByQualifierMap = convertListJsonNodeMapByUsage(multiUsagesObjects);
 
-        persistentIdentifierGenerationService.handlePersistentIdentifierForGot(objectsByQualifierMap,
-            managementContractModel, PersistentIdentifierPolicyTypeEnum.ARK);
-        List<JsonNode> initialVersionsResults =
-            filterObjectsNodesByQualifierPrefix(multiUsagesObjects, "BinaryMaster");
+        persistentIdentifierGenerationService.handlePersistentIdentifierForGot(
+            objectsByQualifierMap,
+            managementContractModel,
+            PersistentIdentifierPolicyTypeEnum.ARK
+        );
+        List<JsonNode> initialVersionsResults = filterObjectsNodesByQualifierPrefix(multiUsagesObjects, "BinaryMaster");
         assertNotNull(initialVersionsResults);
-        initialVersionsResults.stream().forEach(
-            qualifier -> {
+        initialVersionsResults
+            .stream()
+            .forEach(qualifier -> {
                 Assert.assertNotNull(qualifier.get("PersistentIdentifier"));
                 JsonNode persistentNode = qualifier.get("PersistentIdentifier");
-                assertEquals("NAAN-TEST", persistentNode.get(0).get("PersistentIdentifierReference").asText()
-                );
+                assertEquals("NAAN-TEST", persistentNode.get(0).get("PersistentIdentifierReference").asText());
 
-                assertTrue("ark:/NAAN-TEST/BinaryMaster_1".equals(
-                    persistentNode.get(0).get("PersistentIdentifierContent").asText()) ||
+                assertTrue(
+                    "ark:/NAAN-TEST/BinaryMaster_1".equals(
+                            persistentNode.get(0).get("PersistentIdentifierContent").asText()
+                        ) ||
                     "ark:/NAAN-TEST/BinaryMaster_2".equals(
-                        persistentNode.get(0).get("PersistentIdentifierContent").asText()) ||
+                            persistentNode.get(0).get("PersistentIdentifierContent").asText()
+                        ) ||
                     "ark:/NAAN-TEST/BinaryMaster_3".equals(
-                        persistentNode.get(0).get("PersistentIdentifierContent").asText()));
-            }
-        );
+                            persistentNode.get(0).get("PersistentIdentifierContent").asText()
+                        )
+                );
+            });
     }
-
 
     @Test
     @RunWithCustomExecutor
-    public void should_generate_all_when_management_contract_allow_1_and_all()
-        throws InvalidParseOperationException {
+    public void should_generate_all_when_management_contract_allow_1_and_all() throws InvalidParseOperationException {
         ManagementContractModel managementContractModel = new ManagementContractModel();
         managementContractModel.setIdentifier("test mgt contract");
         managementContractModel.setId("test mgt contract");
@@ -219,25 +242,32 @@ public class PersistentIdentifierGenerationServiceTest {
 
         Map<String, List<JsonNode>> objectsByQualifierMap = convertListJsonNodeMapByUsage(multiUsagesObjects);
 
-        persistentIdentifierGenerationService.handlePersistentIdentifierForGot(objectsByQualifierMap,
-            managementContractModel, PersistentIdentifierPolicyTypeEnum.ARK);
-        List<JsonNode> initialVersionsResults =
-            filterObjectsNodesByQualifierPrefix(multiUsagesObjects, "BinaryMaster");
+        persistentIdentifierGenerationService.handlePersistentIdentifierForGot(
+            objectsByQualifierMap,
+            managementContractModel,
+            PersistentIdentifierPolicyTypeEnum.ARK
+        );
+        List<JsonNode> initialVersionsResults = filterObjectsNodesByQualifierPrefix(multiUsagesObjects, "BinaryMaster");
         assertNotNull(initialVersionsResults);
-        initialVersionsResults.stream().forEach(
-            qualifier -> {
+        initialVersionsResults
+            .stream()
+            .forEach(qualifier -> {
                 Assert.assertNotNull(qualifier.get("PersistentIdentifier"));
                 JsonNode persistentNode = qualifier.get("PersistentIdentifier");
                 assertEquals("NAAN-TEST", persistentNode.get(0).get("PersistentIdentifierReference").asText());
 
-                assertTrue("ark:/NAAN-TEST/BinaryMaster_1".equals(
-                    persistentNode.get(0).get("PersistentIdentifierContent").asText()) ||
+                assertTrue(
+                    "ark:/NAAN-TEST/BinaryMaster_1".equals(
+                            persistentNode.get(0).get("PersistentIdentifierContent").asText()
+                        ) ||
                     "ark:/NAAN-TEST/BinaryMaster_2".equals(
-                        persistentNode.get(0).get("PersistentIdentifierContent").asText()) ||
+                            persistentNode.get(0).get("PersistentIdentifierContent").asText()
+                        ) ||
                     "ark:/NAAN-TEST/BinaryMaster_3".equals(
-                        persistentNode.get(0).get("PersistentIdentifierContent").asText()));
-            }
-        );
+                            persistentNode.get(0).get("PersistentIdentifierContent").asText()
+                        )
+                );
+            });
     }
 
     @Test
@@ -266,36 +296,47 @@ public class PersistentIdentifierGenerationServiceTest {
 
         Map<String, List<JsonNode>> objectsByQualifierMap = convertListJsonNodeMapByUsage(multiUsagesObjects);
 
-        persistentIdentifierGenerationService.handlePersistentIdentifierForGot(objectsByQualifierMap,
-            managementContractModel, PersistentIdentifierPolicyTypeEnum.ARK);
-        List<JsonNode> initialVersionsResults =
-            filterObjectsNodesByQualifierPrefix(multiUsagesObjects, "BinaryMaster");
+        persistentIdentifierGenerationService.handlePersistentIdentifierForGot(
+            objectsByQualifierMap,
+            managementContractModel,
+            PersistentIdentifierPolicyTypeEnum.ARK
+        );
+        List<JsonNode> initialVersionsResults = filterObjectsNodesByQualifierPrefix(multiUsagesObjects, "BinaryMaster");
         initialVersionsResults.addAll(filterObjectsNodesByQualifierPrefix(multiUsagesObjects, "Dissemination_2"));
         assertNotNull(initialVersionsResults);
-        initialVersionsResults.stream().forEach(
-            qualifier -> {
+        initialVersionsResults
+            .stream()
+            .forEach(qualifier -> {
                 Assert.assertNotNull(qualifier.get("PersistentIdentifier"));
                 JsonNode persistentNode = qualifier.get("PersistentIdentifier");
                 assertEquals("NAAN-TEST", persistentNode.get(0).get("PersistentIdentifierReference").asText());
 
-                assertTrue("ark:/NAAN-TEST/BinaryMaster_1".equals(
-                    persistentNode.get(0).get("PersistentIdentifierContent").asText()) ||
+                assertTrue(
+                    "ark:/NAAN-TEST/BinaryMaster_1".equals(
+                            persistentNode.get(0).get("PersistentIdentifierContent").asText()
+                        ) ||
                     "ark:/NAAN-TEST/BinaryMaster_2".equals(
-                        persistentNode.get(0).get("PersistentIdentifierContent").asText()) ||
+                            persistentNode.get(0).get("PersistentIdentifierContent").asText()
+                        ) ||
                     "ark:/NAAN-TEST/BinaryMaster_3".equals(
-                        persistentNode.get(0).get("PersistentIdentifierContent").asText()) ||
+                            persistentNode.get(0).get("PersistentIdentifierContent").asText()
+                        ) ||
                     "ark:/NAAN-TEST/Dissemination_2".equals(
-                        persistentNode.get(0).get("PersistentIdentifierContent").asText()));
-            }
-        );
+                            persistentNode.get(0).get("PersistentIdentifierContent").asText()
+                        )
+                );
+            });
     }
 
     private Map<String, List<JsonNode>> convertListJsonNodeMapByUsage(List<JsonNode> multiUsagesObjects) {
-        return
-            multiUsagesObjects.stream().filter(jsonNode -> jsonNode.has("DataObjectVersion"))
-                .collect(Collectors.toMap(
+        return multiUsagesObjects
+            .stream()
+            .filter(jsonNode -> jsonNode.has("DataObjectVersion"))
+            .collect(
+                Collectors.toMap(
                     jsonNode -> jsonNode.get("DataObjectVersion").asText(),
                     jsonNode -> Collections.singletonList(jsonNode)
-                ));
+                )
+            );
     }
 }

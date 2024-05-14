@@ -97,7 +97,6 @@ import fr.gouv.vitam.worker.server.rest.WorkerMain;
 import fr.gouv.vitam.workspace.rest.WorkspaceMain;
 import org.apache.commons.io.IOUtils;
 import org.assertj.core.util.Lists;
-import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -134,8 +133,9 @@ public class PersistentIdentifierReconstructionIT extends VitamRuleRunner {
     public static final String ELIMINATION_DATE = "2023-01-01";
     public static final int HTTP_OK = 200;
     public static final String INTEGRATION_INGEST_INTERNAL = "integration-ingest-internal";
-    private static final VitamLogger LOGGER =
-        VitamLoggerFactory.getInstance(PersistentIdentifierReconstructionIT.class);
+    private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(
+        PersistentIdentifierReconstructionIT.class
+    );
     private static final String XML = ".xml";
     private static final String TEST_ELIMINATION_V3_SIP = "elimination/TEST_ELIMINATION_V3.zip";
     private static final String TEST_ELIMINATION_V4_SIP = "elimination/TEST_ELIMINATION_V4.zip";
@@ -143,37 +143,43 @@ public class PersistentIdentifierReconstructionIT extends VitamRuleRunner {
     private static final int TENANT_1 = 1;
 
     @ClassRule
-    public static VitamServerRunner runner =
-        new VitamServerRunner(PersistentIdentifierReconstructionIT.class, mongoRule.getMongoDatabase().getName(),
-            elasticsearchRule.getClusterName(),
-            Sets.newHashSet(
-                MetadataMain.class,
-                WorkerMain.class,
-                AdminManagementMain.class,
-                LogbookMain.class,
-                WorkspaceMain.class,
-                ProcessManagementMain.class,
-                AccessInternalMain.class,
-                IngestInternalMain.class,
-                StorageMain.class,
-                DefaultOfferMain.class,
-                BatchReportMain.class
-            ));
+    public static VitamServerRunner runner = new VitamServerRunner(
+        PersistentIdentifierReconstructionIT.class,
+        mongoRule.getMongoDatabase().getName(),
+        elasticsearchRule.getClusterName(),
+        Sets.newHashSet(
+            MetadataMain.class,
+            WorkerMain.class,
+            AdminManagementMain.class,
+            LogbookMain.class,
+            WorkspaceMain.class,
+            ProcessManagementMain.class,
+            AccessInternalMain.class,
+            IngestInternalMain.class,
+            StorageMain.class,
+            DefaultOfferMain.class,
+            BatchReportMain.class
+        )
+    );
+
     private static OffsetRepository offsetRepository;
 
     @BeforeClass
     public static void setupBeforeClass() throws Exception {
         handleBeforeClass(Arrays.asList(0, 1), Collections.emptyMap());
 
-        String configSiegfriedPath =
-            PropertiesUtils.getResourcePath(INTEGRATION_INGEST_INTERNAL + "/format-identifiers.conf").toString();
+        String configSiegfriedPath = PropertiesUtils.getResourcePath(
+            INTEGRATION_INGEST_INTERNAL + "/format-identifiers.conf"
+        ).toString();
 
         FormatIdentifierFactory.getInstance().changeConfigurationFile(configSiegfriedPath);
 
         new DataLoader(INTEGRATION_INGEST_INTERNAL).prepareData();
 
-        MongoDbAccess mongoDbAccess =
-            new SimpleMongoDBAccess(mongoRule.getMongoClient(), mongoRule.getMongoDatabase().getName());
+        MongoDbAccess mongoDbAccess = new SimpleMongoDBAccess(
+            mongoRule.getMongoClient(),
+            mongoRule.getMongoDatabase().getName()
+        );
         offsetRepository = new OffsetRepository(mongoDbAccess);
     }
 
@@ -198,7 +204,6 @@ public class PersistentIdentifierReconstructionIT extends VitamRuleRunner {
     @Test
     @RunWithCustomExecutor
     public void testEliminatedPersistentIdentifierReconstructOk() throws Exception {
-
         prepareVitamSession();
         final String ingestOperationGuid = VitamTestHelper.doIngest(TENANT_0, TEST_ELIMINATION_V3_SIP);
         verifyOperation(ingestOperationGuid, OK);
@@ -217,23 +222,25 @@ public class PersistentIdentifierReconstructionIT extends VitamRuleRunner {
         VitamThreadUtils.getVitamSession().setRequestId(eliminationActionOperationGuid);
 
         SelectMultiQuery analysisDslRequest = new SelectMultiQuery();
-        analysisDslRequest
-            .addQueries(QueryHelper.eq(VitamFieldsHelper.initialOperation(), ingestOperationGuid));
+        analysisDslRequest.addQueries(QueryHelper.eq(VitamFieldsHelper.initialOperation(), ingestOperationGuid));
 
         EliminationRequestBody eliminationRequestBody = new EliminationRequestBody(
-            ELIMINATION_DATE, analysisDslRequest.getFinalSelect());
+            ELIMINATION_DATE,
+            analysisDslRequest.getFinalSelect()
+        );
 
-        final RequestResponse<JsonNode> actionResult =
-            accessInternalClient.startEliminationAction(eliminationRequestBody);
-
+        final RequestResponse<JsonNode> actionResult = accessInternalClient.startEliminationAction(
+            eliminationRequestBody
+        );
 
         OperationContextMonitor operationContextMonitor = new OperationContextMonitor();
         assertThat(actionResult.isOk()).isTrue();
 
-
-        JsonNode info = operationContextMonitor
-            .getInformation(VitamConfiguration.getDefaultStrategy(), eliminationActionOperationGuid,
-                LogbookTypeProcess.ELIMINATION);
+        JsonNode info = operationContextMonitor.getInformation(
+            VitamConfiguration.getDefaultStrategy(),
+            eliminationActionOperationGuid,
+            LogbookTypeProcess.ELIMINATION
+        );
 
         assertThat(info).isNotNull();
 
@@ -241,9 +248,11 @@ public class PersistentIdentifierReconstructionIT extends VitamRuleRunner {
 
         TimeUnit.SECONDS.sleep(1);
 
-        info = operationContextMonitor
-            .getInformation(VitamConfiguration.getDefaultStrategy(), eliminationActionOperationGuid,
-                LogbookTypeProcess.ELIMINATION);
+        info = operationContextMonitor.getInformation(
+            VitamConfiguration.getDefaultStrategy(),
+            eliminationActionOperationGuid,
+            LogbookTypeProcess.ELIMINATION
+        );
 
         assertThat(info).isNotNull();
 
@@ -255,38 +264,32 @@ public class PersistentIdentifierReconstructionIT extends VitamRuleRunner {
             RequestResponse<JsonNode> response = metaDataClient.reconstructPersistentIdentifiers(requestItem);
             assertThat(response.getHttpCode()).isEqualTo(HTTP_OK);
         }
-
     }
-
 
     @Test
     @RunWithCustomExecutor
     public void testDeletedGotWithPersistentIdentifierReconstruction_Ok() throws Exception {
-
         prepareVitamSession();
         String ingestOperationId = doIngest(TENANT_0, TEST_ELIMINATION_V4_SIP);
         verifyOperation(ingestOperationId, OK);
 
         try (AccessInternalClient accessClient = AccessInternalClientFactory.getInstance().getClient()) {
-
             SelectMultiQuery getGotsRequest = new SelectMultiQuery();
-            getGotsRequest.addQueries(
-                QueryHelper.eq(VitamFieldsHelper.initialOperation(), ingestOperationId));
-
+            getGotsRequest.addQueries(QueryHelper.eq(VitamFieldsHelper.initialOperation(), ingestOperationId));
 
             // Prepare Request for delete got versions
             SelectMultiQuery searchDslQuery = new SelectMultiQuery();
             searchDslQuery.addQueries(QueryHelper.eq("Title", "UnitF"));
 
-            DeleteGotVersionsRequest deleteGotVersionsRequest =
-                new DeleteGotVersionsRequest(searchDslQuery.getFinalSelect(),
-                    BINARY_MASTER.getName(), List.of(2));
+            DeleteGotVersionsRequest deleteGotVersionsRequest = new DeleteGotVersionsRequest(
+                searchDslQuery.getFinalSelect(),
+                BINARY_MASTER.getName(),
+                List.of(2)
+            );
 
             GUID operationGuid = GUIDFactory.newOperationLogbookGUID(TENANT_0);
             getVitamSession().setRequestId(operationGuid);
-            final RequestResponse<JsonNode> actionResult =
-
-                accessClient.deleteGotVersions(deleteGotVersionsRequest);
+            final RequestResponse<JsonNode> actionResult = accessClient.deleteGotVersions(deleteGotVersionsRequest);
             assertThat(actionResult.isOk()).isTrue();
             VitamTestHelper.awaitForWorkflowTerminationWithStatus(operationGuid, OK);
 
@@ -302,11 +305,10 @@ public class PersistentIdentifierReconstructionIT extends VitamRuleRunner {
     }
 
     private void awaitForWorkflowTerminationWithStatus(String operationGuid, StatusCode expectedStatusCode) {
-
         waitOperation(operationGuid);
 
-        ProcessWorkflow processWorkflow =
-            ProcessMonitoringImpl.getInstance().findOneProcessWorkflow(operationGuid, TENANT_0);
+        ProcessWorkflow processWorkflow = ProcessMonitoringImpl.getInstance()
+            .findOneProcessWorkflow(operationGuid, TENANT_0);
 
         try {
             assertNotNull(processWorkflow);
@@ -331,31 +333,33 @@ public class PersistentIdentifierReconstructionIT extends VitamRuleRunner {
     private void tryLogATR(String operationId) {
         try (InputStream atr = readStoredReport(operationId + XML)) {
             LOGGER.error("Operation ATR : \n" + IOUtils.toString(atr, StandardCharsets.UTF_8) + "\n\n\n");
-        } catch (StorageNotFoundException ignored) {
-        } catch (Exception e) {
+        } catch (StorageNotFoundException ignored) {} catch (Exception e) {
             LOGGER.error("Could not retrieve ATR for operation " + operationId, e);
         }
     }
 
     private InputStream readStoredReport(String filename)
-        throws StorageServerClientException, StorageNotFoundException,
-        StorageUnavailableDataFromAsyncOfferClientException {
+        throws StorageServerClientException, StorageNotFoundException, StorageUnavailableDataFromAsyncOfferClientException {
         try (StorageClient storageClient = StorageClientFactory.getInstance().getClient()) {
-
             javax.ws.rs.core.Response reportResponse = null;
 
             try {
-                reportResponse = storageClient.getContainerAsync(VitamConfiguration.getDefaultStrategy(),
-                    filename, DataCategory.REPORT,
-                    AccessLogUtils.getNoLogAccessLog());
+                reportResponse = storageClient.getContainerAsync(
+                    VitamConfiguration.getDefaultStrategy(),
+                    filename,
+                    DataCategory.REPORT,
+                    AccessLogUtils.getNoLogAccessLog()
+                );
 
                 assertThat(reportResponse.getStatus()).isEqualTo(Status.OK.getStatusCode());
 
                 return new VitamAsyncInputStream(reportResponse);
-
-
-            } catch (RuntimeException | StorageServerClientException | StorageNotFoundException |
-                StorageUnavailableDataFromAsyncOfferClientException e) {
+            } catch (
+                RuntimeException
+                | StorageServerClientException
+                | StorageNotFoundException
+                | StorageUnavailableDataFromAsyncOfferClientException e
+            ) {
                 StreamUtils.consumeAnyEntityAndClose(reportResponse);
                 throw e;
             }
@@ -389,27 +393,33 @@ public class PersistentIdentifierReconstructionIT extends VitamRuleRunner {
         return objectIds;
     }
 
-    private RequestResponseOK<JsonNode> selectGotsByOpi(String ingestOperationGuid,
-        AccessInternalClient accessInternalClient)
-        throws InvalidCreateOperationException, InvalidParseOperationException, AccessInternalClientServerException,
-        AccessInternalClientNotFoundException, AccessUnauthorizedException, BadRequestException {
+    private RequestResponseOK<JsonNode> selectGotsByOpi(
+        String ingestOperationGuid,
+        AccessInternalClient accessInternalClient
+    )
+        throws InvalidCreateOperationException, InvalidParseOperationException, AccessInternalClientServerException, AccessInternalClientNotFoundException, AccessUnauthorizedException, BadRequestException {
         SelectMultiQuery checkEliminationGotDslRequest = new SelectMultiQuery();
         checkEliminationGotDslRequest.addQueries(
-            QueryHelper.eq(VitamFieldsHelper.initialOperation(), ingestOperationGuid));
+            QueryHelper.eq(VitamFieldsHelper.initialOperation(), ingestOperationGuid)
+        );
 
-        return (RequestResponseOK<JsonNode>) accessInternalClient
-            .selectObjects(checkEliminationGotDslRequest.getFinalSelect());
+        return (RequestResponseOK<JsonNode>) accessInternalClient.selectObjects(
+            checkEliminationGotDslRequest.getFinalSelect()
+        );
     }
 
-    private RequestResponseOK<JsonNode> selectUnitsByOpi(String ingestOperationGuid,
-        AccessInternalClient accessInternalClient)
-        throws InvalidCreateOperationException, InvalidParseOperationException, AccessInternalClientServerException,
-        AccessInternalClientNotFoundException, AccessUnauthorizedException, BadRequestException {
+    private RequestResponseOK<JsonNode> selectUnitsByOpi(
+        String ingestOperationGuid,
+        AccessInternalClient accessInternalClient
+    )
+        throws InvalidCreateOperationException, InvalidParseOperationException, AccessInternalClientServerException, AccessInternalClientNotFoundException, AccessUnauthorizedException, BadRequestException {
         SelectMultiQuery checkEliminationDslRequest = new SelectMultiQuery();
         checkEliminationDslRequest.addQueries(
-            QueryHelper.eq(VitamFieldsHelper.initialOperation(), ingestOperationGuid));
+            QueryHelper.eq(VitamFieldsHelper.initialOperation(), ingestOperationGuid)
+        );
 
-        return (RequestResponseOK<JsonNode>) accessInternalClient
-            .selectUnits(checkEliminationDslRequest.getFinalSelect());
+        return (RequestResponseOK<JsonNode>) accessInternalClient.selectUnits(
+            checkEliminationDslRequest.getFinalSelect()
+        );
     }
 }

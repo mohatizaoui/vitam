@@ -31,7 +31,5 @@ import fr.gouv.vitam.metadata.core.reconstruction.exception.ReconstructionExcept
 import java.io.InputStream;
 
 public interface OperationReportRepository {
-
     InputStream retrieveJsonReportForOperation(String operationId) throws ReconstructionException;
-
 }

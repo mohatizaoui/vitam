@@ -48,7 +48,6 @@ public class PersistentIdentifierReconstructionRequest {
         super();
     }
 
-
     /**
      * Get tenants
      *
@@ -67,5 +66,4 @@ public class PersistentIdentifierReconstructionRequest {
     public void setTenants(List<Integer> tenants) {
         this.tenants = tenants;
     }
-
 }

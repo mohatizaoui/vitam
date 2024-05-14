@@ -26,9 +26,7 @@
  */
 package fr.gouv.vitam.functionaltest.cucumber.step;
 
-
 import com.fasterxml.jackson.databind.JsonNode;
-import io.cucumber.java.en.Then;
 import fr.gouv.vitam.access.external.client.VitamPoolingClient;
 import fr.gouv.vitam.common.client.VitamContext;
 import fr.gouv.vitam.common.database.builder.request.multiple.SelectMultiQuery;
@@ -37,6 +35,7 @@ import fr.gouv.vitam.common.model.ProbativeValueRequest;
 import fr.gouv.vitam.common.model.ProcessState;
 import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
+import io.cucumber.java.en.Then;
 
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
@@ -63,21 +62,30 @@ public class ProbativeStep extends CommonStep {
         this.probativeValue(usage, false);
     }
 
-    @Then("^Je lance un rélevé de valeur probante étendu aux éléments de preuves de signature électronique avec l'usage suivant (.*)")
+    @Then(
+        "^Je lance un rélevé de valeur probante étendu aux éléments de preuves de signature électronique avec l'usage suivant (.*)"
+    )
     public void probativeValueIncludeDetachedSigningInformation(String usage) throws Exception {
         this.probativeValue(usage, true);
     }
 
     private void probativeValue(String usage, boolean includeDetachedSigningInformation) throws Exception {
-
         JsonNode query = JsonHandler.getFromString(world.getQuery());
-        ProbativeValueRequest probativeValueRequest =
-            new ProbativeValueRequest(query, usage, "1", includeDetachedSigningInformation);
+        ProbativeValueRequest probativeValueRequest = new ProbativeValueRequest(
+            query,
+            usage,
+            "1",
+            includeDetachedSigningInformation
+        );
 
-        RequestResponse response = world.getAdminClient().exportProbativeValue(
-            new VitamContext(world.getTenantId()).setAccessContract(world.getContractId())
-                .setApplicationSessionId(world.getApplicationSessionId()),
-            probativeValueRequest);
+        RequestResponse response = world
+            .getAdminClient()
+            .exportProbativeValue(
+                new VitamContext(world.getTenantId())
+                    .setAccessContract(world.getContractId())
+                    .setApplicationSessionId(world.getApplicationSessionId()),
+                probativeValueRequest
+            );
 
         assertThat(response.isOk()).isTrue();
 
@@ -85,8 +93,14 @@ public class ProbativeStep extends CommonStep {
         world.setOperationId(operationId);
 
         final VitamPoolingClient vitamPoolingClient = new VitamPoolingClient(world.getAdminClient());
-        boolean processTimeout = vitamPoolingClient
-            .wait(world.getTenantId(), operationId, ProcessState.COMPLETED, 100, 1_000L, TimeUnit.MILLISECONDS);
+        boolean processTimeout = vitamPoolingClient.wait(
+            world.getTenantId(),
+            operationId,
+            ProcessState.COMPLETED,
+            100,
+            1_000L,
+            TimeUnit.MILLISECONDS
+        );
 
         if (!processTimeout) {
             fail("Probative value processing not finished. Timeout exceeded.");
@@ -98,13 +112,17 @@ public class ProbativeStep extends CommonStep {
 
     @Then("^le périmètre effectif du rapport de valeur probante contient les unités ayant pour titres$")
     public void probativeValueIncludeDetachedSigningInformation(List<String> expectedUnitTitles) throws Exception {
-        VitamContext vitamContext = new VitamContext(world.getTenantId()).setAccessContract(world.getContractId())
+        VitamContext vitamContext = new VitamContext(world.getTenantId())
+            .setAccessContract(world.getContractId())
             .setApplicationSessionId(world.getApplicationSessionId());
 
         JsonNode reportContent;
-        try (Response response = world.getAdminClient()
-            .downloadRulesReport(vitamContext, this.lastProbativeValueOperationId);
-            InputStream is = response.readEntity(InputStream.class)) {
+        try (
+            Response response = world
+                .getAdminClient()
+                .downloadRulesReport(vitamContext, this.lastProbativeValueOperationId);
+            InputStream is = response.readEntity(InputStream.class)
+        ) {
             reportContent = JsonHandler.getFromInputStream(is);
         }
 
@@ -118,11 +136,13 @@ public class ProbativeStep extends CommonStep {
         SelectMultiQuery selectMultiQuery = new SelectMultiQuery();
         selectMultiQuery.addRoots(unitIds.toArray(String[]::new));
         selectMultiQuery.addUsedProjection("Title");
-        RequestResponseOK<JsonNode> selectedUnits =
-            (RequestResponseOK<JsonNode>) world.getAccessClient()
-                .selectUnits(vitamContext, selectMultiQuery.getFinalSelect());
+        RequestResponseOK<JsonNode> selectedUnits = (RequestResponseOK<JsonNode>) world
+            .getAccessClient()
+            .selectUnits(vitamContext, selectMultiQuery.getFinalSelect());
 
-        List<String> foundUnitTitles = selectedUnits.getResults().stream()
+        List<String> foundUnitTitles = selectedUnits
+            .getResults()
+            .stream()
             .map(unit -> unit.get("Title").asText())
             .collect(Collectors.toList());
 

@@ -26,8 +26,7 @@
  */
 package fr.gouv.vitam.collect.internal.core.common;
 
-
 public enum BatchStatus {
     PURGED,
-    KO;
+    KO,
 }

@@ -33,6 +33,7 @@ import static fr.gouv.vitam.common.model.unit.DescriptiveMetadataModel.SIGNING_I
 import static fr.gouv.vitam.common.model.unit.SigningInformationTypeModel.DETACHED_SIGNING_ROLE;
 
 public class SelectedUnit {
+
     private final String unitId;
     private final String objectGroupId;
     private final boolean haveDetachedSigningRoles;

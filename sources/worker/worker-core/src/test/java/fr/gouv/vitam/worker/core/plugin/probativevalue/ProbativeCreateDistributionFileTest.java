@@ -98,10 +98,14 @@ public class ProbativeCreateDistributionFileTest {
         File newLocalFile = tempFolder.newFile();
         when(handlerIO.getNewLocalFile(eq("OBJECT_GROUP_TO_CHECK.jsonl"))).thenReturn(newLocalFile);
 
-        ProbativeValueRequest probativeValueRequest =
-            new ProbativeValueRequest(new SelectMultiQuery().getFinalSelect(), "BinaryMaster", "1");
-        when(handlerIO.getInputStreamFromWorkspace(eq("request")))
-            .thenReturn(new ByteArrayInputStream(JsonHandler.fromPojoToBytes(probativeValueRequest)));
+        ProbativeValueRequest probativeValueRequest = new ProbativeValueRequest(
+            new SelectMultiQuery().getFinalSelect(),
+            "BinaryMaster",
+            "1"
+        );
+        when(handlerIO.getInputStreamFromWorkspace(eq("request"))).thenReturn(
+            new ByteArrayInputStream(JsonHandler.fromPojoToBytes(probativeValueRequest))
+        );
 
         ObjectNode selectedUnitGOT = JsonHandler.createObjectNode();
         selectedUnitGOT.put("#id", "Unit1");
@@ -126,10 +130,14 @@ public class ProbativeCreateDistributionFileTest {
         File newLocalFile = tempFolder.newFile();
         when(handlerIO.getNewLocalFile(eq("OBJECT_GROUP_TO_CHECK.jsonl"))).thenReturn(newLocalFile);
 
-        ProbativeValueRequest probativeValueRequest =
-            new ProbativeValueRequest(new SelectMultiQuery().getFinalSelect(), "BinaryMaster", "1");
-        when(handlerIO.getInputStreamFromWorkspace(eq("request")))
-            .thenReturn(new ByteArrayInputStream(JsonHandler.fromPojoToBytes(probativeValueRequest)));
+        ProbativeValueRequest probativeValueRequest = new ProbativeValueRequest(
+            new SelectMultiQuery().getFinalSelect(),
+            "BinaryMaster",
+            "1"
+        );
+        when(handlerIO.getInputStreamFromWorkspace(eq("request"))).thenReturn(
+            new ByteArrayInputStream(JsonHandler.fromPojoToBytes(probativeValueRequest))
+        );
 
         ObjectNode selectedUnitGOT = JsonHandler.createObjectNode();
         selectedUnitGOT.put("#id", "Unit1");
@@ -159,10 +167,14 @@ public class ProbativeCreateDistributionFileTest {
         File newLocalFile = tempFolder.newFile();
         when(handlerIO.getNewLocalFile(eq("OBJECT_GROUP_TO_CHECK.jsonl"))).thenReturn(newLocalFile);
 
-        ProbativeValueRequest probativeValueRequest =
-            new ProbativeValueRequest(new SelectMultiQuery().getFinalSelect(), "BinaryMaster", "1");
-        when(handlerIO.getInputStreamFromWorkspace(eq("request")))
-            .thenReturn(new ByteArrayInputStream(JsonHandler.fromPojoToBytes(probativeValueRequest)));
+        ProbativeValueRequest probativeValueRequest = new ProbativeValueRequest(
+            new SelectMultiQuery().getFinalSelect(),
+            "BinaryMaster",
+            "1"
+        );
+        when(handlerIO.getInputStreamFromWorkspace(eq("request"))).thenReturn(
+            new ByteArrayInputStream(JsonHandler.fromPojoToBytes(probativeValueRequest))
+        );
 
         ObjectNode selectedUnitGOT = JsonHandler.createObjectNode();
         selectedUnitGOT.put("#id", "Unit1");
@@ -188,21 +200,20 @@ public class ProbativeCreateDistributionFileTest {
         File newLocalFile = tempFolder.newFile();
         when(handlerIO.getNewLocalFile(eq("OBJECT_GROUP_TO_CHECK.jsonl"))).thenReturn(newLocalFile);
 
-        ProbativeValueRequest probativeValueRequest =
-            new ProbativeValueRequest(new SelectMultiQuery().getFinalSelect(), "BinaryMaster", "1");
-        when(handlerIO.getInputStreamFromWorkspace(eq("request")))
-            .thenReturn(new ByteArrayInputStream(JsonHandler.fromPojoToBytes(probativeValueRequest)));
+        ProbativeValueRequest probativeValueRequest = new ProbativeValueRequest(
+            new SelectMultiQuery().getFinalSelect(),
+            "BinaryMaster",
+            "1"
+        );
+        when(handlerIO.getInputStreamFromWorkspace(eq("request"))).thenReturn(
+            new ByteArrayInputStream(JsonHandler.fromPojoToBytes(probativeValueRequest))
+        );
 
-        ObjectNode selectedUnitGOT1 = JsonHandler.createObjectNode()
-            .put("#id", "Unit1");
+        ObjectNode selectedUnitGOT1 = JsonHandler.createObjectNode().put("#id", "Unit1");
 
-        ObjectNode selectedUnitGOT2 = JsonHandler.createObjectNode()
-            .put("#id", "Unit2")
-            .putNull("#og");
+        ObjectNode selectedUnitGOT2 = JsonHandler.createObjectNode().put("#id", "Unit2").putNull("#og");
 
-        ObjectNode selectedUnitGOT3 = JsonHandler.createObjectNode()
-            .put("#id", "Unit3")
-            .put("#object", "og3");
+        ObjectNode selectedUnitGOT3 = JsonHandler.createObjectNode().put("#id", "Unit3").put("#object", "og3");
 
         RequestResponseOK<JsonNode> requestResponseOK = new RequestResponseOK<>();
         requestResponseOK.addResult(selectedUnitGOT1);
@@ -226,33 +237,35 @@ public class ProbativeCreateDistributionFileTest {
         File newLocalFile = tempFolder.newFile();
         when(handlerIO.getNewLocalFile(eq("OBJECT_GROUP_TO_CHECK.jsonl"))).thenReturn(newLocalFile);
 
-        ProbativeValueRequest probativeValueRequest =
-            new ProbativeValueRequest(new SelectMultiQuery().getFinalSelect(), "BinaryMaster", "1", true);
-        when(handlerIO.getInputStreamFromWorkspace(eq("request")))
-            .thenReturn(new ByteArrayInputStream(JsonHandler.fromPojoToBytes(probativeValueRequest)));
+        ProbativeValueRequest probativeValueRequest = new ProbativeValueRequest(
+            new SelectMultiQuery().getFinalSelect(),
+            "BinaryMaster",
+            "1",
+            true
+        );
+        when(handlerIO.getInputStreamFromWorkspace(eq("request"))).thenReturn(
+            new ByteArrayInputStream(JsonHandler.fromPojoToBytes(probativeValueRequest))
+        );
 
         ObjectNode selectedUnitGOT1 = JsonHandler.createObjectNode()
             .put("#id", "Unit1")
             .put("#object", "og1")
-            .set("SigningInformation", JsonHandler.createObjectNode()
-                .set("DetachedSigningRole", JsonHandler.createStringArrayNode("Signature", "Timestamp")));
+            .set(
+                "SigningInformation",
+                JsonHandler.createObjectNode()
+                    .set("DetachedSigningRole", JsonHandler.createStringArrayNode("Signature", "Timestamp"))
+            );
 
-        ObjectNode selectedUnitGOT2 = JsonHandler.createObjectNode()
-            .put("#id", "Unit2")
-            .put("#object", "og2");
+        ObjectNode selectedUnitGOT2 = JsonHandler.createObjectNode().put("#id", "Unit2").put("#object", "og2");
 
-        ObjectNode selectedUnitGOT3 = JsonHandler.createObjectNode()
-            .put("#id", "Unit3")
-            .put("#object", "og3");
+        ObjectNode selectedUnitGOT3 = JsonHandler.createObjectNode().put("#id", "Unit3").put("#object", "og3");
 
         RequestResponseOK<JsonNode> initialRequestResponseOK = new RequestResponseOK<>();
         initialRequestResponseOK.addResult(selectedUnitGOT1);
         initialRequestResponseOK.addResult(selectedUnitGOT2);
         initialRequestResponseOK.addResult(selectedUnitGOT3);
 
-        ObjectNode detachedSignatureForUnit1 = JsonHandler.createObjectNode()
-            .put("#id", "Unit4")
-            .put("#object", "og4");
+        ObjectNode detachedSignatureForUnit1 = JsonHandler.createObjectNode().put("#id", "Unit4").put("#object", "og4");
 
         ObjectNode detachedTimestampForUnit1AlreadyExistingInInitialResultSet = JsonHandler.createObjectNode()
             .put("#id", "Unit2")
@@ -261,11 +274,13 @@ public class ProbativeCreateDistributionFileTest {
         RequestResponseOK<JsonNode> detachedSigningInformationRequestResponseOK = new RequestResponseOK<>();
         detachedSigningInformationRequestResponseOK.addResult(detachedSignatureForUnit1);
         detachedSigningInformationRequestResponseOK.addResult(
-            detachedTimestampForUnit1AlreadyExistingInInitialResultSet);
+            detachedTimestampForUnit1AlreadyExistingInInitialResultSet
+        );
 
         given(metaDataClient.selectUnits(any())).willReturn(
             JsonHandler.toJsonNode(initialRequestResponseOK),
-            JsonHandler.toJsonNode(detachedSigningInformationRequestResponseOK));
+            JsonHandler.toJsonNode(detachedSigningInformationRequestResponseOK)
+        );
 
         // When
         ItemStatus itemStatus = probativeCreateDistribution.execute(null, handlerIO);
@@ -289,32 +304,35 @@ public class ProbativeCreateDistributionFileTest {
         File newLocalFile = tempFolder.newFile();
         when(handlerIO.getNewLocalFile(eq("OBJECT_GROUP_TO_CHECK.jsonl"))).thenReturn(newLocalFile);
 
-        ProbativeValueRequest probativeValueRequest =
-            new ProbativeValueRequest(new SelectMultiQuery().getFinalSelect(), "BinaryMaster", "1", false);
-        when(handlerIO.getInputStreamFromWorkspace(eq("request")))
-            .thenReturn(new ByteArrayInputStream(JsonHandler.fromPojoToBytes(probativeValueRequest)));
+        ProbativeValueRequest probativeValueRequest = new ProbativeValueRequest(
+            new SelectMultiQuery().getFinalSelect(),
+            "BinaryMaster",
+            "1",
+            false
+        );
+        when(handlerIO.getInputStreamFromWorkspace(eq("request"))).thenReturn(
+            new ByteArrayInputStream(JsonHandler.fromPojoToBytes(probativeValueRequest))
+        );
 
         ObjectNode selectedUnitGOT1 = JsonHandler.createObjectNode()
             .put("#id", "Unit1")
             .put("#object", "og1")
-            .set("SigningInformation", JsonHandler.createObjectNode()
-                .set("DetachedSigningRole", JsonHandler.createStringArrayNode("Signature", "Timestamp")));
+            .set(
+                "SigningInformation",
+                JsonHandler.createObjectNode()
+                    .set("DetachedSigningRole", JsonHandler.createStringArrayNode("Signature", "Timestamp"))
+            );
 
-        ObjectNode selectedUnitGOT2 = JsonHandler.createObjectNode()
-            .put("#id", "Unit2")
-            .put("#object", "og2");
+        ObjectNode selectedUnitGOT2 = JsonHandler.createObjectNode().put("#id", "Unit2").put("#object", "og2");
 
-        ObjectNode selectedUnitGOT3 = JsonHandler.createObjectNode()
-            .put("#id", "Unit3")
-            .put("#object", "og3");
+        ObjectNode selectedUnitGOT3 = JsonHandler.createObjectNode().put("#id", "Unit3").put("#object", "og3");
 
         RequestResponseOK<JsonNode> initialRequestResponseOK = new RequestResponseOK<>();
         initialRequestResponseOK.addResult(selectedUnitGOT1);
         initialRequestResponseOK.addResult(selectedUnitGOT2);
         initialRequestResponseOK.addResult(selectedUnitGOT3);
 
-        given(metaDataClient.selectUnits(any())).willReturn(
-            JsonHandler.toJsonNode(initialRequestResponseOK));
+        given(metaDataClient.selectUnits(any())).willReturn(JsonHandler.toJsonNode(initialRequestResponseOK));
 
         // When
         ItemStatus itemStatus = probativeCreateDistribution.execute(null, handlerIO);
@@ -336,10 +354,14 @@ public class ProbativeCreateDistributionFileTest {
         File newLocalFile = tempFolder.newFile();
         when(handlerIO.getNewLocalFile(eq("OBJECT_GROUP_TO_CHECK.jsonl"))).thenReturn(newLocalFile);
 
-        ProbativeValueRequest probativeValueRequest =
-            new ProbativeValueRequest(new SelectMultiQuery().getFinalSelect(), "BinaryMaster", "1");
-        when(handlerIO.getInputStreamFromWorkspace(eq("request")))
-            .thenReturn(new ByteArrayInputStream(JsonHandler.fromPojoToBytes(probativeValueRequest)));
+        ProbativeValueRequest probativeValueRequest = new ProbativeValueRequest(
+            new SelectMultiQuery().getFinalSelect(),
+            "BinaryMaster",
+            "1"
+        );
+        when(handlerIO.getInputStreamFromWorkspace(eq("request"))).thenReturn(
+            new ByteArrayInputStream(JsonHandler.fromPojoToBytes(probativeValueRequest))
+        );
 
         given(metaDataClient.selectUnits(any())).willThrow(new IllegalStateException());
 
@@ -350,19 +372,21 @@ public class ProbativeCreateDistributionFileTest {
         assertThat(itemStatus.getGlobalStatus()).isEqualTo(StatusCode.KO);
     }
 
-    private static List<JsonLineModel> parseReportFile(File file)
-        throws IOException {
+    private static List<JsonLineModel> parseReportFile(File file) throws IOException {
         try (
             FileInputStream inputStream = new FileInputStream(file);
-            JsonLineGenericIterator<JsonLineModel> iterator = new JsonLineGenericIterator<>(inputStream,
-                new TypeReference<>() {
-                })) {
+            JsonLineGenericIterator<JsonLineModel> iterator = new JsonLineGenericIterator<>(
+                inputStream,
+                new TypeReference<>() {}
+            )
+        ) {
             return iterator.stream().collect(Collectors.toList());
         }
     }
 
     private static void checkReportLine(List<JsonLineModel> reportLines, String objectGroupId, String... unitIds) {
-        Optional<JsonLineModel> selectedLine = reportLines.stream()
+        Optional<JsonLineModel> selectedLine = reportLines
+            .stream()
             .filter(reportLine -> reportLine.getId().equals(objectGroupId))
             .findFirst();
         assertThat(selectedLine).withFailMessage("Expected " + objectGroupId + " object group").isPresent();

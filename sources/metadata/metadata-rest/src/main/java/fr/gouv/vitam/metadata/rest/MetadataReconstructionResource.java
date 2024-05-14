@@ -62,7 +62,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-
 @Path("/v1")
 @Tag(name = "Metadata")
 public class MetadataReconstructionResource {
@@ -96,22 +95,33 @@ public class MetadataReconstructionResource {
     private final MetadataReconstructionService reconstructionService;
     private final StoreGraphService storeGraphService;
 
-    MetadataReconstructionResource(VitamRepositoryProvider vitamRepositoryProvider,
-        OffsetRepository offsetRepository, MetaDataConfiguration configuration,
-        ElasticsearchMetadataIndexManager indexManager) {
+    MetadataReconstructionResource(
+        VitamRepositoryProvider vitamRepositoryProvider,
+        OffsetRepository offsetRepository,
+        MetaDataConfiguration configuration,
+        ElasticsearchMetadataIndexManager indexManager
+    ) {
         this(
-            new MetadataReconstructionService(vitamRepositoryProvider, offsetRepository, indexManager,
-                                              new MetadataReconstructionMetricsCache(
-                    configuration.getReconstructionMetricsCacheDurationInMinutes(), TimeUnit.MINUTES)),
+            new MetadataReconstructionService(
+                vitamRepositoryProvider,
+                offsetRepository,
+                indexManager,
+                new MetadataReconstructionMetricsCache(
+                    configuration.getReconstructionMetricsCacheDurationInMinutes(),
+                    TimeUnit.MINUTES
+                )
+            ),
             new StoreGraphService(vitamRepositoryProvider),
-            configuration);
+            configuration
+        );
     }
 
     @VisibleForTesting
     MetadataReconstructionResource(
         MetadataReconstructionService reconstructionService,
         StoreGraphService storeGraphService,
-        MetaDataConfiguration configuration) {
+        MetaDataConfiguration configuration
+    ) {
         this.reconstructionService = reconstructionService;
         this.storeGraphService = storeGraphService;
 
@@ -133,13 +143,22 @@ public class MetadataReconstructionResource {
 
         List<ReconstructionResponseItem> responses = new ArrayList<>();
         if (!reconstructionItems.isEmpty()) {
-            LOGGER.debug(String
-                .format("Starting reconstruction Vitam service with the json parameters : (%s)", reconstructionItems));
+            LOGGER.debug(
+                String.format(
+                    "Starting reconstruction Vitam service with the json parameters : (%s)",
+                    reconstructionItems
+                )
+            );
 
             reconstructionItems.forEach(item -> {
-                LOGGER.debug(String.format(
-                    "Starting reconstruction for the collection {%s} on the tenant (%s) with (%s) elements",
-                    item.getCollection(), item.getTenant(), item.getLimit()));
+                LOGGER.debug(
+                    String.format(
+                        "Starting reconstruction for the collection {%s} on the tenant (%s) with (%s) elements",
+                        item.getCollection(),
+                        item.getTenant(),
+                        item.getLimit()
+                    )
+                );
                 try {
                     responses.add(reconstructionService.reconstruct(item));
                 } catch (IllegalArgumentException e) {
@@ -150,7 +169,6 @@ public class MetadataReconstructionResource {
         }
         return Response.ok(new RequestResponseOK<ReconstructionResponseItem>().addAllResults(responses)).build();
     }
-
 
     /**
      * API to access and launch the Vitam store graph service for metadata.<br/>
@@ -182,7 +200,6 @@ public class MetadataReconstructionResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response storeGraphInProgress() {
-
         VitamThreadUtils.getVitamSession().initIfAbsent(VitamConfiguration.getAdminTenant());
 
         boolean inProgress = this.storeGraphService.isInProgress();
@@ -191,8 +208,7 @@ public class MetadataReconstructionResource {
             return Response.ok("{\"msg\": \"Store graph in progress ...\"}").build();
         } else {
             LOGGER.info("No active store graph");
-            return Response.status(Response.Status.NOT_FOUND).entity("{\"msg\": \"No active store graph\"}")
-                .build();
+            return Response.status(Response.Status.NOT_FOUND).entity("{\"msg\": \"No active store graph\"}").build();
         }
     }
 
@@ -205,21 +221,20 @@ public class MetadataReconstructionResource {
     @Path(PURGE_GRAPH_ONLY_DOCUMENTS_URI + "/{collection:" + UNIT + "|" + OBJECTGROUP + "|" + UNIT_OBJECTGROUP + "}")
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
-    public Response purgeReconstructedDocumentsWithGraphOnlyData(@PathParam("collection")
-    GraphComputeResponse.GraphComputeAction action) {
+    public Response purgeReconstructedDocumentsWithGraphOnlyData(
+        @PathParam("collection") GraphComputeResponse.GraphComputeAction action
+    ) {
         try {
             switch (action) {
                 case UNIT:
                     reconstructionService.purgeReconstructedDocumentsWithGraphOnlyData(MetadataCollections.UNIT);
                     break;
                 case OBJECTGROUP:
-                    reconstructionService
-                        .purgeReconstructedDocumentsWithGraphOnlyData(MetadataCollections.OBJECTGROUP);
+                    reconstructionService.purgeReconstructedDocumentsWithGraphOnlyData(MetadataCollections.OBJECTGROUP);
                     break;
                 case UNIT_OBJECTGROUP:
                     reconstructionService.purgeReconstructedDocumentsWithGraphOnlyData(MetadataCollections.UNIT);
-                    reconstructionService
-                        .purgeReconstructedDocumentsWithGraphOnlyData(MetadataCollections.OBJECTGROUP);
+                    reconstructionService.purgeReconstructedDocumentsWithGraphOnlyData(MetadataCollections.OBJECTGROUP);
                     break;
                 default:
                     throw new IllegalArgumentException("Not implemented action :" + action);

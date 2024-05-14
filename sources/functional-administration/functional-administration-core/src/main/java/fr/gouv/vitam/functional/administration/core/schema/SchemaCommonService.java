@@ -55,7 +55,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-
 /**
  * This Common service for managing schema
  */
@@ -65,8 +64,8 @@ public class SchemaCommonService {
     public static final String SCHEMA_COLLECTION = "Schema";
     private static final String SCHEMA_REPORT = "SCHEMA_REPORT";
 
-    public static JsonNode buildDslQueryForExtractingSchema(Set<Integer> tenantIds, List<String> schemaPaths) throws
-        InvalidCreateOperationException {
+    public static JsonNode buildDslQueryForExtractingSchema(Set<Integer> tenantIds, List<String> schemaPaths)
+        throws InvalidCreateOperationException {
         if (CollectionUtils.isEmpty(tenantIds)) {
             LOGGER.error(" the tenant list should not be empty");
             throw new IllegalArgumentException("the tenant list should not be empty");
@@ -75,9 +74,9 @@ public class SchemaCommonService {
         BooleanQuery andQuery = QueryHelper.and();
         andQuery.add(QueryHelper.eq("Origin", "EXTERNAL"));
         andQuery.add(QueryHelper.eq("Collection", "Unit"));
-        andQuery.add(QueryHelper.in(VitamFieldsHelper.tenant(), tenantIds.stream()
-            .mapToLong(Integer::longValue)
-            .toArray()));
+        andQuery.add(
+            QueryHelper.in(VitamFieldsHelper.tenant(), tenantIds.stream().mapToLong(Integer::longValue).toArray())
+        );
         if (!CollectionUtils.isEmpty(schemaPaths)) {
             andQuery.add(QueryHelper.in(SchemaModel.TAG_PATH, schemaPaths.toArray(String[]::new)));
         }
@@ -95,13 +94,13 @@ public class SchemaCommonService {
         return leafElt;
     }
 
-
     /**
      * Map Schema intput to db entity
      */
-    public static List<Schema> mapSchemaFromInputParameters(List<SchemaInputModel> externalSchemaInputList,
-        Map<String, OntologyModel>  ontologyEltsMapByIdentifier) {
-
+    public static List<Schema> mapSchemaFromInputParameters(
+        List<SchemaInputModel> externalSchemaInputList,
+        Map<String, OntologyModel> ontologyEltsMapByIdentifier
+    ) {
         List<Schema> schemaModelElementsBuilt = new ArrayList<>();
         for (SchemaInputModel schemaEltInputElt : externalSchemaInputList) {
             //Common parameters
@@ -137,16 +136,19 @@ public class SchemaCommonService {
      * @return the error report inputStream
      */
 
-    public static SchemaImportReport fillSchemaImportReportOK(SchemaImportReport schemaImportReport,
-        List<Schema> schemaList, GUID eip) {
-
+    public static SchemaImportReport fillSchemaImportReportOK(
+        SchemaImportReport schemaImportReport,
+        List<Schema> schemaList,
+        GUID eip
+    ) {
         if (schemaImportReport == null) {
             schemaImportReport = initSchemaImportReport(eip);
         }
         schemaImportReport.setStatusCode(StatusCode.OK);
         if (!CollectionUtils.isEmpty(schemaList)) {
             schemaImportReport.setCreatedSchemaPaths(
-                schemaList.stream().map(schema -> schema.getPath()).collect(Collectors.toSet()));
+                schemaList.stream().map(schema -> schema.getPath()).collect(Collectors.toSet())
+            );
         }
 
         return schemaImportReport;
@@ -159,9 +161,12 @@ public class SchemaCommonService {
      * @return the error report inputStream
      */
 
-    public static SchemaImportReport fillSchemaImportReportError(SchemaImportReport schemaImportReport,
-        Set<String> errorPathList, StatusCode status, GUID eip) {
-
+    public static SchemaImportReport fillSchemaImportReportError(
+        SchemaImportReport schemaImportReport,
+        Set<String> errorPathList,
+        StatusCode status,
+        GUID eip
+    ) {
         if (schemaImportReport == null) {
             schemaImportReport = initSchemaImportReport(eip);
         }
@@ -174,7 +179,6 @@ public class SchemaCommonService {
     }
 
     public static SchemaImportReport initSchemaImportReport(GUID eip) {
-
         SchemaImportReport schemaImportReport = new SchemaImportReport();
         FunctionalOperationModel operation = new FunctionalOperationModel();
 
@@ -191,11 +195,10 @@ public class SchemaCommonService {
      * @return
      * @throws InvalidCreateOperationException
      */
-    public static JsonNode buildOntologyQueryDslByIdentifiers(Set<String> ontologyIdentifiers) throws
-        InvalidCreateOperationException {
+    public static JsonNode buildOntologyQueryDslByIdentifiers(Set<String> ontologyIdentifiers)
+        throws InvalidCreateOperationException {
         Select select = new Select();
         select.setQuery(QueryHelper.in(OntologyModel.TAG_IDENTIFIER, ontologyIdentifiers.toArray(String[]::new)));
         return select.getFinalSelect();
     }
-
 }

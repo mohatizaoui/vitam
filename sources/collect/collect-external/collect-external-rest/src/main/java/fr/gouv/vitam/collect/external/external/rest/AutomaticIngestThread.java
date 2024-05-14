@@ -60,8 +60,8 @@ import java.util.stream.Collectors;
 
 import static fr.gouv.vitam.logbook.common.parameters.Contexts.DEFAULT_WORKFLOW;
 
-
 public class AutomaticIngestThread implements Runnable {
+
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(AutomaticIngestThread.class);
     private static final Integer TENANT_ID = 1;
     private final CollectInternalClientFactory collectInternalClientFactory;
@@ -73,8 +73,12 @@ public class AutomaticIngestThread implements Runnable {
         this.threadPoolSize = collectExternalConfiguration.getIngestionThreadPoolSize();
 
         final long delay = collectExternalConfiguration.getIngestionThreadFrequencySeconds();
-        Executors.newScheduledThreadPool(1, VitamThreadFactory.getInstance())
-            .scheduleAtFixedRate(this, Math.min(INITIAL_DELAY, delay), delay, TimeUnit.SECONDS);
+        Executors.newScheduledThreadPool(1, VitamThreadFactory.getInstance()).scheduleAtFixedRate(
+            this,
+            Math.min(INITIAL_DELAY, delay),
+            delay,
+            TimeUnit.SECONDS
+        );
     }
 
     @Override
@@ -94,9 +98,7 @@ public class AutomaticIngestThread implements Runnable {
         ExecutorService executorService = ExecutorUtils.createScalableBatchExecutorService(this.threadPoolSize);
 
         try (CollectInternalClient client = collectInternalClientFactory.getClient()) {
-
-            RequestResponse<JsonNode> requestResponse =
-                client.getTransactionsToAutomaticallyIngest();
+            RequestResponse<JsonNode> requestResponse = client.getTransactionsToAutomaticallyIngest();
 
             final List<JsonNode> results = ((RequestResponseOK<JsonNode>) requestResponse).getResults();
 
@@ -104,29 +106,36 @@ public class AutomaticIngestThread implements Runnable {
                 return;
             }
 
-
-            Map<String, Integer> transactionsModel = results.stream()
-                .collect(Collectors.toMap(
-                    transactionNode -> transactionNode.get("#id").asText(),
-                    transactionNode -> Integer.parseInt(transactionNode.get("#tenant").asText())
-                ));
+            Map<String, Integer> transactionsModel = results
+                .stream()
+                .collect(
+                    Collectors.toMap(
+                        transactionNode -> transactionNode.get("#id").asText(),
+                        transactionNode -> Integer.parseInt(transactionNode.get("#tenant").asText())
+                    )
+                );
 
             List<CompletableFuture<Void>> completableFuturesList = new ArrayList<>();
             for (var transaction : transactionsModel.entrySet()) {
-                CompletableFuture<Void> completableFuture = CompletableFuture.runAsync(() -> {
-                    Thread.currentThread().setName(AutomaticIngestThread.class.getName() + "-" + transaction.getKey());
-                    VitamThreadUtils.getVitamSession().setTenantId(transaction.getValue());
-                    try {
-                        generateAndSendSip(transaction.getKey(),transaction.getValue());
-                    } catch (Exception e) {
-                        LOGGER.error("Error when sending transaction: {}", e);
-                    }
-                }, executorService);
+                CompletableFuture<Void> completableFuture = CompletableFuture.runAsync(
+                    () -> {
+                        Thread.currentThread()
+                            .setName(AutomaticIngestThread.class.getName() + "-" + transaction.getKey());
+                        VitamThreadUtils.getVitamSession().setTenantId(transaction.getValue());
+                        try {
+                            generateAndSendSip(transaction.getKey(), transaction.getValue());
+                        } catch (Exception e) {
+                            LOGGER.error("Error when sending transaction: {}", e);
+                        }
+                    },
+                    executorService
+                );
 
                 completableFuturesList.add(completableFuture);
             }
-            CompletableFuture<Void> combinedFuture =
-                CompletableFuture.allOf(completableFuturesList.toArray(new CompletableFuture[0]));
+            CompletableFuture<Void> combinedFuture = CompletableFuture.allOf(
+                completableFuturesList.toArray(new CompletableFuture[0])
+            );
             combinedFuture.join();
         } finally {
             executorService.shutdown();
@@ -134,15 +143,18 @@ public class AutomaticIngestThread implements Runnable {
     }
 
     private void generateAndSendSip(String transactionId, Integer tenantId) throws IOException {
-
-        try (CollectInternalClient client = CollectInternalClientFactory.getInstance().getClient();
+        try (
+            CollectInternalClient client = CollectInternalClientFactory.getInstance().getClient();
             IngestExternalClient ingestExternalClient = IngestExternalClientFactory.getInstance().getClient();
             InputStream inputStream = client.generateSip(transactionId);
         ) {
-
             // Ingestion de la transaction
             RequestResponse<Void> ingest = ingestExternalClient.ingest(
-                new VitamContext(tenantId), inputStream, DEFAULT_WORKFLOW.name(), ProcessAction.RESUME.name());
+                new VitamContext(tenantId),
+                inputStream,
+                DEFAULT_WORKFLOW.name(),
+                ProcessAction.RESUME.name()
+            );
             client.attachVitamOperationId(transactionId, ingest.getHeaderString(GlobalDataRest.X_REQUEST_ID));
             client.changeTransactionStatus(transactionId, TransactionStatus.SENT);
             LOGGER.info(ingest.toString());
@@ -150,5 +162,4 @@ public class AutomaticIngestThread implements Runnable {
             LOGGER.error("Error during chunk processing", e);
         }
     }
-
 }

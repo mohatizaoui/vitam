@@ -42,11 +42,12 @@ import java.util.stream.Collectors;
 import static fr.gouv.vitam.common.model.dip.QualifierVersion.LAST;
 
 public class DataObjectVersionToPatternsConvertor {
-    private DataObjectVersionToPatternsConvertor() {
-    }
+
+    private DataObjectVersionToPatternsConvertor() {}
 
     public static Map<DataObjectVersionType, Set<QualifierVersion>> computeDataObjectVersionsPatterns(
-        @Nullable DataObjectVersions data) {
+        @Nullable DataObjectVersions data
+    ) {
         final DataObjectVersions nonNullPData = Optional.ofNullable(data).orElse(new DataObjectVersions(Set.of()));
         final Set<String> dataObjectVersions = nonNullPData.getDataObjectVersions();
         final Map<DataObjectVersionType, Set<QualifierVersion>> dataObjectVersionsPatterns =
@@ -54,18 +55,19 @@ public class DataObjectVersionToPatternsConvertor {
         if (dataObjectVersions.isEmpty()) {
             // If neither dataObjectVersions nor dataObjectVersionsPatterns has been set, we default exporting every object type in "LAST" version.
             // If dataObjectVersionsPatterns is set, we use it as is
-            return Objects.requireNonNullElseGet(dataObjectVersionsPatterns,
-                () -> Arrays.stream(DataObjectVersionType.values()).collect(Collectors.toMap(
-                    Function.identity(),
-                    s -> Set.of(LAST)
-                )));
+            return Objects.requireNonNullElseGet(
+                dataObjectVersionsPatterns,
+                () ->
+                    Arrays.stream(DataObjectVersionType.values()).collect(
+                        Collectors.toMap(Function.identity(), s -> Set.of(LAST))
+                    )
+            );
         } else {
             // If dataObjectVersions is set, we convert it by setting the version to "LAST" for every object type.
-            return dataObjectVersions.stream().map(DataObjectVersionType::fromName)
-                .collect(Collectors.toMap(
-                    Function.identity(),
-                    s -> Set.of(LAST)
-                ));
+            return dataObjectVersions
+                .stream()
+                .map(DataObjectVersionType::fromName)
+                .collect(Collectors.toMap(Function.identity(), s -> Set.of(LAST)));
         }
     }
 }
