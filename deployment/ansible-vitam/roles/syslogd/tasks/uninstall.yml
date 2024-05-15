@@ -1,0 +1,13 @@
+---
+
+- name: Remove rsyslog configuration
+  file:
+    path: /etc/rsyslog.d/vitam_transport.conf
+    state: absent
+  notify: "rsyslog - restart service"
+
+- name: Remove syslog-ng configuration
+  file:
+    path: /etc/syslog-ng/conf.d/vitam.conf
+    state: absent
+  notify: "syslogng - restart service"
