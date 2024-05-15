@@ -85,10 +85,6 @@
       state: restarted
       enabled: "{{ mongodb.at_boot | default(service_at_boot) }}"
 
-  - name: Pause for 15 seconds
-    pause:
-      seconds: 15
-
   - name: Check the service port
     wait_for:
       host: "{{ ip_service }}"
@@ -100,6 +96,9 @@
     no_log: "{{ hide_passwords_during_deploy }}"
     ignore_errors: true # To properly catch output on the next task
     register: output_node_state
+    retries: 20
+    delay: 5
+    until: output_node_state.rc == 0
 
   - name: Fail if node state is incorrect
     assert:
