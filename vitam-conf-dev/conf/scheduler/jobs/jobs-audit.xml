@@ -25,6 +25,10 @@
                     <key>operationsDelayInMinutes</key>
                     <value>1440</value>
                 </entry>
+                <entry>
+                    <key>selectedTenants</key>
+                    <value>1,2,3</value>
+                </entry>
             </job-data-map>
         </job>
         <trigger>

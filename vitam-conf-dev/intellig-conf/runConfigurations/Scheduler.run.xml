@@ -1,0 +1,17 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Scheduler" type="Application" factoryName="Application">
+    <option name="ALTERNATIVE_JRE_PATH" value="11" />
+    <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+    <log_file alias="Logs" path="$vitamLocalShareFolder$/log/scheduler/scheduler.*.log" />
+    <log_file alias="AccessLogs" path="$vitamLocalShareFolder$/log/scheduler/accesslog-scheduler.*.log" />
+    <option name="MAIN_CLASS_NAME" value="fr.gouv.vitam.scheduler.server.SchedulerMain" />
+    <module name="scheduler-server" />
+    <option name="PROGRAM_PARAMETERS" value="$vitamLocalShareFolder$/conf/scheduler/scheduler.conf" />
+    <option name="VM_PARAMETERS" value="-Dlogback.configurationFile=$vitamLocalShareFolder$/conf/scheduler/logback.xml -Dvitam.tmp.folder=$vitamLocalShareFolder$/tmp/scheduler -Dvitam.config.folder=$vitamLocalShareFolder$/conf/scheduler -Dvitam.data.folder=$vitamLocalShareFolder$/data/scheduler -Dvitam.log.folder=$vitamLocalShareFolder$/log/scheduler" />
+    <option name="WORKING_DIRECTORY" value="$vitamLocalShareFolder$/conf/scheduler/" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
+

@@ -146,9 +146,10 @@ scheduler:
   job_parameters:
     integrity_audit:
       operations_delay_in_minutes: 1440
+      selected_tenants : "" #list of tenants separated by a comma
     existence_audit:
       operations_delay_in_minutes: 1440
-
+      selected_tenants : "" #list of tenants separated by a comma
 
 ### consul ###
 # WARNING: consul_domain should be a supported domain name for your organization
