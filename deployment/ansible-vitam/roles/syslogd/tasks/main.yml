@@ -5,3 +5,6 @@
 
 - include_tasks: syslogng.yml
   when: syslog.name | default('filebeat') == "syslog-ng"
+
+- include_tasks: uninstall.yml
+  when: syslog.name | default('filebeat') == "filebeat"
