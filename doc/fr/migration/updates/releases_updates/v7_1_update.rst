@@ -196,6 +196,13 @@ Mise à jour des dépôts (YUM/APT)
 
 Afin de pouvoir déployer la nouvelle version, vous devez mettre à jour la variable ``vitam_repositories`` sous ``environments/group_vars/all/main/repositories.yml`` afin de renseigner les dépôts à la version cible.
 
+Pour le dépôt vitam-external, vous devez renseigner la version adaptée à votre système d'exploitation (par exemple pour la version 7.1.0):
+
+* CentOS 7: https://download.programmevitam.fr/vitam_repository/7.1.0/rpm/vitam-external/7/
+* AlmaLinux 9: https://download.programmevitam.fr/vitam_repository/7.1.0/rpm/vitam-external/9/
+* Debian 11: https://download.programmevitam.fr/vitam_repository/7.1.0/deb/vitam-external/11/
+* Debian 12: https://download.programmevitam.fr/vitam_repository/7.1.0/deb/vitam-external/12/
+
 Puis exécutez le playbook suivant **sur tous les sites** :
 
 .. code-block:: bash
