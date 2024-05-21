@@ -1,0 +1,37 @@
+---
+
+- hosts: localhost
+  any_errors_fatal: yes
+  gather_facts: no
+  vars_prompt:
+    name: "confirmation"
+    prompt: "This playbook will rename the current daily logstash-vitam indice to apply the appropriate mapping when recreating it.\n\nAre you sure you want to run this playbook ?\nAnswer with 'YES'"
+    default: "NO"
+    private: no
+  tasks:
+    - name: Check Confirmation
+      fail: msg="Playbook run confirmation failed"
+      when: confirmation|upper != "YES"
+      tags: always
+
+- hosts: hosts_elasticsearch_log
+  run_once: true
+  pre_tasks:
+    - set_fact:
+        index_name: "logstash-vitam-{{ ansible_date_time.date | regex_replace('-', '.') }}"
+  tasks:
+    - name: "reindex {{ index_name }}"
+      uri:
+        url: "{{ elasticsearch.log |client_url }}_reindex"
+        method: POST
+        body: "{ \"source\": { \"index\": \"{{ index_name }}\" }, \"dest\": { \"index\": \"{{ index_name }}-old\" } }"
+        body_format: json
+        status_code: 200,201
+      register: result_reindex
+
+    - name: "delete {{ index_name }}"
+      uri:
+        url: "{{ elasticsearch.log |client_url }}{{ index_name }}"
+        method: DELETE
+        status_code: 200,201
+      when: result_reindex.status | int in [200, 201]
