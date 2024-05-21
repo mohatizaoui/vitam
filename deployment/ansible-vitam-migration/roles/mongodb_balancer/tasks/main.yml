@@ -45,11 +45,19 @@
   - name: Start the balancer
     command: "mongosh {{ mongos_connection }} {{ mongos_credentials }} --file {{ vitam_defaults.folder.root_path }}/script/mongos/start_balancer.js"
     no_log: "{{ hide_passwords_during_deploy }}"
+    register: start_balancer
+    retries: 20
+    delay: 5
+    until: start_balancer.rc == 0
     when: state == "started"
 
   - name: Stop the balancer
     command: "mongosh {{ mongos_connection }} {{ mongos_credentials }} --file {{ vitam_defaults.folder.root_path }}/script/mongos/stop_balancer.js"
     no_log: "{{ hide_passwords_during_deploy }}"
+    register: stop_balancer
+    retries: 20
+    delay: 5
+    until: stop_balancer.rc == 0
     when: state == "stopped"
 
   when: inventory_hostname == mongos_list | last
