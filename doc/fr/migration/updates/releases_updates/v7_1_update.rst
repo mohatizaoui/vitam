@@ -293,6 +293,21 @@ Lancement du master playbook extra
 Procédures à exécuter APRÈS la montée de version
 ================================================
 
+Réindexation de l'indice logstash-vitam courant
+-----------------------------------------------
+
+Suite à la mise en place de filebeat (mode par défaut), le mapping associé aux indices a évolué. Afin de prendre en compte le nouveau mapping dans l'indice de la journée courante, vous devrez appliquer le playbook de migration suivant sur **tous les sites**.
+
+Tant que vous n'aurez pas appliqué ce playbook, la centralisation des logs sera défectueuse et entrainera de très nombreux logs d'erreurs au niveau des serveurs logstash.
+
+Si vous n'appliquez pas ce playbook, cette erreur se corrigera automatiquement à la création de l'indice du lendemain. Vous n'aurez juste pas accès à la centralisation des logs pour la journée courante dans les outils tel que Kibana.
+
+.. code-block:: bash
+
+    ansible-playbook -i environments/<inventaire> ansible-vitam-migration/rename_current_logstash_vitam_index.yml --ask-vault-pass
+
+..
+
 Migration des mappings elasticsearch pour les métadonnées
 ---------------------------------------------------------
 
