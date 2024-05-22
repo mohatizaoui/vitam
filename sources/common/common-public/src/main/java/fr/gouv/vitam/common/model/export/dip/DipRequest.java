@@ -56,6 +56,9 @@ public class DipRequest {
     @JsonProperty("sedaVersion")
     private String sedaVersion;
 
+    @JsonProperty("useOriginalFilenames")
+    private boolean useOriginalFilenames;
+
     public DipRequest() {}
 
     public DipRequest(JsonNode dslRequest) {
@@ -147,5 +150,13 @@ public class DipRequest {
 
     public void setSedaVersion(String sedaVersion) {
         this.sedaVersion = sedaVersion;
+    }
+
+    public boolean isUseOriginalFilenames() {
+        return useOriginalFilenames;
+    }
+
+    public void setUseOriginalFilenames(boolean useOriginalFilenames) {
+        this.useOriginalFilenames = useOriginalFilenames;
     }
 }

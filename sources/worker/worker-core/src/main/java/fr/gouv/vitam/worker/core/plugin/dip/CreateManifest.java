@@ -280,6 +280,7 @@ public class CreateManifest extends ActionHandler {
             Map<String, JsonNode> idBinaryWithFileName = new HashMap<>();
             boolean exportWithLogBookLFC = exportRequest.isExportWithLogBookLFC();
             boolean exportWithoutObjects = exportRequest.isExportWithoutObjects();
+            boolean useOriginalFilenames = exportRequest.isUseOriginalFilenames();
 
             final Map<DataObjectVersionType, Set<QualifierVersion>> dataObjectVersions =
                 DataObjectVersionToPatternsConvertor.computeDataObjectVersionsPatterns(
@@ -331,7 +332,8 @@ public class CreateManifest extends ActionHandler {
                         manifestBuilder.writeGOT(
                             currentObject,
                             linkedUnits.get(linkedUnits.size() - 1),
-                            logbookLifeCycleObjectGroupStream
+                            logbookLifeCycleObjectGroupStream,
+                            useOriginalFilenames
                         )
                     );
 

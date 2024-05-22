@@ -89,10 +89,12 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -144,6 +146,8 @@ import static fr.gouv.vitam.common.utils.SupportedSedaVersions.UNIFIED_NAMESPACE
 public class ManifestBuilder implements AutoCloseable {
 
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(ManifestBuilder.class);
+    public static final int FULL_FILE_NAME_SIZE_LIMIT = 183;
+
     private static JAXBContext jaxbContext;
     public static final String XSI_URI = "http://www.w3.org/2001/XMLSchema-instance";
     static final String CONTENT = "Content";
@@ -253,6 +257,15 @@ public class ManifestBuilder implements AutoCloseable {
         String linkedAU,
         Stream<LogbookLifeCycleObjectGroup> logbookLifeCycleObjectGroupStream
     ) throws JsonProcessingException, JAXBException, InternalServerException {
+        return writeGOT(og, linkedAU, logbookLifeCycleObjectGroupStream, false);
+    }
+
+    public Map<String, JsonNode> writeGOT(
+        JsonNode og,
+        String linkedAU,
+        Stream<LogbookLifeCycleObjectGroup> logbookLifeCycleObjectGroupStream,
+        boolean useOriginalFilenames
+    ) throws JsonProcessingException, JAXBException, InternalServerException {
         ObjectGroupResponse objectGroup = objectMapper.treeToValue(og, ObjectGroupResponse.class);
 
         if (objectGroup.getQualifiers().isEmpty()) {
@@ -292,25 +305,20 @@ public class ManifestBuilder implements AutoCloseable {
 
         List<MinimalDataObjectType> binaryDataObjectOrPhysicalDataObject =
             dataObjectGroup.getBinaryDataObjectOrPhysicalDataObject();
+        Set<String> existingFileNames = new HashSet<>();
         for (MinimalDataObjectType minimalDataObjectType : binaryDataObjectOrPhysicalDataObject) {
             if (minimalDataObjectType instanceof BinaryDataObjectType) {
                 BinaryDataObjectType binaryDataObjectType = (BinaryDataObjectType) minimalDataObjectType;
-                String extension = getExtension(binaryDataObjectType).toLowerCase();
-                String fileName;
-                if (
-                    binaryDataObjectType.getUri() != null &&
-                    binaryDataObjectType.getUri().contains(binaryDataObjectType.getId())
-                ) {
-                    // In module collect we have the Uri setted with the right fileName
-                    fileName = binaryDataObjectType.getUri();
-                } else {
-                    fileName = CONTENT +
-                    File.separator +
-                    binaryDataObjectType.getId() +
-                    (extension.equals("") ? "" : "." + extension);
-                    binaryDataObjectType.setUri(fileName);
-                }
 
+                String extension = getExtension(binaryDataObjectType).toLowerCase();
+                String fileName = determineFileName(
+                    binaryDataObjectType,
+                    extension,
+                    useOriginalFilenames,
+                    existingFileNames
+                );
+                existingFileNames.add(fileName);
+                binaryDataObjectType.setUri(fileName);
                 String[] dataObjectVersion = minimalDataObjectType.getDataObjectVersion().split("_");
                 String xmlQualifier = dataObjectVersion[0];
                 Integer xmlVersion = Integer.parseInt(dataObjectVersion[1]);
@@ -326,8 +334,61 @@ public class ManifestBuilder implements AutoCloseable {
                 maps.put(minimalDataObjectType.getId(), objectInfo);
             }
         }
+        existingFileNames.clear();
         marshallHackForNonXmlRootObject(dataObjectGroup);
         return maps;
+    }
+
+    protected String determineFileName(
+        BinaryDataObjectType binaryDataObjectType,
+        String extension,
+        boolean useOriginalFilenames,
+        Set<String> existingFileNames
+    ) {
+        String ext = extension.isEmpty() ? "" : "." + extension;
+
+        if (useOriginalFilenames) {
+            return buildFileNameWithOriginalFilename(binaryDataObjectType, ext, existingFileNames);
+        } else {
+            return determineFileNameBasedOnUri(binaryDataObjectType, ext);
+        }
+    }
+
+    private String buildFileNameWithOriginalFilename(
+        BinaryDataObjectType binaryDataObjectType,
+        String extension,
+        Set<String> existingFileNames
+    ) {
+        String baseFilePath = CONTENT + File.separator;
+        String originalFileName = binaryDataObjectType.getFileInfo().getFilename();
+        String fileNameWithExtension = originalFileName + extension;
+        String fullFileName = baseFilePath + fileNameWithExtension;
+
+        if (existingFileNames.contains(fullFileName)) {
+            String idPrefix = binaryDataObjectType.getId() != null ? binaryDataObjectType.getId() : "";
+            fullFileName = baseFilePath + idPrefix + fileNameWithExtension;
+
+            int maxLength = FULL_FILE_NAME_SIZE_LIMIT;
+            if (fullFileName.length() > maxLength) {
+                int endOfPathIndex = baseFilePath.length() + idPrefix.length();
+                int maxFileNameLength = maxLength - endOfPathIndex - extension.length();
+                String truncatedFileName = originalFileName.substring(0, maxFileNameLength);
+                fullFileName = baseFilePath + idPrefix + truncatedFileName + extension;
+            }
+        }
+
+        return fullFileName;
+    }
+
+    private String determineFileNameBasedOnUri(BinaryDataObjectType binaryDataObjectType, String extension) {
+        if (
+            binaryDataObjectType.getUri() != null &&
+            binaryDataObjectType.getUri().contains(binaryDataObjectType.getId())
+        ) {
+            return binaryDataObjectType.getUri();
+        } else {
+            return CONTENT + File.separator + binaryDataObjectType.getId() + extension;
+        }
     }
 
     @Nonnull
