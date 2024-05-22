@@ -28,8 +28,8 @@ set -e
 #*******************************************************************************
 WORKING_DIR=$(dirname $0)
 
-for SOURCE in *.sources; do
-  DISTRIB="${SOURCE%.*}"
+for SOURCE in ${WORKING_DIR}/*.sources; do
+  DISTRIB=$(basename $SOURCE | cut -d. -f1)
   TARGET_DIR=${WORKING_DIR}/target/${DISTRIB} # Target directory where to copy downloaded deb
   mkdir -p ${TARGET_DIR}
 

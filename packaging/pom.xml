@@ -22,21 +22,6 @@
 				<artifactId>maven-dependency-plugin</artifactId>
 				<executions>
 					<execution>
-						<id>copy-dependencies-rpm-signed</id>
-						<phase>process-resources</phase>
-						<goals>
-							<goal>copy-dependencies</goal>
-						</goals>
-						<configuration>
-							<includeGroupIds>fr.gouv.vitam</includeGroupIds>
-							<includeTypes>rpm</includeTypes>
-							<outputDirectory>${basedir}/rpm_signed/vitam-product/</outputDirectory>
-							<overWriteReleases>false</overWriteReleases>
-							<overWriteSnapshots>false</overWriteSnapshots>
-							<overWriteIfNewer>true</overWriteIfNewer>
-						</configuration>
-					</execution>
-					<execution>
 						<id>copy-dependencies-rpm</id>
 						<phase>package</phase>
 						<goals>
@@ -94,34 +79,6 @@
 							<executable>../rpm/vitam-external/build_repo.sh</executable>
 						</configuration>
 					</execution>
-					<execution>
-						<id>create yum repodata for vitam-external</id>
-						<phase>test</phase>
-						<goals>
-							<goal>exec</goal>
-						</goals>
-						<configuration>
-							<executable>/usr/bin/createrepo</executable>
-							<arguments>
-            					<argument>.</argument>
-							</arguments>
-							<workingDirectory>../rpm/vitam-external/target/</workingDirectory>
-						</configuration>
-					</execution>
-					<execution>
-						<id>create yum repodata for vitam-product</id>
-						<phase>package</phase>
-						<goals>
-							<goal>exec</goal>
-						</goals>
-						<configuration>
-							<executable>/usr/bin/createrepo</executable>
-							<arguments>
-            					<argument>.</argument>
-							</arguments>
-							<workingDirectory>../rpm/vitam-product/target/</workingDirectory>
-						</configuration>
-					</execution>
 					<!-- debian -->
 					<execution>
 						<id>Build native vitam-product deb</id>
@@ -143,75 +100,6 @@
 							<executable>../deb/vitam-external/build_repo.sh</executable>
 						</configuration>
 					</execution>
-					<!-- debian Packages -->
-					<execution>
-						<id>Create Packages for vitam-external</id>
-						<phase>compile</phase>
-						<goals>
-							<goal>exec</goal>
-						</goals>
-						<configuration>
-							<executable>/usr/bin/dpkg-scanpackages</executable>
-							<arguments>
-            					<argument>-m</argument>
-								<argument>.</argument>
-							</arguments>
-							<workingDirectory>../deb/vitam-external/target/</workingDirectory>
-							<outputFile>../deb/vitam-external/target/Packages</outputFile>
-						</configuration>
-					</execution>
-					<execution>
-						<id>vitam-external deb Packages.gz</id>
-						<phase>package</phase>
-						<goals>
-							<goal>exec</goal>
-						</goals>
-						<configuration>
-							<executable>/usr/bin/gzip</executable>
-							<arguments>
-            					<argument>-9c</argument>
-								<argument>Packages</argument>
-							</arguments>
-							<workingDirectory>../deb/vitam-external/target/</workingDirectory>
-							<outputFile>../deb/vitam-external/target/Packages.gz</outputFile>
-						</configuration>
-					</execution>
-					<execution>
-						<id>Create Packages for vitam-product</id>
-						<phase>test</phase>
-						<goals>
-							<goal>exec</goal>
-						</goals>
-						<configuration>
-							<executable>/usr/bin/dpkg-scanpackages</executable>
-							<arguments>
-            					<argument>-m</argument>
-								<argument>.</argument>
-							</arguments>
-							<workingDirectory>../deb/vitam-product/target/</workingDirectory>
-							<outputFile>../deb/vitam-product/target/Packages</outputFile>
-						</configuration>
-					</execution>
-					<execution>
-						<id>vitam-product deb Packages.gz</id>
-						<phase>package</phase>
-						<goals>
-							<goal>exec</goal>
-						</goals>
-						<configuration>
-							<executable>/usr/bin/gzip</executable>
-							<arguments>
-            					<argument>-9c</argument>
-								<argument>Packages</argument>
-								<!-- <argument>| gzip -9c  &gt; Packages.gz</argument> -->
-							</arguments>
-							<workingDirectory>../deb/vitam-product/target/</workingDirectory>
-							<outputFile>../deb/vitam-product/target/Packages.gz</outputFile>
-						</configuration>
-					</execution>
-
-
-
 
 					<!-- remove useless & dangerous configuration -->
 					<execution>
@@ -237,44 +125,6 @@
 					</execution>
 				</executions>
 			</plugin>
-			<!-- TODO : copy all other rpm (from vitam-external & vitam-product) to rpm_signed -->
-			<plugin>
-				<artifactId>maven-resources-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>copy-resources-external</id>
-						<phase>compile</phase>
-						<goals>
-						<goal>copy-resources</goal>
-						</goals>
-						<configuration>
-						<outputDirectory>${basedir}/rpm_signed/vitam-external/</outputDirectory>
-						<resources>
-							<resource>
-							<directory>../rpm/vitam-external/target/</directory>
-							<!-- <filtering>true</filtering> -->
-							</resource>
-						</resources>
-						</configuration>
-					</execution>
-					<execution>
-						<id>copy-resources-product</id>
-						<phase>compile</phase>
-						<goals>
-						<goal>copy-resources</goal>
-						</goals>
-						<configuration>
-						<outputDirectory>${basedir}/rpm_signed/vitam-product/</outputDirectory>
-						<resources>
-							<resource>
-							<directory>../rpm/vitam-product/target/</directory>
-							<!-- <filtering>true</filtering> -->
-							</resource>
-						</resources>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
 
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
@@ -292,6 +142,7 @@
 							<executable>./sign_rpm.sh</executable>
 						</configuration>
 					</execution>
+					<!-- sign DEB -->
 					<execution>
 						<id>sign DEB</id>
 						<phase>package</phase>
@@ -314,6 +165,7 @@
 						<phase>package</phase>
 						<configuration>
 							<appendAssemblyId>true</appendAssemblyId>
+							<tarLongFileMode>posix</tarLongFileMode>
 							<descriptors>
 								<descriptor>${basedir}/assembly-full.xml</descriptor>
 								<descriptor>${basedir}/assembly-deb.xml</descriptor>
