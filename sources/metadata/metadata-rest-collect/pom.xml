@@ -25,16 +25,6 @@
 
 		<plugins>
 			<plugin>
-				<groupId>com.google.cloud.tools</groupId>
-				<artifactId>jib-maven-plugin</artifactId>
-				<configuration>
-					<to>
-						<image>${env.SERVICE_DOCKER_PUSH_URL}/vitam/metadata-collect</image>
-						<tags>${project.version}</tags>
-					</to>
-				</configuration>
-			</plugin>
-			<plugin>
 				<!-- Dependency manipulation (copy, unpack) and analysis. -->
 				<artifactId>maven-dependency-plugin</artifactId>
 				<executions>
