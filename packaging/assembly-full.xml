@@ -73,6 +73,7 @@
                 <exclude>**/node_modules/**</exclude>
                 <exclude>**/evosuite-tests/**</exclude>
                 <exclude>**/rpm_signed/**</exclude>
+                <exclude>**/packaging@tmp/**</exclude>
             </excludes>
         </fileSet>
         <!-- Add ansible deployment files -->
