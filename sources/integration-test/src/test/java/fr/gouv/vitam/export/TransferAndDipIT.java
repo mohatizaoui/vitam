@@ -346,6 +346,39 @@ public class TransferAndDipIT extends VitamRuleRunner {
 
     @Test
     @RunWithCustomExecutor
+    public void should_export_DIP_Using_Original_File_Names() throws Exception {
+        // Given
+        final String ingestOpId = VitamTestHelper.doIngest(TENANT_ID, WARNING_SIP_mail_Seda2_3);
+        verifyOperation(ingestOpId, OK);
+
+        SelectMultiQuery select = new SelectMultiQuery();
+        select.setQuery(QueryHelper.in(VitamFieldsHelper.operations(), ingestOpId));
+
+        ExportRequest exportRequest = new ExportRequest(
+            new DataObjectVersions(Collections.singleton(BINARY_MASTER.getName())),
+            true,
+            select.getFinalSelect(),
+            true
+        );
+
+        exportRequest.setExportType(ExportType.ArchiveDeliveryRequestReply);
+        ExportRequestParameters exportRequestParameters = getExportRequestParameters();
+        exportRequest.setExportRequestParameters(exportRequestParameters);
+        exportRequest.setSedaVersion(SupportedSedaVersions.SEDA_2_3.getVersion());
+
+        // When ArchiveDeliveryRequestReply
+        String exportOperationId = exportDIP(exportRequest);
+
+        // Then
+        VitamTestHelper.verifyOperation(exportOperationId, OK);
+
+        String manifest = getManifestString(getDip(exportOperationId));
+
+        assertThat(manifest).contains("<Uri>Content/Vitam.txt.txt</Uri>");
+    }
+
+    @Test
+    @RunWithCustomExecutor
     public void should_export_DIP_with_all_data_with_default_param_seda_to_export() throws Exception {
         // Given
         final String ingestOpId = VitamTestHelper.doIngest(TENANT_ID, SIP_OK_PHYSICAL_ARCHIVE);
@@ -1294,7 +1327,8 @@ public class TransferAndDipIT extends VitamRuleRunner {
             true,
             exportWithoutObjects,
             null,
-            SupportedSedaVersions.SEDA_2_3.getVersion()
+            SupportedSedaVersions.SEDA_2_3.getVersion(),
+            false
         );
 
         exportRequest.setExportType(ExportType.ArchiveDeliveryRequestReply);
