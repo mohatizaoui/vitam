@@ -93,7 +93,7 @@ public class TransactionInternalResourceTest extends CollectInternalResourceBase
 
     private static final String QUERY_TEST =
         "{ \"$query\" : [ { \"$eq\": { \"title\" : \"test\" } } ], " +
-        " \"$filter\": { \"$orderby\": \"#id\" }, " +
+        " \"$filter\": { \"$orderby\": \"field\" }, " +
         " \"$projection\" : { \"$fields\" : { \"#id\": 1, \"title\" : 2, \"transacdate\": 1 } } " +
         " }";
     private static final String EMPTY_QUERY = "{ \"$query\" : \"\", \"$roots\" : []  }";

@@ -79,7 +79,6 @@ import fr.gouv.vitam.worker.core.distribution.JsonLineWriter;
 import io.prometheus.client.Histogram;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.io.FileUtils;
-import org.elasticsearch.ElasticsearchParseException;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -714,7 +713,7 @@ public class MetadataResource extends ApplicationStatusResource {
         LOGGER.error(e);
         status = Status.BAD_REQUEST;
         Throwable e2 = e.getCause();
-        if (e2 instanceof IllegalArgumentException || e2 instanceof ElasticsearchParseException) {
+        if (e2 instanceof IllegalArgumentException) {
             status = Status.PRECONDITION_FAILED;
         } else {
             e2 = e;
@@ -736,7 +735,7 @@ public class MetadataResource extends ApplicationStatusResource {
         LOGGER.error(e);
         status = Status.BAD_REQUEST;
         Throwable e2 = e.getCause();
-        if (e2 instanceof IllegalArgumentException || e2 instanceof ElasticsearchParseException) {
+        if (e2 instanceof IllegalArgumentException) {
             status = Status.PRECONDITION_FAILED;
         } else {
             e2 = e;

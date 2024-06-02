@@ -26,6 +26,8 @@
  */
 package fr.gouv.vitam.functional.administration.common.server;
 
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch.core.search.ResponseBody;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -73,9 +75,6 @@ import fr.gouv.vitam.functional.administration.common.Profile;
 import fr.gouv.vitam.functional.administration.common.config.ElasticsearchFunctionalAdminIndexManager;
 import fr.gouv.vitam.functional.administration.common.exception.ReferentialException;
 import org.bson.Document;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -94,8 +93,10 @@ import static fr.gouv.vitam.common.database.builder.query.QueryHelper.and;
 import static fr.gouv.vitam.common.database.builder.query.QueryHelper.eq;
 import static fr.gouv.vitam.common.database.builder.query.QueryHelper.match;
 import static fr.gouv.vitam.common.database.builder.query.QueryHelper.or;
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.matchAll;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
@@ -257,9 +258,10 @@ public class MongoDbAccessAdminImplTest {
         assertEquals(3, collection.countDocuments());
 
         // find all
-        final QueryBuilder query = QueryBuilders.matchAllQuery();
-        final SearchResponse requestResponse = formatCollection.getEsClient().search(formatCollection, query, null);
-        assertEquals(3, requestResponse.getHits().getTotalHits().value);
+        final Query query = matchAll();
+        final ResponseBody<ObjectNode> requestResponse = formatCollection.getEsClient().search(formatCollection, query);
+        assertNotNull(requestResponse.hits().total());
+        assertEquals(3, requestResponse.hits().total().value());
 
         // find one by id
         final Select select = new Select();
@@ -383,10 +385,11 @@ public class MongoDbAccessAdminImplTest {
             .getEsClient()
             .refreshIndex(indexManager.getElasticsearchIndexAliasResolver(rulesCollection).resolveIndexName(null));
 
-        final QueryBuilder query = QueryBuilders.matchAllQuery();
-        final SearchResponse requestResponse = rulesCollection.getEsClient().search(rulesCollection, query, null);
+        final Query query = matchAll();
+        final ResponseBody<ObjectNode> requestResponse = rulesCollection.getEsClient().search(rulesCollection, query);
         fileList.close();
-        assertEquals(2, requestResponse.getHits().getTotalHits().value);
+        assertNotNull(requestResponse.hits().total());
+        assertEquals(2, requestResponse.hits().total().value());
         mongoAccess.deleteCollectionForTesting(rulesCollection).close();
         assertEquals(0, collection.countDocuments());
     }

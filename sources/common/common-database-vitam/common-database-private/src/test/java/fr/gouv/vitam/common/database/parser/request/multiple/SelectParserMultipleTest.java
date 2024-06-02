@@ -712,7 +712,7 @@ public class SelectParserMultipleTest {
         "\"$query\":[{\"$and\":[{\"$and\":[{\"$term\":{\"var01\":\"value1\"}},{\"$gte\":{\"var02\":3}}]}," +
         "{\"$eq\":{\"var5\":\"value\"}}]}," +
         "{\"$and\":[{\"$term\":{\"var11\":\"value2\"}},{\"$gte\":{\"var12\":4}}]}]," +
-        "\"$filter\":{\"$limit\":10000,\"$orderby\":{\"_id\":1,\"var2\":-1}}," +
+        "\"$filter\":{\"$limit\":10000,\"$orderby\":{\"_v\":1,\"var2\":-1}}," +
         "\"$projection\":{\"$fields\":{\"var3\":1,\"var4\":0}}}";
         try {
             request.parse(JsonHandler.getFromString(s));

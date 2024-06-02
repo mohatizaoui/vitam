@@ -7,6 +7,14 @@
     "skipped": 0,
     "failed": 0
   },
+  "hits": {
+    "total": {
+      "value": 0,
+      "relation": "eq"
+    },
+    "max_score": null,
+    "hits": []
+  },
   "aggregations": {
     "sterms#originatingAgencies": {
       "doc_count_error_upper_bound": 0,

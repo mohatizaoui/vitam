@@ -24,8 +24,22 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
+
 package fr.gouv.vitam.common.database.translators.elasticsearch;
 
+import co.elastic.clients.elasticsearch._types.FieldValue;
+import co.elastic.clients.elasticsearch._types.Script;
+import co.elastic.clients.elasticsearch._types.SortOptions;
+import co.elastic.clients.elasticsearch._types.SortOrder;
+import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
+import co.elastic.clients.elasticsearch._types.aggregations.AggregationBuilders;
+import co.elastic.clients.elasticsearch._types.aggregations.DateRangeAggregation;
+import co.elastic.clients.elasticsearch._types.aggregations.TermsAggregation;
+import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.Operator;
+import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
+import co.elastic.clients.elasticsearch._types.query_dsl.RangeQuery;
+import co.elastic.clients.json.JsonData;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NullNode;
@@ -50,25 +64,9 @@ import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
-import org.apache.lucene.search.join.ScoreMode;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.Operator;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.RangeQueryBuilder;
-import org.elasticsearch.script.Script;
-import org.elasticsearch.search.aggregations.AggregationBuilder;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.bucket.filter.FiltersAggregationBuilder;
-import org.elasticsearch.search.aggregations.bucket.filter.FiltersAggregator.KeyedFilter;
-import org.elasticsearch.search.aggregations.bucket.range.DateRangeAggregationBuilder;
-import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
-import org.elasticsearch.search.sort.FieldSortBuilder;
-import org.elasticsearch.search.sort.SortBuilder;
-import org.elasticsearch.search.sort.SortBuilders;
-import org.elasticsearch.search.sort.SortOrder;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -77,7 +75,30 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.boolMust;
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.boolShould;
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.exists;
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.getFieldSorts;
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.getScoreSort;
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.gtQuery;
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.gteQuery;
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.ltQuery;
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.lteQuery;
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.matchAll;
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.matchAllQuery;
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.matchPhrasePrefixQuery;
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.matchPhraseQuery;
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.matchQuery;
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.mustNot;
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.nestedQuery;
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.regex;
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.simpleQueryString;
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.termQuery;
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.termsQuery;
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.wildcard;
 import static java.lang.Math.min;
 
 /**
@@ -96,12 +117,12 @@ public class QueryToElasticsearch {
      * @param roots Set of String
      * @return the filter associated with the roots
      */
-    public static QueryBuilder getRoots(final String field, final Collection<String> roots) {
-        String[] values = new String[roots.size()];
-        values = roots.toArray(values);
-
+    public static co.elastic.clients.elasticsearch._types.query_dsl.Query getRoots(
+        final String field,
+        final Collection<String> roots
+    ) {
         // NB: terms and not term since multiple values
-        return QueryBuilders.termsQuery(field, values);
+        return termsQuery(field, roots);
     }
 
     /**
@@ -109,18 +130,19 @@ public class QueryToElasticsearch {
      * @param field String
      * @param roots Set of String
      */
-    public static void addRoots(BoolQueryBuilder query, final String field, final Collection<String> roots, int depth) {
-        String[] values = new String[roots.size()];
-        values = roots.toArray(values);
-
-        BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
-
-        for (int i = 1; i <= depth; i++) {
-            boolQueryBuilder.should(QueryBuilders.termsQuery(field + "." + i, values));
-        }
-
-        query.filter(boolQueryBuilder);
-        // NB: terms and not term since multiple values
+    public static void addRoots(
+        BoolQuery.Builder query,
+        final String field,
+        final Collection<String> roots,
+        int depth
+    ) {
+        query.filter(
+            boolShould(
+                IntStream.rangeClosed(1, depth)
+                    .mapToObj(i -> termsQuery(field + "." + i, roots))
+                    .collect(Collectors.toList())
+            )
+        );
     }
 
     /**
@@ -130,8 +152,11 @@ public class QueryToElasticsearch {
      * @param roots QueryBuilder
      * @return the complete request
      */
-    public static QueryBuilder getFullCommand(final QueryBuilder command, final QueryBuilder roots) {
-        return QueryBuilders.boolQuery().must(command).must(roots);
+    public static co.elastic.clients.elasticsearch._types.query_dsl.Query getFullCommand(
+        final co.elastic.clients.elasticsearch._types.query_dsl.Query command,
+        final co.elastic.clients.elasticsearch._types.query_dsl.Query roots
+    ) {
+        return boolMust(command, roots);
     }
 
     /**
@@ -147,20 +172,20 @@ public class QueryToElasticsearch {
      * @param parserTokens
      * @return list of order by as sort objects
      */
-    public static List<SortBuilder<?>> getSorts(
+    public static List<SortOptions> getSorts(
         final AbstractParser<?> requestParser,
         boolean score,
         DynamicParserTokens parserTokens
     ) {
         final JsonNode orderby = requestParser.getRequest().getFilter().get(SELECTFILTER.ORDERBY.exactToken());
         int size = score && requestParser.hasFullTextQuery() ? 1 : 0;
-        if (orderby != null && orderby.size() > 0) {
+        if (orderby != null && !orderby.isEmpty()) {
             size += orderby.size();
         }
-        final List<SortBuilder<?>> sorts = new ArrayList<>(size);
-        if (orderby == null || orderby.size() == 0) {
+        final List<SortOptions> sorts = new ArrayList<>(size);
+        if (orderby == null || orderby.isEmpty()) {
             if (score && requestParser.hasFullTextQuery()) {
-                sorts.add(SortBuilders.scoreSort().order(SortOrder.DESC));
+                sorts.add(getScoreSort(SortOrder.Desc));
                 return sorts;
             }
             return null;
@@ -168,7 +193,7 @@ public class QueryToElasticsearch {
         final Iterator<Entry<String, JsonNode>> iterator = orderby.fields();
         if (!iterator.hasNext()) {
             if (score && requestParser.hasFullTextQuery()) {
-                sorts.add(SortBuilders.scoreSort().order(SortOrder.DESC));
+                sorts.add(getScoreSort(SortOrder.Desc));
                 return sorts;
             }
             return null;
@@ -187,28 +212,25 @@ public class QueryToElasticsearch {
                 scoreNotAdded = false;
                 if ("_score".equals(entry.getKey()) || "#score".equals(entry.getKey())) {
                     if (entry.getValue().asInt() < 0) {
-                        sorts.add(SortBuilders.scoreSort().order(SortOrder.DESC));
+                        sorts.add(getScoreSort(SortOrder.Desc));
                     } else {
-                        sorts.add(SortBuilders.scoreSort().order(SortOrder.ASC));
+                        sorts.add(getScoreSort(SortOrder.Asc));
                     }
                     continue;
                 } else {
-                    sorts.add(SortBuilders.scoreSort().order(SortOrder.DESC));
+                    sorts.add(getScoreSort(SortOrder.Desc));
                 }
             }
 
-            final FieldSortBuilder fieldSort = SortBuilders.fieldSort(key);
             if (entry.getValue().asInt() < 0) {
-                fieldSort.order(SortOrder.DESC);
-                sorts.add(fieldSort);
+                sorts.add(getFieldSorts(key, SortOrder.Desc));
             } else {
-                fieldSort.order(SortOrder.ASC);
-                sorts.add(fieldSort);
+                sorts.add(getFieldSorts(key, SortOrder.Asc));
             }
         }
         if (scoreNotAdded && score && requestParser.hasFullTextQuery()) {
             // Last filter if not yet added
-            sorts.add(SortBuilders.scoreSort().order(SortOrder.DESC));
+            sorts.add(getScoreSort(SortOrder.Desc));
         }
         return sorts;
     }
@@ -219,8 +241,11 @@ public class QueryToElasticsearch {
      * @return the associated QueryBuilder
      * @throws InvalidParseOperationException if query could not parse to command
      */
-    public static QueryBuilder getCommand(final Query query, VarNameAdapter adapter, DynamicParserTokens parserTokens)
-        throws InvalidParseOperationException {
+    public static co.elastic.clients.elasticsearch._types.query_dsl.Query getCommand(
+        final Query query,
+        VarNameAdapter adapter,
+        DynamicParserTokens parserTokens
+    ) throws InvalidParseOperationException {
         final QUERY req = query.getQUERY();
         final JsonNode content = query.getNode(req.exactToken());
         switch (req) {
@@ -264,7 +289,7 @@ public class QueryToElasticsearch {
             case SIZE:
                 return sizeCommand(req, content);
             case NOP:
-                return QueryBuilders.matchAllQuery();
+                return matchAll();
             case GEOMETRY:
             case BOX:
             case POLYGON:
@@ -272,8 +297,8 @@ public class QueryToElasticsearch {
             case GEOINTERSECTS:
             case GEOWITHIN:
             default:
+                throw new InvalidParseOperationException("Invalid command: " + req.exactToken());
         }
-        throw new InvalidParseOperationException("Invalid command: " + req.exactToken());
     }
 
     /**
@@ -283,18 +308,23 @@ public class QueryToElasticsearch {
      * @param content JsonNode
      * @return the size Command
      * @throws InvalidParseOperationException if check unicity is in error
+     * @deprecated
      */
-    private static QueryBuilder sizeCommand(final QUERY query, final JsonNode content)
-        throws InvalidParseOperationException {
+    private static co.elastic.clients.elasticsearch._types.query_dsl.Query sizeCommand(
+        final QUERY query,
+        final JsonNode content
+    ) throws InvalidParseOperationException {
         // Unsupported command. May be deleted without prior notice.
         logUnsupportedCommand(query, content, "Deprecated. Should not be invoked anymore.");
 
         final Entry<String, JsonNode> element = JsonHandler.checkUnicity(query.exactToken(), content);
-        final Script script = new Script("doc['" + element.getKey() + "'].values.length == " + element.getValue());
+        final Script script = Script.of(
+            s -> s.inline(i -> i.source("doc['" + element.getKey() + "'].values.length == " + element.getValue()))
+        );
         if (element.getKey().equals(VitamDocument.ID)) {
             logWarnUnsupportedIdForCommand(query, content);
         }
-        return QueryBuilders.scriptQuery(script);
+        return QueryBuilders.script().script(script).build()._toQuery();
     }
 
     /**
@@ -305,7 +335,7 @@ public class QueryToElasticsearch {
      * @return the compare Command
      * @throws InvalidParseOperationException if check unicity is in error
      */
-    private static QueryBuilder compareCommand(
+    private static co.elastic.clients.elasticsearch._types.query_dsl.Query compareCommand(
         final QUERY query,
         final JsonNode content,
         DynamicParserTokens parserTokens
@@ -326,14 +356,14 @@ public class QueryToElasticsearch {
 
         switch (query) {
             case GT:
-                return QueryBuilders.rangeQuery(key).gt(value);
+                return gtQuery(key, value);
             case GTE:
-                return QueryBuilders.rangeQuery(key).gte(value);
+                return gteQuery(key, value);
             case LT:
-                return QueryBuilders.rangeQuery(key).lt(value);
+                return ltQuery(key, value);
             case LTE:
             default:
-                return QueryBuilders.rangeQuery(key).lte(value);
+                return lteQuery(key, value);
         }
     }
 
@@ -345,7 +375,7 @@ public class QueryToElasticsearch {
      * @return the search Command
      * @throws InvalidParseOperationException if check unicity is in error
      */
-    private static QueryBuilder searchCommand(
+    private static co.elastic.clients.elasticsearch._types.query_dsl.Query searchCommand(
         final QUERY query,
         final JsonNode content,
         DynamicParserTokens parserTokens
@@ -360,7 +390,7 @@ public class QueryToElasticsearch {
             logCommand(query, content);
         }
 
-        return QueryBuilders.simpleQueryStringQuery(element.getValue().asText()).field(attribute);
+        return simpleQueryString(attribute, element.getValue().asText());
     }
 
     /**
@@ -371,7 +401,7 @@ public class QueryToElasticsearch {
      * @return the search Command
      * @throws InvalidParseOperationException if check unicity is in error
      */
-    private static QueryBuilder nestedSearchCommand(
+    private static co.elastic.clients.elasticsearch._types.query_dsl.Query nestedSearchCommand(
         final QUERY query,
         final JsonNode content,
         VarNameAdapter adapter,
@@ -403,7 +433,7 @@ public class QueryToElasticsearch {
         } catch (InvalidCreateOperationException e) {
             throw new InvalidParseOperationException("$subobject query is not valid");
         }
-        return QueryBuilders.nestedQuery(path, getCommand(subQuery, adapter, parserTokens), ScoreMode.Avg);
+        return nestedQuery(path, getCommand(subQuery, adapter, parserTokens));
     }
 
     /**
@@ -414,7 +444,7 @@ public class QueryToElasticsearch {
      * @return the match Command
      * @throws InvalidParseOperationException if check unicity is in error
      */
-    private static QueryBuilder matchCommand(
+    private static co.elastic.clients.elasticsearch._types.query_dsl.Query matchCommand(
         final QUERY query,
         final JsonNode content,
         DynamicParserTokens parserTokens
@@ -437,13 +467,13 @@ public class QueryToElasticsearch {
 
         switch (query) {
             case MATCH:
-                return QueryBuilders.matchQuery(element.getKey(), element.getValue().asText()).operator(Operator.OR);
+                return matchQuery(element.getKey(), element.getValue().asText());
             case MATCH_ALL:
-                return QueryBuilders.matchQuery(element.getKey(), element.getValue().asText()).operator(Operator.AND);
+                return matchAllQuery(element.getKey(), element.getValue().asText());
             case MATCH_PHRASE:
-                return QueryBuilders.matchPhraseQuery(element.getKey(), element.getValue().asText());
+                return matchPhraseQuery(element.getKey(), element.getValue().asText());
             case MATCH_PHRASE_PREFIX:
-                return QueryBuilders.matchPhrasePrefixQuery(element.getKey(), element.getValue().asText());
+                return matchPhrasePrefixQuery(element.getKey(), element.getValue().asText());
             default:
                 throw new InvalidParseOperationException("Not correctly parsed: " + query);
         }
@@ -458,7 +488,7 @@ public class QueryToElasticsearch {
      * @throws InvalidParseOperationException if check unicity is in error
      * @deprecated Unsupported case. Should/will be removed without prior notice.
      */
-    private static QueryBuilder matchCommandWithMaxExpansions(
+    private static co.elastic.clients.elasticsearch._types.query_dsl.Query matchCommandWithMaxExpansions(
         QUERY query,
         JsonNode content,
         JsonNode max,
@@ -468,21 +498,14 @@ public class QueryToElasticsearch {
 
         switch (query) {
             case MATCH:
-                return QueryBuilders.matchQuery(element.getKey(), element.getValue().asText())
-                    .maxExpansions(max.asInt())
-                    .operator(Operator.OR);
+                return matchQuery(element.getKey(), element.getValue().asText(), max.asInt());
             case MATCH_ALL:
-                return QueryBuilders.matchQuery(element.getKey(), element.getValue().asText())
-                    .maxExpansions(max.asInt())
-                    .operator(Operator.AND);
+                return matchAllQuery(element.getKey(), element.getValue().asText(), max.asInt());
             case MATCH_PHRASE:
-                return QueryBuilders.matchPhraseQuery(element.getKey(), element.getValue().asText());
-            // Note : the method maxExpansions(max.asInt()) is removed in ES5, with no documented replacement.
+                // Note: the method maxExpansions(max.asInt()) is removed in ES5, with no documented replacement.
+                return matchPhraseQuery(element.getKey(), element.getValue().asText());
             case MATCH_PHRASE_PREFIX:
-                return QueryBuilders.matchPhrasePrefixQuery(
-                    element.getKey(),
-                    element.getValue().asText()
-                ).maxExpansions(max.asInt());
+                return matchPhrasePrefixQuery(element.getKey(), element.getValue().asText(), max.asInt());
             default:
                 throw new InvalidParseOperationException("Not correctly parsed: " + query);
         }
@@ -497,7 +520,7 @@ public class QueryToElasticsearch {
      * @throws InvalidParseOperationException if check unicity is in error
      * @deprecated Unsupported cases. Should/will be removed without prior notice.
      */
-    private static QueryBuilder matchCommandOverNonAnalyzedField(
+    private static co.elastic.clients.elasticsearch._types.query_dsl.Query matchCommandOverNonAnalyzedField(
         QUERY query,
         JsonNode content,
         Entry<String, JsonNode> element,
@@ -507,12 +530,12 @@ public class QueryToElasticsearch {
 
         switch (query) {
             case MATCH:
-                return QueryBuilders.termsQuery(element.getKey(), element.getValue().toString().split(" "));
+                return termsQuery(element.getKey(), element.getValue().toString().split(" "));
             case MATCH_ALL:
             case MATCH_PHRASE:
             case MATCH_PHRASE_PREFIX:
             default:
-                return QueryBuilders.termQuery(element.getKey(), element.getValue().toString());
+                return termQuery(element.getKey(), element.getValue().toString());
         }
     }
 
@@ -524,8 +547,11 @@ public class QueryToElasticsearch {
      * @return the in Command
      * @throws InvalidParseOperationException if check unicity is in error
      */
-    private static QueryBuilder inCommand(final QUERY query, final JsonNode content, DynamicParserTokens parserTokens)
-        throws InvalidParseOperationException {
+    private static co.elastic.clients.elasticsearch._types.query_dsl.Query inCommand(
+        final QUERY query,
+        final JsonNode content,
+        DynamicParserTokens parserTokens
+    ) throws InvalidParseOperationException {
         final Entry<String, JsonNode> element = JsonHandler.checkUnicity(query.exactToken(), content);
         String key = element.getKey();
 
@@ -552,9 +578,16 @@ public class QueryToElasticsearch {
         for (final JsonNode value : nodes) {
             set.add(getAsObject(value));
         }
-        final QueryBuilder query2 = QueryBuilders.termsQuery(key, set);
+        final co.elastic.clients.elasticsearch._types.query_dsl.Query query2 = QueryBuilders.terms()
+            .field(key)
+            .terms(
+                tt ->
+                    tt.value(set.stream().map(value -> FieldValue.of(JsonData.of(value))).collect(Collectors.toList()))
+            )
+            .build()
+            ._toQuery();
         if (query == QUERY.NIN) {
-            return QueryBuilders.boolQuery().mustNot(query2);
+            return mustNot(query2);
         }
         return query2;
     }
@@ -568,8 +601,10 @@ public class QueryToElasticsearch {
      * @throws InvalidParseOperationException if check unicity is in error
      * @deprecated Unsupported cases should/will be removed without prior notice.
      */
-    private static QueryBuilder inCommandOverAnalyzedField(final QUERY query, final JsonNode content)
-        throws InvalidParseOperationException {
+    private static co.elastic.clients.elasticsearch._types.query_dsl.Query inCommandOverAnalyzedField(
+        final QUERY query,
+        final JsonNode content
+    ) throws InvalidParseOperationException {
         final Entry<String, JsonNode> element = JsonHandler.checkUnicity(query.exactToken(), content);
         String key = element.getKey();
 
@@ -589,16 +624,18 @@ public class QueryToElasticsearch {
         for (final JsonNode value : nodes) {
             set.add(getAsObject(value));
         }
-        final QueryBuilder query2;
+        final co.elastic.clients.elasticsearch._types.query_dsl.Query query2;
 
-        final BoolQueryBuilder builder = new BoolQueryBuilder().minimumShouldMatch(1);
+        final BoolQuery.Builder builder = new BoolQuery.Builder().minimumShouldMatch("1");
         for (final Object object : set) {
-            builder.should(QueryBuilders.matchQuery(key, object).operator(Operator.OR));
+            builder.should(
+                QueryBuilders.match(m -> m.field(key).query(FieldValue.of(JsonData.of(object))).operator(Operator.Or))
+            );
         }
-        query2 = builder;
+        query2 = builder.build()._toQuery();
 
         if (query == QUERY.NIN) {
-            return QueryBuilders.boolQuery().mustNot(query2);
+            return mustNot(query2);
         }
         return query2;
     }
@@ -611,7 +648,7 @@ public class QueryToElasticsearch {
      * @return the range Command
      * @throws InvalidParseOperationException if check unicity is in error
      */
-    private static QueryBuilder rangeCommand(
+    private static co.elastic.clients.elasticsearch._types.query_dsl.Query rangeCommand(
         final QUERY query,
         final JsonNode content,
         DynamicParserTokens parserTokens
@@ -631,7 +668,7 @@ public class QueryToElasticsearch {
             logWarnUnsupportedIdForCommand(query, content);
         }
 
-        final RangeQueryBuilder range = QueryBuilders.rangeQuery(key);
+        final RangeQuery.Builder range = QueryBuilders.range().field(key);
         for (final Iterator<Entry<String, JsonNode>> iterator = element.getValue().fields(); iterator.hasNext();) {
             final Entry<String, JsonNode> requestItem = iterator.next();
             RANGEARGS arg;
@@ -646,23 +683,22 @@ public class QueryToElasticsearch {
                 throw new InvalidParseOperationException("Invalid Range query command: " + requestItem, e);
             }
             JsonNode node = requestItem.getValue();
-
             switch (arg) {
                 case GT:
-                    range.gt(getAsObject(node));
+                    range.gt(JsonData.of(getAsObject(node)));
                     break;
                 case GTE:
-                    range.gte(getAsObject(node));
+                    range.gte(JsonData.of(getAsObject(node)));
                     break;
                 case LT:
-                    range.lt(getAsObject(node));
+                    range.lt(JsonData.of(getAsObject(node)));
                     break;
                 case LTE:
                 default:
-                    range.lte(getAsObject(node));
+                    range.lte(JsonData.of(getAsObject(node)));
             }
         }
-        return range;
+        return range.build()._toQuery();
     }
 
     /**
@@ -673,7 +709,7 @@ public class QueryToElasticsearch {
      * @return the regex Command
      * @throws InvalidParseOperationException if check unicity is in error
      */
-    private static QueryBuilder regexCommand(
+    private static co.elastic.clients.elasticsearch._types.query_dsl.Query regexCommand(
         final QUERY query,
         final JsonNode content,
         DynamicParserTokens parserTokens
@@ -694,7 +730,7 @@ public class QueryToElasticsearch {
         String value = entry.getValue().asText();
         logCommand(query, content);
 
-        return QueryBuilders.regexpQuery(key, value);
+        return regex(key, value);
     }
 
     /**
@@ -706,8 +742,10 @@ public class QueryToElasticsearch {
      * @throws InvalidParseOperationException if check unicity is in error
      * @deprecated Unsupported cases should/will be removed without prior notice.
      */
-    private static QueryBuilder regexCommandOverIdField(final QUERY query, final JsonNode content)
-        throws InvalidParseOperationException {
+    private static co.elastic.clients.elasticsearch._types.query_dsl.Query regexCommandOverIdField(
+        final QUERY query,
+        final JsonNode content
+    ) throws InvalidParseOperationException {
         final Entry<String, JsonNode> entry = JsonHandler.checkUnicity(query.exactToken(), content);
 
         String key = entry.getKey();
@@ -718,8 +756,13 @@ public class QueryToElasticsearch {
             .getValue()
             .asText()
             .replaceAll("[\\.\\?\\+\\*\\|\\{\\}\\[\\]\\(\\)\\\"\\\\\\#\\@\\&\\<\\>\\~]", " ");
-        value = removeAllDoubleSpace(value);
-        return QueryBuilders.termsQuery(key, value.split(" "));
+        String[] values = removeAllDoubleSpace(value).split(" ");
+        return QueryBuilders.terms(
+            t ->
+                t
+                    .field(key)
+                    .terms(tt -> tt.value(Arrays.stream(values).map(FieldValue::of).collect(Collectors.toList())))
+        );
     }
 
     /**
@@ -731,8 +774,10 @@ public class QueryToElasticsearch {
      * @throws InvalidParseOperationException if check unicity is in error
      * @deprecated Unsupported cases should/will be removed without prior notice.
      */
-    private static QueryBuilder regexCommandOverAnalyzedField(final QUERY query, final JsonNode content)
-        throws InvalidParseOperationException {
+    private static co.elastic.clients.elasticsearch._types.query_dsl.Query regexCommandOverAnalyzedField(
+        final QUERY query,
+        final JsonNode content
+    ) throws InvalidParseOperationException {
         final Entry<String, JsonNode> entry = JsonHandler.checkUnicity(query.exactToken(), content);
 
         // special case of _id
@@ -741,7 +786,7 @@ public class QueryToElasticsearch {
 
         logUnsupportedCommand(query, content, "Analyzed field: '" + key + "'");
 
-        return QueryBuilders.regexpQuery(key, value);
+        return regex(key, value);
     }
 
     /**
@@ -752,7 +797,7 @@ public class QueryToElasticsearch {
      * @return the term Command
      * @throws InvalidParseOperationException if check unicity is in error
      */
-    private static QueryBuilder termCommand(
+    private static co.elastic.clients.elasticsearch._types.query_dsl.Query termCommand(
         final QUERY query,
         final JsonNode content,
         DynamicParserTokens parserTokens
@@ -761,10 +806,10 @@ public class QueryToElasticsearch {
         logUnsupportedCommand(query, content, "Deprecated. Should not be invoked anymore.");
 
         boolean multiple = false;
-        BoolQueryBuilder query2 = null;
+        BoolQuery.Builder query2 = null;
         if (content.size() > 1) {
             multiple = true;
-            query2 = QueryBuilders.boolQuery();
+            query2 = QueryBuilders.bool();
         }
         for (final Iterator<Entry<String, JsonNode>> iterator = content.fields(); iterator.hasNext();) {
             final Entry<String, JsonNode> requestItem = iterator.next();
@@ -776,16 +821,16 @@ public class QueryToElasticsearch {
 
             if (node.isNumber()) {
                 if (!multiple) {
-                    return QueryBuilders.termQuery(key, getAsObject(node));
+                    return QueryBuilders.term(t -> t.field(key).value(FieldValue.of(JsonData.of(getAsObject(node)))));
                 }
-                query2.must(QueryBuilders.termQuery(key, getAsObject(node)));
+                query2.must(QueryBuilders.term(t -> t.field(key).value(FieldValue.of(JsonData.of(getAsObject(node))))));
             } else {
                 final String val = node.asText();
-                QueryBuilder query3;
+                co.elastic.clients.elasticsearch._types.query_dsl.Query query3;
                 if (parserTokens.isNotAnalyzed(key)) {
-                    query3 = QueryBuilders.termQuery(key, val);
+                    query3 = termQuery(key, val);
                 } else {
-                    query3 = QueryBuilders.matchQuery(key, val).operator(Operator.AND);
+                    query3 = matchAllQuery(key, val);
                 }
                 if (!multiple) {
                     return query3;
@@ -793,7 +838,7 @@ public class QueryToElasticsearch {
                 query2.must(query3);
             }
         }
-        return query2;
+        return query2.build()._toQuery();
     }
 
     /**
@@ -803,7 +848,7 @@ public class QueryToElasticsearch {
      * @param content JsonNode
      * @return the wildcard Command
      */
-    private static QueryBuilder wildcardCommand(
+    private static co.elastic.clients.elasticsearch._types.query_dsl.Query wildcardCommand(
         final QUERY query,
         final JsonNode content,
         DynamicParserTokens parserTokens
@@ -827,7 +872,7 @@ public class QueryToElasticsearch {
             }
         }
 
-        return QueryBuilders.wildcardQuery(key, val);
+        return wildcard(key, val);
     }
 
     @Deprecated
@@ -849,8 +894,11 @@ public class QueryToElasticsearch {
      * @return the eq Command
      * @throws InvalidParseOperationException if check unicity is in error
      */
-    private static QueryBuilder eqCommand(final QUERY query, final JsonNode content, DynamicParserTokens parserTokens)
-        throws InvalidParseOperationException {
+    private static co.elastic.clients.elasticsearch._types.query_dsl.Query eqCommand(
+        final QUERY query,
+        final JsonNode content,
+        DynamicParserTokens parserTokens
+    ) throws InvalidParseOperationException {
         final Entry<String, JsonNode> entry = JsonHandler.checkUnicity(query.exactToken(), content);
 
         String key = entry.getKey();
@@ -863,9 +911,11 @@ public class QueryToElasticsearch {
 
         logCommand(query, content);
 
-        final QueryBuilder query2 = QueryBuilders.termQuery(key, getAsObject(node));
+        final co.elastic.clients.elasticsearch._types.query_dsl.Query query2 = QueryBuilders.term(
+            t -> t.field(key).value(FieldValue.of(JsonData.of(getAsObject(node))))
+        );
         if (query == QUERY.NE) {
-            return QueryBuilders.boolQuery().mustNot(query2);
+            return mustNot(query2);
         }
         return query2;
     }
@@ -879,8 +929,10 @@ public class QueryToElasticsearch {
      * @throws InvalidParseOperationException if check unicity is in error
      * @deprecated Unsupported cases should/will be removed without prior notice.
      */
-    private static QueryBuilder eqCommandOverAnalyzedField(QUERY query, JsonNode content)
-        throws InvalidParseOperationException {
+    private static co.elastic.clients.elasticsearch._types.query_dsl.Query eqCommandOverAnalyzedField(
+        QUERY query,
+        JsonNode content
+    ) throws InvalidParseOperationException {
         final Entry<String, JsonNode> entry = JsonHandler.checkUnicity(query.exactToken(), content);
 
         String key = entry.getKey();
@@ -889,9 +941,11 @@ public class QueryToElasticsearch {
         // Unsupported eq with analyzed field
         logUnsupportedCommand(query, content, "Analyzed field: '" + key + "'");
 
-        final QueryBuilder query2 = QueryBuilders.matchQuery(key, getAsObject(node)).operator(Operator.AND);
+        final co.elastic.clients.elasticsearch._types.query_dsl.Query query2 = QueryBuilders.match(
+            m -> m.field(key).query(FieldValue.of(JsonData.of(getAsObject(node)))).operator(Operator.And)
+        );
         if (query == QUERY.NE) {
-            return QueryBuilders.boolQuery().mustNot(query2);
+            return mustNot(query2);
         }
         return query2;
     }
@@ -904,23 +958,25 @@ public class QueryToElasticsearch {
      * @return the exist Command
      * @throws InvalidParseOperationException if check unicity is in error
      */
-    private static QueryBuilder existsMissingCommand(final QUERY query, final JsonNode content)
-        throws InvalidParseOperationException {
+    private static co.elastic.clients.elasticsearch._types.query_dsl.Query existsMissingCommand(
+        final QUERY query,
+        final JsonNode content
+    ) throws InvalidParseOperationException {
         String fieldname = content.asText();
         if (VitamDocument.ID.equals(fieldname)) {
             logWarnUnsupportedIdForCommand(query, content);
         }
-        final QueryBuilder queryBuilder = QueryBuilders.existsQuery(fieldname);
+        final co.elastic.clients.elasticsearch._types.query_dsl.Query existsQuery = exists(fieldname);
         switch (query) {
             case MISSING:
                 // Unsupported command. May be deleted without prior notice.
                 logUnsupportedCommand(query, content, "Deprecated. Should not be invoked anymore.");
 
-                return QueryBuilders.boolQuery().mustNot(queryBuilder);
+                return mustNot(existsQuery);
             case EXISTS:
                 logCommand(query, content);
 
-                return queryBuilder;
+                return existsQuery;
             default:
                 throw new InvalidParseOperationException("Not correctly parsed: " + query);
         }
@@ -932,10 +988,11 @@ public class QueryToElasticsearch {
      * @param query QUERY
      * @param content JsonNode
      * @return the isNull Command
-     * @throws InvalidParseOperationException if check unicity is in error
      */
-    private static QueryBuilder isNullCommand(final QUERY query, final JsonNode content)
-        throws InvalidParseOperationException {
+    private static co.elastic.clients.elasticsearch._types.query_dsl.Query isNullCommand(
+        final QUERY query,
+        final JsonNode content
+    ) {
         // Unsupported command. May be deleted without prior notice.
         logUnsupportedCommand(query, content, "Deprecated. Should not be invoked anymore.");
 
@@ -943,7 +1000,7 @@ public class QueryToElasticsearch {
         if (VitamDocument.ID.equals(fieldname)) {
             logWarnUnsupportedIdForCommand(query, content);
         }
-        return QueryBuilders.boolQuery().mustNot(QueryBuilders.existsQuery(fieldname));
+        return mustNot(exists(fieldname));
     }
 
     /**
@@ -955,7 +1012,7 @@ public class QueryToElasticsearch {
      * @return the and Or Not Command
      * @throws InvalidParseOperationException if check unicity is in error
      */
-    private static QueryBuilder andOrNotCommand(
+    private static co.elastic.clients.elasticsearch._types.query_dsl.Query andOrNotCommand(
         final QUERY query,
         final Query req,
         VarNameAdapter adapter,
@@ -965,7 +1022,7 @@ public class QueryToElasticsearch {
 
         final BooleanQuery nthrequest = (BooleanQuery) req;
         final List<Query> sub = nthrequest.getQueries();
-        final BoolQueryBuilder boolQueryBuilder = new BoolQueryBuilder();
+        final BoolQuery.Builder boolQueryBuilder = QueryBuilders.bool();
         for (Query value : sub) {
             switch (query) {
                 case AND:
@@ -976,10 +1033,10 @@ public class QueryToElasticsearch {
                     break;
                 case OR:
                 default:
-                    boolQueryBuilder.minimumShouldMatch(1).should(getCommand(value, adapter, parserTokens));
+                    boolQueryBuilder.minimumShouldMatch("1").should(getCommand(value, adapter, parserTokens));
             }
         }
-        return boolQueryBuilder;
+        return boolQueryBuilder.build()._toQuery();
     }
 
     /**
@@ -989,41 +1046,41 @@ public class QueryToElasticsearch {
      * @return list of facets
      * @throws InvalidParseOperationException if could not create ES facets
      */
-    public static List<AggregationBuilder> getFacets(
+    public static Map<String, Aggregation> getFacets(
         final AbstractParser<?> requestParser,
         DynamicParserTokens parserTokens
     ) throws InvalidParseOperationException {
-        List<AggregationBuilder> builders = new ArrayList<>();
+        Map<String, Aggregation> aggregations = new HashMap<>();
         if (requestParser.getRequest() instanceof SelectMultiQuery) {
             List<Facet> facets = ((SelectMultiQuery) requestParser.getRequest()).getFacets();
             for (Facet facet : facets) {
                 switch (facet.getCurrentTokenFACET()) {
                     case TERMS:
-                        termsFacet(builders, facet);
+                        termsFacet(aggregations, facet);
                         break;
                     case DATE_RANGE:
-                        dateRangeFacet(builders, facet);
+                        dateRangeFacet(aggregations, facet);
                         break;
                     case FILTERS:
-                        filtersFacet(builders, facet, requestParser.getAdapter(), parserTokens);
+                        filtersFacet(aggregations, facet, requestParser.getAdapter(), parserTokens);
                         break;
                     default:
-                        break;
+                        throw new IllegalStateException("Unexpected value: " + facet.getCurrentTokenFACET());
                 }
             }
         }
-        return builders;
+        return aggregations;
     }
 
     /**
      * Add date_range es facet from facet
      *
-     * @param builders es facets
+     * @param aggregations es facets
      * @param facet facet
      */
-    private static void dateRangeFacet(List<AggregationBuilder> builders, Facet facet) {
+    private static void dateRangeFacet(Map<String, Aggregation> aggregations, Facet facet) {
         JsonNode dateRange = facet.getCurrentFacet().get(facet.getCurrentTokenFACET().exactToken());
-        DateRangeAggregationBuilder dateRangeBuilder = AggregationBuilders.dateRange(facet.getName());
+        DateRangeAggregation.Builder dateRangeBuilder = AggregationBuilders.dateRange();
         dateRangeBuilder.field(dateRange.get(FACETARGS.FIELD.exactToken()).asText());
         dateRangeBuilder.format(dateRange.get(FACETARGS.FORMAT.exactToken()).asText());
         JsonNode ranges = dateRange.get(FACETARGS.RANGES.exactToken());
@@ -1031,37 +1088,38 @@ public class QueryToElasticsearch {
             JsonNode from = item.get(FACETARGS.FROM.exactToken());
             JsonNode to = item.get(FACETARGS.TO.exactToken());
             if (from != null && !(from instanceof NullNode) && to != null && !(to instanceof NullNode)) {
-                dateRangeBuilder.addRange(from.asText(), to.asText());
+                dateRangeBuilder.ranges(r -> r.from(o -> o.expr(from.asText())).to(o -> o.expr(to.asText())));
             } else if (from != null && !(from instanceof NullNode)) {
-                dateRangeBuilder.addUnboundedFrom(from.asText());
+                dateRangeBuilder.ranges(r -> r.from(o -> o.expr(from.asText())));
             } else if (to != null && !(to instanceof NullNode)) {
-                dateRangeBuilder.addUnboundedTo(to.asText());
+                dateRangeBuilder.ranges(r -> r.to(o -> o.expr(to.asText())));
             }
         });
 
         if (dateRange.get(FACETARGS.SUBOBJECT.exactToken()) != null) {
-            builders.add(
-                AggregationBuilders.nested(
-                    facet.getName(),
-                    dateRange.get(FACETARGS.SUBOBJECT.exactToken()).asText()
-                ).subAggregation(dateRangeBuilder)
+            aggregations.put(
+                facet.getName(),
+                new Aggregation.Builder()
+                    .nested(n -> n.path(dateRange.get(FACETARGS.SUBOBJECT.exactToken()).asText()))
+                    .aggregations(facet.getName(), dateRangeBuilder.build()._toAggregation())
+                    .build()
             );
             return;
         }
 
-        builders.add(dateRangeBuilder);
+        aggregations.put(facet.getName(), dateRangeBuilder.build()._toAggregation());
     }
 
     /**
      * Add terms es facet from facet
      *
-     * @param builders es facets
+     * @param aggregations es facets
      * @param facet facet
      */
-    private static void termsFacet(List<AggregationBuilder> builders, Facet facet) {
+    private static void termsFacet(Map<String, Aggregation> aggregations, Facet facet) {
         JsonNode terms = facet.getCurrentFacet().get(facet.getCurrentTokenFACET().exactToken());
         String fieldName = terms.get(FACETARGS.FIELD.exactToken()).asText();
-        TermsAggregationBuilder termsBuilder = AggregationBuilders.terms(facet.getName());
+        TermsAggregation.Builder termsBuilder = AggregationBuilders.terms();
         termsBuilder.field(fieldName);
         if (terms.has(FACETARGS.SIZE.exactToken())) {
             int size = terms.get(FACETARGS.SIZE.exactToken()).asInt();
@@ -1070,26 +1128,27 @@ public class QueryToElasticsearch {
         }
 
         if (terms.get(FACETARGS.SUBOBJECT.exactToken()) != null) {
-            builders.add(
-                AggregationBuilders.nested(
-                    facet.getName(),
-                    terms.get(FACETARGS.SUBOBJECT.exactToken()).asText()
-                ).subAggregation(termsBuilder)
+            aggregations.put(
+                facet.getName(),
+                new Aggregation.Builder()
+                    .nested(n -> n.path(terms.get(FACETARGS.SUBOBJECT.exactToken()).asText()))
+                    .aggregations(facet.getName(), termsBuilder.build()._toAggregation())
+                    .build()
             );
             return;
         }
 
-        builders.add(termsBuilder);
+        aggregations.put(facet.getName(), termsBuilder.build()._toAggregation());
     }
 
     /**
      * Add filters es facet from facet
      *
-     * @param builders es facets
+     * @param aggregations es facets
      * @param facet facet
      */
     private static void filtersFacet(
-        List<AggregationBuilder> builders,
+        Map<String, Aggregation> aggregations,
         Facet facet,
         VarNameAdapter adapter,
         DynamicParserTokens parserTokens
@@ -1110,19 +1169,13 @@ public class QueryToElasticsearch {
             }
         }
 
-        List<KeyedFilter> keyFilters = new ArrayList<>();
-        for (Map.Entry<String, Query> entry : filtersMap.entrySet()) {
-            keyFilters.add(new KeyedFilter(entry.getKey(), getCommand(entry.getValue(), adapter, parserTokens)));
+        Map<String, co.elastic.clients.elasticsearch._types.query_dsl.Query> keyFilters = new HashMap<>();
+        for (Entry<String, Query> entry : filtersMap.entrySet()) {
+            keyFilters.put(entry.getKey(), getCommand(entry.getValue(), adapter, parserTokens));
         }
-        KeyedFilter[] keyFiltersArray = keyFilters.toArray(KeyedFilter[]::new);
-        FiltersAggregationBuilder filtersBuilder = AggregationBuilders.filters(facet.getName(), keyFiltersArray);
-        builders.add(filtersBuilder);
+        Aggregation filtersBuilder = AggregationBuilders.filters(f -> f.filters(b -> b.keyed(keyFilters)));
+        aggregations.put(facet.getName(), filtersBuilder);
     }
-
-    /**
-     * @param value
-     * @return JsonNode as Object
-     */
 
     private static Object getAsObject(JsonNode value) {
         if (value.isBoolean()) {
@@ -1138,9 +1191,6 @@ public class QueryToElasticsearch {
 
     /**
      * Helper method for logging/dumping supported queries
-     *
-     * @param query
-     * @param content
      */
     private static void logCommand(QUERY query, JsonNode content) {
         LOGGER.debug(String.format("Command #QUERY: %s . Content: %s", query, content));
@@ -1149,9 +1199,6 @@ public class QueryToElasticsearch {
     /**
      * Helper method for logging tricky queries dealing with "id" field Aim of this log is to check if search based on
      * id field is used with other operator than eq, ne, in, nin
-     *
-     * @param query
-     * @param content
      */
     private static void logWarnUnsupportedIdForCommand(QUERY query, JsonNode content) {
         LOGGER.warn(String.format("Command #QUERY: %s using id is not recommended. Content: %s", query, content));

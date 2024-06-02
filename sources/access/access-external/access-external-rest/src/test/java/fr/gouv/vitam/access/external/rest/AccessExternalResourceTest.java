@@ -147,7 +147,7 @@ public class AccessExternalResourceTest extends ResteasyTestApplication {
     private static final String BULK_ATOMIC_UPDATE_INVALID =
         "{ \"queries\" : [ { " +
         "\"$query\" : [ { \"$eq\" : { \"title\" : \"test\" } } ],  " +
-        "\"$filter\" : { \"$orderby\" : { \"#id\":1 } }," +
+        "\"$filter\" : { \"$orderby\" : { \"field\":1 } }," +
         "\"$action\": [ { \"$set\": { \"Title\": \"Titre test\" } } ]  } ] }";
 
     private static final String good_id = "goodId";
@@ -155,7 +155,7 @@ public class AccessExternalResourceTest extends ResteasyTestApplication {
 
     private static final String QUERY_TEST =
         "{ \"$query\" : [ { \"$eq\" : { \"title\" : \"test\" } } ], " +
-        " \"$filter\" : { \"$orderby\" : { \"#id\":1 } }," +
+        " \"$filter\" : { \"$orderby\" : { \"field\":1 } }," +
         "\"$projection\" : {\"$fields\" : {\"#id\" : 1, \"title\":1, \"transacdate\":1}} }";
 
     private static final String QUERY_TEST_BY_ID =
@@ -163,7 +163,7 @@ public class AccessExternalResourceTest extends ResteasyTestApplication {
 
     private static final String QUERY_TEST_BAD_VALIDATION_REQUEST =
         "{ \"$query\" : [ { \"$eq\" : { \"title\" : \"test\" } } ], " +
-        " \"$filter\" : { \"$orderby\" : { \"#id\":1 } }," +
+        " \"$filter\" : { \"$orderby\" : { \"field\":1 } }," +
         "\"$projection\" : {\"$fields\" : {\"#id\" : 1, \"title\":1, \"transacdate\":1}} }";
 
     private static final String UPDATE_QUERY_VALID = "{ \"$action\": [ { \"$set\": { \"Title\": \"Titre test\" } } ] }";

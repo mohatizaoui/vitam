@@ -1,0 +1,98 @@
+{
+  "took": 1,
+  "timed_out": false,
+  "_shards": {
+    "failed": 0.0,
+    "successful": 100.0,
+    "total": 100.0,
+    "skipped": 0.0
+  },
+  "hits": {
+    "total": {
+      "relation": "eq",
+      "value": 100
+    },
+    "hits": [],
+    "max_score": 1.0
+  },
+  "aggregations": {
+    "sterms#facet_desclevel": {
+      "buckets": [
+        {
+          "doc_count": 13,
+          "key": "Item"
+        },
+        {
+          "doc_count": 7,
+          "key": "RecordGrp"
+        }
+      ],
+      "doc_count_error_upper_bound": 0,
+      "sum_other_doc_count": 0
+    },
+    "filters#facet_title_langs": {
+      "buckets": {
+        "english_title": {
+          "doc_count": 9
+        },
+        "french_title": {
+          "doc_count": 9
+        }
+      }
+    },
+    "date_range#EndDate": {
+      "buckets": [
+        {
+          "doc_count": 10,
+          "to": 1.1676096E12,
+          "to_as_string": "2007",
+          "key": "*-2007"
+        },
+        {
+          "doc_count": 17,
+          "from": -2.2089888E12,
+          "from_as_string": "1900",
+          "key": "1900-*"
+        },
+        {
+          "doc_count": 7,
+          "from": 1.262304E12,
+          "to": 1.5147648E12,
+          "from_as_string": "2010",
+          "to_as_string": "2018",
+          "key": "2010-2018"
+        }
+      ]
+    },
+    "lterms#facet_versions": {
+      "buckets": [
+        {
+          "doc_count": 20,
+          "key": 0
+        },
+        {
+          "doc_count": 10,
+          "key": 1
+        }
+      ],
+      "doc_count_error_upper_bound": 0,
+      "sum_other_doc_count": 0
+    },
+    "lterms#facet_PreventRearrangement": {
+      "buckets": [
+        {
+          "doc_count": 2,
+          "key": 0,
+          "key_as_string": "false"
+        },
+        {
+          "doc_count": 1,
+          "key": 1,
+          "key_as_string": "true"
+        }
+      ],
+      "doc_count_error_upper_bound": 0,
+      "sum_other_doc_count": 0
+    }
+  }
+}

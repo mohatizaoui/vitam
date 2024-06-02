@@ -29,6 +29,7 @@ package fr.gouv.vitam.collect.internal.core.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.base.Strings;
 import com.google.common.collect.Iterators;
 import fr.gouv.vitam.collect.common.exception.CollectInternalException;
 import fr.gouv.vitam.collect.common.exception.CollectInternalInvalidRequestException;
@@ -68,7 +69,6 @@ import org.apache.commons.compress.archivers.ArchiveInputStream;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.input.CountingInputStream;
 import org.apache.commons.lang3.StringUtils;
-import org.elasticsearch.common.Strings;
 
 import javax.annotation.Nullable;
 import java.io.File;

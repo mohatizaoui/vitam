@@ -712,6 +712,10 @@ Les filtres permettent de spécifier des comportement additionnels à la recherc
   - Pour un texte champ analysé (plein texte) : **Le tri sur un champ analysé n'est pas supporté** tel quel sur Elasticsearch. Cependant, par défault, Elasticsearch trie automatiquement les résultats par pertinence.
   - L'ordre de déclaration des tris est respectés dans la réponse
 
+**Important :**
+Depuis la version 8.0 de Vitam, il n'est plus possible de trier sur le champ `#id`.
+En effet, le tri sur le champ `#id` a été désactivé depuis la version 8 d'ElasticSearch car il impacte très fortement l'usage de la mémoire.
+
 **Note :**
 Le nombre de résultats ne doit être être trop important (**$limit** + **$offset** > 10000+) au risque d'un comportement de recherche non déterminé (la recherche ne pourra aboutir).
 

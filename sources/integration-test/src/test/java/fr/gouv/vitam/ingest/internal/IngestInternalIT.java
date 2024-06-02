@@ -26,6 +26,7 @@
  */
 package fr.gouv.vitam.ingest.internal;
 
+import co.elastic.clients.elasticsearch.core.search.ResponseBody;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -163,10 +164,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.api.Assertions;
 import org.bson.Document;
 import org.bson.conversions.Bson;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -217,6 +214,7 @@ import static fr.gouv.vitam.common.VitamTestHelper.verifyOperation;
 import static fr.gouv.vitam.common.VitamTestHelper.verifyProcessState;
 import static fr.gouv.vitam.common.VitamTestHelper.waitOperation;
 import static fr.gouv.vitam.common.database.builder.query.QueryHelper.eq;
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.termQuery;
 import static fr.gouv.vitam.common.guid.GUIDFactory.newOperationLogbookGUID;
 import static fr.gouv.vitam.common.json.JsonHandler.getFromJsonNode;
 import static fr.gouv.vitam.common.model.IngestWorkflowConstants.WORKFLOW_IDENTIFIER;
@@ -682,20 +680,18 @@ public class IngestInternalIT extends VitamRuleRunner {
             // check evIds
             assertThat(eventIds.size()).isEqualTo(logbookOperation.get(RESULTS).get(0).get("events").size() + 1);
 
-            QueryBuilder query = QueryBuilders.matchQuery("_id", operationGuid.getId());
-            SearchResponse elasticSearchResponse = esClient.search(
+            co.elastic.clients.elasticsearch._types.query_dsl.Query query = termQuery("_id", operationGuid.getId());
+            ResponseBody<ObjectNode> elasticSearchResponse = esClient.search(
                 LogbookCollections.OPERATION,
                 tenantId,
                 query,
                 null,
-                null,
                 0,
                 25
             );
-            assertEquals(1, elasticSearchResponse.getHits().getTotalHits().value);
-            assertNotNull(elasticSearchResponse.getHits().getAt(0));
-            SearchHit hit = elasticSearchResponse.getHits().iterator().next();
-            assertNotNull(hit);
+            assertNotNull(elasticSearchResponse.hits().total());
+            assertEquals(1, elasticSearchResponse.hits().total().value());
+            assertNotNull(elasticSearchResponse.hits().hits().get(0));
             // TODO compare
 
             // lets try to update a unit that does not exist, an AccessInternalClientNotFoundException will be thrown
@@ -726,16 +722,15 @@ public class IngestInternalIT extends VitamRuleRunner {
             }
         } catch (final Exception e) {
             LOGGER.error(e);
-            SearchResponse elasticSearchResponse = esClient.search(
+            ResponseBody<ObjectNode> elasticSearchResponse = esClient.search(
                 LogbookCollections.OPERATION,
                 tenantId,
-                null,
                 null,
                 null,
                 0,
                 25
             );
-            LOGGER.error("Total:" + (elasticSearchResponse.getHits().getTotalHits()));
+            LOGGER.error("Total:" + (elasticSearchResponse.hits().total()));
             try (LogbookOperationsClient logbookClient = LogbookOperationsClientFactory.getInstance().getClient()) {
                 fr.gouv.vitam.common.database.builder.request.single.Select selectQuery =
                     new fr.gouv.vitam.common.database.builder.request.single.Select();
@@ -2905,32 +2900,29 @@ public class IngestInternalIT extends VitamRuleRunner {
             // check evIds
             assertThat(eventIds.size()).isEqualTo(logbookOperation.get(RESULTS).get(0).get("events").size() + 1);
 
-            QueryBuilder query = QueryBuilders.matchQuery("_id", operationGuid.getId());
-            SearchResponse elasticSearchResponse = esClient.search(
+            co.elastic.clients.elasticsearch._types.query_dsl.Query query = termQuery("_id", operationGuid.getId());
+            ResponseBody<ObjectNode> elasticSearchResponse = esClient.search(
                 LogbookCollections.OPERATION,
                 tenantId,
                 query,
                 null,
-                null,
                 0,
                 25
             );
-            assertEquals(1, elasticSearchResponse.getHits().getTotalHits().value);
-            assertNotNull(elasticSearchResponse.getHits().getAt(0));
-            SearchHit hit = elasticSearchResponse.getHits().iterator().next();
-            assertNotNull(hit);
+            assertNotNull(elasticSearchResponse.hits().total());
+            assertEquals(1, elasticSearchResponse.hits().total().value());
+            assertNotNull(elasticSearchResponse.hits().hits().get(0));
         } catch (final Exception e) {
             LOGGER.error(e);
-            SearchResponse elasticSearchResponse = esClient.search(
+            ResponseBody<ObjectNode> elasticSearchResponse = esClient.search(
                 LogbookCollections.OPERATION,
                 tenantId,
                 null,
                 null,
-                null,
                 0,
                 25
             );
-            LOGGER.error("Total:" + (elasticSearchResponse.getHits().getTotalHits()));
+            LOGGER.error("Total:" + (elasticSearchResponse.hits().total()));
             try (LogbookOperationsClient logbookClient = LogbookOperationsClientFactory.getInstance().getClient()) {
                 fr.gouv.vitam.common.database.builder.request.single.Select selectQuery =
                     new fr.gouv.vitam.common.database.builder.request.single.Select();

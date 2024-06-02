@@ -26,6 +26,9 @@
  */
 package fr.gouv.vitam.functional.administration.common.server;
 
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch.core.search.ResponseBody;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.model.IndexOptions;
 import fr.gouv.vitam.common.database.builder.request.configuration.GlobalDatas;
@@ -41,8 +44,6 @@ import fr.gouv.vitam.functional.administration.common.AccessionRegisterDetail;
 import fr.gouv.vitam.functional.administration.common.AccessionRegisterSummary;
 import fr.gouv.vitam.functional.administration.common.config.ElasticsearchFunctionalAdminIndexManager;
 import fr.gouv.vitam.functional.administration.common.exception.ReferentialException;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.QueryBuilder;
 
 import java.util.List;
 
@@ -94,20 +95,15 @@ public class ElasticsearchAccessFunctionalAdmin extends ElasticsearchAccess {
      * @param collection
      * @param query as in DSL mode "{ "fieldname" : "value" }" "{ "match" : { "fieldname" : "value" } }" "{ "ids" : { "
      * values" : [list of id] } }"
-     * @param filter
      * @return a structure as ResultInterface
      * @throws ReferentialException
      */
-    protected final SearchResponse search(
-        final FunctionalAdminCollections collection,
-        final QueryBuilder query,
-        final QueryBuilder filter
-    ) throws ReferentialException, BadRequestException {
+    protected final ResponseBody<ObjectNode> search(final FunctionalAdminCollections collection, final Query query)
+        throws ReferentialException, BadRequestException {
         try {
             return super.search(
                 indexManager.getElasticsearchIndexAliasResolver(collection).resolveIndexName(null),
                 query,
-                filter,
                 VitamDocument.ES_FILTER_OUT,
                 null,
                 0,

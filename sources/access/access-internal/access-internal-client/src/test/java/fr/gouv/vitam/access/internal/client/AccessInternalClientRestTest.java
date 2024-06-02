@@ -130,12 +130,12 @@ public class AccessInternalClientRestTest extends ResteasyTestApplication {
 
     final String queryDsl =
         "{ \"$query\" : [ { \"$eq\": { \"title\" : \"test\" } } ], " +
-        " \"$filter\": { \"$orderby\": \"#id\" }, " +
+        " \"$filter\": { \"$orderby\": \"field\" }, " +
         " \"$projection\" : { \"$fields\" : { \"#id\": 1, \"title\" : 2, \"transacdate\": 1 } } " +
         " }";
     final String emptyQueryDsl =
         "{ \"$query\" : \"\", " +
-        " \"$filter\": { \"$orderby\": \"#id\" }, " +
+        " \"$filter\": { \"$orderby\": \"field\" }, " +
         " \"$projection\" : { \"$fields\" : { \"#id\": 1, \"title\" : 2, \"transacdate\": 1 } } " +
         " }";
     final String ID = "identfier1";

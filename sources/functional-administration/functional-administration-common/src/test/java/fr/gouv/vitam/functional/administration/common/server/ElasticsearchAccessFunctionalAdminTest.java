@@ -24,8 +24,11 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
+
 package fr.gouv.vitam.functional.administration.common.server;
 
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
+import co.elastic.clients.elasticsearch.indices.GetAliasResponse;
 import fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchIndexAlias;
 import fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchNode;
 import fr.gouv.vitam.common.database.server.mongodb.MongoDbAccess;
@@ -33,7 +36,6 @@ import fr.gouv.vitam.common.elasticsearch.ElasticsearchRule;
 import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.mongo.MongoRule;
 import fr.gouv.vitam.functional.administration.common.config.ElasticsearchFunctionalAdminIndexManager;
-import org.elasticsearch.client.GetAliasesResponse;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -45,6 +47,7 @@ import java.util.List;
 
 import static fr.gouv.vitam.functional.administration.common.server.FunctionalAdminCollections.VITAM_SEQUENCE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * ElasticsearchAccessFunctionalAdminTest
@@ -113,11 +116,11 @@ public class ElasticsearchAccessFunctionalAdminTest {
             if (!(functionalAdminCollections.equals(VITAM_SEQUENCE))) {
                 elasticsearchAccessFunctionalAdmin.addIndex(functionalAdminCollections);
 
-                GetAliasesResponse aliasesResponse = elasticsearchAccessFunctionalAdmin.getAlias(
+                GetAliasResponse aliasesResponse = elasticsearchAccessFunctionalAdmin.getAlias(
                     ElasticsearchIndexAlias.ofCrossTenantCollection(alias)
                 );
                 // Then
-                assertThat(aliasesResponse.getAliases()).hasSize(1);
+                assertThat(aliasesResponse.result()).hasSize(1);
             }
         }
     }
@@ -132,13 +135,14 @@ public class ElasticsearchAccessFunctionalAdminTest {
             // Careful Not mapping for VITAM_SEQUENCE
             if (!(functionalAdminCollections.equals(VITAM_SEQUENCE))) {
                 ElasticsearchIndexAlias indexAlias = ElasticsearchIndexAlias.ofCrossTenantCollection(alias);
-                GetAliasesResponse aliasesResponse = elasticsearchAccessFunctionalAdmin.getAlias(indexAlias);
-                assertThat(aliasesResponse.getAliases()).hasSize(1);
+                GetAliasResponse aliasesResponse = elasticsearchAccessFunctionalAdmin.getAlias(indexAlias);
+                assertThat(aliasesResponse.result()).hasSize(1);
                 elasticsearchAccessFunctionalAdmin.deleteIndexByAliasForTesting(indexAlias);
 
                 // Then
-                aliasesResponse = elasticsearchAccessFunctionalAdmin.getAlias(indexAlias);
-                assertThat(aliasesResponse.getAliases()).hasSize(0);
+                assertThatThrownBy(() -> elasticsearchAccessFunctionalAdmin.getAlias(indexAlias))
+                    .isInstanceOf(ElasticsearchException.class)
+                    .satisfies(e -> assertThat(((ElasticsearchException) e).status()).isEqualTo(404));
             }
         }
     }

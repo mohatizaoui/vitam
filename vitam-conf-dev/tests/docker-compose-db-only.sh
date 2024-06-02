@@ -13,6 +13,7 @@ until $(curl --output /dev/null --silent --head --fail http://localhost:9200/); 
 done
 
 echo "Updating ES conf"
+curl -XPUT http://localhost:9200/_index_template/default -H 'Content-Type: application/json' -d '{"index_patterns": ["*"], "priority": 1,"template": { "settings": {"index.number_of_shards": "1", "index.number_of_replicas": "0"}}}'
 curl -XPUT -H "Content-Type: application/json" http://localhost:9200/_cluster/settings -d '{ "transient": { "cluster.routing.allocation.disk.threshold_enabled": false } }'
 echo ""
 

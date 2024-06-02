@@ -26,6 +26,7 @@
  */
 package fr.gouv.vitam.common.database.api.impl;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mongodb.MongoBulkWriteException;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
@@ -42,11 +43,10 @@ import fr.gouv.vitam.common.database.server.mongodb.MongoDbAccess;
 import fr.gouv.vitam.common.database.server.mongodb.VitamDocument;
 import fr.gouv.vitam.common.exception.DatabaseException;
 import fr.gouv.vitam.common.guid.GUIDFactory;
+import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.mongo.MongoRule;
 import org.apache.commons.lang3.RandomUtils;
 import org.bson.Document;
-import org.elasticsearch.common.Strings;
-import org.elasticsearch.xcontent.XContentBuilder;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -65,7 +65,6 @@ import static com.mongodb.client.model.Filters.eq;
 import static fr.gouv.vitam.common.database.server.mongodb.VitamDocument.ID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.elasticsearch.xcontent.XContentFactory.jsonBuilder;
 
 /**
  *
@@ -95,14 +94,12 @@ public class VitamMongoRepositoryTest {
     public void testSaveOneDocumentAndGetByIDOK() throws IOException, DatabaseException {
         String id = GUIDFactory.newGUID().toString();
         Integer tenant = 0;
-        XContentBuilder builder = jsonBuilder()
-            .startObject()
-            .field(VitamDocument.ID, id)
-            .field(VitamDocument.TENANT_ID, tenant)
-            .field(TITLE, TEST_SAVE)
-            .endObject();
+        ObjectNode data = JsonHandler.createObjectNode()
+            .put(VitamDocument.ID, id)
+            .put(VitamDocument.TENANT_ID, tenant)
+            .put(TITLE, TEST_SAVE);
 
-        Document document = Document.parse(Strings.toString(builder));
+        Document document = Document.parse(JsonHandler.unprettyPrint(data));
         repository.save(document);
 
         Optional<Document> response = repository.getByID(id, tenant);
@@ -114,14 +111,11 @@ public class VitamMongoRepositoryTest {
     public void testSaveOrUpdateOneDocumentAndGetByIDOK() throws IOException, DatabaseException {
         String id = GUIDFactory.newGUID().toString();
         Integer tenant = 0;
-        XContentBuilder builder = jsonBuilder()
-            .startObject()
-            .field(VitamDocument.ID, id)
-            .field(VitamDocument.TENANT_ID, tenant)
-            .field(TITLE, TEST_SAVE)
-            .endObject();
-
-        Document document = Document.parse(Strings.toString(builder));
+        ObjectNode data = JsonHandler.createObjectNode()
+            .put(VitamDocument.ID, id)
+            .put(VitamDocument.TENANT_ID, tenant)
+            .put(TITLE, TEST_SAVE);
+        Document document = Document.parse(JsonHandler.unprettyPrint(data));
         VitamRepositoryStatus result = repository.saveOrUpdate(document);
 
         assertThat(VitamRepositoryStatus.CREATED.equals(result)).isTrue();
@@ -129,14 +123,12 @@ public class VitamMongoRepositoryTest {
         assertThat(response).isPresent();
         assertThat(response.get().getString(TITLE)).contains(TEST_SAVE);
 
-        builder = jsonBuilder()
-            .startObject()
-            .field(VitamDocument.ID, id)
-            .field(VitamDocument.TENANT_ID, tenant)
-            .field(TITLE, "Test othersave")
-            .endObject();
+        data = JsonHandler.createObjectNode()
+            .put(VitamDocument.ID, id)
+            .put(VitamDocument.TENANT_ID, tenant)
+            .put(TITLE, "Test othersave");
 
-        document = Document.parse(Strings.toString(builder));
+        document = Document.parse(JsonHandler.unprettyPrint(data));
         result = repository.saveOrUpdate(document);
 
         assertThat(VitamRepositoryStatus.UPDATED.equals(result)).isTrue();
@@ -149,13 +141,12 @@ public class VitamMongoRepositoryTest {
     public void testSaveMultipleDocumentsOK() throws IOException, DatabaseException {
         List<Document> documents = new ArrayList<>();
         for (int i = 0; i < 100; i++) {
-            XContentBuilder builder = jsonBuilder()
-                .startObject()
-                .field(VitamDocument.ID, GUIDFactory.newGUID().toString())
-                .field(VitamDocument.TENANT_ID, 0)
-                .field(TITLE, TEST_SAVE + RandomUtils.nextDouble())
-                .endObject();
-            documents.add(Document.parse(Strings.toString(builder)));
+            ObjectNode data = JsonHandler.createObjectNode()
+                .put(VitamDocument.ID, GUIDFactory.newGUID().toString())
+                .put(VitamDocument.TENANT_ID, 0)
+                .put(TITLE, TEST_SAVE + RandomUtils.nextDouble());
+
+            documents.add(Document.parse(JsonHandler.unprettyPrint(data)));
         }
         repository.save(documents);
 
@@ -172,13 +163,11 @@ public class VitamMongoRepositoryTest {
         // inserts
         List<Document> documents = new ArrayList<>();
         for (int i = 0; i < 100; i++) {
-            XContentBuilder builder = jsonBuilder()
-                .startObject()
-                .field(VitamDocument.ID, 1000 + i)
-                .field(VitamDocument.TENANT_ID, 0)
-                .field("Title", "Test save " + i)
-                .endObject();
-            documents.add(Document.parse(Strings.toString(builder)));
+            ObjectNode data = JsonHandler.createObjectNode()
+                .put(VitamDocument.ID, 1000 + i)
+                .put(VitamDocument.TENANT_ID, 0)
+                .put("Title", "Test save " + i);
+            documents.add(Document.parse(JsonHandler.unprettyPrint(data)));
         }
         repository.saveOrUpdate(documents);
 
@@ -189,23 +178,19 @@ public class VitamMongoRepositoryTest {
         List<Document> updatedDocuments = new ArrayList<>();
         for (int i = 0; i < 50; i++) {
             // change the title
-            XContentBuilder builder = jsonBuilder()
-                .startObject()
-                .field(VitamDocument.ID, 1000 + i)
-                .field(VitamDocument.TENANT_ID, 0)
-                .field("Title", "Test save updated")
-                .endObject();
-            updatedDocuments.add(Document.parse(Strings.toString(builder)));
+            ObjectNode data = JsonHandler.createObjectNode()
+                .put(VitamDocument.ID, 1000 + i)
+                .put(VitamDocument.TENANT_ID, 0)
+                .put("Title", "Test save updated");
+            updatedDocuments.add(Document.parse(JsonHandler.unprettyPrint(data)));
         }
         for (int i = 50; i < 100; i++) {
             // same document
-            XContentBuilder builder = jsonBuilder()
-                .startObject()
-                .field(VitamDocument.ID, 1000 + i)
-                .field(VitamDocument.TENANT_ID, 0)
-                .field("Title", "Test save " + i)
-                .endObject();
-            updatedDocuments.add(Document.parse(Strings.toString(builder)));
+            ObjectNode data = JsonHandler.createObjectNode()
+                .put(VitamDocument.ID, 1000 + i)
+                .put(VitamDocument.TENANT_ID, 0)
+                .put("Title", "Test save " + i);
+            updatedDocuments.add(Document.parse(JsonHandler.unprettyPrint(data)));
         }
         repository.saveOrUpdate(updatedDocuments);
 
@@ -229,15 +214,13 @@ public class VitamMongoRepositoryTest {
             if (i == 1) {
                 date = LocalDateUtil.getFormattedDateForMongo(LocalDateUtil.now());
             }
-            XContentBuilder builder = jsonBuilder()
-                .startObject()
-                .field(VitamDocument.ID, 1000 + i)
-                .field(VitamDocument.TENANT_ID, 0)
-                .field("Title", "Test save " + i)
-                .field("Description", "Description _ " + i)
-                .field("_glpd", date)
-                .endObject();
-            documents.add(Document.parse(Strings.toString(builder)));
+            ObjectNode data = JsonHandler.createObjectNode()
+                .put(VitamDocument.ID, 1000 + i)
+                .put(VitamDocument.TENANT_ID, 0)
+                .put("Title", "Test save " + i)
+                .put("Description", "Description _ " + i)
+                .put("_glpd", date);
+            documents.add(Document.parse(JsonHandler.unprettyPrint(data)));
         }
 
         repository.saveOrUpdate(documents);
@@ -249,15 +232,11 @@ public class VitamMongoRepositoryTest {
 
         List<WriteModel<Document>> updates = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
-            String doc = Strings.toString(
-                jsonBuilder()
-                    .startObject()
-                    .field(VitamDocument.ID, 1000 + i)
-                    .field(VitamDocument.TENANT_ID, 0)
-                    .field("Title", "Test save update")
-                    .endObject()
-            );
-            Document data = new Document("$set", Document.parse(doc));
+            ObjectNode doc = JsonHandler.createObjectNode()
+                .put(VitamDocument.ID, 1000 + i)
+                .put(VitamDocument.TENANT_ID, 0)
+                .put("Title", "Test save update");
+            Document data = new Document("$set", Document.parse(JsonHandler.unprettyPrint(doc)));
             updates.add(
                 new UpdateOneModel<>(
                     and(eq(ID, 1000 + i)),
@@ -280,15 +259,11 @@ public class VitamMongoRepositoryTest {
 
         updates = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
-            String doc = Strings.toString(
-                jsonBuilder()
-                    .startObject()
-                    .field(VitamDocument.ID, 1000 + i)
-                    .field(VitamDocument.TENANT_ID, 0)
-                    .field("Title", "Test save update")
-                    .endObject()
-            );
-            Document data = new Document("$set", Document.parse(doc));
+            ObjectNode doc = JsonHandler.createObjectNode()
+                .put(VitamDocument.ID, 1000 + i)
+                .put(VitamDocument.TENANT_ID, 0)
+                .put("Title", "Test save update");
+            Document data = new Document("$set", Document.parse(JsonHandler.unprettyPrint(doc)));
             updates.add(
                 new UpdateOneModel<>(and(eq(ID, 1000 + i), eq("_glpd", date)), data, new UpdateOptions().upsert(true))
             );
@@ -308,13 +283,11 @@ public class VitamMongoRepositoryTest {
     public void testSaveMultipleDocumentsAndPurgeDocumentsOK() throws IOException, DatabaseException {
         List<Document> documents = new ArrayList<>();
         for (int i = 0; i < 101; i++) {
-            XContentBuilder builder = jsonBuilder()
-                .startObject()
-                .field(VitamDocument.ID, GUIDFactory.newGUID().toString())
-                .field(VitamDocument.TENANT_ID, 0)
-                .field(TITLE, TEST_SAVE + RandomUtils.nextDouble())
-                .endObject();
-            documents.add(Document.parse(Strings.toString(builder)));
+            ObjectNode data = JsonHandler.createObjectNode()
+                .put(VitamDocument.ID, GUIDFactory.newGUID().toString())
+                .put(VitamDocument.TENANT_ID, 0)
+                .put(TITLE, TEST_SAVE + RandomUtils.nextDouble());
+            documents.add(Document.parse(JsonHandler.unprettyPrint(data)));
         }
         repository.save(documents);
 
@@ -336,14 +309,12 @@ public class VitamMongoRepositoryTest {
     public void testRemoveOK() throws IOException, DatabaseException {
         String id = GUIDFactory.newGUID().toString();
         Integer tenant = 0;
-        XContentBuilder builder = jsonBuilder()
-            .startObject()
-            .field(VitamDocument.ID, id)
-            .field(VitamDocument.TENANT_ID, tenant)
-            .field(TITLE, TEST_SAVE)
-            .endObject();
+        ObjectNode data = JsonHandler.createObjectNode()
+            .put(VitamDocument.ID, id)
+            .put(VitamDocument.TENANT_ID, tenant)
+            .put(TITLE, TEST_SAVE);
 
-        Document document = Document.parse(Strings.toString(builder));
+        Document document = Document.parse(JsonHandler.unprettyPrint(data));
         repository.save(document);
 
         Optional<Document> response = repository.getByID(id, tenant);
@@ -372,15 +343,13 @@ public class VitamMongoRepositoryTest {
     public void testFindByIdentifierAndTenantFoundOK() throws IOException, DatabaseException {
         String id = GUIDFactory.newGUID().toString();
         Integer tenant = 0;
-        XContentBuilder builder = jsonBuilder()
-            .startObject()
-            .field(VitamDocument.ID, id)
-            .field(VitamDocument.TENANT_ID, tenant)
-            .field("Identifier", "FakeIdentifier")
-            .field(TITLE, "Test save")
-            .endObject();
+        ObjectNode data = JsonHandler.createObjectNode()
+            .put(VitamDocument.ID, id)
+            .put(VitamDocument.TENANT_ID, tenant)
+            .put("Identifier", "FakeIdentifier")
+            .put(TITLE, "Test save");
 
-        Document document = Document.parse(Strings.toString(builder));
+        Document document = Document.parse(JsonHandler.unprettyPrint(data));
         repository.save(document);
 
         Optional<Document> response = repository.findByIdentifierAndTenant("FakeIdentifier", tenant);
@@ -391,14 +360,12 @@ public class VitamMongoRepositoryTest {
     @Test
     public void testFindByIdentifierFoundOK() throws IOException, DatabaseException {
         String id = GUIDFactory.newGUID().toString();
-        XContentBuilder builder = jsonBuilder()
-            .startObject()
-            .field(VitamDocument.ID, id)
-            .field("Identifier", "FakeIdentifier")
-            .field(TITLE, TEST_SAVE)
-            .endObject();
+        ObjectNode data = JsonHandler.createObjectNode()
+            .put(VitamDocument.ID, id)
+            .put("Identifier", "FakeIdentifier")
+            .put(TITLE, TEST_SAVE);
 
-        Document document = Document.parse(Strings.toString(builder));
+        Document document = Document.parse(JsonHandler.unprettyPrint(data));
         repository.save(document);
 
         Optional<Document> response = repository.findByIdentifier("FakeIdentifier");
@@ -423,16 +390,14 @@ public class VitamMongoRepositoryTest {
     public void testRemoveByNameAndTenantOK() throws IOException, DatabaseException {
         String id = GUIDFactory.newGUID().toString();
         Integer tenant = 0;
-        XContentBuilder builder = jsonBuilder()
-            .startObject()
-            .field(VitamDocument.ID, id)
-            .field(VitamDocument.TENANT_ID, tenant)
-            .field("Identifier", "FakeIdentifier")
-            .field("Name", "FakeName")
-            .field("Title", "Test save")
-            .endObject();
+        ObjectNode data = JsonHandler.createObjectNode()
+            .put(VitamDocument.ID, id)
+            .put(VitamDocument.TENANT_ID, tenant)
+            .put("Identifier", "FakeIdentifier")
+            .put("Name", "FakeName")
+            .put("Title", "Test save");
 
-        Document document = Document.parse(Strings.toString(builder));
+        Document document = Document.parse(JsonHandler.unprettyPrint(data));
         repository.save(document);
 
         Optional<Document> response = repository.findByIdentifierAndTenant("FakeIdentifier", tenant);
@@ -455,13 +420,11 @@ public class VitamMongoRepositoryTest {
         // Given
         List<Document> documents = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
-            XContentBuilder builder = jsonBuilder()
-                .startObject()
-                .field(VitamDocument.ID, GUIDFactory.newGUID().toString())
-                .field(VitamDocument.TENANT_ID, 0)
-                .field(TITLE, TEST_SAVE + i + " " + RandomUtils.nextDouble())
-                .endObject();
-            documents.add(Document.parse(Strings.toString(builder)));
+            ObjectNode data = JsonHandler.createObjectNode()
+                .put(VitamDocument.ID, GUIDFactory.newGUID().toString())
+                .put(VitamDocument.TENANT_ID, 0)
+                .put(TITLE, TEST_SAVE + i + " " + RandomUtils.nextDouble());
+            documents.add(Document.parse(JsonHandler.unprettyPrint(data)));
         }
         // When
         repository.save(documents);
@@ -482,15 +445,13 @@ public class VitamMongoRepositoryTest {
         // Given
         List<Document> documents = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
-            XContentBuilder builder = jsonBuilder()
-                .startObject()
-                .field(VitamDocument.ID, GUIDFactory.newGUID().toString())
-                .field(VitamDocument.TENANT_ID, 0)
-                .field(TITLE, TEST_SAVE + i + " " + RandomUtils.nextDouble())
-                .field("TestField", String.valueOf(i))
-                .field("OtherTestField", String.valueOf("Toto"))
-                .endObject();
-            documents.add(Document.parse(Strings.toString(builder)));
+            ObjectNode data = JsonHandler.createObjectNode()
+                .put(VitamDocument.ID, GUIDFactory.newGUID().toString())
+                .put(VitamDocument.TENANT_ID, 0)
+                .put(TITLE, TEST_SAVE + i + " " + RandomUtils.nextDouble())
+                .put("TestField", String.valueOf(i))
+                .put("OtherTestField", String.valueOf("Toto"));
+            documents.add(Document.parse(JsonHandler.unprettyPrint(data)));
         }
         // When
         repository.save(documents);
@@ -516,15 +477,13 @@ public class VitamMongoRepositoryTest {
         // Given
         List<Document> documents = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
-            XContentBuilder builder = jsonBuilder()
-                .startObject()
-                .field(VitamDocument.ID, GUIDFactory.newGUID().toString())
-                .field(VitamDocument.TENANT_ID, 0)
-                .field(TITLE, TEST_SAVE + i + " " + RandomUtils.nextDouble())
-                .field("TestField", String.valueOf(i))
-                .field("OtherTestField", String.valueOf("Toto"))
-                .endObject();
-            documents.add(Document.parse(Strings.toString(builder)));
+            ObjectNode data = JsonHandler.createObjectNode()
+                .put(VitamDocument.ID, GUIDFactory.newGUID().toString())
+                .put(VitamDocument.TENANT_ID, 0)
+                .put(TITLE, TEST_SAVE + i + " " + RandomUtils.nextDouble())
+                .put("TestField", String.valueOf(i))
+                .put("OtherTestField", String.valueOf("Toto"));
+            documents.add(Document.parse(JsonHandler.unprettyPrint(data)));
         }
         // When
         repository.save(documents);

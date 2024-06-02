@@ -26,6 +26,7 @@
  */
 package fr.gouv.vitam.common.database.api.impl;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.gouv.vitam.common.database.api.VitamRepositoryStatus;
 import fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchIndexAlias;
 import fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchIndexAliasResolver;
@@ -33,10 +34,9 @@ import fr.gouv.vitam.common.database.server.mongodb.VitamDocument;
 import fr.gouv.vitam.common.elasticsearch.ElasticsearchRule;
 import fr.gouv.vitam.common.exception.DatabaseException;
 import fr.gouv.vitam.common.guid.GUIDFactory;
+import fr.gouv.vitam.common.json.JsonHandler;
 import org.apache.commons.lang3.RandomUtils;
 import org.bson.Document;
-import org.elasticsearch.common.Strings;
-import org.elasticsearch.xcontent.XContentBuilder;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -51,7 +51,6 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.elasticsearch.xcontent.XContentFactory.jsonBuilder;
 
 /**
  *
@@ -122,14 +121,12 @@ public class VitamElasticsearchRepositoryTest {
     public void testSaveOneDocumentAndGetByIDOK() throws IOException, DatabaseException {
         String id = GUIDFactory.newGUID().toString();
         Integer tenant = 0;
-        XContentBuilder builder = jsonBuilder()
-            .startObject()
-            .field(VitamDocument.ID, id)
-            .field(VitamDocument.TENANT_ID, tenant)
-            .field("Title", "Test save")
-            .endObject();
+        ObjectNode data = JsonHandler.createObjectNode()
+            .put(VitamDocument.ID, id)
+            .put(VitamDocument.TENANT_ID, tenant)
+            .put("Title", "Test save");
 
-        Document document = Document.parse(Strings.toString(builder));
+        Document document = Document.parse(JsonHandler.unprettyPrint(data));
         repository.save(document);
 
         assertThat(document.get(VitamDocument.ID)).isNotNull();
@@ -144,14 +141,12 @@ public class VitamElasticsearchRepositoryTest {
     public void testSaveOrUpdateOneDocumentAndGetByIDOK() throws IOException, DatabaseException {
         String id = GUIDFactory.newGUID().toString();
         Integer tenant = 0;
-        XContentBuilder builder = jsonBuilder()
-            .startObject()
-            .field(VitamDocument.ID, id)
-            .field(VitamDocument.TENANT_ID, tenant)
-            .field("Title", "Test save")
-            .endObject();
+        ObjectNode data = JsonHandler.createObjectNode()
+            .put(VitamDocument.ID, id)
+            .put(VitamDocument.TENANT_ID, tenant)
+            .put("Title", "Test save");
 
-        Document document = Document.parse(Strings.toString(builder));
+        Document document = Document.parse(JsonHandler.unprettyPrint(data));
         VitamRepositoryStatus result = repository.save(document);
 
         assertThat(VitamRepositoryStatus.CREATED).isEqualTo(result);
@@ -162,14 +157,12 @@ public class VitamElasticsearchRepositoryTest {
         assertThat(response).isPresent();
         assertThat(response.get().getString("Title")).contains("Test save");
 
-        builder = jsonBuilder()
-            .startObject()
-            .field(VitamDocument.ID, id)
-            .field(VitamDocument.TENANT_ID, tenant)
-            .field("Title", "Test othersave")
-            .endObject();
+        data = JsonHandler.createObjectNode()
+            .put(VitamDocument.ID, id)
+            .put(VitamDocument.TENANT_ID, tenant)
+            .put("Title", "Test othersave");
 
-        document = Document.parse(Strings.toString(builder));
+        document = Document.parse(JsonHandler.unprettyPrint(data));
         result = repository.save(document);
 
         assertThat(VitamRepositoryStatus.UPDATED).isEqualTo(result);
@@ -182,24 +175,20 @@ public class VitamElasticsearchRepositoryTest {
     public void testSaveMultipleDocumentsAndPurgeDocumentsOK() throws IOException, DatabaseException {
         List<Document> documents = new ArrayList<>();
         for (int i = 0; i < 101; i++) {
-            XContentBuilder builder = jsonBuilder()
-                .startObject()
-                .field(VitamDocument.ID, GUIDFactory.newGUID().toString())
-                .field(VitamDocument.TENANT_ID, 0)
-                .field("Title", "Test save " + RandomUtils.nextDouble())
-                .endObject();
-            documents.add(Document.parse(Strings.toString(builder)));
+            ObjectNode data = JsonHandler.createObjectNode()
+                .put(VitamDocument.ID, GUIDFactory.newGUID().toString())
+                .put(VitamDocument.TENANT_ID, 0)
+                .put("Title", "Test save " + RandomUtils.nextDouble());
+            documents.add(Document.parse(JsonHandler.unprettyPrint(data)));
         }
 
         // pruge all tenants
         for (int i = 0; i < 101; i++) {
-            XContentBuilder builder = jsonBuilder()
-                .startObject()
-                .field(VitamDocument.ID, GUIDFactory.newGUID().toString())
-                .field(VitamDocument.TENANT_ID, 1)
-                .field("Title", "Test save " + RandomUtils.nextDouble())
-                .endObject();
-            documents.add(Document.parse(Strings.toString(builder)));
+            ObjectNode data = JsonHandler.createObjectNode()
+                .put(VitamDocument.ID, GUIDFactory.newGUID().toString())
+                .put(VitamDocument.TENANT_ID, 1)
+                .put("Title", "Test save " + RandomUtils.nextDouble());
+            documents.add(Document.parse(JsonHandler.unprettyPrint(data)));
         }
 
         repository.save(documents);
@@ -222,13 +211,11 @@ public class VitamElasticsearchRepositoryTest {
         for (int i = 0; i < 100; i++) {
             String guid = GUIDFactory.newGUID().toString();
             guids.add(guid);
-            XContentBuilder builder = jsonBuilder()
-                .startObject()
-                .field(VitamDocument.ID, guid)
-                .field(VitamDocument.TENANT_ID, 0)
-                .field("Title", "Test save " + RandomUtils.nextDouble())
-                .endObject();
-            documents.add(Document.parse(Strings.toString(builder)));
+            ObjectNode data = JsonHandler.createObjectNode()
+                .put(VitamDocument.ID, guid)
+                .put(VitamDocument.TENANT_ID, 0)
+                .put("Title", "Test save " + RandomUtils.nextDouble());
+            documents.add(Document.parse(JsonHandler.unprettyPrint(data)));
         }
 
         repository.save(documents);
@@ -240,13 +227,11 @@ public class VitamElasticsearchRepositoryTest {
         // update tenant 0
         List<Document> updatedDocuments = new ArrayList<>();
         for (int i = 0; i < 100; i++) {
-            XContentBuilder builder = jsonBuilder()
-                .startObject()
-                .field(VitamDocument.ID, guids.get(i))
-                .field(VitamDocument.TENANT_ID, 0)
-                .field("Title", "Test save updated")
-                .endObject();
-            updatedDocuments.add(Document.parse(Strings.toString(builder)));
+            ObjectNode data = JsonHandler.createObjectNode()
+                .put(VitamDocument.ID, guids.get(i))
+                .put(VitamDocument.TENANT_ID, 0)
+                .put("Title", "Test save updated");
+            updatedDocuments.add(Document.parse(JsonHandler.unprettyPrint(data)));
         }
 
         repository.save(updatedDocuments);
@@ -268,14 +253,12 @@ public class VitamElasticsearchRepositoryTest {
     public void testRemoveOK() throws IOException, DatabaseException {
         String id = GUIDFactory.newGUID().toString();
         Integer tenant = 0;
-        XContentBuilder builder = jsonBuilder()
-            .startObject()
-            .field(VitamDocument.ID, id)
-            .field(VitamDocument.TENANT_ID, tenant)
-            .field("Title", "Test save")
-            .endObject();
+        ObjectNode data = JsonHandler.createObjectNode()
+            .put(VitamDocument.ID, id)
+            .put(VitamDocument.TENANT_ID, tenant)
+            .put("Title", "Test save");
 
-        Document document = Document.parse(Strings.toString(builder));
+        Document document = Document.parse(JsonHandler.unprettyPrint(data));
         repository.save(document);
 
         Optional<Document> response = repository.getByID(id, tenant);
@@ -300,14 +283,12 @@ public class VitamElasticsearchRepositoryTest {
         Integer tenant = 0;
         // Just to create index as not yet developed in ElasticsearchRule
         if (!elasticsearchRule.existsIndex(TEST_INDEX)) {
-            XContentBuilder builder = jsonBuilder()
-                .startObject()
-                .field(VitamDocument.ID, id)
-                .field(VitamDocument.TENANT_ID, tenant)
-                .field("Title", "Test save")
-                .endObject();
+            ObjectNode data = JsonHandler.createObjectNode()
+                .put(VitamDocument.ID, id)
+                .put(VitamDocument.TENANT_ID, tenant)
+                .put("Title", "Test save");
 
-            Document document = Document.parse(Strings.toString(builder));
+            Document document = Document.parse(JsonHandler.unprettyPrint(data));
             repository.save(document);
         }
         Optional<Document> response = repository.getByID(GUIDFactory.newGUID().toString(), tenant);
@@ -318,15 +299,13 @@ public class VitamElasticsearchRepositoryTest {
     public void testFindByIdentifierAndTenantFoundOK() throws IOException, DatabaseException {
         String id = GUIDFactory.newGUID().toString();
         Integer tenant = 0;
-        XContentBuilder builder = jsonBuilder()
-            .startObject()
-            .field(VitamDocument.ID, id)
-            .field(VitamDocument.TENANT_ID, tenant)
-            .field("Identifier", FAKE_IDENTIFIER)
-            .field("Title", "Test save")
-            .endObject();
+        ObjectNode data = JsonHandler.createObjectNode()
+            .put(VitamDocument.ID, id)
+            .put(VitamDocument.TENANT_ID, tenant)
+            .put("Identifier", FAKE_IDENTIFIER)
+            .put("Title", "Test save");
 
-        Document document = Document.parse(Strings.toString(builder));
+        Document document = Document.parse(JsonHandler.unprettyPrint(data));
         repository.save(document);
 
         Optional<Document> response = repository.getByID(id, tenant);
@@ -342,14 +321,12 @@ public class VitamElasticsearchRepositoryTest {
     public void testFindByIdentifierFoundOK() throws IOException, DatabaseException {
         String id = GUIDFactory.newGUID().toString();
         Integer tenant = 0;
-        XContentBuilder builder = jsonBuilder()
-            .startObject()
-            .field(VitamDocument.ID, id)
-            .field("Identifier", FAKE_IDENTIFIER)
-            .field("Title", "Test save")
-            .endObject();
+        ObjectNode data = JsonHandler.createObjectNode()
+            .put(VitamDocument.ID, id)
+            .put("Identifier", FAKE_IDENTIFIER)
+            .put("Title", "Test save");
 
-        Document document = Document.parse(Strings.toString(builder));
+        Document document = Document.parse(JsonHandler.unprettyPrint(data));
         repository.save(document);
 
         Optional<Document> response = repository.getByID(id, tenant);
@@ -382,31 +359,29 @@ public class VitamElasticsearchRepositoryTest {
     }
 
     @Test
-    public void getDocumentById_OK() throws Exception {
+    public void getDocumentByIdCrossIndices_OK() throws Exception {
         String id = GUIDFactory.newGUID().toString();
         Integer tenant = 0;
-        XContentBuilder builder = jsonBuilder()
-            .startObject()
-            .field(VitamDocument.ID, id)
-            .field(VitamDocument.TENANT_ID, tenant)
-            .field("Title", "Test save")
-            .endObject();
+        ObjectNode data = JsonHandler.createObjectNode()
+            .put(VitamDocument.ID, id)
+            .put(VitamDocument.TENANT_ID, tenant)
+            .put("Title", "Test save");
 
-        Document document = Document.parse(Strings.toString(builder));
+        Document document = Document.parse(JsonHandler.unprettyPrint(data));
         repository.save(document);
 
         assertThat(document.get(VitamDocument.ID)).isNotNull();
         assertThat(document.get(VitamDocument.ID)).isEqualTo(id);
 
-        Optional<Document> response = repository.getDocumentById(id);
+        Optional<Document> response = repository.getDocumentByIdCrossIndices(id);
         assertThat(response).isPresent();
         assertThat(response.get().getString("Title")).contains("Test save");
     }
 
     @Test
-    public void getDocumentById_throw_Exception() throws DatabaseException {
+    public void getDocumentByIdCrossIndices_throw_Exception() throws DatabaseException {
         String id = GUIDFactory.newGUID().toString();
-        Optional<Document> response = repository.getDocumentById(id);
+        Optional<Document> response = repository.getDocumentByIdCrossIndices(id);
         assertThat(response).isEmpty();
     }
 }

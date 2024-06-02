@@ -26,6 +26,7 @@
  */
 package fr.gouv.vitam.functional.administration.core.reconstruction;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.database.api.VitamRepositoryProvider;
@@ -49,8 +50,6 @@ import fr.gouv.vitam.functional.administration.core.backup.RestoreBackupService;
 import fr.gouv.vitam.storage.engine.client.StorageClient;
 import fr.gouv.vitam.storage.engine.client.StorageClientFactory;
 import org.bson.Document;
-import org.elasticsearch.common.Strings;
-import org.elasticsearch.xcontent.XContentBuilder;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -67,7 +66,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.elasticsearch.xcontent.XContentFactory.jsonBuilder;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
@@ -431,47 +429,39 @@ public class ReconstructionServiceImplTest {
      * @throws Exception
      */
     private Optional<CollectionBackupModel> getBackupCollection(Integer tenant) throws Exception {
-        XContentBuilder builderDocument = jsonBuilder()
-            .startObject()
-            .field(VitamDocument.ID, GUIDFactory.newGUID().toString())
-            .field(VitamDocument.TENANT_ID, tenant)
-            .field("Title", "fake title A")
-            .endObject();
+        ObjectNode builderDocument = JsonHandler.createObjectNode()
+            .put(VitamDocument.ID, GUIDFactory.newGUID().toString())
+            .put(VitamDocument.TENANT_ID, tenant)
+            .put("Title", "fake title A");
 
-        XContentBuilder builderDocument2 = jsonBuilder()
-            .startObject()
-            .field(VitamDocument.ID, GUIDFactory.newGUID().toString())
-            .field(VitamDocument.TENANT_ID, tenant)
-            .field("Title", "fake title B")
-            .endObject();
+        ObjectNode builderDocument2 = JsonHandler.createObjectNode()
+            .put(VitamDocument.ID, GUIDFactory.newGUID().toString())
+            .put(VitamDocument.TENANT_ID, tenant)
+            .put("Title", "fake title B");
 
-        XContentBuilder builderSequence = jsonBuilder()
-            .startObject()
-            .field(VitamDocument.ID, GUIDFactory.newGUID().toString())
-            .field(VitamDocument.TENANT_ID, tenant)
-            .field("Name", SEQUENCE_NAME)
-            .field("Counter", 3)
-            .endObject();
+        ObjectNode builderSequence = JsonHandler.createObjectNode()
+            .put(VitamDocument.ID, GUIDFactory.newGUID().toString())
+            .put(VitamDocument.TENANT_ID, tenant)
+            .put("Name", SEQUENCE_NAME)
+            .put("Counter", 3);
 
-        XContentBuilder builderBackupSequence = jsonBuilder()
-            .startObject()
-            .field(VitamDocument.ID, GUIDFactory.newGUID().toString())
-            .field(VitamDocument.TENANT_ID, tenant)
-            .field("Name", BACKUP_SEQUENCE_NAME)
-            .field("Counter", 17)
-            .endObject();
+        ObjectNode builderBackupSequence = JsonHandler.createObjectNode()
+            .put(VitamDocument.ID, GUIDFactory.newGUID().toString())
+            .put(VitamDocument.TENANT_ID, tenant)
+            .put("Name", BACKUP_SEQUENCE_NAME)
+            .put("Counter", 17);
 
         // create collection of documents.
-        Document document = Document.parse(Strings.toString(builderDocument));
-        Document document2 = Document.parse(Strings.toString(builderDocument2));
+        Document document = Document.parse(JsonHandler.unprettyPrint(builderDocument));
+        Document document2 = Document.parse(JsonHandler.unprettyPrint(builderDocument2));
         List<Document> documents = Arrays.asList(document, document2);
 
         // create sequence document.
-        Document document3 = Document.parse(Strings.toString(builderSequence));
+        Document document3 = Document.parse(JsonHandler.unprettyPrint(builderSequence));
         VitamSequence vitamSequence = new VitamSequence(document3);
 
         // create sequence document.
-        Document document4 = Document.parse(Strings.toString(builderBackupSequence));
+        Document document4 = Document.parse(JsonHandler.unprettyPrint(builderBackupSequence));
         VitamSequence vitamBackupSequence = new VitamSequence(document4);
 
         // create collection backup.

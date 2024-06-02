@@ -26,6 +26,10 @@
  */
 package fr.gouv.vitam.common.database.server.elasticsearch;
 
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch.core.search.TotalHits;
+import co.elastic.clients.elasticsearch.indices.GetAliasResponse;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mongodb.client.MongoCollection;
 import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.database.api.impl.VitamElasticsearchRepository;
@@ -37,17 +41,13 @@ import fr.gouv.vitam.common.database.server.mongodb.MongoDbAccess;
 import fr.gouv.vitam.common.elasticsearch.ElasticsearchRule;
 import fr.gouv.vitam.common.exception.DatabaseException;
 import fr.gouv.vitam.common.guid.GUIDFactory;
+import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.mongo.MongoRule;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.assertj.core.util.Lists;
 import org.bson.Document;
-import org.elasticsearch.client.GetAliasesResponse;
-import org.elasticsearch.common.Strings;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.xcontent.XContentBuilder;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -65,10 +65,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.matchAll;
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.termQuery;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
-import static org.elasticsearch.xcontent.XContentFactory.jsonBuilder;
 
 public class IndexationHelperTest {
 
@@ -185,11 +185,11 @@ public class IndexationHelperTest {
         assertThat(elasticsearchAccess.existsIndex(newIndexGrp)).isTrue();
 
         // Ensure aliases still reference old indexes
-        GetAliasesResponse alias0BeforeSwitch = elasticsearchAccess.getAlias(indexAlias0);
-        assertThat(alias0BeforeSwitch.getAliases()).containsOnlyKeys(INDEX + "_0_initialindex");
+        GetAliasResponse alias0BeforeSwitch = elasticsearchAccess.getAlias(indexAlias0);
+        assertThat(alias0BeforeSwitch.result()).containsOnlyKeys(INDEX + "_0_initialindex");
 
-        GetAliasesResponse aliasGrpBeforeSwitch = elasticsearchAccess.getAlias(indexAliasGrp);
-        assertThat(aliasGrpBeforeSwitch.getAliases()).containsOnlyKeys(INDEX + "_mygrp_initialindex");
+        GetAliasResponse aliasGrpBeforeSwitch = elasticsearchAccess.getAlias(indexAliasGrp);
+        assertThat(aliasGrpBeforeSwitch.result()).containsOnlyKeys(INDEX + "_mygrp_initialindex");
 
         // Switch indices
         SwitchIndexResult switchIndexResult0 = indexationHelper.switchIndex(
@@ -207,11 +207,11 @@ public class IndexationHelperTest {
         assertThat(switchIndexResultGrp.getStatusCode()).isEqualTo(StatusCode.OK);
 
         // Check alias references
-        GetAliasesResponse alias0AfterSwitch = elasticsearchAccess.getAlias(indexAlias0);
-        assertThat(alias0AfterSwitch.getAliases()).containsOnlyKeys(newIndex0.getName());
+        GetAliasResponse alias0AfterSwitch = elasticsearchAccess.getAlias(indexAlias0);
+        assertThat(alias0AfterSwitch.result()).containsOnlyKeys(newIndex0.getName());
 
-        GetAliasesResponse aliasGrpAfterSwitch = elasticsearchAccess.getAlias(indexAliasGrp);
-        assertThat(aliasGrpAfterSwitch.getAliases()).containsOnlyKeys(newIndexGrp.getName());
+        GetAliasResponse aliasGrpAfterSwitch = elasticsearchAccess.getAlias(indexAliasGrp);
+        assertThat(aliasGrpAfterSwitch.result()).containsOnlyKeys(newIndexGrp.getName());
 
         // Purge old indices
         elasticsearchRule.purgeIndex(elasticsearchRule.getClient(), INDEX);
@@ -233,29 +233,17 @@ public class IndexationHelperTest {
             assertThat(document.get("Name", String.class)).contains("Description_" + tenant);
         }
 
-        assertThat(countDocumentsByQuery(indexAlias0, vitamElasticsearchRepository, matchAllQuery())).isEqualTo(10);
-        assertThat(countDocumentsByQuery(indexAliasGrp, vitamElasticsearchRepository, matchAllQuery())).isEqualTo(20);
+        assertThat(countDocumentsByQuery(indexAlias0, vitamElasticsearchRepository, matchAll())).isEqualTo(10);
+        assertThat(countDocumentsByQuery(indexAliasGrp, vitamElasticsearchRepository, matchAll())).isEqualTo(20);
 
         assertThat(
-            countDocumentsByQuery(
-                indexAlias0,
-                vitamElasticsearchRepository,
-                QueryBuilders.termQuery("Identifier", "Identifier_0")
-            )
+            countDocumentsByQuery(indexAlias0, vitamElasticsearchRepository, termQuery("Identifier", "Identifier_0"))
         ).isEqualTo(10);
         assertThat(
-            countDocumentsByQuery(
-                indexAliasGrp,
-                vitamElasticsearchRepository,
-                QueryBuilders.termQuery("Identifier", "Identifier_1")
-            )
+            countDocumentsByQuery(indexAliasGrp, vitamElasticsearchRepository, termQuery("Identifier", "Identifier_1"))
         ).isEqualTo(10);
         assertThat(
-            countDocumentsByQuery(
-                indexAliasGrp,
-                vitamElasticsearchRepository,
-                QueryBuilders.termQuery("Identifier", "Identifier_2")
-            )
+            countDocumentsByQuery(indexAliasGrp, vitamElasticsearchRepository, termQuery("Identifier", "Identifier_2"))
         ).isEqualTo(10);
 
         elasticsearchAccess.deleteIndexForTesting(newIndex0);
@@ -265,9 +253,11 @@ public class IndexationHelperTest {
     private long countDocumentsByQuery(
         ElasticsearchIndexAlias indexAlias0,
         VitamElasticsearchRepository vitamElasticsearchRepository,
-        QueryBuilder query
-    ) throws IOException {
-        return vitamElasticsearchRepository.search(indexAlias0.getName(), query).getHits().getTotalHits().value;
+        Query query
+    ) throws DatabaseException {
+        TotalHits total = vitamElasticsearchRepository.search(indexAlias0.getName(), query).hits().total();
+        assertThat(total).isNotNull();
+        return total.value();
     }
 
     @Test
@@ -310,8 +300,8 @@ public class IndexationHelperTest {
         assertThat(elasticsearchAccess.existsIndex(newIndex)).isTrue();
 
         // Ensure aliases still reference old indexes
-        GetAliasesResponse aliasBeforeSwitch = elasticsearchAccess.getAlias(indexAlias);
-        assertThat(aliasBeforeSwitch.getAliases()).containsOnlyKeys(INDEX);
+        GetAliasResponse aliasBeforeSwitch = elasticsearchAccess.getAlias(indexAlias);
+        assertThat(aliasBeforeSwitch.result()).containsOnlyKeys(INDEX);
 
         // Switch indices
         SwitchIndexResult switchIndexResult = indexationHelper.switchIndex(indexAlias, newIndex, elasticsearchAccess);
@@ -319,8 +309,8 @@ public class IndexationHelperTest {
         assertThat(switchIndexResult.getStatusCode()).isEqualTo(StatusCode.OK);
 
         // Check alias references
-        GetAliasesResponse aliasAfterSwitch = elasticsearchAccess.getAlias(indexAlias);
-        assertThat(aliasAfterSwitch.getAliases()).containsOnlyKeys(newIndex.getName());
+        GetAliasResponse aliasAfterSwitch = elasticsearchAccess.getAlias(indexAlias);
+        assertThat(aliasAfterSwitch.result()).containsOnlyKeys(newIndex.getName());
 
         // Purge old indices
         elasticsearchRule.purgeIndex(elasticsearchRule.getClient(), INDEX);
@@ -339,13 +329,13 @@ public class IndexationHelperTest {
             assertThat(document.get("Name", String.class)).contains("Identifier_No_Tenant");
         }
 
-        assertThat(countDocumentsByQuery(indexAlias, vitamElasticsearchRepository, matchAllQuery())).isEqualTo(10);
+        assertThat(countDocumentsByQuery(indexAlias, vitamElasticsearchRepository, matchAll())).isEqualTo(10);
 
         assertThat(
             countDocumentsByQuery(
                 indexAlias,
                 vitamElasticsearchRepository,
-                QueryBuilders.termQuery("Identifier", "Identifier_No_Tenant")
+                termQuery("Identifier", "Identifier_No_Tenant")
             )
         ).isEqualTo(10);
 
@@ -371,7 +361,7 @@ public class IndexationHelperTest {
         MongoCollection<Document> collection,
         List<Integer> tenants,
         ElasticsearchIndexAliasResolver indexAliasResolver
-    ) throws IOException, DatabaseException {
+    ) throws DatabaseException {
         VitamMongoRepository vitamMongoRepository = new VitamMongoRepository(collection);
         VitamElasticsearchRepository vitamElasticsearchRepository;
 
@@ -391,18 +381,16 @@ public class IndexationHelperTest {
         VitamElasticsearchRepository vitamElasticsearchRepository,
         Map<String, Integer> ids,
         Integer tenant
-    ) throws IOException, DatabaseException {
+    ) throws DatabaseException {
         List<Document> documents = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             String id = GUIDFactory.newGUID().toString();
-            XContentBuilder builder = jsonBuilder()
-                .startObject()
-                .field("_id", id)
-                .field("_tenant", tenant)
-                .field("Identifier", "Identifier_" + tenant)
-                .field("Name", "Description_" + tenant + "_" + i + " " + RandomUtils.nextDouble())
-                .endObject();
-            documents.add(Document.parse(Strings.toString(builder)));
+            ObjectNode data = JsonHandler.createObjectNode()
+                .put("_id", id)
+                .put("_tenant", tenant)
+                .put("Identifier", "Identifier_" + tenant)
+                .put("Name", "Description_" + tenant + "_" + i + " " + RandomUtils.nextDouble());
+            documents.add(Document.parse(JsonHandler.unprettyPrint(data)));
             ids.put(id, tenant);
         }
         vitamMongoRepository.save(documents);
@@ -413,18 +401,16 @@ public class IndexationHelperTest {
         VitamMongoRepository vitamMongoRepository,
         VitamElasticsearchRepository vitamElasticsearchRepository,
         Map<String, Integer> ids
-    ) throws IOException, DatabaseException {
+    ) throws DatabaseException {
         List<Document> documents = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             String id = GUIDFactory.newGUID().toString();
             String value = "Identifier_No_Tenant";
-            XContentBuilder builder = jsonBuilder()
-                .startObject()
-                .field("_id", id)
-                .field("Identifier", value)
-                .field("Name", "Description_" + value + " " + RandomUtils.nextDouble())
-                .endObject();
-            documents.add(Document.parse(Strings.toString(builder)));
+            ObjectNode data = JsonHandler.createObjectNode()
+                .put("_id", id)
+                .put("Identifier", value)
+                .put("Name", "Description_" + value + " " + RandomUtils.nextDouble());
+            documents.add(Document.parse(JsonHandler.unprettyPrint(data)));
             ids.put(id, null);
         }
         vitamMongoRepository.save(documents);

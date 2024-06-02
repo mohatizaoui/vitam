@@ -1,12 +1,14 @@
 {
   "index_patterns": [".kibana*"],
-  "order": "1",
-  "settings" : {
-    {% if groups['hosts_elasticsearch_data']|length > 1 %}
-    "number_of_replicas": {{ kibana.data.replica }},
-    {% else %}
-    "number_of_replicas": 0,
-    {% endif %}
-    "number_of_shards": {{ kibana.data.shards }}
+  "priority": "2",
+  "template": {
+    "settings" : {
+      {% if groups['hosts_elasticsearch_data']|length > 1 %}
+      "index.number_of_replicas": {{ kibana.data.replica }},
+      {% else %}
+      "index.number_of_replicas": 0,
+      {% endif %}
+      "index.number_of_shards": {{ kibana.data.shards }}
+    }
   }
 }

@@ -26,11 +26,10 @@ pipeline {
         SERVICE_DOCKER_PULL_URL=credentials("SERVICE_DOCKER_PULL_URL")
         SERVICE_REPOSITORY_URL=credentials("service-repository-url")
         GITHUB_ACCOUNT_TOKEN = credentials("vitam-prg-token")
-        ES_VERSION="7.17.20"
+        ES_VERSION="8.13.4"
         MONGO_VERSION="7.0.8"
         MINIO_VERSION="RELEASE.2020-04-15T00-39-01Z" // more precise than edge
         OPENIO_VERSION="18.10"
-
     }
 
     options {
@@ -113,7 +112,7 @@ pipeline {
                         // minIO with SSL
                         sh "docker run -d -m 512m --name miniossl -p 127.0.0.1:9000:9000 --user \$(id -u):\$(id -g) -v ${pwd}/dataminiossl:/data -v ${WORKSPACE}/sources/common/common-storage/src/test/resources/s3/tls:/root/.minio/certs -e \"MINIO_ACCESS_KEY=MKU4HW1K9HSST78MDY3T\" -e \"MINIO_SECRET_KEY=aSyBSStwp4JDZzpNKeJCc0Rdn12hOTa0EFejFfkd\" ${SERVICE_DOCKER_PULL_URL}/minio/minio:${MINIO_VERSION} server /data"
                         // elasticsearch
-                        sh 'docker run -d -m 1g --name elasticsearch -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" -e "cluster.name=elasticsearch-data" ${SERVICE_DOCKER_PULL_URL}/elasticsearch:${ES_VERSION}'
+                        sh 'docker run -d -m 2g --name elasticsearch -p 9200:9200 -p 9300:9300 -e "xpack.security.enabled=false" -e "discovery.type=single-node" -e "cluster.name=elasticsearch-data" ${SERVICE_DOCKER_PULL_URL}/elasticsearch:${ES_VERSION}'
                         // mongodb
                         sh "docker run -d -m 1g --name mongodb -p 27017:27017 -v $WORKSPACE/vitam-conf-dev/tests/initdb.d/:/docker-entrypoint-initdb.d/ --health-cmd 'test \$(echo \"rs.status().ok\" | mongo --quiet) -eq 1' --health-start-period 30s --health-interval 10s $SERVICE_DOCKER_PULL_URL/mongo:$MONGO_VERSION mongod --bind_ip_all --replSet rs0"
                         // minIO without SSL
@@ -122,7 +121,7 @@ pipeline {
                         sh 'docker run -d -m 512m --name openio -p 127.0.0.1:6007:6007 -e "REGION=us-west-1" ${SERVICE_DOCKER_PULL_URL}/openio/sds:${OPENIO_VERSION}'
                         // Configure elasticsearch
                         sh 'while ! curl -v http://localhost:9200; do sleep 2; done'
-                        sh 'curl -X PUT http://localhost:9200/_template/default -H \'Content-Type: application/json\' -d \'{"index_patterns": ["*"],"order": -1,"settings": {"number_of_shards": "1","number_of_replicas": "0"}}\''
+                        sh 'curl -X PUT http://localhost:9200/_index_template/default -H \'Content-Type: application/json\' -d \'{"index_patterns": ["*"], "priority": 1,"template": { "settings": {"index.number_of_shards": "1", "index.number_of_replicas": "0"}}}\''
                         sh 'curl -X PUT -H \'Content-Type: application/json\' http://localhost:9200/_cluster/settings -d \'{ "transient": { "cluster.routing.allocation.disk.threshold_enabled": false } }\''
                         // Configure swift
                         sh 'while ! curl -f http://127.0.0.10:35357/v3; do sleep 2; done'

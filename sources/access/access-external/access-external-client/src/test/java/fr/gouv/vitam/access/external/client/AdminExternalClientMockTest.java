@@ -47,7 +47,7 @@ public class AdminExternalClientMockTest {
     AdminExternalClient client;
     final String queryDsql =
         "{ \"$query\" : [ { \"$eq\": { \"title\" : \"test\" } } ], " +
-        " \"$filter\": { \"$orderby\": \"#id\" }, " +
+        " \"$filter\": { \"$orderby\": \"field\" }, " +
         " \"$projection\" : { \"$fields\" : { \"#id\": 1, \"title\" : 2, \"transacdate\": 1 } } " +
         " }";
     private static final String AUDIT_OPTION = "{serviceProducteur: \"Service Producteur 1\"}";

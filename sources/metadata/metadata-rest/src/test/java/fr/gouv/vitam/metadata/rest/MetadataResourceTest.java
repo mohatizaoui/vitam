@@ -71,7 +71,6 @@ import fr.gouv.vitam.functional.administration.common.server.FunctionalAdminColl
 import fr.gouv.vitam.functional.administration.common.server.FunctionalAdminCollectionsTestUtils;
 import fr.gouv.vitam.metadata.api.model.BulkUnitInsertEntry;
 import fr.gouv.vitam.metadata.api.model.BulkUnitInsertRequest;
-import fr.gouv.vitam.metadata.core.MetaDataImpl;
 import fr.gouv.vitam.metadata.core.config.DefaultCollectionConfiguration;
 import fr.gouv.vitam.metadata.core.config.ElasticsearchMetadataIndexManager;
 import fr.gouv.vitam.metadata.core.config.MetaDataConfiguration;
@@ -98,7 +97,6 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.mockito.Mockito;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
@@ -159,9 +157,7 @@ public class MetadataResourceTest {
     private static int serverPort;
 
     private static MetadataMain metadataMain;
-    private final MetaDataImpl metaData = Mockito.mock(MetaDataImpl.class);
     private static final Integer TENANT_ID = 0;
-    private static final String REQUEST_ID = "rgertgerge";
     private static final List<Integer> tenantList = Lists.newArrayList(TENANT_ID);
     private static final ElasticsearchMetadataIndexManager metadataIndexManager =
         MetadataCollectionsTestUtils.createTestIndexManager(
@@ -320,7 +316,7 @@ public class MetadataResourceTest {
         throws JsonProcessingException {
         return new ObjectMapper()
             .writeValueAsString(
-                new VitamError(status.name())
+                new VitamError<>(status.name())
                     .setHttpCode(status.getStatusCode())
                     .setContext("ingest")
                     .setState("code_vitam")
@@ -341,7 +337,7 @@ public class MetadataResourceTest {
      * Test insert Unit endpoint
      */
     @Test
-    public void shouldRaiseExceptionIfBodyIsNotCorrect() throws Exception {
+    public void shouldRaiseExceptionIfBodyIsNotCorrect() {
         given()
             .contentType(ContentType.JSON)
             .header(GlobalDataRest.X_TENANT_ID, TENANT_ID)
@@ -722,12 +718,8 @@ public class MetadataResourceTest {
             .contentType(ContentType.JSON)
             .body(INVALID_DATA)
             .when()
-            .log()
-            .all()
             .get("/units/stream")
             .then()
-            .log()
-            .all()
             .statusCode(Status.OK.getStatusCode());
     }
 
@@ -782,7 +774,6 @@ public class MetadataResourceTest {
         selectMultiQuery.addQueries(QueryHelper.exists(VitamFieldsHelper.id()));
         selectMultiQuery.addUsedProjection(VitamFieldsHelper.id());
         selectMultiQuery.setScrollFilter(scrollId, GlobalDatasParser.DEFAULT_SCROLL_TIMEOUT, numberOfElements / 2);
-        selectMultiQuery.addOrderByAscFilter(VitamFieldsHelper.id());
         JsonNode finalSelect = selectMultiQuery.getFinalSelect();
         given()
             .header(GlobalDataRest.X_TENANT_ID, TENANT_ID)
@@ -795,12 +786,8 @@ public class MetadataResourceTest {
             .then()
             .log()
             .all()
-            .statusCode(Status.INTERNAL_SERVER_ERROR.getStatusCode())
-            .statusLine("HTTP/1.1 500 Server Error")
-            .body(
-                "description",
-                equalTo("Elasticsearch exception [type=search_phase_execution_exception, reason=all shards failed]")
-            );
+            .statusCode(Status.BAD_REQUEST.getStatusCode())
+            .body("description", containsString("search_context_missing_exception"));
     }
 
     private DatabaseCursor readFirstPage(int numberOfElements)
@@ -810,7 +797,6 @@ public class MetadataResourceTest {
         selectMultiQuery.addUsedProjection(VitamFieldsHelper.id());
         String scrollId = "START";
         selectMultiQuery.setScrollFilter(scrollId, GlobalDatasParser.DEFAULT_SCROLL_TIMEOUT, numberOfElements / 2);
-        selectMultiQuery.addOrderByAscFilter(VitamFieldsHelper.id());
         JsonNode finalSelect = selectMultiQuery.getFinalSelect();
         Response response = given()
             .header(GlobalDataRest.X_TENANT_ID, TENANT_ID)

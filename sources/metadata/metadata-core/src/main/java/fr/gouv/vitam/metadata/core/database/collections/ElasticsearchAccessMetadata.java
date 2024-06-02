@@ -24,10 +24,19 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
+
 package fr.gouv.vitam.metadata.core.database.collections;
 
+import co.elastic.clients.elasticsearch._types.SortOptions;
+import co.elastic.clients.elasticsearch._types.SortOrder;
+import co.elastic.clients.elasticsearch._types.aggregations.Aggregate;
+import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch.core.search.Hit;
+import co.elastic.clients.elasticsearch.core.search.HitsMetadata;
+import co.elastic.clients.elasticsearch.core.search.ResponseBody;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Lists;
 import fr.gouv.vitam.common.database.builder.request.configuration.BuilderToken.FILTERARGS;
 import fr.gouv.vitam.common.database.builder.request.configuration.GlobalDatas;
 import fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchAccess;
@@ -43,23 +52,15 @@ import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.metadata.api.exception.MetaDataExecutionException;
 import fr.gouv.vitam.metadata.core.config.ElasticsearchMetadataIndexManager;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.rest.RestStatus;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.aggregations.Aggregation;
-import org.elasticsearch.search.aggregations.AggregationBuilder;
-import org.elasticsearch.search.aggregations.Aggregations;
-import org.elasticsearch.search.sort.FieldSortBuilder;
-import org.elasticsearch.search.sort.SortBuilder;
-import org.elasticsearch.search.sort.SortBuilders;
-import org.elasticsearch.search.sort.SortOrder;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.boolMust;
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.getDocSorts;
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.termQuery;
 
 /**
  * ElasticSearch model with MongoDB as main database
@@ -148,28 +149,25 @@ public class ElasticsearchAccessMetadata extends ElasticsearchAccess {
     protected final Result<MetadataDocument<?>> search(
         final MetadataCollections collection,
         final Integer tenantId,
-        final QueryBuilder query,
-        final List<SortBuilder<?>> sorts,
+        final Query query,
+        final List<SortOptions> sorts,
         int offset,
         Integer limit,
-        final List<AggregationBuilder> facets,
+        final Map<String, Aggregation> facets,
         final String scrollId,
         final Integer scrollTimeout,
         boolean trackTotalHits
     ) throws MetaDataExecutionException, BadRequestException {
-        final SearchResponse response;
+        final ResponseBody<ObjectNode> response;
         try {
             ElasticsearchIndexAlias indexAlias =
                 this.indexManager.getElasticsearchIndexAliasResolver(collection).resolveIndexName(tenantId);
 
-            QueryBuilder finalQuery = new BoolQueryBuilder()
-                .must(query)
-                .must(QueryBuilders.termQuery(MetadataDocument.TENANT_ID, tenantId));
+            Query finalQuery = boolMust(query, termQuery(MetadataDocument.TENANT_ID, tenantId));
 
             response = super.search(
                 indexAlias,
                 finalQuery,
-                null,
                 MetadataDocument.ES_PROJECTION,
                 sorts,
                 offset,
@@ -183,31 +181,18 @@ public class ElasticsearchAccessMetadata extends ElasticsearchAccess {
             throw new MetaDataExecutionException(e);
         }
 
-        switch (response.status()) {
-            case OK:
-            case NOT_FOUND:
-            case NO_CONTENT:
-                break;
-        }
-
-        if (response.status() != RestStatus.OK) {
-            throw new MetaDataExecutionException(
-                "Error collection : " + collection.getName() + ", tenant: " + tenantId + ", query: " + query
-            );
-        }
-
         final boolean isUnit = collection == MetadataCollections.UNIT;
         final Result<MetadataDocument<?>> resultRequest = isUnit
             ? MongoDbMetadataHelper.createOneResult(FILTERARGS.UNITS)
             : MongoDbMetadataHelper.createOneResult(FILTERARGS.OBJECTGROUPS);
 
         if (scrollId != null && !scrollId.isEmpty()) {
-            resultRequest.setScrollId(response.getScrollId());
-            SearchHits hits = response.getHits();
-            if (hits.getHits().length == 0) {
+            resultRequest.setScrollId(response.scrollId());
+            HitsMetadata<ObjectNode> hits = response.hits();
+            if (hits.hits().isEmpty()) {
                 //Release search contexts as soon as they are not necessary anymore using the Clear Scroll API.
                 try {
-                    super.clearScroll(response.getScrollId());
+                    super.clearScroll(response.scrollId());
                 } catch (DatabaseException e) {
                     // Should be automatically cleared after timeout reached
                     LOGGER.warn(e);
@@ -215,11 +200,17 @@ public class ElasticsearchAccessMetadata extends ElasticsearchAccess {
             }
         }
 
-        final SearchHits hits = response.getHits();
-        if (hits.getHits().length > GlobalDatas.LIMIT_LOAD) {
-            LOGGER.warn("Warning, more than " + GlobalDatas.LIMIT_LOAD + " hits: " + hits.getTotalHits());
+        final HitsMetadata<ObjectNode> hits = response.hits();
+        if (hits.hits().size() > GlobalDatas.LIMIT_LOAD) {
+            LOGGER.warn(
+                "Warning, more than " +
+                GlobalDatas.LIMIT_LOAD +
+                " hits: " +
+                Objects.requireNonNull(hits.total()).value()
+            );
         }
-        if (hits.getTotalHits().value == 0) {
+
+        if (Objects.requireNonNull(hits.total()).value() == 0) {
             LOGGER.debug(
                 "No result found collection : " + collection.getName() + ", tenant: " + tenantId + ", query: " + query
             );
@@ -228,20 +219,25 @@ public class ElasticsearchAccessMetadata extends ElasticsearchAccess {
                 : MongoDbMetadataHelper.createOneResult(FILTERARGS.OBJECTGROUPS);
         }
 
-        for (SearchHit hit : hits) {
-            final String id = hit.getId();
-            resultRequest.addId(id, hit.getScore());
+        for (Hit<ObjectNode> hit : hits.hits()) {
+            final String id = hit.id();
+            resultRequest.addId(id, hit.score() == null ? Double.NaN : hit.score());
         }
 
         LOGGER.debug("FinalEsResult: {} : {}", resultRequest.getCurrentIds(), resultRequest.getNbResult());
 
-        resultRequest.setTotal(hits.getTotalHits().value);
+        resultRequest.setTotal(hits.total().value());
 
         // facets
-        Aggregations aggregations = response.getAggregations();
+        Map<String, Aggregate> aggregations = response.aggregations();
         if (aggregations != null) {
-            for (Aggregation aggregation : aggregations) {
-                resultRequest.addFacetResult(ElasticsearchFacetResultHelper.transformFromEsAggregation(aggregation));
+            for (Map.Entry<String, Aggregate> aggregationEntry : aggregations.entrySet()) {
+                resultRequest.addFacetResult(
+                    ElasticsearchFacetResultHelper.transformFromEsAggregation(
+                        aggregationEntry.getKey(),
+                        aggregationEntry.getValue()
+                    )
+                );
             }
         }
 
@@ -257,32 +253,29 @@ public class ElasticsearchAccessMetadata extends ElasticsearchAccess {
      * @param query elasticsearch
      * @return the elasticsearch SearchResponse
      */
-    public Aggregations basicAggregationSearch(
+    public Map<String, Aggregate> basicAggregationSearch(
         MetadataCollections collection,
         Integer tenantId,
-        List<AggregationBuilder> aggregations,
-        QueryBuilder query
+        Map<String, Aggregation> aggregations,
+        Query query
     ) throws MetaDataExecutionException {
         try {
             ElasticsearchIndexAlias indexAlias =
                 this.indexManager.getElasticsearchIndexAliasResolver(collection).resolveIndexName(tenantId);
 
-            QueryBuilder finalQuery = new BoolQueryBuilder()
-                .must(query)
-                .must(QueryBuilders.termQuery(MetadataDocument.TENANT_ID, tenantId));
+            Query finalQuery = boolMust(query, termQuery(MetadataDocument.TENANT_ID, tenantId));
             return super.search(
                 indexAlias,
                 finalQuery,
                 null,
-                null,
-                Lists.newArrayList(SortBuilders.fieldSort(FieldSortBuilder.DOC_FIELD_NAME).order(SortOrder.ASC)),
+                List.of(getDocSorts(SortOrder.Asc)),
                 0,
                 0,
                 aggregations,
                 null,
                 null,
                 false
-            ).getAggregations();
+            ).aggregations();
         } catch (DatabaseException | BadRequestException e) {
             throw new MetaDataExecutionException(e);
         }
