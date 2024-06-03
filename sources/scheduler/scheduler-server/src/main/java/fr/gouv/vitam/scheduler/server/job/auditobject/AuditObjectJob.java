@@ -45,9 +45,13 @@ import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @DisallowConcurrentExecution
@@ -58,6 +62,7 @@ public class AuditObjectJob implements Job {
     private static final Boolean EMPTY_RESULT_IS_SUCCESSFUL = Boolean.TRUE;
     private static final String AUDIT_TYPE_KEY = "auditType";
     private static final String OPERATIONS_DELAY_IN_MINUTES_KEY = "operationsDelayInMinutes";
+    private static final String SELECTED_TENANTS = "selectedTenants";
     private static final String CHECK_INTEGRITY_ID = "AUDIT_FILE_INTEGRITY";
     private static final String CHECK_EXISTENCE_ID = "AUDIT_FILE_EXISTING";
 
@@ -91,8 +96,11 @@ public class AuditObjectJob implements Job {
     public void execute(JobExecutionContext context) throws JobExecutionException {
         LOGGER.info("Integrity audit job in progress...");
         final ThreadPoolExecutor executorService = ExecutorUtils.createScalableBatchExecutorService(AUDIT_POOL_SIZE);
+
         try {
-            final CompletableFuture<Optional<Boolean>>[] completableFutures = VitamConfiguration.getTenants()
+            List<Integer> tenantsToAudit = getTenantsToAudit(context);
+
+            final CompletableFuture<Optional<Boolean>>[] completableFutures = tenantsToAudit
                 .stream()
                 .map(tenantId -> launchWorkflowAndPoll(context, executorService, tenantId))
                 .toArray(CompletableFuture[]::new);
@@ -103,6 +111,34 @@ public class AuditObjectJob implements Job {
         } finally {
             executorService.shutdown();
             LOGGER.info("Integrity audit job is finished");
+        }
+    }
+
+    protected List<Integer> getTenantsToAudit(JobExecutionContext context) {
+        final JobDataMap jobDataMap = context.getMergedJobDataMap();
+        List<Integer> tenantIds = getTenantIdsFromContext(jobDataMap.getString(SELECTED_TENANTS));
+        return tenantIds.isEmpty() ? VitamConfiguration.getTenants() : tenantIds;
+    }
+
+    private List<Integer> getTenantIdsFromContext(String tenantIdsStr) {
+        if (tenantIdsStr == null || tenantIdsStr.trim().isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return Arrays.stream(tenantIdsStr.split(","))
+            .map(String::trim)
+            .filter(s -> !s.isEmpty())
+            .map(this::safeParseInt)
+            .flatMap(Optional::stream)
+            .collect(Collectors.toList());
+    }
+
+    private Optional<Integer> safeParseInt(String s) {
+        try {
+            return Optional.of(Integer.parseInt(s));
+        } catch (NumberFormatException e) {
+            LOGGER.warn("Failed to parse integer from string: " + s, e);
+            return Optional.empty();
         }
     }
 

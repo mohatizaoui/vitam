@@ -73,6 +73,7 @@ import static fr.gouv.vitam.common.model.ProcessState.RUNNING;
 import static fr.gouv.vitam.common.model.StatusCode.KO;
 import static fr.gouv.vitam.common.model.StatusCode.OK;
 import static fr.gouv.vitam.scheduler.server.job.auditobject.AuditOperationFinder.JOB_EXECUTION_EVENT_TYPE;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -156,38 +157,6 @@ public class AuditObjectJobTest {
         when(logbookOperationsClientFactory.getClient()).thenReturn(logbookOperationsClient);
         when(adminManagementClientFactory.getClient()).thenReturn(adminManagementClient);
         when(processingManagementClientFactory.getClient()).thenReturn(processingManagementClient);
-    }
-
-    @Test
-    @RunWithCustomExecutor
-    public void shouldLaunchAuditSuccessfullyWhenProcessIsAllowed() throws Exception {
-        // GIVEN
-        VitamConfiguration.setTenants(List.of(0));
-        JsonNode unit = JsonHandler.getFromString(
-            "{\"#id\": \"UNIT_ID\", \"#approximate_update_date\": \"UNIT_TIME\"}"
-        );
-        JsonNode nonEmptyRequestResponseOK = JsonHandler.toJsonNode(new RequestResponseOK<>().addResult(unit));
-        when(metaDataClient.selectUnits(any())).thenReturn(nonEmptyRequestResponseOK);
-
-        RequestResponseOK<LogbookOperation> logbookOperationRequestResponseOK = LogbookOperationFixture.withFirstResult(
-            LogbookOperationFixture.jobExecutionEvtType()
-        );
-
-        given(logbookOperationsClient.selectOperation(any())).willAnswer(
-            invocationOnMock -> JsonHandler.toJsonNode(logbookOperationRequestResponseOK)
-        );
-        given(processingManagementClient.getOperationProcessStatus(any())).willReturn(
-            LogbookOperationFixture.itemStatus(COMPLETED, OK)
-        );
-
-        // WHEN
-        auditObjectJob.execute(context);
-
-        // THEN
-        verify(adminManagementClient).launchAuditWorkflow(
-            ArgumentMatchers.argThat(AuditObjectJobTest::usingLastAuditDate),
-            eq(false)
-        );
     }
 
     @Test
@@ -308,6 +277,86 @@ public class AuditObjectJobTest {
             ArgumentMatchers.argThat(AuditObjectJobTest::notUsingLastAuditDate),
             eq(false)
         );
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void shouldUseSelectedTenantsWhenProvidedAndValid() throws Exception {
+        // GIVEN
+        VitamConfiguration.setTenants(List.of(0));
+        JsonNode unit = JsonHandler.getFromString(
+            "{\"#id\": \"UNIT_ID\", \"#approximate_update_date\": \"UNIT_TIME\"}"
+        );
+        JsonNode nonEmptyRequestResponseOK = JsonHandler.toJsonNode(new RequestResponseOK<>().addResult(unit));
+        when(metaDataClient.selectUnits(any())).thenReturn(nonEmptyRequestResponseOK);
+
+        RequestResponseOK<LogbookOperation> logbookOperationRequestResponseOK = LogbookOperationFixture.withFirstResult(
+            LogbookOperationFixture.jobExecutionEvtTypeWithoutDate()
+        );
+
+        given(logbookOperationsClient.selectOperation(any())).willAnswer(
+            invocationOnMock -> JsonHandler.toJsonNode(logbookOperationRequestResponseOK)
+        );
+        given(processingManagementClient.getOperationProcessStatus(any())).willReturn(
+            LogbookOperationFixture.itemStatus(COMPLETED, OK)
+        );
+
+        // WHEN
+        auditObjectJob.execute(context);
+
+        // THEN
+        verify(adminManagementClient).launchAuditWorkflow(
+            ArgumentMatchers.argThat(AuditObjectJobTest::notUsingLastAuditDate),
+            eq(false)
+        );
+    }
+
+    @Test
+    public void shouldReturnSelectedTenantsWhenProvidedValid() {
+        VitamConfiguration.setTenants(Arrays.asList(1, 2, 3, 4, 5));
+        when(context.getMergedJobDataMap()).thenReturn(
+            new JobDataMap(Map.of("selectedTenants", "1,2,3", "operationsDelayInMinutes", 5, "auditType", "Integrity"))
+        );
+
+        List<Integer> result = auditObjectJob.getTenantsToAudit(context);
+
+        assertThat(Arrays.asList(1, 2, 3)).isEqualTo(result);
+    }
+
+    @Test
+    public void shouldReturnDefaultTenantsWhenSelectedTenantsAreInvalid() {
+        VitamConfiguration.setTenants(Arrays.asList(1, 2, 3, 4, 5));
+        when(context.getMergedJobDataMap()).thenReturn(
+            new JobDataMap(Map.of("selectedTenants", "a,b,c", "operationsDelayInMinutes", 5, "auditType", "Integrity"))
+        );
+
+        List<Integer> result = auditObjectJob.getTenantsToAudit(context);
+
+        assertThat(Arrays.asList(1, 2, 3, 4, 5)).isEqualTo(result);
+    }
+
+    @Test
+    public void shouldReturnDefaultTenantsWhenNoSelectedTenantsProvided() {
+        VitamConfiguration.setTenants(Arrays.asList(1, 2, 3, 4, 5));
+        when(context.getMergedJobDataMap()).thenReturn(
+            new JobDataMap(Map.of("selectedTenants", "", "operationsDelayInMinutes", 5, "auditType", "Integrity"))
+        );
+
+        List<Integer> result = auditObjectJob.getTenantsToAudit(context);
+
+        assertThat(Arrays.asList(1, 2, 3, 4, 5)).isEqualTo(result);
+    }
+
+    @Test
+    public void shouldReturnDefaultTenantsWhenSelectedTenantsKeyIsNull() {
+        VitamConfiguration.setTenants(Arrays.asList(1, 2, 3, 4, 5));
+        when(context.getMergedJobDataMap()).thenReturn(
+            new JobDataMap(Map.of("operationsDelayInMinutes", 5, "auditType", "Integrity"))
+        );
+
+        List<Integer> result = auditObjectJob.getTenantsToAudit(context);
+
+        assertThat(Arrays.asList(1, 2, 3, 4, 5)).isEqualTo(result);
     }
 
     private static class LogbookOperationFixture {
