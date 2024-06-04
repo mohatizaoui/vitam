@@ -257,14 +257,15 @@ public class ManifestBuilder implements AutoCloseable {
         String linkedAU,
         Stream<LogbookLifeCycleObjectGroup> logbookLifeCycleObjectGroupStream
     ) throws JsonProcessingException, JAXBException, InternalServerException {
-        return writeGOT(og, linkedAU, logbookLifeCycleObjectGroupStream, false);
+        return writeGOT(og, linkedAU, logbookLifeCycleObjectGroupStream, false, new HashSet<>());
     }
 
     public Map<String, JsonNode> writeGOT(
         JsonNode og,
         String linkedAU,
         Stream<LogbookLifeCycleObjectGroup> logbookLifeCycleObjectGroupStream,
-        boolean useOriginalFilenames
+        boolean useOriginalFilenames,
+        Set<String> existingFileNames
     ) throws JsonProcessingException, JAXBException, InternalServerException {
         ObjectGroupResponse objectGroup = objectMapper.treeToValue(og, ObjectGroupResponse.class);
 
@@ -305,7 +306,6 @@ public class ManifestBuilder implements AutoCloseable {
 
         List<MinimalDataObjectType> binaryDataObjectOrPhysicalDataObject =
             dataObjectGroup.getBinaryDataObjectOrPhysicalDataObject();
-        Set<String> existingFileNames = new HashSet<>();
         for (MinimalDataObjectType minimalDataObjectType : binaryDataObjectOrPhysicalDataObject) {
             if (minimalDataObjectType instanceof BinaryDataObjectType) {
                 BinaryDataObjectType binaryDataObjectType = (BinaryDataObjectType) minimalDataObjectType;
@@ -334,7 +334,6 @@ public class ManifestBuilder implements AutoCloseable {
                 maps.put(minimalDataObjectType.getId(), objectInfo);
             }
         }
-        existingFileNames.clear();
         marshallHackForNonXmlRootObject(dataObjectGroup);
         return maps;
     }
