@@ -305,6 +305,7 @@ public class CreateManifest extends ActionHandler {
                 select.setQuery(in);
                 JsonNode response = client.selectObjectGroups(select.getFinalSelect());
                 ArrayNode objects = (ArrayNode) response.get(TAG_RESULTS);
+                Set<String> existingFileNames = new HashSet<>();
                 for (JsonNode object : objects) {
                     String id = object.get(id()).textValue();
                     List<String> linkedUnits = unitsForObjectGroupId.get(id);
@@ -333,7 +334,8 @@ public class CreateManifest extends ActionHandler {
                             currentObject,
                             linkedUnits.get(linkedUnits.size() - 1),
                             logbookLifeCycleObjectGroupStream,
-                            useOriginalFilenames
+                            useOriginalFilenames,
+                            existingFileNames
                         )
                     );
 
@@ -346,6 +348,7 @@ public class CreateManifest extends ActionHandler {
                         .mapToLong(VersionsModel::getSize)
                         .sum();
                 }
+                existingFileNames.clear();
             }
 
             SelectParserMultiple initialQueryParser = new SelectParserMultiple();
