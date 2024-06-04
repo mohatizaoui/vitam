@@ -27,6 +27,7 @@
 package fr.gouv.vitam.worker.core.handler;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.collect.Iterators;
 import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.collection.CloseableIteratorUtils;
 import fr.gouv.vitam.common.database.server.mongodb.BsonHelper;
@@ -65,7 +66,6 @@ import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerExce
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
 import org.assertj.core.util.Lists;
-import org.elasticsearch.common.collect.Iterators;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -218,10 +218,10 @@ public class TransferNotificationActionHandlerIteratorTest {
         ) {
             doReturn(getLogbookOperationOK()).when(logbookOperationsClient).selectOperationById(any());
             when(logbookLifeCyclesClient.objectGroupLifeCyclesByOperationIterator(any(), any(), any())).thenReturn(
-                CloseableIteratorUtils.toCloseableIterator(Iterators.single(getLogbookLifecycleGOT()))
+                CloseableIteratorUtils.toCloseableIterator(Iterators.singletonIterator(getLogbookLifecycleGOT()))
             );
             when(logbookLifeCyclesClient.unitLifeCyclesByOperationIterator(any(), any(), any())).thenReturn(
-                CloseableIteratorUtils.toCloseableIterator(Iterators.single(getLogbookLifecycleAU()))
+                CloseableIteratorUtils.toCloseableIterator(Iterators.singletonIterator(getLogbookLifecycleAU()))
             );
 
             assertEquals(TransferNotificationActionHandler.getId(), HANDLER_ID);
@@ -247,10 +247,10 @@ public class TransferNotificationActionHandlerIteratorTest {
         ) {
             doReturn(getLogbookOperationWarning()).when(logbookOperationsClient).selectOperationById(any());
             when(logbookLifeCyclesClient.objectGroupLifeCyclesByOperationIterator(any(), any(), any())).thenReturn(
-                CloseableIteratorUtils.toCloseableIterator(Iterators.single(getLogbookLifecycleGOTWarning()))
+                CloseableIteratorUtils.toCloseableIterator(Iterators.singletonIterator(getLogbookLifecycleGOTWarning()))
             );
             when(logbookLifeCyclesClient.unitLifeCyclesByOperationIterator(any(), any(), any())).thenReturn(
-                CloseableIteratorUtils.toCloseableIterator(Iterators.single(getLogbookLifecycleAUWarning()))
+                CloseableIteratorUtils.toCloseableIterator(Iterators.singletonIterator(getLogbookLifecycleAUWarning()))
             );
 
             assertEquals(TransferNotificationActionHandler.getId(), HANDLER_ID);
@@ -333,10 +333,10 @@ public class TransferNotificationActionHandlerIteratorTest {
         ) {
             doReturn(getLogbookOperationKO()).when(logbookOperationsClient).selectOperationById(any());
             when(logbookLifeCyclesClient.objectGroupLifeCyclesByOperationIterator(any(), any(), any())).thenReturn(
-                CloseableIteratorUtils.toCloseableIterator(Iterators.single(getLogbookLifecycleGOT()))
+                CloseableIteratorUtils.toCloseableIterator(Iterators.singletonIterator(getLogbookLifecycleGOT()))
             );
             when(logbookLifeCyclesClient.unitLifeCyclesByOperationIterator(any(), any(), any())).thenReturn(
-                CloseableIteratorUtils.toCloseableIterator(Iterators.single(getLogbookLifecycleAU()))
+                CloseableIteratorUtils.toCloseableIterator(Iterators.singletonIterator(getLogbookLifecycleAU()))
             );
 
             assertEquals(TransferNotificationActionHandler.getId(), HANDLER_ID);
@@ -365,10 +365,10 @@ public class TransferNotificationActionHandlerIteratorTest {
         ) {
             doReturn(getLogbookOperationKO()).when(logbookOperationsClient).selectOperationById(any());
             when(logbookLifeCyclesClient.objectGroupLifeCyclesByOperationIterator(any(), any(), any())).thenReturn(
-                CloseableIteratorUtils.toCloseableIterator(Iterators.single(getLogbookLifecycleAUOK()))
+                CloseableIteratorUtils.toCloseableIterator(Iterators.singletonIterator(getLogbookLifecycleAUOK()))
             );
             when(logbookLifeCyclesClient.unitLifeCyclesByOperationIterator(any(), any(), any())).thenReturn(
-                CloseableIteratorUtils.toCloseableIterator(Iterators.single(getLogbookLifecycleAUOK()))
+                CloseableIteratorUtils.toCloseableIterator(Iterators.singletonIterator(getLogbookLifecycleAUOK()))
             );
 
             assertEquals(TransferNotificationActionHandler.getId(), HANDLER_ID);
@@ -417,7 +417,7 @@ public class TransferNotificationActionHandlerIteratorTest {
         ) {
             doReturn(getLogbookOperationKO()).when(logbookOperationsClient).selectOperationById(any());
             when(logbookLifeCyclesClient.objectGroupLifeCyclesByOperationIterator(any(), any(), any())).thenReturn(
-                CloseableIteratorUtils.toCloseableIterator(Iterators.single(getLogbookLifecycleGOT()))
+                CloseableIteratorUtils.toCloseableIterator(Iterators.singletonIterator(getLogbookLifecycleGOT()))
             );
             doThrow(new LogbookClientException(""))
                 .when(logbookLifeCyclesClient)
@@ -451,7 +451,7 @@ public class TransferNotificationActionHandlerIteratorTest {
             .objectGroupLifeCyclesByOperationIterator(any(), any(), any());
 
         when(logbookLifeCyclesClient.unitLifeCyclesByOperationIterator(any(), any(), any())).thenReturn(
-            CloseableIteratorUtils.toCloseableIterator(Iterators.single(getLogbookLifecycleAU()))
+            CloseableIteratorUtils.toCloseableIterator(Iterators.singletonIterator(getLogbookLifecycleAU()))
         );
 
         handlerIO.reset();

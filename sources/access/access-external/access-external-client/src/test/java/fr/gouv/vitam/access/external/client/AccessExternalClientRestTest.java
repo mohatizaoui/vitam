@@ -92,7 +92,7 @@ public class AccessExternalClientRestTest extends ResteasyTestApplication {
     public static final String BLANK_DSL = "dslRequest cannot be null.";
     private static final String QUERY_DSL =
         "{ $query : [ { $eq : { 'title' : 'test' } } ], " +
-        " $filter : { $orderby : '#id' }," +
+        " $filter : { $orderby : 'field' }," +
         " $projection : {$fields : {#id : 1, title:2, transacdate:1}}" +
         " }";
     private static final ExpectedResults mock = mock(ExpectedResults.class);
@@ -208,7 +208,7 @@ public class AccessExternalClientRestTest extends ResteasyTestApplication {
         when(mock.get()).thenReturn(Response.status(Status.INTERNAL_SERVER_ERROR).build());
         final String queryDsql =
             "{ $query : [ { $eq : { 'title' : 'test' } } ], " +
-            " $filter : { $orderby : {'#id': 1} }," +
+            " $filter : { $orderby : {'field': 1} }," +
             " $projection : {$fields : {#id : 1, title:2, transacdate:1}}" +
             " }";
         assertThatExceptionOfType(VitamClientException.class)
@@ -229,7 +229,7 @@ public class AccessExternalClientRestTest extends ResteasyTestApplication {
         when(mock.get()).thenReturn(Response.status(Status.NOT_FOUND).build());
         final String queryDsql =
             "{ \"$query\" : [ { \"$eq\" : { \"title\" : \"test\" } } ], " +
-            " \"$filter\" : { \"$orderby\" : {\"#id\": 1}}," +
+            " \"$filter\" : { \"$orderby\" : {\"field\": 1}}," +
             " \"$projection\": {\"$fields\" : {\"#id\" : 1, \"title\":2, \"transacdate\":1}}" +
             " }";
 

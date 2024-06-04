@@ -1,6 +1,5 @@
-#!/usr/bin/env bash
-set -e
-#*******************************************************************************
+#!/bin/bash
+#
 # Copyright French Prime minister Office/SGMAP/DINSIC/Vitam Program (2015-2022)
 #
 # contact.vitam@culture.gouv.fr
@@ -25,10 +24,21 @@ set -e
 #
 # The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
 # accept its terms.
-#*******************************************************************************
-# Rebuild only the vitam code. To be executed at the root of a VITAM repository
+#
 
-echo "Building maven rpm..."
-mvn -f sources/pom.xml -Denv.SERVICE_NEXUS_URL=https://nexus.dev.programmevitam.fr clean package rpm:rpm -DskipTests
+# List ES indices
+curl 'localhost:9200/_cat/indices?v' | tail -n +2
 
-vitam-recreate-repo
+# Delete ES indices
+for i in `curl 'localhost:9200/_cat/indices?v' | tail -n +2 | awk '{print $3}'`; do curl -XDELETE "http://127.0.0.1:9200/$i"; echo; done
+
+# List ES indices
+curl 'localhost:9200/_cat/indices?v' | tail -n +2
+
+# Delete mongo collections
+mongosh vitam-test <<EOF
+
+db = db.getSiblingDB("vitam-test")
+db.getCollectionNames().forEach(function(x) { print("Dropping collection: " + x); db[x].drop()})
+
+EOF

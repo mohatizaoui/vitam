@@ -24,8 +24,14 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
+
 package fr.gouv.vitam.logbook.common.server.database.collections;
 
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch.core.search.Hit;
+import co.elastic.clients.elasticsearch.core.search.ResponseBody;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
 import fr.gouv.vitam.common.LocalDateUtil;
 import fr.gouv.vitam.common.VitamConfiguration;
@@ -50,11 +56,6 @@ import fr.gouv.vitam.logbook.common.parameters.LogbookTypeProcess;
 import fr.gouv.vitam.logbook.common.server.config.ElasticsearchLogbookIndexManager;
 import fr.gouv.vitam.logbook.common.server.exception.LogbookException;
 import net.javacrumbs.jsonunit.JsonAssert;
-import org.bson.Document;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -63,11 +64,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.matchAll;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -165,22 +166,22 @@ public class LogbookElasticsearchAccessTest {
         esClient.indexEntry(LogbookCollections.OPERATION, tenantId, id, operationForCreation);
         esClient.refreshIndex(LogbookCollections.OPERATION, tenantId);
         // check entry
-        QueryBuilder query = QueryBuilders.matchAllQuery();
-        SearchResponse elasticSearchResponse = esClient.search(
+        Query query = matchAll();
+        ResponseBody<ObjectNode> elasticSearchResponse = esClient.search(
             LogbookCollections.OPERATION,
             tenantId,
             query,
-            null,
             null,
             0,
             10
         );
 
-        assertEquals(1, elasticSearchResponse.getHits().getTotalHits().value);
-        assertNotNull(elasticSearchResponse.getHits().getAt(0));
+        assertNotNull(elasticSearchResponse.hits().total());
+        assertEquals(1, elasticSearchResponse.hits().total().value());
+        assertNotNull(elasticSearchResponse.hits().hits().get(0));
 
         // update entry
-        Map<String, Object> created = elasticSearchResponse.getHits().getAt(0).getSourceAsMap();
+        ObjectNode created = elasticSearchResponse.hits().hits().get(0).source();
         for (int i = 0; i < 3; i++) {
             outcome = StatusCode.OK;
             outcomeDetailMessage = "IMPORT_FORMAT." + StatusCode.OK.name();
@@ -194,13 +195,13 @@ public class LogbookElasticsearchAccessTest {
                 eventIdentifierRequest
             );
             // add update as event
-            ArrayList<Document> events = (ArrayList<Document>) created.get(LogbookDocument.EVENTS);
+            ArrayNode events = (ArrayNode) created.get(LogbookDocument.EVENTS);
             if (events == null) {
-                events = new ArrayList<>();
+                events = JsonHandler.createArrayNode();
             }
             LogbookOperation e = new LogbookOperation(parametersForUpdate);
-            events.add(e);
-            created.put(LogbookDocument.EVENTS, events);
+            events.add(JsonHandler.toJsonNode(e));
+            created.set(LogbookDocument.EVENTS, events);
             String idUpdate = id;
             String esJsonUpdate = JsonHandler.unprettyPrint(created);
             LogbookOperation document = JsonHandler.getFromString(esJsonUpdate, LogbookOperation.class);
@@ -208,31 +209,31 @@ public class LogbookElasticsearchAccessTest {
             esClient.updateFullDocument(LogbookCollections.OPERATION, tenantId, idUpdate, document);
         }
         // check entry
-        SearchResponse elasticSearchResponse2 = esClient.search(
+        ResponseBody<ObjectNode> elasticSearchResponse2 = esClient.search(
             LogbookCollections.OPERATION,
             tenantId,
             query,
-            null,
             null,
             0,
             10
         );
-        assertEquals(1, elasticSearchResponse2.getHits().getTotalHits().value);
-        assertNotNull(elasticSearchResponse2.getHits().getAt(0));
-        SearchHit hit = elasticSearchResponse2.getHits().iterator().next();
+        assertThat(elasticSearchResponse2.hits().total()).isNotNull();
+        assertEquals(1, elasticSearchResponse2.hits().total().value());
+        assertNotNull(elasticSearchResponse2.hits().hits().get(0));
+        Hit<ObjectNode> hit = elasticSearchResponse2.hits().hits().iterator().next();
         assertNotNull(hit);
 
         // check search
-        SearchResponse elasticSearchResponse3 = esClient.search(
+        ResponseBody<ObjectNode> elasticSearchResponse3 = esClient.search(
             LogbookCollections.OPERATION,
             tenantId,
             query,
             null,
-            null,
             0,
-            01
+            1
         );
-        assertEquals(1, elasticSearchResponse3.getHits().getTotalHits().value);
+        assertThat(elasticSearchResponse3.hits().total()).isNotNull();
+        assertEquals(1, elasticSearchResponse3.hits().total().value());
 
         // refresh index
         esClient.refreshIndex(LogbookCollections.OPERATION, tenantId);
@@ -242,7 +243,7 @@ public class LogbookElasticsearchAccessTest {
 
         // check post delete
         try {
-            esClient.search(LogbookCollections.OPERATION, tenantId, query, null, null, 0, 10);
+            esClient.search(LogbookCollections.OPERATION, tenantId, query, null, 0, 10);
             fail("Should have failed : IndexNotFoundException");
         } catch (LogbookException e) {}
     }

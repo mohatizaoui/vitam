@@ -22,17 +22,17 @@ cluster.name: {{ composant.cluster_name }}
 #
 node.name: {{ inventory_hostname }}
 
-# https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-node.html#node-roles
+# https://www.elastic.co/guide/en/elasticsearch/reference/8.13/modules-node.html#node-roles
 # node.roles: [master, data, data_content, data_hot, data_warm, data_cold, data_frozen, ingest, ml, remote_cluster_client, transform]
 node.roles: {{ elasticsearch_roles | default(['master', 'data']) }}
 
-# https://www.elastic.co/guide/en/elasticsearch/reference/current/ml-settings.html
+# https://www.elastic.co/guide/en/elasticsearch/reference/8.13/ml-settings.html
 xpack.ml.enabled: false
 
 #
 # Add custom attributes to the node:
 #
-# node.rack: r1
+#node.attr.rack: r1
 #
 # ----------------------------------- Paths ------------------------------------
 #
@@ -58,14 +58,16 @@ path.repo: ["{{ composant.repo | list | join ('\',\'') }}"]
 # = Disable swapping
 bootstrap.memory_lock: true
 #
-# Make sure that the `ES_HEAP_SIZE` environment variable is set to about half the memory
-# available on the system and that the owner of the process is allowed to use this limit.
+# Make sure that the heap size is set to about half the memory available
+# on the system and that the owner of the process is allowed to use this
+# limit.
 #
 # Elasticsearch performs poorly when the system is swapping the memory.
 #
 # ---------------------------------- Network -----------------------------------
 #
-# Set the bind address to a specific IP (IPv4 or IPv6):
+# By default Elasticsearch is only accessible on localhost. Set a different
+# address here to expose this node on the network:
 #
 # Note : if installing to localhost, notably a docker container, we need to bind larger than localhost
 {% if inventory_hostname in single_vm_hostnames %}
@@ -76,7 +78,8 @@ http.cors.allow-origin: "*"
 network.host: {{ ip_service }}
 {% endif %}
 #
-# Set a custom port for HTTP:
+# By default Elasticsearch listens for HTTP traffic on the first free port it
+# finds starting at 9200. Set a specific HTTP port here:
 #
 http.port: {{ composant.port_http }}
 #
@@ -87,7 +90,9 @@ http.port: {{ composant.port_http }}
 # Pass an initial list of hosts to perform discovery when this node is started:
 # The default list of hosts is ["127.0.0.1", "[::1]"]
 #
+{% if groups['hosts_elasticsearch_data'] | length > 1 %}
 discovery.seed_hosts: [ {% for host in groups['hosts_elasticsearch_data'] %}"{{ hostvars[host]['ip_service'] }}"{% if not loop.last %},{% endif %}{% endfor %} ]
+{% endif %}
 #
 # Bootstrap the cluster using an initial set of master-eligible nodes:
 #
@@ -101,28 +106,21 @@ cluster.no_master_block: all
 #
 # Block initial recovery after a full cluster restart until N nodes are started:
 #
-# https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-gateway.html
+# https://www.elastic.co/guide/en/elasticsearch/reference/8.13/modules-gateway.html
 gateway.expected_data_nodes: {{ (groups['hosts_elasticsearch_data'] | length) }}
 gateway.recover_after_data_nodes: {{ ((groups['hosts_elasticsearch_data']|length / 2)+1)| round (0, 'floor')| int }}
 #
 # For more information, see the documentation at:
-# <http://www.elastic.co/guide/en/elasticsearch/reference/current/modules-gateway.html>
+# <http://www.elastic.co/guide/en/elasticsearch/reference/8.13/modules-gateway.html>
 #
 # ---------------------------------- Various -----------------------------------
 #
-# Disable starting multiple nodes on a single system:
-#
-# node.max_local_storage_nodes: 1
-#
-# Require explicit names when deleting indices:
+# Allow wildcard deletion of indices:
 #
 action.destructive_requires_name: true
 
-# For Vitam multiquery
-indices.query.bool.max_clause_count: 10000
-
 {% if composant.index_buffer_size_ratio is defined %}
-# some perforamnce tuning ; see https://www.elastic.co/guide/en/elasticsearch/reference/6.4/tune-for-indexing-speed.html
+# some perforamnce tuning ; see https://www.elastic.co/guide/en/elasticsearch/reference/8.13/tune-for-indexing-speed.html
 # 0.1 may be enough, cots_vars declares {{ composant.index_buffer_size_ratio }} as ratio on total memory {{ elasticsearch_memory }}
 indices.memory.index_buffer_size: {{ ((elasticsearch_memory_value|int)*(composant.index_buffer_size_ratio|float))|round (0, 'floor')| int }}{{ elasticsearch_memory_unit }}
 {% endif %}
@@ -130,6 +128,7 @@ indices.memory.index_buffer_size: {{ ((elasticsearch_memory_value|int)*(composan
 indices.mapping.dynamic_timeout: {{ composant.dynamic_timeout |default('30s') }}
 
 # thread_pool configuration
+# https://www.elastic.co/guide/en/elasticsearch/reference/8.13/modules-threadpool.html
 thread_pool:
     analyze:
         size: {{ (ansible_processor_cores * ansible_processor_threads_per_core) | round (0, 'floor') | int }}
@@ -151,24 +150,28 @@ thread_pool:
 # Note : the 0.5 in the previous expression is for there is only 1 CPU (else the thread pool size would be zero) ! ; Note bis : max 10 threads #
 # Note : in ES5 and further : the thread pool "refresh" is of type scaling with a keep-alive of 5m and a max of min(10, (# of available processors)/2)
 
-# related to https://www.elastic.co/guide/en/elasticsearch/reference/6.8/modules-fielddata.html
-indices.fielddata.cache.size: {{ composant.indices_fielddata_cache_size }}
+# related to https://www.elastic.co/guide/en/elasticsearch/reference/8.13/modules-fielddata.html
+indices.fielddata.cache.size: {{ composant.indices_fielddata_cache_size | default('30%') }}
 
-# related to https://www.elastic.co/guide/en/elasticsearch/reference/6.8/circuit-breaker.html#fielddata-circuit-breaker
-indices.breaker.fielddata.limit: {{ composant.indices_breaker_fielddata_limit }}
+# related to https://www.elastic.co/guide/en/elasticsearch/reference/8.13/circuit-breaker.html#fielddata-circuit-breaker
+indices.breaker.fielddata.limit: {{ composant.indices_breaker_fielddata_limit | default('40%') }}
 
 {% if groups['hosts_elasticsearch_data']|length > 1 %}
-# related to affinity and balancing between racks / rooms https://www.elastic.co/guide/en/elasticsearch/reference/current/allocation-awareness.html
+# related to affinity and balancing between racks / rooms
+# https://www.elastic.co/guide/en/elasticsearch/reference/8.13/modules-cluster.html#shard-allocation-awareness
 cluster.routing.allocation.awareness.attributes: rack_id
 node.attr.rack_id: {{ is_balancing|default(vitam_site_name) }}
 {% endif %}
 
 indices.breaker.total.use_real_memory: false
 
-
-# Related to https://www.elastic.co/guide/en/elasticsearch/reference/current/ilm-settings.html
+# Related to https://www.elastic.co/guide/en/elasticsearch/reference/8.13/ilm-settings.html
 indices.lifecycle.history_index_enabled: false
 
-# More tuning
+#----------------------- BEGIN SECURITY CONFIGURATION -----------------------
+
+# Enable security features
 xpack.security.enabled: false
+
+# Disable watcher features (to send notifications)
 xpack.watcher.enabled: false

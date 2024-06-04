@@ -142,7 +142,7 @@ public class LogbookInternalResourceImplTest extends ResteasyTestApplication {
 
     final String queryDsql =
         "{ \"$query\" : [ { \"$eq\": { \"title\" : \"test\" } } ], " +
-        " \"$filter\": { \"$orderby\": \"#id\" }, " +
+        " \"$filter\": { \"$orderby\": \"field\" }, " +
         " \"$projection\" : { \"$fields\" : { \"#id\": 1, \"title\" : 2, \"transacdate\": 1 } } " +
         " }";
 

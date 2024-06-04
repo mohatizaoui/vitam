@@ -72,7 +72,7 @@ public abstract class Result<T> {
     /**
      * Current Ids in the result
      */
-    protected List<Float> scores = new ArrayList<>();
+    protected List<Double> scores = new ArrayList<>();
     /**
      * Number of result (might be different on update/delete than currentUnits)
      */
@@ -121,7 +121,7 @@ public abstract class Result<T> {
         currentIds.remove("");
         nbResult = currentIds.size();
         for (int i = 0; i < collection.size(); i++) {
-            scores.add(1f);
+            scores.add(1d);
         }
         total = nbResult;
     }
@@ -175,7 +175,7 @@ public abstract class Result<T> {
     /**
      * @return the current scores
      */
-    public List<Float> getCurrentScores() {
+    public List<Double> getCurrentScores() {
         return scores;
     }
 
@@ -193,7 +193,7 @@ public abstract class Result<T> {
      * @param score the associated score
      * @return this
      */
-    public Result<T> addId(String id, float score) {
+    public Result<T> addId(String id, double score) {
         if (id != null && !currentIds.contains(id)) {
             currentIds.add(id);
             scores.add(score);
@@ -350,11 +350,11 @@ public abstract class Result<T> {
                         MetadataCollections.UNIT.useScore() &&
                         isScoreIncluded(projection)
                     ) {
-                        Float score = 1f;
+                        Double score = 1d;
                         try {
                             score = scores.get(i);
                             if (score.isNaN()) {
-                                score = 1f;
+                                score = 1d;
                             }
                         } catch (IndexOutOfBoundsException e) {
                             SysErrLogger.FAKE_LOGGER.ignoreLog(e);
@@ -377,11 +377,11 @@ public abstract class Result<T> {
                         MetadataCollections.OBJECTGROUP.useScore() &&
                         isScoreIncluded(projection)
                     ) {
-                        Float score = 1f;
+                        Double score = 1d;
                         try {
                             score = scores.get(i);
                             if (score.isNaN()) {
-                                score = 1f;
+                                score = 1d;
                             }
                         } catch (IndexOutOfBoundsException e) {
                             SysErrLogger.FAKE_LOGGER.ignoreLog(e);

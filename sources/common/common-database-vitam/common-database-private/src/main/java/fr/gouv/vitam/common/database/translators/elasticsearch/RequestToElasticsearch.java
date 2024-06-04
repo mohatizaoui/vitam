@@ -35,7 +35,6 @@ import fr.gouv.vitam.common.database.parser.request.single.SelectParserSingle;
 import fr.gouv.vitam.common.database.translators.RequestToAbstract;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.exception.VitamException;
-import org.elasticsearch.index.query.QueryBuilder;
 
 import java.util.List;
 import java.util.Set;
@@ -73,9 +72,8 @@ public abstract class RequestToElasticsearch extends RequestToAbstract {
      *
      * @param field Field from which the proposed values shall be found
      * @return the filter associated with the initial roots
-     * @throws InvalidParseOperationException if field could not parse to JSON
      */
-    public QueryBuilder getInitialRoots(final String field) throws InvalidParseOperationException {
+    public co.elastic.clients.elasticsearch._types.query_dsl.Query getInitialRoots(final String field) {
         final Set<String> roots = requestParser.getRequest().getRoots();
         return QueryToElasticsearch.getRoots(field, roots);
     }
@@ -85,7 +83,10 @@ public abstract class RequestToElasticsearch extends RequestToAbstract {
      * @param query QueryBuilder
      * @return the final request
      */
-    public QueryBuilder getRequest(QueryBuilder roots, QueryBuilder query) {
+    public co.elastic.clients.elasticsearch._types.query_dsl.Query getRequest(
+        co.elastic.clients.elasticsearch._types.query_dsl.Query roots,
+        co.elastic.clients.elasticsearch._types.query_dsl.Query query
+    ) {
         return QueryToElasticsearch.getFullCommand(query, roots);
     }
 
@@ -98,8 +99,11 @@ public abstract class RequestToElasticsearch extends RequestToAbstract {
      * @throws IllegalAccessError if nth exceed the size of list
      * @throws InvalidParseOperationException if could not get command by query
      */
-    public QueryBuilder getNthQueries(final int nth, VarNameAdapter adapter, DynamicParserTokens parserTokens)
-        throws IllegalAccessError, InvalidParseOperationException {
+    public co.elastic.clients.elasticsearch._types.query_dsl.Query getNthQueries(
+        final int nth,
+        VarNameAdapter adapter,
+        DynamicParserTokens parserTokens
+    ) throws IllegalAccessError, InvalidParseOperationException {
         final List<Query> list = requestParser.getRequest().getQueries();
         if (nth >= list.size()) {
             throw new IllegalAccessError("This Query has not enough item to get the position: " + nth);

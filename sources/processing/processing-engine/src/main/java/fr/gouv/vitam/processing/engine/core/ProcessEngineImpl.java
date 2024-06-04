@@ -29,6 +29,7 @@ package fr.gouv.vitam.processing.engine.core;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Stopwatch;
+import com.google.common.base.Strings;
 import fr.gouv.vitam.common.SedaConstants;
 import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.exception.InvalidGuidOperationException;
@@ -71,7 +72,6 @@ import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerExce
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
 import io.prometheus.client.Histogram;
-import org.elasticsearch.common.Strings;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;

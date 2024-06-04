@@ -24,8 +24,20 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
+
 package fr.gouv.vitam.metadata.core;
 
+import co.elastic.clients.elasticsearch._types.aggregations.Aggregate;
+import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
+import co.elastic.clients.elasticsearch._types.aggregations.AggregationBuilders;
+import co.elastic.clients.elasticsearch._types.aggregations.CardinalityAggregate;
+import co.elastic.clients.elasticsearch._types.aggregations.FilterAggregate;
+import co.elastic.clients.elasticsearch._types.aggregations.MultiBucketBase;
+import co.elastic.clients.elasticsearch._types.aggregations.NestedAggregate;
+import co.elastic.clients.elasticsearch._types.aggregations.StringTermsBucket;
+import co.elastic.clients.elasticsearch._types.aggregations.SumAggregate;
+import co.elastic.clients.elasticsearch._types.aggregations.ValueCountAggregate;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -115,23 +127,8 @@ import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.collections4.SetValuedMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 import org.apache.commons.lang.StringUtils;
-import org.apache.lucene.search.join.ScoreMode;
 import org.bson.Document;
 import org.bson.conversions.Bson;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.aggregations.AggregationBuilder;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.Aggregations;
-import org.elasticsearch.search.aggregations.bucket.MultiBucketsAggregation;
-import org.elasticsearch.search.aggregations.bucket.filter.Filter;
-import org.elasticsearch.search.aggregations.bucket.nested.Nested;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket;
-import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
-import org.elasticsearch.search.aggregations.metrics.Cardinality;
-import org.elasticsearch.search.aggregations.metrics.Sum;
-import org.elasticsearch.search.aggregations.metrics.ValueCount;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -154,6 +151,10 @@ import static com.mongodb.client.model.Updates.setOnInsert;
 import static fr.gouv.vitam.common.database.builder.query.QueryHelper.and;
 import static fr.gouv.vitam.common.database.builder.query.QueryHelper.eq;
 import static fr.gouv.vitam.common.database.builder.query.QueryHelper.ne;
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.boolMust;
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.matchAll;
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.nestedQuery;
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.termQuery;
 import static fr.gouv.vitam.common.database.server.mongodb.VitamDocument.TENANT_ID;
 import static fr.gouv.vitam.common.json.JsonHandler.toArrayList;
 import static fr.gouv.vitam.common.model.StatusCode.FATAL;
@@ -435,8 +436,8 @@ public class MetaDataImpl {
     }
 
     public List<Document> createAccessionRegisterSymbolic(Integer tenant) throws MetaDataExecutionException {
-        Aggregations aUAccessionRegisterInfo = selectArchiveUnitAccessionRegisterInformation(tenant);
-        Aggregations oGAccessionRegisterInfo = selectObjectGroupAccessionRegisterInformation(tenant);
+        Map<String, Aggregate> aUAccessionRegisterInfo = selectArchiveUnitAccessionRegisterInformation(tenant);
+        Map<String, Aggregate> oGAccessionRegisterInfo = selectObjectGroupAccessionRegisterInformation(tenant);
 
         String creationDate = ISO_LOCAL_DATE_TIME.format(LocalDateUtil.now());
 
@@ -444,8 +445,8 @@ public class MetaDataImpl {
     }
 
     private List<Document> createWithInformations(
-        Aggregations archiveUnitAccessionRegisterInformation,
-        Aggregations objectGroupAccessionRegisterInformation,
+        Map<String, Aggregate> archiveUnitAccessionRegisterInformation,
+        Map<String, Aggregate> objectGroupAccessionRegisterInformation,
         String creationDate,
         Integer tenant
     ) {
@@ -462,29 +463,33 @@ public class MetaDataImpl {
     }
 
     private void updateExistingAccessionRegisterWithObjectGroupInformation(
-        Aggregations objectGroupAccessionRegisterInformation,
+        Map<String, Aggregate> objectGroupAccessionRegisterInformation,
         String creationDate,
         Integer tenant,
         Map<String, AccessionRegisterSymbolic> accessionRegisterSymbolicByOriginatingAgency
     ) {
-        Terms objectGroupOriginatingAgencies = objectGroupAccessionRegisterInformation.get(ORIGINATING_AGENCIES);
-        Terms objectGroupOriginatingAgency = objectGroupAccessionRegisterInformation.get(ORIGINATING_AGENCY);
+        Aggregate objectGroupOriginatingAgencies = objectGroupAccessionRegisterInformation.get(ORIGINATING_AGENCIES);
+        Aggregate objectGroupOriginatingAgency = objectGroupAccessionRegisterInformation.get(ORIGINATING_AGENCY);
 
         Map<String, OriginatingAgencyBucketResult> objectGroupByOriginatingAgency = objectGroupOriginatingAgency
-            .getBuckets()
+            .sterms()
+            .buckets()
+            .array()
             .stream()
             .map(
                 bucket ->
                     OriginatingAgencyBucketResult.of(
-                        bucket.getKeyAsString(),
-                        bucket.getDocCount(),
-                        bucket.getAggregations().get(NESTED_VERSIONS)
+                        bucket.key().stringValue(),
+                        bucket.docCount(),
+                        bucket.aggregations().get(NESTED_VERSIONS).nested()
                     )
             )
             .collect(Collectors.toMap(e -> e.originatingAgency, e -> e));
 
         objectGroupOriginatingAgencies
-            .getBuckets()
+            .sterms()
+            .buckets()
+            .array()
             .forEach(
                 bucket ->
                     updateAccessionsRegister(
@@ -493,9 +498,9 @@ public class MetaDataImpl {
                         accessionRegisterSymbolicByOriginatingAgency,
                         objectGroupByOriginatingAgency,
                         OriginatingAgencyBucketResult.of(
-                            bucket.getKeyAsString(),
-                            bucket.getDocCount(),
-                            bucket.getAggregations().get(NESTED_VERSIONS)
+                            bucket.key().stringValue(),
+                            bucket.docCount(),
+                            bucket.aggregations().get(NESTED_VERSIONS).nested()
                         )
                     )
             );
@@ -550,29 +555,33 @@ public class MetaDataImpl {
     }
 
     private Map<String, AccessionRegisterSymbolic> fillWithArchiveUnitInformation(
-        Aggregations archiveUnitAccessionRegisterformation,
+        Map<String, Aggregate> archiveUnitAccessionRegisterformation,
         String creationDate,
         Integer tenant
     ) {
-        Terms archiveUnitOriginatingAgencies = archiveUnitAccessionRegisterformation.get(ORIGINATING_AGENCIES);
-        Terms archiveUnitOriginatingAgency = archiveUnitAccessionRegisterformation.get(ORIGINATING_AGENCY);
+        Aggregate archiveUnitOriginatingAgencies = archiveUnitAccessionRegisterformation.get(ORIGINATING_AGENCIES);
+        Aggregate archiveUnitOriginatingAgency = archiveUnitAccessionRegisterformation.get(ORIGINATING_AGENCY);
 
         Map<String, Long> archiveUnitByOriginatingAgency = archiveUnitOriginatingAgency
-            .getBuckets()
+            .sterms()
+            .buckets()
+            .array()
             .stream()
             .collect(
                 Collectors.toMap(
-                    MultiBucketsAggregation.Bucket::getKeyAsString,
-                    MultiBucketsAggregation.Bucket::getDocCount
+                    (StringTermsBucket stringTermsBucket1) -> stringTermsBucket1.key().stringValue(),
+                    MultiBucketBase::docCount
                 )
             );
 
         return archiveUnitOriginatingAgencies
-            .getBuckets()
+            .sterms()
+            .buckets()
+            .array()
             .stream()
             .map(e -> {
                 long archiveUnitCount =
-                    e.getDocCount() - archiveUnitByOriginatingAgency.getOrDefault(e.getKeyAsString(), 0L);
+                    e.docCount() - archiveUnitByOriginatingAgency.getOrDefault(e.key().stringValue(), 0L);
                 if (archiveUnitCount <= 0) {
                     return null;
                 }
@@ -580,75 +589,116 @@ public class MetaDataImpl {
                     .setId(GUIDFactory.newAccessionRegisterSymbolicGUID(tenant).getId())
                     .setCreationDate(creationDate)
                     .setTenant(tenant)
-                    .setOriginatingAgency(e.getKeyAsString())
+                    .setOriginatingAgency(e.key().stringValue())
                     .setArchiveUnit(archiveUnitCount);
             })
             .filter(Objects::nonNull)
             .collect(Collectors.toMap(AccessionRegisterSymbolic::getOriginatingAgency, e -> e));
     }
 
-    private Aggregations selectObjectGroupAccessionRegisterInformation(Integer tenant)
+    private Map<String, Aggregate> selectObjectGroupAccessionRegisterInformation(Integer tenant)
         throws MetaDataExecutionException {
-        TermsAggregationBuilder ogs = AggregationBuilders.terms(ORIGINATING_AGENCIES)
-            .field("_sps")
-            .size(AGGREGATION_SIZE)
-            .subAggregation(
-                AggregationBuilders.nested(NESTED_VERSIONS, "_qualifiers.versions")
-                    .subAggregation(AggregationBuilders.sum(BINARY_OBJECT_SIZE).field("_qualifiers.versions.Size"))
-                    .subAggregation(AggregationBuilders.count(BINARY_OBJECT_COUNT).field("_qualifiers.versions._id"))
-            );
+        Aggregation ogs = new Aggregation.Builder()
+            .terms(t -> t.field("_sps").size(AGGREGATION_SIZE))
+            .aggregations(
+                Map.of(
+                    NESTED_VERSIONS,
+                    new Aggregation.Builder()
+                        .nested(AggregationBuilders.nested().path("_qualifiers.versions").build())
+                        .aggregations(
+                            Map.of(
+                                BINARY_OBJECT_SIZE,
+                                AggregationBuilders.sum(s -> s.field("_qualifiers.versions.Size")),
+                                BINARY_OBJECT_COUNT,
+                                AggregationBuilders.valueCount(v -> v.field("_qualifiers.versions._id"))
+                            )
+                        )
+                        .build()
+                )
+            )
+            .build();
 
-        TermsAggregationBuilder og = AggregationBuilders.terms(ORIGINATING_AGENCY)
-            .field("_sp")
-            .size(AGGREGATION_SIZE)
-            .subAggregation(
-                AggregationBuilders.nested(NESTED_VERSIONS, "_qualifiers.versions")
-                    .subAggregation(AggregationBuilders.sum(BINARY_OBJECT_SIZE).field("_qualifiers.versions.Size"))
-                    .subAggregation(AggregationBuilders.count(BINARY_OBJECT_COUNT).field("_qualifiers.versions._id"))
-            );
+        Aggregation og = new Aggregation.Builder()
+            .terms(t -> t.field("_sp").size(AGGREGATION_SIZE))
+            .aggregations(
+                Map.of(
+                    NESTED_VERSIONS,
+                    new Aggregation.Builder()
+                        .nested(AggregationBuilders.nested().path("_qualifiers.versions").build())
+                        .aggregations(
+                            Map.of(
+                                BINARY_OBJECT_SIZE,
+                                AggregationBuilders.sum(s -> s.field("_qualifiers.versions.Size")),
+                                BINARY_OBJECT_COUNT,
+                                AggregationBuilders.valueCount(v -> v.field("_qualifiers.versions._id"))
+                            )
+                        )
+                        .build()
+                )
+            )
+            .build();
 
         return OBJECTGROUP.getEsClient()
-            .basicAggregationSearch(OBJECTGROUP, tenant, Arrays.asList(og, ogs), QueryBuilders.matchAllQuery());
+            .basicAggregationSearch(
+                OBJECTGROUP,
+                tenant,
+                Map.of(ORIGINATING_AGENCY, og, ORIGINATING_AGENCIES, ogs),
+                matchAll()
+            );
     }
 
-    private Aggregations selectArchiveUnitAccessionRegisterInformation(Integer tenant)
+    private Map<String, Aggregate> selectArchiveUnitAccessionRegisterInformation(Integer tenant)
         throws MetaDataExecutionException {
-        List<AggregationBuilder> aggregations = Arrays.asList(
-            AggregationBuilders.terms(ORIGINATING_AGENCY).field("_sp").size(AGGREGATION_SIZE),
-            AggregationBuilders.terms(ORIGINATING_AGENCIES).field("_sps").size(AGGREGATION_SIZE)
+        Map<String, Aggregation> aggregations = Map.of(
+            ORIGINATING_AGENCY,
+            AggregationBuilders.terms().field("_sp").size(AGGREGATION_SIZE).build()._toAggregation(),
+            ORIGINATING_AGENCIES,
+            AggregationBuilders.terms().field("_sps").size(AGGREGATION_SIZE).build()._toAggregation()
         );
+
         return MetadataCollections.UNIT.getEsClient()
-            .basicAggregationSearch(MetadataCollections.UNIT, tenant, aggregations, QueryBuilders.matchAllQuery());
+            .basicAggregationSearch(MetadataCollections.UNIT, tenant, aggregations, matchAll());
     }
 
     public List<ObjectGroupPerOriginatingAgency> selectOwnAccessionRegisterOnObjectGroupByOperationId(
         Integer tenant,
         String operationId
     ) throws MetaDataExecutionException {
-        AggregationBuilder originatingAgencyAgg = aggregationForObjectGroupAccessionRegisterByOperationId(operationId);
+        Map<String, Aggregation> originatingAgencyAgg = aggregationForObjectGroupAccessionRegisterByOperationId(
+            operationId
+        );
 
-        QueryBuilder query = queryForObjectGroupAccessionRegisterByOperationId(tenant, operationId);
+        Query query = queryForObjectGroupAccessionRegisterByOperationId(operationId);
 
-        Aggregations result = OBJECTGROUP.getEsClient()
-            .basicAggregationSearch(OBJECTGROUP, tenant, Collections.singletonList(originatingAgencyAgg), query);
+        Map<String, Aggregate> result = OBJECTGROUP.getEsClient()
+            .basicAggregationSearch(OBJECTGROUP, tenant, originatingAgencyAgg, query);
 
         List<ObjectGroupPerOriginatingAgency> listOgsPerSps = new ArrayList<>();
-        Terms originatingAgencyResult = result.get(ORIGINATING_AGENCY);
-        for (Bucket originatingAgencyBucket : originatingAgencyResult.getBuckets()) {
-            String sp = originatingAgencyBucket.getKeyAsString();
+        Aggregate originatingAgencyResult = result.get(ORIGINATING_AGENCY);
+        for (StringTermsBucket originatingAgencyBucket : originatingAgencyResult.sterms().buckets().array()) {
+            String sp = originatingAgencyBucket.key().stringValue();
             ObjectGroupPerOriginatingAgency ogPerSp = new ObjectGroupPerOriginatingAgency(operationId, sp, 0L, 0L, 0L);
-            Terms operationResult = originatingAgencyBucket.getAggregations().get("operation");
-            for (Bucket operationBucket : operationResult.getBuckets()) {
-                String opi = operationBucket.getKeyAsString();
-                Nested versionResult = operationBucket.getAggregations().get("version");
-                Filter versionOperationResult = versionResult.getAggregations().get("versionOperation");
-                Cardinality gotCountResult = versionOperationResult.getAggregations().get("gotCount");
-                Sum binaryObjectSizeResult = versionOperationResult.getAggregations().get(BINARY_OBJECT_SIZE);
-                ValueCount binaryObjectCountResult = versionOperationResult.getAggregations().get(BINARY_OBJECT_COUNT);
+            Aggregate operationResult = originatingAgencyBucket.aggregations().get("operation");
+            for (StringTermsBucket operationBucket : operationResult.sterms().buckets().array()) {
+                String opi = operationBucket.key().stringValue();
+                NestedAggregate versionResult = operationBucket.aggregations().get("version").nested();
+                FilterAggregate versionOperationResult = versionResult.aggregations().get("versionOperation").filter();
+                CardinalityAggregate gotCountResult = versionOperationResult
+                    .aggregations()
+                    .get("gotCount")
+                    .cardinality();
+                SumAggregate binaryObjectSizeResult = versionOperationResult
+                    .aggregations()
+                    .get(BINARY_OBJECT_SIZE)
+                    .sum();
+                ValueCountAggregate binaryObjectCountResult = versionOperationResult
+                    .aggregations()
+                    .get(BINARY_OBJECT_COUNT)
+                    .valueCount();
 
-                long gotCount = gotCountResult.getValue();
-                long binaryObjectSize = (long) binaryObjectSizeResult.getValue();
-                long binaryObjectCount = binaryObjectCountResult.getValue();
+                long gotCount = gotCountResult.value();
+                long binaryObjectSize = (long) binaryObjectSizeResult.value();
+                long binaryObjectCount = (long) binaryObjectCountResult.value();
                 if (opi.equals(operationId)) {
                     ogPerSp.setNumberOfGOT(ogPerSp.getNumberOfGOT() + gotCount);
                 }
@@ -661,40 +711,50 @@ public class MetaDataImpl {
         return listOgsPerSps;
     }
 
-    private QueryBuilder queryForObjectGroupAccessionRegisterByOperationId(Integer tenant, String operationId) {
-        QueryBuilder operationQuery = QueryBuilders.matchQuery("_ops", operationId);
-        QueryBuilder nestedOperationQuery = QueryBuilders.nestedQuery(
+    private Query queryForObjectGroupAccessionRegisterByOperationId(String operationId) {
+        Query operationQuery = termQuery("_ops", operationId);
+        Query nestedOperationQuery = nestedQuery(
             "_qualifiers.versions",
-            QueryBuilders.matchQuery("_qualifiers.versions._opi", operationId),
-            ScoreMode.Avg
+            termQuery("_qualifiers.versions._opi", operationId)
         );
-        return QueryBuilders.boolQuery().must(operationQuery).must(nestedOperationQuery);
+        return boolMust(operationQuery, nestedOperationQuery);
     }
 
-    private AggregationBuilder aggregationForObjectGroupAccessionRegisterByOperationId(String operationId) {
-        AggregationBuilder gotCountAgg = AggregationBuilders.cardinality("gotCount")
-            .field("_qualifiers.versions.DataObjectGroupId")
-            .precisionThreshold(MAX_PRECISION_THRESHOLD);
-        AggregationBuilder binaryObjectSizeAgg = AggregationBuilders.sum(BINARY_OBJECT_SIZE).field(
-            "_qualifiers.versions.Size"
+    private Map<String, Aggregation> aggregationForObjectGroupAccessionRegisterByOperationId(String operationId) {
+        Aggregation gotCountAgg = AggregationBuilders.cardinality(
+            c -> c.field("_qualifiers.versions.DataObjectGroupId").precisionThreshold(MAX_PRECISION_THRESHOLD)
         );
-        AggregationBuilder binaryObjectCountAgg = AggregationBuilders.count(BINARY_OBJECT_COUNT).field(
-            "_qualifiers.versions._id"
+        Aggregation binaryObjectSizeAgg = AggregationBuilders.sum(s -> s.field("_qualifiers.versions.Size"));
+        Aggregation binaryObjectCountAgg = AggregationBuilders.valueCount(c -> c.field("_qualifiers.versions._id"));
+
+        Aggregation versionOperationAgg = new Aggregation.Builder()
+            .filter(termQuery("_qualifiers.versions._opi", operationId))
+            .aggregations(
+                Map.of(
+                    "gotCount",
+                    gotCountAgg,
+                    BINARY_OBJECT_COUNT,
+                    binaryObjectCountAgg,
+                    BINARY_OBJECT_SIZE,
+                    binaryObjectSizeAgg
+                )
+            )
+            .build();
+
+        Aggregation versionAgg = new Aggregation.Builder()
+            .nested(n -> n.path("_qualifiers.versions"))
+            .aggregations(Map.of("versionOperation", versionOperationAgg))
+            .build();
+
+        Aggregation operationAgg = new Aggregation.Builder()
+            .terms(t -> t.field("_opi"))
+            .aggregations(Map.of("version", versionAgg))
+            .build();
+
+        return Map.of(
+            ORIGINATING_AGENCY,
+            new Aggregation.Builder().terms(t -> t.field("_sp")).aggregations(Map.of("operation", operationAgg)).build()
         );
-        AggregationBuilder versionOperationAgg = AggregationBuilders.filter(
-            "versionOperation",
-            QueryBuilders.matchQuery("_qualifiers.versions._opi", operationId)
-        )
-            .subAggregation(binaryObjectCountAgg)
-            .subAggregation(binaryObjectSizeAgg)
-            .subAggregation(gotCountAgg);
-        AggregationBuilder versionAgg = AggregationBuilders.nested("version", "_qualifiers.versions").subAggregation(
-            versionOperationAgg
-        );
-        AggregationBuilder operationAgg = AggregationBuilders.terms("operation")
-            .field("_opi")
-            .subAggregation(versionAgg);
-        return AggregationBuilders.terms(ORIGINATING_AGENCY).field("_sp").subAggregation(operationAgg);
     }
 
     public MetadataResult selectUnitsByQuery(JsonNode selectQuery)

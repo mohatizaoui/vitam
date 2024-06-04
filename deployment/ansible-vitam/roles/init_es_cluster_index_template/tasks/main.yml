@@ -45,7 +45,7 @@
 - name: load default index template in Elasticsearch cluster {{ composant.cluster_name }}
   run_once: true
   uri:
-    url: "{{ composant |client_url }}_template/{{ item | basename | regex_replace('\\.json\\.j2$') }}"
+    url: "{{ composant |client_url }}_index_template/{{ item | basename | regex_replace('\\.json\\.j2$') }}"
     method: PUT
     body: "{{ lookup('template', '{{ item }}') }}"
     body_format: json

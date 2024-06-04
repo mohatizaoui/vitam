@@ -26,6 +26,10 @@
  */
 package fr.gouv.vitam.metadata.core.database.collections;
 
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
+import co.elastic.clients.elasticsearch.core.search.Hit;
+import co.elastic.clients.elasticsearch.core.search.ResponseBody;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -60,6 +64,7 @@ import fr.gouv.vitam.common.elasticsearch.ElasticsearchRule;
 import fr.gouv.vitam.common.elasticsearch.ElasticsearchTestHelper;
 import fr.gouv.vitam.common.exception.ArchiveUnitOntologyValidationException;
 import fr.gouv.vitam.common.exception.BadRequestException;
+import fr.gouv.vitam.common.exception.DatabaseException;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.exception.VitamDBException;
 import fr.gouv.vitam.common.guid.GUID;
@@ -106,12 +111,6 @@ import fr.gouv.vitam.metadata.core.validation.UnitValidator;
 import net.javacrumbs.jsonunit.JsonAssert;
 import org.apache.commons.io.IOUtils;
 import org.bson.Document;
-import org.elasticsearch.ElasticsearchStatusException;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -160,6 +159,9 @@ import static fr.gouv.vitam.common.database.builder.query.action.UpdateActionHel
 import static fr.gouv.vitam.common.database.builder.query.action.UpdateActionHelper.push;
 import static fr.gouv.vitam.common.database.builder.query.action.UpdateActionHelper.set;
 import static fr.gouv.vitam.common.database.builder.query.action.UpdateActionHelper.unset;
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.matchPhrasePrefixQuery;
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.matchPhraseQuery;
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.termQuery;
 import static fr.gouv.vitam.metadata.core.database.collections.MetadataCollections.OBJECTGROUP;
 import static fr.gouv.vitam.metadata.core.database.collections.MetadataCollections.UNIT;
 import static java.util.Collections.emptyMap;
@@ -168,6 +170,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
@@ -1400,25 +1403,24 @@ public class DbRequestTest {
         );
         dbRequest.execInsertUnitRequest(insertParserMultiple2);
 
-        final QueryBuilder qb1 = QueryBuilders.matchPhraseQuery(TITLE, VALUE_MY_TITLE + 2);
-        final QueryBuilder qb2 = QueryBuilders.matchPhraseQuery(TITLE, VALUE_MY_TITLE);
+        final Query qb1 = matchPhraseQuery(TITLE, VALUE_MY_TITLE + 2);
+        final Query qb2 = matchPhraseQuery(TITLE, VALUE_MY_TITLE);
         // (Test for ES upgrade version): match phrase prefix not supported by vitam for not analysed document
-        final QueryBuilder qb3 = QueryBuilders.matchPhraseQuery(MY_INT, 10);
+        final Query qb3 = matchPhraseQuery(MY_INT, "10");
         // (Test for ES upgrade version): match phrase prefix not supported by vitam for not analysed document
-        final QueryBuilder qb4 = QueryBuilders.matchPhraseQuery(MY_INT, 20);
-        final QueryBuilder qb5 = QueryBuilders.prefixQuery("underscore", "undersco");
-        final QueryBuilder qb6 = QueryBuilders.prefixQuery("_underscore", "undersco");
+        final Query qb4 = matchPhraseQuery(MY_INT, "20");
+        final Query qb5 = QueryBuilders.prefix(p -> p.field("underscore").value("undersco"));
+        final Query qb6 = QueryBuilders.prefix(p -> p.field("_underscore").value("undersco"));
 
         // (Test for ES upgrade version): match phrase prefix not supported keywords and field mapped as number
-        final QueryBuilder qb7 = QueryBuilders.matchPhrasePrefixQuery("_nbc", 100);
+        final Query qb7 = matchPhrasePrefixQuery("_nbc", "100");
 
         // (Test for ES upgrade version): match phrase prefix not supported by vitam for not analysed document
-        final QueryBuilder qb8 = QueryBuilders.matchPhrasePrefixQuery("_unitType", "obj");
+        final Query qb8 = matchPhrasePrefixQuery("_unitType", "obj");
 
-        SearchResponse response = esClientWithoutVitamBehavior.search(
+        ResponseBody<ObjectNode> response = esClientWithoutVitamBehavior.search(
             indexManager.getElasticsearchIndexAliasResolver(UNIT).resolveIndexName(TENANT_ID_0),
             qb1,
-            null,
             null,
             null,
             0,
@@ -1428,14 +1430,14 @@ public class DbRequestTest {
             null,
             false
         );
-        assertEquals(1, response.getHits().getTotalHits().value);
+        assertNotNull(response.hits().total());
+        assertEquals(1, response.hits().total().value());
 
         response = esClientWithoutVitamBehavior.search(
             indexManager.getElasticsearchIndexAliasResolver(UNIT).resolveIndexName(TENANT_ID_0),
             qb2,
             null,
             null,
-            null,
             0,
             1000,
             null,
@@ -1443,14 +1445,14 @@ public class DbRequestTest {
             null,
             false
         );
-        assertEquals(2, response.getHits().getTotalHits().value);
+        assertNotNull(response.hits().total());
+        assertEquals(2, response.hits().total().value());
 
         response = esClientWithoutVitamBehavior.search(
             indexManager.getElasticsearchIndexAliasResolver(UNIT).resolveIndexName(TENANT_ID_0),
             qb3,
             null,
             null,
-            null,
             0,
             1000,
             null,
@@ -1458,14 +1460,14 @@ public class DbRequestTest {
             null,
             false
         );
-        assertEquals(1, response.getHits().getTotalHits().value);
+        assertNotNull(response.hits().total());
+        assertEquals(1, response.hits().total().value());
 
         response = esClientWithoutVitamBehavior.search(
             indexManager.getElasticsearchIndexAliasResolver(UNIT).resolveIndexName(TENANT_ID_0),
             qb4,
             null,
             null,
-            null,
             0,
             1000,
             null,
@@ -1473,14 +1475,14 @@ public class DbRequestTest {
             null,
             false
         );
-        assertEquals(1, response.getHits().getTotalHits().value);
+        assertNotNull(response.hits().total());
+        assertEquals(1, response.hits().total().value());
 
         response = esClientWithoutVitamBehavior.search(
             indexManager.getElasticsearchIndexAliasResolver(UNIT).resolveIndexName(TENANT_ID_0),
             qb5,
             null,
             null,
-            null,
             0,
             1000,
             null,
@@ -1488,14 +1490,14 @@ public class DbRequestTest {
             null,
             false
         );
-        assertEquals(1, response.getHits().getTotalHits().value);
+        assertNotNull(response.hits().total());
+        assertEquals(1, response.hits().total().value());
 
         response = esClientWithoutVitamBehavior.search(
             indexManager.getElasticsearchIndexAliasResolver(UNIT).resolveIndexName(TENANT_ID_0),
             qb6,
             null,
             null,
-            null,
             0,
             1000,
             null,
@@ -1503,13 +1505,12 @@ public class DbRequestTest {
             null,
             false
         );
-        assertEquals(1, response.getHits().getTotalHits().value);
-
+        assertNotNull(response.hits().total());
+        assertEquals(1, response.hits().total().value());
         try {
             response = esClientWithoutVitamBehavior.search(
                 indexManager.getElasticsearchIndexAliasResolver(UNIT).resolveIndexName(TENANT_ID_0),
                 qb7,
-                null,
                 null,
                 null,
                 0,
@@ -1528,7 +1529,6 @@ public class DbRequestTest {
             response = esClientWithoutVitamBehavior.search(
                 indexManager.getElasticsearchIndexAliasResolver(UNIT).resolveIndexName(TENANT_ID_0),
                 qb8,
-                null,
                 null,
                 null,
                 0,
@@ -1844,12 +1844,11 @@ public class DbRequestTest {
         result = checkExistence(dbRequest, uuid2, true);
         assertFalse(result.isError());
 
-        final QueryBuilder qb = QueryBuilders.termQuery("_id", uuid2.toString());
+        final Query qb = termQuery("_id", uuid2.toString());
 
-        SearchResponse response = esClientWithoutVitamBehavior.search(
+        ResponseBody<ObjectNode> response = esClientWithoutVitamBehavior.search(
             indexManager.getElasticsearchIndexAliasResolver(OBJECTGROUP).resolveIndexName(TENANT_ID_0),
             qb,
-            null,
             null,
             null,
             0,
@@ -1862,9 +1861,8 @@ public class DbRequestTest {
 
         assertTrue(response != null);
         checkElasticResponseField(response, uuid.getId());
-        final JsonNode jsonNode = JsonHandler.getFromString(response.toString());
-        final SearchHits hits = response.getHits();
-        assertEquals(1, hits.getTotalHits().value);
+        assertNotNull(response.hits().total());
+        assertEquals(1, response.hits().total().value());
 
         LOGGER.debug("Elasticsearch Index for objectGroup ", response);
     }
@@ -1875,25 +1873,21 @@ public class DbRequestTest {
      * @param response ElasticSearch response
      * @param parentUuid the parentUuid
      */
-    private void checkElasticResponseField(SearchResponse response, String parentUuid) {
-        final Iterator<SearchHit> iterator = response.getHits().iterator();
-        while (iterator.hasNext()) {
-            final SearchHit searchHit = iterator.next();
-            final Map<String, Object> source = searchHit.getSourceAsMap();
-            for (final String key : source.keySet()) {
-                if ("_qualifiers".equals(key)) {
-                    final List<Map<String, Object>> qualifiers = (List<Map<String, Object>>) source.get(key);
-                    for (final Map qualifier : qualifiers) {
-                        assertEquals("BinaryMaster", qualifier.get("qualifier"));
+    private void checkElasticResponseField(ResponseBody<ObjectNode> response, String parentUuid) {
+        for (Hit<ObjectNode> searchHit : response.hits().hits()) {
+            final ObjectNode source = searchHit.source();
+            for (Iterator<Map.Entry<String, JsonNode>> it = source.fields(); it.hasNext();) {
+                Map.Entry<String, JsonNode> entry = it.next();
+                if ("_qualifiers".equals(entry.getKey())) {
+                    for (JsonNode qualifier : entry.getValue()) {
+                        assertEquals("BinaryMaster", qualifier.get("qualifier").asText());
                     }
-                } else if ("_Originating_Agency".equals(key)) {
-                    assertEquals("FRAN_NP_050056", source.get(key));
-                } else if ("FileInfo".equals(key)) {
-                    final Map<String, Object> fileInfo = (Map<String, Object>) source.get(key);
-                    assertEquals("Filename0", fileInfo.get("Filename"));
-                } else if ("_up".equals(key)) {
-                    final List<String> ups = (List<String>) source.get(key);
-                    assertEquals(parentUuid, ups.get(0));
+                } else if ("_Originating_Agency".equals(entry.getKey())) {
+                    assertEquals("FRAN_NP_050056", entry.getValue().asText());
+                } else if ("FileInfo".equals(entry.getKey())) {
+                    assertEquals("Filename0", entry.getValue().get("Filename").asText());
+                } else if ("_up".equals(entry.getKey())) {
+                    assertEquals(parentUuid, entry.getValue().iterator().next().asText());
                 }
             }
         }
@@ -3666,12 +3660,11 @@ public class DbRequestTest {
             .resolveIndexName(TENANT_ID_0);
 
         // When
-        final QueryBuilder query = QueryBuilders.matchPhraseQuery("MyCustomField", "MyCustomValue");
+        final Query query = matchPhraseQuery("MyCustomField", "MyCustomValue");
 
-        SearchResponse responseWithoutTrackTotalSizeFlag = esClientWithoutVitamBehavior.search(
+        ResponseBody<ObjectNode> responseWithoutTrackTotalSizeFlag = esClientWithoutVitamBehavior.search(
             indexAlias,
             query,
-            null,
             null,
             null,
             0,
@@ -3682,10 +3675,9 @@ public class DbRequestTest {
             false
         );
 
-        SearchResponse responseWithTrackTotalSizeFlag = esClientWithoutVitamBehavior.search(
+        ResponseBody<ObjectNode> responseWithTrackTotalSizeFlag = esClientWithoutVitamBehavior.search(
             indexAlias,
             query,
-            null,
             null,
             null,
             0,
@@ -3697,8 +3689,11 @@ public class DbRequestTest {
         );
 
         // Then
-        assertThat(responseWithoutTrackTotalSizeFlag.getHits().getTotalHits().value).isLessThan(totalDocuments);
-        assertThat(responseWithTrackTotalSizeFlag.getHits().getTotalHits().value).isEqualTo(totalDocuments);
+        assertThat(responseWithoutTrackTotalSizeFlag.hits().total()).isNotNull();
+        assertThat(responseWithTrackTotalSizeFlag.hits().total()).isNotNull();
+
+        assertThat(responseWithoutTrackTotalSizeFlag.hits().total().value()).isLessThan(totalDocuments);
+        assertThat(responseWithTrackTotalSizeFlag.hits().total().value()).isEqualTo(totalDocuments);
     }
 
     @Test
@@ -3725,12 +3720,11 @@ public class DbRequestTest {
             .getElasticsearchIndexAliasResolver(UNIT)
             .resolveIndexName(TENANT_ID_0);
 
-        final QueryBuilder query = QueryBuilders.matchPhraseQuery("MyCustomField", "MyCustomValue");
+        final Query query = matchPhraseQuery("MyCustomField", "MyCustomValue");
 
-        SearchResponse responseWithoutTrackTotalSizeFlag = esClientWithoutVitamBehavior.search(
+        ResponseBody<ObjectNode> responseWithoutTrackTotalSizeFlag = esClientWithoutVitamBehavior.search(
             indexAlias,
             query,
-            null,
             null,
             null,
             0,
@@ -3740,25 +3734,12 @@ public class DbRequestTest {
             null,
             false
         );
-        String scrollId = responseWithoutTrackTotalSizeFlag.getScrollId();
+        String scrollId = responseWithoutTrackTotalSizeFlag.scrollId();
 
         // WHEN
         esClientWithoutVitamBehavior.clearScroll(scrollId);
         assertThatThrownBy(
-            () ->
-                esClientWithoutVitamBehavior.search(
-                    indexAlias,
-                    query,
-                    null,
-                    null,
-                    null,
-                    0,
-                    10,
-                    null,
-                    scrollId,
-                    null,
-                    false
-                )
-        ).isInstanceOf(ElasticsearchStatusException.class); // THEN
+            () -> esClientWithoutVitamBehavior.search(indexAlias, query, null, null, 0, 10, null, scrollId, null, false)
+        ).isInstanceOf(DatabaseException.class); // THEN
     }
 }

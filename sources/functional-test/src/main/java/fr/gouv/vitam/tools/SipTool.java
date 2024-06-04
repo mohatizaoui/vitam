@@ -59,7 +59,7 @@ public class SipTool {
         try (InputStream zipFile = new FileInputStream(zipPath.toFile())) {
             Files.copy(zipFile, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         }
-        try (FileSystem fs = FileSystems.newFileSystem(tempFile.toPath(), null)) {
+        try (FileSystem fs = FileSystems.newFileSystem(tempFile.toPath(), (ClassLoader) null)) {
             Path source = fs.getPath("manifest.xml");
             Path temp = fs.getPath("manifest_tmp.xml");
             if (Files.exists(temp)) {

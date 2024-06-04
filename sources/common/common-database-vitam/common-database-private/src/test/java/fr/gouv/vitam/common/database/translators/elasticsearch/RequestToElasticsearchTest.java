@@ -24,8 +24,10 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
+
 package fr.gouv.vitam.common.database.translators.elasticsearch;
 
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
 import fr.gouv.vitam.common.database.collections.DynamicParserTokens;
@@ -34,7 +36,6 @@ import fr.gouv.vitam.common.database.parser.request.multiple.DeleteParserMultipl
 import fr.gouv.vitam.common.database.parser.request.multiple.SelectParserMultiple;
 import fr.gouv.vitam.common.exception.VitamException;
 import fr.gouv.vitam.common.json.JsonHandler;
-import org.elasticsearch.index.query.QueryBuilder;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -151,20 +152,16 @@ public class RequestToElasticsearchTest {
     public void testGetCommands() {
         try {
             final SelectToElasticsearch rte = createSelect(exampleSelectElasticsearch);
-            final QueryBuilder queryBuilderRoot = rte.getInitialRoots("_up");
+            final Query queryBuilderRoot = rte.getInitialRoots("_up");
             final int size = rte.getNbQueries();
             DynamicParserTokens parserTokens = new DynamicParserTokens(
                 new VitamDescriptionResolver(Collections.emptyList()),
                 Collections.emptyList()
             );
             for (int i = 0; i < size; i++) {
-                final QueryBuilder queryBuilderCommand = rte.getNthQueries(
-                    i,
-                    new FakeMetadataVarNameAdapter(),
-                    parserTokens
-                );
-                final QueryBuilder queryBuilderseudoRequest = rte.getRequest(queryBuilderCommand, queryBuilderRoot);
-                System.out.println(i + " = " + ElasticsearchHelper.queryBuilderToString(queryBuilderseudoRequest));
+                final Query queryBuilderCommand = rte.getNthQueries(i, new FakeMetadataVarNameAdapter(), parserTokens);
+                final Query queryBuilderseudoRequest = rte.getRequest(queryBuilderCommand, queryBuilderRoot);
+                System.out.println(i + " = " + queryBuilderseudoRequest);
             }
             try {
                 rte.getNthQueries(size, new FakeMetadataVarNameAdapter(), parserTokens);
@@ -215,20 +212,16 @@ public class RequestToElasticsearchTest {
     public void testGetNestedCommands() {
         try {
             final SelectToElasticsearch rte = createSelect(nestedSearchQuery);
-            final QueryBuilder queryBuilderRoot = rte.getInitialRoots("_up");
+            final Query queryBuilderRoot = rte.getInitialRoots("_up");
             final int size = rte.getNbQueries();
             DynamicParserTokens parserTokens = new DynamicParserTokens(
                 new VitamDescriptionResolver(Collections.emptyList()),
                 Collections.emptyList()
             );
             for (int i = 0; i < size; i++) {
-                final QueryBuilder queryBuilderCommand = rte.getNthQueries(
-                    i,
-                    new FakeMetadataVarNameAdapter(),
-                    parserTokens
-                );
-                final QueryBuilder queryBuilderseudoRequest = rte.getRequest(queryBuilderCommand, queryBuilderRoot);
-                System.out.println(i + " = " + ElasticsearchHelper.queryBuilderToString(queryBuilderseudoRequest));
+                final Query queryBuilderCommand = rte.getNthQueries(i, new FakeMetadataVarNameAdapter(), parserTokens);
+                final Query queryBuilderseudoRequest = rte.getRequest(queryBuilderCommand, queryBuilderRoot);
+                System.out.println(i + " = " + queryBuilderseudoRequest);
             }
             try {
                 rte.getNthQueries(size, new FakeMetadataVarNameAdapter(), parserTokens);

@@ -410,6 +410,7 @@ public class QueryHelper {
      * @param value of key
      * @return a CompareQuery using SIZE comparator
      * @throws InvalidCreateOperationException when creating query errors
+     * @deprecated
      */
     public static final CompareQuery size(final String variableName, final long value)
         throws InvalidCreateOperationException {

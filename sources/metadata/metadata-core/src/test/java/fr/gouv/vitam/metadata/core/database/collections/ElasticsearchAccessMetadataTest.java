@@ -26,6 +26,8 @@
  */
 package fr.gouv.vitam.metadata.core.database.collections;
 
+import co.elastic.clients.elasticsearch._types.SortOptions;
+import co.elastic.clients.elasticsearch._types.SortOrder;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Lists;
 import fr.gouv.vitam.common.database.builder.query.Query;
@@ -33,6 +35,7 @@ import fr.gouv.vitam.common.database.collections.DynamicParserTokens;
 import fr.gouv.vitam.common.database.collections.VitamDescriptionResolver;
 import fr.gouv.vitam.common.database.parser.request.multiple.SelectParserMultiple;
 import fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchNode;
+import fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil;
 import fr.gouv.vitam.common.database.translators.elasticsearch.QueryToElasticsearch;
 import fr.gouv.vitam.common.elasticsearch.ElasticsearchRule;
 import fr.gouv.vitam.common.guid.GUIDFactory;
@@ -41,10 +44,6 @@ import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
 import fr.gouv.vitam.metadata.core.config.ElasticsearchMetadataIndexManager;
 import fr.gouv.vitam.metadata.core.utils.MappingLoaderTestUtils;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.search.sort.FieldSortBuilder;
-import org.elasticsearch.search.sort.SortBuilder;
-import org.elasticsearch.search.sort.SortOrder;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -57,6 +56,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.boolMust;
 import static fr.gouv.vitam.metadata.core.database.collections.MetadataCollections.OBJECTGROUP;
 import static fr.gouv.vitam.metadata.core.database.collections.MetadataCollections.UNIT;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -190,18 +190,18 @@ public class ElasticsearchAccessMetadataTest {
         JsonNode queryNode = JsonHandler.getFromString(query);
         SelectParserMultiple parser = new SelectParserMultiple();
         parser.parse(queryNode);
-        List<SortBuilder<?>> sorts = new ArrayList<>();
+        List<SortOptions> sorts = new ArrayList<>();
         List<Query> queries = parser.getRequest().getQueries();
         DynamicParserTokens parserTokens = new DynamicParserTokens(
             new VitamDescriptionResolver(Collections.emptyList()),
             Collections.emptyList()
         );
         Query elasticQuery = queries.get(0);
-        SortBuilder<?> sortBuilder = new FieldSortBuilder("_max");
-        sortBuilder.order(SortOrder.DESC);
+        SortOptions sortBuilder = ElasticsearchUtil.getFieldSorts("_max", SortOrder.Desc);
         sorts.add(sortBuilder);
-        BoolQueryBuilder queryBuilder = new BoolQueryBuilder()
-            .must(QueryToElasticsearch.getCommand(elasticQuery, new MongoDbVarNameAdapter(), parserTokens));
+        co.elastic.clients.elasticsearch._types.query_dsl.Query queryBuilder = boolMust(
+            QueryToElasticsearch.getCommand(elasticQuery, new MongoDbVarNameAdapter(), parserTokens)
+        );
         // When
         Result<?> result = elasticsearchAccessMetadata.search(
             UNIT,
@@ -221,8 +221,9 @@ public class ElasticsearchAccessMetadataTest {
         assertThat(result.getCurrentIds().indexOf(id2)).isEqualTo(0);
 
         // Test clear scroll ony if no result found
-        queryBuilder = new BoolQueryBuilder()
-            .must(QueryToElasticsearch.getCommand(elasticQuery, new MongoDbVarNameAdapter(), parserTokens));
+        queryBuilder = boolMust(
+            QueryToElasticsearch.getCommand(elasticQuery, new MongoDbVarNameAdapter(), parserTokens)
+        );
 
         // As limit == 1, first call should return only 1 document even 2 documents found
         result = elasticsearchAccessMetadata.search(

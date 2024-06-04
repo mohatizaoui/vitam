@@ -24,22 +24,23 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
+
 package fr.gouv.vitam.common.database.server.elasticsearch;
 
+import co.elastic.clients.elasticsearch._types.aggregations.Aggregate;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.json.JsonpDeserializer;
+import co.elastic.clients.json.jackson.JacksonJsonProvider;
+import co.elastic.clients.json.jackson.JacksonJsonpMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.model.FacetResult;
-import org.elasticsearch.search.aggregations.bucket.range.DateRangeAggregationBuilder;
-import org.elasticsearch.search.aggregations.bucket.range.Range;
-import org.elasticsearch.search.aggregations.bucket.terms.StringTerms;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket;
+import jakarta.json.stream.JsonParser;
 import org.junit.Test;
-import org.mockito.Mockito;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 /**
  * ElasticsearchFacetResultHelperTest.
@@ -47,80 +48,87 @@ import static org.mockito.Mockito.mock;
 public class ElasticsearchFacetResultHelperTest {
 
     @Test
-    public void should_return_valid_result_when_valid_terms_aggregation() {
-        // given
-        Terms terms = Mockito.mock(Terms.class);
-        Mockito.when(terms.getName()).thenReturn("Name");
-        Mockito.when(terms.getType()).thenReturn(StringTerms.NAME);
+    public void shouldParseSTermsAggregate() throws IOException {
+        SearchResponse<ObjectNode> objectNodeSearchResponse = loadResponseRessourceFile();
+        Aggregate aggregate = objectNodeSearchResponse.aggregations().get("facet_desclevel");
+        FacetResult facet = ElasticsearchFacetResultHelper.transformFromEsAggregation("facet_desclevel", aggregate);
 
-        Bucket bucket1 = mock(StringTerms.Bucket.class);
-        Mockito.when(bucket1.getKeyAsString()).thenReturn("Value1");
-        Mockito.when(bucket1.getDocCount()).thenReturn(2L);
-        Bucket bucket2 = mock(StringTerms.Bucket.class);
-        Mockito.when(bucket2.getKeyAsString()).thenReturn("Value2");
-        Mockito.when(bucket2.getDocCount()).thenReturn(1L);
-        List bucketList = new ArrayList();
-        bucketList.add(bucket1);
-        bucketList.add(bucket2);
-        Mockito.when(terms.getBuckets()).thenReturn(bucketList);
-
-        // when
-        FacetResult facet = ElasticsearchFacetResultHelper.transformFromEsAggregation(terms);
-
-        // then
-        assertThat(facet.getName()).isEqualTo("Name");
+        assertThat(facet.getName()).isEqualTo("facet_desclevel");
         assertThat(facet.getBuckets()).hasSize(2);
-        assertThat(facet.getBuckets().get(0).getValue()).isEqualTo("Value1");
+        assertThat(facet.getBuckets().get(0).getValue()).isEqualTo("Item");
+        assertThat(facet.getBuckets().get(0).getCount()).isEqualTo(13L);
+        assertThat(facet.getBuckets().get(1).getValue()).isEqualTo("RecordGrp");
+        assertThat(facet.getBuckets().get(1).getCount()).isEqualTo(7L);
+    }
+
+    @Test
+    public void shouldParseLTermsAggregate() throws IOException {
+        SearchResponse<ObjectNode> objectNodeSearchResponse = loadResponseRessourceFile();
+        Aggregate aggregate = objectNodeSearchResponse.aggregations().get("facet_versions");
+        FacetResult facet = ElasticsearchFacetResultHelper.transformFromEsAggregation("facet_versions", aggregate);
+
+        assertThat(facet.getName()).isEqualTo("facet_versions");
+        assertThat(facet.getBuckets()).hasSize(2);
+        assertThat(facet.getBuckets().get(0).getValue()).isEqualTo("0");
+        assertThat(facet.getBuckets().get(0).getCount()).isEqualTo(20L);
+        assertThat(facet.getBuckets().get(1).getValue()).isEqualTo("1");
+        assertThat(facet.getBuckets().get(1).getCount()).isEqualTo(10L);
+    }
+
+    @Test
+    public void shouldParseBooleanLTermsAggregate() throws IOException {
+        SearchResponse<ObjectNode> objectNodeSearchResponse = loadResponseRessourceFile();
+        Aggregate aggregate = objectNodeSearchResponse.aggregations().get("facet_PreventRearrangement");
+        FacetResult facet = ElasticsearchFacetResultHelper.transformFromEsAggregation(
+            "facet_PreventRearrangement",
+            aggregate
+        );
+
+        assertThat(facet.getName()).isEqualTo("facet_PreventRearrangement");
+        assertThat(facet.getBuckets()).hasSize(2);
+        assertThat(facet.getBuckets().get(0).getValue()).isEqualTo("false");
         assertThat(facet.getBuckets().get(0).getCount()).isEqualTo(2L);
-        assertThat(facet.getBuckets().get(1).getValue()).isEqualTo("Value2");
+        assertThat(facet.getBuckets().get(1).getValue()).isEqualTo("true");
         assertThat(facet.getBuckets().get(1).getCount()).isEqualTo(1L);
     }
 
     @Test
-    public void should_return_valid_result_when_valid_date_range_aggregation() {
-        // given
-        Range range = Mockito.mock(Range.class);
-        Mockito.when(range.getName()).thenReturn("EndDate");
-        Mockito.when(range.getType()).thenReturn(DateRangeAggregationBuilder.NAME);
+    public void shouldParseDateRangeAggregate() throws IOException {
+        SearchResponse<ObjectNode> objectNodeSearchResponse = loadResponseRessourceFile();
+        Aggregate aggregate = objectNodeSearchResponse.aggregations().get("EndDate");
+        FacetResult facet = ElasticsearchFacetResultHelper.transformFromEsAggregation("EndDate", aggregate);
 
-        Range.Bucket bucket1 = mock(Range.Bucket.class);
-        Mockito.when(bucket1.getKeyAsString()).thenReturn("2000-2010");
-        Mockito.when(bucket1.getDocCount()).thenReturn(2L);
-        Range.Bucket bucket2 = mock(Range.Bucket.class);
-        Mockito.when(bucket2.getKeyAsString()).thenReturn("1800");
-        Mockito.when(bucket2.getDocCount()).thenReturn(1L);
-        List bucketList = new ArrayList();
-        bucketList.add(bucket1);
-        bucketList.add(bucket2);
-        Mockito.when(range.getBuckets()).thenReturn(bucketList);
-
-        // when
-        FacetResult facet = ElasticsearchFacetResultHelper.transformFromEsAggregation(range);
-
-        // then
         assertThat(facet.getName()).isEqualTo("EndDate");
-        assertThat(facet.getBuckets()).hasSize(2);
-        assertThat(facet.getBuckets().get(0).getValue()).isEqualTo("2000-2010");
-        assertThat(facet.getBuckets().get(0).getCount()).isEqualTo(2L);
-        assertThat(facet.getBuckets().get(1).getValue()).isEqualTo("1800");
-        assertThat(facet.getBuckets().get(1).getCount()).isEqualTo(1L);
+        assertThat(facet.getBuckets()).hasSize(3);
+        assertThat(facet.getBuckets().get(0).getValue()).isEqualTo("*-2007");
+        assertThat(facet.getBuckets().get(0).getCount()).isEqualTo(10L);
+        assertThat(facet.getBuckets().get(1).getValue()).isEqualTo("1900-*");
+        assertThat(facet.getBuckets().get(1).getCount()).isEqualTo(17L);
+        assertThat(facet.getBuckets().get(2).getValue()).isEqualTo("2010-2018");
+        assertThat(facet.getBuckets().get(2).getCount()).isEqualTo(7L);
     }
 
     @Test
-    public void should_return_valid_result_when_empty_buckets_terms_aggregation() {
-        // given
-        Terms terms = Mockito.mock(Terms.class);
-        Mockito.when(terms.getName()).thenReturn("Name");
-        Mockito.when(terms.getType()).thenReturn(StringTerms.NAME);
+    public void shouldParseFilterAggregate() throws IOException {
+        SearchResponse<ObjectNode> objectNodeSearchResponse = loadResponseRessourceFile();
+        Aggregate aggregate = objectNodeSearchResponse.aggregations().get("facet_title_langs");
+        FacetResult facet = ElasticsearchFacetResultHelper.transformFromEsAggregation("facet_title_langs", aggregate);
 
-        List bucketList = new ArrayList();
-        Mockito.when(terms.getBuckets()).thenReturn(bucketList);
+        assertThat(facet.getName()).isEqualTo("facet_title_langs");
+        assertThat(facet.getBuckets()).hasSize(2);
+        assertThat(facet.getBuckets().get(0).getValue()).isEqualTo("english_title");
+        assertThat(facet.getBuckets().get(0).getCount()).isEqualTo(9L);
+        assertThat(facet.getBuckets().get(1).getValue()).isEqualTo("french_title");
+        assertThat(facet.getBuckets().get(1).getCount()).isEqualTo(9L);
+    }
 
-        // when
-        FacetResult facet = ElasticsearchFacetResultHelper.transformFromEsAggregation(terms);
+    private SearchResponse<ObjectNode> loadResponseRessourceFile() throws IOException {
+        JsonParser jsonParser = JacksonJsonProvider.provider()
+            .createParser(PropertiesUtils.getResourceAsStream("es_aggregate_response.json"));
+        JsonpDeserializer<ObjectNode> deserializer = JacksonJsonpMapper.findDeserializer(ObjectNode.class);
 
-        // then
-        assertThat(facet.getName()).isEqualTo("Name");
-        assertThat(facet.getBuckets()).hasSize(0);
+        JsonpDeserializer<SearchResponse<ObjectNode>> searchResponseDeserializer =
+            SearchResponse.createSearchResponseDeserializer(deserializer);
+        return searchResponseDeserializer.deserialize(jsonParser, new JacksonJsonpMapper());
     }
 }

@@ -27,7 +27,7 @@ set -e
 # accept its terms.
 #*******************************************************************************
 # Rebuild the entire repository. To be executed at the root of a VITAM repository
-echo "Building maven rpm (with parallel build)..."
+echo "Building maven rpm..."
 vitam-maven-build-only
 # echo "Building griffins rpm..."
 # vitam-build-griffins

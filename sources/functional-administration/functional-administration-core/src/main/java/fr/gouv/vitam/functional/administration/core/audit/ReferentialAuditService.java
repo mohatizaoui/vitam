@@ -31,6 +31,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Sets;
 import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.accesslog.AccessLogUtils;
 import fr.gouv.vitam.common.alert.AlertService;
@@ -56,7 +57,6 @@ import fr.gouv.vitam.storage.engine.client.exception.StorageUnavailableDataFromA
 import fr.gouv.vitam.storage.engine.common.exception.StorageNotFoundException;
 import fr.gouv.vitam.storage.engine.common.model.DataCategory;
 import org.apache.commons.collections4.iterators.ArrayIterator;
-import org.elasticsearch.common.util.set.Sets;
 
 import javax.ws.rs.core.Response;
 import java.io.InputStream;

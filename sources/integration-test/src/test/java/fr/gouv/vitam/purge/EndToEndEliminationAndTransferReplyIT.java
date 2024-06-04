@@ -26,6 +26,9 @@
  */
 package fr.gouv.vitam.purge;
 
+import co.elastic.clients.elasticsearch._types.SortOrder;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch.core.search.TotalHits;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -162,15 +165,8 @@ import okhttp3.OkHttpClient;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.lucene.search.TotalHits;
 import org.assertj.core.util.Lists;
 import org.bson.Document;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.sort.FieldSortBuilder;
-import org.elasticsearch.search.sort.SortBuilders;
-import org.elasticsearch.search.sort.SortOrder;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -222,6 +218,9 @@ import static fr.gouv.vitam.common.VitamTestHelper.insertWaitForStepEssentialFil
 import static fr.gouv.vitam.common.VitamTestHelper.verifyOperation;
 import static fr.gouv.vitam.common.VitamTestHelper.waitOperation;
 import static fr.gouv.vitam.common.database.builder.request.configuration.BuilderToken.FILTERARGS.OBJECTGROUPS;
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.boolMust;
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.getDocSorts;
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.termQuery;
 import static fr.gouv.vitam.common.guid.GUIDFactory.newOperationLogbookGUID;
 import static fr.gouv.vitam.common.model.ProcessAction.NEXT;
 import static fr.gouv.vitam.common.model.ProcessAction.RESUME;
@@ -3415,15 +3414,15 @@ public class EndToEndEliminationAndTransferReplyIT extends VitamRuleRunner {
                 .search(
                     collection,
                     VitamThreadUtils.getVitamSession().getTenantId(),
-                    QueryBuilders.termQuery(VitamDocument.ID, documentId),
-                    null,
+                    termQuery(VitamDocument.ID, documentId),
                     null,
                     0,
                     1000
                 )
-                .getHits()
-                .getTotalHits();
-            assertThat(totalHits.value).isEqualTo(expectedHits);
+                .hits()
+                .total();
+            assertThat(totalHits).isNotNull();
+            assertThat(totalHits.value()).isEqualTo(expectedHits);
         }
 
         assertThat(collection.getCollection().find(Filters.eq(VitamDocument.ID, documentId)).iterator())
@@ -3438,9 +3437,10 @@ public class EndToEndEliminationAndTransferReplyIT extends VitamRuleRunner {
         // Logbook LFCs are not persisted in ES
         if (collection.getEsClient() != null) {
             try {
-                QueryBuilder finalQuery = new BoolQueryBuilder()
-                    .must(QueryBuilders.termQuery(VitamDocument.ID, documentId))
-                    .must(QueryBuilders.termQuery(MetadataDocument.TENANT_ID, tenantId));
+                Query finalQuery = boolMust(
+                    termQuery(VitamDocument.ID, documentId),
+                    termQuery(MetadataDocument.TENANT_ID, tenantId)
+                );
 
                 TotalHits totalHits = collection
                     .getEsClient()
@@ -3448,19 +3448,19 @@ public class EndToEndEliminationAndTransferReplyIT extends VitamRuleRunner {
                         ElasticsearchIndexAlias.ofMultiTenantCollection(collection.getName(), tenantId),
                         finalQuery,
                         null,
-                        null,
-                        List.of(SortBuilders.fieldSort(FieldSortBuilder.DOC_FIELD_NAME).order(SortOrder.ASC)),
+                        List.of(getDocSorts(SortOrder.Asc)),
                         0,
                         GlobalDatas.LIMIT_LOAD,
-                        Collections.emptyList(),
+                        Collections.emptyMap(),
                         null,
                         null,
                         false
                     )
-                    .getHits()
-                    .getTotalHits();
+                    .hits()
+                    .total();
 
-                assertThat(totalHits.value).isEqualTo(expectedHits);
+                assertThat(totalHits).isNotNull();
+                assertThat(totalHits.value()).isEqualTo(expectedHits);
             } catch (DatabaseException | BadRequestException e) {
                 throw new MetaDataExecutionException(e);
             }

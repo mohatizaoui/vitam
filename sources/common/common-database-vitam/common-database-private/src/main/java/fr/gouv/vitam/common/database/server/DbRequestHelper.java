@@ -24,6 +24,7 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
+
 package fr.gouv.vitam.common.database.server;
 
 import com.mongodb.ErrorCategory;
@@ -136,7 +137,7 @@ public class DbRequestHelper {
         VitamCollection<T> collection,
         RequestParserSingle parser,
         List<String> list,
-        List<Float> scores
+        List<Double> scores
     ) throws InvalidParseOperationException, VitamDBException {
         final SelectToMongodb selectToMongoDb = new SelectToMongodb(parser);
         final Bson projection = selectToMongoDb.getFinalProjection();
@@ -186,11 +187,11 @@ public class DbRequestHelper {
             for (int i = 0; i < nb; i++) {
                 T vitamDocument = firstList.get(i);
                 if (!(vitamDocument instanceof FakeVitamDocument)) {
-                    Float score = 1f;
+                    Double score = 1d;
                     try {
                         score = scores.get(i);
                         if (score.isNaN()) {
-                            score = 1f;
+                            score = 1d;
                         }
                     } catch (IndexOutOfBoundsException e) {
                         SysErrLogger.FAKE_LOGGER.ignoreLog(e);

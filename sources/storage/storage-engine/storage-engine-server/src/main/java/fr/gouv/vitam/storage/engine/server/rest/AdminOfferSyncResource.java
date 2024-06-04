@@ -27,6 +27,7 @@
 package fr.gouv.vitam.storage.engine.server.rest;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Strings;
 import fr.gouv.vitam.common.ParametersChecker;
 import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.guid.GUIDFactory;
@@ -46,7 +47,6 @@ import fr.gouv.vitam.storage.engine.server.offersynchronization.OfferSyncStatus;
 import fr.gouv.vitam.storage.engine.server.rest.writeprotection.WriteProtection;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.elasticsearch.common.Strings;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;

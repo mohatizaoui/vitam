@@ -26,6 +26,7 @@
  */
 package fr.gouv.vitam.common.database.server.elasticsearch;
 
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import com.google.common.collect.Iterators;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
@@ -52,6 +53,8 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.toDatabaseException;
 
 /**
  * IndexationHelper useful method for indexation
@@ -174,8 +177,8 @@ public class IndexationHelper {
                 .setAlias(indexAlias.getName())
                 .setIndexName(newIndex.getName())
                 .setStatusCode(StatusCode.OK);
-        } catch (IOException e) {
-            throw new DatabaseException(e);
+        } catch (IOException | ElasticsearchException e) {
+            throw toDatabaseException(e);
         }
     }
 

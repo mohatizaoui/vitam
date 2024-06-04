@@ -24,8 +24,18 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
+
 package fr.gouv.vitam.common.database.server.elasticsearch;
 
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
+import co.elastic.clients.elasticsearch._types.SortOptions;
+import co.elastic.clients.elasticsearch._types.SortOrder;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
+import co.elastic.clients.elasticsearch.core.search.Hit;
+import co.elastic.clients.elasticsearch.core.search.ResponseBody;
+import co.elastic.clients.elasticsearch.indices.GetAliasResponse;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.database.server.mongodb.CollectionSample;
 import fr.gouv.vitam.common.database.server.mongodb.VitamDocument;
@@ -34,19 +44,9 @@ import fr.gouv.vitam.common.exception.DatabaseException;
 import fr.gouv.vitam.common.exception.VitamException;
 import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.json.JsonHandler;
-import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomUtils;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.GetAliasesResponse;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.rest.RestStatus;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.sort.SortBuilder;
-import org.elasticsearch.search.sort.SortBuilders;
-import org.elasticsearch.search.sort.SortOrder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -58,6 +58,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.getFieldSorts;
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.matchAll;
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.matchQuery;
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.rangeInclusiveQuery;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -103,15 +107,15 @@ public class ElasticsearchAccessTest {
     @Test
     public void testGetAliasForExistingAlias() throws Exception {
         elasticsearchRule.createIndex("myalias", "myindex", "{}");
-        GetAliasesResponse getAliasesResponse = elasticsearchAccess.getAlias(myalias);
-        assertThat(getAliasesResponse.status()).isEqualTo(RestStatus.OK);
-        assertThat(getAliasesResponse.getAliases()).containsOnlyKeys("myindex");
+        GetAliasResponse getAliasesResponse = elasticsearchAccess.getAlias(myalias);
+        assertThat(getAliasesResponse.result()).containsOnlyKeys("myindex");
     }
 
     @Test
     public void testGetAliasForNonExistingAlias() throws IOException {
-        GetAliasesResponse getAliasesResponse = elasticsearchAccess.getAlias(myalias);
-        assertThat(getAliasesResponse.status()).isEqualTo(RestStatus.NOT_FOUND);
+        assertThatThrownBy(() -> elasticsearchAccess.getAlias(myalias))
+            .isInstanceOf(ElasticsearchException.class)
+            .satisfies(e -> assertThat(((ElasticsearchException) e).status()).isEqualTo(404));
     }
 
     @Test
@@ -137,46 +141,48 @@ public class ElasticsearchAccessTest {
         );
         elasticsearchAccess.createIndexAndAliasIfAliasNotExists(
             myalias,
-            new ElasticsearchIndexSettings(2, 1, () -> "{}")
+            new ElasticsearchIndexSettings(1, 0, () -> "{}")
         );
 
         elasticsearchAccess.indexEntry(myalias, id, document);
 
-        SearchResponse searchResponseAfter = elasticsearchAccess.search(
+        ResponseBody<ObjectNode> searchResponseAfter = elasticsearchAccess.search(
             myalias,
-            QueryBuilders.matchAllQuery(),
-            null,
+            matchAll(),
             null,
             null,
             0,
             100
         );
-        assertThat(searchResponseAfter.getHits().getTotalHits().value).isEqualTo(1L);
-        assertThat(searchResponseAfter.getHits().getAt(0).getId()).isEqualTo(id);
-        assertThat(searchResponseAfter.getHits().getAt(0).getSourceAsMap()).containsOnlyKeys("Identifier");
+        assertThat(searchResponseAfter.hits().total()).isNotNull();
+        assertThat(searchResponseAfter.hits().total().value()).isEqualTo(1L);
+        assertThat(searchResponseAfter.hits().hits().get(0).id()).isEqualTo(id);
+        assertThat(searchResponseAfter.hits().hits().get(0).source().fieldNames())
+            .toIterable()
+            .containsOnly("Identifier");
     }
 
     @Test
     public void testIndexEntries() throws Exception {
         Map<String, VitamDocument<?>> documents = insertDataSet();
 
-        SearchResponse searchResponseAfter = elasticsearchAccess.search(
+        ResponseBody<ObjectNode> searchResponseAfter = elasticsearchAccess.search(
             myalias,
-            QueryBuilders.matchAllQuery(),
-            null,
+            matchAll(),
             null,
             null,
             0,
             100
         );
-        assertThat(searchResponseAfter.getHits().getTotalHits().value).isEqualTo(documents.size());
+        assertThat(searchResponseAfter.hits().total()).isNotNull();
+        assertThat(searchResponseAfter.hits().total().value()).isEqualTo(documents.size());
 
-        List<SearchHit> hits = IteratorUtils.toList(searchResponseAfter.getHits().iterator());
-        assertThat(hits.stream().map(SearchHit::getId)).containsExactlyInAnyOrderElementsOf(documents.keySet());
+        List<Hit<ObjectNode>> hits = searchResponseAfter.hits().hits();
+        assertThat(hits.stream().map(Hit::id)).containsExactlyInAnyOrderElementsOf(documents.keySet());
 
-        for (SearchHit hit : hits) {
-            assertThat(hit.getSourceAsMap()).containsOnlyKeys("Identifier", "Name", "_tenant");
-            assertThat(hit.getSourceAsMap().get("Identifier")).isEqualTo("value" + hit.getId());
+        for (Hit<ObjectNode> hit : hits) {
+            assertThat(hit.source().fieldNames()).toIterable().containsOnly("Identifier", "Name", "_tenant");
+            assertThat(hit.source().get("Identifier").asText()).isEqualTo("value" + hit.id());
         }
     }
 
@@ -196,29 +202,29 @@ public class ElasticsearchAccessTest {
         );
         elasticsearchAccess.updateEntry(myalias, updatedDocumentId, newDocument);
 
-        SearchResponse searchResponseAfter = elasticsearchAccess.search(
+        ResponseBody<ObjectNode> searchResponseAfter = elasticsearchAccess.search(
             myalias,
-            QueryBuilders.matchAllQuery(),
-            null,
+            matchAll(),
             null,
             null,
             0,
             100
         );
-        assertThat(searchResponseAfter.getHits().getTotalHits().value).isEqualTo(documents.size());
+        assertThat(searchResponseAfter.hits().total()).isNotNull();
+        assertThat(searchResponseAfter.hits().total().value()).isEqualTo(documents.size());
 
-        List<SearchHit> hits = IteratorUtils.toList(searchResponseAfter.getHits().iterator());
-        assertThat(hits.stream().map(SearchHit::getId)).containsExactlyInAnyOrderElementsOf(documents.keySet());
+        List<Hit<ObjectNode>> hits = searchResponseAfter.hits().hits();
+        assertThat(hits.stream().map(Hit::id)).containsExactlyInAnyOrderElementsOf(documents.keySet());
 
-        for (SearchHit hit : hits) {
-            if (hit.getId().equals(updatedDocumentId)) {
+        for (Hit<ObjectNode> hit : hits) {
+            if (hit.id().equals(updatedDocumentId)) {
                 // Updated doc
-                assertThat(hit.getSourceAsMap()).containsOnlyKeys("newKey");
-                assertThat(hit.getSourceAsMap().get("newKey")).isEqualTo("newValue" + hit.getId());
+                assertThat(hit.source().fieldNames()).toIterable().containsOnly("newKey");
+                assertThat(hit.source().get("newKey").asText()).isEqualTo("newValue" + hit.id());
             } else {
                 // Non updated documents
-                assertThat(hit.getSourceAsMap()).containsOnlyKeys("Identifier", "Name", "_tenant");
-                assertThat(hit.getSourceAsMap().get("Identifier")).isEqualTo("value" + hit.getId());
+                assertThat(hit.source().fieldNames()).toIterable().containsOnly("Identifier", "Name", "_tenant");
+                assertThat(hit.source().get("Identifier").asText()).isEqualTo("value" + hit.id());
             }
         }
     }
@@ -228,20 +234,20 @@ public class ElasticsearchAccessTest {
         insertDataSet();
 
         // When
-        SearchResponse searchResponse = elasticsearchAccess.search(
+        ResponseBody<ObjectNode> searchResponse = elasticsearchAccess.search(
             myalias,
-            QueryBuilders.rangeQuery("_tenant").gt(8).lte(11),
-            null,
+            rangeInclusiveQuery("_tenant", 9, 11),
             null,
             null,
             0,
             100
         );
 
-        assertThat(searchResponse.getHits().getTotalHits().value).isEqualTo(3);
+        assertThat(searchResponse.hits().total()).isNotNull();
+        assertThat(searchResponse.hits().total().value()).isEqualTo(3);
 
-        List<SearchHit> hits = IteratorUtils.toList(searchResponse.getHits().iterator());
-        assertThat(hits.stream().map(i -> i.getSourceAsMap().get("_tenant"))).containsExactlyInAnyOrder(9, 10, 11);
+        List<Hit<ObjectNode>> hits = searchResponse.hits().hits();
+        assertThat(hits.stream().map(i -> i.source().get("_tenant").asInt())).containsExactlyInAnyOrder(9, 10, 11);
     }
 
     @Test
@@ -249,13 +255,12 @@ public class ElasticsearchAccessTest {
         Map<String, VitamDocument<?>> documents = insertDataSet();
 
         // When
-        List<SortBuilder<?>> sorts = singletonList(SortBuilders.fieldSort("_tenant").order(SortOrder.DESC));
-        QueryBuilder query = QueryBuilders.matchQuery("Name", "Lorem ipsum");
+        List<SortOptions> sorts = singletonList(getFieldSorts("_tenant", SortOrder.Desc));
+        Query query = matchQuery("Name", "Lorem ipsum");
 
-        SearchResponse searchResponse1 = elasticsearchAccess.search(
+        ResponseBody<ObjectNode> searchResponse1 = elasticsearchAccess.search(
             myalias,
             query,
-            null,
             null,
             sorts,
             0,
@@ -266,11 +271,12 @@ public class ElasticsearchAccessTest {
             false
         );
 
-        assertThat(searchResponse1.getHits().getTotalHits().value).isEqualTo(documents.size());
-        String scrollId1 = searchResponse1.getScrollId();
+        assertThat(searchResponse1.hits().total()).isNotNull();
+        assertThat(searchResponse1.hits().total().value()).isEqualTo(documents.size());
+        String scrollId1 = searchResponse1.scrollId();
         assertThat(scrollId1).isNotNull();
-        List<SearchHit> hits1 = IteratorUtils.toList(searchResponse1.getHits().iterator());
-        assertThat(hits1.stream().map(i -> i.getSourceAsMap().get("_tenant"))).containsExactly(
+        List<Hit<ObjectNode>> hits1 = searchResponse1.hits().hits();
+        assertThat(hits1.stream().map(i -> i.source().get("_tenant").asInt())).containsExactly(
             14,
             13,
             12,
@@ -283,10 +289,9 @@ public class ElasticsearchAccessTest {
             5
         );
 
-        SearchResponse searchResponse2 = elasticsearchAccess.search(
+        ResponseBody<ObjectNode> searchResponse2 = elasticsearchAccess.search(
             myalias,
             query,
-            null,
             null,
             sorts,
             0,
@@ -297,11 +302,12 @@ public class ElasticsearchAccessTest {
             false
         );
 
-        assertThat(searchResponse2.getHits().getTotalHits().value).isEqualTo(documents.size());
-        String scrollId2 = searchResponse2.getScrollId();
+        assertThat(searchResponse2.hits().total()).isNotNull();
+        assertThat(searchResponse2.hits().total().value()).isEqualTo(documents.size());
+        String scrollId2 = searchResponse2.scrollId();
         assertThat(scrollId2).isEqualTo(scrollId1);
-        List<SearchHit> hits2 = IteratorUtils.toList(searchResponse2.getHits().iterator());
-        assertThat(hits2.stream().map(i -> i.getSourceAsMap().get("_tenant"))).containsExactly(4, 3, 2, 1, 0);
+        List<Hit<ObjectNode>> hits2 = searchResponse2.hits().hits();
+        assertThat(hits2.stream().map(i -> i.source().get("_tenant").asInt())).containsExactly(4, 3, 2, 1, 0);
 
         elasticsearchAccess.clearScroll(scrollId2);
     }
@@ -319,19 +325,19 @@ public class ElasticsearchAccessTest {
             .orElseThrow();
         elasticsearchAccess.delete(myalias, singletonList(deletedDocumentId));
 
-        SearchResponse searchResponseAfter = elasticsearchAccess.search(
+        ResponseBody<ObjectNode> searchResponseAfter = elasticsearchAccess.search(
             myalias,
-            QueryBuilders.matchAllQuery(),
-            null,
+            QueryBuilders.matchAll().build()._toQuery(),
             null,
             null,
             0,
             100
         );
-        assertThat(searchResponseAfter.getHits().getTotalHits().value).isEqualTo(documents.size() - 1);
+        assertThat(searchResponseAfter.hits().total()).isNotNull();
+        assertThat(searchResponseAfter.hits().total().value()).isEqualTo(documents.size() - 1);
 
-        List<SearchHit> hits = IteratorUtils.toList(searchResponseAfter.getHits().iterator());
-        assertThat(hits.stream().map(SearchHit::getId)).containsExactlyInAnyOrderElementsOf(
+        List<Hit<ObjectNode>> hits = searchResponseAfter.hits().hits();
+        assertThat(hits.stream().map(Hit::id)).containsExactlyInAnyOrderElementsOf(
             SetUtils.difference(documents.keySet(), singleton(deletedDocumentId))
         );
     }
@@ -400,11 +406,10 @@ public class ElasticsearchAccessTest {
         // Then
         assertThat(elasticsearchAccess.existsAlias(myalias)).isTrue();
 
-        GetAliasesResponse getAliasesResponse = elasticsearchAccess.getAlias(myalias);
-        assertThat(getAliasesResponse.status()).isEqualTo(RestStatus.OK);
-        assertThat(getAliasesResponse.getAliases()).hasSize(1);
+        GetAliasResponse getAliasesResponse = elasticsearchAccess.getAlias(myalias);
+        assertThat(getAliasesResponse.result()).hasSize(1);
         ElasticsearchIndexAlias myindex = ElasticsearchIndexAlias.ofFullIndexName(
-            getAliasesResponse.getAliases().keySet().iterator().next()
+            getAliasesResponse.result().keySet().iterator().next()
         );
         assertThat(myalias.isValidAliasOfIndex(myindex)).isTrue();
     }
@@ -418,11 +423,10 @@ public class ElasticsearchAccessTest {
         );
         waitCycle();
         assertThat(elasticsearchAccess.existsAlias(myalias)).isTrue();
-        GetAliasesResponse existingAliasResponse = elasticsearchAccess.getAlias(myalias);
-        assertThat(existingAliasResponse.status()).isEqualTo(RestStatus.OK);
-        assertThat(existingAliasResponse.getAliases()).hasSize(1);
+        GetAliasResponse existingAliasResponse = elasticsearchAccess.getAlias(myalias);
+        assertThat(existingAliasResponse.result()).hasSize(1);
         ElasticsearchIndexAlias myExistingIndex = ElasticsearchIndexAlias.ofFullIndexName(
-            existingAliasResponse.getAliases().keySet().iterator().next()
+            existingAliasResponse.result().keySet().iterator().next()
         );
 
         // When
@@ -434,10 +438,9 @@ public class ElasticsearchAccessTest {
         // Then
         assertThat(elasticsearchAccess.existsAlias(myalias)).isTrue();
 
-        GetAliasesResponse getAliasesResponse = elasticsearchAccess.getAlias(myalias);
-        assertThat(getAliasesResponse.status()).isEqualTo(RestStatus.OK);
-        assertThat(getAliasesResponse.getAliases()).hasSize(1);
-        assertThat(getAliasesResponse.getAliases().keySet().iterator().next()).isEqualTo(myExistingIndex.getName());
+        GetAliasResponse getAliasesResponse = elasticsearchAccess.getAlias(myalias);
+        assertThat(getAliasesResponse.result()).hasSize(1);
+        assertThat(getAliasesResponse.result().keySet().iterator().next()).isEqualTo(myExistingIndex.getName());
     }
 
     @Test
@@ -453,7 +456,7 @@ public class ElasticsearchAccessTest {
             new ElasticsearchIndexSettings(2, 1, () -> "{}")
         );
         ElasticsearchIndexAlias existingIndex = ElasticsearchIndexAlias.ofFullIndexName(
-            elasticsearchAccess.getAlias(myalias).getAliases().keySet().iterator().next()
+            elasticsearchAccess.getAlias(myalias).result().keySet().iterator().next()
         );
         assertThat(newIndex.getName()).isNotEqualTo(existingIndex.getName());
 
@@ -462,7 +465,7 @@ public class ElasticsearchAccessTest {
 
         // Then
         ElasticsearchIndexAlias indexAfterAliasSwitch = ElasticsearchIndexAlias.ofFullIndexName(
-            elasticsearchAccess.getAlias(myalias).getAliases().keySet().iterator().next()
+            elasticsearchAccess.getAlias(myalias).result().keySet().iterator().next()
         );
         assertThat(indexAfterAliasSwitch.getName()).isEqualTo(newIndex.getName());
 

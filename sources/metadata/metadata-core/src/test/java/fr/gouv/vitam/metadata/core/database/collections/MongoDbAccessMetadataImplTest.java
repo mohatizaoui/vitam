@@ -24,8 +24,15 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
+
 package fr.gouv.vitam.metadata.core.database.collections;
 
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.json.JsonpDeserializer;
+import co.elastic.clients.json.jackson.JacksonJsonProvider;
+import co.elastic.clients.json.jackson.JacksonJsonpMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.database.api.VitamRepositoryFactory;
 import fr.gouv.vitam.common.database.api.impl.VitamElasticsearchRepository;
@@ -52,24 +59,9 @@ import fr.gouv.vitam.metadata.api.model.ObjectGroupPerOriginatingAgency;
 import fr.gouv.vitam.metadata.core.MetaDataImpl;
 import fr.gouv.vitam.metadata.core.config.ElasticsearchMetadataIndexManager;
 import fr.gouv.vitam.metadata.core.utils.MappingLoaderTestUtils;
+import jakarta.json.stream.JsonParser;
 import org.assertj.core.util.Lists;
 import org.bson.Document;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.search.aggregations.Aggregation;
-import org.elasticsearch.search.aggregations.bucket.nested.NestedAggregationBuilder;
-import org.elasticsearch.search.aggregations.bucket.nested.ParsedNested;
-import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
-import org.elasticsearch.search.aggregations.bucket.terms.StringTerms;
-import org.elasticsearch.search.aggregations.metrics.ParsedSum;
-import org.elasticsearch.search.aggregations.metrics.ParsedValueCount;
-import org.elasticsearch.search.aggregations.metrics.SumAggregationBuilder;
-import org.elasticsearch.search.aggregations.metrics.ValueCountAggregationBuilder;
-import org.elasticsearch.xcontent.ContextParser;
-import org.elasticsearch.xcontent.DeprecationHandler;
-import org.elasticsearch.xcontent.NamedXContentRegistry;
-import org.elasticsearch.xcontent.ParseField;
-import org.elasticsearch.xcontent.json.JsonXContent;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -78,12 +70,11 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -100,7 +91,7 @@ import static java.util.Locale.US;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -425,18 +416,18 @@ public class MongoDbAccessMetadataImplTest {
         ElasticsearchAccessMetadata client = mock(ElasticsearchAccessMetadata.class);
         when(client.getClient()).thenReturn(esClient.getClient());
 
-        SearchResponse archiveUnitResponse = searchResult(
+        SearchResponse<ObjectNode> archiveUnitResponse = searchResult(
             PropertiesUtils.getResourceAsString("accession_register_symbolic_au_aggs_1.data")
         );
-        SearchResponse objectGroupResponse = searchResult(
+        SearchResponse<ObjectNode> objectGroupResponse = searchResult(
             PropertiesUtils.getResourceAsString("accession_register_symbolic_got_aggs_1.data")
         );
 
-        given(client.basicAggregationSearch(eq(UNIT), eq(0), anyList(), any(QueryBuilder.class))).willReturn(
-            archiveUnitResponse.getAggregations()
+        given(client.basicAggregationSearch(eq(UNIT), eq(0), anyMap(), any(Query.class))).willReturn(
+            archiveUnitResponse.aggregations()
         );
-        given(client.basicAggregationSearch(eq(OBJECTGROUP), eq(0), anyList(), any(QueryBuilder.class))).willReturn(
-            objectGroupResponse.getAggregations()
+        given(client.basicAggregationSearch(eq(OBJECTGROUP), eq(0), anyMap(), any(Query.class))).willReturn(
+            objectGroupResponse.aggregations()
         );
 
         ElasticsearchMetadataIndexManager indexManager = mock(ElasticsearchMetadataIndexManager.class);
@@ -472,18 +463,18 @@ public class MongoDbAccessMetadataImplTest {
         ElasticsearchAccessMetadata client = mock(ElasticsearchAccessMetadata.class);
         when(client.getClient()).thenReturn(esClient.getClient());
 
-        SearchResponse archiveUnitResponse = searchResult(
+        SearchResponse<ObjectNode> archiveUnitResponse = searchResult(
             PropertiesUtils.getResourceAsString("accession_register_symbolic_au_aggs_2.data")
         );
-        SearchResponse objectGroupResponse = searchResult(
+        SearchResponse<ObjectNode> objectGroupResponse = searchResult(
             PropertiesUtils.getResourceAsString("accession_register_symbolic_got_aggs_2.data")
         );
 
-        given(client.basicAggregationSearch(eq(UNIT), eq(0), anyList(), any(QueryBuilder.class))).willReturn(
-            archiveUnitResponse.getAggregations()
+        given(client.basicAggregationSearch(eq(UNIT), eq(0), anyMap(), any(Query.class))).willReturn(
+            archiveUnitResponse.aggregations()
         );
-        given(client.basicAggregationSearch(eq(OBJECTGROUP), eq(0), anyList(), any(QueryBuilder.class))).willReturn(
-            objectGroupResponse.getAggregations()
+        given(client.basicAggregationSearch(eq(OBJECTGROUP), eq(0), anyMap(), any(Query.class))).willReturn(
+            objectGroupResponse.aggregations()
         );
 
         ElasticsearchMetadataIndexManager indexManager = mock(ElasticsearchMetadataIndexManager.class);
@@ -531,22 +522,22 @@ public class MongoDbAccessMetadataImplTest {
 
         long numberOfOriginatingAgencies = 12;
         long numberOfOriginatingAgency = 1;
-        SearchResponse archiveUnitResponse = searchResult(
+        SearchResponse<ObjectNode> archiveUnitResponse = searchResult(
             String.format(
                 PropertiesUtils.getResourceAsString("accession_register_symbolic_au_aggs_3.data"),
                 numberOfOriginatingAgencies,
                 numberOfOriginatingAgency
             )
         );
-        SearchResponse objectGroupResponse = searchResult(
+        SearchResponse<ObjectNode> objectGroupResponse = searchResult(
             PropertiesUtils.getResourceAsString("accession_register_symbolic_got_aggs_3.data")
         );
 
-        given(client.basicAggregationSearch(eq(UNIT), eq(0), anyList(), any(QueryBuilder.class))).willReturn(
-            archiveUnitResponse.getAggregations()
+        given(client.basicAggregationSearch(eq(UNIT), eq(0), anyMap(), any(Query.class))).willReturn(
+            archiveUnitResponse.aggregations()
         );
-        given(client.basicAggregationSearch(eq(OBJECTGROUP), eq(0), anyList(), any(QueryBuilder.class))).willReturn(
-            objectGroupResponse.getAggregations()
+        given(client.basicAggregationSearch(eq(OBJECTGROUP), eq(0), anyMap(), any(Query.class))).willReturn(
+            objectGroupResponse.aggregations()
         );
 
         ElasticsearchMetadataIndexManager indexManager = mock(ElasticsearchMetadataIndexManager.class);
@@ -588,7 +579,7 @@ public class MongoDbAccessMetadataImplTest {
         ElasticsearchAccessMetadata client = mock(ElasticsearchAccessMetadata.class);
         when(client.getClient()).thenReturn(esClient.getClient());
 
-        SearchResponse archiveUnitResponse = searchResult(
+        SearchResponse<ObjectNode> archiveUnitResponse = searchResult(
             String.format(PropertiesUtils.getResourceAsString("accession_register_symbolic_au_aggs_4.data"))
         );
         double binarySize = 88209;
@@ -596,7 +587,7 @@ public class MongoDbAccessMetadataImplTest {
         long objectGroupCountAll = 3;
         long objectGroupCountThis = 1;
 
-        SearchResponse objectGroupResponse = searchResult(
+        SearchResponse<ObjectNode> objectGroupResponse = searchResult(
             String.format(
                 US,
                 PropertiesUtils.getResourceAsString("accession_register_symbolic_got_aggs_4.data"),
@@ -609,11 +600,11 @@ public class MongoDbAccessMetadataImplTest {
             )
         );
 
-        given(client.basicAggregationSearch(eq(UNIT), eq(0), anyList(), any(QueryBuilder.class))).willReturn(
-            archiveUnitResponse.getAggregations()
+        given(client.basicAggregationSearch(eq(UNIT), eq(0), anyMap(), any(Query.class))).willReturn(
+            archiveUnitResponse.aggregations()
         );
-        given(client.basicAggregationSearch(eq(OBJECTGROUP), eq(0), anyList(), any(QueryBuilder.class))).willReturn(
-            objectGroupResponse.getAggregations()
+        given(client.basicAggregationSearch(eq(OBJECTGROUP), eq(0), anyMap(), any(Query.class))).willReturn(
+            objectGroupResponse.aggregations()
         );
 
         ElasticsearchMetadataIndexManager indexManager = mock(ElasticsearchMetadataIndexManager.class);
@@ -655,7 +646,7 @@ public class MongoDbAccessMetadataImplTest {
         ElasticsearchAccessMetadata client = mock(ElasticsearchAccessMetadata.class);
         when(client.getClient()).thenReturn(esClient.getClient());
 
-        SearchResponse archiveUnitResponse = searchResult(
+        SearchResponse<ObjectNode> archiveUnitResponse = searchResult(
             PropertiesUtils.getResourceAsString("accession_register_symbolic_au_aggs_5.data")
         );
         double binarySize = 0;
@@ -663,7 +654,7 @@ public class MongoDbAccessMetadataImplTest {
         long objectGroupCountAll = 1;
         long objectGroupCountThis = 1;
 
-        SearchResponse objectGroupResponse = searchResult(
+        SearchResponse<ObjectNode> objectGroupResponse = searchResult(
             String.format(
                 US,
                 PropertiesUtils.getResourceAsString("accession_register_symbolic_got_aggs_5.data"),
@@ -676,11 +667,11 @@ public class MongoDbAccessMetadataImplTest {
             )
         );
 
-        given(client.basicAggregationSearch(eq(UNIT), eq(0), anyList(), any(QueryBuilder.class))).willReturn(
-            archiveUnitResponse.getAggregations()
+        given(client.basicAggregationSearch(eq(UNIT), eq(0), anyMap(), any(Query.class))).willReturn(
+            archiveUnitResponse.aggregations()
         );
-        given(client.basicAggregationSearch(eq(OBJECTGROUP), eq(0), anyList(), any(QueryBuilder.class))).willReturn(
-            objectGroupResponse.getAggregations()
+        given(client.basicAggregationSearch(eq(OBJECTGROUP), eq(0), anyMap(), any(Query.class))).willReturn(
+            objectGroupResponse.aggregations()
         );
 
         ElasticsearchMetadataIndexManager indexManager = mock(ElasticsearchMetadataIndexManager.class);
@@ -722,18 +713,18 @@ public class MongoDbAccessMetadataImplTest {
         ElasticsearchAccessMetadata client = mock(ElasticsearchAccessMetadata.class);
         when(client.getClient()).thenReturn(esClient.getClient());
 
-        SearchResponse archiveUnitResponse = searchResult(
+        SearchResponse<ObjectNode> archiveUnitResponse = searchResult(
             PropertiesUtils.getResourceAsString("accession_register_symbolic_au_aggs_6.data")
         );
-        SearchResponse objectGroupResponse = searchResult(
+        SearchResponse<ObjectNode> objectGroupResponse = searchResult(
             PropertiesUtils.getResourceAsString("accession_register_symbolic_got_aggs_6.data")
         );
 
-        given(client.basicAggregationSearch(eq(UNIT), eq(0), anyList(), any(QueryBuilder.class))).willReturn(
-            archiveUnitResponse.getAggregations()
+        given(client.basicAggregationSearch(eq(UNIT), eq(0), anyMap(), any(Query.class))).willReturn(
+            archiveUnitResponse.aggregations()
         );
-        given(client.basicAggregationSearch(eq(OBJECTGROUP), eq(0), anyList(), any(QueryBuilder.class))).willReturn(
-            objectGroupResponse.getAggregations()
+        given(client.basicAggregationSearch(eq(OBJECTGROUP), eq(0), anyMap(), any(Query.class))).willReturn(
+            objectGroupResponse.aggregations()
         );
 
         ElasticsearchMetadataIndexManager indexManager = mock(ElasticsearchMetadataIndexManager.class);
@@ -766,28 +757,12 @@ public class MongoDbAccessMetadataImplTest {
         assertThat(first).isEmpty();
     }
 
-    private List<NamedXContentRegistry.Entry> getDefaultNamedXContents() {
-        Map<String, ContextParser<Object, ? extends Aggregation>> map = new HashMap<>();
+    private SearchResponse<ObjectNode> searchResult(String content) {
+        JsonParser jsonParser = JacksonJsonProvider.provider().createParser(new StringReader(content));
+        JsonpDeserializer<ObjectNode> deserializer = JacksonJsonpMapper.findDeserializer(ObjectNode.class);
 
-        map.put(StringTerms.NAME, (p, c) -> ParsedStringTerms.fromXContent(p, (String) c));
-        map.put(SumAggregationBuilder.NAME, (p, c) -> ParsedSum.fromXContent(p, (String) c));
-        map.put(ValueCountAggregationBuilder.NAME, (p, c) -> ParsedValueCount.fromXContent(p, (String) c));
-        map.put(NestedAggregationBuilder.NAME, (p, c) -> ParsedNested.fromXContent(p, (String) c));
-
-        return map
-            .entrySet()
-            .stream()
-            .map(
-                entry ->
-                    new NamedXContentRegistry.Entry(Aggregation.class, new ParseField(entry.getKey()), entry.getValue())
-            )
-            .collect(Collectors.toList());
-    }
-
-    private SearchResponse searchResult(String content) throws IOException {
-        NamedXContentRegistry registry = new NamedXContentRegistry(getDefaultNamedXContents());
-        return SearchResponse.fromXContent(
-            JsonXContent.jsonXContent.createParser(registry, DeprecationHandler.THROW_UNSUPPORTED_OPERATION, content)
-        );
+        JsonpDeserializer<SearchResponse<ObjectNode>> searchResponseDeserializer =
+            SearchResponse.createSearchResponseDeserializer(deserializer);
+        return searchResponseDeserializer.deserialize(jsonParser, new JacksonJsonpMapper());
     }
 }

@@ -26,6 +26,11 @@
  */
 package fr.gouv.vitam.common.database.server;
 
+import co.elastic.clients.elasticsearch._types.SortOptions;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch.core.search.Hit;
+import co.elastic.clients.elasticsearch.core.search.HitsMetadata;
+import co.elastic.clients.elasticsearch.core.search.ResponseBody;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -78,18 +83,11 @@ import fr.gouv.vitam.common.parameter.ParameterHelper;
 import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.collections4.SetUtils;
 import org.bson.conversions.Bson;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.rest.RestStatus;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.sort.SortBuilder;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -305,40 +303,35 @@ public class DbRequestSingle {
     )
         throws InvalidParseOperationException, InvalidCreateOperationException, DatabaseException, BadRequestException, VitamDBException {
         SelectToElasticsearch requestToEs = new SelectToElasticsearch(parser);
-        QueryBuilder query = QueryToElasticsearch.getCommand(
-            requestToEs.getNthQuery(0),
-            parser.getAdapter(),
-            parserTokens
-        );
-        List<SortBuilder<?>> sorts = requestToEs.getFinalOrderBy(vitamCollection.isUseScore(), parserTokens);
+        Query query = QueryToElasticsearch.getCommand(requestToEs.getNthQuery(0), parser.getAdapter(), parserTokens);
+        List<SortOptions> sorts = requestToEs.getFinalOrderBy(vitamCollection.isUseScore(), parserTokens);
         offset = requestToEs.getFinalOffset();
         limit = requestToEs.getFinalLimit();
-        SearchResponse elasticSearchResponse = search(
+        ResponseBody<ObjectNode> elasticSearchResponse = search(
             query,
-            null,
             sorts,
             requestToEs.getFinalOffset(),
             requestToEs.getFinalLimit()
         );
-        if (elasticSearchResponse.status() != RestStatus.OK) {
+        if (elasticSearchResponse.timedOut() || Boolean.TRUE.equals(elasticSearchResponse.terminatedEarly())) {
+            LOGGER.error("Request timed out or terminated early " + elasticSearchResponse);
+            throw new VitamDBException("Request did not terminate successfully");
+        }
+        final HitsMetadata<ObjectNode> hits = elasticSearchResponse.hits();
+        if (hits.total() == null || hits.total().value() == 0L) {
             return new EmptyMongoCursor<>();
         }
-        final SearchHits hits = elasticSearchResponse.getHits();
-        if (hits.getTotalHits().value == 0) {
-            return new EmptyMongoCursor<>();
-        }
-        total = hits.getTotalHits().value;
-        final Iterator<SearchHit> iterator = hits.iterator();
-        count = hits.getHits().length;
-        final List<String> list = new ArrayList<>((int) count);
-        final List<Float> listFloat = new ArrayList<>((int) count);
-        while (iterator.hasNext()) {
-            final SearchHit hit = iterator.next();
-            list.add(hit.getId());
-            listFloat.add(hit.getScore());
+        total = hits.total().value();
+        final List<Hit<ObjectNode>> resultSet = hits.hits();
+        count = resultSet.size();
+        final List<String> ids = new ArrayList<>((int) count);
+        final List<Double> scores = new ArrayList<>((int) count);
+        for (Hit<ObjectNode> hit : resultSet) {
+            ids.add(hit.id());
+            scores.add(hit.score());
         }
         parser.getRequest().setQuery(new NopQuery());
-        return selectMongoDbExecute(parser, list, listFloat);
+        return selectMongoDbExecute(parser, ids, scores);
     }
 
     /**
@@ -353,7 +346,7 @@ public class DbRequestSingle {
     private MongoCursor<VitamDocument<?>> selectMongoDbExecute(
         SelectParserSingle parser,
         List<String> list,
-        List<Float> score
+        List<Double> score
     ) throws InvalidParseOperationException, VitamDBException {
         return DbRequestHelper.selectMongoDbExecuteThroughFakeMongoCursor(vitamCollection, parser, list, score);
     }
@@ -408,7 +401,6 @@ public class DbRequestSingle {
      *
      * @param query as in DSL mode "{ "fieldname" : "value" }" "{ "match" : { "fieldname" : "value" } }" "{ "ids" : { "
      * values" : [list of id] } }"
-     * @param filter the filter
      * @param sorts the list of sort
      * @param offset the offset
      * @param limit the limit
@@ -416,16 +408,15 @@ public class DbRequestSingle {
      * @throws DatabaseException
      * @throws BadRequestException
      */
-    private SearchResponse search(
-        final QueryBuilder query,
-        final QueryBuilder filter,
-        List<SortBuilder<?>> sorts,
+    private ResponseBody<ObjectNode> search(
+        final Query query,
+        List<SortOptions> sorts,
         final int offset,
         final int limit
     ) throws DatabaseException, BadRequestException {
         return vitamCollection
             .getEsClient()
-            .search(elasticsearchIndexAlias, query, filter, VitamDocument.ES_FILTER_OUT, sorts, offset, limit);
+            .search(elasticsearchIndexAlias, query, VitamDocument.ES_FILTER_OUT, sorts, offset, limit);
     }
 
     /**

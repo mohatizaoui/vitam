@@ -26,39 +26,44 @@
  */
 package fr.gouv.vitam.common.elasticsearch;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.BulkIndexByScrollFailure;
+import co.elastic.clients.elasticsearch._types.Conflicts;
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
+import co.elastic.clients.elasticsearch._types.ExpandWildcard;
+import co.elastic.clients.elasticsearch._types.Time;
+import co.elastic.clients.elasticsearch._types.mapping.TypeMapping;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
+import co.elastic.clients.elasticsearch.core.DeleteByQueryRequest;
+import co.elastic.clients.elasticsearch.core.DeleteByQueryResponse;
+import co.elastic.clients.elasticsearch.indices.Alias;
+import co.elastic.clients.elasticsearch.indices.CreateIndexRequest;
+import co.elastic.clients.elasticsearch.indices.CreateIndexResponse;
+import co.elastic.clients.elasticsearch.indices.ExistsRequest;
+import co.elastic.clients.elasticsearch.indices.IndexSettings;
+import co.elastic.clients.json.jackson.JacksonJsonpMapper;
+import co.elastic.clients.transport.ElasticsearchTransport;
+import co.elastic.clients.transport.instrumentation.NoopInstrumentation;
+import co.elastic.clients.transport.rest_client.RestClientTransport;
 import com.google.common.collect.Sets;
 import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.http.HttpHost;
-import org.elasticsearch.ElasticsearchException;
-import org.elasticsearch.action.admin.indices.alias.Alias;
-import org.elasticsearch.action.bulk.BulkItemResponse;
-import org.elasticsearch.action.support.ActiveShardCount;
-import org.elasticsearch.action.support.IndicesOptions;
-import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.client.indices.CreateIndexRequest;
-import org.elasticsearch.client.indices.CreateIndexResponse;
-import org.elasticsearch.client.indices.GetIndexRequest;
-import org.elasticsearch.core.TimeValue;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.reindex.BulkByScrollResponse;
-import org.elasticsearch.index.reindex.DeleteByQueryRequest;
-import org.elasticsearch.index.reindex.ScrollableHitSource;
-import org.elasticsearch.rest.RestStatus;
-import org.elasticsearch.xcontent.XContentType;
 import org.junit.rules.ExternalResource;
 
+import javax.ws.rs.core.Response;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-
-import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 
 /**
  *
@@ -71,11 +76,21 @@ public class ElasticsearchRule extends ExternalResource {
     public static String HOST = "localhost";
     public static final String VITAM_CLUSTER = "elasticsearch-data";
     private boolean clientClosed = false;
-    private final RestHighLevelClient client;
+    private final ElasticsearchClient client;
     private Set<String> indexesToBePurged = new HashSet<>();
 
     public ElasticsearchRule(String... indexesToBePurged) {
-        client = new RestHighLevelClient(RestClient.builder(new HttpHost(HOST, PORT)));
+        RestClient restClient = RestClient.builder(new HttpHost(HOST, PORT)).build();
+
+        ElasticsearchTransport transport = new RestClientTransport(
+            restClient,
+            new JacksonJsonpMapper(),
+            null,
+            NoopInstrumentation.INSTANCE
+        );
+
+        // And create the API client
+        client = new ElasticsearchClient(transport);
 
         if (null != indexesToBePurged) {
             this.indexesToBePurged = Sets.newHashSet(indexesToBePurged);
@@ -89,85 +104,41 @@ public class ElasticsearchRule extends ExternalResource {
         }
     }
 
-    private void purge(RestHighLevelClient client, Collection<String> indexesToBePurged) {
+    private void purge(ElasticsearchClient client, Collection<String> indexesToBePurged) {
         for (String indexName : indexesToBePurged) {
             purge(client, indexName);
         }
     }
 
-    public void purge(RestHighLevelClient client, String indexName) {
-        handlePurge(client, indexName, matchAllQuery());
+    public void purge(ElasticsearchClient client, String indexName) {
+        handlePurge(client, indexName, QueryBuilders.matchAll().build()._toQuery());
     }
 
-    public void handlePurge(RestHighLevelClient client, String index, QueryBuilder qb) {
+    public void handlePurge(ElasticsearchClient client, String index, Query query) {
         try {
-            DeleteByQueryRequest request = new DeleteByQueryRequest(index);
-            request.setConflicts("proceed");
-            request.setQuery(qb);
-            request.setBatchSize(VitamConfiguration.getMaxElasticsearchBulk());
-            request.setScroll(
-                TimeValue.timeValueMillis(VitamConfiguration.getElasticSearchScrollTimeoutInMilliseconds())
-            );
-            request.setTimeout(
-                TimeValue.timeValueMillis(VitamConfiguration.getElasticSearchTimeoutWaitRequestInMilliseconds())
-            );
-            request.setRefresh(true);
+            DeleteByQueryRequest request = new DeleteByQueryRequest.Builder()
+                .index(index)
+                .conflicts(Conflicts.Proceed)
+                .query(query)
+                .scrollSize((long) VitamConfiguration.getMaxElasticsearchBulk())
+                .scroll(timeOfMilliseconds(VitamConfiguration.getElasticSearchScrollTimeoutInMilliseconds()))
+                .timeout(timeOfMilliseconds(VitamConfiguration.getElasticSearchTimeoutWaitRequestInMilliseconds()))
+                .refresh(true)
+                .waitForCompletion(true)
+                .build();
 
-            BulkByScrollResponse bulkResponse = client.deleteByQuery(request, RequestOptions.DEFAULT);
+            DeleteByQueryResponse bulkResponse = client.deleteByQuery(request);
 
-            TimeValue timeTaken = bulkResponse.getTook();
-            boolean timedOut = bulkResponse.isTimedOut();
-            long totalDocs = bulkResponse.getTotal();
-            long deletedDocs = bulkResponse.getDeleted();
-            long batches = bulkResponse.getBatches();
-            long noops = bulkResponse.getNoops();
-            long versionConflicts = bulkResponse.getVersionConflicts();
-            long bulkRetries = bulkResponse.getBulkRetries();
-            long searchRetries = bulkResponse.getSearchRetries();
-            TimeValue throttledMillis = bulkResponse.getStatus().getThrottled();
-            TimeValue throttledUntilMillis = bulkResponse.getStatus().getThrottledUntil();
+            LOGGER.debug("Purge : {}", bulkResponse);
 
-            LOGGER.debug(
-                "Purge : timeTaken (" +
-                timeTaken +
-                "), timedOut (" +
-                timedOut +
-                "), totalDocs (" +
-                totalDocs +
-                ")," +
-                " deletedDocs (" +
-                deletedDocs +
-                "), batches (" +
-                batches +
-                "), noops (" +
-                noops +
-                "), versionConflicts (" +
-                versionConflicts +
-                ")" +
-                "bulkRetries (" +
-                bulkRetries +
-                "), searchRetries (" +
-                searchRetries +
-                "),  throttledMillis(" +
-                throttledMillis +
-                "), throttledUntilMillis(" +
-                throttledUntilMillis +
-                ")"
-            );
-
-            List<ScrollableHitSource.SearchFailure> searchFailures = bulkResponse.getSearchFailures();
+            List<BulkIndexByScrollFailure> searchFailures = bulkResponse.failures();
             if (CollectionUtils.isNotEmpty(searchFailures)) {
-                throw new RuntimeException("ES purge errors : in search phase");
+                throw new RuntimeException("ES purge errors : in search phase " + bulkResponse);
             }
 
-            List<BulkItemResponse.Failure> bulkFailures = bulkResponse.getBulkFailures();
-            if (CollectionUtils.isNotEmpty(bulkFailures)) {
-                throw new RuntimeException("ES purge errors : in bulk phase");
-            }
-
-            LOGGER.info("Deleted : " + bulkResponse.getDeleted());
+            LOGGER.info("Deleted : " + bulkResponse.deleted());
         } catch (ElasticsearchException e) {
-            if (e.status() == RestStatus.NOT_FOUND) {
+            if (e.status() == Response.Status.NOT_FOUND.getStatusCode()) {
                 return;
             }
             throw new RuntimeException("Purge Exception", e);
@@ -177,35 +148,40 @@ public class ElasticsearchRule extends ExternalResource {
     }
 
     public boolean existsIndex(String indexName) throws IOException {
-        GetIndexRequest request = new GetIndexRequest(indexName.toLowerCase());
-        request.humanReadable(true);
-        request.includeDefaults(false);
-        request.indicesOptions(IndicesOptions.STRICT_EXPAND_OPEN);
-        return getClient().indices().exists(request, RequestOptions.DEFAULT);
+        ExistsRequest existsRequest = new ExistsRequest.Builder()
+            .index(indexName.toLowerCase())
+            .includeDefaults(false)
+            .expandWildcards(ExpandWildcard.Open)
+            .allowNoIndices(false)
+            .build();
+        return client.indices().exists(existsRequest).value();
     }
 
     public boolean createIndex(String aliasName, String indexName, String mapping) throws IOException {
         boolean existsIndex = existsIndex(indexName);
 
         if (Boolean.TRUE.equals(existsIndex)) {
-            LOGGER.debug("Index (" + existsIndex + ") already exists");
+            LOGGER.debug("Index (" + indexName + ") already exists");
             return true;
         }
 
-        CreateIndexRequest request = new CreateIndexRequest(indexName)
-            .mapping(mapping, XContentType.JSON)
-            .alias(new Alias(aliasName));
+        CreateIndexRequest request = new CreateIndexRequest.Builder()
+            .index(indexName)
+            .mappings(
+                new TypeMapping.Builder()
+                    .withJson(new ByteArrayInputStream(mapping.getBytes(StandardCharsets.UTF_8)))
+                    .build()
+            )
+            .aliases(Map.of(aliasName, new Alias.Builder().build()))
+            .timeout(timeOfMilliseconds(VitamConfiguration.getElasticSearchTimeoutWaitRequestInMilliseconds()))
+            .masterTimeout(timeOfMinutes(1))
+            .settings(new IndexSettings.Builder().numberOfShards("1").numberOfReplicas("0").build())
+            .build();
 
-        request.setTimeout(
-            TimeValue.timeValueMillis(VitamConfiguration.getElasticSearchTimeoutWaitRequestInMilliseconds())
-        );
-        request.setMasterTimeout(TimeValue.timeValueMinutes(1));
-        request.waitForActiveShards(ActiveShardCount.DEFAULT);
+        CreateIndexResponse response = getClient().indices().create(request);
 
-        CreateIndexResponse response = getClient().indices().create(request, RequestOptions.DEFAULT);
-
-        boolean acknowledged = response.isAcknowledged();
-        boolean shardsAcknowledged = response.isShardsAcknowledged();
+        boolean acknowledged = response.acknowledged();
+        boolean shardsAcknowledged = response.shardsAcknowledged();
 
         LOGGER.debug(
             "Alias (" +
@@ -222,7 +198,7 @@ public class ElasticsearchRule extends ExternalResource {
         return acknowledged && shardsAcknowledged;
     }
 
-    public final void purgeIndex(RestHighLevelClient client, String indexName) {
+    public final void purgeIndex(ElasticsearchClient client, String indexName) {
         purge(client, indexName);
     }
 
@@ -285,16 +261,24 @@ public class ElasticsearchRule extends ExternalResource {
      *
      * @return the client
      */
-    public RestHighLevelClient getClient() {
+    public ElasticsearchClient getClient() {
         return client;
     }
 
     public void close() {
         try {
-            client.close();
+            client._transport().close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
         clientClosed = true;
+    }
+
+    private static Time timeOfMilliseconds(int duration) {
+        return new Time.Builder().time(duration + "ms").build();
+    }
+
+    private static Time timeOfMinutes(int duration) {
+        return new Time.Builder().time(duration + "m").build();
     }
 }

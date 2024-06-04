@@ -26,6 +26,10 @@
  */
 package fr.gouv.vitam.metadata.core.database.collections;
 
+import co.elastic.clients.elasticsearch._types.SortOptions;
+import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
+import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
 import com.fasterxml.jackson.core.JsonPointer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -62,6 +66,7 @@ import fr.gouv.vitam.common.database.parser.request.multiple.RequestParserMultip
 import fr.gouv.vitam.common.database.parser.request.multiple.UpdateParserMultiple;
 import fr.gouv.vitam.common.database.server.MongoDbInMemory;
 import fr.gouv.vitam.common.database.server.RuleUpdateException;
+import fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil;
 import fr.gouv.vitam.common.database.server.mongodb.VitamDocument;
 import fr.gouv.vitam.common.database.translators.RequestToAbstract;
 import fr.gouv.vitam.common.database.translators.elasticsearch.QueryToElasticsearch;
@@ -100,11 +105,6 @@ import fr.gouv.vitam.metadata.core.validation.OntologyValidator;
 import fr.gouv.vitam.metadata.core.validation.UnitValidator;
 import org.apache.commons.lang.StringUtils;
 import org.bson.conversions.Bson;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.aggregations.AggregationBuilder;
-import org.elasticsearch.search.sort.SortBuilder;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -128,6 +128,9 @@ import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Filters.exists;
 import static com.mongodb.client.model.Filters.in;
 import static fr.gouv.vitam.common.database.builder.query.action.UpdateActionHelper.push;
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.boolMust;
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.rangeInclusiveQuery;
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.termsQuery;
 
 /**
  * DB Request using MongoDB only
@@ -527,8 +530,8 @@ public class DbRequest {
     ) throws MetaDataExecutionException, InvalidParseOperationException, BadRequestException {
         final Query realQuery = requestToMongodb.getNthQuery(rank);
         final boolean isLastQuery = requestToMongodb.getNbQueries() == rank + 1;
-        List<SortBuilder<?>> sorts = null;
-        List<AggregationBuilder> facets = null;
+        List<SortOptions> sorts = null;
+        Map<String, Aggregation> facets = null;
         int limit = -1;
         int offset = -1;
         String scrollId = requestParser.getFinalScrollId();
@@ -683,28 +686,30 @@ public class DbRequest {
         Result<MetadataDocument<?>> previous,
         int exactDepth,
         Integer tenantId,
-        final List<SortBuilder<?>> sorts,
+        final List<SortOptions> sorts,
         final int offset,
         final int limit,
-        final List<AggregationBuilder> facets,
+        final Map<String, Aggregation> facets,
         final String scrollId,
         final Integer scrollTimeout,
         DynamicParserTokens parserTokens,
         boolean trackTotalHits
     ) throws InvalidParseOperationException, MetaDataExecutionException, BadRequestException {
         // ES only
-        final BoolQueryBuilder roots = new BoolQueryBuilder()
-            .must(QueryBuilders.rangeQuery(Unit.MAXDEPTH).lte(exactDepth).gte(0))
-            .must(QueryBuilders.rangeQuery(Unit.MINDEPTH).lte(exactDepth).gte(0));
+        BoolQuery.Builder roots = QueryBuilders.bool()
+            .must(rangeInclusiveQuery(Unit.MAXDEPTH, 0, exactDepth))
+            .must(rangeInclusiveQuery(Unit.MINDEPTH, 0, exactDepth));
         if (!previous.getCurrentIds().isEmpty()) {
             roots.must(QueryToElasticsearch.getRoots(MetadataDocument.UP, previous.getCurrentIds()));
         }
         MetadataCollections metadataCollections = MetadataCollections.UNIT;
 
         // lets add the query on the tenant
-        BoolQueryBuilder query = new BoolQueryBuilder()
+        co.elastic.clients.elasticsearch._types.query_dsl.Query query = QueryBuilders.bool()
             .must(QueryToElasticsearch.getCommand(realQuery, new MongoDbVarNameAdapter(), parserTokens))
-            .filter(QueryBuilders.termQuery(Unit.UNITUPS + "." + exactDepth, previous.getCurrentIds()));
+            .filter(termsQuery(Unit.UNITUPS + "." + exactDepth, previous.getCurrentIds()))
+            .build()
+            ._toQuery();
 
         LOGGER.debug("Req1LevelMD: {}", query);
 
@@ -750,27 +755,27 @@ public class DbRequest {
         Result<MetadataDocument<?>> previous,
         int relativeDepth,
         Integer tenantId,
-        final List<SortBuilder<?>> sorts,
+        final List<SortOptions> sorts,
         final int offset,
         final int limit,
-        final List<AggregationBuilder> facets,
+        final Map<String, Aggregation> facets,
         final String scrollId,
         final Integer scrollTimeout,
         DynamicParserTokens parserTokens,
         boolean trackTotalHits
     ) throws InvalidParseOperationException, MetaDataExecutionException, BadRequestException {
         // ES only
-        QueryBuilder roots;
+        co.elastic.clients.elasticsearch._types.query_dsl.Query roots;
 
         // lets add the query on the tenant
-        BoolQueryBuilder query = new BoolQueryBuilder()
+        BoolQuery.Builder query = QueryBuilders.bool()
             .must(QueryToElasticsearch.getCommand(realQuery, new MongoDbVarNameAdapter(), parserTokens));
 
         if (previous.getCurrentIds().isEmpty()) {
             if (relativeDepth < 1) {
-                query.filter(QueryBuilders.rangeQuery(Unit.MAXDEPTH).lte(1).gte(0));
+                query.filter(ElasticsearchUtil.rangeInclusiveQuery(Unit.MAXDEPTH, 0, 1));
             } else {
-                query.filter(QueryBuilders.rangeQuery(Unit.MAXDEPTH).lte(relativeDepth + 1).gte(0));
+                query.filter(ElasticsearchUtil.rangeInclusiveQuery(Unit.MAXDEPTH, 0, relativeDepth + 1));
             }
         } else {
             if (relativeDepth == 1) {
@@ -793,7 +798,7 @@ public class DbRequest {
             .search(
                 MetadataCollections.UNIT,
                 tenantId,
-                query,
+                query.build()._toQuery(),
                 sorts,
                 offset,
                 limit,
@@ -873,28 +878,31 @@ public class DbRequest {
         Query realQuery,
         Result<MetadataDocument<?>> previous,
         Integer tenantId,
-        final List<SortBuilder<?>> sorts,
+        final List<SortOptions> sorts,
         final int offset,
         final int limit,
-        final List<AggregationBuilder> facets,
+        final Map<String, Aggregation> facets,
         final String scrollId,
         final Integer scrollTimeout,
         DynamicParserTokens parserTokens,
         boolean trackTotalHits
     ) throws InvalidParseOperationException, MetaDataExecutionException, BadRequestException {
         // ES
-        final QueryBuilder query = QueryToElasticsearch.getCommand(
+        final co.elastic.clients.elasticsearch._types.query_dsl.Query query = QueryToElasticsearch.getCommand(
             realQuery,
             new MongoDbVarNameAdapter(),
             parserTokens
         );
-        QueryBuilder finalQuery;
+        co.elastic.clients.elasticsearch._types.query_dsl.Query finalQuery;
         LOGGER.debug("DEBUG prev {} RealQuery {}", previous.getCurrentIds(), realQuery);
         if (previous.getCurrentIds().isEmpty()) {
             finalQuery = query;
         } else {
-            final QueryBuilder roots = QueryToElasticsearch.getRoots(MetadataDocument.ID, previous.getCurrentIds());
-            finalQuery = QueryBuilders.boolQuery().must(query).must(roots);
+            final co.elastic.clients.elasticsearch._types.query_dsl.Query roots = QueryToElasticsearch.getRoots(
+                MetadataDocument.ID,
+                previous.getCurrentIds()
+            );
+            finalQuery = boolMust(query, roots);
         }
 
         LOGGER.debug(QUERY2 + "{}", finalQuery);
@@ -932,32 +940,32 @@ public class DbRequest {
         Query realQuery,
         Result<MetadataDocument<?>> previous,
         Integer tenantId,
-        final List<SortBuilder<?>> sorts,
+        final List<SortOptions> sorts,
         final int offset,
         final int limit,
         final String scrollId,
         final Integer scrollTimeout,
-        final List<AggregationBuilder> facets,
+        final Map<String, Aggregation> facets,
         DynamicParserTokens parserTokens,
         boolean trackTotalHits
     ) throws InvalidParseOperationException, MetaDataExecutionException, BadRequestException {
         // ES
-        final QueryBuilder query = QueryToElasticsearch.getCommand(
+        final co.elastic.clients.elasticsearch._types.query_dsl.Query query = QueryToElasticsearch.getCommand(
             realQuery,
             new MongoDbVarNameAdapter(),
             parserTokens
         );
-        QueryBuilder finalQuery;
+        co.elastic.clients.elasticsearch._types.query_dsl.Query finalQuery;
         if (previous.getCurrentIds().isEmpty()) {
             finalQuery = query;
         } else {
-            final QueryBuilder roots;
+            final co.elastic.clients.elasticsearch._types.query_dsl.Query roots;
             if (FILTERARGS.UNITS.equals(previous.getType())) {
                 roots = QueryToElasticsearch.getRoots(MetadataDocument.UP, previous.getCurrentIds());
             } else {
                 roots = QueryToElasticsearch.getRoots(MetadataDocument.ID, previous.getCurrentIds());
             }
-            finalQuery = QueryBuilders.boolQuery().must(query).must(roots);
+            finalQuery = boolMust(query, roots);
         }
 
         LOGGER.debug(QUERY2 + "{}", finalQuery);
@@ -1022,11 +1030,11 @@ public class DbRequest {
                         MetadataCollections.UNIT.useScore() &&
                         requestToMongodb.isScoreIncluded()
                     ) {
-                        Float score = 1F;
+                        Double score = 1d;
                         try {
                             score = last.scores.get(i);
                             if (score.isNaN()) {
-                                score = 1F;
+                                score = 1d;
                             }
                         } catch (IndexOutOfBoundsException e) {
                             SysErrLogger.FAKE_LOGGER.ignoreLog(e);
@@ -1095,11 +1103,11 @@ public class DbRequest {
                     MetadataCollections.OBJECTGROUP.useScore() &&
                     requestToMongodb.isScoreIncluded()
                 ) {
-                    Float score = 1F;
+                    Double score = 1d;
                     try {
                         score = last.scores.get(i);
                         if (score.isNaN()) {
-                            score = 1F;
+                            score = 1d;
                         }
                     } catch (IndexOutOfBoundsException e) {
                         SysErrLogger.FAKE_LOGGER.ignoreLog(e);

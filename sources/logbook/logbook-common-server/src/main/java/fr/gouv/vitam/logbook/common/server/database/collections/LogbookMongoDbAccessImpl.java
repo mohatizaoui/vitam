@@ -26,6 +26,10 @@
  */
 package fr.gouv.vitam.logbook.common.server.database.collections;
 
+import co.elastic.clients.elasticsearch._types.SortOptions;
+import co.elastic.clients.elasticsearch.core.search.Hit;
+import co.elastic.clients.elasticsearch.core.search.HitsMetadata;
+import co.elastic.clients.elasticsearch.core.search.ResponseBody;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.annotations.VisibleForTesting;
@@ -98,10 +102,6 @@ import fr.gouv.vitam.logbook.common.server.exception.LogbookExecutionException;
 import fr.gouv.vitam.logbook.common.server.exception.LogbookNotFoundException;
 import org.bson.Document;
 import org.bson.conversions.Bson;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.sort.SortBuilder;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -1340,11 +1340,11 @@ public final class LogbookMongoDbAccessImpl extends MongoDbAccess implements Log
             collection.getVitamDescriptionResolver(),
             ontologyLoader.loadOntologies()
         );
-        List<SortBuilder<?>> sorts = requestToEs.getFinalOrderBy(
+        List<SortOptions> sorts = requestToEs.getFinalOrderBy(
             collection.getVitamCollection().isUseScore(),
             parserTokens
         );
-        SearchResponse elasticSearchResponse;
+        ResponseBody<ObjectNode> elasticSearchResponse;
         if (isCrossTenant) {
             elasticSearchResponse = collection
                 .getEsClient()
@@ -1352,7 +1352,6 @@ public final class LogbookMongoDbAccessImpl extends MongoDbAccess implements Log
                     collection,
                     ParameterHelper.getTenantParameter(),
                     requestToEs.getNthQueries(0, new LogbookVarNameAdapter(), parserTokens),
-                    null,
                     sorts,
                     requestToEs.getFinalOffset(),
                     requestToEs.getFinalLimit()
@@ -1364,24 +1363,19 @@ public final class LogbookMongoDbAccessImpl extends MongoDbAccess implements Log
                     collection,
                     ParameterHelper.getTenantParameter(),
                     requestToEs.getNthQueries(0, new LogbookVarNameAdapter(), parserTokens),
-                    null,
                     sorts,
                     requestToEs.getFinalOffset(),
                     requestToEs.getFinalLimit()
                 );
         }
 
-        final SearchHits hits = elasticSearchResponse.getHits();
-        if (hits.getTotalHits().value == 0) {
+        final HitsMetadata<ObjectNode> hits = elasticSearchResponse.hits();
+        if (hits.total() == null || hits.total().value() == 0L) {
             return new VitamMongoCursor<>(new EmptyMongoCursor<>());
         }
-        final Iterator<SearchHit> iterator = hits.iterator();
+
         // get document with Elasticsearch then create a new request to mongodb with unique object's attribute
-        List<String> idsSorted = new ArrayList<>();
-        while (iterator.hasNext()) {
-            final SearchHit hit = iterator.next();
-            idsSorted.add(hit.getId());
-        }
+        List<String> idsSorted = hits.hits().stream().map(Hit::id).collect(Collectors.toList());
 
         // replace query with list of ids from es
         parser.getRequest().setQuery(new NopQuery());
@@ -1393,8 +1387,8 @@ public final class LogbookMongoDbAccessImpl extends MongoDbAccess implements Log
                 idsSorted,
                 null
             ),
-            hits.getTotalHits().value,
-            elasticSearchResponse.getScrollId()
+            hits.total().value(),
+            elasticSearchResponse.scrollId()
         );
     }
 

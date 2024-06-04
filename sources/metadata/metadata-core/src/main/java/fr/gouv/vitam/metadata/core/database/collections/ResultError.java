@@ -63,7 +63,7 @@ public class ResultError extends Result<MetadataDocument<?>> {
      */
     public ResultError addError(String error) {
         currentIds.add(error);
-        scores.add(0f);
+        scores.add(0d);
         return this;
     }
 

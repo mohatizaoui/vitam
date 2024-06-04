@@ -24,25 +24,21 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
+
 package fr.gouv.vitam.common.database.server.elasticsearch;
 
+import co.elastic.clients.elasticsearch._types.aggregations.Aggregate;
+import co.elastic.clients.elasticsearch._types.aggregations.FiltersBucket;
+import co.elastic.clients.elasticsearch._types.aggregations.LongTermsBucket;
+import co.elastic.clients.elasticsearch._types.aggregations.RangeBucket;
+import co.elastic.clients.elasticsearch._types.aggregations.StringTermsBucket;
 import fr.gouv.vitam.common.model.FacetBucket;
 import fr.gouv.vitam.common.model.FacetResult;
-import org.elasticsearch.search.aggregations.Aggregation;
-import org.elasticsearch.search.aggregations.bucket.filter.Filters;
-import org.elasticsearch.search.aggregations.bucket.filter.FiltersAggregationBuilder;
-import org.elasticsearch.search.aggregations.bucket.nested.NestedAggregationBuilder;
-import org.elasticsearch.search.aggregations.bucket.nested.ParsedNested;
-import org.elasticsearch.search.aggregations.bucket.range.DateRangeAggregationBuilder;
-import org.elasticsearch.search.aggregations.bucket.range.Range;
-import org.elasticsearch.search.aggregations.bucket.terms.LongTerms;
-import org.elasticsearch.search.aggregations.bucket.terms.StringTerms;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms.Bucket;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * ElasticsearchFacetResultHelper for mapping ES object to Vitam FacetResult
@@ -55,26 +51,28 @@ public class ElasticsearchFacetResultHelper {
      * @param aggregation es aggregation result
      * @return FacetResult
      */
-    public static FacetResult transformFromEsAggregation(Aggregation aggregation) {
+    public static FacetResult transformFromEsAggregation(String name, Aggregate aggregation) {
         FacetResult facetResult = new FacetResult();
-        facetResult.setName(aggregation.getName());
-        String aggType = aggregation.getType();
+        facetResult.setName(name);
+        Aggregate.Kind aggType = aggregation._kind();
         switch (aggType) {
-            case DateRangeAggregationBuilder.NAME:
-                facetResult.setBuckets(extractBucketRangeAggregation(aggregation));
+            case DateRange:
+                facetResult.setBuckets(extractBucketDateRangeAggregation(aggregation));
                 break;
-            case StringTerms.NAME:
-            case LongTerms.NAME:
-                facetResult.setBuckets(extractBucketTermsAggregation(aggregation));
+            case Sterms:
+                facetResult.setBuckets(extractBucketStringTermsAggregation(aggregation));
                 break;
-            case FiltersAggregationBuilder.NAME:
+            case Lterms:
+                facetResult.setBuckets(extractBucketLongTermsAggregation(aggregation));
+                break;
+            case Filters:
                 facetResult.setBuckets(extractBucketFiltersAggregation(aggregation));
                 break;
-            case NestedAggregationBuilder.NAME:
+            case Nested:
                 facetResult.setBuckets(extractBucketNestedAggregation(aggregation));
                 break;
             default:
-                break;
+                throw new IllegalStateException("Unexpected aggregate type " + aggType);
         }
         return facetResult;
     }
@@ -85,10 +83,40 @@ public class ElasticsearchFacetResultHelper {
      * @param aggregation es aggregation
      * @return list of FacetBucket
      */
-    private static List<FacetBucket> extractBucketFiltersAggregation(Aggregation aggregation) {
-        List<? extends Filters.Bucket> buckets = ((Filters) aggregation).getBuckets();
+    private static List<FacetBucket> extractBucketFiltersAggregation(Aggregate aggregation) {
+        Map<String, FiltersBucket> buckets = aggregation.filters().buckets().keyed();
         List<FacetBucket> facetBuckets = new ArrayList<>();
-        buckets.forEach(bucket -> facetBuckets.add(new FacetBucket(bucket.getKeyAsString(), bucket.getDocCount())));
+        buckets.forEach((key, bucket) -> facetBuckets.add(new FacetBucket(key, bucket.docCount())));
+        return facetBuckets;
+    }
+
+    /**
+     * Transform es String Terms aggregation buckets to FacetBucket
+     *
+     * @param aggregation es aggregation
+     * @return list of FacetBucket
+     */
+    private static List<FacetBucket> extractBucketStringTermsAggregation(Aggregate aggregation) {
+        List<StringTermsBucket> buckets = aggregation.sterms().buckets().array();
+        List<FacetBucket> facetBuckets = new ArrayList<>();
+        buckets.forEach(bucket -> facetBuckets.add(new FacetBucket(bucket.key().stringValue(), bucket.docCount())));
+        return facetBuckets;
+    }
+
+    /**
+     * Transform es Long Terms aggregation buckets to FacetBucket
+     *
+     * @param aggregation es aggregation
+     * @return list of FacetBucket
+     */
+    private static List<FacetBucket> extractBucketLongTermsAggregation(Aggregate aggregation) {
+        List<LongTermsBucket> buckets = aggregation.lterms().buckets().array();
+        List<FacetBucket> facetBuckets = new ArrayList<>();
+        buckets.forEach(bucket -> {
+            // Long values are returned as "key", other types (eg. boolean) are returned as "key_as_string"
+            String value = bucket.keyAsString() != null ? bucket.keyAsString() : Long.toString(bucket.key());
+            facetBuckets.add(new FacetBucket(value, bucket.docCount()));
+        });
         return facetBuckets;
     }
 
@@ -98,26 +126,13 @@ public class ElasticsearchFacetResultHelper {
      * @param aggregation es aggregation
      * @return list of FacetBucket
      */
-    private static List<FacetBucket> extractBucketTermsAggregation(Aggregation aggregation) {
-        List<? extends Bucket> buckets = ((Terms) aggregation).getBuckets();
-        List<FacetBucket> facetBuckets = new ArrayList<>();
-        buckets.forEach(bucket -> facetBuckets.add(new FacetBucket(bucket.getKeyAsString(), bucket.getDocCount())));
-        return facetBuckets;
-    }
-
-    /**
-     * Transform es terms aggregation buckets to FacetBucket
-     *
-     * @param aggregation es aggregation
-     * @return list of FacetBucket
-     */
-    private static List<FacetBucket> extractBucketNestedAggregation(Aggregation aggregation) {
-        List<Aggregation> aggregations = ((ParsedNested) aggregation).getAggregations().asList();
+    private static List<FacetBucket> extractBucketNestedAggregation(Aggregate aggregation) {
+        Map<String, Aggregate> aggregations = aggregation.nested().aggregations();
         if (aggregations.isEmpty()) {
             return Collections.emptyList();
         } else {
-            Aggregation agg = aggregations.get(0);
-            return transformFromEsAggregation(agg).getBuckets();
+            String key = aggregations.keySet().iterator().next();
+            return transformFromEsAggregation(key, aggregations.get(key)).getBuckets();
         }
     }
 
@@ -127,10 +142,10 @@ public class ElasticsearchFacetResultHelper {
      * @param aggregation es aggregation
      * @return list of FacetBucket
      */
-    private static List<FacetBucket> extractBucketRangeAggregation(Aggregation aggregation) {
-        List<? extends Range.Bucket> buckets = ((Range) aggregation).getBuckets();
+    private static List<FacetBucket> extractBucketDateRangeAggregation(Aggregate aggregation) {
+        List<RangeBucket> buckets = aggregation.dateRange().buckets().array();
         List<FacetBucket> facetBuckets = new ArrayList<>();
-        buckets.forEach(bucket -> facetBuckets.add(new FacetBucket(bucket.getKeyAsString(), bucket.getDocCount())));
+        buckets.forEach(bucket -> facetBuckets.add(new FacetBucket(bucket.key(), bucket.docCount())));
         return facetBuckets;
     }
 }

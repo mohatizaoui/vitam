@@ -24,8 +24,13 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
+
 package fr.gouv.vitam.logbook.common.server.database.collections;
 
+import co.elastic.clients.elasticsearch._types.SortOptions;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch.core.search.ResponseBody;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableSet;
 import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.database.builder.request.configuration.GlobalDatas;
@@ -44,15 +49,14 @@ import fr.gouv.vitam.common.parameter.ParameterHelper;
 import fr.gouv.vitam.logbook.common.server.config.ElasticsearchLogbookIndexManager;
 import fr.gouv.vitam.logbook.common.server.exception.LogbookException;
 import fr.gouv.vitam.logbook.common.server.exception.LogbookExecutionException;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.TermQueryBuilder;
-import org.elasticsearch.search.sort.SortBuilder;
 
 import java.util.Collection;
 import java.util.List;
+
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.boolMust;
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.boolShould;
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.termQuery;
+import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.termsQuery;
 
 /**
  * ElasticSearch model with MongoDB as main database with management of index and index entries
@@ -154,19 +158,17 @@ public class LogbookElasticsearchAccess extends ElasticsearchAccess {
      * @param tenantId tenant Id
      * @param query as in DSL mode "{ "fieldname" : "value" }" "{ "match" : { "fieldname" : "value" } }" "{ "ids" : { "
      * values" : [list of id] } }"
-     * @param filter the filter
      * @param sorts the list of sort
      * @param offset the offset
      * @param limit the limit
      * @return a structure as SearchResponse
      * @throws LogbookException thrown of an error occurred while executing the request
      */
-    public final SearchResponse search(
+    public final ResponseBody<ObjectNode> search(
         final LogbookCollections collection,
         final Integer tenantId,
-        final QueryBuilder query,
-        final QueryBuilder filter,
-        final List<SortBuilder<?>> sorts,
+        final Query query,
+        final List<SortOptions> sorts,
         final int offset,
         final int limit
     ) throws LogbookException {
@@ -175,14 +177,11 @@ public class LogbookElasticsearchAccess extends ElasticsearchAccess {
             ElasticsearchIndexAlias indexAlias =
                 this.indexManager.getElasticsearchIndexAliasResolver(collection).resolveIndexName(tenantId);
 
-            QueryBuilder finalQuery = new BoolQueryBuilder()
-                .must(query)
-                .must(QueryBuilders.termQuery(LogbookDocument.TENANT_ID, tenantId));
+            Query finalQuery = boolMust(query, termQuery(LogbookDocument.TENANT_ID, tenantId));
 
             return super.search(
                 indexAlias,
                 finalQuery,
-                filter,
                 VitamDocument.ES_FILTER_OUT,
                 sorts,
                 offset,
@@ -197,12 +196,11 @@ public class LogbookElasticsearchAccess extends ElasticsearchAccess {
         }
     }
 
-    public final SearchResponse searchCrossIndices(
+    public final ResponseBody<ObjectNode> searchCrossIndices(
         final LogbookCollections collection,
         final Integer tenantId,
-        final QueryBuilder query,
-        final QueryBuilder filter,
-        final List<SortBuilder<?>> sorts,
+        final Query query,
+        final List<SortOptions> sorts,
         final int offset,
         final int limit
     ) throws LogbookException {
@@ -211,15 +209,11 @@ public class LogbookElasticsearchAccess extends ElasticsearchAccess {
             ElasticsearchIndexAlias indexAlias =
                 this.indexManager.getElasticsearchIndexAliasResolver(collection).resolveIndexName(tenantId);
 
-            BoolQueryBuilder finalQuery = new BoolQueryBuilder().must(query);
-            TermQueryBuilder currentTenantQuery = QueryBuilders.termQuery(LogbookDocument.TENANT_ID, tenantId);
-
             if (ParameterHelper.getTenantParameter().equals(VitamConfiguration.getAdminTenant())) {
-                finalQuery.must(currentTenantQuery);
+                Query finalQuery = boolMust(query, termQuery(LogbookDocument.TENANT_ID, tenantId));
                 return super.search(
                     indexAlias,
                     finalQuery,
-                    filter,
                     VitamDocument.ES_FILTER_OUT,
                     sorts,
                     offset,
@@ -234,29 +228,20 @@ public class LogbookElasticsearchAccess extends ElasticsearchAccess {
                     this.indexManager.getElasticsearchIndexAliasResolver(collection).resolveIndexName(
                             VitamConfiguration.getAdminTenant()
                         );
-                finalQuery.must(
-                    new BoolQueryBuilder()
-                        .should(currentTenantQuery)
-                        .should(
-                            new BoolQueryBuilder()
-                                .must(
-                                    QueryBuilders.termsQuery(
-                                        LogbookEvent.EV_TYPE,
-                                        LogbookCollections.MULTI_TENANT_EV_TYPES
-                                    )
-                                )
-                                .must(
-                                    QueryBuilders.termQuery(
-                                        LogbookDocument.TENANT_ID,
-                                        VitamConfiguration.getAdminTenant()
-                                    )
-                                )
+                Query finalQuery = boolMust(
+                    query,
+                    boolShould(
+                        termQuery(LogbookDocument.TENANT_ID, tenantId),
+                        boolMust(
+                            termsQuery(LogbookEvent.EV_TYPE, LogbookCollections.MULTI_TENANT_EV_TYPES),
+                            termQuery(LogbookDocument.TENANT_ID, VitamConfiguration.getAdminTenant())
                         )
+                    )
                 );
+
                 return super.searchCrossIndices(
                     ImmutableSet.of(indexAlias, adminTenantIndex),
                     finalQuery,
-                    filter,
                     VitamDocument.ES_FILTER_OUT,
                     sorts,
                     offset,

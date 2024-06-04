@@ -450,7 +450,7 @@ public class MetadataAuditService {
         Map.Entry<String, ? extends MetadataDocument<?>> elmt
     ) {
         try {
-            Document result = elasticsearchRepository.getDocumentById(elmt.getKey()).orElse(new Document());
+            Document result = elasticsearchRepository.getDocumentByIdCrossIndices(elmt.getKey()).orElse(new Document());
             if (!result.isEmpty()) {
                 result.put(FIELD_ID, elmt.getKey());
             }

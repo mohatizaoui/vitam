@@ -26,9 +26,9 @@
  */
 package fr.gouv.vitam.common.database.translators.elasticsearch;
 
+import co.elastic.clients.elasticsearch._types.SortOptions;
 import fr.gouv.vitam.common.database.collections.DynamicParserTokens;
 import fr.gouv.vitam.common.database.parser.request.AbstractParser;
-import org.elasticsearch.search.sort.SortBuilder;
 
 import java.util.List;
 
@@ -50,8 +50,7 @@ public class SelectToElasticsearch extends RequestToElasticsearch {
      * @param score True to use if necessary score from ES
      * @return the orderBy Elasticsearch command
      */
-    public List<SortBuilder<?>> getFinalOrderBy(boolean score, DynamicParserTokens parserTokens) {
-        List<SortBuilder<?>> list = QueryToElasticsearch.getSorts(requestParser, score, parserTokens);
-        return list;
+    public List<SortOptions> getFinalOrderBy(boolean score, DynamicParserTokens parserTokens) {
+        return QueryToElasticsearch.getSorts(requestParser, score, parserTokens);
     }
 }

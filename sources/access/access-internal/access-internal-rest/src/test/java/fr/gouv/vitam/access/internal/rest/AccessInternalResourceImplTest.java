@@ -132,7 +132,7 @@ public class AccessInternalResourceImplTest extends ResteasyTestApplication {
     // Create a "GET" query inspired by DSL, exemple from tech design story 76
     private static final String QUERY_TEST =
         "{ \"$query\" : [ { \"$eq\": { \"title\" : \"test\" } } ], " +
-        " \"$filter\": { \"$orderby\": \"#id\" }, " +
+        " \"$filter\": { \"$orderby\": \"field\" }, " +
         " \"$projection\" : { \"$fields\" : { \"#id\": 1, \"title\" : 2, \"transacdate\": 1 } } " +
         " }";
     private static final String QUERY_SIMPLE_TEST = "{ \"$eq\" : { \"title\" : \"test\" } }";
