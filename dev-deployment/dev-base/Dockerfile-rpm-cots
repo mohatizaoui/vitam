@@ -1,17 +1,17 @@
 #########################################################################################
 # Dockerfile to run vitam on one server
-# Based on CentOS
+# Based on AlmaLinux
 #
 # Maintained by Vitam Integration Team
 # Image name: vitam/jenkins-slave-base
 #########################################################################################
 
-# Set the base image to Centos 7
-FROM centos:7.7.1908
+# Set the base image to almalinux:9
+FROM almalinux:9
 MAINTAINER French Prime minister Office/SGMAP/DINSIC/Vitam Program <contact.vitam@culture.gouv.fr>
 
 # Make sure the package repository and packages are up to date.
-RUN yum install -y epel-release && yum -y update && yum -y upgrade && yum clean all
+RUN dnf install -y epel-release && dnf -y update && dnf -y upgrade && dnf clean all
 
 ################################  Configure systemd  ###############################
 
@@ -20,26 +20,26 @@ ENV container docker
 
 # Remove useless units
 RUN (cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i == systemd-tmpfiles-setup.service ] || rm -f $i; done); \
-    rm -f /lib/systemd/system/multi-user.target.wants/*;\
-    rm -f /etc/systemd/system/*.wants/*;\
+    rm -f /lib/systemd/system/multi-user.target.wants/*; \
+    rm -f /etc/systemd/system/*.wants/*; \
     rm -f /lib/systemd/system/local-fs.target.wants/*; \
     rm -f /lib/systemd/system/sockets.target.wants/*udev*; \
     rm -f /lib/systemd/system/sockets.target.wants/*initctl*; \
-    rm -f /lib/systemd/system/basic.target.wants/*;\
+    rm -f /lib/systemd/system/basic.target.wants/*; \
     rm -f /lib/systemd/system/anaconda.target.wants/*;
 
 ################################  Install build tools (rpm / maven / java)  ###############################
 
-RUN yum remove -y java-1.8*
+RUN dnf remove -y java-1.8*
 
-RUN yum install -y \
+RUN dnf install -y \
         java-11-openjdk-devel \
         rpm-build \
         rpmdevtools \
         initscripts.x86_64 \
         golang \
         npm \
-    && yum clean all
+    && dnf clean all
 
 # Add Java to path
 ENV JAVA_HOME /usr/lib/jvm/java
@@ -59,17 +59,17 @@ ENV PATH ${M2_HOME}/bin:${JAVA_HOME}/bin:${PATH}
 ################################  Install deployment tools  ###############################
 
 # for sudo in automatic deployment ; note : ansible needs epel repo
-RUN yum install -y sudo ansible openssl which && yum clean all
+RUN dnf install -y sudo ansible openssl which && dnf clean all
 
 ##################################  install git and vim  #################################
 
-RUN yum install -y git vim && yum clean all
+RUN dnf install -y git vim && dnf clean all
 
 ##################################  Declare local rpm repo  #################################
 
-# Note : declare at the end ; else other yum commandes will fail. Ideally, we would need a "createrepo" here, but it wouldn't work, as the volume /code is normally mounter externally.
-RUN yum install -y createrepo \
-    && yum clean all
+# Note : declare at the end ; else other dnf commands will fail. Ideally, we would need a "createrepo" here, but it wouldn't work, as the volume /code is normally mounted externally.
+RUN dnf install -y createrepo \
+    && dnf clean all
 COPY rpm/devlocal.repo /etc/yum.repos.d/devlocal.repo
 
 ################################## Add dev helpers #################################
@@ -83,10 +83,11 @@ COPY vitam-usage.txt /etc
 COPY rpm/wheel-nopwd /etc/sudoers.d
 RUN chmod 664 /etc/sudoers.d/wheel-nopwd
 
-# Disable fastestmirror ; helps gain several seconds per yum invocation
+# Disable fastestmirror ; helps gain several seconds per dnf invocation
 COPY rpm/fastestmirror.conf /etc/yum/pluginconf.d
 
 ENV TERM xterm
+
 
 ##################################  CONTAINER SETTINGS  #################################
 
@@ -94,7 +95,7 @@ VOLUME [ "/sys/fs/cgroup" ]
 VOLUME [ "/code" ]
 VOLUME [ "/devhome/.m2" ]
 
-RUN yum install -y --disablerepo=local selinux-policy selinux-policy-devel
+RUN dnf install -y --disablerepo=local selinux-policy selinux-policy-devel
 
 # System tuning for elasticsearch
 RUN echo "vm.max_map_count = 262144" >> /etc/sysctl.conf
