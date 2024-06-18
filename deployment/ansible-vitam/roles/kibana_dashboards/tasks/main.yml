@@ -113,90 +113,67 @@
   delay: "{{ kibana.import_delay }}"
   when: composant.groupe == 'data'
 
-# - block:
-#
-#    - name: load dashboards into Elasticsearch log .kibana index
-#      run_once: true
-#      tags: load_kibana
-#      uri:
-#        url: "http://{{ ip_admin }}:{{ composant.port }}/api/saved_objects/dashboard/{{ item | basename | regex_replace('\\.json$') }}?overwrite=true"
-#        method: POST
-#        body: "{\"attributes\": {{ lookup('file', '{{ role_path }}/files/{{ composant.groupe }}/dashboard/{{ item }}') }} }"
-#        body_format: json
-#        status_code: 200, 201
-#        headers:
-#          kbn-xsrf: "{{ kibana.header_value }}"
-#        timeout: "{{ composant.api_call_timeout }}"
-#      with_items:
-#        - mongodb-es-synchro-errors-dashboard.json
-#        - StorageOfferPerf.json
-#      register: kibana_result
-#      until: kibana_result.status in [200,201]
-#      retries: "{{ kibana.import_retries }}"
-#      delay: "{{ kibana.import_delay }}"
-#
-#    - name: load dashboards into Elasticsearch {{ composant.groupe }} .kibana index [NEW COMMAND]
-#      run_once: true
-#      tags: load_kibana
-#      uri:
-#        url: "http://{{ ip_admin }}:{{ composant.port }}/api/saved_objects/_import?overwrite=true"
-#        method: POST
-#        headers:
-#          kbn-xsrf: "{{ kibana.header_value }}"
-#        body_format: form-urlencoded
-#        body:
-#          file: "@{{ item }}"
-#        validate_certs: no
-#      with_items:
-#        - "{{ role_path }}/files/{{ composant.groupe }}/dashboard/Composants-Vitam.ndjson"
-#        - "{{ role_path }}/files/{{ composant.groupe }}/dashboard/alertes-de-securite-dashboard.ndjson"
-#      register: kibana_result
-#      until: kibana_result.status in [200,201]
-#      retries: "{{ kibana.import_retries }}"
-#      delay: "{{ kibana.import_delay }}"
-#
-#    - name: load specific Filebeat dashboard into Elasticsearch log .kibana index
-#      run_once: true
-#      tags: load_kibana
-#      uri:
-#        url: "http://{{ ip_admin }}:{{ composant.port }}/api/saved_objects/dashboard/{{ item | basename | regex_replace('\\.json$') }}?overwrite=true"
-#        method: POST
-#        body: "{\"attributes\": {{ lookup('file', '{{ role_path }}/files/{{ composant.groupe }}/dashboard/{{ item }}') }} }"
-#        body_format: json
-#        status_code: 200, 201
-#        headers:
-#          kbn-xsrf: "{{ kibana.header_value }}"
-#        timeout: "{{ composant.api_call_timeout }}"
-#      with_items:
-#        - Filebeat-Composants-Vitam.json
-#        - Filebeat-Access-Vitam.json
-#      register: kibana_result
-#      until: kibana_result.status in [200,201]
-#      retries: "{{ kibana.import_retries }}"
-#      delay: "{{ kibana.import_delay }}"
-#      when: syslog.name | default('filebeat') == "filebeat"
-#
-#    - name: load specific rsyslog dashboard into Elasticsearch log .kibana index
-#      run_once: true
-#      tags: load_kibana
-#      uri:
-#        url: "http://{{ ip_admin }}:{{ composant.port }}/api/saved_objects/dashboard/{{ item | basename | regex_replace('\\.json$') }}?overwrite=true"
-#        method: POST
-#        body: "{\"attributes\": {{ lookup('file', '{{ role_path }}/files/{{ composant.groupe }}/dashboard/{{ item }}') }} }"
-#        body_format: json
-#        status_code: 200, 201
-#        headers:
-#          kbn-xsrf: "{{ kibana.header_value }}"
-#        timeout: "{{ composant.api_call_timeout }}"
-#      with_items:
-#        - rsyslog-Composants-Vitam.json
-#      register: kibana_result
-#      until: kibana_result.status in [200,201]
-#      retries: "{{ kibana.import_retries }}"
-#      delay: "{{ kibana.import_delay }}"
-#      when: syslog.name | default('filebeat') != "filebeat"
-#
-#  when: composant.groupe == 'log'
+- block:
+
+    - name: load dashboards into Elasticsearch log .kibana index
+      run_once: true
+      tags: load_kibana
+      uri:
+        url: "http://{{ ip_admin }}:{{ composant.port }}/api/saved_objects/dashboard/{{ item | basename | regex_replace('\\.json$') }}?overwrite=true"
+        method: POST
+        body: "{\"attributes\": {{ lookup('file', '{{ role_path }}/files/{{ composant.groupe }}/dashboard/{{ item }}') }} }"
+        body_format: json
+        status_code: 200, 201
+        headers:
+          kbn-xsrf: "{{ kibana.header_value }}"
+        timeout: "{{ composant.api_call_timeout }}"
+      with_items:
+        - StorageOfferPerf.json
+      register: kibana_result
+      until: kibana_result.status in [200,201]
+      retries: "{{ kibana.import_retries }}"
+      delay: "{{ kibana.import_delay }}"
+
+    - name: load dashboards into Elasticsearch {{ composant.groupe }} .kibana index via shell
+      run_once: true
+      tags: load_kibana
+      shell: "curl -k -X POST http://{{ ip_admin }}:{{ composant.port }}/api/saved_objects/_import?overwrite=true -H 'kbn-xsrf: true' --form file=@{{ role_path }}/files/{{ composant.groupe }}/dashboard/mongodb-es-synchro-errors-dashboard.ndjson"
+      delegate_to: localhost
+      args:
+        warn: false
+        
+    - name: load dashboards into Elasticsearch {{ composant.groupe }} .kibana index via shell
+      run_once: true
+      tags: load_kibana
+      shell: "curl -k -X POST http://{{ ip_admin }}:{{ composant.port }}/api/saved_objects/_import?overwrite=true -H 'kbn-xsrf: true' --form file=@{{ role_path }}/files/{{ composant.groupe }}/dashboard/alertes-de-securite-dashboard.ndjson"
+      delegate_to: localhost
+      args:
+        warn: false
+
+    - name: load specific filebeat dashboards into Elasticsearch log .kibana index via shell command
+      run_once: true
+      tags: load_kibana
+      shell: "curl -k -X POST http://{{ ip_admin }}:{{ composant.port }}/api/saved_objects/_import?overwrite=true -H 'kbn-xsrf: true' --form file=@{{ role_path }}/files/{{ composant.groupe }}/dashboard/{{ item }}"
+      with_items:
+        - Filebeat-Composants-Vitam.ndjson
+        - Filebeat-Access-Vitam.ndjson
+      delegate_to: localhost
+      args:
+        warn: false
+      when: syslog.name | default('filebeat') == "filebeat"
+
+    - name: load specific rsyslog dashboard into Elasticsearch log .kibana index via shell command
+      run_once: true
+      tags: load_kibana
+      shell: "curl -k -X POST http://{{ ip_admin }}:{{ composant.port }}/api/saved_objects/_import?overwrite=true -H 'kbn-xsrf: true' --form file=@{{ role_path }}/files/{{ composant.groupe }}/dashboard/{{ item }}"
+      with_items:
+        - rsyslog-Composants-Vitam.ndjson
+      delegate_to: localhost
+      args:
+        warn: false
+      when: syslog.name | default('filebeat') != "filebeat"
+
+  when: composant.groupe == 'log'
 
 # OMA : tout est OK, et pourtant... Ne marche pas !
 - name: set {{ composant.default_index_pattern }} as kibana default index pattern
