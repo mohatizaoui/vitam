@@ -188,6 +188,7 @@ public class ExportRequest {
                 ? transferRequest.getSedaVersion()
                 : SupportedSedaVersions.SEDA_2_2.getVersion()
         );
+        exportRequest.setUseOriginalFilenames(transferRequest.isUseOriginalFilenames());
 
         return exportRequest;
     }

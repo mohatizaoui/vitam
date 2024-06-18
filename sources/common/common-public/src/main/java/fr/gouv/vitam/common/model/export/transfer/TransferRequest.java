@@ -53,6 +53,9 @@ public class TransferRequest {
     @JsonProperty("transferWithoutObjects")
     private boolean transferWithoutObjects;
 
+    @JsonProperty("useOriginalFilenames")
+    private boolean useOriginalFilenames;
+
     public TransferRequest() {}
 
     public TransferRequest(JsonNode dslRequest) {
@@ -119,5 +122,13 @@ public class TransferRequest {
 
     public void setTransferWithoutObjects(boolean transferWithoutObjects) {
         this.transferWithoutObjects = transferWithoutObjects;
+    }
+
+    public boolean isUseOriginalFilenames() {
+        return useOriginalFilenames;
+    }
+
+    public void setUseOriginalFilenames(boolean useOriginalFilenames) {
+        this.useOriginalFilenames = useOriginalFilenames;
     }
 }
