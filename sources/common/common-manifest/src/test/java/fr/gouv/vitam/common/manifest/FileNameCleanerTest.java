@@ -39,9 +39,10 @@ public class FileNameCleanerTest {
         assertEquals("document@2022_06_10.pdf", FileNameCleaner.cleanFileName("document@2022*06&10.pdf"));
         assertEquals("email_address@domain.com", FileNameCleaner.cleanFileName("email_address@domain.com"));
         assertEquals("multiple.dots.in.name.docx", FileNameCleaner.cleanFileName("multiple....dots...in...name.docx"));
-        assertEquals("file-name_with-dash-and_underscore.mp3", FileNameCleaner.cleanFileName("file-name_with-dash-and_underscore.mp3"));
+        assertEquals(
+            "file-name_with-dash-and_underscore.mp3",
+            FileNameCleaner.cleanFileName("file-name_with-dash-and_underscore.mp3")
+        );
         assertEquals("file_name", FileNameCleaner.cleanFileName(".file_name."));
     }
-
-
 }
