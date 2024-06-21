@@ -31,7 +31,6 @@ import org.apache.commons.lang3.StringUtils;
 
 public class FileNameCleaner {
 
-
     public static String cleanFileName(String fileName) {
         // Strip accents
         String stripped = StringUtils.stripAccents(fileName);
