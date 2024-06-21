@@ -346,7 +346,7 @@ public class ManifestBuilder implements AutoCloseable {
     ) {
         String ext = extension.isEmpty() ? "" : "." + extension;
 
-        if (useOriginalFilenames) {
+        if (useOriginalFilenames && !Strings.isNullOrEmpty(binaryDataObjectType.getFileInfo().getFilename())) {
             return buildFileNameWithOriginalFilename(binaryDataObjectType, ext, existingFileNames);
         } else {
             return determineFileNameBasedOnUri(binaryDataObjectType, ext);
@@ -360,12 +360,12 @@ public class ManifestBuilder implements AutoCloseable {
     ) {
         String baseFilePath = CONTENT + File.separator;
         String originalFileName = binaryDataObjectType.getFileInfo().getFilename();
-        String fileNameWithExtension = originalFileName + extension;
-        String fullFileName = baseFilePath + fileNameWithExtension;
+        String cleanedFileName = FileNameCleaner.cleanFileName(originalFileName);
+        String fullFileName = baseFilePath + cleanedFileName;
 
         if (existingFileNames.contains(fullFileName)) {
             String idPrefix = binaryDataObjectType.getId() != null ? binaryDataObjectType.getId() : "";
-            fullFileName = baseFilePath + idPrefix + fileNameWithExtension;
+            fullFileName = baseFilePath + idPrefix + cleanedFileName;
 
             int maxLength = FULL_FILE_NAME_SIZE_LIMIT;
             if (fullFileName.length() > maxLength) {
