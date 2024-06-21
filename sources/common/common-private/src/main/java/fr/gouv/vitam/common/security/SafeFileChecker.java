@@ -45,7 +45,7 @@ import java.util.regex.Pattern;
  */
 public class SafeFileChecker {
 
-    private static final Pattern FILENAME_PATTERN = Pattern.compile("^[a-zA-Z0-9\\-_@]+(\\.[a-zA-Z0-9\\-_@]+)*$");
+    public static final Pattern FILENAME_PATTERN = Pattern.compile("^[a-zA-Z0-9\\-_@]+(\\.[a-zA-Z0-9\\-_@]+)*$");
     private static final Pattern PATH_COMPONENT_PATTERN = Pattern.compile("^[a-zA-Z0-9\\-_@]+(\\.[a-zA-Z0-9\\-_@]+)*$");
 
     private static final AlertService alertService = new AlertServiceImpl();

@@ -253,7 +253,7 @@ public class ManifestBuilderTest {
         ManifestBuilder manifestBuilder = new ManifestBuilder(outputStream, SupportedSedaVersions.SEDA_2_3);
 
         String result = manifestBuilder.determineFileName(binaryDataObjectType, "txt", true, new HashSet<>());
-        Assert.assertEquals(CONTENT + File.separator + "example.txt", result);
+        Assert.assertEquals(CONTENT + File.separator + "example", result);
     }
 
     @Test
@@ -296,19 +296,19 @@ public class ManifestBuilderTest {
         binaryDataObjectType.setFileInfo(fileInfo);
         binaryDataObjectType.setId("12345");
         Set<String> existingFileNames = new HashSet<>();
-        existingFileNames.add(CONTENT + File.separator + "example.txt");
+        existingFileNames.add(CONTENT + File.separator + "example");
 
         ManifestBuilder manifestBuilder = new ManifestBuilder(outputStream, SupportedSedaVersions.SEDA_2_3);
 
         String result = manifestBuilder.determineFileName(binaryDataObjectType, "txt", true, existingFileNames);
-        Assert.assertEquals(CONTENT + File.separator + "12345" + "example.txt", result);
+        Assert.assertEquals(CONTENT + File.separator + "12345" + "example", result);
     }
 
     @Test
     public void testFileNameWithTruncation() throws Exception {
         FileInfoType fileInfo = new FileInfoType();
         fileInfo.setFilename(
-            "very_long_filename_to_ensure_we_go_over_the_character_limit_for_most_filesystems_very_long_filename_to_ensure_we_go_over_the_character_limit_for_most_filesystems"
+            "very_long_filename_to_ensure_we_go_over_the_character_limit_for_most_filesystems_very_long_filename_to_ensure_we_go_over_the_character_limit_for_most_filesystems.txt"
         );
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         BinaryDataObjectType binaryDataObjectType = new BinaryDataObjectType();

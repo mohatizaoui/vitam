@@ -374,7 +374,7 @@ public class TransferAndDipIT extends VitamRuleRunner {
 
         String manifest = getManifestString(getDip(exportOperationId));
 
-        assertThat(manifest).contains("<Uri>Content/Vitam.txt.txt</Uri>");
+        assertThat(manifest).contains("<Uri>Content/Vitam.txt</Uri>");
     }
 
     @Test
