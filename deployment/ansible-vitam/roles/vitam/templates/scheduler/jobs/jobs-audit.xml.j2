@@ -25,7 +25,7 @@
     </pre-processing-commands>
 
     <schedule>
-        {% for item in scheduler.job_parameters.integrity_audit %}
+        {% for item in scheduler.job_parameters.integrity_audit | default([]) %}
         <job>
             <name>IntegrityAuditObjectJob-{{ item.key }}</name>
             <group>audit</group>
@@ -56,7 +56,7 @@
             </cron>
         </trigger>
         {% endfor %}
-        {% for item in scheduler.job_parameters.existence_audit %}
+        {% for item in scheduler.job_parameters.existence_audit | default([]) %}
         <job>
             <name>ExistenceAuditObjectJob-{{ item.key }}</name>
             <group>audit</group>
