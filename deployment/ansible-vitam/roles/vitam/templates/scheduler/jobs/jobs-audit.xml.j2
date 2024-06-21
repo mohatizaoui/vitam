@@ -1,3 +1,4 @@
+#jinja2: lstrip_blocks: True
 <?xml version="1.0" encoding="UTF-8"?>
 <job-scheduling-data
         xmlns="http://www.quartz-scheduler.org/xml/JobSchedulingData"
@@ -14,54 +15,79 @@
         <ignore-duplicates>true</ignore-duplicates>
     </processing-directives>
 
-{% if primary_site | lower == "true" %}
-        <schedule>
-            <job>
-                <name>AuditObjectJob</name>
+    {% if primary_site | lower == "true" %}
+    <!-- Remove old job -->
+    <pre-processing-commands>
+        <delete-job>
+            <name>AuditObjectJob</name>
+            <group>audit</group>
+        </delete-job>
+    </pre-processing-commands>
+
+    <schedule>
+        {% for item in scheduler.job_parameters.integrity_audit %}
+        <job>
+            <name>IntegrityAuditObjectJob-{{ item.key }}</name>
+            <group>audit</group>
+            <description>Job for launching integrity Audit</description>
+            <job-class>fr.gouv.vitam.scheduler.server.job.auditobject.AuditObjectJob</job-class>
+            <job-data-map>
+                <entry>
+                    <key>auditType</key>
+                    <value>Integrity</value>
+                </entry>
+                <entry>
+                    <key>operationsDelayInMinutes</key>
+                    <value>{{ item.operations_delay_in_minutes | default(1440) }}</value>
+                </entry>
+                <entry>
+                    <key>selectedTenants</key>
+                    <value>{{ item.selected_tenants | default([]) | join(',') }}</value>
+                </entry>
+            </job-data-map>
+        </job>
+        <trigger>
+            <cron>
+                <name>IntegrityAuditObjectTrigger-{{ item.key }}</name>
                 <group>audit</group>
-                <description>Job for launching Audit</description>
-                <job-class>fr.gouv.vitam.scheduler.server.job.auditobject.AuditObjectJob</job-class>
-                <job-data-map>
-                    <entry>
-                        <key>operationsDelayInMinutes</key>
-                        <value>{{ scheduler.job_parameters.integrity_audit.operations_delay_in_minutes | default(1440)}}</value>
-                    </entry>
-                    <entry>
-                        <key>selectedTenants</key>
-                        <value>{{ scheduler.job_parameters.integrity_audit.selected_tenants | default('')}}</value>
-                    </entry>
-                </job-data-map>
-            </job>
-            <trigger>
-                <cron>
-                    <name>IntegrityAuditObjectTrigger</name>
-                    <group>audit</group>
-                    <job-name>AuditObjectJob</job-name>
-                    <job-group>audit</job-group>
-                    <job-data-map>
-                        <entry>
-                            <key>auditType</key>
-                            <value>Integrity</value>
-                        </entry>
-                    </job-data-map>
-                    <cron-expression>{{ vitam_timers.functional_administration.frequency_integrity_audit | default('* 30 0/4 * * ?')}}</cron-expression>
-                </cron>
-            </trigger>
-            <trigger>
-                <cron>
-                    <name>ExistenceAuditObjectTrigger</name>
-                    <group>audit</group>
-                    <job-name>AuditObjectJob</job-name>
-                    <job-group>audit</job-group>
-                    <job-data-map>
-                        <entry>
-                            <key>auditType</key>
-                            <value>Existence</value>
-                        </entry>
-                    </job-data-map>
-                    <cron-expression>{{ vitam_timers.functional_administration.frequency_existence_audit | default('* 50 0/4 * * ?')}}</cron-expression>
-                </cron>
-            </trigger>
-        </schedule>
-{% endif %}
+                <job-name>IntegrityAuditObjectJob-{{ item.key }}</job-name>
+                <job-group>audit</job-group>
+                <cron-expression>{{ item.frequency | default('* 30 0/4 * * ?') }}</cron-expression>
+            </cron>
+        </trigger>
+        {% endfor %}
+        {% for item in scheduler.job_parameters.existence_audit %}
+        <job>
+            <name>ExistenceAuditObjectJob-{{ item.key }}</name>
+            <group>audit</group>
+            <description>Job for launching existence Audit</description>
+            <job-class>fr.gouv.vitam.scheduler.server.job.auditobject.AuditObjectJob</job-class>
+            <job-data-map>
+                <entry>
+                    <key>auditType</key>
+                    <value>Existence</value>
+                </entry>
+                <entry>
+                    <key>operationsDelayInMinutes</key>
+                    <value>{{ item.operations_delay_in_minutes | default(1440) }}</value>
+                </entry>
+                <entry>
+                    <key>selectedTenants</key>
+                    <value>{{ item.selected_tenants | default([]) | join(',') }}</value>
+                </entry>
+            </job-data-map>
+        </job>
+        <trigger>
+            <cron>
+                <name>ExistenceAuditObjectTrigger-{{ item.key }}</name>
+                <group>audit</group>
+                <job-name>ExistenceAuditObjectJob-{{ item.key }}</job-name>
+                <job-group>audit</job-group>
+                <cron-expression>{{ item.frequency | default('* 50 0/4 * * ?') }}</cron-expression>
+            </cron>
+        </trigger>
+        {% endfor %}
+    </schedule>
+
+    {% endif %}
 </job-scheduling-data>
