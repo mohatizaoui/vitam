@@ -24,12 +24,12 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 4,
+  "id": 3,
   "links": [],
   "liveNow": false,
   "panels": [
     {
-      "collapsed": false,
+      "collapsed": true,
       "datasource": {
         "type": "datasource",
         "uid": "grafana"
@@ -41,7 +41,841 @@
         "y": 0
       },
       "id": 4,
-      "panels": [],
+      "panels": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                },
+                "filterable": false,
+                "inspect": false
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "none",
+              "unitScale": true
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Uptime"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "s"
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 100
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "RAM used%"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "percent"
+                  },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "dark-green",
+                          "value": null
+                        },
+                        {
+                          "color": "dark-yellow",
+                          "value": 75
+                        },
+                        {
+                          "color": "dark-red",
+                          "value": 90
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "color"
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "mode": "basic",
+                      "type": "color-background"
+                    }
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 95
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "CPU Core"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 88
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "instance"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 171
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "CPU used%"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 100
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "CPU used%"
+                  },
+                  {
+                    "id": "unit",
+                    "value": "percent"
+                  },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "dark-green",
+                          "value": null
+                        },
+                        {
+                          "color": "dark-yellow",
+                          "value": 75
+                        },
+                        {
+                          "color": "dark-red",
+                          "value": 90
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "mode": "basic",
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "5minLoad"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 80
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Hostname"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 80
+                  },
+                  {
+                    "id": "mappings",
+                    "value": [
+                      {
+                        "options": {
+                          "result": {
+                            "index": 0,
+                            "text": "$1"
+                          }
+                        },
+                        "type": "regex"
+                      }
+                    ]
+                  },
+                  {
+                    "id": "custom.width"
+                  },
+                  {
+                    "id": "links",
+                    "value": [
+                      {
+                        "targetBlank": true,
+                        "title": "Show related instance",
+                        "url": "/d/vitam_monitoring_machine/vitam-monitoring-machine?orgId=1&refresh=5s&var-hostname=${__data.fields.nodename}"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "(/vitam)Size"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "bytes"
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 98
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "(/vitamui)Size"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "bytes"
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 98
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "(/vitam)Free"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "bytes"
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 100
+                  },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "green",
+                          "value": null
+                        },
+                        {
+                          "color": "dark-red",
+                          "value": 10
+                        },
+                        {
+                          "color": "dark-yellow",
+                          "value": 25
+                        },
+                        {
+                          "color": "dark-green",
+                          "value": 100
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "mode": "basic",
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "(/vitam)Used"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "bytes"
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 109
+                  },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "mode": "percentage",
+                      "steps": [
+                        {
+                          "color": "dark-green",
+                          "value": null
+                        },
+                        {
+                          "color": "dark-yellow",
+                          "value": 75
+                        },
+                        {
+                          "color": "dark-red",
+                          "value": 90
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "mode": "basic",
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "(/)Size"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "bytes"
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 85
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "(/)Used"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 80
+                  },
+                  {
+                    "id": "unit",
+                    "value": "bytes"
+                  },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "mode": "percentage",
+                      "steps": [
+                        {
+                          "color": "dark-green",
+                          "value": null
+                        },
+                        {
+                          "color": "dark-yellow",
+                          "value": 75
+                        },
+                        {
+                          "color": "dark-red",
+                          "value": 90
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "mode": "basic",
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "(/)Free"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "bytes"
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 83
+                  },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "mode": "percentage",
+                      "steps": [
+                        {
+                          "color": "dark-green",
+                          "value": null
+                        },
+                        {
+                          "color": "dark-red",
+                          "value": 10
+                        },
+                        {
+                          "color": "dark-yellow",
+                          "value": 25
+                        },
+                        {
+                          "color": "dark-green",
+                          "value": 100
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "mode": "gradient",
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Swap"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "bytes"
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 55
+                  },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "mode": "percentage",
+                      "steps": [
+                        {
+                          "color": "dark-green",
+                          "value": null
+                        },
+                        {
+                          "color": "dark-yellow",
+                          "value": 50
+                        },
+                        {
+                          "color": "dark-red",
+                          "value": 75
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "mode": "basic",
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Hostname"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 204
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "RAM"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "decgbytes"
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 65
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 26,
+            "w": 24,
+            "x": 0,
+            "y": 1
+          },
+          "id": 2,
+          "links": [],
+          "options": {
+            "cellHeight": "sm",
+            "footer": {
+              "countRows": false,
+              "fields": "",
+              "reducer": [
+                "sum"
+              ],
+              "show": false
+            },
+            "showHeader": true,
+            "sortBy": [
+              {
+                "desc": false,
+                "displayName": "Hostname"
+              }
+            ]
+          },
+          "pluginVersion": "10.3.5",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "Prometheus"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "node_uname_info{job=~\"vitam-node-exporter\"} - 0",
+              "format": "table",
+              "hide": false,
+              "instant": true,
+              "interval": "",
+              "legendFormat": "",
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "Prometheus"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "node_memory_MemTotal_bytes{job=~\"vitam-node-exporter\"}/1024/1024/1024",
+              "format": "table",
+              "hide": false,
+              "instant": true,
+              "interval": "",
+              "legendFormat": "",
+              "refId": "B"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "Prometheus"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "count(node_cpu_seconds_total{job=~\"vitam-node-exporter\",mode='system'}) by (instance)",
+              "format": "table",
+              "hide": false,
+              "instant": true,
+              "interval": "",
+              "legendFormat": "total core count",
+              "refId": "C"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "Prometheus"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "sum(time() - node_boot_time_seconds{job=~\"vitam-node-exporter\"}) by (instance)",
+              "format": "table",
+              "hide": false,
+              "instant": true,
+              "interval": "",
+              "legendFormat": "uptime",
+              "refId": "D"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "Prometheus"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "(1 - avg(rate(node_cpu_seconds_total{job=~\"vitam-node-exporter\",mode=\"idle\"}[$interval])) by (instance)) * 100 ",
+              "format": "table",
+              "hide": false,
+              "instant": true,
+              "interval": "",
+              "legendFormat": "",
+              "refId": "F"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "Prometheus"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "(1 - (node_memory_MemAvailable_bytes{job=~\"vitam-node-exporter\"} / (node_memory_MemTotal_bytes{job=~\"vitam-node-exporter\"})))* 100 ",
+              "format": "table",
+              "hide": false,
+              "instant": true,
+              "interval": "",
+              "legendFormat": "",
+              "refId": "G"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "Prometheus"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "node_memory_SwapTotal_bytes{job=\"vitam-node-exporter\"} - node_memory_SwapFree_bytes{job=\"vitam-node-exporter\"}",
+              "format": "table",
+              "hide": false,
+              "instant": true,
+              "interval": "",
+              "legendFormat": "",
+              "refId": "N"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "Prometheus"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "node_load5{job=~\"vitam-node-exporter\"} ",
+              "format": "table",
+              "hide": false,
+              "instant": true,
+              "interval": "",
+              "legendFormat": "",
+              "refId": "L"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "Prometheus"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "node_filesystem_size_bytes{job=~\"vitam-node-exporter\",fstype=~\"ext.?|xfs\",mountpoint=~\"/vitam\"}",
+              "format": "table",
+              "hide": false,
+              "instant": true,
+              "interval": "",
+              "legendFormat": "",
+              "refId": "H"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "Prometheus"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "node_filesystem_free_bytes{job=~\"vitam-node-exporter\",fstype=~\"ext.?|xfs\",mountpoint=~\"/vitam\"}",
+              "format": "table",
+              "hide": false,
+              "instant": true,
+              "interval": "",
+              "legendFormat": "",
+              "refId": "I"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "Prometheus"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "node_filesystem_size_bytes{job=~\"vitam-node-exporter\",fstype=~\"ext.?|xfs\",mountpoint=\"/vitam\"} - node_filesystem_free_bytes{job=~\"vitam-node-exporter\",fstype=~\"ext.?|xfs\",mountpoint=\"/vitam\"}",
+              "format": "table",
+              "hide": false,
+              "instant": true,
+              "interval": "",
+              "legendFormat": "",
+              "refId": "J"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "Prometheus"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "node_filesystem_size_bytes{job=~\"vitam-node-exporter\",fstype=~\"ext.?|xfs\",mountpoint=~\"/\"}",
+              "format": "table",
+              "hide": false,
+              "instant": true,
+              "interval": "",
+              "legendFormat": "",
+              "refId": "E"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "Prometheus"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "node_filesystem_free_bytes{job=~\"vitam-node-exporter\",fstype=~\"ext.?|xfs\",mountpoint=~\"/\"}",
+              "format": "table",
+              "hide": false,
+              "instant": true,
+              "interval": "",
+              "legendFormat": "",
+              "refId": "K"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "Prometheus"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "node_filesystem_size_bytes{job=~\"vitam-node-exporter\",fstype=~\"ext.?|xfs\",mountpoint=\"/\"} - node_filesystem_free_bytes{job=~\"vitam-node-exporter\",fstype=~\"ext.?|xfs\",mountpoint=\"/\"}",
+              "format": "table",
+              "hide": false,
+              "instant": true,
+              "interval": "",
+              "legendFormat": "",
+              "refId": "M"
+            }
+          ],
+          "transformations": [
+            {
+              "id": "filterFieldsByName",
+              "options": {
+                "include": {
+                  "names": [
+                    "nodename",
+                    "Value #B",
+                    "Value #C",
+                    "Value #D",
+                    "Value #F",
+                    "Value #G",
+                    "Value #N",
+                    "Value #L",
+                    "Value #H",
+                    "Value #I",
+                    "Value #J",
+                    "Value #E",
+                    "Value #K",
+                    "Value #M",
+                    "instance"
+                  ]
+                }
+              }
+            },
+            {
+              "id": "merge",
+              "options": {}
+            },
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {},
+                "includeByName": {},
+                "indexByName": {
+                  "Value #B": 2,
+                  "Value #C": 3,
+                  "Value #D": 4,
+                  "Value #E": 12,
+                  "Value #F": 5,
+                  "Value #G": 6,
+                  "Value #H": 9,
+                  "Value #I": 10,
+                  "Value #J": 11,
+                  "Value #K": 13,
+                  "Value #L": 8,
+                  "Value #M": 14,
+                  "Value #N": 7,
+                  "instance": 1,
+                  "nodename": 0
+                },
+                "renameByName": {
+                  "Value #B": "RAM",
+                  "Value #C": "CPU Core",
+                  "Value #D": "Uptime",
+                  "Value #E": "(/)Size",
+                  "Value #F": "CPU used%",
+                  "Value #G": "RAM used%",
+                  "Value #H": "(/vitam)Size",
+                  "Value #I": "(/vitam)Free",
+                  "Value #J": "(/vitam)Used",
+                  "Value #K": "(/)Free",
+                  "Value #L": "5minLoad",
+                  "Value #M": "(/)Used",
+                  "Value #N": "Swap",
+                  "instance": "IP Service",
+                  "nodename": "Hostname"
+                }
+              }
+            }
+          ],
+          "type": "table"
+        }
+      ],
       "targets": [
         {
           "datasource": {
@@ -55,821 +889,835 @@
       "type": "row"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "filterable": false,
-            "inspect": false
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "none",
-          "unitScale": true
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Uptime"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "s"
-              },
-              {
-                "id": "custom.width",
-                "value": 100
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "RAM used%"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "percent"
-              },
-              {
-                "id": "thresholds",
-                "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "dark-green",
-                      "value": null
-                    },
-                    {
-                      "color": "dark-yellow",
-                      "value": 75
-                    },
-                    {
-                      "color": "dark-red",
-                      "value": 90
-                    }
-                  ]
-                }
-              },
-              {
-                "id": "color"
-              },
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "mode": "basic",
-                  "type": "color-background"
-                }
-              },
-              {
-                "id": "custom.width",
-                "value": 95
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "CPU Core"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 88
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "instance"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 171
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "CPU used%"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 100
-              },
-              {
-                "id": "displayName",
-                "value": "CPU used%"
-              },
-              {
-                "id": "unit",
-                "value": "percent"
-              },
-              {
-                "id": "thresholds",
-                "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "dark-green",
-                      "value": null
-                    },
-                    {
-                      "color": "dark-yellow",
-                      "value": 75
-                    },
-                    {
-                      "color": "dark-red",
-                      "value": 90
-                    }
-                  ]
-                }
-              },
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "mode": "basic",
-                  "type": "color-background"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "5minLoad"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 80
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Hostname"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 80
-              },
-              {
-                "id": "mappings",
-                "value": [
-                  {
-                    "options": {
-                      "result": {
-                        "index": 0,
-                        "text": "$1"
-                      }
-                    },
-                    "type": "regex"
-                  }
-                ]
-              },
-              {
-                "id": "custom.width"
-              },
-              {
-                "id": "links",
-                "value": [
-                  {
-                    "targetBlank": true,
-                    "title": "Show related instance",
-                    "url": "/d/vitam_monitoring_machine/vitam-monitoring-machine?orgId=1&refresh=5s&var-hostname=${__data.fields.nodename}"
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "(/vitam)Size"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "bytes"
-              },
-              {
-                "id": "custom.width",
-                "value": 98
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "(/vitam)Free"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "bytes"
-              },
-              {
-                "id": "custom.width",
-                "value": 100
-              },
-              {
-                "id": "thresholds",
-                "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "green",
-                      "value": null
-                    },
-                    {
-                      "color": "dark-red",
-                      "value": 10
-                    },
-                    {
-                      "color": "dark-yellow",
-                      "value": 25
-                    },
-                    {
-                      "color": "dark-green",
-                      "value": 100
-                    }
-                  ]
-                }
-              },
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "mode": "basic",
-                  "type": "color-background"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "(/vitam)Used"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "bytes"
-              },
-              {
-                "id": "custom.width",
-                "value": 109
-              },
-              {
-                "id": "thresholds",
-                "value": {
-                  "mode": "percentage",
-                  "steps": [
-                    {
-                      "color": "dark-green",
-                      "value": null
-                    },
-                    {
-                      "color": "dark-yellow",
-                      "value": 75
-                    },
-                    {
-                      "color": "dark-red",
-                      "value": 90
-                    }
-                  ]
-                }
-              },
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "mode": "basic",
-                  "type": "color-background"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "(/)Size"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "bytes"
-              },
-              {
-                "id": "custom.width",
-                "value": 85
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "(/)Used"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 80
-              },
-              {
-                "id": "unit",
-                "value": "bytes"
-              },
-              {
-                "id": "thresholds",
-                "value": {
-                  "mode": "percentage",
-                  "steps": [
-                    {
-                      "color": "dark-green",
-                      "value": null
-                    },
-                    {
-                      "color": "dark-yellow",
-                      "value": 75
-                    },
-                    {
-                      "color": "dark-red",
-                      "value": 90
-                    }
-                  ]
-                }
-              },
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "mode": "basic",
-                  "type": "color-background"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "(/)Free"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "bytes"
-              },
-              {
-                "id": "custom.width",
-                "value": 83
-              },
-              {
-                "id": "thresholds",
-                "value": {
-                  "mode": "percentage",
-                  "steps": [
-                    {
-                      "color": "dark-green",
-                      "value": null
-                    },
-                    {
-                      "color": "dark-red",
-                      "value": 10
-                    },
-                    {
-                      "color": "dark-yellow",
-                      "value": 25
-                    },
-                    {
-                      "color": "dark-green",
-                      "value": 100
-                    }
-                  ]
-                }
-              },
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "mode": "gradient",
-                  "type": "color-background"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Swap"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "bytes"
-              },
-              {
-                "id": "custom.width",
-                "value": 55
-              },
-              {
-                "id": "thresholds",
-                "value": {
-                  "mode": "percentage",
-                  "steps": [
-                    {
-                      "color": "dark-green",
-                      "value": null
-                    },
-                    {
-                      "color": "dark-yellow",
-                      "value": 50
-                    },
-                    {
-                      "color": "dark-red",
-                      "value": 75
-                    }
-                  ]
-                }
-              },
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "mode": "basic",
-                  "type": "color-background"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Hostname"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 204
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "RAM"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "decgbytes"
-              },
-              {
-                "id": "custom.width",
-                "value": 65
-              }
-            ]
-          }
-        ]
-      },
+      "collapsed": true,
       "gridPos": {
-        "h": 26,
+        "h": 1,
         "w": 24,
         "x": 0,
         "y": 1
       },
-      "id": 2,
-      "links": [],
-      "options": {
-        "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": false
-        },
-        "showHeader": true,
-        "sortBy": [
-          {
-            "desc": false,
-            "displayName": "Hostname"
-          }
-        ]
-      },
-      "pluginVersion": "10.3.5",
-      "targets": [
+      "id": 6,
+      "panels": [
         {
           "datasource": {
             "type": "prometheus",
             "uid": "Prometheus"
           },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "node_uname_info{job=~\"vitam-node-exporter\"} - 0",
-          "format": "table",
-          "hide": false,
-          "instant": true,
-          "interval": "",
-          "legendFormat": "",
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "node_memory_MemTotal_bytes{job=~\"vitam-node-exporter\"}/1024/1024/1024",
-          "format": "table",
-          "hide": false,
-          "instant": true,
-          "interval": "",
-          "legendFormat": "",
-          "refId": "B"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "count(node_cpu_seconds_total{job=~\"vitam-node-exporter\",mode='system'}) by (instance)",
-          "format": "table",
-          "hide": false,
-          "instant": true,
-          "interval": "",
-          "legendFormat": "total core count",
-          "refId": "C"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "sum(time() - node_boot_time_seconds{job=~\"vitam-node-exporter\"}) by (instance)",
-          "format": "table",
-          "hide": false,
-          "instant": true,
-          "interval": "",
-          "legendFormat": "uptime",
-          "refId": "D"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "(1 - avg(rate(node_cpu_seconds_total{job=~\"vitam-node-exporter\",mode=\"idle\"}[$interval])) by (instance)) * 100 ",
-          "format": "table",
-          "hide": false,
-          "instant": true,
-          "interval": "",
-          "legendFormat": "",
-          "refId": "F"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "(1 - (node_memory_MemAvailable_bytes{job=~\"vitam-node-exporter\"} / (node_memory_MemTotal_bytes{job=~\"vitam-node-exporter\"})))* 100 ",
-          "format": "table",
-          "hide": false,
-          "instant": true,
-          "interval": "",
-          "legendFormat": "",
-          "refId": "G"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "node_memory_SwapTotal_bytes{job=\"vitam-node-exporter\"} - node_memory_SwapFree_bytes{job=\"vitam-node-exporter\"}",
-          "format": "table",
-          "hide": false,
-          "instant": true,
-          "interval": "",
-          "legendFormat": "",
-          "refId": "N"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "node_load5{job=~\"vitam-node-exporter\"} ",
-          "format": "table",
-          "hide": false,
-          "instant": true,
-          "interval": "",
-          "legendFormat": "",
-          "refId": "L"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "node_filesystem_size_bytes{job=~\"vitam-node-exporter\",fstype=~\"ext.?|xfs\",mountpoint=~\"/vitam\"}",
-          "format": "table",
-          "hide": false,
-          "instant": true,
-          "interval": "",
-          "legendFormat": "",
-          "refId": "H"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "node_filesystem_free_bytes{job=~\"vitam-node-exporter\",fstype=~\"ext.?|xfs\",mountpoint=~\"/vitam\"}",
-          "format": "table",
-          "hide": false,
-          "instant": true,
-          "interval": "",
-          "legendFormat": "",
-          "refId": "I"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "node_filesystem_size_bytes{job=~\"vitam-node-exporter\",fstype=~\"ext.?|xfs\",mountpoint=\"/vitam\"} - node_filesystem_free_bytes{job=~\"vitam-node-exporter\",fstype=~\"ext.?|xfs\",mountpoint=\"/vitam\"}",
-          "format": "table",
-          "hide": false,
-          "instant": true,
-          "interval": "",
-          "legendFormat": "",
-          "refId": "J"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "node_filesystem_size_bytes{job=~\"vitam-node-exporter\",fstype=~\"ext.?|xfs\",mountpoint=~\"/\"}",
-          "format": "table",
-          "hide": false,
-          "instant": true,
-          "interval": "",
-          "legendFormat": "",
-          "refId": "E"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "node_filesystem_free_bytes{job=~\"vitam-node-exporter\",fstype=~\"ext.?|xfs\",mountpoint=~\"/\"}",
-          "format": "table",
-          "hide": false,
-          "instant": true,
-          "interval": "",
-          "legendFormat": "",
-          "refId": "K"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "node_filesystem_size_bytes{job=~\"vitam-node-exporter\",fstype=~\"ext.?|xfs\",mountpoint=\"/\"} - node_filesystem_free_bytes{job=~\"vitam-node-exporter\",fstype=~\"ext.?|xfs\",mountpoint=\"/\"}",
-          "format": "table",
-          "hide": false,
-          "instant": true,
-          "interval": "",
-          "legendFormat": "",
-          "refId": "M"
-        }
-      ],
-      "transformations": [
-        {
-          "id": "filterFieldsByName",
-          "options": {
-            "include": {
-              "names": [
-                "nodename",
-                "Value #B",
-                "Value #C",
-                "Value #D",
-                "Value #F",
-                "Value #G",
-                "Value #N",
-                "Value #L",
-                "Value #H",
-                "Value #I",
-                "Value #J",
-                "Value #E",
-                "Value #K",
-                "Value #M",
-                "instance"
-              ]
-            }
-          }
-        },
-        {
-          "id": "merge",
-          "options": {}
-        },
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {},
-            "includeByName": {},
-            "indexByName": {
-              "Value #B": 2,
-              "Value #C": 3,
-              "Value #D": 4,
-              "Value #E": 12,
-              "Value #F": 5,
-              "Value #G": 6,
-              "Value #H": 9,
-              "Value #I": 10,
-              "Value #J": 11,
-              "Value #K": 13,
-              "Value #L": 8,
-              "Value #M": 14,
-              "Value #N": 7,
-              "instance": 1,
-              "nodename": 0
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                },
+                "filterable": false,
+                "inspect": false
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "none",
+              "unitScale": true
             },
-            "renameByName": {
-              "Value #B": "RAM",
-              "Value #C": "CPU Core",
-              "Value #D": "Uptime",
-              "Value #E": "(/)Size",
-              "Value #F": "CPU used%",
-              "Value #G": "RAM used%",
-              "Value #H": "(/vitam)Size",
-              "Value #I": "(/vitam)Free",
-              "Value #J": "(/vitam)Used",
-              "Value #K": "(/)Free",
-              "Value #L": "5minLoad",
-              "Value #M": "(/)Used",
-              "Value #N": "Swap",
-              "instance": "IP Service",
-              "nodename": "Hostname"
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Uptime"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "s"
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 100
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "RAM used%"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "percent"
+                  },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "dark-green",
+                          "value": null
+                        },
+                        {
+                          "color": "dark-yellow",
+                          "value": 75
+                        },
+                        {
+                          "color": "dark-red",
+                          "value": 90
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "color"
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "mode": "basic",
+                      "type": "color-background"
+                    }
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 95
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "CPU Core"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 88
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "instance"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 171
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "CPU used%"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 100
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "CPU used%"
+                  },
+                  {
+                    "id": "unit",
+                    "value": "percent"
+                  },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "dark-green",
+                          "value": null
+                        },
+                        {
+                          "color": "dark-yellow",
+                          "value": 75
+                        },
+                        {
+                          "color": "dark-red",
+                          "value": 90
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "mode": "basic",
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "5minLoad"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 80
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Hostname"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 80
+                  },
+                  {
+                    "id": "mappings",
+                    "value": [
+                      {
+                        "options": {
+                          "result": {
+                            "index": 0,
+                            "text": "$1"
+                          }
+                        },
+                        "type": "regex"
+                      }
+                    ]
+                  },
+                  {
+                    "id": "custom.width"
+                  },
+                  {
+                    "id": "links",
+                    "value": [
+                      {
+                        "targetBlank": true,
+                        "title": "Show related instance",
+                        "url": "/d/vitam_monitoring_machine/vitam-monitoring-machine?orgId=1&refresh=5s&var-hostname=${__data.fields.nodename}"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "(/vitamui)Size"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "bytes"
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 98
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "(/vitamui)Free"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "bytes"
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 100
+                  },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "mode": "absolute",
+                      "steps": [
+                        {
+                          "color": "green",
+                          "value": null
+                        },
+                        {
+                          "color": "dark-red",
+                          "value": 10
+                        },
+                        {
+                          "color": "dark-yellow",
+                          "value": 25
+                        },
+                        {
+                          "color": "dark-green",
+                          "value": 100
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "mode": "basic",
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "(/vitamui)Used"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "bytes"
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 109
+                  },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "mode": "percentage",
+                      "steps": [
+                        {
+                          "color": "dark-green",
+                          "value": null
+                        },
+                        {
+                          "color": "dark-yellow",
+                          "value": 75
+                        },
+                        {
+                          "color": "dark-red",
+                          "value": 90
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "mode": "basic",
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "(/)Size"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "bytes"
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 85
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "(/)Used"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 80
+                  },
+                  {
+                    "id": "unit",
+                    "value": "bytes"
+                  },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "mode": "percentage",
+                      "steps": [
+                        {
+                          "color": "dark-green",
+                          "value": null
+                        },
+                        {
+                          "color": "dark-yellow",
+                          "value": 75
+                        },
+                        {
+                          "color": "dark-red",
+                          "value": 90
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "mode": "basic",
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "(/)Free"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "bytes"
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 83
+                  },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "mode": "percentage",
+                      "steps": [
+                        {
+                          "color": "dark-green",
+                          "value": null
+                        },
+                        {
+                          "color": "dark-red",
+                          "value": 10
+                        },
+                        {
+                          "color": "dark-yellow",
+                          "value": 25
+                        },
+                        {
+                          "color": "dark-green",
+                          "value": 100
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "mode": "gradient",
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Swap"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "bytes"
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 55
+                  },
+                  {
+                    "id": "thresholds",
+                    "value": {
+                      "mode": "percentage",
+                      "steps": [
+                        {
+                          "color": "dark-green",
+                          "value": null
+                        },
+                        {
+                          "color": "dark-yellow",
+                          "value": 50
+                        },
+                        {
+                          "color": "dark-red",
+                          "value": 75
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "mode": "basic",
+                      "type": "color-background"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Hostname"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 204
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "RAM"
+                },
+                "properties": [
+                  {
+                    "id": "unit",
+                    "value": "decgbytes"
+                  },
+                  {
+                    "id": "custom.width",
+                    "value": 65
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 19,
+            "w": 24,
+            "x": 0,
+            "y": 2
+          },
+          "id": 5,
+          "links": [],
+          "options": {
+            "cellHeight": "sm",
+            "footer": {
+              "countRows": false,
+              "fields": "",
+              "reducer": [
+                "sum"
+              ],
+              "show": false
+            },
+            "showHeader": true,
+            "sortBy": [
+              {
+                "desc": false,
+                "displayName": "Hostname"
+              }
+            ]
+          },
+          "pluginVersion": "10.3.5",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "Prometheus"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "node_uname_info{job=~\"vitamui-node-exporter\"} - 0",
+              "format": "table",
+              "hide": false,
+              "instant": true,
+              "interval": "",
+              "legendFormat": "",
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "Prometheus"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "node_memory_MemTotal_bytes{job=~\"vitamui-node-exporter\"}/1024/1024/1024",
+              "format": "table",
+              "hide": false,
+              "instant": true,
+              "interval": "",
+              "legendFormat": "",
+              "refId": "B"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "Prometheus"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "count(node_cpu_seconds_total{job=~\"vitamui-node-exporter\",mode='system'}) by (instance)",
+              "format": "table",
+              "hide": false,
+              "instant": true,
+              "interval": "",
+              "legendFormat": "total core count",
+              "refId": "C"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "Prometheus"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "sum(time() - node_boot_time_seconds{job=~\"vitamui-node-exporter\"}) by (instance)",
+              "format": "table",
+              "hide": false,
+              "instant": true,
+              "interval": "",
+              "legendFormat": "uptime",
+              "refId": "D"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "Prometheus"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "(1 - avg(rate(node_cpu_seconds_total{job=~\"vitamui-node-exporter\",mode=\"idle\"}[$interval])) by (instance)) * 100 ",
+              "format": "table",
+              "hide": false,
+              "instant": true,
+              "interval": "",
+              "legendFormat": "",
+              "refId": "F"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "Prometheus"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "(1 - (node_memory_MemAvailable_bytes{job=~\"vitamui-node-exporter\"} / (node_memory_MemTotal_bytes{job=~\"vitamui-node-exporter\"})))* 100 ",
+              "format": "table",
+              "hide": false,
+              "instant": true,
+              "interval": "",
+              "legendFormat": "",
+              "refId": "G"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "Prometheus"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "node_memory_SwapTotal_bytes{job=\"vitamui-node-exporter\"} - node_memory_SwapFree_bytes{job=\"vitamui-node-exporter\"}",
+              "format": "table",
+              "hide": false,
+              "instant": true,
+              "interval": "",
+              "legendFormat": "",
+              "refId": "N"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "Prometheus"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "node_load5{job=~\"vitamui-node-exporter\"} ",
+              "format": "table",
+              "hide": false,
+              "instant": true,
+              "interval": "",
+              "legendFormat": "",
+              "refId": "L"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "Prometheus"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "node_filesystem_size_bytes{job=~\"vitamui-node-exporter\",fstype=~\"ext.?|xfs\",mountpoint=~\"/vitamui\"}",
+              "format": "table",
+              "hide": false,
+              "instant": true,
+              "interval": "",
+              "legendFormat": "",
+              "refId": "H"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "Prometheus"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "node_filesystem_free_bytes{job=~\"vitamui-node-exporter\",fstype=~\"ext.?|xfs\",mountpoint=~\"/vitamui\"}",
+              "format": "table",
+              "hide": false,
+              "instant": true,
+              "interval": "",
+              "legendFormat": "",
+              "refId": "I"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "Prometheus"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "node_filesystem_size_bytes{job=~\"vitamui-node-exporter\",fstype=~\"ext.?|xfs\",mountpoint=\"/vitamui\"} - node_filesystem_free_bytes{job=~\"vitamui-node-exporter\",fstype=~\"ext.?|xfs\",mountpoint=\"/vitamui\"}",
+              "format": "table",
+              "hide": false,
+              "instant": true,
+              "interval": "",
+              "legendFormat": "",
+              "refId": "J"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "Prometheus"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "node_filesystem_size_bytes{job=~\"vitamui-node-exporter\",fstype=~\"ext.?|xfs\",mountpoint=~\"/\"}",
+              "format": "table",
+              "hide": false,
+              "instant": true,
+              "interval": "",
+              "legendFormat": "",
+              "refId": "E"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "Prometheus"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "node_filesystem_free_bytes{job=~\"vitamui-node-exporter\",fstype=~\"ext.?|xfs\",mountpoint=~\"/\"}",
+              "format": "table",
+              "hide": false,
+              "instant": true,
+              "interval": "",
+              "legendFormat": "",
+              "refId": "K"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "Prometheus"
+              },
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "node_filesystem_size_bytes{job=~\"vitamui-node-exporter\",fstype=~\"ext.?|xfs\",mountpoint=\"/\"} - node_filesystem_free_bytes{job=~\"vitamui-node-exporter\",fstype=~\"ext.?|xfs\",mountpoint=\"/\"}",
+              "format": "table",
+              "hide": false,
+              "instant": true,
+              "interval": "",
+              "legendFormat": "",
+              "refId": "M"
             }
-          }
+          ],
+          "transformations": [
+            {
+              "id": "filterFieldsByName",
+              "options": {
+                "include": {
+                  "names": [
+                    "nodename",
+                    "Value #B",
+                    "Value #C",
+                    "Value #D",
+                    "Value #F",
+                    "Value #G",
+                    "Value #N",
+                    "Value #L",
+                    "Value #H",
+                    "Value #I",
+                    "Value #J",
+                    "Value #E",
+                    "Value #K",
+                    "Value #M",
+                    "instance"
+                  ]
+                }
+              }
+            },
+            {
+              "id": "merge",
+              "options": {}
+            },
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {},
+                "includeByName": {},
+                "indexByName": {
+                  "Value #B": 2,
+                  "Value #C": 3,
+                  "Value #D": 4,
+                  "Value #E": 12,
+                  "Value #F": 5,
+                  "Value #G": 6,
+                  "Value #H": 9,
+                  "Value #I": 10,
+                  "Value #J": 11,
+                  "Value #K": 13,
+                  "Value #L": 8,
+                  "Value #M": 14,
+                  "Value #N": 7,
+                  "instance": 1,
+                  "nodename": 0
+                },
+                "renameByName": {
+                  "Value #B": "RAM",
+                  "Value #C": "CPU Core",
+                  "Value #D": "Uptime",
+                  "Value #E": "(/)Size",
+                  "Value #F": "CPU used%",
+                  "Value #G": "RAM used%",
+                  "Value #H": "(/vitamui)Size",
+                  "Value #I": "(/vitamui)Free",
+                  "Value #J": "(/vitamui)Used",
+                  "Value #K": "(/)Free",
+                  "Value #L": "5minLoad",
+                  "Value #M": "(/)Used",
+                  "Value #N": "Swap",
+                  "instance": "IP Service",
+                  "nodename": "Hostname"
+                }
+              }
+            }
+          ],
+          "type": "table"
         }
       ],
-      "type": "table"
+      "title": "VitamUI Resources Overview",
+      "type": "row"
     }
   ],
   "refresh": "",
@@ -1032,6 +1880,7 @@
     "from": "now-5m",
     "to": "now"
   },
+  "timeRangeUpdatedDuringEditOrView": false,
   "timepicker": {},
   "timezone": "",
   "title": "Vitam Global Overview",
