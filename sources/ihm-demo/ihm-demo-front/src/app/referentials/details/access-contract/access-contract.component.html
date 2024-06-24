@@ -125,6 +125,31 @@
                               [labelSize]="4"
                               class="ui-g-4"
                               [(updatedFields)]="updatedFields"></vitam-metadata-field>
+
+          <div class="ui-g-4">
+              <div class="ui-g-nopad ui-g-4">
+                  <label class="label fieldLabel">Ne pas filtrer les plans de classements par Service producteur</label>
+              </div>
+              <div class="ui-g-nopad ui-g-8" *ngIf="!update">
+                  <span class="overflow-break-words" >{{ modifiedContract.SkipFilingSchemeOriginatingAgencyFilter ? 'Actif' : 'Inactif'}}</span>
+              </div>
+              <div class="ui-g-nopad ui-g-8" *ngIf="update">
+                  <p-toggleButton onLabel="Actif" offLabel="Inactif" [(ngModel)]="modifiedContract.SkipFilingSchemeOriginatingAgencyFilter" (onChange)="changeBooleanValue('SkipFilingSchemeOriginatingAgencyFilter')"></p-toggleButton>
+              </div>
+          </div>
+
+          <div class="ui-g-4">
+              <div class="ui-g-nopad ui-g-4">
+                  <label class="label fieldLabel">Ne pas filtrer les plans de classements par règles de Gestion</label>
+              </div>
+              <div class="ui-g-nopad ui-g-8" *ngIf="!update">
+                  <span class="overflow-break-words" >{{ modifiedContract.SkipFilingSchemeRuleCategoryFilter ? 'Actif' : 'Inactif'}}</span>
+              </div>
+              <div class="ui-g-nopad ui-g-8" *ngIf="update">
+                  <p-toggleButton onLabel="Actif" offLabel="Inactif" [(ngModel)]="modifiedContract.SkipFilingSchemeRuleCategoryFilter" (onChange)="changeBooleanValue('SkipFilingSchemeRuleCategoryFilter')"></p-toggleButton>
+              </div>
+          </div>
+
       </div>
       <div class="ui-g-12">
         <vitam-metadata-field [title]="'Noeuds de consultation'"  [originalTitle]="'RootUnits'" [value]="modifiedContract.RootUnits" [labelSize]="5"

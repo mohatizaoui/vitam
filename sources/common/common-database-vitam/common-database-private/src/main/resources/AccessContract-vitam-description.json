@@ -96,6 +96,18 @@
     "indexed": true
   },
   {
+    "path": "SkipFilingSchemeOriginatingAgencyFilter",
+    "type": "bool",
+    "cardinality": "one",
+    "indexed": true
+  },
+  {
+    "path": "SkipFilingSchemeRuleCategoryFilter",
+    "type": "bool",
+    "cardinality": "one",
+    "indexed": true
+  },
+  {
     "path": "WritingRestrictedDesc",
     "type": "bool",
     "cardinality": "one",

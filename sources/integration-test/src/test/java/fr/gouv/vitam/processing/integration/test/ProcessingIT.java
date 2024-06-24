@@ -188,6 +188,7 @@ import java.util.zip.ZipOutputStream;
 
 import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Filters.exists;
+import static fr.gouv.vitam.common.VitamTestHelper.computeInheritedRules;
 import static fr.gouv.vitam.common.VitamTestHelper.insertWaitForStepEssentialFiles;
 import static fr.gouv.vitam.common.VitamTestHelper.verifyOperation;
 import static fr.gouv.vitam.common.VitamTestHelper.verifyProcessState;
@@ -2433,34 +2434,6 @@ public class ProcessingIT extends VitamRuleRunner {
             JsonHandler.getFromInputStream(PropertiesUtils.getResourceAsStream(resourcesFile)),
             computedInheritedRules
         );
-    }
-
-    private void computeInheritedRules(SelectMultiQuery select)
-        throws LogbookClientBadRequestException, LogbookClientAlreadyExistsException, LogbookClientServerException, ContentAddressableStorageServerException, InvalidParseOperationException, InternalServerException, BadRequestException, VitamClientException {
-        final String computedInheritedRulesProcess = createOperationContainer();
-
-        workspaceClient.createContainer(computedInheritedRulesProcess);
-        workspaceClient.putObject(
-            computedInheritedRulesProcess,
-            "query.json",
-            writeToInpustream(select.getFinalSelect())
-        );
-        processingClient.initVitamProcess(
-            new ProcessingEntry(computedInheritedRulesProcess, COMPUTE_INHERITED_RULES.name())
-        );
-        RequestResponse<ItemStatus> cirResponse = processingClient.executeOperationProcess(
-            computedInheritedRulesProcess,
-            COMPUTE_INHERITED_RULES.name(),
-            RESUME.getValue()
-        );
-        assertNotNull(cirResponse);
-        assertTrue(cirResponse.isOk());
-        assertEquals(Status.ACCEPTED.getStatusCode(), cirResponse.getStatus());
-        waitOperation(computedInheritedRulesProcess);
-        ProcessWorkflow cirWorkflow = processMonitoring.findOneProcessWorkflow(computedInheritedRulesProcess, tenantId);
-        assertNotNull(cirWorkflow);
-        assertEquals(COMPLETED, cirWorkflow.getState());
-        assertEquals(StatusCode.OK, cirWorkflow.getStatus());
     }
 
     @RunWithCustomExecutor
