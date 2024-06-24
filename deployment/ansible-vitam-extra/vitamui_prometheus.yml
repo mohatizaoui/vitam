@@ -1,0 +1,17 @@
+---
+
+### PROMETHEUS NODE EXPORTER / CONSUL EXPORTER INSTALLATION OR UNINSTALL ###
+- hosts: hosts_vitamui
+  any_errors_fatal: true
+  roles:
+    - prometheus-node-exporter
+    - prometheus-consul-exporter
+  tags: [prometheus, prometheus-exporter]
+
+### PROMETHEUS MONGODB EXPORTER INSTALLATION OR UNINSTALL ###
+- hosts: hosts_vitamui_mongod
+  gather_facts: no
+  any_errors_fatal: true
+  roles:
+    - prometheus-mongodb-exporter
+  tags: [prometheus, prometheus-exporter]

@@ -34,6 +34,18 @@
   notify: "prometheus-mongod-exporter - restart service"
   when: inventory_hostname in groups['hosts_mongod_data'] or inventory_hostname in groups['hosts_mongod_offer']
 
+#### mongod-UI ####
+
+- name: Deploy systemd service file for vitam-mongod-exporter
+  template:
+    src: vitamui-mongod-exporter.service.j2
+    dest: "{{ '/lib/systemd/system' if ansible_distribution == 'Debian' else '/usr/lib/systemd/system' }}/vitam-mongod-exporter.service"
+    owner: root
+    group: root
+    mode: "0644"
+  notify: "prometheus-mongod-exporter - restart service"
+  when: inventory_hostname in groups['hosts_vitamui_mongod']
+
 #### Configuration ####
 - name: Check that mongodb_exporter directories exist
   file:
@@ -80,7 +92,7 @@
     name: vitam-mongod-exporter
     state: started
     enabled: "{{ prometheus.mongodb_exporter.at_boot | default(service_at_boot) }}"
-  when: inventory_hostname in groups['hosts_mongod_data'] or inventory_hostname in groups['hosts_mongod_offer']
+  when: inventory_hostname in groups['hosts_mongod_data'] or inventory_hostname in groups['hosts_mongod_offer'] or inventory_hostname in groups['hosts_vitamui_mongod']
 
 #### mongoc ####
 
@@ -100,4 +112,4 @@
     port: "{{ prometheus.mongodb_exporter.port_mongod| default(9217) }}"
     state: "started"
     timeout: "{{ vitam_defaults.services.start_timeout | default(300) }}"
-  when: inventory_hostname in groups['hosts_mongod_data'] or inventory_hostname in groups['hosts_mongod_offer']
+  when: inventory_hostname in groups['hosts_mongod_data'] or inventory_hostname in groups['hosts_mongod_offer'] or inventory_hostname in groups['hosts_vitamui_mongod']
