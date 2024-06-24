@@ -365,15 +365,15 @@ public class ManifestBuilder implements AutoCloseable {
 
         if (existingFileNames.contains(fullFileName)) {
             String idPrefix = binaryDataObjectType.getId() != null ? binaryDataObjectType.getId() : "";
-            fullFileName = baseFilePath + idPrefix + cleanedFileName;
+            cleanedFileName = idPrefix + cleanedFileName;
+        }
 
-            int maxLength = FULL_FILE_NAME_SIZE_LIMIT;
-            if (fullFileName.length() > maxLength) {
-                int endOfPathIndex = baseFilePath.length() + idPrefix.length();
-                int maxFileNameLength = maxLength - endOfPathIndex - extension.length();
-                String truncatedFileName = originalFileName.substring(0, maxFileNameLength);
-                fullFileName = baseFilePath + idPrefix + truncatedFileName + extension;
-            }
+        fullFileName = baseFilePath + cleanedFileName;
+
+        if (fullFileName.length() > FULL_FILE_NAME_SIZE_LIMIT) {
+            int maxFileNameLength = FULL_FILE_NAME_SIZE_LIMIT - baseFilePath.length() - extension.length();
+            String truncatedFileName = cleanedFileName.substring(0, maxFileNameLength);
+            fullFileName = baseFilePath + truncatedFileName + extension;
         }
 
         return fullFileName;

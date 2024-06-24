@@ -332,5 +332,17 @@ public class ManifestBuilderTest {
             result
         );
         Assert.assertTrue(result.length() <= ManifestBuilder.FULL_FILE_NAME_SIZE_LIMIT);
+
+        fileInfo.setFilename(
+            "another_very_long_filename_to_ensure_we_go_over_the_character_limit_for_most_filesystems_very_long_filename_to_ensure_we_go_over_the_character_limit_for_most_filesystems_this_time_not_duplicated.txt"
+        );
+        result = manifestBuilder.determineFileName(binaryDataObjectType, "txt", true, existingFileNames);
+        Assert.assertEquals(
+            CONTENT +
+            File.separator +
+            "another_very_long_filename_to_ensure_we_go_over_the_character_limit_for_most_filesystems_very_long_filename_to_ensure_we_go_over_the_character_limit_for_most_filesystems_t.txt",
+            result
+        );
+        Assert.assertTrue(result.length() <= ManifestBuilder.FULL_FILE_NAME_SIZE_LIMIT);
     }
 }
