@@ -151,6 +151,19 @@ public class AccessContractRestrictionChecksIT extends VitamRuleRunner {
 
     @AfterClass
     public static void tearDownAfterClass() {
+        if (accessExternalClient != null) {
+            accessExternalClient.close();
+        }
+        if (accessInternalClient != null) {
+            accessInternalClient.close();
+        }
+        if (metadataClient != null) {
+            metadataClient.close();
+        }
+        if (adminManagementClient != null) {
+            adminManagementClient.close();
+        }
+
         handleAfterClass();
         runAfter();
         fr.gouv.vitam.common.client.VitamClientFactory.resetConnections();
