@@ -24,6 +24,7 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
+
 package fr.gouv.vitam.common.database.utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -31,6 +32,7 @@ import fr.gouv.vitam.common.database.builder.query.BooleanQuery;
 import fr.gouv.vitam.common.database.builder.query.CompareQuery;
 import fr.gouv.vitam.common.database.builder.query.InQuery;
 import fr.gouv.vitam.common.database.builder.query.Query;
+import fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper;
 import fr.gouv.vitam.common.database.builder.request.configuration.BuilderToken;
 import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
 import fr.gouv.vitam.common.database.parser.request.multiple.RequestParserMultiple;
@@ -39,13 +41,13 @@ import fr.gouv.vitam.common.database.parser.request.multiple.UpdateParserMultipl
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.model.administration.AccessContractModel;
 import fr.gouv.vitam.common.model.administration.RuleType;
-import fr.gouv.vitam.common.thread.VitamThreadUtils;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static fr.gouv.vitam.common.database.builder.query.QueryHelper.and;
 import static fr.gouv.vitam.common.database.builder.query.QueryHelper.eq;
 import static fr.gouv.vitam.common.database.builder.query.QueryHelper.in;
@@ -54,6 +56,7 @@ import static fr.gouv.vitam.common.database.builder.query.QueryHelper.nin;
 import static fr.gouv.vitam.common.database.builder.query.QueryHelper.or;
 import static fr.gouv.vitam.common.database.builder.request.configuration.BuilderToken.PROJECTIONARGS.ORIGINATING_AGENCIES;
 import static fr.gouv.vitam.common.database.builder.request.configuration.BuilderToken.PROJECTIONARGS.UNITTYPE;
+import static fr.gouv.vitam.common.model.UnitType.FILING_UNIT;
 import static fr.gouv.vitam.common.model.UnitType.HOLDING_UNIT;
 
 public final class AccessContractRestrictionHelper {
@@ -186,24 +189,16 @@ public final class AccessContractRestrictionHelper {
         }
 
         if (applyRuleRestrictions && !contract.getRuleCategoryToFilter().isEmpty()) {
+            // Warning: This query filters all entries when used for selecting ObjectGroups with a DSL.
+            //          An access contract defining a RuleCategoryToFilter cannot be used to query ObjectGroups
+            //          If this behavior is no more wanted, this code must be changed...
             Query rulesRestrictionQuery = getRulesRestrictionQuery(contract);
             restrictionQueries.add(rulesRestrictionQuery);
         }
 
         // Filter on originating Agencies
         if (!contract.getEveryOriginatingAgency()) {
-            Set<String> prodServices = contract.getOriginatingAgencies();
-
-            InQuery originatingAgencyRestriction = in(
-                ORIGINATING_AGENCIES.exactToken(),
-                prodServices.toArray(new String[0])
-            );
-
-            Query restriction = isUnit
-                ? or().add(originatingAgencyRestriction, eq(UNITTYPE.exactToken(), HOLDING_UNIT.name()))
-                : originatingAgencyRestriction;
-
-            restrictionQueries.add(restriction);
+            restrictionQueries.add(getOriginatingAgencyRestriction(contract, isUnit));
         }
 
         if (!restrictionQueries.getQueries().isEmpty()) {
@@ -222,6 +217,27 @@ public final class AccessContractRestrictionHelper {
         }
     }
 
+    private static Query getOriginatingAgencyRestriction(AccessContractModel contract, boolean isUnit)
+        throws InvalidCreateOperationException {
+        Set<String> prodServices = contract.getOriginatingAgencies();
+
+        InQuery originatingAgencyRestriction = in(
+            ORIGINATING_AGENCIES.exactToken(),
+            prodServices.toArray(new String[0])
+        );
+
+        if (!isUnit) {
+            return originatingAgencyRestriction;
+        }
+
+        boolean skipFilingScheme = firstNonNull(contract.getSkipFilingSchemeOriginatingAgencyFilter(), false);
+        if (skipFilingScheme) {
+            return or()
+                .add(originatingAgencyRestriction, in(UNITTYPE.exactToken(), HOLDING_UNIT.name(), FILING_UNIT.name()));
+        }
+        return or().add(originatingAgencyRestriction, eq(UNITTYPE.exactToken(), HOLDING_UNIT.name()));
+    }
+
     private static Query getRulesRestrictionQuery(AccessContractModel contract) throws InvalidCreateOperationException {
         BooleanQuery rulesRestrictionQuery = and();
         for (RuleType ruleType : contract.getRuleCategoryToFilter()) {
@@ -233,50 +249,12 @@ public final class AccessContractRestrictionHelper {
             CompareQuery maxEndDateExistsAndReached = lt(ruleFieldName, LocalDate.now().toString());
             rulesRestrictionQuery.add(maxEndDateExistsAndReached);
         }
-        return rulesRestrictionQuery;
-    }
 
-    /**
-     * Just filter by originating agency.
-     *
-     * Deprecated as used just for object group, from Release 8 use applyAccessContractRestrictionForObjectGroupForSelect instead
-     *
-     * @param queryDsl
-     * @return
-     * @throws InvalidParseOperationException
-     * @throws InvalidCreateOperationException
-     */
-    @Deprecated
-    public static JsonNode applyAccessContractRestrictionOnOriginatingAgencies(JsonNode queryDsl)
-        throws InvalidParseOperationException, InvalidCreateOperationException {
-        final AccessContractModel contract = VitamThreadUtils.getVitamSession().getContract();
-
-        if (contract.getEveryOriginatingAgency()) {
-            return queryDsl;
-        } else {
-            final SelectParserMultiple parser = new SelectParserMultiple();
-            parser.parse(queryDsl);
-            List<Query> queryList = new ArrayList<>(parser.getRequest().getQueries());
-
-            Set<String> prodServices = contract.getOriginatingAgencies();
-            Query originatingAgencyRestriction = in(
-                ORIGINATING_AGENCIES.exactToken(),
-                prodServices.toArray(new String[0])
-            );
-
-            if (queryList.isEmpty()) {
-                parser.getRequest().getQueries().add(originatingAgencyRestriction.setDepthLimit(0));
-            } else {
-                // In cas of one or multiple query
-                for (int i = 0; i < queryList.size(); i++) {
-                    final Query query = queryList.get(i);
-                    int depth = query.getParserRelativeDepth();
-                    Query restrictedQuery = and().add(originatingAgencyRestriction, query);
-                    restrictedQuery.setDepthLimit(depth);
-                    parser.getRequest().getQueries().set(i, restrictedQuery);
-                }
-            }
-            return parser.getRequest().getFinalSelect();
+        boolean skipFilingScheme = firstNonNull(contract.getSkipFilingSchemeRuleCategoryFilter(), true);
+        if (skipFilingScheme) {
+            return or()
+                .add(in(VitamFieldsHelper.unitType(), FILING_UNIT.name(), HOLDING_UNIT.name()), rulesRestrictionQuery);
         }
+        return or().add(eq(VitamFieldsHelper.unitType(), HOLDING_UNIT.name()), rulesRestrictionQuery);
     }
 }

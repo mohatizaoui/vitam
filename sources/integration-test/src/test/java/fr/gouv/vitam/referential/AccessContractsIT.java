@@ -36,12 +36,11 @@ import fr.gouv.vitam.common.VitamRuleRunner;
 import fr.gouv.vitam.common.VitamServerRunner;
 import fr.gouv.vitam.common.client.VitamClientFactory;
 import fr.gouv.vitam.common.database.builder.query.QueryHelper;
+import fr.gouv.vitam.common.database.builder.query.action.Action;
 import fr.gouv.vitam.common.database.builder.query.action.SetAction;
 import fr.gouv.vitam.common.database.builder.query.action.UpdateActionHelper;
-import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
 import fr.gouv.vitam.common.database.builder.request.single.Update;
 import fr.gouv.vitam.common.elasticsearch.ElasticsearchRule;
-import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.RequestResponse;
@@ -54,8 +53,6 @@ import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.functional.administration.client.AdminManagementClient;
 import fr.gouv.vitam.functional.administration.client.AdminManagementClientFactory;
 import fr.gouv.vitam.functional.administration.common.exception.AdminManagementClientBadRequestException;
-import fr.gouv.vitam.functional.administration.common.exception.AdminManagementClientServerException;
-import fr.gouv.vitam.functional.administration.common.exception.ReferentialNotFoundException;
 import fr.gouv.vitam.functional.administration.rest.AdminManagementMain;
 import fr.gouv.vitam.logbook.rest.LogbookMain;
 import fr.gouv.vitam.metadata.rest.MetadataMain;
@@ -77,7 +74,6 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.fail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -130,7 +126,7 @@ public class AccessContractsIT extends VitamRuleRunner {
 
     @Test
     @RunWithCustomExecutor
-    public void should_desactivate_then_activate_access_contract() {
+    public void should_desactivate_then_activate_access_contract() throws Exception {
         try (AdminManagementClient client = AdminManagementClientFactory.getInstance().getClient()) {
             Update updateQuery = new Update();
             updateQuery.addActions(
@@ -163,59 +159,52 @@ public class AccessContractsIT extends VitamRuleRunner {
             assertThatCode(() -> client.updateAccessContract("aName", updateQuery.getFinalUpdate())).isInstanceOf(
                 AdminManagementClientBadRequestException.class
             );
-        } catch (
-            ReferentialNotFoundException
-            | InvalidParseOperationException
-            | AdminManagementClientServerException
-            | InvalidCreateOperationException e
-        ) {
-            fail("Error retreiving access contract", e);
         }
     }
 
     @Test
     @RunWithCustomExecutor
-    public void should_import_access_contract_having_hold_rule_filter() {
+    public void should_import_access_contract_having_hold_rule_filter() throws Exception {
         try (AdminManagementClient client = AdminManagementClientFactory.getInstance().getClient()) {
             RequestResponse<AccessContractModel> contract = client.findAccessContractsByID(CONTRACT_RULE_ID);
             assertTrue(contract.isOk());
             List<JsonNode> results = RequestResponseOK.getFromJsonNode(contract.toJsonNode()).getResults();
             assertEquals(1, results.size());
-            assertThat(
-                JsonHandler.getFromJsonNode(results.get(0), AccessContractModel.class).getRuleCategoryToFilter()
-            ).contains(RuleType.HoldRule);
-        } catch (
-            ReferentialNotFoundException | InvalidParseOperationException | AdminManagementClientServerException e
-        ) {
-            fail("Error retreiving access contract", e);
+            AccessContractModel accessContractModel = JsonHandler.getFromJsonNode(
+                results.get(0),
+                AccessContractModel.class
+            );
+            assertThat(accessContractModel.getRuleCategoryToFilter()).contains(RuleType.HoldRule);
+            assertThat(accessContractModel.getSkipFilingSchemeOriginatingAgencyFilter()).isTrue();
+            assertThat(accessContractModel.getSkipFilingSchemeRuleCategoryFilter()).isFalse();
         }
     }
 
     @Test
     @RunWithCustomExecutor
-    public void should_update_access_contract_with_hold_rule_filter() {
+    public void should_update_access_contract_with_hold_rule_filter() throws Exception {
         try (AdminManagementClient client = AdminManagementClientFactory.getInstance().getClient()) {
             Update updateMultiQuery = new Update();
             updateMultiQuery.setQuery(QueryHelper.in(AccessContractModel.TAG_NAME, "aName"));
-            updateMultiQuery
-                .getActions()
-                .add(new SetAction(AccessContractModel.RULE_CATEGORY_TO_FILTER, List.of(RuleType.HoldRule.name())));
+            List<Action> actions = updateMultiQuery.getActions();
+            actions.add(new SetAction(AccessContractModel.RULE_CATEGORY_TO_FILTER, List.of(RuleType.HoldRule.name())));
+            actions.add(new SetAction(AccessContractModel.SKIP_FILING_SCHEME_ORIGINATING_AGENCY_FILTER, false));
+            actions.add(new SetAction(AccessContractModel.SKIP_FILING_SCHEME_RULE_CATEGORY_FILTER, true));
             client.updateAccessContract("aName", updateMultiQuery.getFinalUpdate());
 
             RequestResponse<AccessContractModel> contract = client.findAccessContractsByID("aName");
             assertTrue(contract.isOk());
             List<JsonNode> results = RequestResponseOK.getFromJsonNode(contract.toJsonNode()).getResults();
             assertEquals(1, results.size());
-            assertThat(
-                JsonHandler.getFromJsonNode(results.get(0), AccessContractModel.class).getRuleCategoryToFilter()
-            ).contains(RuleType.HoldRule);
-        } catch (
-            ReferentialNotFoundException
-            | InvalidParseOperationException
-            | AdminManagementClientServerException
-            | InvalidCreateOperationException e
-        ) {
-            fail("Error retreiving access contract", e);
+            AccessContractModel accessContractModel = JsonHandler.getFromJsonNode(
+                results.get(0),
+                AccessContractModel.class
+            );
+            assertThat(accessContractModel.getRuleCategoryToFilter()).contains(RuleType.HoldRule);
+            // Defaults to false
+            assertThat(accessContractModel.getSkipFilingSchemeOriginatingAgencyFilter()).isFalse();
+            // Defaults to true
+            assertThat(accessContractModel.getSkipFilingSchemeRuleCategoryFilter()).isTrue();
         }
     }
 }

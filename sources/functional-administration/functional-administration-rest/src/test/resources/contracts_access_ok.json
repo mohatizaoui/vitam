@@ -1,21 +1,26 @@
 [
-	{
-		"Name":"aName",
-		"Description":"aDescription of the contract",
-		"Status":"ACTIVE",
-		"LastUpdate":"10/12/2016",
-		"CreationDate":"10/12/2016",
-		"ActivationDate":"10/12/2016",
-		"DeactivationDate":"10/12/2016",
-		"RuleCategoryToFilter": [ "AppraisalRule", "DisseminationRule" ]
-	},
-		{
-		"Name":"aName2",
-		"Description":"aDescription of the contract 2",
-		"Status":"ACTIVE",
-		"LastUpdate":"10/12/2016",
-		"CreationDate":"10/12/2016",
-		"ActivationDate":"10/12/2016",
-		"DeactivationDate":"10/12/2016"
-	}
+  {
+    "Name": "aName",
+    "Description": "aDescription of the contract",
+    "Status": "ACTIVE",
+    "LastUpdate": "10/12/2016",
+    "CreationDate": "10/12/2016",
+    "ActivationDate": "10/12/2016",
+    "DeactivationDate": "10/12/2016",
+    "RuleCategoryToFilter": [
+      "AppraisalRule",
+      "DisseminationRule"
+    ]
+  },
+  {
+    "Name": "aName2",
+    "Description": "aDescription of the contract 2",
+    "Status": "ACTIVE",
+    "LastUpdate": "10/12/2016",
+    "CreationDate": "10/12/2016",
+    "ActivationDate": "10/12/2016",
+    "DeactivationDate": "10/12/2016",
+    "SkipFilingSchemeOriginatingAgencyFilter": true,
+    "SkipFilingSchemeRuleCategoryFilter": false
+  }
 ]

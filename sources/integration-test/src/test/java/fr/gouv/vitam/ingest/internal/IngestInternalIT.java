@@ -895,7 +895,7 @@ public class IngestInternalIT extends VitamRuleRunner {
         // prepare contract
         String linkParentId = null;
         // do ingest of a tree and get an AU UUID
-        linkParentId = doIngestOfTreeAndGetOneParentAU();
+        linkParentId = doIngestOfHoldingSchemeReturningUnitId();
         assertNotNull(linkParentId);
 
         VitamThreadUtils.getVitamSession().setRequestId(newOperationLogbookGUID(tenantId));
@@ -954,35 +954,21 @@ public class IngestInternalIT extends VitamRuleRunner {
         }
     }
 
-    private String doIngestOfTreeAndGetOneParentAU() throws Exception {
-        try {
-            prepareVitamSession(tenantId, "aName3", "Context_IT");
-            final String operationGuid = doIngest(
-                tenantId,
-                SIP_ARBRE,
-                HOLDING_SCHEME,
-                ProcessAction.RESUME,
-                StatusCode.STARTED
-            );
-            waitOperation(operationGuid);
-            verifyOperation(operationGuid, OK);
+    private String doIngestOfHoldingSchemeReturningUnitId() throws Exception {
+        prepareVitamSession(tenantId, "aName3", "Context_IT");
+        final String operationGuid = doIngest(
+            tenantId,
+            SIP_ARBRE,
+            HOLDING_SCHEME,
+            ProcessAction.RESUME,
+            StatusCode.STARTED
+        );
+        waitOperation(operationGuid);
+        verifyOperation(operationGuid, OK);
 
-            // Try to check AU - arborescence and parents stuff, without roots
-            final MetaDataClient metadataClient = MetaDataClientFactory.getInstance().getClient();
-            final JsonNode node = getArchiveUnitWithTitle(metadataClient, "Arbre simple", TITLE);
-            LOGGER.debug(JsonHandler.prettyPrint(node));
-            final JsonNode result = node.get(RESULTS);
-            assertNotNull(result);
-            final JsonNode unit = result.get(0);
-            assertNotNull(unit);
-
-            return unit.get("#id").asText();
-        } catch (final Exception e) {
-            e.printStackTrace();
-            fail("should not raized an exception");
-        }
-
-        return null;
+        final MetaDataClient metadataClient = MetaDataClientFactory.getInstance().getClient();
+        final JsonNode node = getArchiveUnitWithOpi(metadataClient, operationGuid);
+        return node.get(RESULTS).get(0).get("#id").asText();
     }
 
     private void updateIngestContractLinkParentId(String contractId, String linkParentId) throws Exception {

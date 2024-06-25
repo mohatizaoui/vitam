@@ -9,6 +9,12 @@
     "ActivationDate":"10/12/2016",
     "DeactivationDate":"10/12/2116",
     "EveryOriginatingAgency": true,
-    "WritingPermission": true
+    "WritingPermission": true,
+    "RuleCategoryToFilter": [
+      "AppraisalRule",
+      "DisseminationRule"
+    ],
+    "SkipFilingSchemeOriginatingAgencyFilter": true,
+    "SkipFilingSchemeRuleCategoryFilter": true
   }
 ]

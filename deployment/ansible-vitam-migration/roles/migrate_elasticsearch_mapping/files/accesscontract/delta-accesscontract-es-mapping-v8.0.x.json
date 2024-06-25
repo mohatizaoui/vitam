@@ -1,0 +1,10 @@
+{
+  "properties": {
+    "SkipFilingSchemeOriginatingAgencyFilter": {
+      "type": "boolean"
+    },
+    "SkipFilingSchemeRuleCategoryFilter": {
+      "type": "boolean"
+    }
+  }
+}

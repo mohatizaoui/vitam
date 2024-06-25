@@ -75,7 +75,9 @@ public class AccessContractModelTest {
             .setRootUnits(rootUnits)
             .setExcludedRootUnits(excludedRootUnits)
             .setAccessLog(accessLog)
-            .setRuleCategoryToFilter(RuleCategoryToFilter);
+            .setRuleCategoryToFilter(RuleCategoryToFilter)
+            .setSkipFilingSchemeOriginatingAgencyFilter(true)
+            .setSkipFilingSchemeRuleCategoryFilter(false);
 
         assertEquals(id, contract.getId());
         assertEquals(name, contract.getName());
@@ -88,6 +90,8 @@ public class AccessContractModelTest {
         assertEquals(excludedRootUnits, contract.getExcludedRootUnits());
         assertEquals(accessLog, contract.getAccessLog());
         assertEquals(RuleCategoryToFilter, contract.getRuleCategoryToFilter());
+        assertThat(contract.getSkipFilingSchemeOriginatingAgencyFilter()).isTrue();
+        assertThat(contract.getSkipFilingSchemeRuleCategoryFilter()).isFalse();
     }
 
     @Test
@@ -115,6 +119,8 @@ public class AccessContractModelTest {
         accessContractModel.setWritingPermission(true);
         accessContractModel.setWritingRestrictedDesc(true);
         accessContractModel.setAccessLog(ActivationStatus.INACTIVE);
+        accessContractModel.setSkipFilingSchemeOriginatingAgencyFilter(null);
+        accessContractModel.setSkipFilingSchemeRuleCategoryFilter(null);
 
         // When
         accessContractModel.initializeDefaultValue();
@@ -125,5 +131,7 @@ public class AccessContractModelTest {
         assertThat(accessContractModel.isEveryDataObjectVersion()).isTrue();
         assertThat(accessContractModel.getWritingRestrictedDesc()).isTrue();
         assertEquals(ActivationStatus.INACTIVE, accessContractModel.getAccessLog());
+        assertThat(accessContractModel.getSkipFilingSchemeOriginatingAgencyFilter()).isFalse();
+        assertThat(accessContractModel.getSkipFilingSchemeRuleCategoryFilter()).isTrue();
     }
 }

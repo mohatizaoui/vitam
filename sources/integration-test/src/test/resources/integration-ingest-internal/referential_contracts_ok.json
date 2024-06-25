@@ -88,5 +88,27 @@
     "ArchiveProfiles": [
       "PR-000001"
     ]
+  },
+  {
+    "Name": "IngestContractWithHoldingScheme",
+    "Identifier": "IngestContractWithHoldingScheme",
+    "Description": "IngestContractWithHoldingScheme",
+    "EveryDataObjectVersion": true,
+    "Status": "ACTIVE",
+    "LastUpdate": "10/12/2016",
+    "CreationDate": "10/12/2016",
+    "ActivationDate": "10/12/2016",
+    "DeactivationDate": "10/12/2016"
+  },
+  {
+    "Name": "IngestContractWithFilingScheme",
+    "Identifier": "IngestContractWithFilingScheme",
+    "Description": "IngestContractWithFilingScheme",
+    "EveryDataObjectVersion": true,
+    "Status": "ACTIVE",
+    "LastUpdate": "10/12/2016",
+    "CreationDate": "10/12/2016",
+    "ActivationDate": "10/12/2016",
+    "DeactivationDate": "10/12/2016"
   }
 ]

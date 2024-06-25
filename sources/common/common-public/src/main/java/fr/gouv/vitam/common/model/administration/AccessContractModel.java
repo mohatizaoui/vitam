@@ -75,6 +75,8 @@ public class AccessContractModel extends AbstractContractModel {
      */
     private static final String ACCESS_LOG = "AccessLog";
     public static final String RULE_CATEGORY_TO_FILTER = "RuleCategoryToFilter";
+    public static final String SKIP_FILING_SCHEME_ORIGINATING_AGENCY_FILTER = "SkipFilingSchemeOriginatingAgencyFilter";
+    public static final String SKIP_FILING_SCHEME_RULE_CATEGORY_FILTER = "SkipFilingSchemeRuleCategoryFilter";
 
     @JsonProperty(DATA_OBJECT_VERSION)
     private Set<String> dataObjectVersion;
@@ -105,6 +107,12 @@ public class AccessContractModel extends AbstractContractModel {
 
     @JsonProperty(RULE_CATEGORY_TO_FILTER)
     private Set<RuleType> ruleCategoryToFilter;
+
+    @JsonProperty(SKIP_FILING_SCHEME_ORIGINATING_AGENCY_FILTER)
+    private Boolean skipFilingSchemeOriginatingAgencyFilter;
+
+    @JsonProperty(SKIP_FILING_SCHEME_RULE_CATEGORY_FILTER)
+    private Boolean skipFilingSchemeRuleCategoryFilter;
 
     /**
      * Constructor without fields
@@ -283,8 +291,29 @@ public class AccessContractModel extends AbstractContractModel {
         return ruleCategoryToFilter;
     }
 
-    void setRuleCategoryToFilter(Set<RuleType> ruleCategoryToFilter) {
+    public AccessContractModel setRuleCategoryToFilter(Set<RuleType> ruleCategoryToFilter) {
         this.ruleCategoryToFilter = ruleCategoryToFilter;
+        return this;
+    }
+
+    public Boolean getSkipFilingSchemeOriginatingAgencyFilter() {
+        return skipFilingSchemeOriginatingAgencyFilter;
+    }
+
+    public AccessContractModel setSkipFilingSchemeOriginatingAgencyFilter(
+        Boolean skipFilingSchemeOriginatingAgencyFilter
+    ) {
+        this.skipFilingSchemeOriginatingAgencyFilter = skipFilingSchemeOriginatingAgencyFilter;
+        return this;
+    }
+
+    public Boolean getSkipFilingSchemeRuleCategoryFilter() {
+        return skipFilingSchemeRuleCategoryFilter;
+    }
+
+    public AccessContractModel setSkipFilingSchemeRuleCategoryFilter(Boolean skipFilingSchemeRuleCategoryFilter) {
+        this.skipFilingSchemeRuleCategoryFilter = skipFilingSchemeRuleCategoryFilter;
+        return this;
     }
 
     public void initializeDefaultValue() {
@@ -293,5 +322,7 @@ public class AccessContractModel extends AbstractContractModel {
         everyOriginatingAgency = firstNonNull(everyOriginatingAgency, false);
         everyDataObjectVersion = firstNonNull(everyDataObjectVersion, false);
         accessLog = firstNonNull(accessLog, ActivationStatus.INACTIVE);
+        skipFilingSchemeOriginatingAgencyFilter = firstNonNull(skipFilingSchemeOriginatingAgencyFilter, false);
+        skipFilingSchemeRuleCategoryFilter = firstNonNull(skipFilingSchemeRuleCategoryFilter, true);
     }
 }

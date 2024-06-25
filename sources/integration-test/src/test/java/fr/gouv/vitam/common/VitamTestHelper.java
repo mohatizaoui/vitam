@@ -29,9 +29,11 @@ package fr.gouv.vitam.common;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.gouv.vitam.common.accesslog.AccessLogUtils;
 import fr.gouv.vitam.common.database.builder.query.QueryHelper;
 import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
+import fr.gouv.vitam.common.database.builder.request.multiple.SelectMultiQuery;
 import fr.gouv.vitam.common.database.builder.request.single.Select;
 import fr.gouv.vitam.common.exception.BadRequestException;
 import fr.gouv.vitam.common.exception.InternalServerException;
@@ -57,16 +59,21 @@ import fr.gouv.vitam.common.model.processing.WorkFlow;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.ingest.internal.client.IngestInternalClient;
 import fr.gouv.vitam.ingest.internal.client.IngestInternalClientFactory;
+import fr.gouv.vitam.logbook.common.exception.LogbookClientAlreadyExistsException;
+import fr.gouv.vitam.logbook.common.exception.LogbookClientBadRequestException;
 import fr.gouv.vitam.logbook.common.exception.LogbookClientException;
+import fr.gouv.vitam.logbook.common.exception.LogbookClientServerException;
 import fr.gouv.vitam.logbook.common.parameters.Contexts;
 import fr.gouv.vitam.logbook.common.parameters.LogbookOperationParameters;
 import fr.gouv.vitam.logbook.common.parameters.LogbookParameterHelper;
+import fr.gouv.vitam.logbook.common.parameters.LogbookParameterName;
 import fr.gouv.vitam.logbook.common.parameters.LogbookTypeProcess;
 import fr.gouv.vitam.logbook.common.server.database.collections.LogbookCollections;
 import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClient;
 import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClientFactory;
 import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClient;
 import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClientFactory;
+import fr.gouv.vitam.processing.common.ProcessingEntry;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.model.ProcessWorkflow;
 import fr.gouv.vitam.processing.engine.core.monitoring.ProcessMonitoringImpl;
@@ -96,15 +103,18 @@ import java.util.concurrent.TimeUnit;
 
 import static com.mongodb.client.model.Filters.eq;
 import static fr.gouv.vitam.common.VitamServerRunner.NB_TRY;
+import static fr.gouv.vitam.common.json.JsonHandler.writeToInpustream;
 import static fr.gouv.vitam.common.model.IngestWorkflowConstants.SANITY_CHECK_RESULT_FILE;
 import static fr.gouv.vitam.common.model.IngestWorkflowConstants.STP_UPLOAD_RESULT_JSON;
 import static fr.gouv.vitam.common.model.MetadataStorageHelper.GOT_KEY;
 import static fr.gouv.vitam.common.model.MetadataStorageHelper.LFC_KEY;
 import static fr.gouv.vitam.common.model.MetadataStorageHelper.UNIT_KEY;
+import static fr.gouv.vitam.common.model.ProcessAction.RESUME;
 import static fr.gouv.vitam.common.model.ProcessState.COMPLETED;
 import static fr.gouv.vitam.common.model.ProcessState.RUNNING;
 import static fr.gouv.vitam.common.model.VitamConstants.JSON_EXTENSION;
 import static fr.gouv.vitam.common.model.logbook.LogbookEvent.OB_ID;
+import static fr.gouv.vitam.logbook.common.parameters.Contexts.COMPUTE_INHERITED_RULES;
 import static fr.gouv.vitam.logbook.common.parameters.Contexts.DEFAULT_WORKFLOW;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -565,6 +575,56 @@ public class VitamTestHelper {
             client.traceability(List.of(tenantId));
         } finally {
             VitamThreadUtils.getVitamSession().setTenantId(tenantId);
+        }
+    }
+
+    public static void computeInheritedRules(SelectMultiQuery select)
+        throws ContentAddressableStorageServerException, InvalidParseOperationException, InternalServerException, BadRequestException, VitamClientException, LogbookClientAlreadyExistsException, LogbookClientBadRequestException, LogbookClientServerException {
+        try (
+            WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+            ProcessingManagementClient processingClient = ProcessingManagementClientFactory.getInstance().getClient();
+            LogbookOperationsClient logbookOperationsClient = LogbookOperationsClientFactory.getInstance().getClient();
+        ) {
+            int tenantId = VitamThreadUtils.getVitamSession().getTenantId();
+            GUID operationId = GUIDFactory.newRequestIdGUID(tenantId);
+            VitamThreadUtils.getVitamSession().setRequestId(operationId);
+
+            final LogbookOperationParameters initParameters = LogbookParameterHelper.newLogbookOperationParameters(
+                operationId,
+                Contexts.COMPUTE_INHERITED_RULES.getEventType(),
+                operationId,
+                LogbookTypeProcess.COMPUTE_INHERITED_RULES,
+                StatusCode.STARTED,
+                operationId.toString(),
+                operationId
+            );
+            ObjectNode rightsStatementIdentifier = JsonHandler.createObjectNode();
+            rightsStatementIdentifier.put("AccessContract", VitamThreadUtils.getVitamSession().getContractId());
+            initParameters.putParameterValue(
+                LogbookParameterName.rightsStatementIdentifier,
+                rightsStatementIdentifier.toString()
+            );
+            logbookOperationsClient.create(initParameters);
+
+            workspaceClient.createContainer(operationId.toString());
+            workspaceClient.putObject(operationId.toString(), "query.json", writeToInpustream(select.getFinalSelect()));
+            processingClient.initVitamProcess(
+                new ProcessingEntry(operationId.toString(), COMPUTE_INHERITED_RULES.name())
+            );
+            RequestResponse<ItemStatus> cirResponse = processingClient.executeOperationProcess(
+                operationId.toString(),
+                COMPUTE_INHERITED_RULES.name(),
+                RESUME.getValue()
+            );
+            assertNotNull(cirResponse);
+            assertTrue(cirResponse.isOk());
+            assertEquals(Response.Status.ACCEPTED.getStatusCode(), cirResponse.getStatus());
+            waitOperation(operationId.toString());
+            ProcessWorkflow cirWorkflow = ProcessMonitoringImpl.getInstance()
+                .findOneProcessWorkflow(operationId.toString(), tenantId);
+            assertNotNull(cirWorkflow);
+            assertEquals(COMPLETED, cirWorkflow.getState());
+            assertEquals(StatusCode.OK, cirWorkflow.getStatus());
         }
     }
 }

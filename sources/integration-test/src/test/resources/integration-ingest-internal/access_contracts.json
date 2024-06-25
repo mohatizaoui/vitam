@@ -1,123 +1,232 @@
 [
-	{
-		"Name":"aName",
-		"Identifier":"aName",
-		"Description":"aDescription of the contract",
-		"Status":"ACTIVE",
-		"OriginatingAgencies":["FR_ORG_AGEN"],
-		"DataObjectVersion": ["PhysicalMaster", "BinaryMaster"],
-		"LastUpdate":"10/12/2016",
-		"CreationDate":"10/12/2016",
-		"ActivationDate":"10/12/2016",
-		"DeactivationDate":"10/12/2016",
-		"WritingPermission": true
-	},
-		{
-		"Name":"aName2",
-		"Identifier":"aName2",
-		"Description":"aDescription of the contract 2",
-		"Status":"ACTIVE",
-		"OriginatingAgencies":["FR_ORG_AGEN"],
-		"DataObjectVersion": ["PhysicalMaster", "BinaryMaster"],
-		"LastUpdate":"10/12/2016",
-		"CreationDate":"10/12/2016",
-		"ActivationDate":"10/12/2016",
-		"DeactivationDate":"10/12/2016",
-		"WritingPermission": true
-	},
-	{
-		"Name":"aName3",
-		"Identifier":"aName3",
-		"Description":"aDescription of the contract",
-		"Status":"ACTIVE",
-		"OriginatingAgencies":["FRAN_NP_005568", "FRAN_NP_009913", "FR_ORG_AGEN", "RATP", "Service_producteur"],
-		"EveryDataObjectVersion": true,
-		"DataObjectVersion": [],
-		"LastUpdate":"10/12/2016",
-		"CreationDate":"10/12/2016",
-		"ActivationDate":"10/12/2016",
-		"DeactivationDate":"10/12/2016",
-		"WritingPermission": true
-	},
-	{
-		"Name":"aName4",
-		"Identifier":"aName4",
-		"Description":"aDescription of the contract",
-		"Status":"ACTIVE",
-		"OriginatingAgencies":["FRAN_NP_050056", "NO_SP", "TestReplayOriginAgency2", "TestReplayOriginAgency1"],
-		"DataObjectVersion": ["PhysicalMaster", "BinaryMaster"],
-		"LastUpdate":"10/12/2016",
-		"CreationDate":"10/12/2016",
-		"ActivationDate":"10/12/2016",
-		"DeactivationDate":"10/12/2016",
-		"WritingPermission": true
-	},
-	{
-		"Name":"aName5",
-		"Identifier":"aName5",
-		"Description":"aDescription of the contract",
-		"Status":"ACTIVE",
-		"OriginatingAgencies":[],
-		"EveryOriginatingAgency": true,
-		"DataObjectVersion": [],
-		"EveryDataObjectVersion": true,
-		"LastUpdate":"10/12/2016",
-		"CreationDate":"10/12/2016",
-		"ActivationDate":"10/12/2016",
-		"DeactivationDate":"10/12/2016",
-		"WritingPermission": true
-	},
-	{
-		"Name":"contract",
-		"Identifier":"contract",
-		"Description":"aDescription of the contract",
-		"Status":"ACTIVE",
-		"OriginatingAgencies":[],
-		"EveryOriginatingAgency": true,
-		"DataObjectVersion": [],
-		"EveryDataObjectVersion": true,
-		"LastUpdate":"10/12/2016",
-		"CreationDate":"10/12/1800",
-		"ActivationDate":"10/12/2016",
-		"DeactivationDate":"31/12/4200",
-		"WritingPermission": true
-	},
-	{
-		"Name":"contract_rule",
-		"Identifier":"contract_rule",
-		"Description":"aDescription of the contract",
-		"Status":"ACTIVE",
-		"OriginatingAgencies":[],
-		"EveryOriginatingAgency": true,
-		"DataObjectVersion" : [
-			"PhysicalMaster",
-			"BinaryMaster",
-			"Dissemination",
-			"Thumbnail",
-			"TextContent"
-		],
-		"EveryDataObjectVersion": true,
-		"LastUpdate":"10/12/2016",
-		"CreationDate":"10/12/1800",
-		"ActivationDate":"10/12/2016",
-		"DeactivationDate":"31/12/4200",
-		"WritingPermission": true,
-		"RuleCategoryToFilter" : [
-			"HoldRule"
-		]
-	},
-	{
-		"Name":"aName6",
-		"Identifier":"aName6",
-		"Description":"aDescription of the contract",
-		"Status":"ACTIVE",
-		"OriginatingAgencies":["FRAN_NP_005568", "FRAN_NP_009913", "FR_ORG_AGEN", "RATP", "Service_producteur"],
-		"EveryDataObjectVersion": false,
-		"DataObjectVersion": [],
-		"LastUpdate":"10/12/2016",
-		"CreationDate":"10/12/2016",
-		"ActivationDate":"10/12/2016",
-		"DeactivationDate":"10/12/2016",
-		"WritingPermission": true
-	}
+  {
+    "Name": "aName",
+    "Identifier": "aName",
+    "Description": "aDescription of the contract",
+    "Status": "ACTIVE",
+    "OriginatingAgencies": [
+      "FR_ORG_AGEN"
+    ],
+    "DataObjectVersion": [
+      "PhysicalMaster",
+      "BinaryMaster"
+    ],
+    "LastUpdate": "10/12/2016",
+    "CreationDate": "10/12/2016",
+    "ActivationDate": "10/12/2016",
+    "DeactivationDate": "10/12/2016",
+    "WritingPermission": true
+  },
+  {
+    "Name": "aName2",
+    "Identifier": "aName2",
+    "Description": "aDescription of the contract 2",
+    "Status": "ACTIVE",
+    "OriginatingAgencies": [
+      "FR_ORG_AGEN"
+    ],
+    "DataObjectVersion": [
+      "PhysicalMaster",
+      "BinaryMaster"
+    ],
+    "LastUpdate": "10/12/2016",
+    "CreationDate": "10/12/2016",
+    "ActivationDate": "10/12/2016",
+    "DeactivationDate": "10/12/2016",
+    "WritingPermission": true
+  },
+  {
+    "Name": "aName3",
+    "Identifier": "aName3",
+    "Description": "aDescription of the contract",
+    "Status": "ACTIVE",
+    "OriginatingAgencies": [
+      "FRAN_NP_005568",
+      "FRAN_NP_009913",
+      "FR_ORG_AGEN",
+      "RATP",
+      "Service_producteur"
+    ],
+    "EveryDataObjectVersion": true,
+    "DataObjectVersion": [],
+    "LastUpdate": "10/12/2016",
+    "CreationDate": "10/12/2016",
+    "ActivationDate": "10/12/2016",
+    "DeactivationDate": "10/12/2016",
+    "WritingPermission": true
+  },
+  {
+    "Name": "aName4",
+    "Identifier": "aName4",
+    "Description": "aDescription of the contract",
+    "Status": "ACTIVE",
+    "OriginatingAgencies": [
+      "FRAN_NP_050056",
+      "NO_SP",
+      "TestReplayOriginAgency2",
+      "TestReplayOriginAgency1"
+    ],
+    "DataObjectVersion": [
+      "PhysicalMaster",
+      "BinaryMaster"
+    ],
+    "LastUpdate": "10/12/2016",
+    "CreationDate": "10/12/2016",
+    "ActivationDate": "10/12/2016",
+    "DeactivationDate": "10/12/2016",
+    "WritingPermission": true
+  },
+  {
+    "Name": "aName5",
+    "Identifier": "aName5",
+    "Description": "aDescription of the contract",
+    "Status": "ACTIVE",
+    "OriginatingAgencies": [],
+    "EveryOriginatingAgency": true,
+    "DataObjectVersion": [],
+    "EveryDataObjectVersion": true,
+    "LastUpdate": "10/12/2016",
+    "CreationDate": "10/12/2016",
+    "ActivationDate": "10/12/2016",
+    "DeactivationDate": "10/12/2016",
+    "WritingPermission": true
+  },
+  {
+    "Name": "contract",
+    "Identifier": "contract",
+    "Description": "aDescription of the contract",
+    "Status": "ACTIVE",
+    "OriginatingAgencies": [],
+    "EveryOriginatingAgency": true,
+    "DataObjectVersion": [],
+    "EveryDataObjectVersion": true,
+    "LastUpdate": "10/12/2016",
+    "CreationDate": "10/12/1800",
+    "ActivationDate": "10/12/2016",
+    "DeactivationDate": "31/12/4200",
+    "WritingPermission": true
+  },
+  {
+    "Name": "contract_rule",
+    "Identifier": "contract_rule",
+    "Description": "aDescription of the contract",
+    "Status": "ACTIVE",
+    "OriginatingAgencies": [],
+    "EveryOriginatingAgency": true,
+    "DataObjectVersion": [
+      "PhysicalMaster",
+      "BinaryMaster",
+      "Dissemination",
+      "Thumbnail",
+      "TextContent"
+    ],
+    "EveryDataObjectVersion": true,
+    "LastUpdate": "10/12/2016",
+    "CreationDate": "10/12/1800",
+    "ActivationDate": "10/12/2016",
+    "DeactivationDate": "31/12/4200",
+    "WritingPermission": true,
+    "RuleCategoryToFilter": [
+      "HoldRule"
+    ],
+    "SkipFilingSchemeOriginatingAgencyFilter": true,
+    "SkipFilingSchemeRuleCategoryFilter": false
+  },
+  {
+    "Name": "aName6",
+    "Identifier": "aName6",
+    "Description": "aDescription of the contract",
+    "Status": "ACTIVE",
+    "OriginatingAgencies": [
+      "FRAN_NP_005568",
+      "FRAN_NP_009913",
+      "FR_ORG_AGEN",
+      "RATP",
+      "Service_producteur"
+    ],
+    "EveryDataObjectVersion": false,
+    "DataObjectVersion": [],
+    "LastUpdate": "10/12/2016",
+    "CreationDate": "10/12/2016",
+    "ActivationDate": "10/12/2016",
+    "DeactivationDate": "10/12/2016",
+    "WritingPermission": true
+  },
+  {
+    "Name": "ac_filter_originating_agencies_and_rules",
+    "Identifier": "ac_filter_originating_agencies_and_rules",
+    "Description": "aDescription of the contract",
+    "Status": "ACTIVE",
+    "EveryOriginatingAgency": false,
+    "OriginatingAgencies": [
+      "FRAN_NP_009913"
+    ],
+    "RuleCategoryToFilter": [
+      "AppraisalRule"
+    ],
+    "SkipFilingSchemeOriginatingAgencyFilter": false,
+    "SkipFilingSchemeRuleCategoryFilter": false,
+    "EveryDataObjectVersion": false,
+    "DataObjectVersion": []
+  },
+  {
+    "Name": "ac_filter_originating_agencies",
+    "Identifier": "ac_filter_originating_agencies",
+    "Description": "aDescription of the contract",
+    "Status": "ACTIVE",
+    "EveryOriginatingAgency": false,
+    "OriginatingAgencies": [
+      "FRAN_NP_009913"
+    ],
+    "RuleCategoryToFilter": [],
+    "SkipFilingSchemeOriginatingAgencyFilter": false,
+    "SkipFilingSchemeRuleCategoryFilter": false,
+    "EveryDataObjectVersion": false,
+    "DataObjectVersion": []
+  },
+  {
+    "Name": "ac_filter_originating_agencies_except_filing_scheme",
+    "Identifier": "ac_filter_originating_agencies_except_filing_scheme",
+    "Description": "aDescription of the contract",
+    "Status": "ACTIVE",
+    "EveryOriginatingAgency": false,
+    "OriginatingAgencies": [
+      "FRAN_NP_009913"
+    ],
+    "RuleCategoryToFilter": [],
+    "SkipFilingSchemeOriginatingAgencyFilter": true,
+    "SkipFilingSchemeRuleCategoryFilter": false,
+    "EveryDataObjectVersion": false,
+    "DataObjectVersion": []
+  },
+  {
+    "Name": "ac_filter_rules",
+    "Identifier": "ac_filter_rules",
+    "Description": "aDescription of the contract",
+    "Status": "ACTIVE",
+    "EveryOriginatingAgency": true,
+    "OriginatingAgencies": [],
+    "RuleCategoryToFilter": [
+      "AppraisalRule"
+    ],
+    "SkipFilingSchemeOriginatingAgencyFilter": false,
+    "SkipFilingSchemeRuleCategoryFilter": false,
+    "EveryDataObjectVersion": false,
+    "DataObjectVersion": []
+  },
+  {
+    "Name": "ac_filter_rules_except_filing_scheme",
+    "Identifier": "ac_filter_rules_except_filing_scheme",
+    "Description": "aDescription of the contract",
+    "Status": "ACTIVE",
+    "EveryOriginatingAgency": true,
+    "OriginatingAgencies": [],
+    "RuleCategoryToFilter": [
+      "AppraisalRule"
+    ],
+    "SkipFilingSchemeOriginatingAgencyFilter": false,
+    "SkipFilingSchemeRuleCategoryFilter": true,
+    "EveryDataObjectVersion": false,
+    "DataObjectVersion": []
+  }
 ]

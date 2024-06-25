@@ -20,4 +20,6 @@ export class AccessContract {
   ExcludedRootUnits: string[];
   AccessLog: string;
   RuleCategoryToFilter: string[];
+  SkipFilingSchemeOriginatingAgencyFilter: boolean;
+  SkipFilingSchemeRuleCategoryFilter: boolean;
 }

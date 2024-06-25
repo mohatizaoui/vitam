@@ -24,6 +24,7 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
+
 package fr.gouv.vitam.functional.administration.rest;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -442,7 +443,6 @@ public class ContractResourceTest {
         createAccessContract();
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
         // Test update for access contract Status => inactive
-        String now = LocalDateUtil.nowFormatted();
         final UpdateParserSingle updateParser = new UpdateParserSingle(new SingleVarNameAdapter());
         SetAction setActionStatusInactive = UpdateActionHelper.set(AccessContractModel.RULE_CATEGORY_TO_FILTER, "Bad");
         Update update = new Update();
@@ -514,8 +514,7 @@ public class ContractResourceTest {
         File fileContracts = PropertiesUtils.getResourceFile("contracts_access_ok.json");
 
         JsonNode json = JsonHandler.getFromFile(fileContracts);
-        // first succefull create
-        JsonPath body = given()
+        RequestResponseOK<AccessContractModel> accessContractsFromUploadResponse = given()
             .contentType(ContentType.JSON)
             .body(json)
             .header(GlobalDataRest.X_TENANT_ID, 0)
@@ -526,24 +525,39 @@ public class ContractResourceTest {
             .statusCode(Status.CREATED.getStatusCode())
             .extract()
             .body()
-            .jsonPath();
+            .as(new TypeRef<RequestResponseOK<AccessContractModel>>() {});
 
-        List<String> names = body.get("$results.Identifier");
+        assertThat(accessContractsFromUploadResponse.getResults()).hasSize(2);
+        assertThat(accessContractsFromUploadResponse.getResults())
+            .map(AccessContractModel::getName)
+            .containsExactlyInAnyOrder("aName", "aName2");
 
-        assertThat(names).isNotEmpty();
+        AccessContractModel accessContractModel1 = accessContractsFromUploadResponse
+            .getResults()
+            .stream()
+            .filter(ac -> ac.getName().equals("aName"))
+            .findFirst()
+            .orElseThrow();
+        assertThat(accessContractModel1.getSkipFilingSchemeOriginatingAgencyFilter()).isFalse();
+        assertThat(accessContractModel1.getSkipFilingSchemeRuleCategoryFilter()).isTrue();
 
-        // We juste test the first contract
-        String name = names.get(0);
-        assertThat(name).isNotNull();
+        AccessContractModel accessContractModel2 = accessContractsFromUploadResponse
+            .getResults()
+            .stream()
+            .filter(ac -> ac.getName().equals("aName2"))
+            .findFirst()
+            .orElseThrow();
+        assertThat(accessContractModel2.getSkipFilingSchemeOriginatingAgencyFilter()).isTrue();
+        assertThat(accessContractModel2.getSkipFilingSchemeRuleCategoryFilter()).isFalse();
 
         final SelectParserSingle parser = new SelectParserSingle(new SingleVarNameAdapter());
         Select select = new Select();
         parser.parse(select.getFinalSelect());
-        parser.addCondition(QueryHelper.eq("Identifier", name));
+        parser.addCondition(QueryHelper.eq("Identifier", accessContractModel1.getIdentifier()));
         JsonNode queryDsl = parser.getRequest().getFinalSelect();
 
         // find accessContract with the id1 should return Status.OK
-        body = given()
+        RequestResponseOK<AccessContractModel> searchResponse = given()
             .contentType(ContentType.JSON)
             .header(GlobalDataRest.X_TENANT_ID, 0)
             .header(GlobalDataRest.X_REQUEST_ID, VitamThreadUtils.getVitamSession().getRequestId())
@@ -554,13 +568,15 @@ public class ContractResourceTest {
             .statusCode(Status.OK.getStatusCode())
             .extract()
             .body()
-            .jsonPath();
+            .as(new TypeRef<>() {});
 
-        names = body.get("$results.Identifier");
-        assertThat(names).hasSize(1);
+        assertThat(searchResponse.getResults()).hasSize(1);
+        AccessContractModel accessContractModel = searchResponse.getResults().get(0);
 
-        // We juste test the first contract
-        assertThat(names).contains(name);
+        // We just test the first contract
+        assertThat(accessContractModel.getName()).isEqualTo("aName");
+        assertThat(accessContractModel.getSkipFilingSchemeOriginatingAgencyFilter()).isFalse();
+        assertThat(accessContractModel.getSkipFilingSchemeRuleCategoryFilter()).isTrue();
     }
 
     @Test
