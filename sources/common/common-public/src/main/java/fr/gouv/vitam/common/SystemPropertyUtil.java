@@ -114,13 +114,6 @@ public final class SystemPropertyUtil {
     }
 
     /**
-     * @return True if Encoding is Correct
-     */
-    public static boolean isFileEncodingCorrect() {
-        return contains(FILE_ENCODING) && CharsetUtils.UTF_8.equalsIgnoreCase(get(FILE_ENCODING));
-    }
-
-    /**
      * Returns {@code true} if and only if the system property with the specified {@code key} exists.
      *
      * @param key as String to verify

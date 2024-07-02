@@ -56,15 +56,6 @@ public class SystemPropertyUtilTest {
     @Test
     public final void testSystemPropertyDefault() {
         SystemPropertyUtil.refresh();
-        assertTrue(SystemPropertyUtil.isFileEncodingCorrect());
-        SystemPropertyUtil.set(SystemPropertyUtil.FILE_ENCODING, "UTF-16");
-        assertTrue(SystemPropertyUtil.isFileEncodingCorrect());
-        SystemPropertyUtil.set(SystemPropertyUtil.FILE_ENCODING, CharsetUtils.UTF_8);
-        assertTrue(SystemPropertyUtil.isFileEncodingCorrect());
-        SystemPropertyUtil.clear(SystemPropertyUtil.FILE_ENCODING);
-        assertTrue(SystemPropertyUtil.isFileEncodingCorrect());
-        SystemPropertyUtil.refresh();
-        assertTrue(SystemPropertyUtil.isFileEncodingCorrect());
         final String config = VitamConfiguration.getVitamConfigFolder();
         assertNotNull(config);
         final String data = VitamConfiguration.getVitamDataFolder();
@@ -96,7 +87,6 @@ public class SystemPropertyUtilTest {
     @Test
     public final void testSystemPropertyString() {
         SystemPropertyUtil.refresh();
-        assertTrue(SystemPropertyUtil.isFileEncodingCorrect());
         SystemPropertyUtil.set(KEY_TEST, KEY_VALUE);
         assertTrue(SystemPropertyUtil.contains(KEY_TEST));
         assertEquals(KEY_VALUE, SystemPropertyUtil.get(KEY_TEST));

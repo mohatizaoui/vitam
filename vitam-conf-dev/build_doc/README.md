@@ -1,13 +1,13 @@
 1. Build a container with all dependencies
 
    ```
-   docker build -t vitam/doc_builder_debian10 .
+   docker build -t vitam/doc_builder_debian12 .
    ```
 
 2. Start a container with current user
 
    ```
-   docker run --rm -it -v /path/to/vitam/:/code -v ~/.m2/:/home/$USER/.m2 --user $(id -u):$(id -g) -v /etc/passwd:/etc/passwd -v /etc/shadow:/etc/shadow vitam/doc_builder_debian10:latest /bin/bash
+   docker run --rm -it -v /path/to/vitam/:/code -v ~/.m2/:/home/$USER/.m2 --user $(id -u):$(id -g) -v /etc/passwd:/etc/passwd -v /etc/shadow:/etc/shadow vitam/doc_builder_debian12:latest /bin/bash
    ```
 
 3. Compile core vitam (required for javadocs)

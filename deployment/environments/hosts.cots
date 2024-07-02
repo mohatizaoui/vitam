@@ -123,7 +123,8 @@ hosts_mongos_offer
 hosts_mongoc_offer
 hosts_mongod_offer
 
-
+[hosts_mongodb_offer:vars]
+mongo_cluster_name=offer-fs-1
 
 [hosts_mongos_offer]
 localhost
