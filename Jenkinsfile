@@ -30,6 +30,7 @@ pipeline {
         MONGO_VERSION="7.0.8"
         MINIO_VERSION="RELEASE.2020-04-15T00-39-01Z" // more precise than edge
         OPENIO_VERSION="18.10"
+        JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
     }
 
     options {
@@ -54,10 +55,11 @@ pipeline {
                // KWA Note : Awful outside docker...
                // sh "cp -f .ci/.npmrc ~/"
                // sh "rm -f ~/.m2/settings.xml"
+
                echo "Workspace location : ${env.WORKSPACE}"
                echo "Branch : ${env.GIT_BRANCH}"
-           }
-       }
+      }
+}
 
         stage("Detecting changes for build") {
             steps {

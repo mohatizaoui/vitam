@@ -16,11 +16,13 @@ RUN apt-get clean && apt-get update && apt-get install -y apt-utils procps init
 
 # Make sure the package repository and packages are up to date.
 
+COPY deb/bookworm-backports.list /etc/apt/sources.list.d/
+
 RUN apt-get clean && apt-get update && apt-get upgrade -y
 
 RUN apt-get remove -y openjdk*
 
-RUN apt-get update && apt-get install -y openjdk-17-jdk-headless
+RUN apt-get update && apt-get install -t bookworm-backports -y openjdk-17-jdk-headless
 
 #RUN apt-get install -y systemd-sysv
 
@@ -56,10 +58,10 @@ RUN /var/lib/dpkg/info/ca-certificates-java.postinst configure
 ENV JAVA_HOME /usr/lib/jvm/java-17-openjdk-amd64
 
 # Install & configure maven
-RUN curl -k https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.6.3/apache-maven-3.6.3-bin.tar.gz --output /tmp/maven.tgz \
+RUN curl -k https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.8.7/apache-maven-3.8.7-bin.tar.gz --output /tmp/maven.tgz \
    && tar xvzf /tmp/maven.tgz --directory /opt \
    && rm -f /tmp/maven.tgz \
-   && ln -s /opt/apache-maven-3.6.3 /opt/maven \
+   && ln -s /opt/apache-maven-3.8.7 /opt/maven \
    && mkdir -p /devhome/.m2 \
    && chmod -R 777 /devhome
 

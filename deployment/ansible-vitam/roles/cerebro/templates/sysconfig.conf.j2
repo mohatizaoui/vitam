@@ -1,1 +1,1 @@
-JAVA_OPTS=-Djava.io.tmpdir={{ vitam_defaults.folder.root_path }}/tmp/cerebro {{'--add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/sun.net.www.protocol.file=ALL-UNNAMED' if (ansible_distribution == 'Debian' and ansible_distribution_version | int == 12) else ''}}
+JAVA_OPTS=-Djava.io.tmpdir={{ vitam_defaults.folder.root_path }}/tmp/cerebro --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/sun.net.www.protocol.file=ALL-UNNAMED

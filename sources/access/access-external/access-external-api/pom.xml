@@ -35,6 +35,16 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<!-- Compiles Java sources. -->
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${maven.compiler.version}</version>
+				<configuration>
+					<source>${private.java.version}</source>
+					<target>${public.java.version}</target>
+					<release>${public.java.version}</release>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 

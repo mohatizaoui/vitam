@@ -6,11 +6,13 @@
 # Image name: vitam/dev-deb-base
 #########################################################################################
 
-# Set the base image to Debian 10
-FROM debian:10.2
+# Set the base image to Debian 12.5
+FROM debian:12.5
 MAINTAINER French Prime minister Office/SGMAP/DINSIC/Vitam Program <contact.vitam@culture.gouv.fr>
 
 #ENV DEBIAN_FRONTEND noninteractive
+
+COPY deb/bookworm-backports.list /etc/apt/sources.list.d/
 
 RUN apt-get clean && apt-get update && apt-get install -y apt-utils procps init
 
@@ -20,7 +22,7 @@ RUN apt-get clean && apt-get update && apt-get upgrade -y
 
 RUN apt-get remove -y openjdk*
 
-RUN apt-get update && apt-get install -y openjdk-11-jdk-headless
+RUN apt-get update && apt-get install -y openjdk-17-jdk-headless
 
 #RUN apt-get install -y systemd-sysv
 
@@ -53,13 +55,13 @@ RUN apt-get clean && apt-get update && apt-get install -y openssl curl sudo net-
 RUN /var/lib/dpkg/info/ca-certificates-java.postinst configure
 
 # Add Java to path
-ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64
+ENV JAVA_HOME /usr/lib/jvm/java-17-openjdk-amd64
 
 # Install & configure maven
-RUN curl -k https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.6.3/apache-maven-3.6.3-bin.tar.gz --output /tmp/maven.tgz \
+RUN curl -k https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.8.7/apache-maven-3.8.7-bin.tar.gz --output /tmp/maven.tgz \
    && tar xvzf /tmp/maven.tgz --directory /opt \
    && rm -f /tmp/maven.tgz \
-   && ln -s /opt/apache-maven-3.6.3 /opt/maven \
+   && ln -s /opt/apache-maven-3.8.7 /opt/maven \
    && mkdir -p /devhome/.m2 \
    && chmod -R 777 /devhome
 
@@ -80,8 +82,16 @@ RUN apt-get install -y node-gyp  libnode-dev && \
 ##################################  Declare local deb repo  #################################
 
 # Note : declare at the end ; else other commands will fail.
-RUN apt-get update && apt-get install -y  dpkg-dev gnupg2 \
+RUN apt-get update && apt-get install -y  dpkg-dev gnupg2 locales \
     && apt-get clean
+
+RUN echo "LC_ALL=en_US.UTF-8" >> /etc/environment && \
+    echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && \
+    echo "LANG=en_US.UTF-8" > /etc/locale.conf && \
+    export LC_ALL=en_US.UTF-8 && \
+    export LANG=en_US.UTF-8 && \
+    export LANGUAGE=en_US.UTF-8 && \
+    locale-gen en_US.UTF-8
 
 COPY deb/ansible.list /etc/apt/sources.list.d/ansible.list
 RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 93C4A3FD7BB9C367

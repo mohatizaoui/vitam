@@ -39,14 +39,14 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 
 public class MultiplexedStreamObjectInfoListenerThreadTest {
 
@@ -75,7 +75,14 @@ public class MultiplexedStreamObjectInfoListenerThreadTest {
             multiplexedStreamWriter.appendEntry(entry.length, new ByteArrayInputStream(entry));
         }
         multiplexedStreamWriter.appendEndOfFile();
-        InputStream multiplexedInputStream = spy(multiplexedByteArrayOutputStream.toInputStream());
+        AtomicBoolean closed = new AtomicBoolean(false);
+        InputStream multiplexedInputStream = new DataInputStream(multiplexedByteArrayOutputStream.toInputStream()) {
+            @Override
+            public void close() throws IOException {
+                closed.set(true);
+                super.close();
+            }
+        };
 
         // When
         MultiplexedStreamObjectInfoListenerThread multiplexedStreamObjectInfoListenerThread =
@@ -101,6 +108,6 @@ public class MultiplexedStreamObjectInfoListenerThreadTest {
             assertThat(objectInfo.getDigest()).isEqualTo(digest.digestHex());
         }
 
-        verify(multiplexedInputStream, atLeastOnce()).close();
+        assertThat(closed.get()).isTrue();
     }
 }

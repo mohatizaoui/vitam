@@ -1,16 +1,25 @@
 ---
 
-- name: Install openjdk on Debian
-  apt:
-    name: "{{ 'openjdk-11-jre-headless' if ansible_distribution_version | int < 12 else 'openjdk-17-jre-headless' }}"
+- name: Remove openjdk 11
+  package:
+    name: "{{ 'openjdk-11-jre-headless' if ansible_os_family == 'Debian' else 'java-11-openjdk-headless' }}"
+    state: absent
+  register: result
+  retries: "{{ packages_install_retries_number }}"
+  until: result is succeeded
+  delay: "{{ packages_install_retries_delay }}"
+  when: install_mode != "container"
+  tags: update_package_vitam
+
+- name: Install openjdk 17
+  package:
+    name: "{{ 'openjdk-17-jre-headless' if ansible_os_family == 'Debian' else 'java-17-openjdk-headless' }}"
     state: latest
   register: result
   retries: "{{ packages_install_retries_number }}"
   until: result is succeeded
   delay: "{{ packages_install_retries_delay }}"
-  when:
-    - ansible_os_family == "Debian"
-    - install_mode != "container"
+  when: install_mode != "container"
   tags: update_package_vitam
 
 - include_tasks: tape_offer.yml

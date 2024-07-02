@@ -6,8 +6,8 @@
 # Image name: vitam/jenkins-slave-base
 #########################################################################################
 
-# Set the base image to Centos 7
-FROM centos:7.7.1908
+# Set the base image to Almalinux 9
+FROM almalinux/9-base
 MAINTAINER French Prime minister Office/SGMAP/DINSIC/Vitam Program <contact.vitam@culture.gouv.fr>
 
 # Make sure the package repository and packages are up to date.
@@ -30,10 +30,10 @@ RUN (cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i == system
 
 ################################  Install build tools (rpm / maven / java)  ###############################
 
-RUN yum remove -y java-1.8*
+RUN yum remove -y java-11*
 
 RUN yum install -y \
-        java-11-openjdk-devel \
+    	java-17-openjdk-devel \
         rpm-build \
         rpmdevtools \
         initscripts.x86_64 \
@@ -45,10 +45,10 @@ RUN yum install -y \
 ENV JAVA_HOME /usr/lib/jvm/java
 
 # Install & configure maven
-RUN curl -k https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.6.3/apache-maven-3.6.3-bin.tar.gz --output /tmp/maven.tgz \
+RUN curl -k https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.8.7/apache-maven-3.8.7-bin.tar.gz --output /tmp/maven.tgz \
     && tar xvzf /tmp/maven.tgz --directory /opt \
     && rm -f /tmp/maven.tgz \
-    && ln -s /opt/apache-maven-3.6.3 /opt/maven \
+    && ln -s /opt/apache-maven-3.8.7 /opt/maven \
     && mkdir -p /devhome/.m2 \
     && chmod -R 777 /devhome
 

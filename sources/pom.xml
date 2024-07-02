@@ -13,6 +13,10 @@
         <name>Vitam</name>
     </organization>
 
+    <prerequisites>
+        <maven>3.8.7</maven>
+    </prerequisites>
+
     <licenses>
         <license>
             <name>CeCILL 2.1</name>
@@ -79,12 +83,15 @@
     <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
     <properties>
         <!-- Global Properties -->
-        <java.version>11</java.version>
+        <private.java.version>17</private.java.version>
+        <public.java.version>11</public.java.version>
+
+
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- JDK version -->
-        <jdk.version.rpm>java-11-openjdk-headless</jdk.version.rpm>
-        <jdk.version.debian>openjdk-11-jre-headless</jdk.version.debian>
+        <jdk.version.rpm>java-17-openjdk-headless</jdk.version.rpm>
+        <jdk.version.debian>openjdk-17-jre-headless</jdk.version.debian>
 
         <!-- Build environment Properties -->
         <project.scm.id>vitam-gitlab</project.scm.id>
@@ -118,7 +125,7 @@
         <maven.failsafe.version>3.2.5</maven.failsafe.version>
         <maven.javadoc.version>3.6.3</maven.javadoc.version>
         <maven.exec.version>3.2.0</maven.exec.version>
-        <maven.dependencycheck.version>9.0.10</maven.dependencycheck.version>
+        <maven.dependencycheck.version>10.0.0</maven.dependencycheck.version>
         <git-commit-id-plugin.version>4.9.10</git-commit-id-plugin.version>
         <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
         <license-maven-plugin.version>4.3</license-maven-plugin.version>
@@ -184,7 +191,6 @@
         <commons-io.version>2.15.1</commons-io.version>
         <commons-lang3>3.14.0</commons-lang3>
         <commons-text>1.11.0</commons-text>
-        <easymock.version>5.2.0</easymock.version>
         <jackson.version>2.17.0</jackson.version>
         <apache-shiro.version>1.13.0</apache-shiro.version>
         <assertj.version>3.25.3</assertj.version>
@@ -378,8 +384,9 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${maven.compiler.version}</version>
                     <configuration>
-                        <source>${java.version}</source>
-                        <target>${java.version}</target>
+                        <source>${private.java.version}</source>
+                        <target>${private.java.version}</target>
+                        <release>${private.java.version}</release>
                         <encoding>${project.build.sourceEncoding}</encoding>
                     </configuration>
                 </plugin>
@@ -1590,12 +1597,6 @@
                 <groupId>io.rest-assured</groupId>
                 <artifactId>json-path</artifactId>
                 <version>${rest-assured.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.easymock</groupId>
-                <artifactId>easymock</artifactId>
-                <version>${easymock.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>

@@ -59,7 +59,7 @@ public class DatabaseCursor {
     /**
      * For Json
      */
-    protected DatabaseCursor() {
+    public DatabaseCursor() {
         // Empty
     }
 
