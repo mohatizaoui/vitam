@@ -41,6 +41,7 @@ public class ProfileModel {
     public static final String TAG_DESCRIPTION = "Description";
     public static final String TAG_STATUS = "Status";
     public static final String TAG_FORMAT = "Format";
+    public static final String TAG_SEDAVERSION = "SedaVersion";
     public static final String TAG_PATH = "Path";
     public static final String CREATION_DATE = "CreationDate";
     public static final String LAST_UPDATE = "LastUpdate";
@@ -79,6 +80,9 @@ public class ProfileModel {
 
     @JsonProperty(TAG_FORMAT)
     private ProfileFormat format;
+
+    @JsonProperty(TAG_SEDAVERSION)
+    private ProfileSedaVersion sedaVersion = ProfileSedaVersion.VERSION_2_1;
 
     @JsonProperty(TAG_PATH)
     private String path;
@@ -245,6 +249,26 @@ public class ProfileModel {
      */
     public ProfileModel setFormat(ProfileFormat format) {
         this.format = format;
+        return this;
+    }
+
+    /**
+     * Get the profile seda version
+     *
+     * @return the profile seda version
+     */
+    public ProfileSedaVersion getSedaVersion() {
+        return sedaVersion;
+    }
+
+    /**
+     * Set the profile seda version (v2.1, v2.2, v2.3, ...)
+     *
+     * @param sedaVersion
+     * @return this
+     */
+    public ProfileModel setSedaVersion(ProfileSedaVersion sedaVersion) {
+        this.sedaVersion = sedaVersion;
         return this;
     }
 

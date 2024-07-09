@@ -16,6 +16,9 @@
     "Format": {
       "type": "keyword"
     },
+    "SedaVersion": {
+      "type": "keyword"
+    },
     "Path": {
       "type": "keyword"
     },

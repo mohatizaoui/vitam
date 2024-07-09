@@ -1,0 +1,53 @@
+# Configuration
+@tenant = 1
+@access-contract = ContratTNR
+@archive-unit-profile-id = aegaaaaaaeeck3xwabgagamqtltj5eiaaaaq
+@archive-unit-profile-identifier = AUP-000001
+
+### Récupération de tous les profils
+GET {{url-access}}/admin-external/v1/archiveunitprofiles
+Accept: application/json
+Content-Type: application/json
+X-Tenant-Id: {{tenant}}
+
+{
+  "$query" : {},
+  "$projection": {}
+}
+
+### Récupération d'un profil
+GET {{url-access}}/admin-external/v1/archiveunitprofiles
+Accept: application/json
+Content-Type: application/json
+X-Tenant-Id: {{tenant}}
+
+{
+  "$query" : { "$eq" : { "_id" : "{{ archive-unit-profile-id }}" } },
+  "$projection": {}
+}
+
+### Récupération par l'identifiant
+GET {{url-access}}/admin-external/v1/archiveunitprofiles/{{ archive-unit-profile-identifier }}
+Content-Type: application/json
+X-Tenant-Id: {{tenant}}
+
+### Import d'une notice
+POST {{url-access}}/admin-external/v1/archiveunitprofiles
+Content-Type: application/json
+X-Tenant-Id: {{tenant}}
+
+[
+  {
+    "#tenant": 1,
+    "Identifier": "AUP-000003",
+    "Name": "Notice PUA 3",
+    "Description": "Test d'import d'une notice PUA",
+    "Status": "ACTIVE",
+    "SedaVersion": "v2.3",
+    "CreationDate": "2024-07-09T11:41:59.241",
+    "LastUpdate": "2024-07-09T11:42:00.292",
+    "ActivationDate": "2024-07-09T11:41:59.241",
+    "DeactivationDate": "2024-07-09T11:41:59.241",
+    "ControlSchema": "{ \"$schema\": \"http://vitam-json-schema.org/draft-04/schema#\", \"id\": \"http://example.com/root.json\", \"type\": \"object\", \"properties\": { \"Title\": { \"type\": \"string\" } } }"
+  }
+]

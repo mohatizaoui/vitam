@@ -5,6 +5,7 @@
     "Description": "aDescription of the Profile",
     "Status": "ACTIVE",
     "Format": "XSD",
+    "SedaVersion": "v2.3",
     "LastUpdate": "10/12/2016",
     "CreationDate": "10/12/2016",
     "ActivationDate": "10/12/2016",

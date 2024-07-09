@@ -1,13 +1,14 @@
 [
-		{
-		"Identifier":"differentIdentifier",
-		"Name":"aName2",
-		"Description":"aDescription of the profile 2",
-		"Status":"ACTIVE",
-		"ControlSchema":"{}",
-		"LastUpdate":"10/12/2016",
-		"CreationDate":"10/12/2016",
-		"ActivationDate":"10/12/2016",
-		"DeactivationDate":"10/12/2016"
-	}
+  {
+    "Identifier": "differentIdentifier",
+    "Name": "aName2",
+    "Description": "aDescription of the profile 2",
+    "Status": "ACTIVE",
+    "SedaVersion": "v2.3",
+    "ControlSchema": "{}",
+    "LastUpdate": "10/12/2016",
+    "CreationDate": "10/12/2016",
+    "ActivationDate": "10/12/2016",
+    "DeactivationDate": "10/12/2016"
+  }
 ]

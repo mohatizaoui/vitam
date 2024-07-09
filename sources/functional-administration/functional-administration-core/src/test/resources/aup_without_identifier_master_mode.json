@@ -4,6 +4,7 @@
     "Name": "aName2",
     "Description": "aDescription of the profile in slave mode",
     "Status": "ACTIVE",
+    "SedaVersion": "v2.3",
     "ControlSchema": "{}",
     "LastUpdate": "10/12/2016",
     "CreationDate": "10/12/2016",

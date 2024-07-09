@@ -28,6 +28,7 @@ package fr.gouv.vitam.functional.administration.common;
 
 import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.model.administration.ProfileFormat;
+import fr.gouv.vitam.common.model.administration.ProfileSedaVersion;
 import fr.gouv.vitam.common.model.administration.ProfileStatus;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
@@ -68,6 +69,7 @@ public class ProfileTest {
             .setDescription(description)
             .setStatus(ProfileStatus.ACTIVE)
             .setFormat(ProfileFormat.XSD)
+            .setSedaVersion(ProfileSedaVersion.VERSION_2_3)
             .setLastupdate(lastupdate)
             .setCreationdate(lastupdate)
             .setActivationdate(lastupdate)
@@ -79,6 +81,7 @@ public class ProfileTest {
         assertEquals(description, profile.getDescription());
         assertEquals(ProfileStatus.ACTIVE, profile.getStatus());
         assertEquals(ProfileFormat.XSD, profile.getFormat());
+        assertEquals(ProfileSedaVersion.VERSION_2_3, profile.getSedaVersion());
         assertEquals(lastupdate, profile.getCreationdate());
         assertEquals(lastupdate, profile.getActivationdate());
         assertEquals(lastupdate, profile.getDeactivationdate());

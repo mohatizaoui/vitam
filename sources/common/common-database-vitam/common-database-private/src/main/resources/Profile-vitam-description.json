@@ -60,6 +60,12 @@
     "indexed": true
   },
   {
+    "path": "SedaVersion",
+    "type": "keyword",
+    "cardinality": "one",
+    "indexed": true
+  },
+  {
     "path": "Identifier",
     "type": "keyword",
     "cardinality": "one",

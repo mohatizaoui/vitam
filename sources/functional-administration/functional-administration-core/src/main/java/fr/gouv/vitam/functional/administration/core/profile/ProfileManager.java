@@ -43,6 +43,7 @@ import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.administration.ProfileFormat;
 import fr.gouv.vitam.common.model.administration.ProfileModel;
+import fr.gouv.vitam.common.model.administration.ProfileSedaVersion;
 import fr.gouv.vitam.common.model.administration.ProfileStatus;
 import fr.gouv.vitam.common.parameter.ParameterHelper;
 import fr.gouv.vitam.common.security.SanityChecker;
@@ -429,17 +430,13 @@ public class ProfileManager {
             RejectionCause rejection = null;
 
             String now = LocalDateUtil.nowFormatted();
+
             if (profile.getStatus() == null) {
                 profile.setStatus(ProfileStatus.INACTIVE);
             }
 
-            if (
-                !profile.getStatus().equals(ProfileStatus.ACTIVE) && !profile.getStatus().equals(ProfileStatus.INACTIVE)
-            ) {
-                LOGGER.error("Error profile status not valide (must be ACTIVE or INACTIVE");
-                rejection = RejectionCause.rejectMandatoryMissing(
-                    "Status " + profile.getStatus() + " not valide must be ACTIVE or INACTIVE"
-                );
+            if (profile.getSedaVersion() == null) {
+                profile.setSedaVersion(ProfileSedaVersion.VERSION_2_1);
             }
 
             try {
