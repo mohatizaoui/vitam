@@ -58,6 +58,7 @@ import fr.gouv.vitam.common.model.administration.ActivationStatus;
 import fr.gouv.vitam.common.model.administration.ContextStatus;
 import fr.gouv.vitam.common.model.administration.IngestContractCheckState;
 import fr.gouv.vitam.common.model.administration.ProfileFormat;
+import fr.gouv.vitam.common.model.administration.ProfileSedaVersion;
 import fr.gouv.vitam.common.model.administration.ProfileStatus;
 import fr.gouv.vitam.common.mongo.MongoRule;
 import fr.gouv.vitam.common.server.application.configuration.DbConfigurationImpl;
@@ -679,6 +680,7 @@ public class MongoDbAccessAdminImplTest {
             .setDescription(description)
             .setStatus(ProfileStatus.INACTIVE)
             .setFormat(ProfileFormat.XSD)
+            .setSedaVersion(ProfileSedaVersion.VERSION_2_3)
             .setLastupdate(lastupdate)
             .setCreationdate(lastupdate)
             .setActivationdate(lastupdate)

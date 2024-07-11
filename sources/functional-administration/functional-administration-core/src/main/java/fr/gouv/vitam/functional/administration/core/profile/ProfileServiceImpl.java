@@ -61,6 +61,7 @@ import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.administration.ProfileFormat;
 import fr.gouv.vitam.common.model.administration.ProfileModel;
+import fr.gouv.vitam.common.model.administration.ProfileSedaVersion;
 import fr.gouv.vitam.common.model.administration.ProfileStatus;
 import fr.gouv.vitam.common.parameter.ParameterHelper;
 import fr.gouv.vitam.common.security.SanityChecker;
@@ -117,6 +118,7 @@ public class ProfileServiceImpl implements ProfileService {
 
     public static final String OP_PROFILE_STORAGE = "OP_PROFILE_STORAGE";
     public static final String PROFILE_FORMAT_SHOULD_BE_XSD_OR_RNG = "Profile Format should be XSD or RNG : ";
+    public static final String PROFILE_SEDAVERSION_SHOULD_BE_VALID = "Profile SedaVersion should be a valid value : ";
     public static final String PROFILE_IDENTIFIER_ALREADY_EXISTS_IN_DATABASE =
         "Profile identifier already exists in database ";
     public static final String PROFILE_IDENTIFIER_MUST_BE_STRING = "Profile identifier shoud be a string ";
@@ -662,6 +664,21 @@ public class ProfileServiceImpl implements ProfileService {
                     .setHttpCode(Response.Status.BAD_REQUEST.getStatusCode())
                     .setMessage(ProfileManager.UPDATE_KO)
             );
+        }
+
+        if (Profile.SEDA_VERSION.equals(field)) {
+            try {
+                ProfileSedaVersion.forVersion(value.asText()); // return value ignored, call only for validation
+            } catch (IllegalArgumentException e) {
+                error.addToErrors(
+                    getVitamError(
+                        VitamCode.PROFILE_VALIDATION_ERROR.getItem(),
+                        PROFILE_SEDAVERSION_SHOULD_BE_VALID + value.asText()
+                    )
+                        .setHttpCode(Response.Status.BAD_REQUEST.getStatusCode())
+                        .setMessage(ProfileManager.UPDATE_KO)
+                );
+            }
         }
 
         if (ProfileModel.TAG_IDENTIFIER.equals(field)) {

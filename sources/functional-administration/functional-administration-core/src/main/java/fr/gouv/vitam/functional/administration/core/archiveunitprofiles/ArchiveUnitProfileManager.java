@@ -48,6 +48,7 @@ import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.administration.ArchiveUnitProfileModel;
+import fr.gouv.vitam.common.model.administration.ArchiveUnitProfileSedaVersion;
 import fr.gouv.vitam.common.model.administration.ArchiveUnitProfileStatus;
 import fr.gouv.vitam.common.parameter.ParameterHelper;
 import fr.gouv.vitam.common.security.SanityChecker;
@@ -316,18 +317,13 @@ public class ArchiveUnitProfileManager {
             ArchiveUnitProfileValidator.RejectionCause rejection = null;
 
             String now = LocalDateUtil.nowFormatted();
+
             if (archiveUnitProfile.getStatus() == null) {
                 archiveUnitProfile.setStatus(ArchiveUnitProfileStatus.INACTIVE);
             }
 
-            if (
-                !archiveUnitProfile.getStatus().equals(ArchiveUnitProfileStatus.ACTIVE) &&
-                !archiveUnitProfile.getStatus().equals(ArchiveUnitProfileStatus.INACTIVE)
-            ) {
-                LOGGER.error("Error archive unit profile status not valide (must be ACTIVE or INACTIVE");
-                rejection = ArchiveUnitProfileValidator.RejectionCause.rejectMandatoryMissing(
-                    "Status " + archiveUnitProfile.getStatus() + " not valide must be ACTIVE or INACTIVE"
-                );
+            if (archiveUnitProfile.getSedaVersion() == null) {
+                archiveUnitProfile.setSedaVersion(ArchiveUnitProfileSedaVersion.VERSION_2_1);
             }
 
             try {

@@ -36,6 +36,12 @@
     "cardinality": "one"
   },
   {
+    "path": "SedaVersion",
+    "type": "keyword",
+    "indexed": true,
+    "cardinality": "one"
+  },
+  {
     "path": "CreationDate",
     "type": "datetime",
     "indexed": true,

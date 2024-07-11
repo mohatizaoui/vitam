@@ -29,6 +29,7 @@ package fr.gouv.vitam.functional.administration.common;
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.gouv.vitam.common.database.server.mongodb.VitamDocument;
 import fr.gouv.vitam.common.model.administration.ProfileFormat;
+import fr.gouv.vitam.common.model.administration.ProfileSedaVersion;
 import fr.gouv.vitam.common.model.administration.ProfileStatus;
 import org.bson.Document;
 
@@ -64,6 +65,11 @@ public class Profile extends VitamDocument<Profile> {
      * the profile file format
      */
     public static final String FORMAT = "Format";
+
+    /**
+     * the seda version
+     */
+    public static final String SEDA_VERSION = "SedaVersion";
 
     /**
      * the profile file path in storage
@@ -223,6 +229,26 @@ public class Profile extends VitamDocument<Profile> {
      */
     public Profile setFormat(ProfileFormat format) {
         append(FORMAT, format);
+        return this;
+    }
+
+    /**
+     * Get the profile seda version
+     *
+     * @return the profile seda version
+     */
+    public ProfileSedaVersion getSedaVersion() {
+        return (ProfileSedaVersion) get(SEDA_VERSION);
+    }
+
+    /**
+     * Set or change the seda version
+     *
+     * @param sedaVersion
+     * @return this
+     */
+    public Profile setSedaVersion(ProfileSedaVersion sedaVersion) {
+        append(SEDA_VERSION, sedaVersion);
         return this;
     }
 

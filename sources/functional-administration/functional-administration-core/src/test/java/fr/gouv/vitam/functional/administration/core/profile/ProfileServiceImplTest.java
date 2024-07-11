@@ -43,6 +43,7 @@ import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.administration.ProfileModel;
+import fr.gouv.vitam.common.model.administration.ProfileSedaVersion;
 import fr.gouv.vitam.common.mongo.MongoRule;
 import fr.gouv.vitam.common.server.application.configuration.DbConfigurationImpl;
 import fr.gouv.vitam.common.server.application.configuration.MongoDbNode;
@@ -723,5 +724,28 @@ public class ProfileServiceImplTest {
         assertThat(((VitamError<ProfileModel>) response).getErrors().get(0).getMessage()).isEqualTo(
             ProfileServiceImpl.PATH_SHOULD_NOT_BE_FILLED
         );
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void should_create_profile_with_default_seda_version() throws Exception {
+        VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
+        final File fileMetadataProfile = PropertiesUtils.getResourceFile("profile_ok_no_seda_version.json");
+        final List<ProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
+            fileMetadataProfile,
+            new TypeReference<>() {}
+        );
+        RequestResponse<ProfileModel> response = profileService.createProfiles(profileModelList);
+
+        assertThat(response.isOk()).isTrue();
+
+        final RequestResponseOK<ProfileModel> responseCast = (RequestResponseOK<ProfileModel>) response;
+        assertThat(responseCast.getResults()).hasSize(1);
+
+        final ProfileModel pm = profileModelList.iterator().next();
+        assertThat(pm).isNotNull();
+
+        final ProfileSedaVersion sedaVersion = pm.getSedaVersion();
+        assertThat(sedaVersion).isEqualTo(ProfileSedaVersion.VERSION_2_1);
     }
 }

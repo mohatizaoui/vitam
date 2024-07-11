@@ -42,6 +42,7 @@ import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.administration.ArchiveUnitProfileModel;
+import fr.gouv.vitam.common.model.administration.ArchiveUnitProfileSedaVersion;
 import fr.gouv.vitam.common.mongo.MongoRule;
 import fr.gouv.vitam.common.server.application.configuration.DbConfigurationImpl;
 import fr.gouv.vitam.common.server.application.configuration.MongoDbNode;
@@ -628,5 +629,30 @@ public class ArchiveUnitProfileServiceImplTest {
         final ArchiveUnitProfileModel acmFound = profileModelListFound.getResults().iterator().next();
         assertThat(acmFound).isNotNull();
         assertThat(acmFound.getIdentifier()).isEqualTo(identifier);
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void givenTestAddWithoutSedaVersion() throws Exception {
+        VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
+        final File fileMetadataProfile = PropertiesUtils.getResourceFile("AUP_ok_no_seda_version.json");
+        final List<ArchiveUnitProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
+            fileMetadataProfile,
+            new TypeReference<>() {}
+        );
+        final RequestResponse<ArchiveUnitProfileModel> response = archiveUnitProfileService.createArchiveUnitProfiles(
+            profileModelList
+        );
+
+        final RequestResponseOK<ArchiveUnitProfileModel> responseCast = (RequestResponseOK<
+                ArchiveUnitProfileModel
+            >) response;
+        assertThat(responseCast.getResults()).hasSize(1);
+
+        final ArchiveUnitProfileModel acm = profileModelList.iterator().next();
+        assertThat(acm).isNotNull();
+
+        final ArchiveUnitProfileSedaVersion sedaVersion = acm.getSedaVersion();
+        assertThat(sedaVersion).isEqualTo(ArchiveUnitProfileSedaVersion.VERSION_2_1);
     }
 }

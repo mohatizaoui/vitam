@@ -24,3 +24,13 @@
   vars:
     - alias_prefix: "accesscontract"
     - mapping_folder: "accesscontract"
+
+- include_tasks: list_and_migrate_alias_mapping.yml
+  vars:
+    - alias_prefix: "profile"
+    - mapping_folder: "profile"
+
+- include_tasks: list_and_migrate_alias_mapping.yml
+  vars:
+    - alias_prefix: "archiveunitprofile"
+    - mapping_folder: "archiveunitprofile"

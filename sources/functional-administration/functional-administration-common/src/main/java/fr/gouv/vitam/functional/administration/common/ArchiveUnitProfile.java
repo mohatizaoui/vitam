@@ -28,7 +28,8 @@ package fr.gouv.vitam.functional.administration.common;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.gouv.vitam.common.database.server.mongodb.VitamDocument;
-import fr.gouv.vitam.common.model.administration.ProfileStatus;
+import fr.gouv.vitam.common.model.administration.ArchiveUnitProfileSedaVersion;
+import fr.gouv.vitam.common.model.administration.ArchiveUnitProfileStatus;
 import org.bson.Document;
 
 /**
@@ -58,6 +59,11 @@ public class ArchiveUnitProfile extends VitamDocument<ArchiveUnitProfile> {
      * the profile status
      */
     public static final String STATUS = "Status";
+
+    /**
+     * the profile's seda version
+     */
+    public static final String SEDA_VERSION = "SedaVersion";
 
     /**
      * the creatation date of the profile
@@ -194,8 +200,8 @@ public class ArchiveUnitProfile extends VitamDocument<ArchiveUnitProfile> {
      *
      * @return status of ingest contact
      */
-    public ProfileStatus getStatus() {
-        return (ProfileStatus) get(STATUS);
+    public ArchiveUnitProfileStatus getStatus() {
+        return (ArchiveUnitProfileStatus) get(STATUS);
     }
 
     /**
@@ -204,8 +210,28 @@ public class ArchiveUnitProfile extends VitamDocument<ArchiveUnitProfile> {
      * @param status to set
      * @return this
      */
-    public ArchiveUnitProfile setStatus(ProfileStatus status) {
+    public ArchiveUnitProfile setStatus(ArchiveUnitProfileStatus status) {
         append(STATUS, status);
+        return this;
+    }
+
+    /**
+     * Get the profile seda version
+     *
+     * @return the seda version
+     */
+    public ArchiveUnitProfileSedaVersion getSedaVersion() {
+        return (ArchiveUnitProfileSedaVersion) get(SEDA_VERSION);
+    }
+
+    /**
+     * Set the profile seda version
+     *
+     * @param sedaVersion
+     * @return this
+     */
+    public ArchiveUnitProfile setSedaVersion(ArchiveUnitProfileSedaVersion sedaVersion) {
+        append(SEDA_VERSION, sedaVersion);
         return this;
     }
 

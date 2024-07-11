@@ -1,0 +1,50 @@
+# Configuration
+@tenant = 1
+@access-contract = ContratTNR
+@profile-id = aegaaaaaaefrvebfac2xaamqs5goysyaaaaq
+@profile-identifier = PROFILE_NOTICE_TEST
+
+### Récupération de tous les profils
+GET {{url-access}}/admin-external/v1/profiles
+Accept: application/json
+Content-Type: application/json
+X-Tenant-Id: {{tenant}}
+
+{
+  "$query" : {},
+  "$projection": {}
+}
+
+### Récupération d'un profil
+GET {{url-access}}/admin-external/v1/profiles
+Accept: application/json
+Content-Type: application/json
+X-Tenant-Id: {{tenant}}
+
+{
+  "$query" : { "$eq" : { "_id" : "{{ profile-id }}" } },
+  "$projection": {}
+}
+
+### Téléchargement du RNG
+GET {{url-access}}/admin-external/v1/profiles/{{ profile-identifier }}
+Content-Type: application/json
+X-Tenant-Id: {{tenant}}
+
+### Import d'une notice
+POST {{url-access}}/admin-external/v1/profiles
+Content-Type: application/json
+X-Tenant-Id: {{tenant}}
+
+{
+  "#tenant": 1,
+  "Identifier": "PROFILE_NOTICE_TEST",
+  "Name": "Test d'import d'une notice PA",
+  "Status": "ACTIVE",
+  "Format": "RNG",
+  "SedaVersion": "v2.3",
+  "CreationDate": "2024-07-09T11:41:59.241",
+  "LastUpdate": "2024-07-09T11:42:00.292",
+  "ActivationDate": "2024-07-09T11:41:59.241",
+  "DeactivationDate": "2024-07-09T11:41:59.241"
+}

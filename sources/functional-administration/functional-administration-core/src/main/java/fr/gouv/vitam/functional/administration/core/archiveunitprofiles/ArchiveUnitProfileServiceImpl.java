@@ -57,6 +57,7 @@ import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.administration.ArchiveUnitProfileModel;
+import fr.gouv.vitam.common.model.administration.ArchiveUnitProfileSedaVersion;
 import fr.gouv.vitam.common.model.administration.ArchiveUnitProfileStatus;
 import fr.gouv.vitam.common.model.administration.OntologyModel;
 import fr.gouv.vitam.common.parameter.ParameterHelper;
@@ -106,6 +107,8 @@ public class ArchiveUnitProfileServiceImpl implements ArchiveUnitProfileService 
     private static final String ARCHIVE_UNIT_PROFILE_NOT_FOUND = "Update a not found archive unit profile";
     private static final String ARCHIVE_UNIT_PROFILE_STATUS_MUST_BE_ACTIVE_OR_INACTIVE =
         "The archive unit profile status must be ACTIVE or INACTIVE but not ";
+    private static final String ARCHIVE_UNIT_PROFILE_SEDA_VERSION_SHOULD_BE_VALID =
+        "The archive unit profile seda version has an invalid value : ";
     private static final String UND_TENANT = "_tenant";
     private static final String UND_ID = "_id";
     private final MongoDbAccessAdminImpl mongoAccess;
@@ -607,6 +610,21 @@ public class ArchiveUnitProfileServiceImpl implements ArchiveUnitProfileService 
                     getVitamError(
                         VitamCode.ARCHIVE_UNIT_PROFILE_VALIDATION_ERROR.getItem(),
                         ARCHIVE_UNIT_PROFILE_STATUS_MUST_BE_ACTIVE_OR_INACTIVE + value.asText()
+                    )
+                        .setHttpCode(Response.Status.BAD_REQUEST.getStatusCode())
+                        .setMessage(ArchiveUnitProfileManager.UPDATE_VALUE_NOT_IN_ENUM)
+                );
+            }
+        }
+
+        if (ArchiveUnitProfile.SEDA_VERSION.equals(field)) {
+            try {
+                ArchiveUnitProfileSedaVersion.forVersion(value.asText()); // return value ignored, call only for validation
+            } catch (IllegalArgumentException e) {
+                error.addToErrors(
+                    getVitamError(
+                        VitamCode.ARCHIVE_UNIT_PROFILE_VALIDATION_ERROR.getItem(),
+                        ARCHIVE_UNIT_PROFILE_SEDA_VERSION_SHOULD_BE_VALID + value.asText()
                     )
                         .setHttpCode(Response.Status.BAD_REQUEST.getStatusCode())
                         .setMessage(ArchiveUnitProfileManager.UPDATE_VALUE_NOT_IN_ENUM)

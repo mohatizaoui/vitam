@@ -55,6 +55,10 @@ public class ArchiveUnitProfileModel {
      */
     public static final String TAG_STATUS = "Status";
     /**
+     * Seda version Tag
+     */
+    public static final String TAG_SEDAVERSION = "SedaVersion";
+    /**
      * CreationDate Tag
      */
     public static final String CREATION_DATE = "CreationDate";
@@ -109,6 +113,9 @@ public class ArchiveUnitProfileModel {
 
     @JsonProperty(TAG_STATUS)
     private ArchiveUnitProfileStatus status;
+
+    @JsonProperty(TAG_SEDAVERSION)
+    private ArchiveUnitProfileSedaVersion sedaVersion = ArchiveUnitProfileSedaVersion.VERSION_2_1;
 
     @JsonProperty(CREATION_DATE)
     private String creationdate;
@@ -195,6 +202,15 @@ public class ArchiveUnitProfileModel {
 
     public ArchiveUnitProfileModel setStatus(ArchiveUnitProfileStatus status) {
         this.status = status;
+        return this;
+    }
+
+    public ArchiveUnitProfileSedaVersion getSedaVersion() {
+        return sedaVersion;
+    }
+
+    public ArchiveUnitProfileModel setSedaVersion(ArchiveUnitProfileSedaVersion sedaVersion) {
+        this.sedaVersion = sedaVersion;
         return this;
     }
 
