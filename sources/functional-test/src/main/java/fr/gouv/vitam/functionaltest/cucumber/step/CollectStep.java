@@ -77,6 +77,7 @@ public class CollectStep extends CommonStep {
     public static final String TRANSACTION_RETURN_AN_ERROR = "request find_transaction return an error: ";
     private static final String CREATED = "créé";
     private static final String DELETED = "supprimé";
+    private static final String UNIT_UP = "Unit-up";
 
     public CollectStep(World world) {
         super(world);
@@ -125,7 +126,16 @@ public class CollectStep extends CommonStep {
     public void i_use_the_following_file_query(String jsonFilename) throws Throwable {
         Path jsonFile = Paths.get(world.getBaseDirectory(), jsonFilename);
         String json = FileUtil.readFile(jsonFile.toFile());
+        json = replaceUnitUp(json);
+
         world.setQuery(json);
+    }
+
+    private String replaceUnitUp(String query) {
+        if (world.getUnitId() != null) {
+            query = query.replace(UNIT_UP, world.getUnitId());
+        }
+        return query;
     }
 
     @When("^je recherche le projet")
@@ -494,11 +504,19 @@ public class CollectStep extends CommonStep {
                 requestResponseOK.getResults().get(0).toString(),
                 TransactionDto.class
             );
+
             assertThat(myTransactionDto.getStatus()).isEqualTo(status);
+            world.setOperationId(myTransactionDto.getVitamOperationId());
         } else {
             VitamError vitamError = (VitamError) requestResponse;
             Fail.fail(TRANSACTION_RETURN_AN_ERROR + vitamError.getCode());
         }
+    }
+
+    @When("^je vérifie que l'unité est rattaché au noeud de l'arbre de positionnement$")
+    public void verify_rattachement() throws Throwable {
+        JsonNode unit = world.getResults().get(0);
+        assertThat(unit.get("#unitups")).isNotNull().anyMatch(node -> node.asText().equals(world.getUnitId()));
     }
 
     @When("^j'envoie l'arborescence bureautique suivante (.*)$")
@@ -553,7 +571,6 @@ public class CollectStep extends CommonStep {
         try (InputStream inputStream = Files.newInputStream(file, StandardOpenOption.READ)) {
             expectedJson = JsonHandler.getFromInputStream(inputStream);
         }
-
         RequestResponseOK<JsonNode> requestResponseOK = (RequestResponseOK<JsonNode>) requestResponse;
         assertThat(requestResponseOK.getResults()).isNotEmpty();
 
