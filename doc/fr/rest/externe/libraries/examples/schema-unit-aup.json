@@ -1,0 +1,220 @@
+{
+  "httpCode": 200,
+  "$hits": {
+    "total": 696,
+    "offset": 0,
+    "limit": 0,
+    "size": 4
+  },
+  "$results": [
+    {
+      "FieldName": "AcquiredDate",
+      "SedaField": "AcquiredDate",
+      "Collections": [
+        "Unit"
+      ],
+      "Description": "Références : ARKMS.DateAcquired",
+      "Type": "DATE",
+      "Origin": "INTERNAL",
+      "Indexed": "true",
+      "ShortName": "Date de numérisation",
+      "Path": "AcquiredDate",
+      "SedaVersions": [
+        "2.1",
+        "2.2",
+        "2.3"
+      ],
+      "Cardinality": "ONE",
+      "StringSize": "SHORT",
+      "ApiPath": "AcquiredDate",
+      "Category": "OTHER"
+    },
+    {
+      "FieldName": "BirthDate",
+      "SedaField": "BirthDate",
+      "Collections": [
+        "Unit"
+      ],
+      "Description": "Date de naissance ",
+      "Type": "DATE",
+      "Origin": "INTERNAL",
+      "Indexed": "true",
+      "ShortName": "Date de naissance",
+      "Path": "Addressee.BirthDate",
+      "SedaVersions": [
+        "2.1"
+      ],
+      "Cardinality": "ONE",
+      "StringSize": "SHORT",
+      "ApiPath": "Addressee.BirthDate",
+      "Category": "DESCRIPTION"
+    },
+    {
+      "FieldName": "BirthDate",
+      "SedaField": "BirthDate",
+      "Collections": [
+        "Unit"
+      ],
+      "Description": "Date de naissance  JJ/MM/AAAA",
+      "Type": "DATE",
+      "Origin": "INTERNAL",
+      "Indexed": "true",
+      "ShortName": "Date de naissance",
+      "Path": "AuthorizedAgent.BirthDate",
+      "SedaVersions": [
+        "2.1"
+      ],
+      "Cardinality": "ONE",
+      "StringSize": "SHORT",
+      "ApiPath": "AuthorizedAgent.BirthDate",
+      "Category": "DESCRIPTION"
+    },
+    {
+      "FieldName": "BirthDate",
+      "SedaField": "BirthDate",
+      "Collections": [
+        "Unit"
+      ],
+      "Description": "Date de naissance ",
+      "Type": "DATE",
+      "Origin": "INTERNAL",
+      "Indexed": "true",
+      "ShortName": "Date de naissance",
+      "Path": "Agent.BirthDate",
+      "SedaVersions": [
+        "2.1"
+      ],
+      "Cardinality": "ONE",
+      "StringSize": "SHORT",
+      "ApiPath": "Agent.BirthDate",
+      "Category": "DESCRIPTION"
+    },
+    {
+      "FieldName": "Agent",
+      "Collection": "Unit",
+      "ApiPath": "Agent",
+      "ApiField": "Agent",
+      "Category": "DESCRIPTION",
+      "Cardinality": "MANY",
+      "EffectiveCardinality": "ONE",
+      "Type": "OBJECT",
+      "Origin": "INTERNAL",
+      "ShortName": "Agent",
+      "Path": "Agent",
+      "SedaVersions": [
+        "2.1",
+        "2.2",
+        "2.3"
+      ]
+    },
+    {
+      "FieldName": "Activity",
+      "SedaField": "Activity",
+      "Collection": "Unit",
+      "ApiPath": "Agent.Activity",
+      "ApiField": "Activity",
+      "Category": "DESCRIPTION",
+      "Description": "Mapping : unit-es-mapping.json. En plus des balises Tag et Keyword, il est possible d'indexer les objets avec des éléments pré-définis : Activité.",
+      "Cardinality": "MANY",
+      "EffectiveCardinality": "ZERO",
+      "Type": "TEXT",
+      "Origin": "INTERNAL",
+      "ShortName": "Activité",
+      "Path": "Agent.Activity",
+      "SedaVersions": [
+        "2.1",
+        "2.2",
+        "2.3"
+      ],
+      "StringSize": "SHORT",
+      "TypeDetail": "STRING"
+    },
+    {
+      "FieldName": "BirthDate",
+      "SedaField": "BirthDate",
+      "Collection": "Unit",
+      "ApiPath": "Agent.BirthDate",
+      "ApiField": "BirthDate",
+      "Category": "DESCRIPTION",
+      "Description": "Mapping : unit-es-mapping.json",
+      "Cardinality": "ONE",
+      "Type": "DATE",
+      "Origin": "INTERNAL",
+      "ShortName": "Date de naissance",
+      "Path": "Agent.BirthDate",
+      "SedaVersions": [
+        "2.1",
+        "2.2",
+        "2.3"
+      ],
+      "TypeDetail": "DATETIME",
+      "Control": {
+        "Type": "DATETIME"
+      }
+    },
+    {
+      "FieldName": "Title",
+      "SedaField": "Title",
+      "Collection": "Unit",
+      "ApiPath": "Title",
+      "ApiField": "Title",
+      "Category": "DESCRIPTION",
+      "Description": "Mapping : unit-es-mapping.json",
+      "Cardinality": "ONE",
+      "Type": "TEXT",
+      "Origin": "INTERNAL",
+      "ShortName": "Intitulé *",
+      "Path": "Title",
+      "SedaVersions": [
+        "2.1",
+        "2.2",
+        "2.3"
+      ],
+      "StringSize": "MEDIUM",
+      "TypeDetail": "STRING",
+      "Control": {
+        "Type": "REGEX",
+        "Value": "^FACT_[0-9]{10}$",
+        "Comment": "FACT_ suivi de 10 caractères numériques"
+      }
+    },
+    {
+      "FieldName": "DescriptionLevel",
+      "SedaField": "DescriptionLevel",
+      "Collection": "Unit",
+      "ApiPath": "DescriptionLevel",
+      "ApiField": "DescriptionLevel",
+      "Category": "DESCRIPTION",
+      "Description": "Mapping : unit-es-mapping.json",
+      "Cardinality": "ONE_REQUIRED",
+      "Type": "KEYWORD",
+      "Origin": "INTERNAL",
+      "ShortName": "Niveau de description *",
+      "Path": "DescriptionLevel",
+      "SedaVersions": [
+        "2.1",
+        "2.2",
+        "2.3"
+      ],
+      "TypeDetail": "ENUM",
+      "Control": {
+        "Type": "SELECT"
+        "Values": [
+          "Fonds",
+          "Subfonds",
+          "Class",
+          "collection",
+          "Series",
+          "Subseries",
+          "RecordGrp",
+          "SubGrp",
+          "File",
+          "Item",
+          "OtherLevel"
+        ]
+      }
+    }
+  ],
+  "$facetResults": [],
+  "$context": {}
+}
