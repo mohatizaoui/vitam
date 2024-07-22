@@ -24,6 +24,7 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
+
 package fr.gouv.vitam.worker.core.plugin.probativevalue;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -256,9 +257,8 @@ public class ProbativeCreateReportEntry extends ActionHandler {
             LogbookOperationsClient logbookOperationsClient = logbookOperationsClientFactory.getClient()
         ) {
             List<String> unitIds = JsonHandler.getFromJsonNode(param.getObjectMetadata().get("unitIds"), LIST_STRING);
-
-            RequestResponse<JsonNode> requestResponse = metaDataClient.getObjectGroupByIdRaw(objectGroupId);
-            if (!requestResponse.isOk()) {
+            RequestResponse<JsonNode> objectGroupResponse = metaDataClient.getObjectGroupByIdRaw(objectGroupId);
+            if (!objectGroupResponse.isOk()) {
                 transferReportEntryToWorkspace(
                     handler,
                     objectGroupId,
@@ -270,9 +270,8 @@ public class ProbativeCreateReportEntry extends ActionHandler {
                     EventDetails.of(String.format("Cannot retrieve metadata for GOT %s.", objectGroupId))
                 );
             }
-
-            Optional<DbVersionsModel> versionOptional = getVersion(usageVersion, requestResponse);
-            if (!versionOptional.isPresent()) {
+            Optional<DbVersionsModel> versionOptional = getVersion(usageVersion, objectGroupResponse);
+            if (versionOptional.isEmpty()) {
                 transferReportEntryToWorkspace(
                     handler,
                     objectGroupId,
@@ -290,7 +289,6 @@ public class ProbativeCreateReportEntry extends ActionHandler {
                     )
                 );
             }
-
             List<StorageStrategy> storageStrategies = loadStorageStrategies(handler);
             DbVersionsModel dbVersionsModel = versionOptional.get();
             String strategyId = dbVersionsModel.getStorage().getStrategyId();
@@ -320,7 +318,6 @@ public class ProbativeCreateReportEntry extends ActionHandler {
                     )
                 );
             }
-
             JsonNode rawLogbookObjectGroupLFC = logbookLifeCyclesClient.getRawObjectGroupLifeCycleById(objectGroupId);
             LogbookLifecycle logbookObjectGroupLFC = JsonHandler.getFromJsonNode(
                 rawLogbookObjectGroupLFC,
@@ -427,7 +424,6 @@ public class ProbativeCreateReportEntry extends ActionHandler {
                     )
                 );
             }
-
             List<ProbativeOperation> probativeOperations = operationsAndClosestPreviousOperations
                 .stream()
                 .map(op -> logbookOperationTo(op.getOperation()))
@@ -514,6 +510,18 @@ public class ProbativeCreateReportEntry extends ActionHandler {
                         usageVersion,
                         probativeOperations,
                         probativeChecks
+                    )
+                );
+                List<String> missing = Arrays.stream(ChecksInformation.values())
+                    .map(Enum::name)
+                    .collect(Collectors.toList());
+                missing.removeAll(probativeChecks.stream().map(ProbativeCheck::getName).toList());
+                LOGGER.error(
+                    String.format(
+                        "Missing checks for GOT %s and with VERSION %s : %s",
+                        objectGroupId,
+                        usageVersion,
+                        missing
                     )
                 );
                 return buildItemStatus(
@@ -749,7 +757,7 @@ public class ProbativeCreateReportEntry extends ActionHandler {
 
         try (
             InputStream secureData = new FileInputStream(traceabilityFiles.getData());
-            JsonLineGenericIterator<LifeCycleTraceabilitySecureFileObject> objectGroupsSecured =
+            JsonLineGenericIterator<LifeCycleTraceabilitySecureFileObject> lifeCycleTraceabilityDataLines =
                 new JsonLineGenericIterator<>(secureData, LIFECYCLE_TYPE);
             InputStream computingInformation = new FileInputStream(traceabilityFiles.getComputingInformation())
         ) {
@@ -761,18 +769,18 @@ public class ProbativeCreateReportEntry extends ActionHandler {
                 JsonHandler.toJsonNode(events),
                 VitamConfiguration.getDefaultDigestType()
             );
-            List<LifeCycleTraceabilitySecureFileObject> lifeCycleTraceabilitySecureFileObjectStream =
-                objectGroupsSecured
+            List<LifeCycleTraceabilitySecureFileObject> lifeCycleTraceabilitySecureFileObjectList =
+                lifeCycleTraceabilityDataLines
                     .stream()
                     .filter(
-                        l ->
-                            Objects.nonNull(l) &&
-                            OBJECTGROUP.equals(l.getMetadataType()) &&
-                            objectModel.getDataObjectGroupId().equalsIgnoreCase(l.getLfcId())
+                        line ->
+                            Objects.nonNull(line) &&
+                            OBJECTGROUP.equals(line.getMetadataType()) &&
+                            objectModel.getDataObjectGroupId().equalsIgnoreCase(line.getLfcId())
                     )
                     .collect(Collectors.toList());
 
-            String objectDigestFromSecuredFile = lifeCycleTraceabilitySecureFileObjectStream
+            String objectDigestFromSecuredFile = lifeCycleTraceabilitySecureFileObjectList
                 .stream()
                 .flatMap(line -> line.getObjectGroupDocumentHashList().stream())
                 .filter(o -> o.getId().equals(objectModel.getId()))
@@ -780,7 +788,7 @@ public class ProbativeCreateReportEntry extends ActionHandler {
                 .findFirst()
                 .orElse("NO_DIGEST_FOUND");
 
-            String eventDigestFromSecuredFile = lifeCycleTraceabilitySecureFileObjectStream
+            String eventDigestFromSecuredFile = lifeCycleTraceabilitySecureFileObjectList
                 .stream()
                 .map(LifeCycleTraceabilitySecureFileObject::getHashLFCEvents)
                 .findFirst()
@@ -1009,7 +1017,7 @@ public class ProbativeCreateReportEntry extends ActionHandler {
 
         try {
             File fileFromWorkspace = handlerIO.getFileFromWorkspace(
-                traceabilityFilesDirectoryName(objectGroupId, evType) + File.separator + TRACEABILITY_GENERAL_CHECKS
+                traceabilityFilePath(objectGroupId, evType, TRACEABILITY_GENERAL_CHECKS)
             );
             return JsonHandler.getFromFileAsTypeReference(fileFromWorkspace, LIST_PROBATIVE);
         } catch (Exception e) {
@@ -1027,15 +1035,13 @@ public class ProbativeCreateReportEntry extends ActionHandler {
         File sourceFile = File.createTempFile("tmp", null, new File(VitamConfiguration.getVitamTmpFolder()));
         JsonHandler.writeAsFile(probativeChecks, sourceFile);
         handlerIO.transferFileToWorkspace(
-            traceabilityFilesDirectoryName(objectGroupId, evType) + File.separator + TRACEABILITY_GENERAL_CHECKS,
+            traceabilityFilePath(objectGroupId, evType, TRACEABILITY_GENERAL_CHECKS),
             sourceFile,
             false,
             false
         );
         handlerIO.transferInputStreamToWorkspace(
-            traceabilityFilesDirectoryName(objectGroupId, evType) +
-            File.separator +
-            TRACEABILITY_GENERAL_CHECKS_COMPLETE,
+            traceabilityFilePath(objectGroupId, evType, TRACEABILITY_GENERAL_CHECKS_COMPLETE),
             new ByteArrayInputStream(new byte[0]),
             null,
             false
@@ -1063,7 +1069,7 @@ public class ProbativeCreateReportEntry extends ActionHandler {
         throws InvalidParseOperationException {
         String evDetData = traceabilityLogbookOperation.getEvDetData();
         JsonNode eventDetail = JsonHandler.getFromString(evDetData);
-        TraceabilityEvent traceabilityEvent = JsonHandler.getFromJsonNode(eventDetail, TraceabilityEvent.class);
+        TraceabilityEvent traceabilityEvent = JsonHandler.getFromString(evDetData, TraceabilityEvent.class);
         return BaseXx.getBase64(traceabilityEvent.getTimeStampToken());
     }
 
@@ -1114,26 +1120,16 @@ public class ProbativeCreateReportEntry extends ActionHandler {
         try {
             return Optional.of(
                 new OperationTraceabilityFiles(
+                    handlerIO.getFileFromWorkspace(traceabilityFilePath(objectGroupId, evType, TRACEABILITY_DATA)),
                     handlerIO.getFileFromWorkspace(
-                        traceabilityFilesDirectoryName(objectGroupId, evType) + File.separator + TRACEABILITY_DATA
+                        traceabilityFilePath(objectGroupId, evType, TRACEABILITY_MERKLE_TREE)
+                    ),
+                    handlerIO.getFileFromWorkspace(traceabilityFilePath(objectGroupId, evType, TRACEABILITY_TOKEN)),
+                    handlerIO.getFileFromWorkspace(
+                        traceabilityFilePath(objectGroupId, evType, TRACEABILITY_COMPUTING_INFORMATION)
                     ),
                     handlerIO.getFileFromWorkspace(
-                        traceabilityFilesDirectoryName(objectGroupId, evType) +
-                        File.separator +
-                        TRACEABILITY_MERKLE_TREE
-                    ),
-                    handlerIO.getFileFromWorkspace(
-                        traceabilityFilesDirectoryName(objectGroupId, evType) + File.separator + TRACEABILITY_TOKEN
-                    ),
-                    handlerIO.getFileFromWorkspace(
-                        traceabilityFilesDirectoryName(objectGroupId, evType) +
-                        File.separator +
-                        TRACEABILITY_COMPUTING_INFORMATION
-                    ),
-                    handlerIO.getFileFromWorkspace(
-                        traceabilityFilesDirectoryName(objectGroupId, evType) +
-                        File.separator +
-                        TRACEABILITY_ADDITIONAL_INFORMATION
+                        traceabilityFilePath(objectGroupId, evType, TRACEABILITY_ADDITIONAL_INFORMATION)
                     )
                 )
             );
@@ -1150,9 +1146,7 @@ public class ProbativeCreateReportEntry extends ActionHandler {
         String complete
     ) {
         try {
-            handlerIO.getFileFromWorkspace(
-                traceabilityFilesDirectoryName(objectGroupId, evType) + File.separator + complete
-            );
+            handlerIO.getFileFromWorkspace(traceabilityFilePath(objectGroupId, evType, complete));
             return false;
         } catch (Exception e) {
             LOGGER.warn(e);
@@ -1179,14 +1173,14 @@ public class ProbativeCreateReportEntry extends ActionHandler {
                 }
                 filesBuilder.with(entry.getName(), file);
                 handlerIO.transferFileToWorkspace(
-                    traceabilityFilesDirectoryName(objectGroupId, evType) + File.separator + entry.getName(),
+                    traceabilityFilePath(objectGroupId, evType, entry.getName()),
                     file,
                     false,
                     false
                 );
             }
             handlerIO.transferInputStreamToWorkspace(
-                traceabilityFilesDirectoryName(objectGroupId, evType) + File.separator + TRACEABILITY_FILES_COMPLETE,
+                traceabilityFilePath(objectGroupId, evType, TRACEABILITY_FILES_COMPLETE),
                 new ByteArrayInputStream(new byte[0]),
                 null,
                 false
@@ -1295,7 +1289,7 @@ public class ProbativeCreateReportEntry extends ActionHandler {
         return logbookLifeCycles
             .getEvents()
             .stream()
-            .filter(event -> isBinaryEvent(versionsModel, event))
+            .filter(event -> eventOfObjectVersion(event, versionsModel))
             .filter(this::isDigestEvent)
             .filter(this::isOKEvent)
             .map(this::toJsonNode)
@@ -1361,7 +1355,7 @@ public class ProbativeCreateReportEntry extends ActionHandler {
         return event.getOutDetail().toUpperCase().contains(OK.name());
     }
 
-    private boolean isBinaryEvent(DbVersionsModel versionsModel, LogbookEvent event) {
+    private boolean eventOfObjectVersion(LogbookEvent event, DbVersionsModel versionsModel) {
         return event.getObId().equals(versionsModel.getId());
     }
 
@@ -1480,7 +1474,13 @@ public class ProbativeCreateReportEntry extends ActionHandler {
         return JsonHandler.getFromFile(merkleFile).get("Root").asText();
     }
 
-    public static String traceabilityFilesDirectoryName(String objectGroupId, String evType) {
-        return String.format("%s-%s", objectGroupId, evType);
+    /**
+     * aebaaaaaaeecidfkadnfeamqx6d5wvqaaaaq-STP_OP_SECURISATION/zip_complete.ready
+     * aebaaaaaaeecidfkadnfeamqx6d5wvqaaaaq-STP_OP_SECURISATION/data.txt
+     * aebaaaaaaeecidfkadnfeamqx6d5wvqaaaaq-LOGBOOK_OBJECTGROUP_LFC_TRACEABILITY/merkleTree.json
+     * etc...
+     */
+    private static String traceabilityFilePath(String objectGroupId, String evType, String filename) {
+        return String.format("%s-%s%s%s", objectGroupId, evType, File.separator, filename);
     }
 }

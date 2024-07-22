@@ -1,0 +1,22 @@
+[
+  {
+    "id": "default",
+    "offers": [
+      {
+        "id": "offer-fs-1.service.int.consul",
+        "referent": true,
+        "status": "ACTIVE"
+      }
+    ]
+  },
+  {
+    "id": "other_strategy",
+    "offers": [
+      {
+        "id": "offer_2",
+        "referent": true,
+        "status": "ACTIVE"
+      }
+    ]
+  }
+]
