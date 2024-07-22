@@ -113,7 +113,7 @@ public class ProjectInternalResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getProjects() {
         try {
-            List<ProjectDto> listProjects = projectService.findProjects();
+            final List<ProjectDto> listProjects = projectService.searchProject(null);
             return CollectRequestResponse.toResponseOK(listProjects);
         } catch (IllegalArgumentException | CollectInternalException e) {
             LOGGER.error("Error when fetching projects by tenant Id : {}", e);
@@ -128,7 +128,7 @@ public class ProjectInternalResource {
         try {
             ParametersChecker.checkParameter("You must supply criteria of Project!", criteriaProjectDto);
             SanityChecker.checkJsonAll(JsonHandler.toJsonNode(criteriaProjectDto));
-            List<ProjectDto> listProjects = projectService.searchProject(criteriaProjectDto.getQuery());
+            final List<ProjectDto> listProjects = projectService.searchProject(criteriaProjectDto);
             return CollectRequestResponse.toResponseOK(listProjects);
         } catch (InvalidParseOperationException | CollectInternalException | IllegalArgumentException e) {
             LOGGER.error("Error when trying to parse : {}", e);
