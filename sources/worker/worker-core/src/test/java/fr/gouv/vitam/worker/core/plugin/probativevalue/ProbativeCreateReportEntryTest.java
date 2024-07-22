@@ -24,9 +24,11 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
+
 package fr.gouv.vitam.worker.core.plugin.probativevalue;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -35,6 +37,7 @@ import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.database.builder.query.BooleanQuery;
 import fr.gouv.vitam.common.database.builder.request.single.Select;
 import fr.gouv.vitam.common.error.VitamError;
+import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.logbook.LogbookEvent;
@@ -44,30 +47,39 @@ import fr.gouv.vitam.common.model.objectgroup.DbObjectGroupModel;
 import fr.gouv.vitam.common.model.objectgroup.DbQualifiersModel;
 import fr.gouv.vitam.common.model.objectgroup.DbStorageModel;
 import fr.gouv.vitam.common.model.objectgroup.DbVersionsModel;
-import fr.gouv.vitam.logbook.common.model.TraceabilityEvent;
 import fr.gouv.vitam.logbook.common.server.database.collections.LogbookMongoDbName;
+import fr.gouv.vitam.logbook.common.traceability.TimeStampService;
 import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClient;
 import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClientFactory;
 import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClient;
 import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClientFactory;
 import fr.gouv.vitam.metadata.client.MetaDataClient;
 import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
+import fr.gouv.vitam.processing.common.model.StorageInformation;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.storage.engine.client.StorageClient;
 import fr.gouv.vitam.storage.engine.client.StorageClientFactory;
 import fr.gouv.vitam.worker.core.plugin.evidence.exception.EvidenceStatus;
 import fr.gouv.vitam.worker.core.plugin.preservation.TestHandlerIO;
 import fr.gouv.vitam.worker.core.plugin.probativevalue.pojo.ProbativeReportEntry;
+import net.javacrumbs.jsonunit.JsonAssert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
+import javax.ws.rs.core.Response;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.security.Security;
+import java.time.LocalDateTime;
 import java.util.Collections;
 
 import static fr.gouv.vitam.common.database.builder.query.QueryHelper.and;
@@ -79,6 +91,7 @@ import static fr.gouv.vitam.common.database.builder.query.QueryHelper.lte;
 import static fr.gouv.vitam.common.database.builder.query.QueryHelper.ne;
 import static fr.gouv.vitam.common.model.StatusCode.FATAL;
 import static fr.gouv.vitam.common.model.StatusCode.KO;
+import static fr.gouv.vitam.common.model.StatusCode.OK;
 import static fr.gouv.vitam.logbook.common.parameters.Contexts.LOGBOOK_TRACEABILITY;
 import static fr.gouv.vitam.logbook.common.parameters.Contexts.OBJECTGROUP_LFC_TRACEABILITY;
 import static fr.gouv.vitam.storage.engine.common.model.DataCategory.OBJECT;
@@ -87,8 +100,10 @@ import static fr.gouv.vitam.worker.core.plugin.StoreObjectGroupActionPlugin.STOR
 import static fr.gouv.vitam.worker.core.plugin.preservation.TestWorkerParameter.TestWorkerParameterBuilder.workerParameterBuilder;
 import static fr.gouv.vitam.worker.core.plugin.probativevalue.ProbativeCreateReportEntry.NO_BINARY_ID;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class ProbativeCreateReportEntryTest {
 
@@ -110,6 +125,9 @@ public class ProbativeCreateReportEntryTest {
     @Mock
     private LogbookOperationsClientFactory logbookOperationsClientFactory;
 
+    @Spy
+    private TimeStampService timeStampService = new TimeStampService();
+
     @InjectMocks
     private ProbativeCreateReportEntry probativeCreateReportEntry;
 
@@ -118,7 +136,8 @@ public class ProbativeCreateReportEntryTest {
     private LogbookOperationsClient logbookOperationsClient = mock(LogbookOperationsClient.class);
     private LogbookLifeCyclesClient logbookLifeCyclesClient = mock(LogbookLifeCyclesClient.class);
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private ObjectMapper objectMapper = new ObjectMapper()
+        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     @Before
     public void setUp() {
@@ -177,7 +196,15 @@ public class ProbativeCreateReportEntryTest {
         handler.setNewLocalFile(reportFile);
 
         given(metaDataClient.getObjectGroupByIdRaw(objectGroupId)).willReturn(
-            getResponseWith("version_id", "storage_id", "default", "BinaryMaster_25", "OPI")
+            objectGroupModelResponseWith(
+                "version_id",
+                "storage_id",
+                "default",
+                "BinaryMaster_25",
+                "OPI",
+                "digest_01",
+                "objectGroupId"
+            )
         );
 
         // When
@@ -214,10 +241,18 @@ public class ProbativeCreateReportEntryTest {
         String usageVersion = "BinaryMaster_25";
         String strategyId = "default";
 
-        ObjectNode storageInformation = createStorageInformationWithDigest(storageId, "");
+        ObjectNode storageInformation = storageInformationWith(storageId, "");
 
         given(metaDataClient.getObjectGroupByIdRaw(objectGroupId)).willReturn(
-            getResponseWith(versionId, storageId, strategyId, usageVersion, "OPI")
+            objectGroupModelResponseWith(
+                versionId,
+                storageId,
+                strategyId,
+                usageVersion,
+                "OPI",
+                "digest_02",
+                "objectGroupId"
+            )
         );
         given(
             storageClient.getInformation(
@@ -264,11 +299,19 @@ public class ProbativeCreateReportEntryTest {
         String strategyId = "other_strategy";
 
         given(metaDataClient.getObjectGroupByIdRaw(objectGroupId)).willReturn(
-            getResponseWith(versionId, storageId, strategyId, usageVersion, "OPI")
+            objectGroupModelResponseWith(
+                versionId,
+                storageId,
+                strategyId,
+                usageVersion,
+                "OPI",
+                "digest_03",
+                "objectGroupId"
+            )
         );
         given(
             storageClient.getInformation(strategyId, OBJECT, versionId, Collections.singletonList(storageId), false)
-        ).willReturn(createStorageInformationWithDigest(storageId, "DIGEST_FROM_STORAGE"));
+        ).willReturn(storageInformationWith(storageId, "DIGEST_FROM_STORAGE"));
         given(logbookLifeCyclesClient.getRawObjectGroupLifeCycleById(objectGroupId)).willReturn(
             objectMapper.valueToTree(new LogbookLifecycle())
         );
@@ -311,28 +354,34 @@ public class ProbativeCreateReportEntryTest {
         LogbookOperation logBookOperationWith = createLogBookOperationWith(
             "dateOp1",
             OBJECTGROUP_LFC_TRACEABILITY.getEventType(),
-            "op1",
-            "fileName"
+            "op1"
         );
         LogbookOperation logBookOperationWith1 = createLogBookOperationWith(
             "dateOp2",
             LOGBOOK_TRACEABILITY.getEventType(),
-            "op2",
-            "fileName"
+            "op2"
         );
-
+        // ----------------
         given(metaDataClient.getObjectGroupByIdRaw(objectGroupId)).willReturn(
-            getResponseWith(versionId, storageId, strategyId, usageVersion, opi)
+            objectGroupModelResponseWith(
+                versionId,
+                storageId,
+                strategyId,
+                usageVersion,
+                opi,
+                "digest_04",
+                "objectGroupId"
+            )
         );
         given(
             storageClient.getInformation(strategyId, OBJECT, versionId, Collections.singletonList(storageId), true)
-        ).willReturn(createStorageInformationWithDigest(storageId, "DIGEST_FROM_STORAGE"));
+        ).willReturn(storageInformationWith(storageId, "DIGEST_FROM_STORAGE"));
         given(logbookLifeCyclesClient.getRawObjectGroupLifeCycleById(objectGroupId)).willReturn(
             objectMapper.valueToTree(createObjectGroupLifecycleFrom(versionId, "awesomedigest", logbookLFCDate))
         );
         given(logbookOperationsClient.selectOperationById(opi)).willReturn(
             objectMapper.valueToTree(
-                createOperation(
+                logbookOperationResponse(
                     createLogBookOperationWith(logbookOperationLastpersiteddate, "INGEST_OPERATION", "opIngest")
                 )
             )
@@ -342,24 +391,19 @@ public class ProbativeCreateReportEntryTest {
             logbookOperationsClient.selectOperation(
                 createSelectTraceabilityWith(OBJECTGROUP_LFC_TRACEABILITY.getEventType(), logbookLFCDate)
             )
-        ).willReturn(objectMapper.valueToTree(createOperation(logBookOperationWith)));
+        ).willReturn(objectMapper.valueToTree(logbookOperationResponse(logBookOperationWith)));
         given(
             logbookOperationsClient.selectOperation(
                 createSelectTraceabilityWith(LOGBOOK_TRACEABILITY.getEventType(), logbookOperationLastpersiteddate)
             )
-        ).willReturn(objectMapper.valueToTree(createOperation(logBookOperationWith1)));
+        ).willReturn(objectMapper.valueToTree(logbookOperationResponse(logBookOperationWith1)));
 
         given(
             logbookOperationsClient.selectOperation(createSelectClosestTraceabilityWith(logBookOperationWith))
         ).willReturn(
             objectMapper.valueToTree(
-                createOperation(
-                    createLogBookOperationWith(
-                        "",
-                        OBJECTGROUP_LFC_TRACEABILITY.getEventType(),
-                        "op1Closest",
-                        "fileName"
-                    )
+                logbookOperationResponse(
+                    createLogBookOperationWith("", OBJECTGROUP_LFC_TRACEABILITY.getEventType(), "op1Closest")
                 )
             )
         );
@@ -367,8 +411,8 @@ public class ProbativeCreateReportEntryTest {
             logbookOperationsClient.selectOperation(createSelectClosestTraceabilityWith(logBookOperationWith1))
         ).willReturn(
             objectMapper.valueToTree(
-                createOperation(
-                    createLogBookOperationWith("", LOGBOOK_TRACEABILITY.getEventType(), "op2Closest", "fileName")
+                logbookOperationResponse(
+                    createLogBookOperationWith("", LOGBOOK_TRACEABILITY.getEventType(), "op2Closest")
                 )
             )
         );
@@ -380,6 +424,200 @@ public class ProbativeCreateReportEntryTest {
         assertThat(itemStatus.getGlobalStatus()).isEqualTo(KO);
     }
 
+    @Test
+    public void should_return_OK() throws Exception {
+        // Given
+        Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+        DbObjectGroupModel objectGroup = objectGroupFrom("ProbativeCreateReportEntryTest/01_OBJECT_GROUP.json");
+        DbVersionsModel objectGroupQualifierVersion = objectGroup.getQualifiers().get(0).getVersions().get(0);
+        ObjectNode objectMetadata = objectMapper.createObjectNode();
+        objectMetadata.set("unitIds", objectMapper.createArrayNode().add(objectGroup.getUp().get(0)));
+        objectMetadata.put("usageVersion", objectGroupQualifierVersion.getDataObjectVersion());
+        WorkerParameters param = workerParameterBuilder()
+            .withObjectName(objectGroup.getId())
+            .withObjectMetadata(objectMetadata)
+            .build();
+        // ------------------------------------------------------------------------------------------------
+        String offerId = "offer-fs-1.service.int.consul";
+        JsonNode storageInformation = storageInformationWith(offerId, objectGroupQualifierVersion.getMessageDigest());
+        // storageInformationFrom("");
+        given(
+            storageClient.getInformation(
+                VitamConfiguration.getDefaultStrategy(),
+                OBJECT,
+                objectGroupQualifierVersion.getId(),
+                Collections.singletonList(offerId),
+                false
+            )
+        ).willReturn(storageInformation);
+        given(storageClient.getContainerAsync(any(), any(), any(), any())).willReturn(
+            Response.ok(PropertiesUtils.getResourceFile("")).build()
+        );
+        RequestResponseOK<JsonNode> dbObjectGroupModel_Response = new RequestResponseOK<>();
+        dbObjectGroupModel_Response.addResult(objectMapper.valueToTree(objectGroup));
+        given(metaDataClient.getObjectGroupByIdRaw(objectGroup.getId())).willReturn(dbObjectGroupModel_Response);
+
+        // ------------------------------------------------------------------------------------------------
+        JsonNode logbookLifecycleObjectGroup_RAW = objectMapper.readTree(
+            PropertiesUtils.getResourceAsString(
+                "ProbativeCreateReportEntryTest/02_LOGBOOK_LIFE_CYCLE_OBJECT_GROUP.json"
+            )
+        );
+        // valueToTree may add space in stringify json string
+        given(logbookLifeCyclesClient.getRawObjectGroupLifeCycleById(objectGroup.getId())).willReturn(
+            logbookLifecycleObjectGroup_RAW
+        );
+        LogbookLifecycle logbookLifecycleObjectGroup = objectMapper.treeToValue(
+            logbookLifecycleObjectGroup_RAW,
+            LogbookLifecycle.class
+        );
+        // ------------------------------------------------------------------------------------------------
+        LogbookOperation logbookOperation_PROCESS_SIP_UNITARY = logbookOperationFrom(
+            "ProbativeCreateReportEntryTest/03_LOGBOOK_OPERATION__PROCESS_SIP_UNITARY.json"
+        );
+        RequestResponseOK<JsonNode> logbookOperation_Process_SIP_Response = logbookOperationResponse(
+            logbookOperation_PROCESS_SIP_UNITARY
+        );
+        assertThat(objectGroup.getOpi().equals(logbookOperation_PROCESS_SIP_UNITARY.getId())).isTrue();
+        given(logbookOperationsClient.selectOperationById(logbookOperation_PROCESS_SIP_UNITARY.getId())).willReturn(
+            objectMapper.valueToTree(logbookOperation_Process_SIP_Response)
+        );
+        // -------------------------------------
+        LogbookOperation logbookOperation_STP_OP_SECURISATION = logbookOperationFrom(
+            "ProbativeCreateReportEntryTest/04_LOGBOOK_OPERATION__STP_OP_SECURISATION.json"
+        );
+        JsonNode logookOperation_Query = createSelectTraceabilityWith(
+            LOGBOOK_TRACEABILITY.getEventType(),
+            logbookOperation_PROCESS_SIP_UNITARY.getLastPersistedDate()
+        );
+        RequestResponseOK<JsonNode> logookOperation_Response = logbookOperationResponse(
+            logbookOperation_STP_OP_SECURISATION
+        );
+        given(logbookOperationsClient.selectOperation(logookOperation_Query)).willReturn(
+            objectMapper.valueToTree(logookOperation_Response)
+        );
+        // ------------------------------------------------------------------------------------------------
+        LogbookOperation logbookOperation_LOGBOOK_OBJECTGROUP_LFC_TRACEABILITY = logbookOperationFrom(
+            "ProbativeCreateReportEntryTest/05_LOGBOOK_OPERATION__LOGBOOK_OBJECTGROUP_LFC_TRACEABILITY.json"
+        );
+        JsonNode logbookOperation_LOGBOOK_OBJECTGROUP_LFC_TRACEABILITY_Query = createSelectTraceabilityWith(
+            OBJECTGROUP_LFC_TRACEABILITY.getEventType(),
+            logbookLifecycleObjectGroup.getLastPersistedDate()
+        );
+        RequestResponseOK<JsonNode> logbookOperation_LOGBOOK_OBJECTGROUP_LFC_TRACEABILITY_Response =
+            logbookOperationResponse(logbookOperation_LOGBOOK_OBJECTGROUP_LFC_TRACEABILITY);
+        given(
+            logbookOperationsClient.selectOperation(logbookOperation_LOGBOOK_OBJECTGROUP_LFC_TRACEABILITY_Query)
+        ).willReturn(objectMapper.valueToTree(logbookOperation_LOGBOOK_OBJECTGROUP_LFC_TRACEABILITY_Response));
+        // ------------------- + CLOSEST logbookOperation_STP_OP_SECURISATION
+        LogbookOperation logbookOperation_STP_OP_SECURISATION_previous = logbookOperationFrom(
+            "ProbativeCreateReportEntryTest/06_LOGBOOK_OPERATION__STP_OP_SECURISATION__previous.json"
+        );
+        JsonNode logbookOperation_STP_OP_SECURISATION_previous_query = createSelectClosestTraceabilityWith(
+            logbookOperation_STP_OP_SECURISATION
+        );
+        RequestResponseOK<JsonNode> logbookOperation_STP_OP_SECURISATION_previous_Response = logbookOperationResponse(
+            logbookOperation_STP_OP_SECURISATION_previous
+        );
+        given(logbookOperationsClient.selectOperation(logbookOperation_STP_OP_SECURISATION_previous_query)).willReturn(
+            objectMapper.valueToTree(logbookOperation_STP_OP_SECURISATION_previous_Response)
+        );
+        // ------------------- + CLOSEST logbookOperation_LOGBOOK_OBJECTGROUP_LFC_TRACEABILITY
+        LogbookOperation logbookOperation_LOGBOOK_OBJECTGROUP_LFC_TRACEABILITY_previous = logbookOperationFrom(
+            "ProbativeCreateReportEntryTest/07_LOGBOOK_OPERATION__LOGBOOK_OBJECTGROUP_LFC_TRACEABILITY__previous.json"
+        );
+        JsonNode logbookOperation_LOGBOOK_OBJECTGROUP_LFC_TRACEABILITY_previous_query =
+            createSelectClosestTraceabilityWith(logbookOperation_LOGBOOK_OBJECTGROUP_LFC_TRACEABILITY);
+        RequestResponseOK<JsonNode> logbookOperation_LOGBOOK_OBJECTGROUP_LFC_TRACEABILITY_previous_Response =
+            logbookOperationResponse(logbookOperation_LOGBOOK_OBJECTGROUP_LFC_TRACEABILITY_previous);
+        given(
+            logbookOperationsClient.selectOperation(
+                logbookOperation_LOGBOOK_OBJECTGROUP_LFC_TRACEABILITY_previous_query
+            )
+        ).willReturn(objectMapper.valueToTree(logbookOperation_LOGBOOK_OBJECTGROUP_LFC_TRACEABILITY_previous_Response));
+        // ------------------------------------------------------------------------------------------------
+        File reportFile = tempFolder.newFile();
+        TestHandlerIO handler = new TestHandlerIO();
+        handler.setNewLocalFile(reportFile);
+        handler.addOutputResult(0, PropertiesUtils.getResourceFile("ProbativeCreateReportEntryTest/strategies.json"));
+        // ------------------------------------------------------------------------------------------------
+        handler.transferAtomicFileToWorkspace(
+            objectGroup.getId() + "-STP_OP_SECURISATION/data.txt",
+            PropertiesUtils.getResourceFile(
+                "ProbativeCreateReportEntryTest/08_TRACEABILITY_ZIP_FILE__STP_OP_SECURISATION/data.txt"
+            )
+        );
+        handler.transferAtomicFileToWorkspace(
+            objectGroup.getId() + "-STP_OP_SECURISATION/computing_information.txt",
+            PropertiesUtils.getResourceFile(
+                "ProbativeCreateReportEntryTest/08_TRACEABILITY_ZIP_FILE__STP_OP_SECURISATION/computing_information.txt"
+            )
+        );
+        handler.transferAtomicFileToWorkspace(
+            objectGroup.getId() + "-STP_OP_SECURISATION/token.tsp",
+            PropertiesUtils.getResourceFile(
+                "ProbativeCreateReportEntryTest/08_TRACEABILITY_ZIP_FILE__STP_OP_SECURISATION/token.tsp"
+            )
+        );
+        handler.transferAtomicFileToWorkspace(
+            objectGroup.getId() + "-STP_OP_SECURISATION/merkleTree.json",
+            PropertiesUtils.getResourceFile(
+                "ProbativeCreateReportEntryTest/08_TRACEABILITY_ZIP_FILE__STP_OP_SECURISATION/merkleTree.json"
+            )
+        );
+        // ------------------------------------------------------------------------------------------------
+        handler.transferAtomicFileToWorkspace(
+            objectGroup.getId() + "-LOGBOOK_OBJECTGROUP_LFC_TRACEABILITY/data.txt",
+            PropertiesUtils.getResourceFile(
+                "ProbativeCreateReportEntryTest/09_TRACEABILITY_ZIP_FILE__LOGBOOK_OBJECTGROUP_LFC_TRACEABILITY/data.txt"
+            )
+        );
+        handler.transferAtomicFileToWorkspace(
+            objectGroup.getId() + "-LOGBOOK_OBJECTGROUP_LFC_TRACEABILITY/computing_information.txt",
+            PropertiesUtils.getResourceFile(
+                "ProbativeCreateReportEntryTest/09_TRACEABILITY_ZIP_FILE__LOGBOOK_OBJECTGROUP_LFC_TRACEABILITY/computing_information.txt"
+            )
+        );
+        handler.transferAtomicFileToWorkspace(
+            objectGroup.getId() + "-LOGBOOK_OBJECTGROUP_LFC_TRACEABILITY/token.tsp",
+            PropertiesUtils.getResourceFile(
+                "ProbativeCreateReportEntryTest/09_TRACEABILITY_ZIP_FILE__LOGBOOK_OBJECTGROUP_LFC_TRACEABILITY/token.tsp"
+            )
+        );
+        handler.transferAtomicFileToWorkspace(
+            objectGroup.getId() + "-LOGBOOK_OBJECTGROUP_LFC_TRACEABILITY/merkleTree.json",
+            PropertiesUtils.getResourceFile(
+                "ProbativeCreateReportEntryTest/09_TRACEABILITY_ZIP_FILE__LOGBOOK_OBJECTGROUP_LFC_TRACEABILITY/merkleTree.json"
+            )
+        );
+        // ------------------------------------------------------------------------------------------------
+
+        // When
+        ItemStatus itemStatus = probativeCreateReportEntry.execute(param, handler);
+
+        // Then
+        verify(storageClient).getInformation(
+            VitamConfiguration.getDefaultStrategy(),
+            OBJECT,
+            objectGroupQualifierVersion.getId(),
+            Collections.singletonList(offerId),
+            false
+        );
+        assertThat(itemStatus.getItemId()).isEqualTo("PROBATIVE_VALUE_CREATE_PROBATIVE_REPORT_ENTRY");
+
+        JsonNode createdReport = JsonHandler.getFromInputStream(Files.newInputStream(reportFile.toPath()));
+        JsonNode expectedReport = JsonHandler.getFromInputStream(
+            PropertiesUtils.getResourceAsStream("ProbativeCreateReportEntryTest/expected/report_expected.json")
+        );
+        System.out.println(createdReport);
+        JsonAssert.assertJsonEquals(
+            expectedReport,
+            createdReport,
+            JsonAssert.whenIgnoringPaths("evStartDateTime", "evEndDateTime")
+        );
+        assertThat(itemStatus.getGlobalStatus()).isEqualTo(OK);
+    }
+
     private JsonNode createSelectClosestTraceabilityWith(LogbookOperation operation) throws Exception {
         Select select = new Select();
         BooleanQuery query = and()
@@ -388,7 +626,7 @@ public class ProbativeCreateReportEntryTest {
                 in("events.outDetail", operation.getEvType() + ".OK", operation.getEvType() + ".WARNING"),
                 exists("events.evDetData.FileName"),
                 ne("#id", operation.getId()),
-                lte("events.evDetData.EndDate", operation.getEvDateTime())
+                lte("evDateTime", operation.getEvDateTime())
             );
 
         select.setQuery(query);
@@ -397,42 +635,51 @@ public class ProbativeCreateReportEntryTest {
         return select.getFinalSelect();
     }
 
-    private RequestResponseOK<JsonNode> createOperation(LogbookOperation logBookOperationWith) {
+    private RequestResponseOK<JsonNode> logbookOperationResponse(LogbookOperation logBookOperationWith) {
         RequestResponseOK<JsonNode> responseOK = new RequestResponseOK<>();
         responseOK.addResult(objectMapper.valueToTree(logBookOperationWith));
         return responseOK;
     }
 
-    private LogbookOperation createLogBookOperationWith(String date, String evType, String id)
-        throws JsonProcessingException {
-        return createLogBookOperationWith(date, evType, id, "not important");
+    private LogbookOperation logbookOperationFrom(String filename) throws IOException {
+        return objectMapper.readValue(PropertiesUtils.getResourceFile(filename), LogbookOperation.class);
     }
 
-    private LogbookOperation createLogBookOperationWith(String date, String evType, String id, String fileName)
-        throws JsonProcessingException {
+    private LogbookLifecycle logbookLifecycleFrom(String filename) throws IOException {
+        return objectMapper.readValue(PropertiesUtils.getResourceFile(filename), LogbookLifecycle.class);
+    }
+
+    private DbObjectGroupModel objectGroupFrom(String filename) throws IOException {
+        return objectMapper.readValue(PropertiesUtils.getResourceFile(filename), DbObjectGroupModel.class);
+    }
+
+    private StorageInformation storageInformationFrom(String filename) throws IOException {
+        return objectMapper.readValue(PropertiesUtils.getResourceFile(filename), StorageInformation.class);
+    }
+
+    private LogbookOperation createLogBookOperationWith(String date, String evType, String id)
+        throws FileNotFoundException {
+        return createLogBookOperationWith(
+            date,
+            evType,
+            id,
+            "ProbativeCreateReportEntryTest/evDetData/default_evDetData.json"
+        );
+    }
+
+    private LogbookOperation createLogBookOperationWith(
+        String date,
+        String evType,
+        String id,
+        String evDetDataFilename
+    ) throws FileNotFoundException {
         LogbookOperation operation = new LogbookOperation();
         operation.setEvType(evType);
         operation.setLastPersistedDate(date);
         operation.setId(id);
-        operation.setEvDateTime("Date operation");
-        TraceabilityEvent value = new TraceabilityEvent(
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            1,
-            fileName,
-            1,
-            null,
-            false,
-            null,
-            null
-        );
-        operation.setEvDetData(objectMapper.writeValueAsString(value));
+        operation.setEvDateTime(LocalDateTime.of(2024, 06, 04, 16, 30, 34).toString());
+        String evDetData = PropertiesUtils.getResourceAsString(evDetDataFilename);
+        operation.setEvDetData(evDetData);
         return operation;
     }
 
@@ -456,45 +703,49 @@ public class ProbativeCreateReportEntryTest {
 
     private JsonNode createObjectGroupLifecycleFrom(String versionId, String messageDigest, String lastPersistedDate)
         throws JsonProcessingException {
-        LogbookEvent o = new LogbookEvent();
-        o.setObId(versionId);
-        o.setOutDetail(STORING_OBJECT_TASK_ID + EvidenceStatus.OK.name());
-        o.setEvDetData(
+        LogbookEvent logbookEvent = new LogbookEvent();
+        logbookEvent.setObId(versionId);
+        logbookEvent.setOutDetail(STORING_OBJECT_TASK_ID + EvidenceStatus.OK.name());
+        logbookEvent.setEvDetData(
             objectMapper.writeValueAsString(objectMapper.createObjectNode().put(MESSAGE_DIGEST, messageDigest))
         );
-        o.setLastPersistedDate(lastPersistedDate);
+        logbookEvent.setLastPersistedDate(lastPersistedDate);
+        logbookEvent.setEvDateTime(lastPersistedDate);
         LogbookLifecycle fromValue = new LogbookLifecycle();
-        fromValue.setEvents(Collections.singletonList(o));
+        fromValue.setEvents(Collections.singletonList(logbookEvent));
         return objectMapper.valueToTree(fromValue);
     }
 
-    private ObjectNode createStorageInformationWithDigest(String storageId, String digest) {
+    private ObjectNode storageInformationWith(String storageId, String digest) {
         ObjectNode storageInformation = objectMapper.createObjectNode();
         storageInformation.set(storageId, objectMapper.createObjectNode().put("digest", digest));
         return storageInformation;
     }
 
-    private RequestResponseOK<JsonNode> getResponseWith(
+    private RequestResponseOK<JsonNode> objectGroupModelResponseWith(
         String versionId,
         String storageId,
         String strategyId,
         String usageVersion,
-        String opi
+        String opi,
+        String digest,
+        String dataObjectGroupId
     ) {
+        DbStorageModel storage = new DbStorageModel();
+        storage.setOfferIds(Collections.singletonList(storageId));
+        storage.setStrategyId(strategyId);
         DbVersionsModel versionsModel = new DbVersionsModel();
         versionsModel.setDataObjectVersion(usageVersion);
         versionsModel.setId(versionId);
         versionsModel.setOpi(opi);
-        versionsModel.setMessageDigest("DIGEST");
-        DbStorageModel storage = new DbStorageModel();
-        storage.setOfferIds(Collections.singletonList(storageId));
-        storage.setStrategyId(strategyId);
+        versionsModel.setMessageDigest(digest);
         versionsModel.setStorage(storage);
-        RequestResponseOK<JsonNode> responseOK = new RequestResponseOK<>();
-        DbObjectGroupModel groupModel = new DbObjectGroupModel();
+        versionsModel.setDataObjectGroupId(dataObjectGroupId);
         DbQualifiersModel qualifiersModel = new DbQualifiersModel();
         qualifiersModel.setVersions(Collections.singletonList(versionsModel));
+        DbObjectGroupModel groupModel = new DbObjectGroupModel();
         groupModel.setQualifiers(Collections.singletonList(qualifiersModel));
+        RequestResponseOK<JsonNode> responseOK = new RequestResponseOK<>();
         responseOK.addResult(objectMapper.valueToTree(groupModel));
         return responseOK;
     }

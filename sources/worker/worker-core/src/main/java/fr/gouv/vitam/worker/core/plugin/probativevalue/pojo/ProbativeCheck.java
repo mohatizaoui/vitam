@@ -24,6 +24,7 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
+
 package fr.gouv.vitam.worker.core.plugin.probativevalue.pojo;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -100,50 +101,17 @@ public class ProbativeCheck {
 
     @JsonIgnore
     public static ProbativeCheck okFrom(ChecksInformation information, String source, String destination) {
-        return new ProbativeCheck(
-            information.name(),
-            information.explanation,
-            information.checksType,
-            information.source,
-            information.destination,
-            source,
-            destination,
-            information.action,
-            information.item,
-            OK
-        );
+        return from(information, source, destination, OK);
     }
 
     @JsonIgnore
     public static ProbativeCheck koFrom(ChecksInformation information, String source, String destination) {
-        return new ProbativeCheck(
-            information.name(),
-            information.explanation,
-            information.checksType,
-            information.source,
-            information.destination,
-            source,
-            destination,
-            information.action,
-            information.item,
-            KO
-        );
+        return from(information, source, destination, KO);
     }
 
     @JsonIgnore
     public static ProbativeCheck warnFrom(ChecksInformation information, String source, String destination) {
-        return new ProbativeCheck(
-            information.name(),
-            information.explanation,
-            information.checksType,
-            information.source,
-            information.destination,
-            source,
-            destination,
-            information.action,
-            information.item,
-            WARNING
-        );
+        return from(information, source, destination, WARNING);
     }
 
     @JsonProperty("name")

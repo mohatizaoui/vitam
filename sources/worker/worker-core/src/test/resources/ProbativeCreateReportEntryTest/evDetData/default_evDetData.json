@@ -1,0 +1,23 @@
+{
+  "LogType": "OBJECTGROUP_LIFECYCLE",
+  "StartDate": "1970-01-01T00:00:00.000",
+  "EndDate": "2024-07-15T05:10:00.430",
+  "Hash": "FcAf1MadG1RtHPWJhkI1RHm1u/Gn5ZCSVHHQEpXkgZpalury350Be7qhtNoO1gbhFXEh/OCPgVTcGTwRwMBwtQ==",
+  "TimeStampToken": "default_evDetData.TimeStampToken",
+  "NumberOfElements": 6,
+  "FileName": "1_LogbookObjectGroupLifecycles_20240715_051000.zip",
+  "Size": 7168,
+  "SecurisationVersion": "V1",
+  "DigestAlgorithm": "SHA512",
+  "MaxEntriesReached": false,
+  "Statistics": {
+    "objectGroups": {
+      "nbOK": 6,
+      "nbWarnings": 0
+    },
+    "objects": {
+      "nbOK": 8,
+      "nbWarnings": 0
+    }
+  }
+}

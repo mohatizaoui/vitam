@@ -1,0 +1,71 @@
+{
+  "_id": "aebaaaaaaeecidfkadnfeamqx6d5wvqaaaaq",
+  "_tenant": 1,
+  "_profil": "",
+  "FileInfo": {
+    "Filename": "009734_20130456_0003_20120229_DI_remise_recueil_deontologie_CVV.pdf.pdf",
+    "LastModified": "2012-10-22T13:04:08"
+  },
+  "_qualifiers": [
+    {
+      "qualifier": "BinaryMaster",
+      "_nbc": 1,
+      "versions": [
+        {
+          "_id": "aebqaaaaagecidfkadnfeamqx6d5wvqaaaba",
+          "DataObjectVersion": "BinaryMaster_1",
+          "DataObjectGroupId": "aebaaaaaaeecidfkadnfeamqx6d5wvqaaaaq",
+          "FormatIdentification": {
+            "FormatLitteral": "Acrobat PDF/A - Portable Document Format",
+            "MimeType": "application/pdf",
+            "FormatId": "fmt/354"
+          },
+          "FileInfo": {
+            "Filename": "009734_20130456_0003_20120229_DI_remise_recueil_deontologie_CVV.pdf.pdf",
+            "LastModified": "2012-10-22T13:04:08"
+          },
+          "Size": 35033,
+          "Uri": "Content/ID7.pdf",
+          "MessageDigest": "c927c14650434b74e97d275f021f9fa66f582ebd5a45b32c4ae4dce6b3a95b27dc30317b8627730f59327ed4177ff169d212cde9eb9130dd58eab675cdf8248d",
+          "Algorithm": "SHA-512",
+          "_opi": "aeeaaaaaagecidfkads76amqx6dztqyaaaaq",
+          "_storage": {
+            "strategyId": "default"
+          }
+        }
+      ]
+    }
+  ],
+  "_up": [
+    "aeaqaaaaaeecidfkadnfeamqx6d5xsyaaaba"
+  ],
+  "_nbc": 1,
+  "_ops": [
+    "aeeaaaaaagecidfkads76amqx6dztqyaaaaq"
+  ],
+  "_opi": "aeeaaaaaagecidfkads76amqx6dztqyaaaaq",
+  "_sp": "MICHEL_MERCIER",
+  "_sps": [
+    "MICHEL_MERCIER",
+    "FRAN_NP_009734"
+  ],
+  "_storage": {
+    "strategyId": "default"
+  },
+  "_acd": "2024-07-17T07:11:17.260",
+  "_aud": "2024-07-17T07:11:17.260",
+  "_v": 1,
+  "_av": 1,
+  "_glpd": "2024-07-17T07:11:18.681",
+  "_us": [
+    "aeaqaaaaaeecidfkadnfeamqx6dmrhiaaaba",
+    "aeaqaaaaaeecidfkadnfeamqx6dmrhiaaaca",
+    "aeaqaaaaaeecidfkadnfeamqx6dmrgqaaacq",
+    "aeaqaaaaaeecidfkadnfeamqx6d5xriaaabq",
+    "aeaqaaaaaeecidfkadnfeamqx6c7qaiaaaga",
+    "aeaqaaaaaeecidfkadnfeamqx6c7pwqaaaca",
+    "aeaqaaaaaeecidfkadnfeamqx6d5xsyaaaba",
+    "aeaqaaaaaeecidfkadnfeamqx6c7qaqaaaba",
+    "aeaqaaaaaeecidfkadnfeamqx6d5xsqaaaoq"
+  ]
+}

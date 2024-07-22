@@ -1,0 +1,4 @@
+numberOfElements=245
+startDate=2024-07-17T06:10:01.897
+endDate=2024-07-17T08:10:00.674
+securisationVersion=V1
