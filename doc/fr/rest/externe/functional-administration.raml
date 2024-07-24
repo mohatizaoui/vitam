@@ -800,6 +800,29 @@ documentation:
         X-Access-Contract-Id:
           required: false
 
+    /schema:
+      displayName:
+      description: |
+        Permet de retourner le schéma d'ontologie de la collection 'UNIT' avec les restrictions liées à ce document type
+      get:
+        description: |
+          Permet de retourner le schéma d'ontologie de la collection 'UNIT' avec les restrictions liées à ce document type
+
+        Permissions requises:
+          - schema:unit:read
+          - archiveunitprofiles:id:read:json
+        responses:
+          200:
+            description: "retourner le schéma d'ontologie de la collection 'UNIT' avec les restrictions liées à ce document type."
+            body:
+              application/json:
+              example: !include libraries/examples/schema-unit-aup.json
+        headers:
+          X-Tenant-Id:
+            required: true
+          X-Access-Contract-Id:
+            required: false
+
 /securityprofiles:
   displayName: Security Profiles
   description: |
