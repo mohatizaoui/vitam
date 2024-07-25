@@ -26,6 +26,7 @@
  */
 package fr.gouv.vitam.collect.internal.core.repository;
 
+import fr.gouv.vitam.collect.common.dto.CriteriaProjectDto;
 import fr.gouv.vitam.collect.common.exception.CollectInternalException;
 import fr.gouv.vitam.collect.internal.core.common.ManifestContext;
 import fr.gouv.vitam.collect.internal.core.common.ProjectModel;
@@ -38,6 +39,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -64,54 +66,55 @@ public class ProjectRepositoryTest {
     }
 
     @Test
-    public void should_found_projects_with_name() throws CollectInternalException {
+    public void should_find_projects() throws CollectInternalException {
         // GIVEN
         populateDb();
+        List<ProjectModel> searchProjects;
 
-        // WHEN
-        List<ProjectModel> searchProjects = repository.searchProject("test", tenant);
-
-        // THEN
+        // Should find by name
+        searchProjects = repository.searchProject(getCriteria("test", null), tenant);
         assertThat(searchProjects).hasSize(1);
         assertThat(searchProjects.get(0).getId()).isEqualTo(PROJECT_1_ID);
-    }
 
-    @Test
-    public void should_found_projects_with_id() throws CollectInternalException {
-        // GIVEN
-        populateDb();
-
-        // WHEN
-        List<ProjectModel> searchProjects = repository.searchProject(PROJECT_2_ID, tenant);
-
-        // THEN
+        // Should find by id
+        searchProjects = repository.searchProject(getCriteria(PROJECT_2_ID, null), tenant);
         assertThat(searchProjects).hasSize(1);
         assertThat(searchProjects.get(0).getId()).isEqualTo(PROJECT_2_ID);
-    }
 
-    @Test
-    public void should_escape_special_characters_when_searching_projects() throws CollectInternalException {
-        // GIVEN
-        populateDb();
+        // Should escape special characters
+        searchProjects = repository.searchProject(getCriteria(".", null), tenant);
+        assertThat(searchProjects).isEmpty();
 
-        // WHEN
-        List<ProjectModel> searchProjects = repository.searchProject(".", tenant);
+        // Should escape another special characters
+        searchProjects = repository.searchProject(getCriteria(":)", null), tenant);
+        assertThat(searchProjects).hasSize(1);
+        assertThat(searchProjects.get(0).getId()).isEqualTo(PROJECT_4_ID);
 
-        // THEN
+        // Should return no result if originatingAgencies is empty list
+        searchProjects = repository.searchProject(getCriteria("test", Collections.emptyList()), tenant);
+        assertThat(searchProjects).isEmpty();
+
+        // Should find project if originatingAgencies includes project's originatingAgency
+        searchProjects = repository.searchProject(
+            getCriteria("test", List.of("FRAN_NP_009915", "FRAN_NP_009916")),
+            tenant
+        );
+        assertThat(searchProjects).hasSize(1);
+        assertThat(searchProjects.get(0).getId()).isEqualTo(PROJECT_1_ID);
+
+        // Should NOT find project if originatingAgencies does NOT include project's originatingAgency
+        searchProjects = repository.searchProject(
+            getCriteria("test", List.of("FRAN_NP_009916", "FRAN_NP_009917")),
+            tenant
+        );
         assertThat(searchProjects).isEmpty();
     }
 
-    @Test
-    public void should_escape_another_special_characters_when_searching_projects() throws CollectInternalException {
-        // GIVEN
-        populateDb();
-
-        // WHEN
-        List<ProjectModel> searchProjects = repository.searchProject(":)", tenant);
-
-        // THEN
-        assertThat(searchProjects).hasSize(1);
-        assertThat(searchProjects.get(0).getId()).isEqualTo(PROJECT_4_ID);
+    private CriteriaProjectDto getCriteria(String query, List<String> originatingAgencies) {
+        final CriteriaProjectDto criteriaProjectDto = new CriteriaProjectDto();
+        criteriaProjectDto.setQuery(query);
+        criteriaProjectDto.setOriginatingAgencies(originatingAgencies);
+        return criteriaProjectDto;
     }
 
     private void populateDb() throws CollectInternalException {
@@ -125,14 +128,14 @@ public class ProjectRepositoryTest {
 
         List<ProjectModel> getProjects() {
             return List.of(
-                createProject(PROJECT_1_ID, "Test"),
-                createProject(PROJECT_2_ID, "Hello"),
-                createProject(PROJECT_3_ID, "OK"),
-                createProject(PROJECT_4_ID, ":)")
+                createProject(PROJECT_1_ID, "Test", "FRAN_NP_009915"),
+                createProject(PROJECT_2_ID, "Hello", "FRAN_NP_009916"),
+                createProject(PROJECT_3_ID, "OK", "FRAN_NP_009917"),
+                createProject(PROJECT_4_ID, ":)", "FRAN_NP_009918")
             );
         }
 
-        private ProjectModel createProject(String id, String messageIdentifier) {
+        private ProjectModel createProject(String id, String messageIdentifier, String originatingAgency) {
             ProjectModel project = new ProjectModel();
             project.setId(id);
             project.setName(messageIdentifier);
@@ -142,7 +145,7 @@ public class ProjectRepositoryTest {
             context.setMessageIdentifier(messageIdentifier);
             context.setArchivalAgencyIdentifier("Identifier0");
             context.setTransferringAgencyIdentifier("Identifier3");
-            context.setOriginatingAgencyIdentifier("FRAN_NP_009915");
+            context.setOriginatingAgencyIdentifier(originatingAgency);
             context.setSubmissionAgencyIdentifier("FRAN_NP_005061");
             project.setManifestContext(context);
             project.setTenant(tenant);

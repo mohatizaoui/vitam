@@ -51,6 +51,7 @@ import static io.restassured.RestAssured.given;
 import static org.mockito.ArgumentCaptor.forClass;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -124,7 +125,7 @@ public class ProjectInternalResourceTest extends CollectInternalResourceBaseTest
         projectDto.setName("name");
         List<ProjectDto> projectDtoList = new ArrayList<>();
         projectDtoList.add(projectDto);
-        when(projectService.findProjects()).thenReturn(projectDtoList);
+        when(projectService.searchProject(isNull())).thenReturn(projectDtoList);
         given()
             .accept(ContentType.JSON)
             .header(GlobalDataRest.X_TENANT_ID, TENANT)
@@ -136,7 +137,7 @@ public class ProjectInternalResourceTest extends CollectInternalResourceBaseTest
 
     @Test
     public void getProjects_nok() throws CollectInternalException {
-        when(projectService.findProjects()).thenThrow(new CollectInternalException("error"));
+        when(projectService.searchProject(isNull())).thenThrow(new CollectInternalException("error"));
         given()
             .accept(ContentType.JSON)
             .header(GlobalDataRest.X_TENANT_ID, TENANT)

@@ -26,6 +26,7 @@
  */
 package fr.gouv.vitam.collect.internal.core.service;
 
+import fr.gouv.vitam.collect.common.dto.CriteriaProjectDto;
 import fr.gouv.vitam.collect.common.dto.ProjectDto;
 import fr.gouv.vitam.collect.common.enums.TransactionStatus;
 import fr.gouv.vitam.collect.common.exception.CollectInternalException;
@@ -105,16 +106,12 @@ public class ProjectService {
         projectRepository.updateProject(projectModel);
     }
 
-    public List<ProjectDto> findProjects() throws CollectInternalException {
-        List<ProjectModel> listProjects = projectRepository.findProjectsByTenant(ParameterHelper.getTenantParameter());
-        return listProjects.stream().map(CollectHelper::convertProjectModeltoProjectDto).collect(Collectors.toList());
-    }
-
-    public List<ProjectDto> searchProject(String searchValue) throws CollectInternalException {
-        List<ProjectModel> listProjects = projectRepository.searchProject(
-            searchValue,
+    public List<ProjectDto> searchProject(CriteriaProjectDto criteriaProjectDto) throws CollectInternalException {
+        final List<ProjectModel> listProjects = projectRepository.searchProject(
+            criteriaProjectDto,
             ParameterHelper.getTenantParameter()
         );
+
         return listProjects.stream().map(CollectHelper::convertProjectModeltoProjectDto).collect(Collectors.toList());
     }
 

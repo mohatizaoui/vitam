@@ -27,9 +27,11 @@
 package fr.gouv.vitam.collect.internal.core.repository;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Filters;
+import fr.gouv.vitam.collect.common.dto.CriteriaProjectDto;
 import fr.gouv.vitam.collect.common.exception.CollectInternalException;
 import fr.gouv.vitam.collect.internal.core.common.ProjectModel;
 import fr.gouv.vitam.common.database.server.mongodb.BsonHelper;
@@ -39,17 +41,21 @@ import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.in;
 
 /**
  * repository for project entities  management in mongo.
@@ -59,6 +65,7 @@ public class ProjectRepository {
     private static final String PROJECT_COLLECTION = "Project";
     private static final String ID = "_id";
     private static final String SUBMISSION_AGENCY_IDENTIFIER = "Context.SubmissionAgencyIdentifier";
+    private static final String ORIGINATING_AGENCY_IDENTIFIER = "Context.OriginatingAgencyIdentifier";
     private static final String MESSAGE_IDENTIFIER = "Context.MessageIdentifier";
     private static final String TENANT_ID = "_tenant";
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(ProjectRepository.class);
@@ -138,30 +145,6 @@ public class ProjectRepository {
     }
 
     /**
-     * return project according to tenant
-     *
-     * @param tenant tenant id to find
-     * @return Optional<ProjectModel>
-     * @throws CollectInternalException exception thrown in case of error
-     */
-    public List<ProjectModel> findProjectsByTenant(Integer tenant) throws CollectInternalException {
-        LOGGER.debug("Project tenant to find : {}", tenant);
-        try {
-            List<ProjectModel> listProjects = new ArrayList<>();
-            try (MongoCursor<Document> projectsCursor = projectCollection.find(eq(TENANT_ID, tenant)).cursor()) {
-                while (projectsCursor.hasNext()) {
-                    Document doc = projectsCursor.next();
-                    listProjects.add(BsonHelper.fromDocumentToObject(doc, ProjectModel.class));
-                }
-            }
-            return listProjects;
-        } catch (InvalidParseOperationException e) {
-            LOGGER.error("Error when fetching project: ", e);
-            throw new CollectInternalException("Error when fetching project : " + e);
-        }
-    }
-
-    /**
      * delete a project model
      *
      * @param id project to delete
@@ -175,30 +158,39 @@ public class ProjectRepository {
     /**
      * return projects according to criteria
      *
-     * @param searchValue value Of search
+     * @param criteriaProjectDto search criteria
      * @param tenant tenant
      * @return List<ProjectModel>
      * @throws CollectInternalException exception thrown in case of error
      */
-    public List<ProjectModel> searchProject(String searchValue, int tenant) throws CollectInternalException {
-        List<String> keys = List.of(ID, SUBMISSION_AGENCY_IDENTIFIER, MESSAGE_IDENTIFIER);
+    public List<ProjectModel> searchProject(@Nullable CriteriaProjectDto criteriaProjectDto, int tenant)
+        throws CollectInternalException {
         try {
-            List<ProjectModel> listProjects = new ArrayList<>();
-            List<Bson> filters = keys
-                .stream()
-                .map(key -> {
-                    if (ID.equals(key)) {
-                        return Filters.eq(key, searchValue);
-                    }
-                    return Filters.regex(key, Pattern.quote(searchValue), "i");
-                })
-                .collect(Collectors.toList());
+            List<Bson> filters = new ArrayList<>(List.of(eq(TENANT_ID, tenant)));
 
-            try (
-                MongoCursor<Document> projectsCursor = projectCollection
-                    .find(Filters.and(Filters.or(filters), Filters.eq(TENANT_ID, tenant)))
-                    .cursor()
-            ) {
+            Optional.ofNullable(criteriaProjectDto)
+                .map(CriteriaProjectDto::getQuery)
+                .filter(StringUtils::isNotBlank)
+                .ifPresent(query -> {
+                    final Bson queryFilter = Filters.or(
+                        Stream.of(ID, SUBMISSION_AGENCY_IDENTIFIER, MESSAGE_IDENTIFIER)
+                            .map(key -> ID.equals(key) ? eq(key, query) : Filters.regex(key, Pattern.quote(query), "i"))
+                            .collect(Collectors.toList())
+                    );
+                    filters.add(queryFilter);
+                });
+
+            Optional.ofNullable(criteriaProjectDto)
+                .map(CriteriaProjectDto::getOriginatingAgencies)
+                .ifPresent(
+                    originatingAgencyIdentifiers ->
+                        filters.add(in(ORIGINATING_AGENCY_IDENTIFIER, originatingAgencyIdentifiers))
+                );
+
+            FindIterable<Document> documents = projectCollection.find(and(filters));
+
+            List<ProjectModel> listProjects = new ArrayList<>();
+            try (MongoCursor<Document> projectsCursor = documents.cursor()) {
                 while (projectsCursor.hasNext()) {
                     Document doc = projectsCursor.next();
                     listProjects.add(BsonHelper.fromDocumentToObject(doc, ProjectModel.class));

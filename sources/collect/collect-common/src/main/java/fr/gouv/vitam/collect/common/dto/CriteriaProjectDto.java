@@ -30,6 +30,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -37,6 +38,9 @@ public class CriteriaProjectDto implements Serializable {
 
     @JsonProperty(value = "$query")
     private String query;
+
+    @JsonProperty(value = "originatingAgencies")
+    private List<String> originatingAgencies;
 
     public CriteriaProjectDto() {
         //Empty constructor for serialization
@@ -54,16 +58,24 @@ public class CriteriaProjectDto implements Serializable {
         this.query = query;
     }
 
+    public List<String> getOriginatingAgencies() {
+        return originatingAgencies;
+    }
+
+    public void setOriginatingAgencies(List<String> originatingAgencies) {
+        this.originatingAgencies = originatingAgencies;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         CriteriaProjectDto that = (CriteriaProjectDto) o;
-        return Objects.equals(query, that.query);
+        return (Objects.equals(query, that.query) && Objects.equals(originatingAgencies, that.originatingAgencies));
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(query);
+        return Objects.hash(query, originatingAgencies);
     }
 }

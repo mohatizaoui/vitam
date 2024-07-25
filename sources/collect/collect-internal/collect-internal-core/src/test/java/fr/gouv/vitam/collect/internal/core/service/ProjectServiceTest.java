@@ -27,6 +27,7 @@
 
 package fr.gouv.vitam.collect.internal.core.service;
 
+import fr.gouv.vitam.collect.common.dto.CriteriaProjectDto;
 import fr.gouv.vitam.collect.common.dto.ProjectDto;
 import fr.gouv.vitam.collect.common.exception.CollectInternalException;
 import fr.gouv.vitam.collect.internal.core.common.ProjectModel;
@@ -54,6 +55,7 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -142,8 +144,8 @@ public class ProjectServiceTest {
     @RunWithCustomExecutor
     public void findProjects() throws CollectInternalException {
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
-        when(projectRepository.findProjectsByTenant(TENANT_ID)).thenReturn(listOfProject);
-        final List<ProjectDto> projectsByTenant = projectService.findProjects();
+        when(projectRepository.searchProject(isNull(), eq(TENANT_ID))).thenReturn(listOfProject);
+        final List<ProjectDto> projectsByTenant = projectService.searchProject(null);
         Assertions.assertThat(projectsByTenant).extracting(ProjectDto::getName).containsOnly(PROJECT_TITLE);
     }
 
@@ -151,8 +153,10 @@ public class ProjectServiceTest {
     @RunWithCustomExecutor
     public void searchProject() throws CollectInternalException {
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
-        when(projectRepository.searchProject(eq(PROJECT_TITLE), eq(TENANT_ID))).thenReturn(listOfProject);
-        final List<ProjectDto> projects = projectService.searchProject(PROJECT_TITLE);
+        final CriteriaProjectDto criteriaProjectDto = new CriteriaProjectDto();
+        criteriaProjectDto.setQuery(PROJECT_TITLE);
+        when(projectRepository.searchProject(eq(criteriaProjectDto), eq(TENANT_ID))).thenReturn(listOfProject);
+        final List<ProjectDto> projects = projectService.searchProject(criteriaProjectDto);
         Assertions.assertThat(projects).extracting(ProjectDto::getName).containsOnly(PROJECT_TITLE);
     }
 
