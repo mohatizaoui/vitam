@@ -318,7 +318,7 @@ documentation:
   description: |
     API qui définit les requêtes pour générer un DIP (Dissemination Information Package : ZIP contenant les métadonnées et les objets) pour une sélection d'Unités d'archives.
     La requête est composée  d'une dslRequest (DSL) et d'autres paramètres nécessaires pour le service. Un processus générant le DIP V2 selon le DSL passé sera lancé.
-    Une autre requête pourra être exécutée par la suite pour télécharger le fichier Zip généré.
+    Une autre requête pourra être exécutée par la suite pour télécharger le fichier Zip généré. S'il s'agit de générer un export en mode arborescence il faut rajouter le paramètre boolean "exportWithTree" et le passer à "true"
   post:
     description: |
           response : JSON asynchronous state / HTTP CODE 202 or  500 for internal error

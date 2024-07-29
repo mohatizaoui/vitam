@@ -59,6 +59,9 @@ public class DipRequest {
     @JsonProperty("useOriginalFilenames")
     private boolean useOriginalFilenames;
 
+    @JsonProperty("exportWithTree")
+    private boolean exportWithTree;
+
     public DipRequest() {}
 
     public DipRequest(JsonNode dslRequest) {
@@ -158,5 +161,13 @@ public class DipRequest {
 
     public void setUseOriginalFilenames(boolean useOriginalFilenames) {
         this.useOriginalFilenames = useOriginalFilenames;
+    }
+
+    public boolean isExportWithTree() {
+        return exportWithTree;
+    }
+
+    public void setExportWithTree(boolean exportWithTree) {
+        this.exportWithTree = exportWithTree;
     }
 }

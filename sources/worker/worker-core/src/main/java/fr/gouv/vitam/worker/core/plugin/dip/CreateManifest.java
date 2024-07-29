@@ -53,6 +53,7 @@ import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.iterables.SpliteratorIterator;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.manifest.ManifestBuilder;
+import fr.gouv.vitam.common.manifest.PathGenerator;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.StatusCode;
@@ -135,6 +136,7 @@ import static fr.gouv.vitam.common.mapping.mapper.VitamObjectMapper.getDeseriali
 import static fr.gouv.vitam.common.model.RequestResponseOK.TAG_RESULTS;
 import static fr.gouv.vitam.common.model.export.ExportRequest.EXPORT_QUERY_FILE_NAME;
 import static fr.gouv.vitam.common.model.export.ExportType.ArchiveTransfer;
+import static fr.gouv.vitam.worker.core.plugin.dip.StoreExports.CONTENT;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Comparator.comparing;
 
@@ -177,6 +179,7 @@ public class CreateManifest extends ActionHandler {
         fields.put(ORIGINATING_AGENCY.exactToken(), 1);
         fields.put(OBJECT.exactToken(), 1);
         fields.put(SEDAVERSION.exactToken(), 1);
+        fields.put("Title", 1);
 
         this.projection = JsonHandler.createObjectNode();
         this.projection.set(FIELDS.exactToken(), fields);
@@ -249,11 +252,13 @@ public class CreateManifest extends ActionHandler {
                 ParameterHelper.getTenantParameter()
             );
             Map<String, String> ogs = new HashMap<>();
+            StringBuilder sb = new StringBuilder();
 
             SelectParserMultiple parser = new SelectParserMultiple();
             parser.parse(exportRequest.getDslRequest());
 
             SelectMultiQuery request = parser.getRequest();
+
             request.setProjection(projection);
 
             ScrollSpliterator<JsonNode> scrollRequest = ScrollSpliteratorHelper.createUnitScrollSplitIterator(
@@ -261,7 +266,9 @@ public class CreateManifest extends ActionHandler {
                 request
             );
 
-            for (JsonNode item : StreamSupport.stream(scrollRequest, false).collect(Collectors.toList())) {
+            List<JsonNode> items = StreamSupport.stream(scrollRequest, false).collect(Collectors.toList());
+
+            for (JsonNode item : items) {
                 prepareGraphCreation(multimap, originatingAgencies, ogs, item, sedaVersionToExport);
             }
 
@@ -281,6 +288,7 @@ public class CreateManifest extends ActionHandler {
             boolean exportWithLogBookLFC = exportRequest.isExportWithLogBookLFC();
             boolean exportWithoutObjects = exportRequest.isExportWithoutObjects();
             boolean useOriginalFilenames = exportRequest.isUseOriginalFilenames();
+            boolean exportWithTree = exportRequest.isExportWithTree();
 
             final Map<DataObjectVersionType, Set<QualifierVersion>> dataObjectVersions =
                 DataObjectVersionToPatternsConvertor.computeDataObjectVersionsPatterns(
@@ -306,6 +314,7 @@ public class CreateManifest extends ActionHandler {
                 JsonNode response = client.selectObjectGroups(select.getFinalSelect());
                 ArrayNode objects = (ArrayNode) response.get(TAG_RESULTS);
                 Set<String> existingFileNames = new HashSet<>();
+                Set<String> existingDirectoryNames = new HashSet<>();
                 for (JsonNode object : objects) {
                     String id = object.get(id()).textValue();
                     List<String> linkedUnits = unitsForObjectGroupId.get(id);
@@ -329,13 +338,25 @@ public class CreateManifest extends ActionHandler {
                             .stream()
                             .map(LogbookLifeCycleObjectGroup::new)
                         : Stream.empty();
+
+                    String directoryPath = CONTENT + File.separator;
+
+                    if (exportWithTree) {
+                        directoryPath +=
+                        PathGenerator.generatePath(items, multimap, linkedUnits, existingDirectoryNames) +
+                        File.separator;
+                    }
+
                     idBinaryWithFileName.putAll(
                         manifestBuilder.writeGOT(
                             currentObject,
                             linkedUnits.get(linkedUnits.size() - 1),
                             logbookLifeCycleObjectGroupStream,
                             useOriginalFilenames,
-                            existingFileNames
+                            exportWithTree,
+                            existingFileNames,
+                            existingDirectoryNames,
+                            directoryPath
                         )
                     );
 
@@ -349,6 +370,7 @@ public class CreateManifest extends ActionHandler {
                         .sum();
                 }
                 existingFileNames.clear();
+                existingDirectoryNames.clear();
             }
 
             SelectParserMultiple initialQueryParser = new SelectParserMultiple();
@@ -699,6 +721,20 @@ public class CreateManifest extends ActionHandler {
         if (objectIdNode != null) {
             ogs.put(archiveUnitId, objectIdNode.asText());
         }
+    }
+
+    private void prepareDirectory(StringBuilder directoryBuilder, JsonNode unit) {
+        JsonNode item = unit.get(VitamFieldsHelper.object());
+
+        String title = unit.get("Title").asText();
+
+        directoryBuilder.append(title).append(File.separator);
+
+        directoryOfExport(directoryBuilder);
+    }
+
+    private String directoryOfExport(StringBuilder directoryBuilder) {
+        return directoryBuilder.toString();
     }
 
     private void storeBinaryInformationOnWorkspace(HandlerIO handlerIO, Map<String, JsonNode> maps)
