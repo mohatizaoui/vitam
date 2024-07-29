@@ -32,23 +32,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Strings;
 import com.google.common.collect.ListMultimap;
-import fr.gouv.culture.archivesdefrance.seda.v2.ArchiveUnitType;
-import fr.gouv.culture.archivesdefrance.seda.v2.BinaryDataObjectType;
-import fr.gouv.culture.archivesdefrance.seda.v2.CodeListVersionsType;
-import fr.gouv.culture.archivesdefrance.seda.v2.CodeType;
-import fr.gouv.culture.archivesdefrance.seda.v2.DataObjectGroupType;
-import fr.gouv.culture.archivesdefrance.seda.v2.DataObjectPackageType;
-import fr.gouv.culture.archivesdefrance.seda.v2.DataObjectRefType;
-import fr.gouv.culture.archivesdefrance.seda.v2.EventLogBookOgType;
-import fr.gouv.culture.archivesdefrance.seda.v2.IdentifierType;
-import fr.gouv.culture.archivesdefrance.seda.v2.LegalStatusType;
-import fr.gouv.culture.archivesdefrance.seda.v2.LogBookOgType;
-import fr.gouv.culture.archivesdefrance.seda.v2.LogBookType;
-import fr.gouv.culture.archivesdefrance.seda.v2.ManagementMetadataType;
-import fr.gouv.culture.archivesdefrance.seda.v2.ManagementType;
-import fr.gouv.culture.archivesdefrance.seda.v2.MinimalDataObjectType;
-import fr.gouv.culture.archivesdefrance.seda.v2.ObjectFactory;
-import fr.gouv.culture.archivesdefrance.seda.v2.OrganizationWithIdType;
+import fr.gouv.culture.archivesdefrance.seda.v2.*;
 import fr.gouv.vitam.common.LocalDateUtil;
 import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.accesslog.AccessLogUtils;
@@ -84,7 +68,6 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-import java.io.File;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -257,7 +240,16 @@ public class ManifestBuilder implements AutoCloseable {
         String linkedAU,
         Stream<LogbookLifeCycleObjectGroup> logbookLifeCycleObjectGroupStream
     ) throws JsonProcessingException, JAXBException, InternalServerException {
-        return writeGOT(og, linkedAU, logbookLifeCycleObjectGroupStream, false, new HashSet<>());
+        return writeGOT(
+            og,
+            linkedAU,
+            logbookLifeCycleObjectGroupStream,
+            false,
+            false,
+            new HashSet<>(),
+            new HashSet<>(),
+            ""
+        );
     }
 
     public Map<String, JsonNode> writeGOT(
@@ -265,7 +257,10 @@ public class ManifestBuilder implements AutoCloseable {
         String linkedAU,
         Stream<LogbookLifeCycleObjectGroup> logbookLifeCycleObjectGroupStream,
         boolean useOriginalFilenames,
-        Set<String> existingFileNames
+        boolean exportWithTree,
+        Set<String> existingFileNames,
+        Set<String> existingDirectoryNames,
+        String baseFilePath
     ) throws JsonProcessingException, JAXBException, InternalServerException {
         ObjectGroupResponse objectGroup = objectMapper.treeToValue(og, ObjectGroupResponse.class);
 
@@ -311,14 +306,20 @@ public class ManifestBuilder implements AutoCloseable {
                 BinaryDataObjectType binaryDataObjectType = (BinaryDataObjectType) minimalDataObjectType;
 
                 String extension = getExtension(binaryDataObjectType).toLowerCase();
+
                 String fileName = determineFileName(
                     binaryDataObjectType,
                     extension,
                     useOriginalFilenames,
-                    existingFileNames
+                    existingFileNames,
+                    baseFilePath
                 );
                 existingFileNames.add(fileName);
+
+                existingDirectoryNames.add(baseFilePath);
+
                 binaryDataObjectType.setUri(fileName);
+
                 String[] dataObjectVersion = minimalDataObjectType.getDataObjectVersion().split("_");
                 String xmlQualifier = dataObjectVersion[0];
                 Integer xmlVersion = Integer.parseInt(dataObjectVersion[1]);
@@ -334,6 +335,7 @@ public class ManifestBuilder implements AutoCloseable {
                 maps.put(minimalDataObjectType.getId(), objectInfo);
             }
         }
+
         marshallHackForNonXmlRootObject(dataObjectGroup);
         return maps;
     }
@@ -342,23 +344,24 @@ public class ManifestBuilder implements AutoCloseable {
         BinaryDataObjectType binaryDataObjectType,
         String extension,
         boolean useOriginalFilenames,
-        Set<String> existingFileNames
+        Set<String> existingFileNames,
+        String baseFilePath
     ) {
         String ext = extension.isEmpty() ? "" : "." + extension;
 
         if (useOriginalFilenames && !Strings.isNullOrEmpty(binaryDataObjectType.getFileInfo().getFilename())) {
-            return buildFileNameWithOriginalFilename(binaryDataObjectType, ext, existingFileNames);
+            return buildFileNameWithOriginalFilename(binaryDataObjectType, ext, existingFileNames, baseFilePath);
         } else {
-            return determineFileNameBasedOnUri(binaryDataObjectType, ext);
+            return determineFileNameBasedOnUri(binaryDataObjectType, ext, baseFilePath);
         }
     }
 
     private String buildFileNameWithOriginalFilename(
         BinaryDataObjectType binaryDataObjectType,
         String extension,
-        Set<String> existingFileNames
+        Set<String> existingFileNames,
+        String baseFilePath
     ) {
-        String baseFilePath = CONTENT + File.separator;
         String originalFileName = binaryDataObjectType.getFileInfo().getFilename();
         String cleanedFileName = FileNameCleaner.cleanFileName(originalFileName);
         String fullFileName = baseFilePath + cleanedFileName;
@@ -379,14 +382,18 @@ public class ManifestBuilder implements AutoCloseable {
         return fullFileName;
     }
 
-    private String determineFileNameBasedOnUri(BinaryDataObjectType binaryDataObjectType, String extension) {
+    private String determineFileNameBasedOnUri(
+        BinaryDataObjectType binaryDataObjectType,
+        String extension,
+        String baseFilePath
+    ) {
         if (
             binaryDataObjectType.getUri() != null &&
             binaryDataObjectType.getUri().contains(binaryDataObjectType.getId())
         ) {
             return binaryDataObjectType.getUri();
         } else {
-            return CONTENT + File.separator + binaryDataObjectType.getId() + extension;
+            return baseFilePath + binaryDataObjectType.getId() + extension;
         }
     }
 

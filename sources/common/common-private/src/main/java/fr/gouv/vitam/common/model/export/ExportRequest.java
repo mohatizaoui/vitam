@@ -64,6 +64,9 @@ public class ExportRequest {
     @JsonProperty("useOriginalFilenames")
     private boolean useOriginalFilenames;
 
+    @JsonProperty("exportWithTree")
+    private boolean exportWithTree;
+
     public ExportRequest() {}
 
     public ExportRequest(JsonNode dslRequest) {
@@ -77,7 +80,8 @@ public class ExportRequest {
         boolean withoutObjects,
         Long maxSizeThreshold,
         String sedaVersion,
-        boolean useOriginalFilenames
+        boolean useOriginalFilenames,
+        boolean exportWithTree
     ) {
         this.dataObjectVersionToExport = dataObjectVersionToExport;
         this.dslRequest = dslRequest;
@@ -86,6 +90,7 @@ public class ExportRequest {
         this.maxSizeThreshold = maxSizeThreshold;
         this.sedaVersion = sedaVersion;
         this.useOriginalFilenames = useOriginalFilenames;
+        this.exportWithTree = exportWithTree;
     }
 
     public ExportRequest(
@@ -95,7 +100,7 @@ public class ExportRequest {
         Long maxSizeThreshold,
         String sedaVersion
     ) {
-        this(dataObjectVersionToExport, dslRequest, withLogBookLFC, false, maxSizeThreshold, sedaVersion, false);
+        this(dataObjectVersionToExport, dslRequest, withLogBookLFC, false, maxSizeThreshold, sedaVersion, false, false);
     }
 
     /**
@@ -118,6 +123,7 @@ public class ExportRequest {
             withoutObjects,
             null,
             SupportedSedaVersions.SEDA_2_2.getVersion(),
+            false,
             false
         );
     }
@@ -130,6 +136,7 @@ public class ExportRequest {
             false,
             null,
             SupportedSedaVersions.SEDA_2_2.getVersion(),
+            false,
             false
         );
     }
@@ -147,7 +154,27 @@ public class ExportRequest {
             false,
             null,
             SupportedSedaVersions.SEDA_2_2.getVersion(),
-            useOriginalFilenames
+            useOriginalFilenames,
+            false
+        );
+    }
+
+    public ExportRequest(
+        DataObjectVersions dataObjectVersionToExport,
+        boolean useOriginalFilenames,
+        boolean exportWithTree,
+        JsonNode dslRequest,
+        boolean withLogBookLFC
+    ) {
+        this(
+            dataObjectVersionToExport,
+            dslRequest,
+            withLogBookLFC,
+            false,
+            null,
+            SupportedSedaVersions.SEDA_2_2.getVersion(),
+            useOriginalFilenames,
+            exportWithTree
         );
     }
 
@@ -167,6 +194,7 @@ public class ExportRequest {
                 : SupportedSedaVersions.SEDA_2_2.getVersion()
         );
         exportRequest.setUseOriginalFilenames(dipRequest.isUseOriginalFilenames());
+        exportRequest.setExportWithTree(dipRequest.isExportWithTree());
 
         return exportRequest;
     }
@@ -263,5 +291,13 @@ public class ExportRequest {
 
     public void setUseOriginalFilenames(boolean useOriginalFilenames) {
         this.useOriginalFilenames = useOriginalFilenames;
+    }
+
+    public boolean isExportWithTree() {
+        return exportWithTree;
+    }
+
+    public void setExportWithTree(boolean exportWithTree) {
+        this.exportWithTree = exportWithTree;
     }
 }

@@ -36,10 +36,7 @@ import fr.gouv.vitam.common.SedaConstants;
 import fr.gouv.vitam.common.exception.InternalServerException;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.json.JsonHandler;
-import fr.gouv.vitam.common.model.unit.ArchiveUnitModel;
-import fr.gouv.vitam.common.model.unit.DescriptiveMetadataModel;
-import fr.gouv.vitam.common.model.unit.RuleCategoryModel;
-import fr.gouv.vitam.common.model.unit.RuleModel;
+import fr.gouv.vitam.common.model.unit.*;
 import fr.gouv.vitam.common.utils.SupportedSedaVersions;
 import fr.gouv.vitam.logbook.common.server.database.collections.LogbookLifeCycleObjectGroup;
 import org.junit.Assert;
@@ -252,7 +249,13 @@ public class ManifestBuilderTest {
 
         ManifestBuilder manifestBuilder = new ManifestBuilder(outputStream, SupportedSedaVersions.SEDA_2_3);
 
-        String result = manifestBuilder.determineFileName(binaryDataObjectType, "txt", true, new HashSet<>());
+        String result = manifestBuilder.determineFileName(
+            binaryDataObjectType,
+            "txt",
+            true,
+            new HashSet<>(),
+            CONTENT + File.separator
+        );
         Assert.assertEquals(CONTENT + File.separator + "example", result);
     }
 
@@ -267,7 +270,13 @@ public class ManifestBuilderTest {
 
         ManifestBuilder manifestBuilder = new ManifestBuilder(outputStream, SupportedSedaVersions.SEDA_2_3);
 
-        String result = manifestBuilder.determineFileName(binaryDataObjectType, "jpg", false, new HashSet<>());
+        String result = manifestBuilder.determineFileName(
+            binaryDataObjectType,
+            "jpg",
+            false,
+            new HashSet<>(),
+            CONTENT + File.separator
+        );
         Assert.assertEquals(CONTENT + File.separator + "12345.jpg", result);
     }
 
@@ -283,7 +292,13 @@ public class ManifestBuilderTest {
 
         ManifestBuilder manifestBuilder = new ManifestBuilder(outputStream, SupportedSedaVersions.SEDA_2_3);
 
-        String result = manifestBuilder.determineFileName(binaryDataObjectType, "jpg", false, new HashSet<>());
+        String result = manifestBuilder.determineFileName(
+            binaryDataObjectType,
+            "jpg",
+            false,
+            new HashSet<>(),
+            CONTENT + File.separator
+        );
         Assert.assertEquals("/path/to/content/12345.jpg", result);
     }
 
@@ -300,7 +315,13 @@ public class ManifestBuilderTest {
 
         ManifestBuilder manifestBuilder = new ManifestBuilder(outputStream, SupportedSedaVersions.SEDA_2_3);
 
-        String result = manifestBuilder.determineFileName(binaryDataObjectType, "txt", true, existingFileNames);
+        String result = manifestBuilder.determineFileName(
+            binaryDataObjectType,
+            "txt",
+            true,
+            existingFileNames,
+            CONTENT + File.separator
+        );
         Assert.assertEquals(CONTENT + File.separator + "12345" + "example", result);
     }
 
@@ -323,7 +344,13 @@ public class ManifestBuilderTest {
 
         ManifestBuilder manifestBuilder = new ManifestBuilder(outputStream, SupportedSedaVersions.SEDA_2_3);
 
-        String result = manifestBuilder.determineFileName(binaryDataObjectType, "txt", true, existingFileNames);
+        String result = manifestBuilder.determineFileName(
+            binaryDataObjectType,
+            "txt",
+            true,
+            existingFileNames,
+            CONTENT + File.separator
+        );
         Assert.assertEquals(
             CONTENT +
             File.separator +
@@ -336,7 +363,13 @@ public class ManifestBuilderTest {
         fileInfo.setFilename(
             "another_very_long_filename_to_ensure_we_go_over_the_character_limit_for_most_filesystems_very_long_filename_to_ensure_we_go_over_the_character_limit_for_most_filesystems_this_time_not_duplicated.txt"
         );
-        result = manifestBuilder.determineFileName(binaryDataObjectType, "txt", true, existingFileNames);
+        result = manifestBuilder.determineFileName(
+            binaryDataObjectType,
+            "txt",
+            true,
+            existingFileNames,
+            CONTENT + File.separator
+        );
         Assert.assertEquals(
             CONTENT +
             File.separator +

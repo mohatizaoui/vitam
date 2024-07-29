@@ -112,18 +112,22 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
 
 import static fr.gouv.vitam.common.VitamTestHelper.verifyOperation;
 import static fr.gouv.vitam.common.guid.GUIDFactory.newOperationLogbookGUID;
@@ -162,6 +166,8 @@ public class TransferAndDipIT extends VitamRuleRunner {
 
     private static final String SIP_OK_PHYSICAL_ARCHIVE = "integration-ingest-internal/OK_ArchivesPhysiques.zip";
     private static final String SIP_OK_2_2 = "integration-ingest-internal/OK_SIP_FULL_SEDA2.2.zip";
+
+    private static final String SIP_MULTIPLE_USAGE = "integration-ingest-internal/arbo_simple.zip";
     private static final String UNIT_WITHOUT_OBJECT_TRANSFER =
         "integration-ingest-internal/unit_without_object_transfer.zip";
     private static final String SIP_EXTENDED = "integration-ingest-internal/SIP_EXTENDED.zip";
@@ -558,6 +564,147 @@ public class TransferAndDipIT extends VitamRuleRunner {
         assertThat(manifest).contains(footer);
         assertThat(manifest).contains("</BinaryDataObject><LogBook><Event><EventIdentifier>"); // tag for GOT logbook LFC
         assertThat(manifest).contains("<Management><LogBook><Event><EventIdentifier>"); // tag for AU logbook LFC
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void should_export_DIP_with_tree_and_unit_has_multiple_parents() throws Exception {
+        // Given
+        final String ingestOpId = VitamTestHelper.doIngest(TENANT_ID, SIP_OK_2_2);
+        // As FormatIdentifierMock is used, pdf is identified as Plain Text File => WARNING
+        verifyOperation(ingestOpId, WARNING);
+
+        SelectMultiQuery select = new SelectMultiQuery();
+        select.setQuery(QueryHelper.in(VitamFieldsHelper.operations(), ingestOpId));
+
+        ExportRequest exportRequest = new ExportRequest(
+            new DataObjectVersions(Collections.singleton(BINARY_MASTER.getName())),
+            select.getFinalSelect(),
+            true
+        );
+
+        exportRequest.setExportType(ExportType.ArchiveDeliveryRequestReply);
+        ExportRequestParameters exportRequestParameters = getExportRequestParameters();
+        exportRequest.setExportRequestParameters(exportRequestParameters);
+        exportRequest.setExportWithTree(true);
+
+        // When ArchiveDeliveryRequestReply
+        String exportOperationId = exportDIP(exportRequest);
+
+        // Then
+        VitamTestHelper.verifyOperation(exportOperationId, KO);
+
+        JsonNode logbook = VitamTestHelper.findLogbook(exportOperationId);
+        assertNotNull(logbook);
+        RequestResponseOK<JsonNode> response = RequestResponseOK.getFromJsonNode(logbook);
+        assertThat(response.getResults()).isNotEmpty();
+        assertThat(response.getResults().get(0).get(EV_TYPE).asText()).isEqualTo(Contexts.EXPORT_DIP.getEventType());
+
+        List<LogbookEventOperation> logbookEvents = getLogbookEvents(exportOperationId);
+
+        assertThat(logbookEvents).extracting(EV_TYPE, OUTCOME).contains(tuple(CreateManifest.PLUGIN_NAME, KO.name()));
+    }
+
+    private boolean checkPathsExistInZip(byte[] zipContent, List<String> pathsToCheck) throws IOException {
+        Path tempFilePath = Files.createTempFile("tmp", ".zip");
+        Files.write(tempFilePath, zipContent);
+        File dipFile = tempFilePath.toFile();
+
+        try (ZipFile zipFile = new ZipFile(dipFile)) {
+            for (String path : pathsToCheck) {
+                ZipEntry entry = zipFile.getEntry(path);
+                if (entry == null) {
+                    return false;
+                }
+            }
+            return true;
+        } finally {
+            Files.deleteIfExists(tempFilePath);
+        }
+    }
+
+    private boolean allPathsFound(boolean[] pathsFound) {
+        for (boolean pathFound : pathsFound) {
+            if (!pathFound) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private byte[] readInputStreamToByteArray(InputStream inputStream) throws IOException {
+        try (ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
+            inputStream.transferTo(buffer);
+            return buffer.toByteArray();
+        }
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void should_export_DIP_with_tree() throws Exception {
+        // Given
+        final String ingestOpId = VitamTestHelper.doIngest(TENANT_ID, SIP_MULTIPLE_USAGE);
+        // As FormatIdentifierMock is used, pdf is identified as Plain Text File => WARNING
+        verifyOperation(ingestOpId, OK);
+
+        SelectMultiQuery select = new SelectMultiQuery();
+        select.setQuery(QueryHelper.in(VitamFieldsHelper.operations(), ingestOpId));
+
+        ExportRequest exportRequest = new ExportRequest(
+            new DataObjectVersions(Collections.singleton(BINARY_MASTER.getName())),
+            select.getFinalSelect(),
+            true
+        );
+
+        exportRequest.setExportType(ExportType.ArchiveDeliveryRequestReply);
+        ExportRequestParameters exportRequestParameters = getExportRequestParameters();
+        exportRequest.setExportRequestParameters(exportRequestParameters);
+        exportRequest.setUseOriginalFilenames(true);
+        exportRequest.setExportWithTree(true);
+
+        // When ArchiveDeliveryRequestReply
+        String exportOperationId = exportDIP(exportRequest);
+
+        // Then
+        VitamTestHelper.verifyOperation(exportOperationId, OK);
+
+        JsonNode logbook = VitamTestHelper.findLogbook(exportOperationId);
+        assertNotNull(logbook);
+        RequestResponseOK<JsonNode> response = RequestResponseOK.getFromJsonNode(logbook);
+        assertThat(response.getResults()).isNotEmpty();
+        assertThat(response.getResults().get(0).get(EV_TYPE).asText()).isEqualTo(Contexts.EXPORT_DIP.getEventType());
+
+        List<LogbookEventOperation> logbookEvents = getLogbookEvents(exportOperationId);
+
+        assertThat(logbookEvents).extracting(EV_TYPE, OUTCOME).contains(tuple(CreateManifest.PLUGIN_NAME, OK.name()));
+
+        // Lire le contenu du fichier ZIP une seule fois
+        byte[] zipContent = readInputStreamToByteArray(getDip(exportOperationId));
+
+        String manifest = getManifestString(zipContent);
+        assertThat(manifest).contains("<Uri>Content/UnitA/UnitB/Montparnasse.txt</Uri>");
+        assertThat(manifest).contains("<Uri>Content/UnitA/UnitC/Pereire.txt</Uri>");
+
+        // Vérifier l'existence des fichiers dans le fichier ZIP
+        List<String> pathsToCheck = List.of("Content/UnitA/UnitB/Montparnasse.txt", "Content/UnitA/UnitC/Pereire.txt");
+
+        boolean allPathsExist = checkPathsExistInZip(zipContent, pathsToCheck);
+        assertTrue("Not all required files exist in the ZIP file.", allPathsExist);
+    }
+
+    private String getManifestString(byte[] zipContent) throws IOException {
+        Path tempFilePath = Files.createTempFile("tmp", ".zip");
+        Files.write(tempFilePath, zipContent);
+        File dipFile = tempFilePath.toFile();
+
+        try (ZipFile zipFile = new ZipFile(dipFile)) {
+            ZipArchiveEntry manifest = zipFile.getEntry("manifest.xml");
+            try (InputStream is = zipFile.getInputStream(manifest)) {
+                return IOUtils.toString(is, StandardCharsets.UTF_8);
+            }
+        } finally {
+            Files.deleteIfExists(tempFilePath);
+        }
     }
 
     @Test
@@ -1328,6 +1475,7 @@ public class TransferAndDipIT extends VitamRuleRunner {
             exportWithoutObjects,
             null,
             SupportedSedaVersions.SEDA_2_3.getVersion(),
+            false,
             false
         );
 
