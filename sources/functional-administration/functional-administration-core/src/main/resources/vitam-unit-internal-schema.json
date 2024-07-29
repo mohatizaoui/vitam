@@ -261,7 +261,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.DeathDate",
     "SedaField": "DeathDate",
-    "ShortName": "date de décès"
+    "ShortName": "Date de décès"
   },
   {
     "FieldName": "DeathPlace",
@@ -545,7 +545,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Addressee.Nationality",
     "SedaField": "Nationality",
-    "ShortName": "nationalité"
+    "ShortName": "Nationalité"
   },
   {
     "FieldName": "Position",
@@ -828,7 +828,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.DeathDate",
     "SedaField": "DeathDate",
-    "ShortName": "date de décès"
+    "ShortName": "Date de décès"
   },
   {
     "FieldName": "DeathPlace",
@@ -1112,7 +1112,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Agent.Nationality",
     "SedaField": "Nationality",
-    "ShortName": "nationalité"
+    "ShortName": "Nationalité"
   },
   {
     "FieldName": "Position",
@@ -1433,7 +1433,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.DeathDate",
     "SedaField": "DeathDate",
-    "ShortName": "date de décès"
+    "ShortName": "Date de décès"
   },
   {
     "FieldName": "DeathPlace",
@@ -1717,7 +1717,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "AuthorizedAgent.Nationality",
     "SedaField": "Nationality",
-    "ShortName": "nationalité"
+    "ShortName": "Nationalité"
   },
   {
     "FieldName": "Position",
@@ -2017,7 +2017,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "DescriptionLevel",
     "SedaField": "DescriptionLevel",
-    "ShortName": "Niveau de description *"
+    "ShortName": "Niveau de description"
   },
   {
     "FieldName": "Description_",
@@ -2813,7 +2813,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "PersistentIdentifier.PersistentIdentifierType",
     "SedaField": "PersistentIdentifierType",
-    "ShortName": "Type*"
+    "ShortName": "Type"
   },
   {
     "FieldName": "ReceivedDate",
@@ -3077,7 +3077,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.DeathDate",
     "SedaField": "DeathDate",
-    "ShortName": "date de décès"
+    "ShortName": "Date de décès"
   },
   {
     "FieldName": "DeathPlace",
@@ -3361,7 +3361,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Recipient.Nationality",
     "SedaField": "Nationality",
-    "ShortName": "nationalité"
+    "ShortName": "Nationalité"
   },
   {
     "FieldName": "Position",
@@ -4431,7 +4431,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.DeathDate",
     "SedaField": "DeathDate",
-    "ShortName": "date de décès"
+    "ShortName": "Date de décès"
   },
   {
     "FieldName": "DeathPlace",
@@ -4715,7 +4715,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Sender.Nationality",
     "SedaField": "Nationality",
-    "ShortName": "nationalité"
+    "ShortName": "Nationalité"
   },
   {
     "FieldName": "Position",
@@ -5397,7 +5397,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Signer.Nationality",
     "SedaField": "Nationality",
-    "ShortName": "nationalité"
+    "ShortName": "Nationalité"
   },
   {
     "FieldName": "Position",
@@ -5683,7 +5683,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.DeathDate",
     "SedaField": "DeathDate",
-    "ShortName": "date de décès"
+    "ShortName": "Date de décès"
   },
   {
     "FieldName": "DeathPlace",
@@ -5952,7 +5952,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.Nationality",
     "SedaField": "Nationality",
-    "ShortName": "nationalité"
+    "ShortName": "Nationalité"
   },
   {
     "FieldName": "Position",
@@ -6006,7 +6006,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Signature.Validator.ValidationTime",
     "SedaField": "ValidationTime",
-    "ShortName": "Date de validation *"
+    "ShortName": "Date de validation"
   },
   {
     "FieldName": "SigningInformation",
@@ -6581,7 +6581,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Signer.Nationality",
     "SedaField": "Nationality",
-    "ShortName": "nationalité"
+    "ShortName": "Nationalité"
   },
   {
     "FieldName": "Position",
@@ -6870,7 +6870,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator.DeathDate",
     "SedaField": "DeathDate",
-    "ShortName": "date de décès"
+    "ShortName": "Date de décès"
   },
   {
     "FieldName": "DeathPlace",
@@ -7126,7 +7126,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator.Nationality",
     "SedaField": "Nationality",
-    "ShortName": "nationalité"
+    "ShortName": "Nationalité"
   },
   {
     "FieldName": "Position",
@@ -7177,7 +7177,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "SigningInformation.SignatureDescription.Validator.ValidationTime",
     "SedaField": "ValidationTime",
-    "ShortName": "Date de validation *"
+    "ShortName": "Date de validation"
   },
   {
     "FieldName": "SigningRole",
@@ -7432,7 +7432,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Title",
     "SedaField": "Title",
-    "ShortName": "Intitulé *"
+    "ShortName": "Intitulé"
   },
   {
     "FieldName": "Title_",
@@ -7733,7 +7733,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.DeathDate",
     "SedaField": "DeathDate",
-    "ShortName": "date de décès"
+    "ShortName": "Date de décès"
   },
   {
     "FieldName": "DeathPlace",
@@ -8017,7 +8017,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Transmitter.Nationality",
     "SedaField": "Nationality",
-    "ShortName": "nationalité"
+    "ShortName": "Nationalité"
   },
   {
     "FieldName": "Position",
@@ -8338,7 +8338,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.DeathDate",
     "SedaField": "DeathDate",
-    "ShortName": "date de décès"
+    "ShortName": "Date de décès"
   },
   {
     "FieldName": "DeathPlace",
@@ -8622,7 +8622,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "Writer.Nationality",
     "SedaField": "Nationality",
-    "ShortName": "nationalité"
+    "ShortName": "Nationalité"
   },
   {
     "FieldName": "Position",
@@ -11400,7 +11400,7 @@
     "Category": "DESCRIPTION",
     "ApiPath": "#originating_agency",
     "SedaField": "OriginatingAgencyIdentifier",
-    "ShortName": "Service producteur responsable de l'entrée(*)"
+    "ShortName": "Service producteur responsable de l'entrée"
   },
   {
     "FieldName": "_sps",
