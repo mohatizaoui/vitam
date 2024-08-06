@@ -1,0 +1,15 @@
+{
+	"Id" : "aegaaaaaaegtfhyvadjsqamra75pjuaaaaaq",
+	"Identifier" : "AUP-000002",
+	"Name" : "PUA Enum",
+	"Description" : "Profil avec Enum sans SystemId et Regex Date",
+	"Status" : "ACTIVE",
+	"CreationDate" : "2024-07-31T08:49:32.878",
+	"LastUpdate" : "2024-07-31T08:56:38.838",
+	"ActivationDate" : "2024-07-31T08:49:32.878",
+	"DeactivationDate" : "2024-07-31T08:49:32.878",
+	"ControlSchema" : "{\"$schema\":\"http://json-schema.org/draft-04/schema\",\"type\":\"object\",\"additionalProperties\":false,\"patternProperties\":{\"#management\":{\"additionalProperties\":false}},\"required\":[\"ArchiveUnitProfile\",\"DescriptionLevel\",\"Title\",\"FilePlanPosition\"],\"properties\":{\"ArchiveUnitProfile\":{\"description\":\"Identifiant du PUA : cardinalité 1\",\"type\":\"string\"},\"DescriptionLevel\":{\"description\":\"Niveau de description : cardinalité 1\",\"type\":\"string\",\"enum\":[\"Item\"]},\"Title\":{\"pattern\":\"^Discours_[A-Z]{5,}\",\"description\":\"Titre de la ressource : cardinalité 1-N\",\"type\":\"string\"},\"FilePlanPosition\":{\"minItems\":1,\"maxItems\":1,\"type\":\"array\"},\"SystemId\":{\"minItems\":0,\"maxItems\":1,\"type\":\"array\"},\"OriginatingSystemId\":{\"type\":\"array\"},\"ArchivalAgencyArchiveUnitIdentifier\":{\"type\":\"array\"},\"OriginatingAgencyArchiveUnitIdentifier\":{\"type\":\"array\"},\"TransferringAgencyArchiveUnitIdentifier\":{\"type\":\"array\"},\"Description\":{\"type\":\"string\"},\"Type\":{\"type\":\"string\"},\"DocumentType\":{\"type\":\"string\"},\"Language\":{\"type\":\"array\"},\"Status\":{\"type\":\"string\"},\"Version\":{\"type\":\"string\"},\"Tag\":{\"type\":\"array\"},\"Keyword\":{\"type\":\"array\",\"items\":{\"additionalProperties\":false,\"type\":\"object\",\"properties\":{\"KeywordType\":{\"type\":\"string\"},\"KeywordContent\":{\"type\":\"string\"}},\"required\":[\"KeywordContent\"]}},\"Writer\":{\"type\":\"array\",\"items\":{\"additionalProperties\":false,\"type\":\"object\",\"properties\":{\"Role\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}},\"Function\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}},\"Identifier\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}},\"FirstName\":{\"type\":\"string\"},\"Gender\":{\"type\":\"string\"},\"BirthName\":{\"type\":\"string\"},\"DeathDate\":{\"type\":\"string\"},\"BirthDate\":{\"type\":\"string\"}},\"required\":[\"FirstName\",\"BirthDate\"]}},\"Source\":{\"type\":\"string\"}}}",
+	"Tenant" : 1,
+	"Version" : 1,
+	"Fields" : [ "Description", "Gender", "ArchivalAgencyArchiveUnitIdentifier", "OriginatingSystemId", "ArchiveUnitProfile", "Source", "Function", "Identifier", "Language", "Version", "KeywordContent", "BirthName", "Status", "KeywordType", "DescriptionLevel", "FilePlanPosition", "FirstName", "Title", "SystemId", "DocumentType", "DeathDate", "Role", "OriginatingAgencyArchiveUnitIdentifier", "Type", "TransferringAgencyArchiveUnitIdentifier", "Tag", "BirthDate" ]
+}

@@ -60,6 +60,7 @@ import fr.gouv.vitam.common.model.administration.AccessionRegisterSummaryModel;
 import fr.gouv.vitam.common.model.administration.AccessionRegisterSymbolicModel;
 import fr.gouv.vitam.common.model.administration.AgenciesModel;
 import fr.gouv.vitam.common.model.administration.ArchiveUnitProfileModel;
+import fr.gouv.vitam.common.model.administration.CombinedSchemaModel;
 import fr.gouv.vitam.common.model.administration.ContextModel;
 import fr.gouv.vitam.common.model.administration.FileFormatModel;
 import fr.gouv.vitam.common.model.administration.FileRulesModel;
@@ -1320,6 +1321,21 @@ public class AdminExternalClientRest extends DefaultClient implements AdminExter
         try (Response response = make(request)) {
             check(response);
             return RequestResponse.parseFromResponse(response, SchemaResponse.class);
+        }
+    }
+
+    @Override
+    public RequestResponse<CombinedSchemaModel> getArchiveUnitProfileSchema(
+        VitamContext vitamContext,
+        String archiveUnitId
+    ) throws VitamClientException {
+        VitamRequestBuilder request = get()
+            .withPath(AccessExtAPI.ARCHIVE_UNIT_PROFILE_SCHEMA.replace("{id}", archiveUnitId))
+            .withHeaders(vitamContext.getHeaders())
+            .withJson();
+        try (Response response = make(request)) {
+            check(response);
+            return RequestResponse.parseFromResponse(response, CombinedSchemaModel.class);
         }
     }
 

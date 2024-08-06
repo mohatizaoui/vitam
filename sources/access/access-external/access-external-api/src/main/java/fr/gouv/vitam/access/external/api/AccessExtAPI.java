@@ -287,6 +287,7 @@ public class AccessExtAPI {
     public static final String COMPUTEDINHERITEDRULES = "computedInheritedRules";
 
     public static final String UNIT_SCHEMA = "/schema/unit";
+    public static final String ARCHIVE_UNIT_PROFILE_SCHEMA = "/archiveunitprofiles/{id}/schema";
 
     public static final String OBJECTGROUP_SCHEMA = "/schema/objectgroup";
 

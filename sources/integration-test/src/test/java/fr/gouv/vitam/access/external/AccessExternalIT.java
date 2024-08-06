@@ -26,6 +26,7 @@
  */
 package fr.gouv.vitam.access.external;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Sets;
@@ -34,6 +35,7 @@ import fr.gouv.vitam.access.external.client.AccessExternalClientFactory;
 import fr.gouv.vitam.access.external.client.AdminExternalClient;
 import fr.gouv.vitam.access.external.client.AdminExternalClientFactory;
 import fr.gouv.vitam.access.external.client.VitamPoolingClient;
+import fr.gouv.vitam.access.external.common.exception.AccessExternalClientException;
 import fr.gouv.vitam.access.external.rest.AccessExternalMain;
 import fr.gouv.vitam.access.internal.rest.AccessInternalMain;
 import fr.gouv.vitam.common.DataLoader;
@@ -59,6 +61,7 @@ import fr.gouv.vitam.common.model.ProcessAction;
 import fr.gouv.vitam.common.model.ProcessState;
 import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
+import fr.gouv.vitam.common.model.administration.CombinedSchemaModel;
 import fr.gouv.vitam.common.model.administration.schema.SchemaCardinality;
 import fr.gouv.vitam.common.model.administration.schema.SchemaOrigin;
 import fr.gouv.vitam.common.model.administration.schema.SchemaResponse;
@@ -81,6 +84,8 @@ import fr.gouv.vitam.metadata.rest.MetadataMain;
 import fr.gouv.vitam.processing.management.rest.ProcessManagementMain;
 import fr.gouv.vitam.worker.server.rest.WorkerMain;
 import fr.gouv.vitam.workspace.rest.WorkspaceMain;
+import net.javacrumbs.jsonunit.JsonAssert;
+import net.javacrumbs.jsonunit.core.Option;
 import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -126,6 +131,9 @@ public class AccessExternalIT extends VitamRuleRunner {
 
     private static final String UNITS_RESOURCE_FILE = "access/units.json";
     private static final String GOT_RESOURCE_FILE = "database/got.json";
+    private static final String AUP_FILE = "integration-ingest-internal/archive-unit-profile_with_control.json";
+
+    private static final String AUP_SCHEMA_FILE = "integration-ingest-internal/archive-unit-profile_schema.json";
     private static final String INTEGRATION_PROCESSING_FULL_SEDA = "integration-processing/OK_SIP_FULL_SEDA2.3.zip";
     private static final String EXTERNAL_UNIT_SCHEMA_JSON = "schema/external-unit-schema.json";
 
@@ -948,5 +956,41 @@ public class AccessExternalIT extends VitamRuleRunner {
         assertThat(persistentIdentifierContentElt.getSedaVersions().contains("2.2"));
         assertThat(persistentIdentifierContentElt.getSedaVersions().contains("2.3"));
         assertThat(!persistentIdentifierContentElt.getSedaVersions().contains("2.1"));
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void shouldCreateRootLeafSchema()
+        throws FileNotFoundException, AccessExternalClientException, InvalidParseOperationException, JsonProcessingException {
+        VitamContext vitamContext = new VitamContext(TENANT_ID)
+            .setApplicationSessionId(APPLICATION_SESSION_ID)
+            .setAccessContract(ACCESS_CONTRACT);
+
+        try (final AdminExternalClient client = AdminExternalClientFactory.getInstance().getClient()) {
+            final VitamContext context = new VitamContext(TENANT_ID)
+                .setApplicationSessionId("ApplicationSessionId")
+                .setAccessContract("contract");
+
+            JsonNode profilesJsonNode = JsonHandler.getFromFile(PropertiesUtils.getResourceFile(AUP_FILE));
+
+            client.createArchiveUnitProfile(vitamContext, JsonHandler.writeToInpustream(profilesJsonNode));
+
+            final RequestResponse<CombinedSchemaModel> archiveUnitProfileSchema = client.getArchiveUnitProfileSchema(
+                context,
+                "AUP-000002"
+            );
+
+            final JsonNode expectedArchiveUnitSchema = JsonHandler.getFromFile(
+                PropertiesUtils.getResourceFile(AUP_SCHEMA_FILE)
+            );
+
+            JsonAssert.assertJsonEquals(
+                JsonHandler.toJsonNode(archiveUnitProfileSchema).get("$results"),
+                expectedArchiveUnitSchema,
+                JsonAssert.when(Option.IGNORING_ARRAY_ORDER)
+            );
+        } catch (VitamClientException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

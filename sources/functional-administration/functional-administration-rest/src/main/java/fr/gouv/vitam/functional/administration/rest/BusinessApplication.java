@@ -45,6 +45,7 @@ import fr.gouv.vitam.functional.administration.common.server.FunctionalAdminColl
 import fr.gouv.vitam.functional.administration.common.server.MongoDbAccessAdminImpl;
 import fr.gouv.vitam.functional.administration.core.agencies.AgenciesService;
 import fr.gouv.vitam.functional.administration.core.archiveunitprofiles.ArchiveUnitProfileServiceImpl;
+import fr.gouv.vitam.functional.administration.core.archiveunitprofilesSchema.ArchiveUnitProfileSchemaServiceImpl;
 import fr.gouv.vitam.functional.administration.core.backup.FunctionalBackupService;
 import fr.gouv.vitam.functional.administration.core.context.ContextService;
 import fr.gouv.vitam.functional.administration.core.context.ContextServiceImpl;
@@ -169,10 +170,14 @@ public class BusinessApplication extends Application {
                 functionalBackupService
             );
 
+            final ArchiveUnitProfileSchemaServiceImpl archiveUnitProfileSchemaService =
+                new ArchiveUnitProfileSchemaServiceImpl(archiveUnitProfileService, schemaService);
+
             final VitamRepositoryProvider vitamRepositoryProvider = VitamRepositoryFactory.get();
 
             singletons.add(resource);
             singletons.add(new ArchiveUnitProfileResource(archiveUnitProfileService));
+            singletons.add(new ArchiveUnitProfileSchemaResource(archiveUnitProfileSchemaService));
             singletons.add(new OntologyResource(ontologyService));
             singletons.add(new ContractResource(mongoDbAccess, vitamCounterService));
             singletons.add(new ContextResource(contextService));

@@ -54,6 +54,7 @@ import fr.gouv.vitam.common.model.administration.AccessionRegisterSummaryModel;
 import fr.gouv.vitam.common.model.administration.AccessionRegisterSymbolicModel;
 import fr.gouv.vitam.common.model.administration.AgenciesModel;
 import fr.gouv.vitam.common.model.administration.ArchiveUnitProfileModel;
+import fr.gouv.vitam.common.model.administration.CombinedSchemaModel;
 import fr.gouv.vitam.common.model.administration.ContextModel;
 import fr.gouv.vitam.common.model.administration.FileFormatModel;
 import fr.gouv.vitam.common.model.administration.FileRulesModel;
@@ -632,6 +633,12 @@ public class AdminExternalClientMock extends AbstractMockClient implements Admin
 
     @Override
     public RequestResponse<SchemaResponse> getUnitSchema(VitamContext vitamContext) throws VitamClientException {
+        throw new IllegalStateException("Stop using mocks in production");
+    }
+
+    @Override
+    public RequestResponse<CombinedSchemaModel> getArchiveUnitProfileSchema(VitamContext vitamContext, String id)
+        throws VitamClientException {
         throw new IllegalStateException("Stop using mocks in production");
     }
 
