@@ -34,7 +34,9 @@ import fr.gouv.vitam.common.exception.ExportException;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class PathGenerator {
 
@@ -53,8 +55,12 @@ public class PathGenerator {
         checkForMultipleParents(units);
 
         String childId = linkedUnits.get(0);
-        String rootId = findRoot(multimap, childId);
-        return buildPath(units, multimap, rootId, childId, existingDirectoryNames);
+        Map<String, JsonNode> unitMap = units
+            .stream()
+            .collect(Collectors.toMap(node -> node.get(VitamFieldsHelper.id()).asText(), node -> node));
+
+        String rootId = findRoot(unitMap, multimap, childId);
+        return buildPath(unitMap, multimap, rootId, childId, existingDirectoryNames);
     }
 
     private static void checkForMultipleParents(List<JsonNode> units) throws ExportException {
@@ -72,16 +78,13 @@ public class PathGenerator {
     }
 
     private static String buildPath(
-        List<JsonNode> units,
+        Map<String, JsonNode> units,
         ListMultimap<String, String> multimap,
         String currentId,
         String targetId,
         Set<String> existingDirectoryNames
-    ) throws ExportException {
-        JsonNode unit = findUnitById(units, currentId);
-        if (unit == null) {
-            throw new ExportException("Unit not found for ID: " + currentId);
-        }
+    ) {
+        JsonNode unit = units.get(currentId);
 
         String title = unit.get(UNIT_TITLE).asText();
         String directoryName = buildDirectoryName(title, unit, existingDirectoryNames);
@@ -101,23 +104,16 @@ public class PathGenerator {
         return null;
     }
 
-    private static String findRoot(ListMultimap<String, String> multimap, String childId) {
+    private static String findRoot(Map<String, JsonNode> units, ListMultimap<String, String> multimap, String childId) {
         for (String key : multimap.keySet()) {
-            List<String> children = multimap.get(key);
-            if (children.contains(childId)) {
-                return findRoot(multimap, key);
+            if (units.get(key) != null) {
+                List<String> children = multimap.get(key);
+                if (children.contains(childId)) {
+                    return findRoot(units, multimap, key);
+                }
             }
         }
         return childId;
-    }
-
-    private static JsonNode findUnitById(List<JsonNode> units, String unitId) {
-        for (JsonNode unit : units) {
-            if (unit.get(VitamFieldsHelper.id()).asText().equals(unitId)) {
-                return unit;
-            }
-        }
-        return null;
     }
 
     private static String buildDirectoryName(String title, JsonNode unit, Set<String> existingDirectoryNames) {
