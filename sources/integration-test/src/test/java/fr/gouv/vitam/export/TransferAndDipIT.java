@@ -121,6 +121,7 @@ import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -647,8 +648,31 @@ public class TransferAndDipIT extends VitamRuleRunner {
         // As FormatIdentifierMock is used, pdf is identified as Plain Text File => WARNING
         verifyOperation(ingestOpId, OK);
 
+        final String ingestOpId1 = VitamTestHelper.doIngest(TENANT_ID, SIP_OK_2_2);
+        // As FormatIdentifierMock is used, pdf is identified as Plain Text File => WARNING
+        verifyOperation(ingestOpId1, WARNING);
+
+        List<String> ids;
+
+        try (AccessInternalClient client = AccessInternalClientFactory.getInstance().getClient()) {
+            SelectMultiQuery selectUnit = new SelectMultiQuery();
+            selectUnit.addQueries(QueryHelper.eq(VitamFieldsHelper.initialOperation(), ingestOpId));
+
+            JsonNode results = client.selectUnits(selectUnit.getFinalSelect()).toJsonNode().get("$results");
+            ids = new ArrayList<>();
+            for (JsonNode result : results) {
+                ids.add(result.get(VitamFieldsHelper.id()).asText());
+            }
+
+            selectUnit = new SelectMultiQuery();
+            selectUnit.setQuery(QueryHelper.in(VitamFieldsHelper.operations(), ingestOpId1));
+            results = client.selectUnits(selectUnit.getFinalSelect()).toJsonNode().get("$results");
+
+            ids.add(results.get(2).get(VitamFieldsHelper.id()).asText());
+        }
+
         SelectMultiQuery select = new SelectMultiQuery();
-        select.setQuery(QueryHelper.in(VitamFieldsHelper.operations(), ingestOpId));
+        select.setQuery(QueryHelper.in(VitamFieldsHelper.id(), ids.toArray(new String[0])));
 
         ExportRequest exportRequest = new ExportRequest(
             new DataObjectVersions(Collections.singleton(BINARY_MASTER.getName())),
@@ -664,7 +688,6 @@ public class TransferAndDipIT extends VitamRuleRunner {
 
         // When ArchiveDeliveryRequestReply
         String exportOperationId = exportDIP(exportRequest);
-
         // Then
         VitamTestHelper.verifyOperation(exportOperationId, OK);
 
