@@ -27,13 +27,13 @@
 
 - block:
 
-  - name: Import GPG key for Vitam repositories for CentOS
+  - name: Import GPG key for Vitam repositories for RedHat family
     rpm_key:
       state: present
       key: "{{ vitam_gpgkey_file }}"
     when: vitam_gpgcheck_enabled
 
-  - name: create VITAM repositories for CentOS
+  - name: create VITAM repositories for RedHat family
     template:
       src: vitam.repo.j2
       dest: /etc/yum.repos.d/vitam-repositories.repo

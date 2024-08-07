@@ -26,7 +26,7 @@
     yum_repository:
       name: avast
       description: Avast YUM repo
-      baseurl: "{{ avast.repository.baseurl | default('http://rpm.avast.com/lin/repo/dists/rhel/release') }}"
+      baseurl: "{{ avast.repository.baseurl | default('https://repo.avcdn.net/linux-av/rpm/el9/release') }}"
       gpgcheck: "{{ avast.repository.gpgcheck | default('no') }}"
       state: "{{ avast.repository.state | default('present') }}"
       proxy: "{{ avast.repository.proxy | default('_none_') }}"
@@ -47,7 +47,7 @@
   - name: Configure DEB repository for Avast
     apt_repository:
       filename: avast
-      repo: "{{ avast.repository.baseurl | default('deb http://deb.avast.com/lin/repo debian-buster release') }}"
+      repo: "{{ avast.repository.baseurl | default('deb https://repo.avcdn.net/linux-av/deb debian-bookworm release') }}"
       state: "{{ avast.repository.state | default('present') }}"
 
   # Or configure: echo 'APT::Get::AllowUnauthenticated "true";' > /etc/apt/apt.conf.d/99unauthenticated

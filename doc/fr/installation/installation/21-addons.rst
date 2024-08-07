@@ -137,12 +137,12 @@ Si les paramètres ne sont pas définis, les valeurs suivantes sont appliquées 
       manage_repository: true
       repository:
           state: present
-          # For CentOS
-          baseurl: http://rpm.avast.com/lin/repo/dists/rhel/release
+          # For RedHat family
+          baseurl: https://repo.avcdn.net/linux-av/rpm/el9/release
           gpgcheck: no
           proxy: _none_
-          # For Debian
-          baseurl: 'deb http://deb.avast.com/lin/repo debian-buster release'
+          # For Debian family
+          baseurl: 'deb https://repo.avcdn.net/linux-av/deb debian-bookworm release'
       vps_repository: http://linux-av.u.avcdn.net/linux-av/avast/x86_64
       ## List of sha256 hash of excluded files from antivirus. Useful for test environments.
       whitelist:
@@ -622,7 +622,7 @@ Chaque processus est ainsi confiné à un (voire plusieurs) domaine(s), et les f
 
 Les enjeux de la sécurisation SELinux dans le cadre de la solution logicielle :term:`VITAM` sont de garantir que les processus associés aux *griffins* (greffons de préservation) n'auront accès qu'au ressources système strictement requises pour leur fonctionnement et leurs échanges avec les composants *worker*.
 
-.. note:: La solution logicielle :term:`VITAM` ne gère actuellement SELinux que pour le système d'exploitation Centos
+.. note:: La solution logicielle :term:`VITAM` ne gère actuellement SELinux que pour le système d'exploitation AlmaLinux
 
 .. warning:: SELinux n'a pas vocation à remplacer quelque système de sécurité existant, mais vise plutôt à les compléter. Aussi, la mise en place de politiques de sécurité reste de mise et à la charge de l'exploitant. Par ailleurs, l'implémentation SELinux proposée avec la solution logicielle :term:`VITAM` est minimale et limitée au greffon de préservation Siegfried. Cette implémentation pourra si nécessaire être complétée ou améliorée par le projet d'implémentation.
 

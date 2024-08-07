@@ -13,9 +13,9 @@ hosts_vitamui
 
 # EXTRA : Front reverse-proxy (test environments ONLY) ; add machine name after
 [reverse]
-# optional : after machine, if this machine is different from VITAM machines, you can specify another become user
+# optional : if this machine is different from VITAM machines, you can specify another become user
 # Example
-# vitam-centos-01.vitam ansible_ssh_user=centos
+# vm-reverse.vitam ansible_ssh_user=reverse_user
 
 
 [ldap] # Extra : OpenLDAP server

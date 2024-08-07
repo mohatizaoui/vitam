@@ -60,18 +60,16 @@ Le projet se compose des sous-dossiers suivants :
 * ``dev-deployment`` : environnement Docker de développement ;
 * ``packaging`` : constitution d'un package standalone de la solution logicielle.
 
-
 Build
 =====
 
-.. tip:: Les conteneurs docker présents (CentOS et Debian) dans le dossier ``dev-deployment`` contient les dépendances permettant de construire une version du logiciel (à l'exception de la documentation) ; son usage est abordé dans le paragraphe dédié du déploiement sur un poste de développement.
+.. tip:: Les conteneurs docker présents (AlmaLinux et Debian) dans le dossier ``dev-deployment`` contient les dépendances permettant de construire une version du logiciel (à l'exception de la documentation) ; son usage est abordé dans le paragraphe dédié du déploiement sur un poste de développement.
 
 .. caution:: Pour construire VITAM au sein d'un environnement public, il est nécessaire de désactiver le profile maven ``vitam`` (activé par défaut) (Cf. `la documentation maven <https://maven.apache.org/guides/introduction/introduction-to-profiles.html#Deactivating_a_profile>`_).
 
 .. caution:: Pour *builder* la solution logicielle VITAM, il est nécessaire, au préalable, de *builder* elasticsearch-metrics-reporter-java (version 2.3.0-VITAM https://github.com/ProgrammeVitam/elasticsearch-metrics-reporter-java/tree/2.3.0-VITAM).
 
 Toutes les instructions suivantes s'exécutent dans le répertoire racine de ce dépôt.
-
 
 Composants Java
 ---------------
@@ -81,7 +79,7 @@ Les composants Java sont présents dans le répertoire ``sources``.
 Pré-requis
 **********
 
-* jdk 11
+* jdk 17
 * maven (version 3.6.3 minimale)
 * rpm-build
 
@@ -125,30 +123,29 @@ Pour exécuter uniquement les tests d'intégration:
 
     mvn clean test-compile failsafe:integration-test -f sources/pom.xml -P-vitam
 
-
 Packages externes
 -----------------
 
 Les packages issus de composants externes sont présents dans le répertoire :
 
-* ``rpm``, si déploiement CentOS
-* ``deb``, si déploiement Debian
+* ``rpm``, si déploiement RedHat family (AlmaLinux)
+* ``deb``, si déploiement Debian family
 
 Pré-requis
 **********
 
-* rpm-build et rpmdevtools (pour CentOS)
+* rpm-build et rpmdevtools (pour AlmaLinux)
 * dpkg-scanpackages (pour Debian)
 * golang (>= 1.6)
 * npm
 
-.. note:: Pour les packages rpm, la seule plate-forme de compilation possible est CentOS 7 (en raison de la dépendance vers les rpmdevtools).
+.. note:: Pour les packages rpm, la seule plate-forme de compilation possible est AlmaLinux 9 (en raison de la dépendance vers les rpmdevtools).
 
 Instructions
 ************
 
-CentOS
-------
+AlmaLinux
+---------
 
 Pour construire les packages rpm dédiés :
 
@@ -177,7 +174,6 @@ Pour construire le cache des packages externes :
 
     ./deb/vitam-external/build_repo.sh
 
-
 Documentation
 -------------
 
@@ -186,7 +182,7 @@ La documentation est présente dans le répertoire ``doc``.
 Pré-requis
 **********
 
-* jdk 11
+* jdk 17
 * maven (version 3.6.3 minimale)
 * rpm-build
 * sphinx-build (ainsi que le thème rtd)
@@ -218,7 +214,6 @@ Deploiement sur poste de développement
 
 2 méthodes existent pour déployer vitam sur un poste de développement.
 
-
 Alternative 1 : docker
 ----------------------
 
@@ -244,7 +239,6 @@ Procédure
 * A l'issue de l'étape suivante, se positionner dans ``/code/deployment`` ;
 * Suivre les indications du ``README.rst`` présent dans ce répertoire, en utilisant l'inventaire ``hosts.local``. Les composants sont déployés dans le conteneur ; les ports d'écoute des composants sont mappés à l'extérieur du conteneur, sur les mêmes ports.
 
-
 Alternative 2 : manuelle (virtualisation)
 -----------------------------------------
 
@@ -256,7 +250,7 @@ Pré-requis
 Système hôte
 ++++++++++++
 
-* Virtualbox ou équivalent, avec une machine virtuelle Centos 7 (7.3 conseillé) installée et configurée (SELinux en mode 'disabled') ; le répertoire contenant le dépôt git vitam doit être mappé sur un répertoire à l'intérieur de la VM (par la suite, on considérera que le point de montage dans la VM est ``/code``).
+* Virtualbox ou équivalent, avec une machine virtuelle (AlmaLinux 9 ou Debian 12) installée et configurée (SELinux en mode 'disabled') ; le répertoire contenant le dépôt git vitam doit être mappé sur un répertoire à l'intérieur de la VM (par la suite, on considérera que le point de montage dans la VM est ``/code``).
 * Répertoire contenant un clone du dépôt git ``vitam/vitam``
 * Pouvoir builder VITAM sur le poste local (Cf. paragraphe "Build")
 
@@ -286,7 +280,6 @@ Sur le poste de développement :
 
 * Exécuter la compilation des sources et la construction de tous les paquets RPM, tel que défini dans les instructions de build présentes plus haut dans cette page.
 
-
 Dans la VM :
 
 * Se connecter en root dans /code
@@ -310,7 +303,7 @@ Dans la VM :
 
     dpkg-scanpackages -m. |gzip -9c > Packages.gz
 
-* Nettoyer le cache yum (CentOS) pour prendre en compte les modifications de dépôt :
+* Nettoyer le cache yum (AlmaLinux) pour prendre en compte les modifications de dépôt :
 
 .. code-block:: bash
 
@@ -322,7 +315,7 @@ Dans la VM :
 
     apt-get clean
 
-* Puis valider la liste des rpm présents dans le dépôt local, en CentOS :
+* Puis valider la liste des rpm présents dans le dépôt local, en RPM :
 
 .. code-block:: bash
 
@@ -331,5 +324,3 @@ Dans la VM :
 * Enfin, se positionner dans le répertoire ``deployment`` et suivre les indications du README.rst présent dans ce répertoire.
 
 L'accès aux composants une fois démarrés dépend de la nature de la connexion réseau présentée par la VM (bridge, NAT ou host).
-
-

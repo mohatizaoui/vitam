@@ -128,7 +128,7 @@
   tags:
     - update_vitam_configuration
 
-- name: Set Centos systemd directory
+- name: Set RedHat systemd directory
   set_fact:
     systemd_directory: "/usr/lib/systemd/system"
   when: ansible_os_family == "RedHat"
