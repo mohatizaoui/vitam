@@ -227,7 +227,7 @@ public class DbRequestSingle {
         if (vitamCollection.getEsClient() == null) {
             return;
         }
-        this.vitamCollection.getEsClient().indexEntries(this.elasticsearchIndexAlias, vitamDocumentList);
+        this.vitamCollection.getEsClient().indexEntries(this.elasticsearchIndexAlias, vitamDocumentList, true);
     }
 
     /**

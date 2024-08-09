@@ -38,10 +38,14 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.mongodb.BasicDBObject;
 import com.mongodb.MongoException;
+import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.BulkWriteOptions;
+import com.mongodb.client.model.ReplaceOneModel;
+import com.mongodb.client.model.WriteModel;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import fr.gouv.vitam.common.LocalDateUtil;
@@ -66,7 +70,6 @@ import fr.gouv.vitam.common.database.parser.request.multiple.RequestParserMultip
 import fr.gouv.vitam.common.database.parser.request.multiple.UpdateParserMultiple;
 import fr.gouv.vitam.common.database.server.MongoDbInMemory;
 import fr.gouv.vitam.common.database.server.RuleUpdateException;
-import fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil;
 import fr.gouv.vitam.common.database.server.mongodb.VitamDocument;
 import fr.gouv.vitam.common.database.translators.RequestToAbstract;
 import fr.gouv.vitam.common.database.translators.elasticsearch.QueryToElasticsearch;
@@ -97,15 +100,18 @@ import fr.gouv.vitam.metadata.api.exception.MetaDataAlreadyExistException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataExecutionException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataNotFoundException;
 import fr.gouv.vitam.metadata.core.graph.GraphLoader;
+import fr.gouv.vitam.metadata.core.model.RequestById;
 import fr.gouv.vitam.metadata.core.model.UpdatedDocument;
 import fr.gouv.vitam.metadata.core.trigger.FieldHistoryManager;
 import fr.gouv.vitam.metadata.core.validation.MetadataValidationErrorCode;
 import fr.gouv.vitam.metadata.core.validation.MetadataValidationException;
 import fr.gouv.vitam.metadata.core.validation.OntologyValidator;
 import fr.gouv.vitam.metadata.core.validation.UnitValidator;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.bson.conversions.Bson;
 
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -118,6 +124,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.mongodb.client.model.Accumulators.addToSet;
@@ -131,6 +139,9 @@ import static fr.gouv.vitam.common.database.builder.query.action.UpdateActionHel
 import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.boolMust;
 import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.rangeInclusiveQuery;
 import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.termsQuery;
+import static fr.gouv.vitam.common.database.server.mongodb.VitamDocument.ID;
+import static fr.gouv.vitam.common.database.server.mongodb.VitamDocument.TENANT_ID;
+import static fr.gouv.vitam.metadata.core.database.collections.MetadataDocument.OPS;
 
 /**
  * DB Request using MongoDB only
@@ -141,6 +152,10 @@ public class DbRequest {
 
     private static final JsonPointer JSON_POINTER_TO_OPS = JsonPointer.compile("/$push/_ops/0");
 
+    /**
+     * Quick projection for ID Only
+     */
+    private static final BasicDBObject ID_PROJECTION = new BasicDBObject(ID, 1);
     private static final String HISTORY_TRIGGER_NAME = "history-triggers.json";
     private static final String QUERY2 = "query: ";
     private static final String WHERE_PREVIOUS_RESULT_WAS = "where_previous_result_was: ";
@@ -153,6 +168,8 @@ public class DbRequest {
     private static final String DEPTH_ARRAY = "deptharray";
     private static final String CONSISTENCY_ERROR_THE_DOCUMENT_GUID_S_IN_ES_IS_NOT_IN_MONGO_DB_ANYMORE_TENANT_S_REQUEST_ID_S =
         "[Consistency Error] : The document guid=%s in ES is not in MongoDB anymore, tenant : %s, requestId : %s";
+    private static final long DEFAULT_WAITING_TIME_RETRY_MS = 10_000L;
+    private static final int DEFAULT_RETRIES_COUNT = 3;
 
     private final MongoDbMetadataRepository<Unit> mongoDbUnitRepository;
     private final MongoDbMetadataRepository<ObjectGroup> mongoDbObjectGroupRepository;
@@ -202,12 +219,7 @@ public class DbRequest {
 
             MongoCollection<MetadataDocument<?>> collection = metadataCollections.getCollection();
             MetadataDocument<?> document = collection
-                .find(
-                    and(
-                        eq(MetadataDocument.ID, documentId),
-                        eq(MetadataDocument.TENANT_ID, VitamThreadUtils.getVitamSession().getTenantId())
-                    )
-                )
+                .find(and(eq(ID, documentId), eq(TENANT_ID, VitamThreadUtils.getVitamSession().getTenantId())))
                 .first();
             if (document == null) {
                 throw new MetaDataNotFoundException("Document not found by id " + documentId);
@@ -263,14 +275,14 @@ public class DbRequest {
             final Bson condition;
             if (atomicVersion == null) {
                 condition = and(
-                    eq(MetadataDocument.ID, documentId),
-                    eq(MetadataDocument.TENANT_ID, VitamThreadUtils.getVitamSession().getTenantId()),
+                    eq(ID, documentId),
+                    eq(TENANT_ID, VitamThreadUtils.getVitamSession().getTenantId()),
                     exists(MetadataDocument.ATOMIC_VERSION, false)
                 );
             } else {
                 condition = and(
-                    eq(MetadataDocument.ID, documentId),
-                    eq(MetadataDocument.TENANT_ID, VitamThreadUtils.getVitamSession().getTenantId()),
+                    eq(ID, documentId),
+                    eq(TENANT_ID, VitamThreadUtils.getVitamSession().getTenantId()),
                     eq(MetadataDocument.ATOMIC_VERSION, atomicVersion)
                 );
             }
@@ -430,27 +442,68 @@ public class DbRequest {
         return result;
     }
 
-    public UpdatedDocument execUpdateRequest(
-        final RequestParserMultiple requestParser,
-        String documentId,
+    public List<UpdatedDocument> execUpdateRequest(
+        List<RequestById> bulkRequests,
         MetadataCollections metadataCollection,
         OntologyValidator ontologyValidator,
         UnitValidator unitValidator,
         List<OntologyModel> ontologyModels,
-        boolean forceUpdate
-    )
-        throws MetaDataExecutionException, InvalidParseOperationException, MetaDataNotFoundException, MetadataValidationException {
-        final UpdatedDocument result = updateDocumentWithRetries(
-            documentId,
-            requestParser,
-            metadataCollection,
-            ontologyValidator,
-            unitValidator,
-            ontologyModels,
-            forceUpdate
+        boolean forceUpdate,
+        boolean refreshElasticIndexPostBulkIndexing
+    ) throws MetaDataExecutionException, InvalidParseOperationException, MetaDataNotFoundException {
+        if (CollectionUtils.isEmpty(bulkRequests)) {
+            return Collections.emptyList();
+        }
+        AtomicInteger index = new AtomicInteger(0);
+        bulkRequests.forEach(requestById -> requestById.setIndex(index.getAndIncrement()));
+
+        //Prepare the sorted list with the right size to prevent shifting elements cost
+        List<UpdatedDocument> sortedResults = new ArrayList<>(Collections.nCopies(bulkRequests.size(), null));
+
+        List<RequestById> remainElementsList = new ArrayList<>(bulkRequests);
+        List<RequestById> bulkRequestsFiltered;
+
+        do {
+            List<RequestById> duplicateElementsList = new ArrayList<>();
+            //A map to preserve the index of each query by document Id, we are sure not have duplicate document id here
+            Map<String, Integer> queriesIndexByDocumentId = new HashMap<>();
+            Set<String> seenIdentifiers = new HashSet<>();
+            bulkRequestsFiltered = new ArrayList<>();
+
+            for (RequestById requestById : remainElementsList) {
+                if (seenIdentifiers.add(requestById.getDocumentId())) {
+                    bulkRequestsFiltered.add(requestById);
+                    queriesIndexByDocumentId.put(requestById.getDocumentId(), requestById.getIndex());
+                } else {
+                    duplicateElementsList.add(requestById);
+                }
+            }
+            LOGGER.debug(
+                "handling a list of elements containings : " +
+                String.join(",", bulkRequestsFiltered.stream().map(elt -> elt.getDocumentId()).toList())
+            );
+            final List<UpdatedDocument> partialResults = updateDocumentWithRetries(
+                bulkRequestsFiltered,
+                metadataCollection,
+                ontologyValidator,
+                unitValidator,
+                ontologyModels,
+                forceUpdate,
+                refreshElasticIndexPostBulkIndexing
+            );
+
+            for (UpdatedDocument resultElt : partialResults) {
+                if (queriesIndexByDocumentId.containsKey(resultElt.getDocumentId())) {
+                    sortedResults.set(queriesIndexByDocumentId.get(resultElt.getDocumentId()), resultElt);
+                }
+            }
+            remainElementsList = duplicateElementsList;
+        } while (CollectionUtils.isNotEmpty(remainElementsList));
+        LOGGER.info(
+            "handling " + String.join(",", bulkRequestsFiltered.stream().map(elt -> elt.getDocumentId()).toList())
         );
-        LOGGER.debug("Results: {}", result);
-        return result;
+
+        return sortedResults;
     }
 
     /**
@@ -773,9 +826,9 @@ public class DbRequest {
 
         if (previous.getCurrentIds().isEmpty()) {
             if (relativeDepth < 1) {
-                query.filter(ElasticsearchUtil.rangeInclusiveQuery(Unit.MAXDEPTH, 0, 1));
+                query.filter(rangeInclusiveQuery(Unit.MAXDEPTH, 0, 1));
             } else {
-                query.filter(ElasticsearchUtil.rangeInclusiveQuery(Unit.MAXDEPTH, 0, relativeDepth + 1));
+                query.filter(rangeInclusiveQuery(Unit.MAXDEPTH, 0, relativeDepth + 1));
             }
         } else {
             if (relativeDepth == 1) {
@@ -787,7 +840,7 @@ public class DbRequest {
                 // Relative parent: previous has future result in their _up
                 // so future result ids are in previous UNITDEPTHS
                 final Set<String> fathers = aggregateUnitDepths(previous.getCurrentIds(), relativeDepth);
-                roots = QueryToElasticsearch.getRoots(MetadataDocument.ID, fathers);
+                roots = QueryToElasticsearch.getRoots(ID, fathers);
                 query.filter(roots);
             }
         }
@@ -822,10 +875,10 @@ public class DbRequest {
      */
     protected Set<String> aggregateUnitDepths(Collection<String> ids, int relativeDepth) {
         // Select all items from ids
-        final Bson match = match(in(MetadataDocument.ID, ids));
+        final Bson match = match(in(ID, ids));
         // aggregate all UNITDEPTH in one (ignoring depth value)
         final Bson group = group(
-            new BasicDBObject(MetadataDocument.ID, "all"),
+            new BasicDBObject(ID, "all"),
             addToSet(DEPTH_ARRAY, BuilderToken.DEFAULT_PREFIX + Unit.UNITDEPTHS)
         );
         if (LOGGER.isDebugEnabled()) {
@@ -899,7 +952,7 @@ public class DbRequest {
             finalQuery = query;
         } else {
             final co.elastic.clients.elasticsearch._types.query_dsl.Query roots = QueryToElasticsearch.getRoots(
-                MetadataDocument.ID,
+                ID,
                 previous.getCurrentIds()
             );
             finalQuery = boolMust(query, roots);
@@ -963,7 +1016,7 @@ public class DbRequest {
             if (FILTERARGS.UNITS.equals(previous.getType())) {
                 roots = QueryToElasticsearch.getRoots(MetadataDocument.UP, previous.getCurrentIds());
             } else {
-                roots = QueryToElasticsearch.getRoots(MetadataDocument.ID, previous.getCurrentIds());
+                roots = QueryToElasticsearch.getRoots(ID, previous.getCurrentIds());
             }
             finalQuery = boolMust(query, roots);
         }
@@ -997,7 +1050,7 @@ public class DbRequest {
         Result<MetadataDocument<?>> last,
         boolean checkConsistency
     ) throws InvalidParseOperationException, VitamDBException {
-        final Bson roots = QueryToMongodb.getRoots(MetadataDocument.ID, last.getCurrentIds());
+        final Bson roots = QueryToMongodb.getRoots(ID, last.getCurrentIds());
         final Bson projection = requestToMongodb.getFinalProjection();
         final boolean isIdIncluded = requestToMongodb.idWasInProjection();
         final FILTERARGS model = requestToMongodb.model();
@@ -1042,7 +1095,7 @@ public class DbRequest {
                         unit.append(VitamDocument.SCORE, score);
                     }
                     if (!isIdIncluded) {
-                        unit.remove(VitamDocument.ID);
+                        unit.remove(ID);
                     }
                     last.addFinal(unit);
                 } else if (checkConsistency) {
@@ -1115,7 +1168,7 @@ public class DbRequest {
                     og.append(VitamDocument.SCORE, score);
                 }
                 if (!isIdIncluded) {
-                    og.remove(VitamDocument.ID);
+                    og.remove(ID);
                 }
                 last.addFinal(og);
             } else if (checkConsistency) {
@@ -1149,108 +1202,479 @@ public class DbRequest {
         return last;
     }
 
-    private UpdatedDocument updateDocumentWithRetries(
-        String documentId,
-        RequestParserMultiple requestParser,
+    private List<UpdatedDocument> updateDocumentWithRetries(
+        final List<RequestById> bulkRequests,
         MetadataCollections metadataCollection,
         OntologyValidator ontologyValidator,
         UnitValidator unitValidator,
         List<OntologyModel> ontologyModels,
-        boolean forceUpdate
-    )
-        throws InvalidParseOperationException, MetaDataExecutionException, MetaDataNotFoundException, MetadataValidationException {
+        boolean forceUpdate,
+        boolean refreshElasticIndexPostBulkIndexing
+    ) throws InvalidParseOperationException, MetaDataExecutionException, MetaDataNotFoundException {
         final Integer tenantId = ParameterHelper.getTenantParameter();
+        if (CollectionUtils.isEmpty(bulkRequests)) {
+            return Collections.emptyList();
+        }
+        DynamicParserTokens parserTokens = new DynamicParserTokens(
+            metadataCollection.getVitamDescriptionResolver(),
+            ontologyModels
+        );
 
-        int tries = 0;
-        while (tries < 3) {
-            MongoCollection<MetadataDocument<?>> collection = metadataCollection.getCollection();
+        Map<String, UpdatedDocument> updateDocumentResults = new HashMap<>();
 
-            MetadataDocument<?> document = collection
-                .find(
-                    and(
-                        eq(MetadataDocument.ID, documentId),
-                        eq(MetadataDocument.TENANT_ID, VitamThreadUtils.getVitamSession().getTenantId())
-                    )
-                )
-                .first();
-
-            if (document == null) {
-                throw new MetaDataNotFoundException("Document not found by id " + documentId);
-            }
-
-            final Integer documentVersion = document.getVersion();
-
-            final JsonNode jsonDocument = JsonHandler.toJsonNode(document);
-            if (noChangesAndOpsAlreadyContainingOperation(requestParser, document)) {
-                return new UpdatedDocument(documentId, jsonDocument, jsonDocument, true);
-            }
-
-            DynamicParserTokens parserTokens = new DynamicParserTokens(
-                metadataCollection.getVitamDescriptionResolver(),
-                ontologyModels
-            );
-            final MongoDbInMemory mongoInMemory = new MongoDbInMemory(jsonDocument, parserTokens);
-            final ObjectNode updatedJsonDocument = (ObjectNode) mongoInMemory.getUpdateJson(requestParser);
-
-            if (metadataCollection == MetadataCollections.UNIT) {
-                fieldHistoryManager.trigger(jsonDocument, updatedJsonDocument);
-            }
-
-            int newDocumentVersion = incrementDocumentVersionIfRequired(
-                metadataCollection,
-                mongoInMemory,
-                documentVersion
-            );
-            updatedJsonDocument.put(VitamDocument.VERSION, newDocumentVersion);
-
-            Integer atomicVersion = document.getAtomicVersion();
-            int newAtomicVersion = atomicVersion == null ? newDocumentVersion : atomicVersion + 1;
-            updatedJsonDocument.put(MetadataDocument.ATOMIC_VERSION, newAtomicVersion);
-
-            // Ontology checks & format transformation
-            final ObjectNode transformedUpdatedDocument = ontologyValidator.verifyAndReplaceFields(updatedJsonDocument);
-
-            if (newDocumentVersion != documentVersion) {
-                transformedUpdatedDocument.put(MetadataDocument.APPROXIMATE_UPDATE_DATE, LocalDateUtil.nowFormatted());
-            }
-
-            if (metadataCollection == MetadataCollections.UNIT) {
-                if (
-                    !forceUpdate && !hasModificationOfUnitDescriptiveMetadata(jsonDocument, transformedUpdatedDocument)
-                ) {
-                    return new UpdatedDocument(documentId, jsonDocument, jsonDocument, false);
-                }
-                // Unit validation
-                unitValidator.validateUnit(transformedUpdatedDocument);
-            }
-
-            // Make Update
-            final Bson condition;
-            if (atomicVersion == null) {
-                condition = and(eq(MetadataDocument.ID, documentId), exists(MetadataDocument.ATOMIC_VERSION, false));
-            } else {
-                condition = and(
-                    eq(MetadataDocument.ID, documentId),
-                    eq(MetadataDocument.ATOMIC_VERSION, atomicVersion)
-                );
-            }
-            LOGGER.debug("DEBUG update {}", transformedUpdatedDocument);
-            MetadataDocument<?> finalDocument = (MetadataDocument<?>) document.newInstance(transformedUpdatedDocument);
-
-            UpdateResult result = collection.replaceOne(condition, finalDocument);
-            if (result.getModifiedCount() == 1) {
-                if (metadataCollection == MetadataCollections.UNIT) {
-                    indexFieldsUpdated(finalDocument, tenantId);
-                } else {
-                    indexFieldsOGUpdated(finalDocument, tenantId);
-                }
-
-                return new UpdatedDocument(documentId, jsonDocument, transformedUpdatedDocument, true);
-            }
-            tries++;
+        final Set<String> seen = new HashSet<>();
+        final Set<String> duplicates = bulkRequests
+            .stream()
+            .map(RequestById::getDocumentId)
+            .filter(val -> !seen.add(val))
+            .collect(Collectors.toSet());
+        if (CollectionUtils.isNotEmpty(duplicates)) {
+            throw new InvalidParseOperationException("Duplicate document Id found: " + String.join(",", duplicates));
         }
 
-        throw new MetaDataExecutionException("Can not modify document " + documentId);
+        Set<RequestById> remainRequests = new HashSet<>(bulkRequests);
+        int tries = 0;
+        boolean retryMore;
+
+        Map<String, UpdatedDocument> failedUpdateDocuments = new HashMap<>();
+        do {
+            Set<String> documentIds = remainRequests
+                .stream()
+                .map(RequestById::getDocumentId)
+                .collect(Collectors.toSet());
+
+            List<MetadataDocument> dbDocuments = loadDocumentsFromDb(documentIds, metadataCollection);
+
+            Map<String, MetadataDocument> dbDocumentsById = dbDocuments
+                .stream()
+                .collect(Collectors.toMap(MetadataDocument::getId, Function.identity()));
+
+            Set<String> alreadyUpdatedDocumentIdsByCurrentProcess = retrieveDocumentIdsAlreadyUpdatedByCurrentProcess(
+                remainRequests,
+                dbDocumentsById,
+                updateDocumentResults
+            );
+
+            Set<RequestById> requestsByIdToApplyOnMongoDb = remainRequests
+                .stream()
+                .filter(requestById -> !alreadyUpdatedDocumentIdsByCurrentProcess.contains(requestById.getDocumentId()))
+                .collect(Collectors.toSet());
+
+            Map<String, ObjectNode> transformedDocumentsToUpdateInMongo = transformDocumentsToUpdate(
+                requestsByIdToApplyOnMongoDb,
+                dbDocumentsById,
+                parserTokens,
+                ontologyValidator,
+                metadataCollection,
+                unitValidator,
+                failedUpdateDocuments
+            );
+
+            Map<String, UpdatedDocument> documentsResultToIgnore = retrieveIgnoredDocumentForUpdate(
+                metadataCollection,
+                forceUpdate,
+                remainRequests,
+                dbDocumentsById,
+                transformedDocumentsToUpdateInMongo,
+                updateDocumentResults
+            );
+
+            //remove documents to ignore
+            documentsResultToIgnore.keySet().forEach(transformedDocumentsToUpdateInMongo::remove);
+
+            List<WriteModel<MetadataDocument<?>>> bulkOperations = prepareDbBulkOperations(
+                transformedDocumentsToUpdateInMongo,
+                dbDocumentsById
+            );
+            Set<String> successUpdatedDocumentsIds = handleBulkingUpdateDocumentsInMongo(
+                metadataCollection,
+                bulkOperations,
+                requestsByIdToApplyOnMongoDb,
+                failedUpdateDocuments,
+                tenantId
+            );
+
+            updateDocumentResults.putAll(
+                handleIndexingDocumentsInElasticSearch(
+                    metadataCollection,
+                    refreshElasticIndexPostBulkIndexing,
+                    successUpdatedDocumentsIds,
+                    alreadyUpdatedDocumentIdsByCurrentProcess,
+                    transformedDocumentsToUpdateInMongo,
+                    dbDocumentsById,
+                    documentsResultToIgnore
+                )
+            );
+
+            //Manage ignoredDocuments response
+            updateDocumentResults.putAll(documentsResultToIgnore);
+
+            boolean hasFailedUpdates = successUpdatedDocumentsIds.size() != bulkOperations.size();
+            if (hasFailedUpdates) {
+                remainRequests = retrieveFailedDocuments(remainRequests, successUpdatedDocumentsIds);
+                LOGGER.debug("Failed updated found with documents size : " + remainRequests.size());
+                waitSomeTimeBeforeRetryFailed();
+                tries++;
+
+                if (tries >= DEFAULT_RETRIES_COUNT && CollectionUtils.isEmpty(remainRequests)) {
+                    LOGGER.error(
+                        "After 3 retries, failed to documents with ids " +
+                        "[" +
+                        String.join(", ", remainRequests.stream().map(RequestById::getDocumentId).toList()) +
+                        "]"
+                    );
+                    throw new IllegalStateException(
+                        "After 3 retries, failed to documents with ids " +
+                        "[" +
+                        String.join(", ", remainRequests.stream().map(RequestById::getDocumentId).toList()) +
+                        "]"
+                    );
+                }
+                retryMore = tries < DEFAULT_RETRIES_COUNT && !remainRequests.isEmpty();
+            } else {
+                retryMore = false;
+            }
+        } while (retryMore);
+
+        updateDocumentResults.putAll(failedUpdateDocuments);
+
+        return updateDocumentResults.values().stream().toList();
+    }
+
+    private void waitSomeTimeBeforeRetryFailed() {
+        try {
+            long waitingMs = DEFAULT_WAITING_TIME_RETRY_MS * (new SecureRandom().nextInt(10) + 1);
+            LOGGER.info("Waiting before retry for " + waitingMs);
+            Thread.sleep(waitingMs);
+        } catch (InterruptedException e) {
+            SysErrLogger.FAKE_LOGGER.ignoreLog(e);
+        }
+    }
+
+    private Set<String> handleBulkingUpdateDocumentsInMongo(
+        MetadataCollections metadataCollection,
+        List<WriteModel<MetadataDocument<?>>> bulkOperations,
+        Set<RequestById> requestsByIdToApplyOnMongoDb,
+        Map<String, UpdatedDocument> failedUpdateDocuments,
+        Integer tenantId
+    ) {
+        Set<String> successUpdatedDocumentsIds = new HashSet<>();
+        if (CollectionUtils.isNotEmpty(bulkOperations)) {
+            BulkWriteResult bulkWriteMongoResult = metadataCollection
+                .getCollection()
+                .bulkWrite(bulkOperations, new BulkWriteOptions().ordered(false));
+
+            Set<String> documentIdsRequestedToUpdate = requestsByIdToApplyOnMongoDb
+                .stream()
+                .map(RequestById::getDocumentId)
+                .filter(documentId -> !failedUpdateDocuments.containsKey(documentId))
+                .collect(Collectors.toSet());
+
+            successUpdatedDocumentsIds = extractSuccessUpdatedDocumentIds(
+                bulkWriteMongoResult,
+                metadataCollection,
+                bulkOperations.size(),
+                documentIdsRequestedToUpdate,
+                tenantId
+            );
+        }
+        return successUpdatedDocumentsIds;
+    }
+
+    private Map<String, UpdatedDocument> handleIndexingDocumentsInElasticSearch(
+        MetadataCollections metadataCollection,
+        boolean refreshElasticIndexPostBulkIndexing,
+        Set<String> successUpdatedDocumentsIds,
+        Set<String> alreadyUpdatedDocumentIdsByCurrentProcess,
+        Map<String, ObjectNode> transformedDocumentsToUpdateInMongo,
+        Map<String, MetadataDocument> dbDocumentsById,
+        Map<String, UpdatedDocument> documentsResultToIgnore
+    ) throws InvalidParseOperationException, MetaDataExecutionException {
+        Set<String> documentIdsToIndexInEs = new HashSet<>(successUpdatedDocumentsIds);
+
+        //We index the update documents in mongo and those already updated in mongo before
+        documentIdsToIndexInEs.addAll(alreadyUpdatedDocumentIdsByCurrentProcess);
+
+        Map<String, ObjectNode> documentsToIndexInES = new HashMap<>(transformedDocumentsToUpdateInMongo);
+        for (String documentId : alreadyUpdatedDocumentIdsByCurrentProcess) {
+            documentsToIndexInES.put(documentId, (ObjectNode) JsonHandler.toJsonNode(dbDocumentsById.get(documentId)));
+        }
+
+        indexSuccessDocumentsInES(
+            metadataCollection,
+            documentIdsToIndexInEs,
+            dbDocumentsById,
+            documentsToIndexInES,
+            refreshElasticIndexPostBulkIndexing
+        );
+
+        return prepareSuccessResponseResults(
+            documentIdsToIndexInEs,
+            documentsResultToIgnore,
+            dbDocumentsById,
+            transformedDocumentsToUpdateInMongo
+        );
+    }
+
+    private Map<String, UpdatedDocument> prepareSuccessResponseResults(
+        Set<String> documentIdsToIndexInEs,
+        Map<String, UpdatedDocument> documentsResultToIgnore,
+        Map<String, MetadataDocument> dbDocumentsById,
+        Map<String, ObjectNode> transformedDocumentsToUpdateInMongo
+    ) throws InvalidParseOperationException {
+        Map<String, UpdatedDocument> successUpdateDocumentResults = new HashMap<>();
+        for (String successDocId : documentIdsToIndexInEs) {
+            final JsonNode afterUpdate = documentsResultToIgnore.containsKey(successDocId)
+                ? JsonHandler.toJsonNode(dbDocumentsById.get(successDocId))
+                : transformedDocumentsToUpdateInMongo.get(successDocId);
+            successUpdateDocumentResults.put(
+                successDocId,
+                new UpdatedDocument(
+                    successDocId,
+                    JsonHandler.toJsonNode(dbDocumentsById.get(successDocId)),
+                    afterUpdate,
+                    true
+                )
+            );
+        }
+        return successUpdateDocumentResults;
+    }
+
+    private List<WriteModel<MetadataDocument<?>>> prepareDbBulkOperations(
+        Map<String, ObjectNode> transformedUpdatedDocuments,
+        Map<String, MetadataDocument> dbDocumentsById
+    ) {
+        List<WriteModel<MetadataDocument<?>>> bulkOperations = new ArrayList<>();
+        for (Map.Entry<String, ObjectNode> entryTransformedDoc : transformedUpdatedDocuments.entrySet()) {
+            //prepares operations to bulk
+            MetadataDocument<?> currentDocument = dbDocumentsById.get(entryTransformedDoc.getKey());
+            MetadataDocument<?> transformedDocument = (MetadataDocument<?>) currentDocument.newInstance(
+                entryTransformedDoc.getValue()
+            );
+            final Bson filter = getUpdateDocumentFilter(
+                currentDocument.getAtomicVersion(),
+                entryTransformedDoc.getKey()
+            );
+            bulkOperations.add(new ReplaceOneModel<>(filter, transformedDocument));
+        }
+        return bulkOperations;
+    }
+
+    private Map<String, UpdatedDocument> retrieveIgnoredDocumentForUpdate(
+        MetadataCollections metadataCollection,
+        boolean forceUpdate,
+        Set<RequestById> requestsToApply,
+        Map<String, MetadataDocument> dbDocumentsById,
+        Map<String, ObjectNode> transformedUpdatedDocuments,
+        Map<String, UpdatedDocument> updateDocumentResults
+    ) throws InvalidParseOperationException {
+        if (metadataCollection == MetadataCollections.UNIT) {
+            for (RequestById request : requestsToApply) {
+                String documentId = request.getDocumentId();
+                MetadataDocument currentDocument = dbDocumentsById.get(documentId);
+                ObjectNode transformedUpdatedDocument = transformedUpdatedDocuments.get(documentId);
+                final JsonNode currentJsonDocument = JsonHandler.toJsonNode(currentDocument);
+
+                if (
+                    !forceUpdate &&
+                    !hasModificationOfUnitDescriptiveMetadata(currentJsonDocument, transformedUpdatedDocument)
+                ) {
+                    updateDocumentResults.put(
+                        documentId,
+                        new UpdatedDocument(documentId, currentJsonDocument, currentJsonDocument, false)
+                    );
+                }
+            }
+        }
+        return updateDocumentResults;
+    }
+
+    private Set<String> retrieveDocumentIdsAlreadyUpdatedByCurrentProcess(
+        Set<RequestById> remainRequests,
+        Map<String, MetadataDocument> dbDocumentsById,
+        Map<String, UpdatedDocument> updateDocumentResults
+    ) throws InvalidParseOperationException {
+        Set<String> alreadyUpdatedDocumentBefore = new HashSet<>();
+        for (RequestById request : remainRequests) {
+            RequestParserMultiple requestParser = request.getRequest();
+            String documentId = request.getDocumentId();
+            MetadataDocument currentDocument = dbDocumentsById.get(documentId);
+            if (noChangesAndOpsAlreadyContainingOperation(requestParser, currentDocument)) {
+                alreadyUpdatedDocumentBefore.add(documentId);
+                final JsonNode currentJsonDocument = JsonHandler.toJsonNode(currentDocument);
+                updateDocumentResults.put(
+                    documentId,
+                    new UpdatedDocument(documentId, currentJsonDocument, currentJsonDocument, true)
+                );
+            }
+        }
+        return alreadyUpdatedDocumentBefore;
+    }
+
+    private Map<String, ObjectNode> transformDocumentsToUpdate(
+        Set<RequestById> requestsToHandle,
+        Map<String, MetadataDocument> oldDocuments,
+        DynamicParserTokens parserTokens,
+        OntologyValidator ontologyValidator,
+        MetadataCollections metadataCollection,
+        UnitValidator unitValidator,
+        Map<String, UpdatedDocument> failedUpdateDocuments
+    ) throws InvalidParseOperationException {
+        LOGGER.debug("Handling transformation for bulk update for a set of " + requestsToHandle.size());
+
+        Map<String, ObjectNode> transformedDocumentsToUpdate = new HashMap<>();
+        for (RequestById request : requestsToHandle) {
+            String documentId = request.getDocumentId();
+            RequestParserMultiple requestParser = request.getRequest();
+            MetadataDocument currentDocument = oldDocuments.get(documentId);
+            final JsonNode currentJsonDocument = JsonHandler.toJsonNode(currentDocument);
+            try {
+                final MongoDbInMemory mongoInMemory = new MongoDbInMemory(currentJsonDocument, parserTokens);
+                final ObjectNode updatedJsonDocument = (ObjectNode) mongoInMemory.getUpdateJson(requestParser);
+                if (metadataCollection == MetadataCollections.UNIT) {
+                    fieldHistoryManager.trigger(currentJsonDocument, updatedJsonDocument);
+                }
+                final Integer docVersion = currentDocument.getVersion();
+                int newDocVersion = incrementDocumentVersionIfRequired(metadataCollection, mongoInMemory, docVersion);
+                updatedJsonDocument.put(VitamDocument.VERSION, newDocVersion);
+                Integer atomicVersion = currentDocument.getAtomicVersion();
+                int newAtomicVersion = atomicVersion == null ? newDocVersion : atomicVersion + 1;
+                updatedJsonDocument.put(MetadataDocument.ATOMIC_VERSION, newAtomicVersion);
+                // Ontology checks & format transformation
+                final ObjectNode transformedUpdatedDocument;
+
+                transformedUpdatedDocument = ontologyValidator.verifyAndReplaceFields(updatedJsonDocument);
+
+                if (newDocVersion != docVersion) {
+                    transformedUpdatedDocument.put(
+                        MetadataDocument.APPROXIMATE_UPDATE_DATE,
+                        LocalDateUtil.nowFormatted()
+                    );
+                }
+
+                if (metadataCollection == MetadataCollections.UNIT) {
+                    // Unit validation
+                    unitValidator.validateUnit(transformedUpdatedDocument);
+                }
+
+                LOGGER.debug("DEBUG update {}", transformedUpdatedDocument);
+                transformedDocumentsToUpdate.put(documentId, transformedUpdatedDocument);
+            } catch (MetadataValidationException e) {
+                LOGGER.error("Failed to validate document with id:  " + documentId + " error" + e.getMessage());
+                failedUpdateDocuments.put(
+                    documentId,
+                    new UpdatedDocument(
+                        documentId,
+                        currentJsonDocument,
+                        currentJsonDocument,
+                        false,
+                        e.getErrorCode(),
+                        e.getMessage()
+                    )
+                );
+            }
+        }
+        return transformedDocumentsToUpdate;
+    }
+
+    private Set<RequestById> retrieveFailedDocuments(
+        Set<RequestById> remainRequestsToHandle,
+        Set<String> successUpdatedDocumentsIds
+    ) {
+        return remainRequestsToHandle
+            .stream()
+            .filter(requestById -> successUpdatedDocumentsIds.contains(requestById.getDocumentId()))
+            .collect(Collectors.toSet());
+    }
+
+    private Bson getUpdateDocumentFilter(Integer atomicVersion, String documentId) {
+        // Make Update
+        final Bson condition;
+        if (atomicVersion == null) {
+            condition = and(eq(ID, documentId), exists(MetadataDocument.ATOMIC_VERSION, false));
+        } else {
+            condition = and(eq(ID, documentId), eq(MetadataDocument.ATOMIC_VERSION, atomicVersion));
+        }
+        return condition;
+    }
+
+    private void indexSuccessDocumentsInES(
+        MetadataCollections metadataCollection,
+        Set<String> documentIdsToIndex,
+        Map<String, MetadataDocument> dbDocumentsById,
+        Map<String, ObjectNode> updatedDocuments,
+        boolean withRefreshIndex
+    ) throws MetaDataExecutionException {
+        if (CollectionUtils.isEmpty(documentIdsToIndex)) {
+            return;
+        }
+        List<MetadataDocument<?>> documentsToIndex = new ArrayList<>();
+        for (String successDocId : documentIdsToIndex) {
+            if (updatedDocuments.containsKey(successDocId)) {
+                MetadataDocument<?> currentDoc = dbDocumentsById.get(successDocId);
+                documentsToIndex.add((MetadataDocument<?>) currentDoc.newInstance(updatedDocuments.get(successDocId)));
+            }
+        }
+        indexUpdatedDocuments(metadataCollection, documentsToIndex, withRefreshIndex);
+    }
+
+    private Set<String> extractSuccessUpdatedDocumentIds(
+        BulkWriteResult bulkWriteResult,
+        MetadataCollections metadataCollection,
+        int bulkedDocumentCount,
+        Set<String> documentIdsRequestToUpdate,
+        Integer tenantId
+    ) {
+        Set<String> successDocumentsId = new HashSet<>();
+
+        if (bulkWriteResult.getModifiedCount() == bulkedDocumentCount) {
+            successDocumentsId = documentIdsRequestToUpdate;
+        } else {
+            Bson filter = and(
+                eq(TENANT_ID, tenantId),
+                in(ID, documentIdsRequestToUpdate),
+                eq(OPS, VitamThreadUtils.getVitamSession().getRequestId())
+            );
+
+            try (
+                MongoCursor<?> cursor = metadataCollection
+                    .getCollection()
+                    .find(filter)
+                    .projection(ID_PROJECTION)
+                    .iterator()
+            ) {
+                while (cursor.hasNext()) {
+                    MetadataDocument document = (MetadataDocument) cursor.next();
+                    successDocumentsId.add(document.getId());
+                }
+            }
+        }
+        return successDocumentsId;
+    }
+
+    private List<MetadataDocument> loadDocumentsFromDb(Set<String> documentIds, MetadataCollections collection)
+        throws MetaDataNotFoundException {
+        LOGGER.debug("Loading documents from for documents id " + String.join(", ", documentIds));
+        List<MetadataDocument> documents = new ArrayList<>();
+        Bson filter = and(in(ID, documentIds), eq(TENANT_ID, VitamThreadUtils.getVitamSession().getTenantId()));
+
+        try (MongoCursor<?> cursor = collection.getCollection().find(filter).iterator()) {
+            while (cursor.hasNext()) {
+                MetadataDocument document = (MetadataDocument) cursor.next();
+                documents.add(document);
+            }
+        }
+
+        if (documents.size() != documentIds.size()) {
+            throw new MetaDataNotFoundException(
+                "Number of documents found is different to the requested document list, the document nb requested is:  " +
+                documents.size() +
+                "but document found is :  " +
+                documentIds.size()
+            );
+        }
+
+        return documents;
     }
 
     /**
@@ -1272,7 +1696,7 @@ public class DbRequest {
             .filter(line -> !(line.contains("\"" + MetadataDocument.VERSION + "\"")))
             .filter(line -> !(line.contains("\"" + MetadataDocument.ATOMIC_VERSION + "\"")))
             .filter(line -> !(line.contains("\"" + MetadataDocument.GRAPH_LAST_PERSISTED_DATE + "\"")))
-            .filter(line -> !(line.contains("\"" + MetadataDocument.OPS + "\"")))
+            .filter(line -> !(line.contains("\"" + OPS + "\"")))
             .filter(line -> !(line.contains("\"" + MetadataDocument.APPROXIMATE_CREATION_DATE + "\"")))
             .filter(line -> !(line.contains("\"" + MetadataDocument.APPROXIMATE_UPDATE_DATE + "\"")))
             .filter(line -> !(line.contains("\"_history\"")))
@@ -1281,6 +1705,15 @@ public class DbRequest {
         return metadataModifications > 0;
     }
 
+    /**
+     * Some technical operations do not update the OPS field, ex: Elimination analysis, reclassification of indirect nodes, etc
+     * If OPS field update has been requested, no need to update document again in mongoDb, but we should to re-index it in ES to ensure idempotency
+     * In this case, we can't return documents updates diff
+     *
+     * @param requestParser
+     * @param document
+     * @return
+     */
     private boolean noChangesAndOpsAlreadyContainingOperation(
         RequestParserMultiple requestParser,
         MetadataDocument<?> document
@@ -1322,6 +1755,38 @@ public class DbRequest {
         }
     }
 
+    private void indexUpdatedDocuments(
+        MetadataCollections collection,
+        Collection<MetadataDocument<?>> updatedDocuments,
+        boolean withRefreshIndex
+    ) throws MetaDataExecutionException {
+        if (collection == MetadataCollections.UNIT) {
+            indexUpdatedDocuments(updatedDocuments, ParameterHelper.getTenantParameter(), withRefreshIndex);
+        } else {
+            indexUpdatedOGDocuments(updatedDocuments, ParameterHelper.getTenantParameter(), withRefreshIndex);
+        }
+    }
+
+    /**
+     * indexUpdatedDocuments : Update documents updated
+     *
+     * @param tenantId : contains the document list to be indexed
+     * @throws Exception
+     */
+    private void indexUpdatedDocuments(
+        Collection<MetadataDocument<?>> updatedDocuments,
+        Integer tenantId,
+        boolean withRefreshIndex
+    ) throws MetaDataExecutionException {
+        MetadataCollections.UNIT.getEsClient()
+            .insertFullDocumentsWithRefreshSettings(
+                MetadataCollections.UNIT,
+                tenantId,
+                updatedDocuments,
+                withRefreshIndex
+            );
+    }
+
     /**
      * indexFieldsUpdated : Update index related to Fields updated
      *
@@ -1335,15 +1800,23 @@ public class DbRequest {
     }
 
     /**
-     * indexFieldsOGUpdated : Update index OG related to Fields updated
+     * indexUpdatedDocuments : Update documents updated
      *
-     * @param updatedDocument : contains the document to be indexed
+     * @param tenantId : contains the document list to be indexed
      * @throws Exception
      */
-    private void indexFieldsOGUpdated(MetadataDocument<?> updatedDocument, Integer tenantId)
-        throws MetaDataExecutionException {
+    private void indexUpdatedOGDocuments(
+        Collection<MetadataDocument<?>> updatedDocuments,
+        Integer tenantId,
+        boolean withRefreshIndex
+    ) throws MetaDataExecutionException {
         MetadataCollections.OBJECTGROUP.getEsClient()
-            .updateFullDocument(MetadataCollections.OBJECTGROUP, tenantId, updatedDocument.getId(), updatedDocument);
+            .insertFullDocumentsWithRefreshSettings(
+                MetadataCollections.OBJECTGROUP,
+                tenantId,
+                updatedDocuments,
+                withRefreshIndex
+            );
     }
 
     /**
@@ -1403,7 +1876,7 @@ public class DbRequest {
     public void execInsertObjectGroupRequests(List<InsertParserMultiple> requestParsers)
         throws MetaDataExecutionException, InvalidParseOperationException {
         LOGGER.debug("Exec db insert object group request: %s", requestParsers);
-
+        boolean withRefreshIndex = true;
         Integer tenantId = ParameterHelper.getTenantParameter();
         List<ObjectGroup> objectGroups = new ArrayList<>();
 
@@ -1428,7 +1901,8 @@ public class DbRequest {
             tenantId,
             objectGroups,
             "STP_OBJ_STORING",
-            "OG_METADATA_INDEXATION"
+            "OG_METADATA_INDEXATION",
+            withRefreshIndex
         );
     }
 
@@ -1437,11 +1911,14 @@ public class DbRequest {
         Integer tenantId,
         List<? extends MetadataDocument<?>> documents,
         String logKey,
-        String logAction
+        String logAction,
+        boolean withRefreshIndex
     ) throws MetaDataExecutionException {
         Stopwatch stopWatch = Stopwatch.createStarted();
 
-        collection.getEsClient().insertFullDocuments(collection, tenantId, documents);
+        collection
+            .getEsClient()
+            .insertFullDocumentsWithRefreshSettings(collection, tenantId, documents, withRefreshIndex);
 
         PerformanceLogger.getInstance()
             .log(logKey, logAction, "storeElastic", stopWatch.elapsed(TimeUnit.MILLISECONDS));
@@ -1460,7 +1937,7 @@ public class DbRequest {
         DeleteToMongodb requestToMongodb,
         Result<MetadataDocument<?>> last
     ) throws MetaDataExecutionException {
-        final Bson roots = QueryToMongodb.getRoots(MetadataDocument.ID, last.getCurrentIds());
+        final Bson roots = QueryToMongodb.getRoots(ID, last.getCurrentIds());
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("To Delete: " + MongoDbHelper.bsonToString(roots, false));
         }
@@ -1512,7 +1989,7 @@ public class DbRequest {
     public void execInsertUnitRequests(List<InsertParserMultiple> requests)
         throws MetaDataExecutionException, MetaDataNotFoundException {
         LOGGER.debug("Exec db insert unit request: %s", requests);
-
+        boolean withRefreshIndex = true;
         List<Unit> unitToSave = Lists.newArrayList();
         Map<String, ObjectGroupGraphUpdates> objectGroupGraphUpdatesMap = new HashMap<>();
         final Integer tenantId = ParameterHelper.getTenantParameter();
@@ -1584,7 +2061,8 @@ public class DbRequest {
                     tenantId,
                     unitToSave,
                     "STP_UNIT_METADATA",
-                    "UNIT_METADATA_INDEXATION"
+                    "UNIT_METADATA_INDEXATION",
+                    withRefreshIndex
                 );
             }
 
@@ -1640,9 +2118,7 @@ public class DbRequest {
 
         List<Unit> documents = new ArrayList<>();
         for (String id : documentsToDelete) {
-            documents.add(
-                (Unit) new Unit().append(MetadataDocument.ID, id).append(MetadataDocument.TENANT_ID, tenantId)
-            );
+            documents.add((Unit) new Unit().append(ID, id).append(TENANT_ID, tenantId));
         }
         mongoDbUnitRepository.delete(documents);
     }
@@ -1661,11 +2137,7 @@ public class DbRequest {
 
         List<ObjectGroup> documents = new ArrayList<>();
         for (String id : documentsToDelete) {
-            documents.add(
-                (ObjectGroup) new ObjectGroup()
-                    .append(MetadataDocument.ID, id)
-                    .append(MetadataDocument.TENANT_ID, tenantId)
-            );
+            documents.add((ObjectGroup) new ObjectGroup().append(ID, id).append(TENANT_ID, tenantId));
         }
 
         mongoDbObjectGroupRepository.delete(documents);
