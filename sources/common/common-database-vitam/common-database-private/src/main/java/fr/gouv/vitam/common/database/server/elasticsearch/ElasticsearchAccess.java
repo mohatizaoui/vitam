@@ -275,12 +275,14 @@ public class ElasticsearchAccess implements DatabaseConnection {
 
         int failedShards = refreshResponse.shards().failed().intValue();
         if (failedShards > 0) {
-            List<ShardFailure> failures = refreshResponse.shards().failures();
-            StringBuilder sb = new StringBuilder();
-            for (ShardFailure failure : failures) {
-                sb.append(failure.toString()).append("; ");
-            }
-            throw new DatabaseException(sb.toString());
+            throw new DatabaseException(
+                refreshResponse
+                    .shards()
+                    .failures()
+                    .stream()
+                    .map(ShardFailure::toString)
+                    .collect(Collectors.joining("; "))
+            );
         }
     }
 
@@ -328,7 +330,7 @@ public class ElasticsearchAccess implements DatabaseConnection {
     ) throws DatabaseException {
         IndexResponse indexResponse = indexDocument(indexAlias, id, vitamDocument);
 
-        if (indexResponse.result() != Result.Created) {
+        if (indexResponse.result() != Result.Created && indexResponse.result() != Result.Updated) {
             throw new DatabaseException(
                 String.format(
                     "Could not index document on ES. Id=%s, aliasName=%s, response=%s",
@@ -340,8 +342,11 @@ public class ElasticsearchAccess implements DatabaseConnection {
         }
     }
 
-    public void indexEntries(ElasticsearchIndexAlias indexAlias, final Collection<? extends Document> documents)
-        throws DatabaseException {
+    public void indexEntries(
+        ElasticsearchIndexAlias indexAlias,
+        final Collection<? extends Document> documents,
+        boolean withRefreshIndex
+    ) throws DatabaseException {
         UnmodifiableIterator<? extends List<? extends Document>> idIterator = Iterators.partition(
             documents.iterator(),
             VitamConfiguration.getMaxElasticsearchBulk()
@@ -364,7 +369,8 @@ public class ElasticsearchAccess implements DatabaseConnection {
                 });
 
                 try {
-                    bulkRequestBuilder.refresh(Refresh.True);
+                    bulkRequestBuilder.refresh(withRefreshIndex ? Refresh.True : Refresh.False);
+
                     BulkResponse bulkResponse = getClient().bulk(bulkRequestBuilder.build());
 
                     LOGGER.debug("Written document {}", bulkResponse.items().size());

@@ -382,6 +382,7 @@ vitam:
     dataConsistencyAuditOplogMaxSize: 100
     # Reconstruction metrics cache in minutes (secondary site)
     reconstructionMetricsCacheDurationInMinutes: 15
+    refreshElasticIndexPostBulkIndexing: true
     context_path: "/metadata"
   processing:
     vitam_component: processing
@@ -536,6 +537,7 @@ vitam:
     #### Audit data consistency MongoDB-ES ####
     isDataConsistencyAuditRunnable: false
     dataConsistencyAuditOplogMaxSize: 100
+    refreshElasticIndexPostIndexingMode: true
     context_path: "/metadata-collect"
   workspace_collect:
     vitam_component: workspace-collect
