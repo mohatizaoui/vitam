@@ -292,12 +292,12 @@ clamav:
 #     manage_repository: true
 #     repository:
 #         state: present
-#         # For CentOS
-#         baseurl: http://rpm.avast.com/lin/repo/dists/rhel/release
+#         # For RedHat family
+#         baseurl: https://repo.avcdn.net/linux-av/rpm/el9/release
 #         gpgcheck: no
 #         proxy: _none_
-#         # For Debian
-#         baseurl: 'deb http://deb.avast.com/lin/repo debian-buster release'
+#         # For Debian family
+#         baseurl: '"deb https://repo.avcdn.net/linux-av/deb debian-bookworm release'
 #     vps_repository: http://linux-av.u.avcdn.net/linux-av/avast/x86_64
 #     ## List of sha256 hash of excluded files from antivirus. Useful for test environments.
 #     whitelist:

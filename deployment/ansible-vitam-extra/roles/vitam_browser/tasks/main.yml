@@ -35,7 +35,7 @@
     mode: 0644
   notify: "vitam_browser - restart apache"
 
-- name: add configuration file for mapping on Centos # + notify httpd restart
+- name: add configuration file for mapping on RedHat family
   template:
     src: "{{ item }}.j2"
     dest: "/etc/{{ apache_service }}/{{ apache_conf_dir }}/{{ item }}"

@@ -9,9 +9,7 @@ Procédure de déploiement de Vitam:
 Tips: pour tous les cas d'appel de ansible-playbook, il est possible de remplacer l'argument "--vault-password-file vault_pass.txt" par "--ask-vault-pass" si vous ne voulez pas stocker le mot de passe de chiffrement des vault ansible dans un fichier.
 
 
-1.  Créer un fichier d'inventaire des repositories des composants VITAM en se basant sur le fichier d'exemple:
-    ``environments/group_vars/all/example_bootstrap_repo_centos.yml`` pour un environnement CentOS
-    ``environments/group_vars/all/example_bootstrap_repo_debian.yml`` pour un environnement Debian
+1.  Créer un fichier d'inventaire des repositories des composants VITAM en se basant sur le fichier d'exemple: ``deployment/environments/group_vars/all/main/repositories.yml``
 
 
 2.  Générer les autorités de certification des certificats (si vous n'avez pas vos propres autorités de certification et que vous ne souhaitez pas vous en occuper)

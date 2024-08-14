@@ -2,7 +2,7 @@
 
 - name: Delete docker package (obsolete & conflict with docker-ce)
   package:
-    name: "docker"
+    name: docker
     state: absent
   register: result
   retries: "{{ packages_install_retries_number }}"
@@ -11,8 +11,10 @@
 
 - name: Make sure curl and gnupg is installed
   apt:
-    name: ['curl','gnupg']
-    state: present
+    name:
+      - curl
+      - gnupg
+    state: latest
   register: result
   retries: "{{ packages_install_retries_number }}"
   until: result is succeeded
@@ -22,12 +24,12 @@
   shell: "curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -"
   environment:
     https_proxy: "{{ http_proxy_environnement }}"
-    http_proxy:  "{{ http_proxy_environnement }}"
+    http_proxy: "{{ http_proxy_environnement }}"
 
 - name: install apt-transport-https as Docker repository is https
   package:
     name: apt-transport-https
-    state: present
+    state: latest
   register: result
   retries: "{{ packages_install_retries_number }}"
   until: result is succeeded
@@ -38,7 +40,7 @@
     repo: "{{ item }}"
     state: present
   loop:
-    - "deb [arch=amd64] https://download.docker.com/linux/debian  {{ ansible_distribution_release }} stable"
+    - "deb [arch=amd64] https://download.docker.com/linux/debian {{ ansible_distribution_release }} stable"
   register: result
   retries: "{{ packages_install_retries_number }}"
   until: result is succeeded
@@ -52,41 +54,14 @@
   until: result is succeeded
   delay: "{{ packages_install_retries_delay }}"
 
-- name: installer docker & pip
-  apt:
-    name: ['docker-ce','python-pip']
-    state: latest
-  register: result
-  retries: "{{ packages_install_retries_number }}"
-  until: result is succeeded
-  delay: "{{ packages_install_retries_delay }}"
-  when: ansible_distribution_version | int == 10
-
 - name: installer docker & pip3
   apt:
-    name: ['docker-ce','python3-pip','python3-docker']
+    name:
+      - docker-ce
+      - python3-pip
+      - python3-docker
     state: latest
   register: result
   retries: "{{ packages_install_retries_number }}"
   until: result is succeeded
   delay: "{{ packages_install_retries_delay }}"
-  when: ansible_distribution_version | int == 11 or ansible_distribution_version | int == 12
-
-- block:
-
-  - name: upgrade pip & install docker python package
-    pip:
-      name: ['pip','docker']
-      state: latest
-    environment:
-      http_proxy: "{{ http_proxy_environnement }}"
-      https_proxy: "{{ http_proxy_environnement }}"
-    when: http_proxy_environnement is defined and http_proxy_environnement != ""
-
-  - name: upgrade pip & install docker python package
-    pip:
-      name: ['pip','docker']
-      state: latest
-    when: http_proxy_environnement is not defined or http_proxy_environnement == ""
-
-  when: ansible_distribution_version | int < 11

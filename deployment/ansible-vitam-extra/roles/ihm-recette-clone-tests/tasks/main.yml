@@ -2,9 +2,9 @@
 
 # tasks file for clone-tests
 - block:
-  - name: get repo for git lfs for CentOS
+  - name: get repo for git lfs for RedHat family
     copy:
-      src: gitlfs-centos7.repo
+      src: gitlfs-el9.repo
       dest: /etc/yum.repos.d/github_git-lfs.repo
       owner: root
       group: root
@@ -37,13 +37,11 @@
 
   - name: get repo for git lfs for Debian
     copy:
-      src: gitlfs-debian8.list
+      src: gitlfs-debian12.list
       dest: /etc/apt/sources.list.d/github_git-lfs.list
       owner: root
       group: root
       mode: 0640
-
-
 
   - name: add GPG key
     shell: "export https_proxy={{ http_proxy_environnement }} && curl -L 'https://packagecloud.io/github/git-lfs/gpgkey' 2> /dev/null | apt-key add -"
