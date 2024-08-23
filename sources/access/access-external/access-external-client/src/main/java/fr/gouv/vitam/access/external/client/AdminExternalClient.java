@@ -47,6 +47,7 @@ import fr.gouv.vitam.common.model.administration.AccessionRegisterSummaryModel;
 import fr.gouv.vitam.common.model.administration.AccessionRegisterSymbolicModel;
 import fr.gouv.vitam.common.model.administration.AgenciesModel;
 import fr.gouv.vitam.common.model.administration.ArchiveUnitProfileModel;
+import fr.gouv.vitam.common.model.administration.CombinedSchemaModel;
 import fr.gouv.vitam.common.model.administration.ContextModel;
 import fr.gouv.vitam.common.model.administration.FileFormatModel;
 import fr.gouv.vitam.common.model.administration.FileRulesModel;
@@ -929,6 +930,15 @@ public interface AdminExternalClient extends BasicClient, OperationStatusClient 
      * @return
      */
     RequestResponse<SchemaResponse> getUnitSchema(VitamContext vitamContext) throws VitamClientException;
+
+    /**
+     * get archive unit profile schema
+     *
+     * @param vitamContext
+     * @return
+     */
+    RequestResponse<CombinedSchemaModel> getArchiveUnitProfileSchema(VitamContext vitamContext, String id)
+        throws VitamClientException;
 
     /**
      * Import unit external schema

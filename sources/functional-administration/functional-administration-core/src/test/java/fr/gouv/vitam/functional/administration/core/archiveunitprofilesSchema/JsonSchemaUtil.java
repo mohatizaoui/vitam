@@ -6,8 +6,8 @@
  * This software is a computer program whose purpose is to implement a digital archiving back-office system managing
  * high volumetry securely and efficiently.
  *
- * This software is governed by the CeCILL-C license under French law and abiding by the rules of distribution of free
- * software. You can use, modify and/ or redistribute the software under the terms of the CeCILL-C license as
+ * This software is governed by the CeCILL 2.1 license under French law and abiding by the rules of distribution of free
+ * software. You can use, modify and/ or redistribute the software under the terms of the CeCILL 2.1 license as
  * circulated by CEA, CNRS and INRIA at the following URL "https://cecill.info".
  *
  * As a counterpart to the access to the source code and rights to copy, modify and redistribute granted by the license,
@@ -21,34 +21,31 @@
  * software's suitability as regards their requirements in conditions enabling the security of their systems and/or data
  * to be ensured and, more generally, to use and operate it in the same conditions as regards security.
  *
- * The fact that you are presently reading this means that you have had knowledge of the CeCILL-C license and that you
+ * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.common.model.administration.schema;
 
-public enum SchemaCardinality {
-    ZERO("0"),
-    ONE("0-1"),
-    ONE_REQUIRED("1-1"),
-    MANY("0-N"),
-    MANY_REQUIRED("1-N");
+package fr.gouv.vitam.functional.administration.core.archiveunitprofilesSchema;
 
-    private final String value;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import fr.gouv.vitam.common.exception.InvalidParseOperationException;
+import fr.gouv.vitam.common.json.JsonHandler;
 
-    SchemaCardinality(String value) {
-        this.value = value;
+import java.io.File;
+import java.util.List;
+
+public class JsonSchemaUtil {
+
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
+    public static JsonNode loadSchemaTemplate() throws InvalidParseOperationException {
+        return JsonHandler.getFromFile(new File("src/test/resources/archiveUnitProfileSchema/schemaTemplate.json"));
     }
 
-    public String value() {
-        return this.value;
-    }
-
-    public static SchemaCardinality fromValue(String v) {
-        for (SchemaCardinality c : SchemaCardinality.values()) {
-            if (c.value.equals(v)) {
-                return c;
-            }
-        }
-        throw new IllegalArgumentException(v);
+    public static String modifySchema(JsonNode schemaTemplate, List<String> requiredFields) {
+        ((ObjectNode) schemaTemplate).set("required", objectMapper.valueToTree(requiredFields));
+        return schemaTemplate.toString();
     }
 }

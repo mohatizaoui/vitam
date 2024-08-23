@@ -60,6 +60,7 @@ import fr.gouv.vitam.common.model.administration.AccessionRegisterSummaryModel;
 import fr.gouv.vitam.common.model.administration.AccessionRegisterSymbolicModel;
 import fr.gouv.vitam.common.model.administration.AgenciesModel;
 import fr.gouv.vitam.common.model.administration.ArchiveUnitProfileModel;
+import fr.gouv.vitam.common.model.administration.CombinedSchemaModel;
 import fr.gouv.vitam.common.model.administration.ContextModel;
 import fr.gouv.vitam.common.model.administration.FileFormatModel;
 import fr.gouv.vitam.common.model.administration.IngestContractModel;
@@ -157,6 +158,8 @@ class AdminManagementClientRest extends DefaultClient implements AdminManagement
 
     private static final String RECONSTRUCTION_ACCESSION_REGISTER = "/accessionregisterreconstruction/";
     public static final String SCHEMA_UNIT_URI = "/schema/unit";
+
+    public static final String SCHEMA_ARCHIVE_UNIT_PROFILE_URI = "/archiveunitprofiles/{id}/schema";
     public static final String SCHEMA_OBJECTGROUP_URI = "/schema/objectgroup";
 
     AdminManagementClientRest(AdminManagementClientFactory factory) {
@@ -1615,6 +1618,26 @@ class AdminManagementClientRest extends DefaultClient implements AdminManagement
         try (Response response = make(request)) {
             check(response);
             return new RequestResponseOK<SchemaResponse>()
+                .addAllResults(
+                    JsonHandler.getFromInputStreamAsTypeReference(
+                        response.readEntity(InputStream.class),
+                        new TypeReference<>() {}
+                    )
+                )
+                .setHttpCode(Status.OK.getStatusCode());
+        } catch (VitamClientInternalException | InvalidParseOperationException | InvalidFormatException e) {
+            throw new AdminManagementClientServerException(INTERNAL_SERVER_ERROR_MSG, e);
+        }
+    }
+
+    @Override
+    public RequestResponse<CombinedSchemaModel> getArchiveUnitProfileSchema(String id)
+        throws AdminManagementClientServerException {
+        VitamRequestBuilder request = get().withPath(SCHEMA_ARCHIVE_UNIT_PROFILE_URI.replace("{id}", id)).withJson();
+
+        try (Response response = make(request)) {
+            check(response);
+            return new RequestResponseOK<CombinedSchemaModel>()
                 .addAllResults(
                     JsonHandler.getFromInputStreamAsTypeReference(
                         response.readEntity(InputStream.class),

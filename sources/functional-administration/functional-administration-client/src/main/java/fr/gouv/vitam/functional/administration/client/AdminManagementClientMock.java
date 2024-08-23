@@ -49,6 +49,7 @@ import fr.gouv.vitam.common.model.administration.AccessionRegisterSummaryModel;
 import fr.gouv.vitam.common.model.administration.AccessionRegisterSymbolicModel;
 import fr.gouv.vitam.common.model.administration.AgenciesModel;
 import fr.gouv.vitam.common.model.administration.ArchiveUnitProfileModel;
+import fr.gouv.vitam.common.model.administration.CombinedSchemaModel;
 import fr.gouv.vitam.common.model.administration.ContextModel;
 import fr.gouv.vitam.common.model.administration.FileFormatModel;
 import fr.gouv.vitam.common.model.administration.IngestContractModel;
@@ -669,6 +670,12 @@ public class AdminManagementClientMock extends AbstractMockClient implements Adm
 
     @Override
     public RequestResponse<SchemaResponse> getUnitSchema() throws AdminManagementClientServerException {
+        throw new IllegalStateException(CANNOT_BE_USED);
+    }
+
+    @Override
+    public RequestResponse<CombinedSchemaModel> getArchiveUnitProfileSchema(String id)
+        throws AdminManagementClientServerException {
         throw new IllegalStateException(CANNOT_BE_USED);
     }
 

@@ -24,31 +24,66 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL-C license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.common.model.administration.schema;
 
-public enum SchemaCardinality {
-    ZERO("0"),
-    ONE("0-1"),
-    ONE_REQUIRED("1-1"),
-    MANY("0-N"),
-    MANY_REQUIRED("1-N");
+package fr.gouv.vitam.common.model.administration;
 
-    private final String value;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-    SchemaCardinality(String value) {
+import java.util.ArrayList;
+import java.util.List;
+
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
+public class SchemaControl {
+
+    public static final String TAG_Type = "Type";
+    public static final String TAG_Value = "Value";
+    public static final String TAG_Values = "Values";
+    public static final String TAG_Comment = "Comment";
+
+    @JsonProperty(TAG_Type)
+    private String type;
+
+    @JsonProperty(TAG_Value)
+    private String value;
+
+    @JsonProperty(TAG_Values)
+    private List<String> values = new ArrayList<>();
+
+    @JsonProperty(TAG_Comment)
+    private String comment;
+
+    // Getters et setters
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
         this.value = value;
     }
 
-    public String value() {
-        return this.value;
+    public List<String> getValues() {
+        return values;
     }
 
-    public static SchemaCardinality fromValue(String v) {
-        for (SchemaCardinality c : SchemaCardinality.values()) {
-            if (c.value.equals(v)) {
-                return c;
-            }
-        }
-        throw new IllegalArgumentException(v);
+    public void addValue(String value) {
+        this.values.add(value);
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 }

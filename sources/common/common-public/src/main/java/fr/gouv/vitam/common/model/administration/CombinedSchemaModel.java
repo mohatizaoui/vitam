@@ -24,31 +24,42 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL-C license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.common.model.administration.schema;
+package fr.gouv.vitam.common.model.administration;
 
-public enum SchemaCardinality {
-    ZERO("0"),
-    ONE("0-1"),
-    ONE_REQUIRED("1-1"),
-    MANY("0-N"),
-    MANY_REQUIRED("1-N");
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import fr.gouv.vitam.common.model.administration.schema.SchemaResponse;
 
-    private final String value;
+/**
+ * POJO java use for mapping @{@link fr.gouv.vitam.functional.administration.common.CombinedSchemaModel}
+ */
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
+public class CombinedSchemaModel extends SchemaResponse {
 
-    SchemaCardinality(String value) {
-        this.value = value;
+    public static final String TAG_EffectiveCardinality = "EffectiveCardinality";
+    public static final String TAG_Control = "Control";
+
+    @JsonProperty(TAG_Control)
+    private SchemaControl control;
+
+    @JsonProperty(TAG_EffectiveCardinality)
+    private String effectiveCardinality;
+
+    // Getters et setters
+
+    public SchemaControl getControl() {
+        return control;
     }
 
-    public String value() {
-        return this.value;
+    public void setControl(SchemaControl control) {
+        this.control = control;
     }
 
-    public static SchemaCardinality fromValue(String v) {
-        for (SchemaCardinality c : SchemaCardinality.values()) {
-            if (c.value.equals(v)) {
-                return c;
-            }
-        }
-        throw new IllegalArgumentException(v);
+    public String getEffectiveCardinality() {
+        return effectiveCardinality;
+    }
+
+    public void setEffectiveCardinality(String effectiveCardinality) {
+        this.effectiveCardinality = effectiveCardinality;
     }
 }

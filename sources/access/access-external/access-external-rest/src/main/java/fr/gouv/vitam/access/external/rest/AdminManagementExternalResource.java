@@ -77,6 +77,7 @@ import fr.gouv.vitam.common.model.administration.AccessionRegisterDetailModel;
 import fr.gouv.vitam.common.model.administration.AccessionRegisterSymbolicModel;
 import fr.gouv.vitam.common.model.administration.AgenciesModel;
 import fr.gouv.vitam.common.model.administration.ArchiveUnitProfileModel;
+import fr.gouv.vitam.common.model.administration.CombinedSchemaModel;
 import fr.gouv.vitam.common.model.administration.ContextModel;
 import fr.gouv.vitam.common.model.administration.FileFormatModel;
 import fr.gouv.vitam.common.model.administration.IngestContractModel;
@@ -170,6 +171,7 @@ import static fr.gouv.vitam.utils.SecurityProfilePermissions.ARCHIVEUNITPROFILES
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.ARCHIVEUNITPROFILES_ID_READ_JSON;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.ARCHIVEUNITPROFILES_ID_UPDATE_JSON;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.ARCHIVEUNITPROFILES_READ;
+import static fr.gouv.vitam.utils.SecurityProfilePermissions.ARCHIVE_UNIT_PROFILE_SCHEMA_READ;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.AUDITS_CREATE;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.BATCHREPORT_ID_READ;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.CONTEXTS_CREATE_JSON;
@@ -264,6 +266,8 @@ public class AdminManagementExternalResource extends ApplicationStatusResource {
     private static final String UNEXPECTED_ERROR = "Unexpected error was thrown : ";
 
     public static final String UNIT_SCHEMA = "/schema/unit";
+
+    public static final String ARCHIVE_UNIT_PROFILE_SCHEMA = "/archiveunitprofiles/{id}/schema";
     public static final String OBJECTGROUP_SCHEMA = "/schema/objectgroup";
 
     private final SecureEndpointRegistry secureEndpointRegistry;
@@ -3272,6 +3276,27 @@ public class AdminManagementExternalResource extends ApplicationStatusResource {
     public Response unitSchema() {
         try (AdminManagementClient adminManagementClient = adminManagementClientFactory.getClient()) {
             RequestResponse<SchemaResponse> schema = adminManagementClient.getUnitSchema();
+            return Response.ok(schema).build();
+        } catch (AdminManagementClientServerException e) {
+            LOGGER.error("Cannot retrieve unit schema ", e);
+            return VitamCodeHelper.toVitamError(VitamCode.ADMIN_EXTERNAL_INTERNAL_SERVER_ERROR, e.getLocalizedMessage())
+                .setHttpCode(Status.INTERNAL_SERVER_ERROR.getStatusCode())
+                .toResponse();
+        }
+    }
+
+    @Path(ARCHIVE_UNIT_PROFILE_SCHEMA)
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Secured(
+        permission = ARCHIVE_UNIT_PROFILE_SCHEMA_READ,
+        description = "récuperer le schéma des unités archivestiques"
+    )
+    public Response archiveUnitProfileSchema(@PathParam("id") String archiveUnitProfileId) {
+        try (AdminManagementClient adminManagementClient = adminManagementClientFactory.getClient()) {
+            RequestResponse<CombinedSchemaModel> schema = adminManagementClient.getArchiveUnitProfileSchema(
+                archiveUnitProfileId
+            );
             return Response.ok(schema).build();
         } catch (AdminManagementClientServerException e) {
             LOGGER.error("Cannot retrieve unit schema ", e);

@@ -43,6 +43,7 @@ import fr.gouv.vitam.common.model.administration.AccessionRegisterSummaryModel;
 import fr.gouv.vitam.common.model.administration.AccessionRegisterSymbolicModel;
 import fr.gouv.vitam.common.model.administration.AgenciesModel;
 import fr.gouv.vitam.common.model.administration.ArchiveUnitProfileModel;
+import fr.gouv.vitam.common.model.administration.CombinedSchemaModel;
 import fr.gouv.vitam.common.model.administration.ContextModel;
 import fr.gouv.vitam.common.model.administration.FileFormatModel;
 import fr.gouv.vitam.common.model.administration.IngestContractModel;
@@ -849,6 +850,9 @@ public interface AdminManagementClient extends MockOrRestClient {
         throws AdminManagementClientServerException;
 
     RequestResponse<SchemaResponse> getUnitSchema() throws AdminManagementClientServerException;
+
+    RequestResponse<CombinedSchemaModel> getArchiveUnitProfileSchema(String id)
+        throws AdminManagementClientServerException;
 
     RequestResponse<SchemaResponse> getObjectGroupSchema() throws AdminManagementClientServerException;
 

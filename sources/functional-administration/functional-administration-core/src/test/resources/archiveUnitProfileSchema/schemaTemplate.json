@@ -1,0 +1,61 @@
+{
+  "$schema": "http://vitam-json-schema.org/draft-04/schema#",
+  "id": "http://example.com/root.json",
+  "type": "object",
+  "properties": {
+    "Title": {
+      "type": "string",
+      "pattern": "^FACT_[0-9]{10}$"
+    },
+    "EventDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "EffectiveDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "OptionalDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "MultipleDates": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "date"
+      }
+    },
+    "TagsWithRegex": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-zA-Z0-9]+$"
+      }
+    },
+    "TagsWithEnum": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["TAG1", "TAG2", "TAG3"]
+      }
+    },
+    "Tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "Addressee": {
+      "type": "object",
+      "properties": {
+        "Local": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": ["Title"],
+  "additionalProperties": false
+}
