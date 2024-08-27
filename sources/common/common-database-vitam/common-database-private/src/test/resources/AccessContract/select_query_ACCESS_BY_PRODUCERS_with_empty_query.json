@@ -1,0 +1,30 @@
+{
+  "$roots": [],
+  "$query": [
+    {
+      "$and": [
+        {
+          "$or": [
+            {
+              "$eq": {
+                "#unitType": "HOLDING_UNIT"
+              }
+            },
+            {
+              "$in": {
+                "#originating_agencies": [
+                  "originating_agency_01",
+                  "originating_agency_02"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "$depth": 0
+    }
+  ],
+  "$filter": {},
+  "$projection": {},
+  "$facets": []
+}

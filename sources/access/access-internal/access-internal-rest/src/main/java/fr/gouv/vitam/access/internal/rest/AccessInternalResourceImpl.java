@@ -291,9 +291,12 @@ public class AccessInternalResourceImpl extends ApplicationStatusResource implem
         try {
             SanityChecker.checkJsonAll(queryDsl);
             checkEmptyQuery(queryDsl);
-            result = accessModule.selectUnit(
-                applyAccessContractRestrictionForUnitForSelect(queryDsl, getVitamSession().getContract())
+            JsonNode queryRestricted = applyAccessContractRestrictionForUnitForSelect(
+                queryDsl,
+                getVitamSession().getContract()
             );
+            LOGGER.debug(DEBUG, queryRestricted);
+            result = accessModule.selectUnit(queryRestricted);
             LOGGER.debug(DEBUG, result);
             resetQuery(result, queryDsl);
             LOGGER.debug(END_OF_EXECUTION_OF_DSL_VITAM_FROM_ACCESS);

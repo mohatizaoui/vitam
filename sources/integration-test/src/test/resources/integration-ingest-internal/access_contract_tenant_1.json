@@ -2,7 +2,7 @@
   {
     "Name":"newContract",
     "Identifier":"newContract",
-    "Description":"aDescription of the contract",
+    "Description":"integration-ingest-internal/access_contract_tenant_1.json",
     "Status":"ACTIVE",
     "OriginatingAgencies":["FRAN_NP_009913"],
     "DataObjectVersion": ["PhysicalMaster", "BinaryMaster"],

@@ -21,7 +21,11 @@
       "type": "keyword",
       "null_value": "NULL"
     },
-    "SkipFilingSchemeOriginatingAgencyFilter": {
+    "RuleCategoryToFilterForTheOtherOriginatingAgencies": {
+      "type": "keyword",
+      "null_value": "NULL"
+    },
+    "DoNotFilterFilingSchemes": {
       "type": "boolean"
     },
     "SkipFilingSchemeRuleCategoryFilter": {

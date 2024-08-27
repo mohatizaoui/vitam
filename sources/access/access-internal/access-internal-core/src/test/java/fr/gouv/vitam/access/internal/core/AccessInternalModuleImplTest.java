@@ -1051,10 +1051,10 @@ public class AccessInternalModuleImplTest {
         accessModuleImpl.updateUnitById(fromStringToJson(QUERY), "", REQUEST_ID);
     }
 
-    private void setAccessLogInfoInVitamSession() {
-        AccessContractModel contract = new AccessContractModel();
-        contract.setAccessLog(ActivationStatus.ACTIVE);
-        contract.setEveryOriginatingAgency(Boolean.FALSE);
+    private void setAccessContractInVitamSession() {
+        AccessContractModel contract = new AccessContractModel()
+            .setAccessLog(ActivationStatus.ACTIVE)
+            .setEveryOriginatingAgency(Boolean.TRUE);
         VitamThreadUtils.getVitamSession().setContract(contract);
     }
 
@@ -1068,7 +1068,7 @@ public class AccessInternalModuleImplTest {
         String idObject = "aeaaaaaaaabgthlqabqgsalltyqvyuaaaaaq";
 
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
-        setAccessLogInfoInVitamSession();
+        setAccessContractInVitamSession();
         when(metaDataClient.selectObjectGrouptbyId(any(), any())).thenReturn(metadataObjectGroupResponse);
 
         final Response responseMock = mock(Response.class);
@@ -1102,7 +1102,7 @@ public class AccessInternalModuleImplTest {
         String idObject = "aeaaaaaaaabgthlqabqgsalltyqvyuaaaaaq";
 
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
-        setAccessLogInfoInVitamSession();
+        setAccessContractInVitamSession();
         when(metaDataClient.selectObjectGrouptbyId(any(), any())).thenReturn(metadataObjectGroupResponse);
 
         doThrow(new StorageUnavailableDataFromAsyncOfferClientException("unavailable"))
@@ -1125,7 +1125,7 @@ public class AccessInternalModuleImplTest {
         String idObject = "aeaaaaaaaabgthlqabqgsalltyqvyvaaaaaq";
 
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
-        setAccessLogInfoInVitamSession();
+        setAccessContractInVitamSession();
         when(metaDataClient.selectObjectGrouptbyId(any(), any())).thenReturn(metadataObjectGroupResponse);
 
         final Response responseMock = mock(Response.class);
@@ -1159,7 +1159,7 @@ public class AccessInternalModuleImplTest {
         String idObject = "aeaaaaaaaabgthlqabqgsalltyqvyuaaaaaq";
 
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
-        setAccessLogInfoInVitamSession();
+        setAccessContractInVitamSession();
         when(metaDataClient.selectObjectGrouptbyId(any(), any())).thenReturn(metadataObjectGroupResponse);
 
         when(storageClient.getContainerAsync(eq(idStrategy), eq(idObject), eq(DataCategory.OBJECT), any())).thenThrow(
@@ -1176,7 +1176,7 @@ public class AccessInternalModuleImplTest {
     @RunWithCustomExecutor
     public void testGetOneObjectFromObjectGroupRealData_OK() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
-        setAccessLogInfoInVitamSession();
+        setAccessContractInVitamSession();
         when(metaDataClient.selectObjectGrouptbyId(any(), any())).thenReturn(
             JsonHandler.getFromFile(PropertiesUtils.getResourceFile(REAL_DATA_RESULT_PATH))
         );
@@ -1228,7 +1228,7 @@ public class AccessInternalModuleImplTest {
     @RunWithCustomExecutor
     public void testGetOneObjectFromObjectGroupRealData_WARN() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
-        setAccessLogInfoInVitamSession();
+        setAccessContractInVitamSession();
         when(metaDataClient.selectObjectGrouptbyId(any(), any())).thenReturn(
             JsonHandler.getFromFile(PropertiesUtils.getResourceFile(REAL_DATA_RESULT_MULTI_PATH))
         );
@@ -1285,7 +1285,7 @@ public class AccessInternalModuleImplTest {
     @RunWithCustomExecutor
     public void testGetOneObjectFromObjectGroup_With_One_Result() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
-        setAccessLogInfoInVitamSession();
+        setAccessContractInVitamSession();
         when(metaDataClient.selectObjectGrouptbyId(any(), any())).thenReturn(fromStringToJson(FAKE_METADATA_RESULT));
         final Response responseMock = mock(Response.class);
         when(responseMock.readEntity(InputStream.class)).thenReturn(
@@ -1300,7 +1300,7 @@ public class AccessInternalModuleImplTest {
     @RunWithCustomExecutor
     public void testGetOneObjectFromObjectGroup_With_ObjectMapping_Result() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
-        setAccessLogInfoInVitamSession();
+        setAccessContractInVitamSession();
         when(metaDataClient.selectObjectGrouptbyId(any(), any())).thenReturn(
             fromStringToJson(FAKE_METADATA_MULTIPLE_RESULT)
         );
@@ -1327,7 +1327,7 @@ public class AccessInternalModuleImplTest {
     @RunWithCustomExecutor
     public void testGetOneObjectFromObjectGroup_With_StorageClient_Error() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
-        setAccessLogInfoInVitamSession();
+        setAccessContractInVitamSession();
         when(metaDataClient.selectObjectGrouptbyId(any(), any())).thenReturn(fromStringToJson(FAKE_METADATA_RESULT));
         when(storageClient.getContainerAsync(any(), any(), any(), any())).thenThrow(
             new StorageServerClientException("Test wanted exception")
@@ -2044,7 +2044,7 @@ public class AccessInternalModuleImplTest {
     public void testSelectOneUnitIdReturnsValidId() throws Exception {
         List<String> archiveUnitIds = Arrays.asList("aeaqaaaaaaeaaaabaa2okamn6rmxmeyaaaaq");
         when(metaDataClient.selectUnits(any())).thenReturn(selectOneUnitIdResponse);
-        setAccessLogInfoInVitamSession();
+        setAccessContractInVitamSession();
         String actualId = accessModuleImpl.findFirstAccessibleArchiveUnitId(archiveUnitIds);
         assertEquals("aeaqaaaaaaeaaaabaa2okamn6rmxmeyaaaaq", actualId);
     }
@@ -2054,7 +2054,7 @@ public class AccessInternalModuleImplTest {
     public void testSelectOneUnitIdReturnsValidIdwithMultipleCases() throws Exception {
         List<String> archiveUnitIds = Arrays.asList("aeaqaaaaaaeaaaabaa2okamn6rmxmeyaaaaq");
         when(metaDataClient.selectUnits(any(JsonNode.class))).thenReturn(selectOneUnitIdResponse);
-        setAccessLogInfoInVitamSession();
+        setAccessContractInVitamSession();
         String actualId = accessModuleImpl.findFirstAccessibleArchiveUnitId(archiveUnitIds);
         assertEquals("aeaqaaaaaaeaaaabaa2okamn6rmxmeyaaaaq", actualId);
     }
@@ -2069,7 +2069,7 @@ public class AccessInternalModuleImplTest {
         );
 
         when(metaDataClient.selectUnits(any(JsonNode.class))).thenReturn(responseWithFirstValidId);
-        setAccessLogInfoInVitamSession();
+        setAccessContractInVitamSession();
 
         String actualId = accessModuleImpl.findFirstAccessibleArchiveUnitId(archiveUnitIds);
 
@@ -2086,7 +2086,7 @@ public class AccessInternalModuleImplTest {
         );
 
         when(metaDataClient.selectUnits(any(JsonNode.class))).thenReturn(responseWithLastValidId);
-        setAccessLogInfoInVitamSession();
+        setAccessContractInVitamSession();
 
         String actualId = accessModuleImpl.findFirstAccessibleArchiveUnitId(archiveUnitIds);
 
@@ -2103,7 +2103,7 @@ public class AccessInternalModuleImplTest {
         );
 
         when(metaDataClient.selectUnits(any(JsonNode.class))).thenReturn(emptyValidIdResponse);
-        setAccessLogInfoInVitamSession();
+        setAccessContractInVitamSession();
 
         assertThrows(
             MetaDataNotFoundException.class,

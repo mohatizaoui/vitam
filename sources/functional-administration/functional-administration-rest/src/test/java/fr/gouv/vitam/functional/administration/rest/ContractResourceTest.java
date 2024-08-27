@@ -540,8 +540,8 @@ public class ContractResourceTest {
             .filter(ac -> ac.getName().equals("aName"))
             .findFirst()
             .orElseThrow();
-        assertThat(accessContractModel1.getSkipFilingSchemeOriginatingAgencyFilter()).isFalse();
-        assertThat(accessContractModel1.getSkipFilingSchemeRuleCategoryFilter()).isTrue();
+        assertThat(accessContractModel1.getDoNotFilterFilingSchemes()).isFalse();
+        assertThat(accessContractModel1.getSkipFilingSchemeRuleCategoryFilter()).isNull();
 
         AccessContractModel accessContractModel2 = accessContractsFromUploadResponse
             .getResults()
@@ -549,7 +549,7 @@ public class ContractResourceTest {
             .filter(ac -> ac.getName().equals("aName2"))
             .findFirst()
             .orElseThrow();
-        assertThat(accessContractModel2.getSkipFilingSchemeOriginatingAgencyFilter()).isTrue();
+        assertThat(accessContractModel2.getDoNotFilterFilingSchemes()).isTrue();
         assertThat(accessContractModel2.getSkipFilingSchemeRuleCategoryFilter()).isFalse();
 
         final SelectParserSingle parser = new SelectParserSingle(new SingleVarNameAdapter());
@@ -577,8 +577,8 @@ public class ContractResourceTest {
 
         // We just test the first contract
         assertThat(accessContractModel.getName()).isEqualTo("aName");
-        assertThat(accessContractModel.getSkipFilingSchemeOriginatingAgencyFilter()).isFalse();
-        assertThat(accessContractModel.getSkipFilingSchemeRuleCategoryFilter()).isTrue();
+        assertThat(accessContractModel.getDoNotFilterFilingSchemes()).isFalse();
+        assertThat(accessContractModel.getSkipFilingSchemeRuleCategoryFilter()).isNull();
     }
 
     @Test

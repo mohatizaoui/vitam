@@ -1,0 +1,26 @@
+{
+  "$roots": [],
+  "$query": [
+    {
+      "$and": [
+        {
+          "$in": {
+            "#originating_agencies": [
+              "originating_agency_01",
+              "originating_agency_02"
+            ]
+          }
+        },
+        {
+          "$match": {
+            "Title": "mon titre test"
+          }
+        }
+      ],
+      "$depth": 1000
+    }
+  ],
+  "$filter": {},
+  "$projection": {},
+  "$facets": []
+}

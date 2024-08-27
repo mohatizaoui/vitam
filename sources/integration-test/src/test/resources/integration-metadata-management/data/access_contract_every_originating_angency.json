@@ -2,29 +2,29 @@
 	{
 		"Identifier":"aName",
 		"Name":"aName",
-		"Description":"aDescription of the contract",
+		"Description":"access_contract_every_originating_angency.json",
 		"Status":"ACTIVE",
-		"OriginatingAgencies":[],
 		"DataObjectVersion": ["PhysicalMaster", "BinaryMaster"],
 		"LastUpdate":"10/12/2016",
 		"CreationDate":"10/12/2016",
 		"ActivationDate":"10/12/2016",
 		"DeactivationDate":"10/12/2016",
 		"WritingPermission": true,
-		"EveryOriginatingAgency": true
+		"EveryOriginatingAgency": true,
+		"OriginatingAgencies":[]
 	},
 	{
 		"Identifier":"EveryOriginatingAgency",
 		"Name":"EveryOriginatingAgency",
-		"Description":"aDescription of the contract",
+		"Description":"access_contract_every_originating_angency.json",
 		"Status":"ACTIVE",
-		"OriginatingAgencies":[],
 		"DataObjectVersion": ["PhysicalMaster", "BinaryMaster"],
 		"LastUpdate":"10/12/2016",
 		"CreationDate":"10/12/2016",
 		"ActivationDate":"10/12/2016",
 		"DeactivationDate":"10/12/2016",
 		"WritingPermission": true,
-		"EveryOriginatingAgency": true
+		"EveryOriginatingAgency": true,
+		"OriginatingAgencies":[]
 	}
 ]

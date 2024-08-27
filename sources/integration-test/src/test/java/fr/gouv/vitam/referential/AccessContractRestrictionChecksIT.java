@@ -35,8 +35,6 @@ import fr.gouv.vitam.access.external.client.AccessExternalClientFactory;
 import fr.gouv.vitam.access.external.rest.AccessExternalMain;
 import fr.gouv.vitam.access.internal.client.AccessInternalClient;
 import fr.gouv.vitam.access.internal.client.AccessInternalClientFactory;
-import fr.gouv.vitam.access.internal.common.exception.AccessInternalClientNotFoundException;
-import fr.gouv.vitam.access.internal.common.exception.AccessInternalClientServerException;
 import fr.gouv.vitam.access.internal.rest.AccessInternalMain;
 import fr.gouv.vitam.batch.report.rest.BatchReportMain;
 import fr.gouv.vitam.common.DataLoader;
@@ -47,16 +45,10 @@ import fr.gouv.vitam.common.client.VitamContext;
 import fr.gouv.vitam.common.database.builder.query.QueryHelper;
 import fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper;
 import fr.gouv.vitam.common.database.builder.query.action.UpdateActionHelper;
-import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
 import fr.gouv.vitam.common.database.builder.request.multiple.SelectMultiQuery;
 import fr.gouv.vitam.common.database.builder.request.single.Select;
 import fr.gouv.vitam.common.database.builder.request.single.Update;
 import fr.gouv.vitam.common.elasticsearch.ElasticsearchRule;
-import fr.gouv.vitam.common.exception.AccessUnauthorizedException;
-import fr.gouv.vitam.common.exception.BadRequestException;
-import fr.gouv.vitam.common.exception.InternalServerException;
-import fr.gouv.vitam.common.exception.InvalidParseOperationException;
-import fr.gouv.vitam.common.exception.VitamClientException;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.ProcessAction;
 import fr.gouv.vitam.common.model.RequestResponse;
@@ -73,16 +65,12 @@ import fr.gouv.vitam.functional.administration.client.AdminManagementClientFacto
 import fr.gouv.vitam.functional.administration.rest.AdminManagementMain;
 import fr.gouv.vitam.ingest.external.rest.IngestExternalMain;
 import fr.gouv.vitam.ingest.internal.upload.rest.IngestInternalMain;
-import fr.gouv.vitam.logbook.common.exception.LogbookClientAlreadyExistsException;
-import fr.gouv.vitam.logbook.common.exception.LogbookClientBadRequestException;
-import fr.gouv.vitam.logbook.common.exception.LogbookClientServerException;
 import fr.gouv.vitam.logbook.rest.LogbookMain;
 import fr.gouv.vitam.metadata.client.MetaDataClient;
 import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.metadata.rest.MetadataMain;
 import fr.gouv.vitam.processing.management.rest.ProcessManagementMain;
 import fr.gouv.vitam.worker.server.rest.WorkerMain;
-import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.rest.WorkspaceMain;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -111,7 +99,9 @@ public class AccessContractRestrictionChecksIT extends VitamRuleRunner {
     private static final Integer tenantId = 0;
     private static final String SIP_HOLDING_SCHEME = "integration-ingest-internal/arbre_simple.zip";
     private static final String SIP_FILING_SCHEME = "integration-ingest-internal/plan_simple.zip";
-    private static final String SIP_SIMPLE = "integration-ingest-internal/arbo_simple.zip";
+    private static final String SIP_SIMPLE_1 = "integration-ingest-internal/sip_simple_1.zip";
+    private static final String SIP_SIMPLE_2 = "integration-ingest-internal/sip_simple_2.zip";
+    private static final String SIP_SIMPLE_3 = "integration-ingest-internal/sip_simple_3.zip";
 
     @ClassRule
     public static VitamServerRunner runner = new VitamServerRunner(
@@ -175,84 +165,113 @@ public class AccessContractRestrictionChecksIT extends VitamRuleRunner {
     public void testAccessContractRestrictions() throws Exception {
         // Setup
         /*
-         *                 (HoldingUnit)
-         *                  /         \
-         *     (FilingScheme1)        (FilingScheme2)
-         *           |
-         *        (UnitA)
+         *                          (holding_sheme_01)
+         *                  /                  \           \
+         *     (filing_scheme_01)     (filing_scheme_02)    (filing_scheme_03)
+         *           |                     \                        \
+         *        (UnitA)                 (UnitE)                  (UnitF)
          *        /        \
-         *   (UnitB)    (UnitC)
+         *   (UnitB)     (UnitC)
          *      |          |    \
          *    [GotB]     [GotC]  (UnitD)
          *
-         * HoldingUnit:   No originating agency / No Rules
-         * FilingScheme1: SP1 / No rules
-         * FilingScheme2: SP1 / AppraisalRule with expired MaxEndDate
-         * UnitA:         SP2 / No rules
-         * UnitB:         SP2 / AppraisalRule with non-expired MaxEndDate
-         * UnitC:         SP2 / AppraisalRule with expired MaxEndDate
-         * UnitD:         SP2 / Invalid computed inherited rules
+         * holding_scheme_01:   No originating agency / No Rules
+         *
+         * filing_scheme_01: originating_agency_01 / No rules
+         * filing_scheme_02: originating_agency_01 / AppraisalRule with expired MaxEndDate
+         * filing_scheme_03: originating_agency_01 / No rules
+         *
+         * UnitA:         originating_agency_02 / No rules
+         * UnitB:         originating_agency_02 / AppraisalRule with non-expired MaxEndDate
+         * UnitC:         originating_agency_02 / AppraisalRule with expired MaxEndDate
+         * UnitD:         originating_agency_02 / Invalid computed inherited rules
+         *
+         * UnitE:         originating_agency_03 / inherited from filing_scheme_02 AppraisalRule with expired MaxEndDate
+         *
+         * UnitF:         originating_agency_04 / No rules
          */
 
         // Ingest holding schema
         String holdingSchemeIngestOperationId = doIngestOfHoldingScheme();
 
         Map<String, String> holdingSchemeUnitIds = getUnitIdsByTitle(holdingSchemeIngestOperationId);
-        assertThat(holdingSchemeUnitIds).containsOnlyKeys("Arbre simple");
-        String holdingSchemeUnitId = holdingSchemeUnitIds.get("Arbre simple");
-        assertNotNull(holdingSchemeUnitId);
-
-        // Update IngestContract LinkParentId & ingest filing scheme under holdingSchemeUnitId
+        assertThat(holdingSchemeUnitIds).containsOnlyKeys("holding_sheme_01");
+        String holdingSchemeId = holdingSchemeUnitIds.get("holding_sheme_01");
+        assertNotNull(holdingSchemeId);
+        // Update IngestContract LinkParentId & ingest filing scheme under holdingSchemeId
         VitamThreadUtils.getVitamSession().setRequestId(newOperationLogbookGUID(tenantId));
-        updateIngestContractLinkParentId("IngestContractWithHoldingScheme", holdingSchemeUnitId);
+        updateIngestContractLinkParentId("IngestContractWithHoldingScheme", holdingSchemeId);
 
         String filingSchemeIngestOperationId = doIngestOfFilingSchemeReturningUnitIdsByTitle();
-
         Map<String, String> filingSchemeUnitIds = getUnitIdsByTitle(filingSchemeIngestOperationId);
-        assertThat(filingSchemeUnitIds).containsOnlyKeys("FilingScheme1", "FilingScheme2");
-        String filingScheme1 = filingSchemeUnitIds.get("FilingScheme1");
-        String filingScheme2 = filingSchemeUnitIds.get("FilingScheme2");
+        assertThat(filingSchemeUnitIds).containsOnlyKeys("filing_scheme_01", "filing_scheme_02", "filing_scheme_03");
+        String filingScheme1 = filingSchemeUnitIds.get("filing_scheme_01");
+        String filingScheme2 = filingSchemeUnitIds.get("filing_scheme_02");
+        String filingScheme3 = filingSchemeUnitIds.get("filing_scheme_03");
 
         // Update IngestContract LinkParentId & ingest SIP under FilingScheme1 unit
         VitamThreadUtils.getVitamSession().setRequestId(newOperationLogbookGUID(tenantId));
-        updateIngestContractLinkParentId("IngestContractWithFilingScheme", filingSchemeUnitIds.get("FilingScheme1"));
+        updateIngestContractLinkParentId("IngestContractWithFilingScheme", filingSchemeUnitIds.get("filing_scheme_01"));
+        String sipSimple1 = doIngest(tenantId, SIP_SIMPLE_1);
+        verifyOperation(sipSimple1, OK);
+        Map<String, String> sipSimple1IDS = getUnitIdsByTitle(sipSimple1);
+        assertThat(sipSimple1IDS).containsOnlyKeys("UnitA", "UnitB", "UnitC", "UnitD");
+        String unitA = sipSimple1IDS.get("UnitA");
+        String unitB = sipSimple1IDS.get("UnitB");
+        String unitC = sipSimple1IDS.get("UnitC");
+        String unitD = sipSimple1IDS.get("UnitD");
 
-        String operationId = doIngest(tenantId, SIP_SIMPLE);
-        verifyOperation(operationId, OK);
+        // Update IngestContract LinkParentId & ingest SIP under FilingScheme2 unit
+        VitamThreadUtils.getVitamSession().setRequestId(newOperationLogbookGUID(tenantId));
+        updateIngestContractLinkParentId("IngestContractWithFilingScheme", filingSchemeUnitIds.get("filing_scheme_02"));
+        String sipSimple2 = doIngest(tenantId, SIP_SIMPLE_2);
+        verifyOperation(sipSimple2, OK);
+        Map<String, String> sipSimple2IDS = getUnitIdsByTitle(sipSimple2);
+        assertThat(sipSimple2IDS).containsOnlyKeys("UnitE");
+        String unitE = sipSimple2IDS.get("UnitE");
 
-        Map<String, String> simpleSipUnitIds = getUnitIdsByTitle(operationId);
-        assertThat(simpleSipUnitIds).containsOnlyKeys("UnitA", "UnitB", "UnitC", "UnitD");
-        String unitA = simpleSipUnitIds.get("UnitA");
-        String unitB = simpleSipUnitIds.get("UnitB");
-        String unitC = simpleSipUnitIds.get("UnitC");
-        String unitD = simpleSipUnitIds.get("UnitD");
+        // Update IngestContract LinkParentId & ingest SIP under FilingScheme2 unit
+        VitamThreadUtils.getVitamSession().setRequestId(newOperationLogbookGUID(tenantId));
+        updateIngestContractLinkParentId("IngestContractWithFilingScheme", filingSchemeUnitIds.get("filing_scheme_03"));
+        String sipSimple3 = doIngest(tenantId, SIP_SIMPLE_3);
+        verifyOperation(sipSimple3, OK);
+        Map<String, String> sipSimple3IDS = getUnitIdsByTitle(sipSimple3);
+        assertThat(sipSimple3IDS).containsOnlyKeys("UnitF");
+        String unitF = sipSimple3IDS.get("UnitF");
 
         String[] operationIds = new String[] {
             holdingSchemeIngestOperationId,
             filingSchemeIngestOperationId,
-            operationId,
+            sipSimple1,
+            sipSimple2,
+            sipSimple3,
         };
 
         // Compute inherited rules (except for UnitD)
-        computeInheritedRules(filingScheme1, filingScheme2, unitA, unitB, unitC);
+        computeInheritedRules(filingScheme1, filingScheme2, filingScheme3, unitA, unitB, unitC, unitE, unitF);
 
         // Invalidate computed inherited rules for UnitD
         updateUnitRules(unitD);
 
-        // Case 1: OriginatingAgency filter + Rule filter
-        List<String> foundUnitIds = search("ac_filter_originating_agencies_and_rules", operationIds);
-        assertThat(foundUnitIds).containsExactlyInAnyOrder(holdingSchemeUnitId, unitC);
+        //###################################################################
+        System.out.println(filingSchemeUnitIds);
+        System.out.println(sipSimple1IDS);
+        System.out.println(sipSimple2IDS);
+        System.out.println(sipSimple3IDS);
+        //###################################################################
+        List<String> foundUnitIds;
 
         // Case 2: OriginatingAgency filter
         foundUnitIds = search("ac_filter_originating_agencies", operationIds);
-        assertThat(foundUnitIds).containsExactlyInAnyOrder(holdingSchemeUnitId, unitA, unitB, unitC, unitD);
+        assertThat(foundUnitIds).containsExactlyInAnyOrder(holdingSchemeId, unitA, unitB, unitC, unitD);
 
         // Case 3: OriginatingAgency filter skip filing scheme
         foundUnitIds = search("ac_filter_originating_agencies_except_filing_scheme", operationIds);
         assertThat(foundUnitIds).containsExactlyInAnyOrder(
-            holdingSchemeUnitId,
+            holdingSchemeId,
             filingScheme1,
             filingScheme2,
+            filingScheme3,
             unitA,
             unitB,
             unitC,
@@ -261,15 +280,83 @@ public class AccessContractRestrictionChecksIT extends VitamRuleRunner {
 
         // Case 4: Rule filter
         foundUnitIds = search("ac_filter_rules", operationIds);
-        assertThat(foundUnitIds).containsExactlyInAnyOrder(holdingSchemeUnitId, filingScheme2, unitC);
+        assertThat(foundUnitIds).containsExactlyInAnyOrder(holdingSchemeId, filingScheme2, unitC, unitE);
 
         // Case 5: Rule filter skip filing scheme
         foundUnitIds = search("ac_filter_rules_except_filing_scheme", operationIds);
-        assertThat(foundUnitIds).containsExactlyInAnyOrder(holdingSchemeUnitId, filingScheme1, filingScheme2, unitC);
+        assertThat(foundUnitIds).containsExactlyInAnyOrder(
+            holdingSchemeId,
+            filingScheme1,
+            filingScheme2,
+            filingScheme3,
+            unitC,
+            unitE
+        );
+
+        // Case: ACCESS_BY_PRODUCERS_AND_EXPIRED_MANAGEMENT_RULES
+        foundUnitIds = search("ac_ACCESS_BY_PRODUCERS_AND_EXPIRED_MANAGEMENT_RULES", operationIds);
+        assertThat(foundUnitIds).containsExactlyInAnyOrder(holdingSchemeId, unitC);
+
+        // Case: ACCESS_BY_PRODUCERS_AND_EXPIRED_MANAGEMENT_RULES DoNotFilterFilingSchemes=true
+        foundUnitIds = search("ac_ACCESS_BY_PRODUCERS_AND_EXPIRED_MANAGEMENT_RULES_doNotFilter", operationIds);
+        assertThat(foundUnitIds).containsExactlyInAnyOrder(holdingSchemeId, filingScheme2, unitC);
+
+        // Case: ACCESS_BY_PRODUCERS_AND_EXPIRED_MANAGEMENT_RULES DoNotFilterFilingSchemes=true SkipFilingSchemeRuleCategoryFilter=true
+        foundUnitIds = search("ac_ACCESS_BY_PRODUCERS_AND_EXPIRED_MANAGEMENT_RULES_doNotFilter_skipRule", operationIds);
+        assertThat(foundUnitIds).containsExactlyInAnyOrder(
+            holdingSchemeId,
+            filingScheme1,
+            filingScheme2,
+            filingScheme3,
+            unitC
+        );
+
+        // Case: ACCESS_BY_PRODUCERS_AND_EXPIRED_MANAGEMENT_RULES SkipFilingSchemeRuleCategoryFilter=true
+        foundUnitIds = search("ac_ACCESS_BY_PRODUCERS_AND_EXPIRED_MANAGEMENT_RULES_skipRule", operationIds);
+        assertThat(foundUnitIds).containsExactlyInAnyOrder(holdingSchemeId, unitC);
+
+        // Case: ACCESS_BY_PRODUCERS_OR_EXPIRED_MANAGEMENT_RULES
+        foundUnitIds = search("ac_ACCESS_BY_PRODUCERS_OR_EXPIRED_MANAGEMENT_RULES", operationIds);
+        assertThat(foundUnitIds).containsExactlyInAnyOrder(holdingSchemeId, filingScheme2, unitC, unitE, unitF);
+
+        // Case: ACCESS_BY_PRODUCERS_OR_EXPIRED_MANAGEMENT_RULES DoNotFilterFilingSchemes=true
+        foundUnitIds = search("ac_ACCESS_BY_PRODUCERS_OR_EXPIRED_MANAGEMENT_RULES_doNotFilter", operationIds);
+        assertThat(foundUnitIds).containsExactlyInAnyOrder(
+            holdingSchemeId,
+            filingScheme1,
+            filingScheme2,
+            filingScheme3,
+            unitC,
+            unitE,
+            unitF
+        );
+
+        // Case: ACCESS_BY_PRODUCERS_OR_EXPIRED_MANAGEMENT_RULES DoNotFilterFilingSchemes=true SkipFilingSchemeRuleCategoryFilter=true
+        foundUnitIds = search("ac_ACCESS_BY_PRODUCERS_OR_EXPIRED_MANAGEMENT_RULES_doNotFilter_skipRule", operationIds);
+        assertThat(foundUnitIds).containsExactlyInAnyOrder(
+            holdingSchemeId,
+            filingScheme1,
+            filingScheme2,
+            filingScheme3,
+            unitC,
+            unitE,
+            unitF
+        );
+
+        // Case: ACCESS_BY_PRODUCERS_OR_EXPIRED_MANAGEMENT_RULES SkipFilingSchemeRuleCategoryFilter=true
+        foundUnitIds = search("ac_ACCESS_BY_PRODUCERS_OR_EXPIRED_MANAGEMENT_RULES_skipRule", operationIds);
+        assertThat(foundUnitIds).containsExactlyInAnyOrder(
+            holdingSchemeId,
+            filingScheme1,
+            filingScheme2,
+            filingScheme3,
+            unitC,
+            unitE,
+            unitF
+        );
     }
 
-    private static List<String> search(String accessContractId, String... operationIds)
-        throws InvalidCreateOperationException, InvalidParseOperationException, AccessInternalClientServerException, AccessInternalClientNotFoundException, AccessUnauthorizedException, BadRequestException {
+    private static List<String> search(String accessContractId, String... operationIds) throws Exception {
         VitamThreadUtils.getVitamSession().setContractId(accessContractId);
 
         // When
@@ -282,8 +369,7 @@ public class AccessContractRestrictionChecksIT extends VitamRuleRunner {
         return results.stream().map(n -> n.get("#id").asText()).collect(Collectors.toList());
     }
 
-    private static void computeInheritedRules(String... unitIds)
-        throws InvalidCreateOperationException, LogbookClientAlreadyExistsException, VitamClientException, InternalServerException, ContentAddressableStorageServerException, BadRequestException, InvalidParseOperationException, LogbookClientBadRequestException, LogbookClientServerException {
+    private static void computeInheritedRules(String... unitIds) throws Exception {
         SelectMultiQuery select = new SelectMultiQuery();
         select.addQueries(QueryHelper.in(VitamFieldsHelper.id(), unitIds));
         VitamTestHelper.computeInheritedRules(select);
@@ -340,8 +426,7 @@ public class AccessContractRestrictionChecksIT extends VitamRuleRunner {
         return metadataClient.selectUnits(selectQuery.getFinalSelect());
     }
 
-    private static void updateUnitRules(String unitId)
-        throws InvalidCreateOperationException, VitamClientException, InvalidParseOperationException {
+    private static void updateUnitRules(String unitId) throws Exception {
         MassUpdateUnitRuleRequest massUpdateUnitRuleRequest = new MassUpdateUnitRuleRequest();
 
         RuleActions ruleActions = new RuleActions();

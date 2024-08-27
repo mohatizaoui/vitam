@@ -99,7 +99,23 @@
         ]
       }
     },
-    "SkipFilingSchemeOriginatingAgencyFilter": {
+    "RuleCategoryToFilterForTheOtherOriginatingAgencies": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "AppraisalRule",
+          "AccessRule",
+          "StorageRule",
+          "DisseminationRule",
+          "ClassificationRule",
+          "ReuseRule",
+          "HoldRule"
+        ]
+      }
+    },
+    "DoNotFilterFilingSchemes": {
       "type": "boolean"
     },
     "SkipFilingSchemeRuleCategoryFilter": {
@@ -156,5 +172,19 @@
     "EveryOriginatingAgency",
     "WritingPermission",
     "AccessLog"
-  ]
+  ],
+  "not": {
+    "properties": {
+      "RuleCategoryToFilter": {
+        "minItems": 1
+      },
+      "RuleCategoryToFilterForTheOtherOriginatingAgencies": {
+        "minItems": 1
+      }
+    },
+    "required": [
+      "RuleCategoryToFilter",
+      "RuleCategoryToFilterForTheOtherOriginatingAgencies"
+    ]
+  }
 }

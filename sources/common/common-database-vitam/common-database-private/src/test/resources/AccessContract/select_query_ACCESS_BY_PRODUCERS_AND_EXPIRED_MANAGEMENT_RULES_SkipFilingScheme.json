@@ -1,0 +1,61 @@
+{
+  "$roots": [],
+  "$query": [
+    {
+      "$and": [
+        {
+          "$or": [
+            {
+              "$eq": {
+                "#unitType": "HOLDING_UNIT"
+              }
+            },
+            {
+              "$in": {
+                "#originating_agencies": [
+                  "originating_agency_02",
+                  "originating_agency_01"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "$or": [
+            {
+              "$in": {
+                "#unitType": [
+                  "FILING_UNIT",
+                  "HOLDING_UNIT"
+                ]
+              }
+            },
+            {
+              "$and": [
+                {
+                  "$lt": {
+                    "#computedInheritedRules.AppraisalRule.MaxEndDate": "2024-08-28"
+                  }
+                },
+                {
+                  "$lt": {
+                    "#computedInheritedRules.AccessRule.MaxEndDate": "2024-08-28"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "$match": {
+            "Title": "mon titre test"
+          }
+        }
+      ],
+      "$depth": 1000
+    }
+  ],
+  "$filter": {},
+  "$projection": {},
+  "$facets": []
+}

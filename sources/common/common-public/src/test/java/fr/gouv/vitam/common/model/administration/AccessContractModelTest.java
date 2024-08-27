@@ -76,7 +76,7 @@ public class AccessContractModelTest {
             .setExcludedRootUnits(excludedRootUnits)
             .setAccessLog(accessLog)
             .setRuleCategoryToFilter(RuleCategoryToFilter)
-            .setSkipFilingSchemeOriginatingAgencyFilter(true)
+            .setDoNotFilterFilingSchemes(true)
             .setSkipFilingSchemeRuleCategoryFilter(false);
 
         assertEquals(id, contract.getId());
@@ -90,7 +90,7 @@ public class AccessContractModelTest {
         assertEquals(excludedRootUnits, contract.getExcludedRootUnits());
         assertEquals(accessLog, contract.getAccessLog());
         assertEquals(RuleCategoryToFilter, contract.getRuleCategoryToFilter());
-        assertThat(contract.getSkipFilingSchemeOriginatingAgencyFilter()).isTrue();
+        assertThat(contract.getDoNotFilterFilingSchemes()).isTrue();
         assertThat(contract.getSkipFilingSchemeRuleCategoryFilter()).isFalse();
     }
 
@@ -108,6 +108,7 @@ public class AccessContractModelTest {
         assertThat(accessContractModel.isEveryDataObjectVersion()).isFalse();
         assertThat(accessContractModel.getWritingRestrictedDesc()).isFalse();
         assertEquals(ActivationStatus.INACTIVE, accessContractModel.getAccessLog());
+        assertThat(accessContractModel.getDoNotFilterFilingSchemes()).isFalse();
     }
 
     @Test
@@ -119,7 +120,7 @@ public class AccessContractModelTest {
         accessContractModel.setWritingPermission(true);
         accessContractModel.setWritingRestrictedDesc(true);
         accessContractModel.setAccessLog(ActivationStatus.INACTIVE);
-        accessContractModel.setSkipFilingSchemeOriginatingAgencyFilter(null);
+        accessContractModel.setDoNotFilterFilingSchemes(null);
         accessContractModel.setSkipFilingSchemeRuleCategoryFilter(null);
 
         // When
@@ -131,7 +132,7 @@ public class AccessContractModelTest {
         assertThat(accessContractModel.isEveryDataObjectVersion()).isTrue();
         assertThat(accessContractModel.getWritingRestrictedDesc()).isTrue();
         assertEquals(ActivationStatus.INACTIVE, accessContractModel.getAccessLog());
-        assertThat(accessContractModel.getSkipFilingSchemeOriginatingAgencyFilter()).isFalse();
-        assertThat(accessContractModel.getSkipFilingSchemeRuleCategoryFilter()).isTrue();
+        assertThat(accessContractModel.getDoNotFilterFilingSchemes()).isFalse();
+        assertThat(accessContractModel.getSkipFilingSchemeRuleCategoryFilter()).isNull();
     }
 }

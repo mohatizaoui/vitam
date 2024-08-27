@@ -1,10 +1,14 @@
 {
   "properties": {
-    "SkipFilingSchemeOriginatingAgencyFilter": {
+    "DoNotFilterFilingSchemes": {
       "type": "boolean"
     },
     "SkipFilingSchemeRuleCategoryFilter": {
       "type": "boolean"
+    },
+    "RuleCategoryToFilterForTheOtherOriginatingAgencies": {
+      "type": "keyword",
+      "null_value": "NULL"
     }
   }
 }

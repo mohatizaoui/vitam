@@ -148,8 +148,8 @@ export class AccessContractComponent extends PageComponent {
     if (this.contract.RuleCategoryToFilter === undefined) {
       this.contract.RuleCategoryToFilter = [];
     }
-    if (!this.contract.SkipFilingSchemeOriginatingAgencyFilter) {
-      this.contract.SkipFilingSchemeOriginatingAgencyFilter = false;
+    if (!this.contract.DoNotFilterFilingSchemes) {
+      this.contract.DoNotFilterFilingSchemes = false;
     }
     if (!!this.contract.SkipFilingSchemeRuleCategoryFilter) {
       this.contract.SkipFilingSchemeRuleCategoryFilter = true;

@@ -1,0 +1,41 @@
+{
+  "$roots": [],
+  "$query": [
+    {
+      "$and": [
+        {
+          "$or": [
+            {
+              "$eq": {
+                "#unitType": "HOLDING_UNIT"
+              }
+            },
+            {
+              "$and": [
+                {
+                  "$lt": {
+                    "#computedInheritedRules.AppraisalRule.MaxEndDate": "2024-08-28"
+                  }
+                },
+                {
+                  "$lt": {
+                    "#computedInheritedRules.AccessRule.MaxEndDate": "2024-08-28"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "$match": {
+            "Title": "mon titre test"
+          }
+        }
+      ],
+      "$depth": 1000
+    }
+  ],
+  "$filter": {},
+  "$projection": {},
+  "$facets": []
+}

@@ -2,8 +2,9 @@
   {
     "Name": "aName",
     "Identifier": "aName",
-    "Description": "aDescription of the contract",
+    "Description": "access contract 01 of integration-ingest-internal/access_contracts.json",
     "Status": "ACTIVE",
+
     "OriginatingAgencies": [
       "FR_ORG_AGEN"
     ],
@@ -20,8 +21,9 @@
   {
     "Name": "aName2",
     "Identifier": "aName2",
-    "Description": "aDescription of the contract 2",
+    "Description": "access contract 03 of integration-ingest-internal/access_contracts.json",
     "Status": "ACTIVE",
+
     "OriginatingAgencies": [
       "FR_ORG_AGEN"
     ],
@@ -38,8 +40,9 @@
   {
     "Name": "aName3",
     "Identifier": "aName3",
-    "Description": "aDescription of the contract",
+    "Description": "access contract 03 of integration-ingest-internal/access_contracts.json",
     "Status": "ACTIVE",
+
     "OriginatingAgencies": [
       "FRAN_NP_005568",
       "FRAN_NP_009913",
@@ -58,8 +61,9 @@
   {
     "Name": "aName4",
     "Identifier": "aName4",
-    "Description": "aDescription of the contract",
+    "Description": "access contract 04 of integration-ingest-internal/access_contracts.json",
     "Status": "ACTIVE",
+
     "OriginatingAgencies": [
       "FRAN_NP_050056",
       "NO_SP",
@@ -79,10 +83,10 @@
   {
     "Name": "aName5",
     "Identifier": "aName5",
-    "Description": "aDescription of the contract",
+    "Description": "access contract 05 of integration-ingest-internal/access_contracts.json",
     "Status": "ACTIVE",
-    "OriginatingAgencies": [],
     "EveryOriginatingAgency": true,
+    "OriginatingAgencies": [],
     "DataObjectVersion": [],
     "EveryDataObjectVersion": true,
     "LastUpdate": "10/12/2016",
@@ -94,10 +98,10 @@
   {
     "Name": "contract",
     "Identifier": "contract",
-    "Description": "aDescription of the contract",
+    "Description": "access contract 06 of integration-ingest-internal/access_contracts.json",
     "Status": "ACTIVE",
-    "OriginatingAgencies": [],
     "EveryOriginatingAgency": true,
+    "OriginatingAgencies": [],
     "DataObjectVersion": [],
     "EveryDataObjectVersion": true,
     "LastUpdate": "10/12/2016",
@@ -109,10 +113,8 @@
   {
     "Name": "contract_rule",
     "Identifier": "contract_rule",
-    "Description": "aDescription of the contract",
+    "Description": "access contract 07 of integration-ingest-internal/access_contracts.json",
     "Status": "ACTIVE",
-    "OriginatingAgencies": [],
-    "EveryOriginatingAgency": true,
     "DataObjectVersion": [
       "PhysicalMaster",
       "BinaryMaster",
@@ -126,17 +128,20 @@
     "ActivationDate": "10/12/2016",
     "DeactivationDate": "31/12/4200",
     "WritingPermission": true,
+    "EveryOriginatingAgency": true,
+    "OriginatingAgencies": [],
     "RuleCategoryToFilter": [
       "HoldRule"
     ],
-    "SkipFilingSchemeOriginatingAgencyFilter": true,
+    "DoNotFilterFilingSchemes": false,
     "SkipFilingSchemeRuleCategoryFilter": false
   },
   {
-    "Name": "aName6",
-    "Identifier": "aName6",
-    "Description": "aDescription of the contract",
+    "Name": "access_contract_06",
+    "Identifier": "access_contract_06",
+    "Description": "access contract 08 of integration-ingest-internal/access_contracts.json",
     "Status": "ACTIVE",
+
     "OriginatingAgencies": [
       "FRAN_NP_005568",
       "FRAN_NP_009913",
@@ -153,48 +158,32 @@
     "WritingPermission": true
   },
   {
-    "Name": "ac_filter_originating_agencies_and_rules",
-    "Identifier": "ac_filter_originating_agencies_and_rules",
-    "Description": "aDescription of the contract",
-    "Status": "ACTIVE",
-    "EveryOriginatingAgency": false,
-    "OriginatingAgencies": [
-      "FRAN_NP_009913"
-    ],
-    "RuleCategoryToFilter": [
-      "AppraisalRule"
-    ],
-    "SkipFilingSchemeOriginatingAgencyFilter": false,
-    "SkipFilingSchemeRuleCategoryFilter": false,
-    "EveryDataObjectVersion": false,
-    "DataObjectVersion": []
-  },
-  {
     "Name": "ac_filter_originating_agencies",
     "Identifier": "ac_filter_originating_agencies",
-    "Description": "aDescription of the contract",
+    "Description": "access contract 09 of integration-ingest-internal/access_contracts.json",
     "Status": "ACTIVE",
     "EveryOriginatingAgency": false,
     "OriginatingAgencies": [
-      "FRAN_NP_009913"
+      "originating_agency_02"
     ],
     "RuleCategoryToFilter": [],
-    "SkipFilingSchemeOriginatingAgencyFilter": false,
-    "SkipFilingSchemeRuleCategoryFilter": false,
+    "RuleCategoryToFilterForTheOtherOriginatingAgencies": [],
+    "DoNotFilterFilingSchemes": false,
     "EveryDataObjectVersion": false,
     "DataObjectVersion": []
   },
   {
     "Name": "ac_filter_originating_agencies_except_filing_scheme",
     "Identifier": "ac_filter_originating_agencies_except_filing_scheme",
-    "Description": "aDescription of the contract",
+    "Description": "access contract 10 of integration-ingest-internal/access_contracts.json",
     "Status": "ACTIVE",
     "EveryOriginatingAgency": false,
     "OriginatingAgencies": [
-      "FRAN_NP_009913"
+      "originating_agency_02"
     ],
     "RuleCategoryToFilter": [],
-    "SkipFilingSchemeOriginatingAgencyFilter": true,
+    "RuleCategoryToFilterForTheOtherOriginatingAgencies": [],
+    "DoNotFilterFilingSchemes": true,
     "SkipFilingSchemeRuleCategoryFilter": false,
     "EveryDataObjectVersion": false,
     "DataObjectVersion": []
@@ -202,14 +191,15 @@
   {
     "Name": "ac_filter_rules",
     "Identifier": "ac_filter_rules",
-    "Description": "aDescription of the contract",
+    "Description": "ac_filter_rules",
     "Status": "ACTIVE",
     "EveryOriginatingAgency": true,
     "OriginatingAgencies": [],
     "RuleCategoryToFilter": [
       "AppraisalRule"
     ],
-    "SkipFilingSchemeOriginatingAgencyFilter": false,
+    "RuleCategoryToFilterForTheOtherOriginatingAgencies": [],
+    "DoNotFilterFilingSchemes": false,
     "SkipFilingSchemeRuleCategoryFilter": false,
     "EveryDataObjectVersion": false,
     "DataObjectVersion": []
@@ -217,14 +207,156 @@
   {
     "Name": "ac_filter_rules_except_filing_scheme",
     "Identifier": "ac_filter_rules_except_filing_scheme",
-    "Description": "aDescription of the contract",
+    "Description": "ac_filter_rules_except_filing_scheme",
     "Status": "ACTIVE",
     "EveryOriginatingAgency": true,
     "OriginatingAgencies": [],
     "RuleCategoryToFilter": [
       "AppraisalRule"
     ],
-    "SkipFilingSchemeOriginatingAgencyFilter": false,
+    "RuleCategoryToFilterForTheOtherOriginatingAgencies": [],
+    "DoNotFilterFilingSchemes": false,
+    "SkipFilingSchemeRuleCategoryFilter": true,
+    "EveryDataObjectVersion": false,
+    "DataObjectVersion": []
+  },
+  {
+    "Name": "ac_ACCESS_BY_PRODUCERS_AND_EXPIRED_MANAGEMENT_RULES",
+    "Identifier": "ac_ACCESS_BY_PRODUCERS_AND_EXPIRED_MANAGEMENT_RULES",
+    "Description": "ac_ACCESS_BY_PRODUCERS_AND_EXPIRED_MANAGEMENT_RULES",
+    "Status": "ACTIVE",
+    "EveryOriginatingAgency": false,
+    "OriginatingAgencies": [
+      "originating_agency_02"
+    ],
+    "RuleCategoryToFilter": [
+      "AppraisalRule"
+    ],
+    "RuleCategoryToFilterForTheOtherOriginatingAgencies": [],
+    "DoNotFilterFilingSchemes": false,
+    "EveryDataObjectVersion": false,
+    "DataObjectVersion": []
+  },
+  {
+    "Name": "ac_ACCESS_BY_PRODUCERS_AND_EXPIRED_MANAGEMENT_RULES_doNotFilter",
+    "Identifier": "ac_ACCESS_BY_PRODUCERS_AND_EXPIRED_MANAGEMENT_RULES_doNotFilter",
+    "Description": "ac_ACCESS_BY_PRODUCERS_AND_EXPIRED_MANAGEMENT_RULES_doNotFilter",
+    "Status": "ACTIVE",
+    "EveryOriginatingAgency": false,
+    "OriginatingAgencies": [
+      "originating_agency_02"
+    ],
+    "RuleCategoryToFilter": [
+      "AppraisalRule"
+    ],
+    "RuleCategoryToFilterForTheOtherOriginatingAgencies": [],
+    "DoNotFilterFilingSchemes": true,
+    "SkipFilingSchemeRuleCategoryFilter": false,
+    "EveryDataObjectVersion": false,
+    "DataObjectVersion": []
+  },
+  {
+    "Name": "ac_ACCESS_BY_PRODUCERS_AND_EXPIRED_MANAGEMENT_RULES_doNotFilter_skipRule",
+    "Identifier": "ac_ACCESS_BY_PRODUCERS_AND_EXPIRED_MANAGEMENT_RULES_doNotFilter_skipRule",
+    "Description": "ac_ACCESS_BY_PRODUCERS_AND_EXPIRED_MANAGEMENT_RULES_doNotFilter_skipRule",
+    "Status": "ACTIVE",
+    "EveryOriginatingAgency": false,
+    "OriginatingAgencies": [
+      "originating_agency_02"
+    ],
+    "RuleCategoryToFilter": [
+      "AppraisalRule"
+    ],
+    "RuleCategoryToFilterForTheOtherOriginatingAgencies": [],
+    "DoNotFilterFilingSchemes": true,
+    "EveryDataObjectVersion": false,
+    "DataObjectVersion": []
+  },
+  {
+    "Name": "ac_ACCESS_BY_PRODUCERS_AND_EXPIRED_MANAGEMENT_RULES_skipRule",
+    "Identifier": "ac_ACCESS_BY_PRODUCERS_AND_EXPIRED_MANAGEMENT_RULES_skipRule",
+    "Description": "ac_ACCESS_BY_PRODUCERS_AND_EXPIRED_MANAGEMENT_RULES_skipRule",
+    "Status": "ACTIVE",
+    "EveryOriginatingAgency": false,
+    "OriginatingAgencies": [
+      "originating_agency_02"
+    ],
+    "RuleCategoryToFilter": [
+      "AppraisalRule"
+    ],
+    "RuleCategoryToFilterForTheOtherOriginatingAgencies": [],
+    "DoNotFilterFilingSchemes": false,
+    "SkipFilingSchemeRuleCategoryFilter": true,
+    "EveryDataObjectVersion": false,
+    "DataObjectVersion": []
+  },
+  {
+    "Name": "ac_ACCESS_BY_PRODUCERS_OR_EXPIRED_MANAGEMENT_RULES",
+    "Identifier": "ac_ACCESS_BY_PRODUCERS_OR_EXPIRED_MANAGEMENT_RULES",
+    "Description": "ac_ACCESS_BY_PRODUCERS_OR_EXPIRED_MANAGEMENT_RULES",
+    "Status": "ACTIVE",
+    "EveryOriginatingAgency": false,
+    "OriginatingAgencies": [
+      "originating_agency_04"
+    ],
+    "RuleCategoryToFilter": [],
+    "RuleCategoryToFilterForTheOtherOriginatingAgencies": [
+      "AppraisalRule"
+    ],
+    "DoNotFilterFilingSchemes": false,
+    "EveryDataObjectVersion": false,
+    "DataObjectVersion": []
+  },
+  {
+    "Name": "ac_ACCESS_BY_PRODUCERS_OR_EXPIRED_MANAGEMENT_RULES_doNotFilter",
+    "Identifier": "ac_ACCESS_BY_PRODUCERS_OR_EXPIRED_MANAGEMENT_RULES_doNotFilter",
+    "Description": "ac_ACCESS_BY_PRODUCERS_OR_EXPIRED_MANAGEMENT_RULES_doNotFilter",
+    "Status": "ACTIVE",
+    "EveryOriginatingAgency": false,
+    "OriginatingAgencies": [
+      "originating_agency_04"
+    ],
+    "RuleCategoryToFilter": [],
+    "RuleCategoryToFilterForTheOtherOriginatingAgencies": [
+      "AppraisalRule"
+    ],
+    "DoNotFilterFilingSchemes": true,
+    "SkipFilingSchemeRuleCategoryFilter": false,
+    "EveryDataObjectVersion": false,
+    "DataObjectVersion": []
+  },
+  {
+    "Name": "ac_ACCESS_BY_PRODUCERS_OR_EXPIRED_MANAGEMENT_RULES_doNotFilter_skipRule",
+    "Identifier": "ac_ACCESS_BY_PRODUCERS_OR_EXPIRED_MANAGEMENT_RULES_doNotFilter_skipRule",
+    "Description": "ac_ACCESS_BY_PRODUCERS_OR_EXPIRED_MANAGEMENT_RULES_doNotFilter_skipRule",
+    "Status": "ACTIVE",
+    "EveryOriginatingAgency": false,
+    "OriginatingAgencies": [
+      "originating_agency_04"
+    ],
+    "RuleCategoryToFilter": [],
+    "RuleCategoryToFilterForTheOtherOriginatingAgencies": [
+      "AppraisalRule"
+    ],
+    "DoNotFilterFilingSchemes": true,
+    "SkipFilingSchemeRuleCategoryFilter": true,
+    "EveryDataObjectVersion": false,
+    "DataObjectVersion": []
+  },
+  {
+    "Name": "ac_ACCESS_BY_PRODUCERS_OR_EXPIRED_MANAGEMENT_RULES_skipRule",
+    "Identifier": "ac_ACCESS_BY_PRODUCERS_OR_EXPIRED_MANAGEMENT_RULES_skipRule",
+    "Description": "ac_ACCESS_BY_PRODUCERS_OR_EXPIRED_MANAGEMENT_RULES_skipRule",
+    "Status": "ACTIVE",
+    "EveryOriginatingAgency": false,
+    "OriginatingAgencies": [
+      "originating_agency_04"
+    ],
+    "RuleCategoryToFilter": [],
+    "RuleCategoryToFilterForTheOtherOriginatingAgencies": [
+      "AppraisalRule"
+    ],
+    "DoNotFilterFilingSchemes": false,
     "SkipFilingSchemeRuleCategoryFilter": true,
     "EveryDataObjectVersion": false,
     "DataObjectVersion": []
