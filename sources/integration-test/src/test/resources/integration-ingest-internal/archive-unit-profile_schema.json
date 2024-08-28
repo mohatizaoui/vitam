@@ -2451,7 +2451,7 @@
     ],
     "StringSize": "SHORT",
     "Control": {},
-    "EffectiveCardinality": "MANY_REQUIRED"
+    "EffectiveCardinality": "ONE_REQUIRED"
   },
   {
     "FieldName": "Gps",
@@ -2665,7 +2665,7 @@
       "2.3"
     ],
     "StringSize": "SHORT",
-    "EffectiveCardinality": "ONE"
+    "EffectiveCardinality": "ONE_REQUIRED"
   },
   {
     "FieldName": "KeywordReference",
@@ -7644,7 +7644,7 @@
     ],
     "StringSize": "SHORT",
     "Control": {},
-    "EffectiveCardinality": "MANY"
+    "EffectiveCardinality": "ONE"
   },
   {
     "FieldName": "Tag",
@@ -8454,7 +8454,7 @@
       "2.2",
       "2.3"
     ],
-    "EffectiveCardinality": "ONE"
+    "EffectiveCardinality": "ONE_REQUIRED"
   },
   {
     "FieldName": "BirthName",
@@ -8807,7 +8807,7 @@
       "2.3"
     ],
     "StringSize": "SHORT",
-    "EffectiveCardinality": "ONE"
+    "EffectiveCardinality": "ONE_REQUIRED"
   },
   {
     "FieldName": "FullName",

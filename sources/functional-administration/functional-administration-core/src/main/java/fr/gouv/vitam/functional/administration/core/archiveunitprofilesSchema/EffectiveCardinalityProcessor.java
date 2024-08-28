@@ -32,26 +32,17 @@ import fr.gouv.vitam.common.model.administration.CombinedSchemaModel;
 import fr.gouv.vitam.common.model.administration.schema.SchemaCardinality;
 import fr.gouv.vitam.common.model.administration.schema.SchemaResponse;
 
-import java.util.List;
-
 public class EffectiveCardinalityProcessor implements CombinedSchemaProcessor {
 
     private SchemaResponse schemaResponse;
 
     private JsonNode controlSchemaNode;
 
-    private List<String> requiredFields;
-
     public EffectiveCardinalityProcessor() {}
 
-    public EffectiveCardinalityProcessor(
-        SchemaResponse schemaResponse,
-        JsonNode controlSchemaNode,
-        List<String> requiredFields
-    ) {
+    public EffectiveCardinalityProcessor(SchemaResponse schemaResponse, JsonNode controlSchemaNode) {
         this.schemaResponse = schemaResponse;
         this.controlSchemaNode = controlSchemaNode;
-        this.requiredFields = requiredFields;
     }
 
     @Override
@@ -64,13 +55,15 @@ public class EffectiveCardinalityProcessor implements CombinedSchemaProcessor {
             this.schemaResponse.getPath()
         );
 
+        boolean isRequired = isFieldRequired(controlSchemaNode, this.schemaResponse.getPath());
+
         if (isForbidden) {
             effectiveCardinality = SchemaCardinality.ZERO;
         } else {
             effectiveCardinality = determineEffectiveCardinality(
                 cardinality,
                 this.schemaResponse,
-                this.requiredFields,
+                isRequired,
                 this.controlSchemaNode
             );
         }
@@ -78,10 +71,44 @@ public class EffectiveCardinalityProcessor implements CombinedSchemaProcessor {
         model.setEffectiveCardinality(effectiveCardinality.toString());
     }
 
+    private boolean isFieldRequired(JsonNode controlSchemaNode, String fieldPath) {
+        // Split the path into segments
+        String[] pathSegments = fieldPath.split("\\.");
+
+        // Traverse to the parent node
+        JsonNode currentNode = controlSchemaNode;
+        for (int i = 0; i < pathSegments.length - 1; i++) {
+            currentNode = currentNode.path("properties").path(pathSegments[i]);
+            if (currentNode.isMissingNode()) {
+                return false; // If we can't find the path, return false
+            }
+
+            // Check if the current node is an array with items
+            if (currentNode.path("type").asText().equals("array")) {
+                currentNode = currentNode.path("items");
+            }
+        }
+
+        // Get the field name (last segment of the path)
+        String fieldName = pathSegments[pathSegments.length - 1];
+
+        // Check if the parent node has a "required" list and if it contains the field name
+        JsonNode requiredNode = currentNode.path("required");
+        if (requiredNode.isArray()) {
+            for (JsonNode requiredField : requiredNode) {
+                if (requiredField.asText().equals(fieldName)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     private SchemaCardinality determineEffectiveCardinality(
         SchemaCardinality cardinality,
         SchemaResponse schema,
-        List<String> requiredFields,
+        Boolean isRequired,
         JsonNode controlSchemaNode
     ) {
         boolean isArray = controlSchemaNode
@@ -90,7 +117,19 @@ public class EffectiveCardinalityProcessor implements CombinedSchemaProcessor {
             .path("type")
             .asText()
             .equals("array");
-        boolean isRequired = requiredFields.contains(schema.getFieldName());
+
+        JsonNode fieldNode = controlSchemaNode.path("properties").path(schema.getFieldName());
+
+        if (isArray) {
+            int minItems = fieldNode.path("minItems").asInt(0);
+            int maxItems = fieldNode.path("maxItems").asInt(Integer.MAX_VALUE);
+
+            if (minItems == 0 && maxItems == 1) {
+                return SchemaCardinality.ONE;
+            } else if (minItems == 1 && maxItems == 1) {
+                return SchemaCardinality.ONE_REQUIRED;
+            }
+        }
 
         switch (cardinality) {
             case MANY_REQUIRED:

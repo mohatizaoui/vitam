@@ -62,30 +62,24 @@ public class ArchiveUnitProfileSchemaServiceImpl implements ArchiveUnitProfileSc
     public List<CombinedSchemaModel> getCombinedSchemaModels(
         ArchiveUnitProfileModel profile,
         List<SchemaResponse> schemas
-    ) throws InvalidParseOperationException, IOException {
+    ) throws InvalidParseOperationException {
         List<CombinedSchemaModel> combinedSchemaModels = new ArrayList<>();
 
         JsonNode controlSchemaNode = JsonHandler.getFromString(profile.getControlSchema());
 
-        // Retrieve the list of required fields
-        JsonNode requiredNode = controlSchemaNode.path("required");
-        List<String> requiredFields = requiredNode.isMissingNode()
-            ? new ArrayList<>()
-            : JsonHandler.getFromJsonNode(requiredNode, List.class, String.class);
-
         for (SchemaResponse schema : schemas) {
-            CombinedSchemaModel model = this.build(schema, controlSchemaNode, requiredFields);
+            CombinedSchemaModel model = this.build(schema, controlSchemaNode);
             combinedSchemaModels.add(model);
         }
 
         return combinedSchemaModels;
     }
 
-    public CombinedSchemaModel build(SchemaResponse schema, JsonNode controlSchemaNode, List<String> requiredFields) {
+    public CombinedSchemaModel build(SchemaResponse schema, JsonNode controlSchemaNode) {
         List<CombinedSchemaProcessor> processors = new ArrayList<>();
         processors.add(new SchemaFillerProcessor(schema));
         processors.add(new ControlProcessor(controlSchemaNode, schema));
-        processors.add(new EffectiveCardinalityProcessor(schema, controlSchemaNode, requiredFields));
+        processors.add(new EffectiveCardinalityProcessor(schema, controlSchemaNode));
         CombinedSchemaModel model = new CombinedSchemaModel();
         for (CombinedSchemaProcessor processor : processors) {
             processor.process(model);
