@@ -31,6 +31,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Lists;
 import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.database.builder.query.QueryHelper;
+import fr.gouv.vitam.common.database.builder.query.action.SetAction;
+import fr.gouv.vitam.common.database.builder.request.multiple.UpdateMultiQuery;
 import fr.gouv.vitam.common.database.builder.request.single.Select;
 import fr.gouv.vitam.common.database.parser.request.adapter.SingleVarNameAdapter;
 import fr.gouv.vitam.common.database.parser.request.single.SelectParserSingle;
@@ -175,7 +177,7 @@ public class ProfileServiceImplTest {
 
     @Test
     @RunWithCustomExecutor
-    public void givenTestImportSXDProfileFile() throws Exception {
+    public void givenTestImportXSDProfileFile() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
         final File fileMetadataProfile = PropertiesUtils.getResourceFile("profile_ok.json");
         final List<ProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
@@ -746,6 +748,169 @@ public class ProfileServiceImplTest {
         assertThat(pm).isNotNull();
 
         final ProfileSedaVersion sedaVersion = pm.getSedaVersion();
-        assertThat(sedaVersion).isEqualTo(ProfileSedaVersion.VERSION_2_1);
+        assertThat(sedaVersion).isEqualTo(ProfileSedaVersion.VERSION_2_3);
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void givenTestImportRNGProfileFileWithSedaVersionMismatchAccordingToProfile() throws Exception {
+        VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
+        final File fileMetadataProfile = PropertiesUtils.getResourceFile("profile_ok.json");
+        final List<ProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
+            fileMetadataProfile,
+            new TypeReference<>() {}
+        );
+        final RequestResponse<ProfileModel> response = profileService.createProfiles(profileModelList);
+
+        assertThat(response.isOk()).isTrue();
+
+        verify(functionalBackupService).saveCollectionAndSequence(
+            any(),
+            eq(ProfileServiceImpl.PROFILE_BACKUP_EVENT),
+            eq(FunctionalAdminCollections.PROFILE),
+            any()
+        );
+        verifyNoMoreInteractions(functionalBackupService);
+        reset(functionalBackupService);
+
+        final RequestResponseOK<ProfileModel> responseCast = (RequestResponseOK<ProfileModel>) response;
+        assertThat(responseCast.getResults()).hasSize(2);
+        assertThat(responseCast.getResults().get(0).getIdentifier()).contains("PR-000");
+        final ProfileModel profileModel = responseCast.getResults().get(1);
+        InputStream xsdProfile = new FileInputStream(PropertiesUtils.getResourceFile("profile_ok_seda_2.3.rng"));
+
+        VitamError<ProfileModel> vitamError = (VitamError<ProfileModel>) profileService.importProfileFile(
+            profileModel.getIdentifier(),
+            xsdProfile
+        );
+        vitamError
+            .getErrors()
+            .forEach(error -> {
+                assertThat(error).isNotNull();
+                assertThat(error.getDescription()).contains(
+                    "Extracted seda version from schema definition file '2.3', not matches profile ones '2.1'"
+                );
+            });
+
+        verifyNoMoreInteractions(functionalBackupService);
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void shouldNotUpdateNoticeWhenNextSedaVersionIsDifferentFromCurrentNoticeAndProfile() throws Exception {
+        VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
+        final File fileMetadataProfile = PropertiesUtils.getResourceFile("profile_ok.json");
+        final List<ProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
+            fileMetadataProfile,
+            new TypeReference<>() {}
+        );
+        final RequestResponse<ProfileModel> createProfileActionResponse = profileService.createProfiles(
+            profileModelList
+        );
+
+        assertThat(createProfileActionResponse.isOk()).isTrue();
+
+        verify(functionalBackupService).saveCollectionAndSequence(
+            any(),
+            eq(ProfileServiceImpl.PROFILE_BACKUP_EVENT),
+            eq(FunctionalAdminCollections.PROFILE),
+            any()
+        );
+        verifyNoMoreInteractions(functionalBackupService);
+        reset(functionalBackupService);
+
+        final RequestResponseOK<ProfileModel> responseCast = (RequestResponseOK<
+                ProfileModel
+            >) createProfileActionResponse;
+        assertThat(responseCast.getResults()).hasSize(2);
+        assertThat(responseCast.getResults().get(0).getIdentifier()).contains("PR-000");
+        final ProfileModel createdProfile = responseCast.getResults().get(1);
+        InputStream xsdProfile = new FileInputStream(PropertiesUtils.getResourceFile("profile_ok.rng"));
+
+        final RequestResponseOK<ProfileModel> importProfileSchemaDefinitionActionResponse = (RequestResponseOK<
+                ProfileModel
+            >) profileService.importProfileFile(createdProfile.getIdentifier(), xsdProfile);
+        assertThat(importProfileSchemaDefinitionActionResponse.isOk()).isTrue();
+
+        verify(functionalBackupService).saveFile(
+            any(),
+            any(),
+            eq(ProfileServiceImpl.OP_PROFILE_STORAGE),
+            eq(DataCategory.PROFILE),
+            anyString()
+        );
+        verify(functionalBackupService).saveCollectionAndSequence(
+            any(),
+            eq(ProfileServiceImpl.PROFILE_BACKUP_EVENT),
+            eq(FunctionalAdminCollections.PROFILE),
+            any()
+        );
+        verifyNoMoreInteractions(functionalBackupService);
+        reset(functionalBackupService);
+
+        UpdateMultiQuery query = new UpdateMultiQuery()
+            .addActions(new SetAction(Profile.SEDA_VERSION, ProfileSedaVersion.VERSION_2_3.getVersion()));
+
+        final RequestResponse<ProfileModel> updateProfileActionResponse = profileService.updateProfile(
+            createdProfile.getIdentifier(),
+            query.getFinalUpdate()
+        );
+        final VitamError<ProfileModel> vitamError = (VitamError<ProfileModel>) updateProfileActionResponse;
+
+        assertThat(vitamError).isNotNull();
+        assertThat(vitamError.getErrors()).hasSize(2);
+
+        List<String> descriptions = vitamError.getErrors().stream().map(VitamError::getDescription).toList();
+
+        assertThat(descriptions).contains(
+            "The new SEDA version value '2.3' does not match the one in the schema definition file '2.1'",
+            "The new SEDA version value '2.3' does not match the one in the profile '2.1'"
+        );
+
+        verifyNoMoreInteractions(functionalBackupService);
+        reset(functionalBackupService);
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void shouldUpdateNoticeWhenProfileIsNotDefinedYet() throws Exception {
+        VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
+        final File fileMetadataProfile = PropertiesUtils.getResourceFile("profile_ok.json");
+        final List<ProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
+            fileMetadataProfile,
+            new TypeReference<>() {}
+        );
+        final RequestResponse<ProfileModel> createProfileActionResponse = profileService.createProfiles(
+            profileModelList
+        );
+
+        assertThat(createProfileActionResponse.isOk()).isTrue();
+
+        verify(functionalBackupService).saveCollectionAndSequence(
+            any(),
+            eq(ProfileServiceImpl.PROFILE_BACKUP_EVENT),
+            eq(FunctionalAdminCollections.PROFILE),
+            any()
+        );
+        verifyNoMoreInteractions(functionalBackupService);
+        reset(functionalBackupService);
+
+        final RequestResponseOK<ProfileModel> responseCast = (RequestResponseOK<
+                ProfileModel
+            >) createProfileActionResponse;
+        assertThat(responseCast.getResults()).hasSize(2);
+        assertThat(responseCast.getResults().get(0).getIdentifier()).contains("PR-000");
+        final ProfileModel createdProfile = responseCast.getResults().get(1);
+        assertThat(createdProfile.getPath()).isNull();
+
+        UpdateMultiQuery query = new UpdateMultiQuery()
+            .addActions(new SetAction(Profile.SEDA_VERSION, ProfileSedaVersion.VERSION_2_3.getVersion()));
+
+        final RequestResponse<ProfileModel> updateProfileActionResponse = profileService.updateProfile(
+            createdProfile.getIdentifier(),
+            query.getFinalUpdate()
+        );
+
+        assertThat(updateProfileActionResponse.getStatus()).isEqualTo(200);
     }
 }

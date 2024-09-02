@@ -86,11 +86,17 @@ import fr.gouv.vitam.storage.engine.client.exception.StorageUnavailableDataFromA
 import fr.gouv.vitam.storage.engine.common.exception.StorageNotFoundException;
 import fr.gouv.vitam.storage.engine.common.model.DataCategory;
 import org.apache.commons.collections4.CollectionUtils;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
 
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -332,11 +338,11 @@ public class ProfileServiceImpl implements ProfileService {
         final ProfileModel profileMetadata = findByIdentifier(profileIdentifier);
         final GUID eip = GUIDFactory.newOperationLogbookGUID(ParameterHelper.getTenantParameter());
         final ProfileManager manager = new ProfileManager(logbookClient, eip);
-
         final VitamError<ProfileModel> vitamError = getVitamError(
             VitamCode.PROFILE_FILE_IMPORT_ERROR.getItem(),
             "Global import profile error"
         ).setHttpCode(Response.Status.BAD_REQUEST.getStatusCode());
+
         if (null == profileMetadata) {
             LOGGER.error(PROFILE_NOT_FOUND_WITH_IDENTIFIER + profileIdentifier + MANDATORY_PROFILE_METADATA);
 
@@ -361,6 +367,71 @@ public class ProfileServiceImpl implements ProfileService {
         try {
             file = File.createTempFile(GUIDFactory.newGUID().getId(), "profile");
             Files.copy(profileFile, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+            if (profileMetadata.getSedaVersion() == null) {
+                final String errorDetails =
+                    "A profile must have a seda version defined to import a schema definition file";
+                LOGGER.error(errorDetails);
+                manager.logValidationError(
+                    PROFILES_FILE_IMPORT_EVENT,
+                    profileIdentifier,
+                    errorDetails,
+                    ProfileManager.IMPORT_KO
+                );
+                return vitamError.addToErrors(
+                    getVitamError(VitamCode.PROFILE_FILE_IMPORT_ERROR.getItem(), errorDetails)
+                );
+            }
+
+            final FileInputStream fileInputStream = new FileInputStream(file);
+            final InputSource inputSource = new InputSource(fileInputStream);
+            try {
+                final ProfileSedaVersion sedaVersion = extractSedaVersion(inputSource);
+
+                if (sedaVersion == null) {
+                    final String errorDetails = "No seda version found in schema definition file";
+                    LOGGER.error(errorDetails);
+                    manager.logValidationError(
+                        PROFILES_FILE_IMPORT_EVENT,
+                        profileIdentifier,
+                        errorDetails,
+                        ProfileManager.IMPORT_KO
+                    );
+                    return vitamError.addToErrors(
+                        getVitamError(VitamCode.PROFILE_FILE_IMPORT_ERROR.getItem(), errorDetails)
+                    );
+                }
+
+                if (profileMetadata.getSedaVersion() != sedaVersion) {
+                    final String errorDetails =
+                        "Extracted seda version from schema definition file '%s', not matches profile ones '%s'".formatted(
+                                sedaVersion.getVersion(),
+                                profileMetadata.getSedaVersion().getVersion()
+                            );
+                    LOGGER.error(errorDetails);
+                    manager.logValidationError(
+                        PROFILES_FILE_IMPORT_EVENT,
+                        profileIdentifier,
+                        errorDetails,
+                        ProfileManager.IMPORT_KO
+                    );
+                    return vitamError.addToErrors(
+                        getVitamError(VitamCode.PROFILE_FILE_IMPORT_ERROR.getItem(), errorDetails)
+                    );
+                }
+            } catch (ParserConfigurationException | IOException | SAXException e) {
+                final String errorDetails = e.getMessage();
+                LOGGER.error(errorDetails);
+                manager.logValidationError(
+                    PROFILES_FILE_IMPORT_EVENT,
+                    profileIdentifier,
+                    errorDetails,
+                    ProfileManager.IMPORT_KO
+                );
+                return vitamError.addToErrors(
+                    getVitamError(VitamCode.PROFILE_FILE_IMPORT_ERROR.getItem(), errorDetails)
+                );
+            }
 
             /*
              * Validate the stream
@@ -549,6 +620,9 @@ public class ProfileServiceImpl implements ProfileService {
         ).setHttpCode(Response.Status.BAD_REQUEST.getStatusCode());
 
         final JsonNode actionNode = jsonDsl.get(BuilderToken.GLOBAL.ACTION.exactToken());
+        ProfileSedaVersion sedaVersion = ProfileSedaVersion.VERSION_2_3;
+
+        if (profileModel.getSedaVersion() != null) sedaVersion = profileModel.getSedaVersion();
 
         for (final JsonNode fieldToSet : actionNode) {
             final JsonNode fieldName = fieldToSet.get(BuilderToken.UPDATEACTION.SET.exactToken());
@@ -558,9 +632,13 @@ public class ProfileServiceImpl implements ProfileService {
                     final String field = it.next();
                     final JsonNode value = fieldName.findValue(field);
                     validateUpdateAction(profileModel, error, field, value, manager);
+                    if (Profile.SEDA_VERSION.equals(field)) {
+                        sedaVersion = ProfileSedaVersion.forVersion(value.asText());
+                    }
                 }
                 ((ObjectNode) fieldName).remove(ProfileModel.CREATION_DATE);
                 ((ObjectNode) fieldName).put(ProfileModel.LAST_UPDATE, LocalDateUtil.nowFormatted());
+                ((ObjectNode) fieldName).put(Profile.SEDA_VERSION, sedaVersion.getVersion());
             }
         }
 
@@ -679,6 +757,80 @@ public class ProfileServiceImpl implements ProfileService {
                         .setMessage(ProfileManager.UPDATE_KO)
                 );
             }
+
+            try (final Response response = downloadProfileFile(profileModel.getIdentifier())) {
+                if (response.getStatus() == 200) {
+                    final InputStream inputStream = response.getEntity() instanceof InputStream
+                        ? (InputStream) response.getEntity()
+                        : response.readEntity(InputStream.class);
+                    final InputSource inputSource = new InputSource(inputStream);
+                    final ProfileSedaVersion schemaDefinitionSedaVersion = extractSedaVersion(inputSource);
+                    final ProfileSedaVersion currentSedaVersion = profileModel.getSedaVersion();
+                    final ProfileSedaVersion nextSedaVersion = ProfileSedaVersion.forVersion(value.asText());
+
+                    if (schemaDefinitionSedaVersion == null) {
+                        final String errorDetails = "Schema definition file not contains seda version";
+
+                        LOGGER.error(errorDetails);
+
+                        error.addToErrors(
+                            getVitamError(VitamCode.PROFILE_VALIDATION_ERROR.getItem(), errorDetails)
+                                .setHttpCode(Status.INTERNAL_SERVER_ERROR.getStatusCode())
+                                .setMessage(ProfileManager.UPDATE_KO)
+                        );
+                    }
+
+                    if (schemaDefinitionSedaVersion != null && nextSedaVersion != schemaDefinitionSedaVersion) {
+                        final String errorDetails =
+                            "The new SEDA version value '%s' does not match the one in the schema definition file '%s'".formatted(
+                                    nextSedaVersion.getVersion(),
+                                    schemaDefinitionSedaVersion.getVersion()
+                                );
+
+                        LOGGER.error(errorDetails);
+
+                        error.addToErrors(
+                            getVitamError(VitamCode.PROFILE_VALIDATION_ERROR.getItem(), errorDetails)
+                                .setHttpCode(Status.BAD_REQUEST.getStatusCode())
+                                .setMessage(ProfileManager.UPDATE_KO)
+                        );
+                    }
+
+                    if (schemaDefinitionSedaVersion != null && nextSedaVersion != currentSedaVersion) {
+                        final String errorDetails =
+                            "The new SEDA version value '%s' does not match the one in the profile '%s'".formatted(
+                                    nextSedaVersion.getVersion(),
+                                    schemaDefinitionSedaVersion.getVersion()
+                                );
+
+                        LOGGER.error(errorDetails);
+
+                        error.addToErrors(
+                            getVitamError(VitamCode.PROFILE_VALIDATION_ERROR.getItem(), errorDetails)
+                                .setHttpCode(Status.BAD_REQUEST.getStatusCode())
+                                .setMessage(ProfileManager.UPDATE_KO)
+                        );
+                    }
+                }
+            } catch (ProfileNotFoundException e) {
+                LOGGER.info("Not profile found, seda version can be updated: {}", e.getMessage());
+            } catch (
+                ReferentialException
+                | InvalidParseOperationException
+                | ParserConfigurationException
+                | IOException
+                | SAXException e
+            ) {
+                final String errorDetails = "Schema definition file seda's version extraction failure";
+
+                LOGGER.error("{}: {}", errorDetails, e.getMessage());
+
+                error.addToErrors(
+                    getVitamError(VitamCode.PROFILE_VALIDATION_ERROR.getItem(), errorDetails)
+                        .setHttpCode(Status.INTERNAL_SERVER_ERROR.getStatusCode())
+                        .setMessage(ProfileManager.UPDATE_KO)
+                );
+            }
         }
 
         if (ProfileModel.TAG_IDENTIFIER.equals(field)) {
@@ -760,5 +912,27 @@ public class ProfileServiceImpl implements ProfileService {
         if (null != logbookClient) {
             logbookClient.close();
         }
+    }
+
+    private ProfileSedaVersion extractSedaVersion(final InputSource inputSource)
+        throws SAXException, ParserConfigurationException, IOException {
+        final SAXParserFactory factory = SAXParserFactory.newInstance();
+
+        // Désactiver les DTDs
+        factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+
+        // Désactiver les entités externes générales et les DTD externes
+        factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+        factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+        factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+
+        // Créer un SAXParser sécurisé
+        final ProfileSax2Handler handler = new ProfileSax2Handler();
+        final SAXParser saxParser = factory.newSAXParser();
+        final XMLReader reader = saxParser.getXMLReader();
+        reader.setContentHandler(handler);
+        reader.parse(inputSource);
+
+        return handler.getSedaVersion();
     }
 }
