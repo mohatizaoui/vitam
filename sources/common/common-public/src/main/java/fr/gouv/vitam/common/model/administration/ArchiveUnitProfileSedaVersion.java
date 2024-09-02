@@ -37,9 +37,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public enum ArchiveUnitProfileSedaVersion {
-    VERSION_2_1("v2.1"),
-    VERSION_2_2("v2.2"),
-    VERSION_2_3("v2.3");
+    VERSION_2_1("2.1"),
+    VERSION_2_2("2.2"),
+    VERSION_2_3("2.3");
 
     private static final Map<String, ArchiveUnitProfileSedaVersion> VERSION_MAP = Stream.of(
         ArchiveUnitProfileSedaVersion.values()
@@ -64,7 +64,7 @@ public enum ArchiveUnitProfileSedaVersion {
     @JsonCreator
     public static ArchiveUnitProfileSedaVersion forVersion(String version) throws IllegalArgumentException {
         if (version == null) {
-            return ArchiveUnitProfileSedaVersion.VERSION_2_1;
+            return ArchiveUnitProfileSedaVersion.VERSION_2_3;
         }
         return Optional.ofNullable(VERSION_MAP.get(version)).orElseThrow(
             () -> new IllegalArgumentException("Cannot find ArchiveUnitProfileSedaVersion " + version)

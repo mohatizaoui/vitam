@@ -115,7 +115,7 @@ public class ArchiveUnitProfileModel {
     private ArchiveUnitProfileStatus status;
 
     @JsonProperty(TAG_SEDAVERSION)
-    private ArchiveUnitProfileSedaVersion sedaVersion = ArchiveUnitProfileSedaVersion.VERSION_2_1;
+    private ArchiveUnitProfileSedaVersion sedaVersion = ArchiveUnitProfileSedaVersion.VERSION_2_3;
 
     @JsonProperty(CREATION_DATE)
     private String creationdate;

@@ -653,6 +653,6 @@ public class ArchiveUnitProfileServiceImplTest {
         assertThat(acm).isNotNull();
 
         final ArchiveUnitProfileSedaVersion sedaVersion = acm.getSedaVersion();
-        assertThat(sedaVersion).isEqualTo(ArchiveUnitProfileSedaVersion.VERSION_2_1);
+        assertThat(sedaVersion).isEqualTo(ArchiveUnitProfileSedaVersion.VERSION_2_3);
     }
 }

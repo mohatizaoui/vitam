@@ -323,7 +323,7 @@ public class ArchiveUnitProfileManager {
             }
 
             if (archiveUnitProfile.getSedaVersion() == null) {
-                archiveUnitProfile.setSedaVersion(ArchiveUnitProfileSedaVersion.VERSION_2_1);
+                archiveUnitProfile.setSedaVersion(ArchiveUnitProfileSedaVersion.VERSION_2_3);
             }
 
             try {

@@ -262,7 +262,7 @@ public class ProfileModel {
     }
 
     /**
-     * Set the profile seda version (v2.1, v2.2, v2.3, ...)
+     * Set the profile seda version (2.1, 2.2, 2.3, ...)
      *
      * @param sedaVersion
      * @return this
