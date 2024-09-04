@@ -30,6 +30,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.database.builder.query.QueryHelper;
+import fr.gouv.vitam.common.database.builder.query.action.SetAction;
+import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
+import fr.gouv.vitam.common.database.builder.request.multiple.UpdateMultiQuery;
 import fr.gouv.vitam.common.database.builder.request.single.Select;
 import fr.gouv.vitam.common.database.parser.request.adapter.SingleVarNameAdapter;
 import fr.gouv.vitam.common.database.parser.request.single.SelectParserSingle;
@@ -37,6 +40,7 @@ import fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchNode;
 import fr.gouv.vitam.common.database.server.mongodb.MongoDbAccess;
 import fr.gouv.vitam.common.elasticsearch.ElasticsearchRule;
 import fr.gouv.vitam.common.error.VitamError;
+import fr.gouv.vitam.common.exception.VitamException;
 import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.RequestResponse;
@@ -60,6 +64,7 @@ import fr.gouv.vitam.functional.administration.common.server.MongoDbAccessAdminF
 import fr.gouv.vitam.functional.administration.common.server.MongoDbAccessAdminImpl;
 import fr.gouv.vitam.functional.administration.core.backup.FunctionalBackupService;
 import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClientFactory;
+import org.apache.http.HttpStatus;
 import org.assertj.core.util.Lists;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -71,12 +76,14 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static fr.gouv.vitam.common.guid.GUIDFactory.newOperationLogbookGUID;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -635,24 +642,92 @@ public class ArchiveUnitProfileServiceImplTest {
     @RunWithCustomExecutor
     public void givenTestAddWithoutSedaVersion() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
-        final File fileMetadataProfile = PropertiesUtils.getResourceFile("AUP_ok_no_seda_version.json");
-        final List<ArchiveUnitProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
-            fileMetadataProfile,
+
+        final File file = PropertiesUtils.getResourceFile("AUP_ok_no_seda_version.json");
+        final List<ArchiveUnitProfileModel> archiveUnitProfileModels = JsonHandler.getFromFileAsTypeReference(
+            file,
             new TypeReference<>() {}
         );
-        final RequestResponse<ArchiveUnitProfileModel> response = archiveUnitProfileService.createArchiveUnitProfiles(
-            profileModelList
+
+        final RequestResponseOK<ArchiveUnitProfileModel> response = (RequestResponseOK<
+                ArchiveUnitProfileModel
+            >) archiveUnitProfileService.createArchiveUnitProfiles(archiveUnitProfileModels);
+
+        assertThat(response.isOk()).isTrue();
+        assertThat(response.getResults()).isNotNull();
+        assertThat(response.getResults().size()).isEqualTo(1);
+
+        response
+            .getResults()
+            .forEach(archiveUnitProfileModel -> {
+                assertThat(archiveUnitProfileModel).isNotNull();
+                assertThat(archiveUnitProfileModel.getSedaVersion()).isEqualTo(
+                    ArchiveUnitProfileSedaVersion.VERSION_2_3
+                );
+            });
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void shouldUpdateWhenSedaVersionChanges()
+        throws FileNotFoundException, VitamException, InvalidCreateOperationException {
+        VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
+
+        final File file = PropertiesUtils.getResourceFile("AUP_ok_no_seda_version.json");
+        final List<ArchiveUnitProfileModel> archiveUnitProfilesToCreate = JsonHandler.getFromFileAsTypeReference(
+            file,
+            new TypeReference<>() {}
         );
 
-        final RequestResponseOK<ArchiveUnitProfileModel> responseCast = (RequestResponseOK<
+        final RequestResponseOK<ArchiveUnitProfileModel> createActionResponse = (RequestResponseOK<
                 ArchiveUnitProfileModel
-            >) response;
-        assertThat(responseCast.getResults()).hasSize(1);
+            >) archiveUnitProfileService.createArchiveUnitProfiles(archiveUnitProfilesToCreate);
 
-        final ArchiveUnitProfileModel acm = profileModelList.iterator().next();
-        assertThat(acm).isNotNull();
+        assertThat(createActionResponse.isOk()).isTrue();
+        assertThat(createActionResponse.getResults()).isNotNull();
+        assertThat(createActionResponse.getResults().size()).isEqualTo(1);
 
-        final ArchiveUnitProfileSedaVersion sedaVersion = acm.getSedaVersion();
-        assertThat(sedaVersion).isEqualTo(ArchiveUnitProfileSedaVersion.VERSION_2_3);
+        createActionResponse
+            .getResults()
+            .forEach(archiveUnitProfileModel -> {
+                assertThat(archiveUnitProfileModel).isNotNull();
+                assertThat(archiveUnitProfileModel.getSedaVersion()).isEqualTo(
+                    ArchiveUnitProfileSedaVersion.VERSION_2_3
+                );
+            });
+
+        final List<ArchiveUnitProfileModel> archiveUnitProfilesToUpdate = createActionResponse
+            .getResults()
+            .stream()
+            .peek(
+                archiveUnitProfileModel ->
+                    archiveUnitProfileModel.setSedaVersion(ArchiveUnitProfileSedaVersion.VERSION_2_2)
+            )
+            .toList();
+        final ArchiveUnitProfileModel archiveUnitProfileToUpdate = archiveUnitProfilesToUpdate.get(0);
+        final UpdateMultiQuery updateMultiQuery = new UpdateMultiQuery()
+            .addActions(
+                new SetAction(
+                    ArchiveUnitProfileModel.TAG_SEDAVERSION,
+                    Optional.ofNullable(archiveUnitProfileToUpdate.getSedaVersion())
+                        .map(ArchiveUnitProfileSedaVersion::getVersion)
+                        .orElse(null)
+                )
+            );
+
+        final RequestResponse<ArchiveUnitProfileModel> updateActionResponse =
+            archiveUnitProfileService.updateArchiveUnitProfile(
+                archiveUnitProfileToUpdate.getIdentifier(),
+                updateMultiQuery.getFinalUpdate()
+            );
+
+        assertThat(updateActionResponse.getStatus()).isEqualTo(HttpStatus.SC_OK);
+
+        final ArchiveUnitProfileModel updatedArchiveUnitProfile = archiveUnitProfileService.findByIdentifier(
+            archiveUnitProfileToUpdate.getIdentifier()
+        );
+
+        assertThat(updatedArchiveUnitProfile).isNotNull();
+        assertThat(updatedArchiveUnitProfile.getSedaVersion()).isEqualTo(ArchiveUnitProfileSedaVersion.VERSION_2_2);
     }
 }

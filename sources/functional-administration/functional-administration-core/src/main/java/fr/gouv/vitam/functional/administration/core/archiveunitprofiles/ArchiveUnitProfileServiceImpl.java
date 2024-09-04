@@ -426,23 +426,33 @@ public class ArchiveUnitProfileServiceImpl implements ArchiveUnitProfileService 
         final JsonNode actionNode = queryDsl.get(BuilderToken.GLOBAL.ACTION.exactToken());
         boolean schemaUpdate = false;
         String newSchema = null;
+
+        ArchiveUnitProfileSedaVersion sedaVersion = ArchiveUnitProfileSedaVersion.VERSION_2_3;
+
+        if (profileModel.getSedaVersion() != null) sedaVersion = profileModel.getSedaVersion();
+
         for (final JsonNode fieldToSet : actionNode) {
             final JsonNode fieldName = fieldToSet.get(BuilderToken.UPDATEACTION.SET.exactToken());
-            if (fieldName != null) {
-                final Iterator<String> it = fieldName.fieldNames();
-                while (it.hasNext()) {
-                    final String field = it.next();
-                    final JsonNode value = fieldName.findValue(field);
-                    if (ArchiveUnitProfileModel.CONTROLSCHEMA.equals(field)) {
-                        schemaUpdate = true;
-                        newSchema = value.asText();
-                    }
-                    validateUpdateAction(profileModel, error, field, value, manager);
-                }
+            if (fieldName == null) continue;
 
-                ((ObjectNode) fieldName).remove(ArchiveUnitProfileModel.CREATION_DATE);
-                ((ObjectNode) fieldName).put(ArchiveUnitProfileModel.LAST_UPDATE, LocalDateUtil.nowFormatted());
+            final Iterator<String> it = fieldName.fieldNames();
+            while (it.hasNext()) {
+                final String field = it.next();
+                final JsonNode value = fieldName.findValue(field);
+                if (ArchiveUnitProfileModel.CONTROLSCHEMA.equals(field)) {
+                    schemaUpdate = true;
+                    newSchema = value.asText();
+                }
+                validateUpdateAction(profileModel, error, field, value, manager);
+
+                if (ArchiveUnitProfile.SEDA_VERSION.equals(field)) {
+                    sedaVersion = ArchiveUnitProfileSedaVersion.forVersion(value.asText());
+                }
             }
+
+            ((ObjectNode) fieldName).remove(ArchiveUnitProfileModel.CREATION_DATE);
+            ((ObjectNode) fieldName).put(ArchiveUnitProfileModel.LAST_UPDATE, LocalDateUtil.nowFormatted());
+            ((ObjectNode) fieldName).put(ArchiveUnitProfile.SEDA_VERSION, sedaVersion.getVersion());
         }
 
         if (schemaUpdate) {
