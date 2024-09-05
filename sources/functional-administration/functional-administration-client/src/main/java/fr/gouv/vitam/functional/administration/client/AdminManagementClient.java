@@ -56,6 +56,7 @@ import fr.gouv.vitam.common.model.administration.preservation.PreservationScenar
 import fr.gouv.vitam.common.model.administration.schema.SchemaInputModel;
 import fr.gouv.vitam.common.model.administration.schema.SchemaResponse;
 import fr.gouv.vitam.common.model.audit.AuditReferentialOptions;
+import fr.gouv.vitam.common.model.configuration.PublicConfiguration;
 import fr.gouv.vitam.functional.administration.common.ReconstructionRequestItem;
 import fr.gouv.vitam.functional.administration.common.exception.AdminManagementClientServerException;
 import fr.gouv.vitam.functional.administration.common.exception.DatabaseConflictException;
@@ -882,4 +883,9 @@ public interface AdminManagementClient extends MockOrRestClient {
      */
     Status deleteUnitExternalSchemas(List<String> paths)
         throws InvalidParseOperationException, AdminManagementClientServerException;
+
+    /**
+     * Get Vitam public configuration
+     */
+    RequestResponse<PublicConfiguration> getPublicConfiguration() throws AdminManagementClientServerException;
 }

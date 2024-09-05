@@ -291,5 +291,7 @@ public class AccessExtAPI {
 
     public static final String OBJECTGROUP_SCHEMA = "/schema/objectgroup";
 
+    public static final String CONFIGURATION = "/configuration";
+
     public static final int UNAVAILABLE_DATA_FROM_ASYNC_OFFER_STATUS_CODE = 460;
 }

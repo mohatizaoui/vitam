@@ -1634,3 +1634,24 @@ documentation:
         body:
           application/json:
           example: !include libraries/examples/schema-objects-group.json
+
+/configuration:
+  displayName: Beta - Configuration
+  description: |
+   API qui permet d'accéder à la configuration publique de Vitam.
+  get:
+    description: |
+      Requête qui retourne la configuration publique de Vitam.
+      Uniquement accessible depuis le tenant d'administration.
+
+      NB. Cette API est Beta. Elle peut changer dans une prochaine release.
+
+      Permissions requises:
+        - configuration:read
+
+    responses:
+      200:
+        description: Configuration publique de Vitam
+        body:
+          application/json:
+          example: !include libraries/examples/public-configuration.json

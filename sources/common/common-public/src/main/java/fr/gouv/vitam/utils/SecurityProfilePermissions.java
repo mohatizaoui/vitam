@@ -197,7 +197,8 @@ public enum SecurityProfilePermissions {
     ARCHIVE_UNIT_PROFILE_SCHEMA_READ("schema:archiveunitprofile:read"),
     UNIT_SCHEMA_CREATE("schema:unit:create"),
     UNIT_SCHEMA_DELETE("schema:unit:delete"),
-    OBJECTGROUP_SCHEMA_READ("schema:objectgroup:read");
+    OBJECTGROUP_SCHEMA_READ("schema:objectgroup:read"),
+    CONFIGURATION_READ("configuration:read");
 
     private final String permission;
 

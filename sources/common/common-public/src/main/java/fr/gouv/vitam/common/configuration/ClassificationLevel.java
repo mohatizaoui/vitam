@@ -26,6 +26,8 @@
  */
 package fr.gouv.vitam.common.configuration;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 
 /**
@@ -33,8 +35,15 @@ import java.util.List;
  */
 public class ClassificationLevel {
 
+    @JsonProperty("allowList")
     private List<String> allowList;
+
+    @JsonProperty("authorizeNotDefined")
     private boolean authorizeNotDefined;
+
+    public ClassificationLevel() {
+        // Empty constructor for deserialization
+    }
 
     /**
      * @return
