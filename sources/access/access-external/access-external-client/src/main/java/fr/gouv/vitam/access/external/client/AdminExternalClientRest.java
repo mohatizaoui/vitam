@@ -72,6 +72,7 @@ import fr.gouv.vitam.common.model.administration.SecurityProfileModel;
 import fr.gouv.vitam.common.model.administration.preservation.GriffinModel;
 import fr.gouv.vitam.common.model.administration.preservation.PreservationScenarioModel;
 import fr.gouv.vitam.common.model.administration.schema.SchemaResponse;
+import fr.gouv.vitam.common.model.configuration.PublicConfiguration;
 import fr.gouv.vitam.common.model.processing.ProcessDetail;
 import fr.gouv.vitam.common.model.processing.WorkFlow;
 import fr.gouv.vitam.logbook.common.parameters.LogbookOperationParameters;
@@ -1390,6 +1391,19 @@ public class AdminExternalClientRest extends DefaultClient implements AdminExter
         try (Response response = make(request)) {
             check(response);
             return RequestResponse.parseFromResponse(response, SchemaResponse.class);
+        }
+    }
+
+    @Override
+    public RequestResponse<PublicConfiguration> getPublicConfiguration(VitamContext vitamContext)
+        throws VitamClientException {
+        VitamRequestBuilder request = get()
+            .withPath(AccessExtAPI.CONFIGURATION)
+            .withHeaders(vitamContext.getHeaders())
+            .withJsonAccept();
+        try (Response response = make(request)) {
+            check(response);
+            return RequestResponse.parseFromResponse(response, PublicConfiguration.class);
         }
     }
 

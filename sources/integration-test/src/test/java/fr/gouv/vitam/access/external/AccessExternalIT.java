@@ -35,6 +35,7 @@ import fr.gouv.vitam.access.external.client.AccessExternalClientFactory;
 import fr.gouv.vitam.access.external.client.AdminExternalClient;
 import fr.gouv.vitam.access.external.client.AdminExternalClientFactory;
 import fr.gouv.vitam.access.external.client.VitamPoolingClient;
+import fr.gouv.vitam.access.external.client.exception.AdminExternalClientException;
 import fr.gouv.vitam.access.external.common.exception.AccessExternalClientException;
 import fr.gouv.vitam.access.external.rest.AccessExternalMain;
 import fr.gouv.vitam.access.internal.rest.AccessInternalMain;
@@ -66,6 +67,7 @@ import fr.gouv.vitam.common.model.administration.schema.SchemaCardinality;
 import fr.gouv.vitam.common.model.administration.schema.SchemaOrigin;
 import fr.gouv.vitam.common.model.administration.schema.SchemaResponse;
 import fr.gouv.vitam.common.model.administration.schema.SchemaType;
+import fr.gouv.vitam.common.model.configuration.PublicConfiguration;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.functional.administration.rest.AdminManagementMain;
 import fr.gouv.vitam.ingest.external.client.IngestExternalClient;
@@ -126,6 +128,7 @@ import static org.junit.Assert.assertTrue;
 public class AccessExternalIT extends VitamRuleRunner {
 
     private static final Integer TENANT_ID = 0;
+    private static final Integer ADMIN_TENANT_ID = 1;
     private static final String APPLICATION_SESSION_ID = "ApplicationSessionId";
     private static final String ACCESS_CONTRACT = "aName3";
 
@@ -991,6 +994,47 @@ public class AccessExternalIT extends VitamRuleRunner {
             );
         } catch (VitamClientException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    public void should_fail_when_called_with_non_admin_tenant() {
+        try (AdminExternalClient client = AdminExternalClientFactory.getInstance().getClient()) {
+            assertThatThrownBy(() -> client.getPublicConfiguration(new VitamContext(TENANT_ID))).isInstanceOf(
+                AdminExternalClientException.class
+            );
+        }
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void should_get_public_configuration_when_called_with_admin_tenant() throws Exception {
+        try (AdminExternalClient client = AdminExternalClientFactory.getInstance().getClient()) {
+            RequestResponse<PublicConfiguration> publicConfigurationResponse = client.getPublicConfiguration(
+                new VitamContext(ADMIN_TENANT_ID)
+            );
+            assertThat(publicConfigurationResponse.isOk()).isTrue();
+            RequestResponseOK<PublicConfiguration> publicConfigurationOK = (RequestResponseOK<
+                    PublicConfiguration
+                >) publicConfigurationResponse;
+            assertThat(publicConfigurationOK.getResults()).hasSize(1);
+            PublicConfiguration configuration = publicConfigurationOK.getResults().get(0);
+
+            assertThat(configuration.getTenants()).isEqualTo(List.of(0, 1, 2));
+            assertThat(configuration.getAdminTenant()).isEqualTo(ADMIN_TENANT_ID);
+
+            assertThat(configuration.getComputedInheritedRulesThreshold()).isEqualTo(100_000_000L);
+            assertThat(configuration.getDistributionThreshold()).isEqualTo(100_000L);
+            assertThat(configuration.getEliminationAnalysisThreshold()).isEqualTo(100_000L);
+            assertThat(configuration.getEliminationActionThreshold()).isEqualTo(10_000L);
+
+            assertThat(configuration.getClassificationLevel().getAllowList()).isEqualTo(
+                List.of("Secret Défense", "Confidentiel Défense")
+            );
+            assertThat(configuration.getClassificationLevel().authorizeNotDefined()).isTrue();
+
+            assertThat(configuration.getIndexInheritedRulesWithAPIV2OutputByTenant()).isEqualTo(List.of(1));
+            assertThat(configuration.getIndexInheritedRulesWithRulesIdByTenant()).isEqualTo(List.of(1, 2));
         }
     }
 }

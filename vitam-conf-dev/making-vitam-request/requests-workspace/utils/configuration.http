@@ -1,0 +1,4 @@
+### Liste des points d'API d'ingest-external
+GET {{url-admin}}/admin-external/v1/configuration
+Accept: application/json
+X-Tenant-Id: 1

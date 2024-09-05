@@ -73,6 +73,7 @@ import fr.gouv.vitam.common.model.administration.preservation.PreservationScenar
 import fr.gouv.vitam.common.model.administration.schema.SchemaInputModel;
 import fr.gouv.vitam.common.model.administration.schema.SchemaResponse;
 import fr.gouv.vitam.common.model.audit.AuditReferentialOptions;
+import fr.gouv.vitam.common.model.configuration.PublicConfiguration;
 import fr.gouv.vitam.functional.administration.common.Context;
 import fr.gouv.vitam.functional.administration.common.Ontology;
 import fr.gouv.vitam.functional.administration.common.Profile;
@@ -158,6 +159,7 @@ class AdminManagementClientRest extends DefaultClient implements AdminManagement
 
     private static final String RECONSTRUCTION_ACCESSION_REGISTER = "/accessionregisterreconstruction/";
     public static final String SCHEMA_UNIT_URI = "/schema/unit";
+    public static final String CONFIGURATION_URL = "/configuration";
 
     public static final String SCHEMA_ARCHIVE_UNIT_PROFILE_URI = "/archiveunitprofiles/{id}/schema";
     public static final String SCHEMA_OBJECTGROUP_URI = "/schema/objectgroup";
@@ -1695,6 +1697,18 @@ class AdminManagementClientRest extends DefaultClient implements AdminManagement
                 )
                 .setHttpCode(Status.OK.getStatusCode());
         } catch (VitamClientInternalException | InvalidParseOperationException | InvalidFormatException e) {
+            throw new AdminManagementClientServerException(INTERNAL_SERVER_ERROR_MSG, e);
+        }
+    }
+
+    @Override
+    public RequestResponse<PublicConfiguration> getPublicConfiguration() throws AdminManagementClientServerException {
+        VitamRequestBuilder request = get().withPath(CONFIGURATION_URL).withJsonAccept();
+
+        try (Response response = make(request)) {
+            check(response);
+            return RequestResponse.parseFromResponse(response, PublicConfiguration.class);
+        } catch (VitamClientInternalException e) {
             throw new AdminManagementClientServerException(INTERNAL_SERVER_ERROR_MSG, e);
         }
     }

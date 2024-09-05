@@ -89,6 +89,7 @@ import fr.gouv.vitam.common.model.administration.preservation.GriffinModel;
 import fr.gouv.vitam.common.model.administration.preservation.PreservationScenarioModel;
 import fr.gouv.vitam.common.model.administration.schema.SchemaResponse;
 import fr.gouv.vitam.common.model.audit.AuditReferentialOptions;
+import fr.gouv.vitam.common.model.configuration.PublicConfiguration;
 import fr.gouv.vitam.common.security.SanityChecker;
 import fr.gouv.vitam.common.security.rest.EndpointInfo;
 import fr.gouv.vitam.common.security.rest.SecureEndpointRegistry;
@@ -174,6 +175,7 @@ import static fr.gouv.vitam.utils.SecurityProfilePermissions.ARCHIVEUNITPROFILES
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.ARCHIVE_UNIT_PROFILE_SCHEMA_READ;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.AUDITS_CREATE;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.BATCHREPORT_ID_READ;
+import static fr.gouv.vitam.utils.SecurityProfilePermissions.CONFIGURATION_READ;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.CONTEXTS_CREATE_JSON;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.CONTEXTS_ID_READ;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.CONTEXTS_ID_UPDATE;
@@ -3388,6 +3390,26 @@ public class AdminManagementExternalResource extends ApplicationStatusResource {
                 VitamCode.LOGBOOK_EXTERNAL_INTERNAL_SERVER_ERROR,
                 e.getLocalizedMessage()
             )
+                .setHttpCode(Status.INTERNAL_SERVER_ERROR.getStatusCode())
+                .toResponse();
+        }
+    }
+
+    @Path(AccessExtAPI.CONFIGURATION)
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Secured(
+        permission = CONFIGURATION_READ,
+        description = "get vitam public configuration (beta - API may change in future releases)",
+        isAdminOnly = true
+    )
+    public Response getPublicConfiguration() {
+        try (AdminManagementClient adminManagementClient = adminManagementClientFactory.getClient()) {
+            RequestResponse<PublicConfiguration> publicConfiguration = adminManagementClient.getPublicConfiguration();
+            return Response.ok(publicConfiguration).build();
+        } catch (Exception e) {
+            LOGGER.error("Cannot retrieve public vitam configuration", e);
+            return VitamCodeHelper.toVitamError(VitamCode.ADMIN_EXTERNAL_INTERNAL_SERVER_ERROR, e.getLocalizedMessage())
                 .setHttpCode(Status.INTERNAL_SERVER_ERROR.getStatusCode())
                 .toResponse();
         }

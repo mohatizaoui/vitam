@@ -1,0 +1,25 @@
+{
+  "httpCode": 200,
+  "$hits": {
+    "total": 1,
+    "offset": 0,
+    "limit": 0,
+    "size": 1
+  },
+  "$results": [
+    {
+      "tenants": [ 0, 1, 2, 3 ],
+      "adminTenant": 1,
+      "indexInheritedRulesWithAPIV2OutputByTenant": [ 0, 1 ],
+      "indexInheritedRulesWithRulesIdByTenant": [ 0, 1, 2 ],
+      "distributionThreshold": 100000,
+      "eliminationAnalysisThreshold": 100000,
+      "eliminationActionThreshold": 10000,
+      "computedInheritedRulesThreshold": 100000000,
+      "classificationLevel": {
+        "allowList": [ "Secret Défense", "Confidentiel Défense", "Non protégé" ],
+        "authorizeNotDefined": true
+      }
+    }
+  ]
+}

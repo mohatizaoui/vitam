@@ -59,6 +59,7 @@ import fr.gouv.vitam.common.model.administration.SecurityProfileModel;
 import fr.gouv.vitam.common.model.administration.preservation.GriffinModel;
 import fr.gouv.vitam.common.model.administration.preservation.PreservationScenarioModel;
 import fr.gouv.vitam.common.model.administration.schema.SchemaResponse;
+import fr.gouv.vitam.common.model.configuration.PublicConfiguration;
 import fr.gouv.vitam.common.model.processing.ProcessDetail;
 import fr.gouv.vitam.common.model.processing.WorkFlow;
 import fr.gouv.vitam.logbook.common.parameters.LogbookOperationParameters;
@@ -970,4 +971,9 @@ public interface AdminExternalClient extends BasicClient, OperationStatusClient 
      * @return
      */
     RequestResponse<SchemaResponse> getObjectGroupSchema(VitamContext vitamContext) throws VitamClientException;
+
+    /**
+     * Get vitam public configuration
+     */
+    RequestResponse<PublicConfiguration> getPublicConfiguration(VitamContext vitamContext) throws VitamClientException;
 }

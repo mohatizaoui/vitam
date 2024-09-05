@@ -63,6 +63,7 @@ import fr.gouv.vitam.common.model.administration.preservation.PreservationScenar
 import fr.gouv.vitam.common.model.administration.schema.SchemaInputModel;
 import fr.gouv.vitam.common.model.administration.schema.SchemaResponse;
 import fr.gouv.vitam.common.model.audit.AuditReferentialOptions;
+import fr.gouv.vitam.common.model.configuration.PublicConfiguration;
 import fr.gouv.vitam.common.stream.StreamUtils;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.functional.administration.common.ReconstructionRequestItem;
@@ -111,7 +112,7 @@ public class AdminManagementClientMock extends AbstractMockClient implements Adm
     }
 
     @Override
-    public JsonNode getFormatByID(String id) throws FileFormatException, InvalidParseOperationException {
+    public JsonNode getFormatByID(String id) throws InvalidParseOperationException {
         ParametersChecker.checkParameter(STREAM_IS_A_MANDATORY_PARAMETER, id);
         LOGGER.debug("get format by id request:");
         return ClientMockResultHelper.getFormat().toJsonNode();
@@ -140,7 +141,7 @@ public class AdminManagementClientMock extends AbstractMockClient implements Adm
     }
 
     @Override
-    public Response checkAgenciesFile(InputStream stream) throws ReferentialException {
+    public Response checkAgenciesFile(InputStream stream) {
         ParametersChecker.checkParameter(STREAM_IS_A_MANDATORY_PARAMETER, stream);
         LOGGER.debug("Check file agencies  request:");
         StreamUtils.closeSilently(stream);
@@ -184,8 +185,7 @@ public class AdminManagementClientMock extends AbstractMockClient implements Adm
     }
 
     @Override
-    public RequestResponse<AgenciesModel> getAgencyById(String id)
-        throws InvalidParseOperationException, ReferentialNotFoundException, AdminManagementClientServerException {
+    public RequestResponse<AgenciesModel> getAgencyById(String id) throws InvalidParseOperationException {
         ParametersChecker.checkParameter(STREAM_IS_A_MANDATORY_PARAMETER, id);
         LOGGER.debug("get agency by id request:");
         return ClientMockResultHelper.getAgenciesList();
@@ -205,7 +205,6 @@ public class AdminManagementClientMock extends AbstractMockClient implements Adm
             result = JsonHandler.writeAsString(register);
         } catch (final InvalidParseOperationException e) {
             LOGGER.error("Cannot serialize parameters", e);
-            result = "{}";
             return new RequestResponseOK().setHttpCode(Status.PRECONDITION_FAILED.getStatusCode());
         }
         LOGGER.info("AccessionRegister: " + result);
@@ -305,8 +304,7 @@ public class AdminManagementClientMock extends AbstractMockClient implements Adm
     }
 
     @Override
-    public RequestResponse findAccessContractsByID(String documentId)
-        throws InvalidParseOperationException, AdminManagementClientServerException {
+    public RequestResponse findAccessContractsByID(String documentId) throws InvalidParseOperationException {
         LOGGER.debug("find access contracts by id request ");
         return ClientMockResultHelper.getAccessContracts();
     }
@@ -680,7 +678,7 @@ public class AdminManagementClientMock extends AbstractMockClient implements Adm
     }
 
     @Override
-    public RequestResponse<SchemaResponse> getObjectGroupSchema() throws AdminManagementClientServerException {
+    public RequestResponse<SchemaResponse> getObjectGroupSchema() {
         throw new IllegalStateException(CANNOT_BE_USED);
     }
 
@@ -690,8 +688,12 @@ public class AdminManagementClientMock extends AbstractMockClient implements Adm
     }
 
     @Override
-    public Status deleteUnitExternalSchemas(List<String> paths)
-        throws InvalidParseOperationException, AdminManagementClientServerException {
+    public Status deleteUnitExternalSchemas(List<String> paths) {
+        throw new IllegalStateException(CANNOT_BE_USED);
+    }
+
+    @Override
+    public RequestResponse<PublicConfiguration> getPublicConfiguration() {
         throw new IllegalStateException(CANNOT_BE_USED);
     }
 }
