@@ -29,10 +29,17 @@ package fr.gouv.vitam.functional.administration.core.configuration;
 
 import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.model.configuration.PublicConfiguration;
+import fr.gouv.vitam.functional.administration.common.config.AdminManagementConfiguration;
 
 import java.util.List;
 
 public class PublicConfigurationService {
+
+    private final AdminManagementConfiguration adminManagementConfiguration;
+
+    public PublicConfigurationService(AdminManagementConfiguration adminManagementConfiguration) {
+        this.adminManagementConfiguration = adminManagementConfiguration;
+    }
 
     public PublicConfiguration getPublicConfiguration() {
         return new PublicConfiguration()
@@ -48,7 +55,8 @@ public class PublicConfigurationService {
             )
             .setIndexInheritedRulesWithRulesIdByTenant(
                 parseIntList(VitamConfiguration.getIndexInheritedRulesWithRulesIdByTenant())
-            );
+            )
+            .setExternalReferentialIdentifiersByTenant(adminManagementConfiguration.getListEnableExternalIdentifiers());
     }
 
     private static List<Integer> parseIntList(List<String> stringList) {

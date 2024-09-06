@@ -1035,6 +1035,25 @@ public class AccessExternalIT extends VitamRuleRunner {
 
             assertThat(configuration.getIndexInheritedRulesWithAPIV2OutputByTenant()).isEqualTo(List.of(1));
             assertThat(configuration.getIndexInheritedRulesWithRulesIdByTenant()).isEqualTo(List.of(1, 2));
+
+            assertThat(configuration.getExternalReferentialIdentifiersByTenant()).containsOnlyKeys(0, 1);
+            assertThat(configuration.getExternalReferentialIdentifiersByTenant().get(0)).containsExactlyInAnyOrder(
+                "AGENCIES",
+                "CONTEXT",
+                "SECURITY_PROFILE",
+                "ACCESS_CONTRACT",
+                "INGEST_CONTRACT",
+                "PROFILE",
+                "ARCHIVE_UNIT_PROFILE"
+            );
+            assertThat(configuration.getExternalReferentialIdentifiersByTenant().get(1)).containsExactlyInAnyOrder(
+                "CONTEXT",
+                "SECURITY_PROFILE",
+                "ACCESS_CONTRACT",
+                "INGEST_CONTRACT",
+                "PROFILE",
+                "ARCHIVE_UNIT_PROFILE"
+            );
         }
     }
 }

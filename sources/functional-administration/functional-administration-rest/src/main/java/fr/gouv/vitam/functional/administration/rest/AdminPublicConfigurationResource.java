@@ -31,6 +31,7 @@ import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.configuration.PublicConfiguration;
+import fr.gouv.vitam.functional.administration.common.config.AdminManagementConfiguration;
 import fr.gouv.vitam.functional.administration.core.configuration.PublicConfigurationService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -49,8 +50,8 @@ public class AdminPublicConfigurationResource {
     private static final String FUNCTIONAL_ADMINISTRATION_MODULE = "FUNCTIONAL_ADMINISTRATION_MODULE";
     private final PublicConfigurationService publicConfigurationService;
 
-    public AdminPublicConfigurationResource() {
-        this.publicConfigurationService = new PublicConfigurationService();
+    public AdminPublicConfigurationResource(AdminManagementConfiguration adminManagementConfiguration) {
+        this.publicConfigurationService = new PublicConfigurationService(adminManagementConfiguration);
     }
 
     @Path("/configuration")
