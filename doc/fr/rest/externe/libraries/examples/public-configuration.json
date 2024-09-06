@@ -12,6 +12,10 @@
       "adminTenant": 1,
       "indexInheritedRulesWithAPIV2OutputByTenant": [ 0, 1 ],
       "indexInheritedRulesWithRulesIdByTenant": [ 0, 1, 2 ],
+      "externalReferentialIdentifiersByTenant": {
+        "0": [ "INGEST_CONTRACT", "ACCESS_CONTRACT", "MANAGEMENT_CONTRACT", "ARCHIVE_UNIT_PROFILE" ],
+        "1": [ "INGEST_CONTRACT", "ACCESS_CONTRACT", "MANAGEMENT_CONTRACT", "PROFILE", "ARCHIVE_UNIT_PROFILE", "CONTEXT" ]
+      },
       "distributionThreshold": 100000,
       "eliminationAnalysisThreshold": 100000,
       "eliminationActionThreshold": 10000,

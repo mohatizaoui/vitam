@@ -30,6 +30,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import fr.gouv.vitam.common.configuration.ClassificationLevel;
 
 import java.util.List;
+import java.util.Map;
 
 public class PublicConfiguration {
 
@@ -44,6 +45,9 @@ public class PublicConfiguration {
 
     @JsonProperty("indexInheritedRulesWithRulesIdByTenant")
     private List<Integer> indexInheritedRulesWithRulesIdByTenant;
+
+    @JsonProperty("externalReferentialIdentifiersByTenant")
+    private Map<Integer, List<String>> externalReferentialIdentifiersByTenant;
 
     @JsonProperty("distributionThreshold")
     private long distributionThreshold;
@@ -101,6 +105,17 @@ public class PublicConfiguration {
         List<Integer> indexInheritedRulesWithRulesIdByTenant
     ) {
         this.indexInheritedRulesWithRulesIdByTenant = indexInheritedRulesWithRulesIdByTenant;
+        return this;
+    }
+
+    public Map<Integer, List<String>> getExternalReferentialIdentifiersByTenant() {
+        return externalReferentialIdentifiersByTenant;
+    }
+
+    public PublicConfiguration setExternalReferentialIdentifiersByTenant(
+        Map<Integer, List<String>> externalReferentialIdentifiersByTenant
+    ) {
+        this.externalReferentialIdentifiersByTenant = externalReferentialIdentifiersByTenant;
         return this;
     }
 
