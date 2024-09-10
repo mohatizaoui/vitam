@@ -82,7 +82,7 @@ public class ProfileModel {
     private ProfileFormat format;
 
     @JsonProperty(TAG_SEDAVERSION)
-    private ProfileSedaVersion sedaVersion = ProfileSedaVersion.VERSION_2_1;
+    private ProfileSedaVersion sedaVersion = ProfileSedaVersion.VERSION_2_3;
 
     @JsonProperty(TAG_PATH)
     private String path;

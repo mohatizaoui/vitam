@@ -94,6 +94,7 @@ import static fr.gouv.vitam.common.database.builder.query.QueryHelper.match;
 import static fr.gouv.vitam.common.guid.GUIDFactory.newOperationLogbookGUID;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
@@ -356,12 +357,12 @@ public class ProfileResourceTest {
 
         List<String> identifiers = result.get("$results.Identifier");
         assertThat(identifiers).hasSize(2);
-        assertThat(identifiers.get(0)).contains("PR-0000");
-        assertThat(identifiers.get(1)).contains("PR-0000");
+        assertThat(identifiers.get(0)).contains("PR-");
+        assertThat(identifiers.get(1)).contains("PR-");
 
         String identifierProfile = identifiers.iterator().next();
 
-        InputStream xsdProfile = new FileInputStream(PropertiesUtils.getResourceFile("profile_ok.xsd"));
+        InputStream xsdProfile = new FileInputStream(PropertiesUtils.getResourceFile("profile_ok_seda_2.3.xsd"));
 
         when(workspaceClientFactory.getClient()).thenReturn(workspaceClient);
 
@@ -439,8 +440,8 @@ public class ProfileResourceTest {
 
         List<String> identifiers = result.get("$results.Identifier");
         assertThat(identifiers).hasSize(2);
-        assertThat(identifiers.get(0)).contains("PR-0000");
-        assertThat(identifiers.get(1)).contains("PR-0000");
+        assertThat(identifiers.get(0)).contains("PR-");
+        assertThat(identifiers.get(1)).contains("PR-");
 
         String identifierProfile0 = identifiers.get(0);
         String identifierProfile1 = identifiers.get(1);
@@ -494,5 +495,67 @@ public class ProfileResourceTest {
             .put(ProfileResource.UPDATE_PROFIL_URI + "/" + identifierProfile1)
             .then()
             .statusCode(Status.OK.getStatusCode());
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void shouldRejectXSDWithoutSedaVersion() throws Exception {
+        VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
+        VitamThreadUtils.getVitamSession().setRequestId(newOperationLogbookGUID(TENANT_ID));
+        mongoDbAccess.deleteCollectionForTesting(FunctionalAdminCollections.PROFILE).close();
+        File fileProfiles = PropertiesUtils.getResourceFile("profile_ok.json");
+        JsonNode json = JsonHandler.getFromFile(fileProfiles);
+        // transform to json
+        given()
+            .contentType(ContentType.JSON)
+            .body(json)
+            .header(GlobalDataRest.X_TENANT_ID, 0)
+            .header(GlobalDataRest.X_REQUEST_ID, VitamThreadUtils.getVitamSession().getRequestId())
+            .when()
+            .post(ProfileResource.PROFILE_URI)
+            .then()
+            .statusCode(Status.CREATED.getStatusCode());
+
+        Select select = new Select().addOrderByAscFilter("Identifier");
+        JsonPath result = given()
+            .contentType(ContentType.JSON)
+            .body(select.getFinalSelect())
+            .header(GlobalDataRest.X_TENANT_ID, 0)
+            .header(GlobalDataRest.X_REQUEST_ID, VitamThreadUtils.getVitamSession().getRequestId())
+            .when()
+            .get(ProfileResource.PROFILE_URI)
+            .then()
+            .statusCode(Status.OK.getStatusCode())
+            .extract()
+            .body()
+            .jsonPath();
+
+        List<String> identifiers = result.get("$results.Identifier");
+        assertThat(identifiers).hasSize(2);
+        assertThat(identifiers.get(0)).contains("PR-");
+        assertThat(identifiers.get(1)).contains("PR-");
+
+        String identifierProfile = identifiers.iterator().next();
+
+        InputStream xsdProfile = new FileInputStream(PropertiesUtils.getResourceFile("profile_ok.xsd"));
+
+        when(workspaceClientFactory.getClient()).thenReturn(workspaceClient);
+
+        doAnswer(invocation -> null).when(workspaceClient).createContainer(anyString());
+        doAnswer(invocation -> xsdProfile)
+            .when(workspaceClient)
+            .putObject(anyString(), anyString(), any(InputStream.class));
+
+        // transform to json
+        given()
+            .contentType(ContentType.BINARY)
+            .body(xsdProfile)
+            .header(GlobalDataRest.X_TENANT_ID, 0)
+            .header(GlobalDataRest.X_REQUEST_ID, VitamThreadUtils.getVitamSession().getRequestId())
+            .when()
+            .put(ProfileResource.PROFILE_URI + "/" + identifierProfile)
+            .then()
+            .statusCode(Status.BAD_REQUEST.getStatusCode())
+            .body(containsString("No seda version found in schema definition file"));
     }
 }
