@@ -382,7 +382,6 @@ vitam:
     dataConsistencyAuditOplogMaxSize: 100
     # Reconstruction metrics cache in minutes (secondary site)
     reconstructionMetricsCacheDurationInMinutes: 15
-    refreshElasticIndexPostBulkIndexing: true
     context_path: "/metadata"
   processing:
     vitam_component: processing
