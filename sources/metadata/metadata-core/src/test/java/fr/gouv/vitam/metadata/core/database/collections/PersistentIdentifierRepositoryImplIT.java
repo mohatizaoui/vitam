@@ -32,6 +32,7 @@ import fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchNode;
 import fr.gouv.vitam.common.database.server.mongodb.MongoDbAccess;
 import fr.gouv.vitam.common.database.server.mongodb.VitamDocument;
 import fr.gouv.vitam.common.elasticsearch.ElasticsearchRule;
+import fr.gouv.vitam.common.elasticsearch.ElasticsearchTestHelper;
 import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.model.identifier.PurgedCollectionType;
 import fr.gouv.vitam.common.model.unit.PersistentIdentifierModel;
@@ -75,7 +76,8 @@ public class PersistentIdentifierRepositoryImplIT {
         MetadataCollectionsTestUtils.createTestIndexManager(
             tenantList,
             Collections.emptyMap(),
-            MappingLoaderTestUtils.getTestMappingLoader()
+            MappingLoaderTestUtils.getTestMappingLoader(),
+            ElasticsearchTestHelper.loadElasticSearchSettings()
         );
     public static final String ARK_PREFIX = "ark:/666567/";
 

@@ -42,6 +42,7 @@ import fr.gouv.vitam.common.database.parser.request.single.UpdateParserSingle;
 import fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchNode;
 import fr.gouv.vitam.common.database.server.mongodb.MongoDbAccess;
 import fr.gouv.vitam.common.elasticsearch.ElasticsearchRule;
+import fr.gouv.vitam.common.elasticsearch.ElasticsearchTestHelper;
 import fr.gouv.vitam.common.error.VitamError;
 import fr.gouv.vitam.common.exception.VitamException;
 import fr.gouv.vitam.common.guid.GUIDFactory;
@@ -103,7 +104,7 @@ public class SecurityProfileServiceTest {
     private static final Integer TENANT_ID = 1;
     private static final Integer EXTERNAL_TENANT = 2;
     private static final ElasticsearchFunctionalAdminIndexManager indexManager =
-        FunctionalAdminCollectionsTestUtils.createTestIndexManager();
+        FunctionalAdminCollectionsTestUtils.createTestIndexManager(ElasticsearchTestHelper.loadElasticSearchSettings());
 
     @ClassRule
     public static MongoRule mongoRule = new MongoRule(MongoDbAccess.getMongoClientSettingsBuilder());

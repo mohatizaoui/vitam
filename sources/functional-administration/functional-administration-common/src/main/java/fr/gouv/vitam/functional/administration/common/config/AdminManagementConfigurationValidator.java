@@ -27,8 +27,15 @@
 
 package fr.gouv.vitam.functional.administration.common.config;
 
+import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.model.config.CollectionConfiguration;
 import fr.gouv.vitam.common.model.config.CollectionConfigurationUtils;
+import fr.gouv.vitam.common.security.IllegalPathException;
+import fr.gouv.vitam.common.security.SafeFileChecker;
+import fr.gouv.vitam.common.security.SanityChecker;
+
+import java.io.File;
+import java.io.IOException;
 
 public class AdminManagementConfigurationValidator {
 
@@ -38,6 +45,28 @@ public class AdminManagementConfigurationValidator {
         }
 
         validateIndexationConfiguration(adminManagementConfiguration.getIndexationConfiguration());
+        try {
+            validateElasticsearchSettings(adminManagementConfiguration.getElasticsearchConfigurationFile());
+        } catch (IOException | InvalidParseOperationException e) {
+            throw new IllegalStateException("Invalid configuration.");
+        }
+    }
+
+    private static void validateElasticsearchSettings(String elasticsearchConfigurationFilePath)
+        throws IOException, InvalidParseOperationException {
+        if (elasticsearchConfigurationFilePath == null) {
+            throw new IllegalStateException("Invalid path of elasticsearch Configuration File. Null config");
+        }
+        try {
+            SafeFileChecker.checkSafeFilePath(elasticsearchConfigurationFilePath);
+        } catch (IllegalPathException e) {
+            throw new IllegalStateException("Invalid path of elasticsearch Configuration File.");
+        }
+        File elasticsearchConfigurationFile = new File(elasticsearchConfigurationFilePath);
+        SanityChecker.checkJsonFile(elasticsearchConfigurationFile);
+        if (!elasticsearchConfigurationFile.exists() || !elasticsearchConfigurationFile.isFile()) {
+            throw new IllegalStateException("Not found elasticsearch Configuration File in the provided path");
+        }
     }
 
     private static void validateIndexationConfiguration(

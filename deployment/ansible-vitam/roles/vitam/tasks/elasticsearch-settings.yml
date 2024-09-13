@@ -1,0 +1,22 @@
+---
+
+- name: ensure elasticsearch settings directory is present
+  file:
+    path: "{{ vitam_folder_conf }}/elasticsearch-settings"
+    state: directory
+    owner: "{{ vitam_defaults.users.vitam }}"
+    group: "{{ vitam_defaults.users.group }}"
+    mode: "{{ vitam_defaults.folder.folder_permission }}"
+  tags: update_vitam_configuration
+
+- name: Deploy the elasticsearch settings file
+  copy:
+    src: "elasticsearch-settings/elasticsearch-configuration.json"
+    dest: "{{ vitam_folder_conf }}/elasticsearch-settings/elasticsearch-configuration.json"
+    owner: "{{ vitam_defaults.users.vitam }}"
+    group: "{{ vitam_defaults.users.group }}"
+    mode: "{{ vitam_defaults.folder.conf_permission }}"
+  tags: update_vitam_configuration
+  notify:
+    - "vitam - restart service"
+

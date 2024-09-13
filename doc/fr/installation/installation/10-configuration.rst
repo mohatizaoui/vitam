@@ -212,10 +212,18 @@ Exemple du fichier ``vault-cots.yml`` ::
    ansible-vault rekey vault-cots.yml
 
 
+La configuration d'ElasticSearch
+================================
+
+Les paramètres de configuration d'ElasticSearch sont configurables à travers le fichier de configuration, accessible plus spécifiquement dans le chemin suivant :
+
+``deployment/ansible-vitam/roles/vitam/files/elasticsearch-settings/elasticsearch-configuration.json``
+
+
 Le mapping ElasticSearch pour Unit et ObjectGroup
 =================================================
 
-Les mappings des indexes elasticsearch pour les collections masterdata Unit et ObjectGroup sont configurables de l'extérieur, plus spécifiquement dans le dossier |repertoire_inventory|``deployment/ansible-vitam/roles/elasticsearch-mapping/files/``, ce dossier contient:
+Les mappings des indexes elasticsearch pour les collections masterdata Unit et ObjectGroup sont configurables de l'extérieur, plus spécifiquement dans le dossier ``deployment/ansible-vitam/roles/elasticsearch-mapping/files/``, ce dossier contient:
 
 * ``deployment/ansible-vitam/roles/elasticsearch-mapping/files/unit-es-mapping.json``
 * ``deployment/ansible-vitam/roles/elasticsearch-mapping/files/og-es-mapping.json``

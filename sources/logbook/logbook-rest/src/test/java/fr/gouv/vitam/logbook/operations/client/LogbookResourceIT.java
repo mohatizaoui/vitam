@@ -45,6 +45,7 @@ import fr.gouv.vitam.common.database.builder.request.single.Select;
 import fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchNode;
 import fr.gouv.vitam.common.database.server.mongodb.MongoDbAccess;
 import fr.gouv.vitam.common.elasticsearch.ElasticsearchRule;
+import fr.gouv.vitam.common.elasticsearch.ElasticsearchTestHelper;
 import fr.gouv.vitam.common.exception.DatabaseException;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.exception.VitamApplicationServerException;
@@ -158,7 +159,11 @@ public class LogbookResourceIT {
     private static final Integer secondTenant = 0;
     private static final List<Integer> tenantList = newArrayList(tenantId, secondTenant);
     private static final ElasticsearchLogbookIndexManager indexManager =
-        LogbookCollectionsTestUtils.createTestIndexManager(tenantList, Collections.emptyMap());
+        LogbookCollectionsTestUtils.createTestIndexManager(
+            tenantList,
+            Collections.emptyMap(),
+            ElasticsearchTestHelper.loadElasticSearchSettings()
+        );
 
     private static LogbookOperationParameters logbookParametersStart;
     private static LogbookOperationParameters logbookParametersAppend;
@@ -228,6 +233,7 @@ public class LogbookResourceIT {
                         new DefaultCollectionConfiguration().setLogbookoperation(new CollectionConfiguration(1, 0))
                     )
             );
+            logbookConf.setElasticsearchConfigurationFile(ElasticsearchTestHelper.loadElasticSearchSettings());
             File file = temporaryFolder.newFile();
             String configurationFile = file.getAbsolutePath();
             PropertiesUtils.writeYaml(file, logbookConf);

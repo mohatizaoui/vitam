@@ -35,6 +35,7 @@ import fr.gouv.vitam.common.client.VitamClientFactory;
 import fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchNode;
 import fr.gouv.vitam.common.database.server.mongodb.MongoDbAccess;
 import fr.gouv.vitam.common.elasticsearch.ElasticsearchRule;
+import fr.gouv.vitam.common.elasticsearch.ElasticsearchTestHelper;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.json.JsonHandler;
@@ -124,7 +125,12 @@ public class SelectObjectGroupResourceTest {
     static final List<Integer> tenantList = Collections.singletonList(tenantId);
     private static final MappingLoader mappingLoader = MappingLoaderTestUtils.getTestMappingLoader();
     private static final ElasticsearchMetadataIndexManager indexManager =
-        MetadataCollectionsTestUtils.createTestIndexManager(tenantList, Collections.emptyMap(), mappingLoader);
+        MetadataCollectionsTestUtils.createTestIndexManager(
+            tenantList,
+            Collections.emptyMap(),
+            mappingLoader,
+            ElasticsearchTestHelper.loadElasticSearchSettings()
+        );
 
     private static ElasticsearchAccessMetadata accessMetadata;
 

@@ -38,6 +38,7 @@ import fr.gouv.vitam.common.database.builder.request.single.Select;
 import fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchNode;
 import fr.gouv.vitam.common.database.server.mongodb.MongoDbAccess;
 import fr.gouv.vitam.common.elasticsearch.ElasticsearchRule;
+import fr.gouv.vitam.common.elasticsearch.ElasticsearchTestHelper;
 import fr.gouv.vitam.common.exception.DatabaseException;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.exception.SchemaValidationException;
@@ -179,7 +180,7 @@ public class RulesManagerFileImplTest {
     private static final String STP_IMPORT_RULES = "STP_IMPORT_RULES";
     private static final Integer TENANT_ID = 0;
     private static final ElasticsearchFunctionalAdminIndexManager indexManager =
-        FunctionalAdminCollectionsTestUtils.createTestIndexManager();
+        FunctionalAdminCollectionsTestUtils.createTestIndexManager(ElasticsearchTestHelper.loadElasticSearchSettings());
     private static final List<MongoDbNode> nodes = new ArrayList<>();
 
     @ClassRule

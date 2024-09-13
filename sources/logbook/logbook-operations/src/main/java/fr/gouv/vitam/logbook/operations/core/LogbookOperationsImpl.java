@@ -434,7 +434,8 @@ public class LogbookOperationsImpl implements LogbookOperations {
                             this.indexManager.getElasticsearchIndexSettings(collection, tenantId),
                             collection.getElasticsearchCollection(),
                             Collections.singletonList(tenantId),
-                            null
+                            null,
+                            this.indexManager.getElasticsearchConfigurationFile()
                         );
                 reindexationResult.addIndexOK(reindexResult);
             } catch (Exception exc) {
@@ -492,7 +493,8 @@ public class LogbookOperationsImpl implements LogbookOperations {
                             this.indexManager.getElasticsearchIndexSettings(collection, tenantIds.get(0)),
                             collection.getElasticsearchCollection(),
                             tenantIds,
-                            tenantGroupName
+                            tenantGroupName,
+                            this.indexManager.getElasticsearchConfigurationFile()
                         );
                 reindexationResult.addIndexOK(reindexResult);
             } catch (Exception exc) {

@@ -33,6 +33,7 @@ import fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchIndexAlia
 import fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchNode;
 import fr.gouv.vitam.common.database.server.mongodb.MongoDbAccess;
 import fr.gouv.vitam.common.elasticsearch.ElasticsearchRule;
+import fr.gouv.vitam.common.elasticsearch.ElasticsearchTestHelper;
 import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.mongo.MongoRule;
 import fr.gouv.vitam.functional.administration.common.config.ElasticsearchFunctionalAdminIndexManager;
@@ -69,7 +70,9 @@ public class ElasticsearchAccessFunctionalAdminTest {
         List<ElasticsearchNode> nodes = new ArrayList<>();
         nodes.add(new ElasticsearchNode(ElasticsearchRule.getHost(), ElasticsearchRule.getPort()));
         ElasticsearchFunctionalAdminIndexManager indexManager =
-            FunctionalAdminCollectionsTestUtils.createTestIndexManager();
+            FunctionalAdminCollectionsTestUtils.createTestIndexManager(
+                ElasticsearchTestHelper.loadElasticSearchSettings()
+            );
         elasticsearchAccessFunctionalAdmin = new ElasticsearchAccessFunctionalAdmin(
             ElasticsearchRule.VITAM_CLUSTER,
             nodes,

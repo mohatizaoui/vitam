@@ -43,4 +43,10 @@ public class ElasticsearchTestHelperTest {
         String ogMapping = ElasticsearchTestHelper.loadObjectGroupMapping();
         assertNotNull(ogMapping);
     }
+
+    @Test
+    public void loadElasticSearchSettings() {
+        String esSetting = ElasticsearchTestHelper.loadElasticSearchSettings();
+        assertNotNull(esSetting);
+    }
 }

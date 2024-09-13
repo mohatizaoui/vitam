@@ -36,6 +36,7 @@ import fr.gouv.vitam.common.client.VitamClientFactory;
 import fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchNode;
 import fr.gouv.vitam.common.database.server.mongodb.MongoDbAccess;
 import fr.gouv.vitam.common.elasticsearch.ElasticsearchRule;
+import fr.gouv.vitam.common.elasticsearch.ElasticsearchTestHelper;
 import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.junit.JunitHelper;
@@ -138,6 +139,9 @@ public class MetadataRawResourceTest {
                         .setObjectgroup(new CollectionConfiguration(1, 0))
                 )
         );
+
+        configuration.setElasticsearchConfigurationFile(ElasticsearchTestHelper.loadElasticSearchSettings());
+
         configuration.setWorkspaceUrl("http://localhost:8094");
         VitamConfiguration.setTenants(tenantList);
         serverPort = junitHelper.findAvailablePort();

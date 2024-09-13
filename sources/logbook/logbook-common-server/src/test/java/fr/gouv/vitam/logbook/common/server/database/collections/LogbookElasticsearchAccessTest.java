@@ -40,6 +40,7 @@ import fr.gouv.vitam.common.database.server.mongodb.BsonHelper;
 import fr.gouv.vitam.common.database.server.mongodb.MongoDbAccess;
 import fr.gouv.vitam.common.database.server.mongodb.VitamDocument;
 import fr.gouv.vitam.common.elasticsearch.ElasticsearchRule;
+import fr.gouv.vitam.common.elasticsearch.ElasticsearchTestHelper;
 import fr.gouv.vitam.common.guid.GUID;
 import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.json.JsonHandler;
@@ -96,7 +97,11 @@ public class LogbookElasticsearchAccessTest {
 
     private static final int tenantId = 0;
     private static final ElasticsearchLogbookIndexManager indexManager =
-        LogbookCollectionsTestUtils.createTestIndexManager(Collections.singletonList(tenantId), Collections.emptyMap());
+        LogbookCollectionsTestUtils.createTestIndexManager(
+            Collections.singletonList(tenantId),
+            Collections.emptyMap(),
+            ElasticsearchTestHelper.loadElasticSearchSettings()
+        );
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {

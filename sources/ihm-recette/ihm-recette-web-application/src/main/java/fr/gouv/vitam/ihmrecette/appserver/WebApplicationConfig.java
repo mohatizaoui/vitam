@@ -73,6 +73,9 @@ public class WebApplicationConfig extends DbConfigurationImpl {
     @JsonProperty("logbookIndexationSettings")
     private LogbookIndexationConfiguration logbookIndexationConfiguration;
 
+    @JsonProperty("elasticsearchConfigurationFile")
+    private String elasticsearchConfigurationFile;
+
     /**
      * Constructor for tests
      */
@@ -358,6 +361,16 @@ public class WebApplicationConfig extends DbConfigurationImpl {
     public WebApplicationConfig setLogbookIndexationConfiguration(
         LogbookIndexationConfiguration logbookIndexationConfiguration) {
         this.logbookIndexationConfiguration = logbookIndexationConfiguration;
+        return this;
+    }
+
+    public String getElasticsearchConfigurationFile() {
+        return elasticsearchConfigurationFile;
+    }
+
+    public WebApplicationConfig setElasticsearchConfigurationFile(
+        String elasticsearchConfigurationFile) {
+        this.elasticsearchConfigurationFile = elasticsearchConfigurationFile;
         return this;
     }
 }

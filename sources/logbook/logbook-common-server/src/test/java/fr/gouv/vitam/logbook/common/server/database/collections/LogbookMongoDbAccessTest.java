@@ -43,6 +43,7 @@ import fr.gouv.vitam.common.database.server.mongodb.VitamDocument;
 import fr.gouv.vitam.common.database.server.mongodb.VitamMongoCursor;
 import fr.gouv.vitam.common.database.translators.mongodb.MongoDbHelper;
 import fr.gouv.vitam.common.elasticsearch.ElasticsearchRule;
+import fr.gouv.vitam.common.elasticsearch.ElasticsearchTestHelper;
 import fr.gouv.vitam.common.exception.VitamException;
 import fr.gouv.vitam.common.guid.GUID;
 import fr.gouv.vitam.common.guid.GUIDFactory;
@@ -113,7 +114,11 @@ public class LogbookMongoDbAccessTest {
     );
 
     private static final ElasticsearchLogbookIndexManager indexManager =
-        LogbookCollectionsTestUtils.createTestIndexManager(tenantList, Collections.emptyMap());
+        LogbookCollectionsTestUtils.createTestIndexManager(
+            tenantList,
+            Collections.emptyMap(),
+            ElasticsearchTestHelper.loadElasticSearchSettings()
+        );
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {

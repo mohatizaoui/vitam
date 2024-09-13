@@ -44,6 +44,7 @@ import fr.gouv.vitam.common.client.VitamClientFactoryInterface;
 import fr.gouv.vitam.common.client.configuration.ClientConfigurationImpl;
 import fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchNode;
 import fr.gouv.vitam.common.elasticsearch.ElasticsearchRule;
+import fr.gouv.vitam.common.elasticsearch.ElasticsearchTestHelper;
 import fr.gouv.vitam.common.exception.VitamApplicationServerException;
 import fr.gouv.vitam.common.exception.VitamRuntimeException;
 import fr.gouv.vitam.common.format.identification.FormatIdentifierFactory;
@@ -804,9 +805,11 @@ public class VitamServerRunner extends ExternalResource {
         realAdminConfig.setElasticsearchNodes(esNodes);
         realAdminConfig.setClusterName(cluster);
         realAdminConfig.setWorkspaceUrl("http://localhost:" + PORT_SERVICE_WORKSPACE);
+        realAdminConfig.setElasticsearchConfigurationFile(ElasticsearchTestHelper.loadElasticSearchSettings());
         realAdminConfig.setIndexationConfiguration(
             new FunctionalAdminIndexationConfiguration().setDefaultConfiguration(new CollectionConfiguration(1, 0))
         );
+
         writeYaml(adminConfig, realAdminConfig);
         LOGGER.warn("=== VitamServerRunner start  AdminManagementMain");
         AdminManagementClientFactory.changeMode(
@@ -864,6 +867,7 @@ public class VitamServerRunner extends ExternalResource {
             );
         }
 
+        logbookConfiguration.setElasticsearchConfigurationFile(ElasticsearchTestHelper.loadElasticSearchSettings());
         writeYaml(logbookConfigFile, logbookConfiguration);
 
         LOGGER.warn("=== VitamServerRunner start  LogbookMain");
@@ -1068,7 +1072,7 @@ public class VitamServerRunner extends ExternalResource {
         realMetadataConfig.setCollectModule(false);
         MappingLoader mappingLoader = MappingLoaderTestUtils.getTestMappingLoader();
         realMetadataConfig.setElasticsearchExternalMetadataMappings(mappingLoader.getElasticsearchExternalMappings());
-
+        realMetadataConfig.setElasticsearchConfigurationFile(ElasticsearchTestHelper.loadElasticSearchSettings());
         if (this.customMetadataIndexationConfiguration != null) {
             realMetadataConfig.setIndexationConfiguration(this.customMetadataIndexationConfiguration);
         } else {
@@ -1371,7 +1375,7 @@ public class VitamServerRunner extends ExternalResource {
         realMetadataConfig.setCollectModule(true);
         MappingLoader mappingLoader = MappingLoaderTestUtils.getTestMappingLoader();
         realMetadataConfig.setElasticsearchExternalMetadataMappings(mappingLoader.getElasticsearchExternalMappings());
-
+        realMetadataConfig.setElasticsearchConfigurationFile(ElasticsearchTestHelper.loadElasticSearchSettings());
         if (this.customMetadataIndexationConfiguration != null) {
             realMetadataConfig.setIndexationConfiguration(this.customMetadataIndexationConfiguration);
         } else {

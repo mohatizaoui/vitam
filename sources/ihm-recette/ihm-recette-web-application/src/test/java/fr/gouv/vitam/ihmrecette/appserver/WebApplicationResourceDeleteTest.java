@@ -42,6 +42,7 @@ import fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchNode;
 import fr.gouv.vitam.common.database.server.mongodb.MongoDbAccess;
 import fr.gouv.vitam.common.database.server.mongodb.VitamDocument;
 import fr.gouv.vitam.common.elasticsearch.ElasticsearchRule;
+import fr.gouv.vitam.common.elasticsearch.ElasticsearchTestHelper;
 import fr.gouv.vitam.common.exception.DocumentAlreadyExistsException;
 import fr.gouv.vitam.common.exception.InvalidGuidOperationException;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
@@ -153,11 +154,13 @@ public class WebApplicationResourceDeleteTest {
 
     private static final MappingLoader mappingLoader = MappingLoaderTestUtils.getTestMappingLoader();
     private static final ElasticsearchMetadataIndexManager metadataIndexManager =
-        MetadataCollectionsTestUtils.createTestIndexManager(tenantList, Collections.emptyMap(), mappingLoader);
+        MetadataCollectionsTestUtils.createTestIndexManager(tenantList, Collections.emptyMap(), mappingLoader,
+            ElasticsearchTestHelper.loadElasticSearchSettings());
     private static final ElasticsearchLogbookIndexManager logbookIndexManager =
-        LogbookCollectionsTestUtils.createTestIndexManager(tenantList, Collections.emptyMap());
+        LogbookCollectionsTestUtils.createTestIndexManager(tenantList, Collections.emptyMap(),
+            ElasticsearchTestHelper.loadElasticSearchSettings());
     private static final ElasticsearchFunctionalAdminIndexManager functionalAdminIndexManager =
-        FunctionalAdminCollectionsTestUtils.createTestIndexManager();
+        FunctionalAdminCollectionsTestUtils.createTestIndexManager(ElasticsearchTestHelper.loadElasticSearchSettings());
 
     @Rule
     public RunWithCustomExecutorRule runInThread =
@@ -207,6 +210,9 @@ public class WebApplicationResourceDeleteTest {
         );
         VitamConfiguration.setTenants(tenantList);
 
+        realAdminConfig.setElasticsearchConfigurationFile(
+            ElasticsearchTestHelper.loadElasticSearchSettings()
+        );
         realAdminConfig.getElasticsearchNodes().get(0).setHttpPort(ElasticsearchRule.PORT);
         realAdminConfig.setElasticsearchExternalMetadataMappings(mappingLoader.getElasticsearchExternalMappings());
         adminConfigFile = File.createTempFile("test", IHM_RECETTE_CONF, adminConfig.getParentFile());

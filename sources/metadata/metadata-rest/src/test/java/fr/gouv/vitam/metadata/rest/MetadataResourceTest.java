@@ -50,6 +50,7 @@ import fr.gouv.vitam.common.database.parser.request.GlobalDatasParser;
 import fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchNode;
 import fr.gouv.vitam.common.database.server.mongodb.MongoDbAccess;
 import fr.gouv.vitam.common.elasticsearch.ElasticsearchRule;
+import fr.gouv.vitam.common.elasticsearch.ElasticsearchTestHelper;
 import fr.gouv.vitam.common.error.VitamError;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.guid.GUIDFactory;
@@ -163,10 +164,11 @@ public class MetadataResourceTest {
         MetadataCollectionsTestUtils.createTestIndexManager(
             tenantList,
             emptyMap(),
-            MappingLoaderTestUtils.getTestMappingLoader()
+            MappingLoaderTestUtils.getTestMappingLoader(),
+            ElasticsearchTestHelper.loadElasticSearchSettings()
         );
     private static final ElasticsearchFunctionalAdminIndexManager functionalAdminIndexManager =
-        FunctionalAdminCollectionsTestUtils.createTestIndexManager();
+        FunctionalAdminCollectionsTestUtils.createTestIndexManager(ElasticsearchTestHelper.loadElasticSearchSettings());
 
     private static ElasticsearchAccessMetadata elasticsearchAccessMetadata;
     private static ElasticsearchAccessFunctionalAdmin accessFunctionalAdmin;

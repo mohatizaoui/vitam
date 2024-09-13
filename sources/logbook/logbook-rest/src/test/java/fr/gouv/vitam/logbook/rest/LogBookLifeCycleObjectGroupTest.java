@@ -40,6 +40,7 @@ import fr.gouv.vitam.common.database.builder.request.single.Select;
 import fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchNode;
 import fr.gouv.vitam.common.database.server.mongodb.MongoDbAccess;
 import fr.gouv.vitam.common.elasticsearch.ElasticsearchRule;
+import fr.gouv.vitam.common.elasticsearch.ElasticsearchTestHelper;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.exception.VitamApplicationServerException;
 import fr.gouv.vitam.common.guid.GUID;
@@ -134,11 +135,14 @@ public class LogBookLifeCycleObjectGroupTest {
     private static LogbookLifeCycleObjectGroupParameters logbookLifeCyclesObjectGroupParametersBAD;
 
     private static LogbookLifeCycleObjectGroupParameters logbookLifeCyclesObjectGroupParametersUpdate;
-
     private static JunitHelper junitHelper;
 
     private static final ElasticsearchLogbookIndexManager indexManager =
-        LogbookCollectionsTestUtils.createTestIndexManager(tenantList, Collections.emptyMap());
+        LogbookCollectionsTestUtils.createTestIndexManager(
+            tenantList,
+            Collections.emptyMap(),
+            ElasticsearchTestHelper.loadElasticSearchSettings()
+        );
 
     @Rule
     public RunWithCustomExecutorRule runInThread = new RunWithCustomExecutorRule(
@@ -190,6 +194,7 @@ public class LogBookLifeCycleObjectGroupTest {
                     )
             );
 
+            logbookConf.setElasticsearchConfigurationFile(ElasticsearchTestHelper.loadElasticSearchSettings());
             File file = temporaryFolder.newFile();
             String configurationFile = file.getAbsolutePath();
             PropertiesUtils.writeYaml(file, logbookConf);

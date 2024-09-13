@@ -1,0 +1,215 @@
+# Configuration
+@access-contract = some_contract_id
+@tenant = 0
+@operation-Id=som_operationId
+
+@sip-size = 2189
+### Ingest Sample SIP
+POST {{url-ingest}}/ingest-external/v1/ingests
+Accept: application/json
+Content-Type: application/octet-stream
+X-Action: RESUME
+X-Chunk-Offset: 0
+X-Context-Id: DEFAULT_WORKFLOW
+X-Size-Total: {{sip-size}}
+X-Tenant-Id: {{tenant}}
+
+< ./strict-search-on-title/SIP_diplomatie.zip
+
+
+
+### Search units with operation id
+GET {{url-access}}/access-external/v1/units
+Accept: application/json
+Content-Type: application/json
+X-Access-Contract-Id: {{access-contract}}
+X-Tenant-Id: {{tenant}}
+
+{
+  "$roots": [],
+  "$query": [
+    {
+      "$and": [
+        {
+          "$eq": {
+            "#opi": "{{operation-Id}}"
+          }
+        }
+      ]
+    }
+  ],
+  "$filter": {
+    "$offset": 0,
+    "$limit": 100
+  },
+  "$projection": {
+    "$fields": {
+      "#id": 1,
+      "Description": 1,
+      "DescriptionLevel": 1,
+      "Title": 1
+    }
+  }
+}
+
+
+
+### Search units with operation id and Title equals to Diplomatique,Diplomate or Diplomatie
+GET {{url-access}}/access-external/v1/units/
+Accept: application/json
+Content-Type: application/json
+X-Access-Contract-Id: {{access-contract}}
+X-Tenant-Id: {{tenant}}
+
+{
+  "$roots": [],
+  "$query": [
+    {
+      "$and": [
+        {
+          "$eq": {
+            "#opi": "{{operation-Id}}"
+          }
+        },
+        {
+          "$eq": {
+            "Title": "diplomatique"
+          }
+        }
+      ]
+    }
+  ],
+  "$filter": {
+    "$offset": 0,
+    "$limit": 100
+  },
+  "$projection": {
+    "$fields": {
+      "#id": 1,
+      "Description": 1,
+      "DescriptionLevel": 1,
+      "Title": 1
+    }
+  }
+}
+
+
+
+
+### Search units with query using strict analyzer with criteria 'diplomatie'
+GET {{url-access}}/access-external/v1/units/
+Accept: application/json
+Content-Type: application/json
+X-Access-Contract-Id: {{access-contract}}
+X-Tenant-Id: {{tenant}}
+
+{
+  "$roots": [],
+  "$query": [
+    {
+      "$and": [
+        {
+          "$eq": {
+            "#opi": "{{operation-Id}}"
+          }
+        },
+        {
+          "$eq": {
+            "Title.Strict": "diplomatie"
+          }
+        }
+      ]
+    }
+  ],
+  "$filter": {
+    "$offset": 0,
+    "$limit": 100
+  },
+  "$projection": {
+    "$fields": {
+      "#id": 1,
+      "Description": 1,
+      "DescriptionLevel": 1,
+      "Title": 1
+    }
+  }
+}
+
+### Search units with query using strict analyzer with criteria 'diplomatique'
+GET {{url-access}}/access-external/v1/units/
+Accept: application/json
+Content-Type: application/json
+X-Access-Contract-Id: {{access-contract}}
+X-Tenant-Id: {{tenant}}
+
+{
+  "$roots": [],
+  "$query": [
+    {
+      "$and": [
+        {
+          "$eq": {
+            "#opi": "{{operation-Id}}"
+          }
+        },
+        {
+          "$eq": {
+            "Title.Strict": "diplomatique"
+          }
+        }
+      ]
+    }
+  ],
+  "$filter": {
+    "$offset": 0,
+    "$limit": 100
+  },
+  "$projection": {
+    "$fields": {
+      "#id": 1,
+      "Description": 1,
+      "DescriptionLevel": 1,
+      "Title": 1
+    }
+  }
+}
+
+
+### Search units with query using strict analyzer with criteria 'diplomate'
+GET {{url-access}}/access-external/v1/units/
+Accept: application/json
+Content-Type: application/json
+X-Access-Contract-Id: {{access-contract}}
+X-Tenant-Id: {{tenant}}
+
+{
+  "$roots": [],
+  "$query": [
+    {
+      "$and": [
+        {
+          "$eq": {
+            "#opi": "{{operation-Id}}"
+          }
+        },
+        {
+          "$eq": {
+            "Title.Strict": "diplomate"
+          }
+        }
+      ]
+    }
+  ],
+  "$filter": {
+    "$offset": 0,
+    "$limit": 100
+  },
+  "$projection": {
+    "$fields": {
+      "#id": 1,
+      "Description": 1,
+      "DescriptionLevel": 1,
+      "Title": 1
+    }
+  }
+}

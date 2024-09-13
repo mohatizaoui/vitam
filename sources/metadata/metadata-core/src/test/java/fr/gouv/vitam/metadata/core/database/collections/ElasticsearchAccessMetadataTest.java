@@ -38,6 +38,7 @@ import fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchNode;
 import fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil;
 import fr.gouv.vitam.common.database.translators.elasticsearch.QueryToElasticsearch;
 import fr.gouv.vitam.common.elasticsearch.ElasticsearchRule;
+import fr.gouv.vitam.common.elasticsearch.ElasticsearchTestHelper;
 import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
@@ -91,7 +92,8 @@ public class ElasticsearchAccessMetadataTest {
         MetadataCollectionsTestUtils.createTestIndexManager(
             Collections.singletonList(TENANT_ID_0),
             Collections.emptyMap(),
-            MappingLoaderTestUtils.getTestMappingLoader()
+            MappingLoaderTestUtils.getTestMappingLoader(),
+            ElasticsearchTestHelper.loadElasticSearchSettings()
         );
 
     @BeforeClass

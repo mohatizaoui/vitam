@@ -40,6 +40,7 @@ import fr.gouv.vitam.common.database.api.VitamRepositoryProvider;
 import fr.gouv.vitam.common.database.api.impl.VitamElasticsearchRepository;
 import fr.gouv.vitam.common.database.api.impl.VitamMongoRepository;
 import fr.gouv.vitam.common.database.offset.OffsetRepository;
+import fr.gouv.vitam.common.elasticsearch.ElasticsearchTestHelper;
 import fr.gouv.vitam.common.exception.DatabaseException;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.junit.FakeInputStream;
@@ -144,7 +145,8 @@ public class ReconstructionServiceTest {
     private final ElasticsearchMetadataIndexManager indexManager = MetadataCollectionsTestUtils.createTestIndexManager(
         Arrays.asList(1, 10),
         Collections.emptyMap(),
-        MappingLoaderTestUtils.getTestMappingLoader()
+        MappingLoaderTestUtils.getTestMappingLoader(),
+        ElasticsearchTestHelper.loadElasticSearchSettings()
     );
 
     @Before

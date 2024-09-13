@@ -31,6 +31,7 @@ import fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchIndexAlia
 import fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchNode;
 import fr.gouv.vitam.common.database.server.mongodb.MongoDbAccess;
 import fr.gouv.vitam.common.elasticsearch.ElasticsearchRule;
+import fr.gouv.vitam.common.elasticsearch.ElasticsearchTestHelper;
 import fr.gouv.vitam.common.mongo.MongoRule;
 import fr.gouv.vitam.common.server.application.configuration.MongoDbNode;
 import fr.gouv.vitam.metadata.core.config.ElasticsearchMetadataIndexManager;
@@ -77,7 +78,8 @@ public class MongoDbAccessMetadataFactoryTest {
         ElasticsearchMetadataIndexManager indexManager = MetadataCollectionsTestUtils.createTestIndexManager(
             tenantList,
             Collections.emptyMap(),
-            mappingLoader
+            mappingLoader,
+            ElasticsearchTestHelper.loadElasticSearchSettings()
         );
 
         MetaDataConfiguration config = new MetaDataConfiguration(

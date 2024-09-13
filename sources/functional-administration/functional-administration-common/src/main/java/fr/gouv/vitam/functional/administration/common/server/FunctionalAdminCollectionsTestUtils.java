@@ -156,11 +156,16 @@ public final class FunctionalAdminCollectionsTestUtils {
     }
 
     @VisibleForTesting
-    public static ElasticsearchFunctionalAdminIndexManager createTestIndexManager() {
+    public static ElasticsearchFunctionalAdminIndexManager createTestIndexManager(
+        String elasticsearchConfigurationFilePath
+    ) {
         return new ElasticsearchFunctionalAdminIndexManager(
-            new AdminManagementConfiguration(Collections.emptyList(), null, null, null).setIndexationConfiguration(
-                new FunctionalAdminIndexationConfiguration().setDefaultConfiguration(new CollectionConfiguration(1, 0))
-            )
+            new AdminManagementConfiguration(Collections.emptyList(), null, null, null)
+                .setIndexationConfiguration(
+                    new FunctionalAdminIndexationConfiguration()
+                        .setDefaultConfiguration(new CollectionConfiguration(1, 0))
+                )
+                .setElasticsearchConfigurationFile(elasticsearchConfigurationFilePath)
         );
     }
 }

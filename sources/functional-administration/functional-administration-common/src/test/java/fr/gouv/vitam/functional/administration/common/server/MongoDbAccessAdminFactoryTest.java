@@ -27,12 +27,14 @@
 package fr.gouv.vitam.functional.administration.common.server;
 
 import fr.gouv.vitam.common.database.server.mongodb.MongoDbAccess;
+import fr.gouv.vitam.common.elasticsearch.ElasticsearchTestHelper;
 import fr.gouv.vitam.common.mongo.MongoRule;
 import fr.gouv.vitam.common.server.application.configuration.DbConfigurationImpl;
 import fr.gouv.vitam.common.server.application.configuration.MongoDbNode;
 import org.junit.ClassRule;
 import org.junit.Test;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -48,13 +50,15 @@ public class MongoDbAccessAdminFactoryTest {
     private static MongoDbAccessAdminImpl mongoDbAccess;
 
     @Test
-    public void testCreateAdmin() {
+    public void testCreateAdmin() throws FileNotFoundException {
         final List<MongoDbNode> nodes = new ArrayList<>();
         nodes.add(new MongoDbNode("localhost", mongoRule.getDataBasePort()));
         mongoDbAccess = MongoDbAccessAdminFactory.create(
             new DbConfigurationImpl(nodes, mongoRule.getMongoDatabase().getName(), true, "user", "pwd"),
             Collections::emptyList,
-            FunctionalAdminCollectionsTestUtils.createTestIndexManager()
+            FunctionalAdminCollectionsTestUtils.createTestIndexManager(
+                ElasticsearchTestHelper.loadElasticSearchSettings()
+            )
         );
 
         assertNotNull(mongoDbAccess);

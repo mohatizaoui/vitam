@@ -39,6 +39,7 @@ import fr.gouv.vitam.common.database.index.model.SwitchIndexResult;
 import fr.gouv.vitam.common.database.server.elasticsearch.model.ElasticsearchCollections;
 import fr.gouv.vitam.common.database.server.mongodb.MongoDbAccess;
 import fr.gouv.vitam.common.elasticsearch.ElasticsearchRule;
+import fr.gouv.vitam.common.elasticsearch.ElasticsearchTestHelper;
 import fr.gouv.vitam.common.exception.DatabaseException;
 import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.json.JsonHandler;
@@ -152,7 +153,8 @@ public class IndexationHelperTest {
             indexSettings,
             ElasticsearchCollections.OBJECTGROUP,
             singletonList(0),
-            null
+            null,
+            ElasticsearchTestHelper.loadElasticSearchSettings()
         );
         ReindexationOK reindexTenantGroup = indexationHelper.reindex(
             collection,
@@ -161,7 +163,8 @@ public class IndexationHelperTest {
             indexSettings,
             ElasticsearchCollections.OBJECTGROUP,
             Arrays.asList(1, 2),
-            "mygrp"
+            "mygrp",
+            ElasticsearchTestHelper.loadElasticSearchSettings()
         );
 
         // Then
@@ -285,7 +288,8 @@ public class IndexationHelperTest {
             indexSettings,
             ElasticsearchCollections.OBJECTGROUP,
             null,
-            null
+            null,
+            ElasticsearchTestHelper.loadElasticSearchSettings()
         );
 
         // Then

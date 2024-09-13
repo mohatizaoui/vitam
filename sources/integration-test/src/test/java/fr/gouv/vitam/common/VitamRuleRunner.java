@@ -39,6 +39,7 @@ import fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchIndexAlia
 import fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchNode;
 import fr.gouv.vitam.common.database.server.mongodb.MongoDbAccess;
 import fr.gouv.vitam.common.elasticsearch.ElasticsearchRule;
+import fr.gouv.vitam.common.elasticsearch.ElasticsearchTestHelper;
 import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.mongo.MongoRule;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
@@ -135,13 +136,20 @@ public class VitamRuleRunner {
         List<Integer> dedicatedTenants,
         Map<String, List<Integer>> tenantGroups
     ) throws Exception {
-        logbookIndexManager = LogbookCollectionsTestUtils.createTestIndexManager(dedicatedTenants, tenantGroups);
+        logbookIndexManager = LogbookCollectionsTestUtils.createTestIndexManager(
+            dedicatedTenants,
+            tenantGroups,
+            ElasticsearchTestHelper.loadElasticSearchSettings()
+        );
         metadataIndexManager = MetadataCollectionsTestUtils.createTestIndexManager(
             dedicatedTenants,
             tenantGroups,
-            MappingLoaderTestUtils.getTestMappingLoader()
+            MappingLoaderTestUtils.getTestMappingLoader(),
+            ElasticsearchTestHelper.loadElasticSearchSettings()
         );
-        functionalAdminIndexManager = FunctionalAdminCollectionsTestUtils.createTestIndexManager();
+        functionalAdminIndexManager = FunctionalAdminCollectionsTestUtils.createTestIndexManager(
+            ElasticsearchTestHelper.loadElasticSearchSettings()
+        );
 
         // ES client
         List<ElasticsearchNode> esNodes = Lists.newArrayList(

@@ -11,4 +11,6 @@
     - vitam
   vars:
     vitam_struct: "{{ vitam.metadata }}"
-  tags: metadata
+  tags:
+    - metadata
+    - update_vitam_configuration

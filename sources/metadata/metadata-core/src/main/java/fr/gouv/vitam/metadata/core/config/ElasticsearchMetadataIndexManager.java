@@ -58,6 +58,7 @@ public class ElasticsearchMetadataIndexManager {
     private final ListValuedMap<String, Integer> tenantGroupToTenantMap = new ArrayListValuedHashMap<>();
     private final Map<Integer, ElasticsearchIndexSettings> unitIndexSettingsMap = new HashMap<>();
     private final Map<Integer, ElasticsearchIndexSettings> objectGroupIndexSettingsMap = new HashMap<>();
+    private final String elasticSearchConfigurationFile;
 
     public ElasticsearchMetadataIndexManager(
         MetaDataConfiguration configuration,
@@ -198,6 +199,7 @@ public class ElasticsearchMetadataIndexManager {
                     this.objectGroupIndexSettingsMap.put(tenantId, objectGroupElasticsearchIndexSettings);
                 }
             });
+        this.elasticSearchConfigurationFile = configuration.getElasticsearchConfigurationFile();
     }
 
     private Supplier<String> getEsMappingLoader(MappingLoader mappingLoader, MetadataCollections collection) {
@@ -250,6 +252,10 @@ public class ElasticsearchMetadataIndexManager {
 
     public Collection<String> getTenantGroups() {
         return tenantGroupToTenantMap.keySet();
+    }
+
+    public String getElasticSearchConfigurationFile() {
+        return elasticSearchConfigurationFile;
     }
 
     public List<Integer> getTenantGroupTenants(String tenantGroupName) {

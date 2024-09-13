@@ -41,6 +41,7 @@ import fr.gouv.vitam.common.database.parameter.SwitchIndexParameters;
 import fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchNode;
 import fr.gouv.vitam.common.database.server.mongodb.MongoDbAccess;
 import fr.gouv.vitam.common.elasticsearch.ElasticsearchRule;
+import fr.gouv.vitam.common.elasticsearch.ElasticsearchTestHelper;
 import fr.gouv.vitam.common.exception.VitamApplicationServerException;
 import fr.gouv.vitam.common.guid.GUID;
 import fr.gouv.vitam.common.guid.GUIDFactory;
@@ -157,7 +158,11 @@ public class LogbookResourceTest {
     private static final int ADMIN_TENANT_ID = 1;
     private static final List<Integer> tenantList = Collections.singletonList(TENANT_ID);
     private static final ElasticsearchLogbookIndexManager indexManager =
-        LogbookCollectionsTestUtils.createTestIndexManager(tenantList, Collections.emptyMap());
+        LogbookCollectionsTestUtils.createTestIndexManager(
+            tenantList,
+            Collections.emptyMap(),
+            ElasticsearchTestHelper.loadElasticSearchSettings()
+        );
 
     private static final int workspacePort = junitHelper.findAvailablePort();
     private static final int processingPort = junitHelper.findAvailablePort();
@@ -195,6 +200,7 @@ public class LogbookResourceTest {
         realLogbook.setDbName(MongoRule.VITAM_DB);
         realLogbook.setWorkspaceUrl("http://localhost:" + workspacePort);
         realLogbook.setProcessingUrl("http://localhost:" + processingPort);
+        realLogbook.setElasticsearchConfigurationFile(ElasticsearchTestHelper.loadElasticSearchSettings());
         VitamConfiguration.setTenants(tenantList);
         VitamConfiguration.setAdminTenant(TENANT_ID);
         serverPort = junitHelper.findAvailablePort();
