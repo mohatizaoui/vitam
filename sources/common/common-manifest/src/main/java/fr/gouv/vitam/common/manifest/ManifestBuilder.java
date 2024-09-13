@@ -121,6 +121,7 @@ import static fr.gouv.vitam.common.SedaConstants.TAG_TRANSFERRING_AGENCY;
 import static fr.gouv.vitam.common.SedaConstants.TAG_TRANSFER_REQUEST_REPLY_IDENTIFIER;
 import static fr.gouv.vitam.common.SedaConstants.TAG_UNIT_IDENTIFIER;
 import static fr.gouv.vitam.common.mapping.mapper.VitamObjectMapper.getDeserializationObjectMapper;
+import static fr.gouv.vitam.common.model.ModelConstants.UNDERSCORE;
 import static fr.gouv.vitam.common.utils.SupportedSedaVersions.UNIFIED_NAMESPACE;
 
 /**
@@ -367,7 +368,7 @@ public class ManifestBuilder implements AutoCloseable {
         String fullFileName = baseFilePath + cleanedFileName;
 
         if (existingFileNames.contains(fullFileName)) {
-            String idPrefix = binaryDataObjectType.getId() != null ? binaryDataObjectType.getId() : "";
+            String idPrefix = binaryDataObjectType.getId() != null ? binaryDataObjectType.getId() + UNDERSCORE : "";
             cleanedFileName = idPrefix + cleanedFileName;
         }
 
