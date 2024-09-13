@@ -42,6 +42,7 @@ import fr.gouv.vitam.common.database.builder.request.single.Select;
 import fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchNode;
 import fr.gouv.vitam.common.database.server.mongodb.MongoDbAccess;
 import fr.gouv.vitam.common.elasticsearch.ElasticsearchRule;
+import fr.gouv.vitam.common.elasticsearch.ElasticsearchTestHelper;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.exception.VitamApplicationServerException;
 import fr.gouv.vitam.common.guid.GUID;
@@ -149,7 +150,11 @@ public class LogBookLifeCycleUnitTest {
     private static final Integer TENANT_ID = 0;
     private static final List<Integer> tenantList = Collections.singletonList(0);
     private static final ElasticsearchLogbookIndexManager indexManager =
-        LogbookCollectionsTestUtils.createTestIndexManager(tenantList, Collections.emptyMap());
+        LogbookCollectionsTestUtils.createTestIndexManager(
+            tenantList,
+            Collections.emptyMap(),
+            ElasticsearchTestHelper.loadElasticSearchSettings()
+        );
 
     @Rule
     public RunWithCustomExecutorRule runInThread = new RunWithCustomExecutorRule(
@@ -199,6 +204,7 @@ public class LogBookLifeCycleUnitTest {
             logbookConf.setLifecycleTraceabilityMaxRenewalDelay(12);
             logbookConf.setLifecycleTraceabilityMaxRenewalDelayUnit(ChronoUnit.HOURS);
             logbookConf.setOperationTraceabilityThreadPoolSize(4);
+            logbookConf.setElasticsearchConfigurationFile(ElasticsearchTestHelper.loadElasticSearchSettings());
             logbookConf.setLogbookTenantIndexation(
                 new LogbookIndexationConfiguration()
                     .setDefaultCollectionConfiguration(

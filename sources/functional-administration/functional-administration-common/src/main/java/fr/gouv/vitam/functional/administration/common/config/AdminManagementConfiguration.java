@@ -57,6 +57,9 @@ public class AdminManagementConfiguration extends DbConfigurationImpl {
 
     private int reconstructionMetricsCacheDurationInMinutes = 15;
 
+    @JsonProperty("elasticsearchConfigurationFile")
+    private String elasticsearchConfigurationFile;
+
     // constructor
     AdminManagementConfiguration() {
         super();
@@ -235,5 +238,14 @@ public class AdminManagementConfiguration extends DbConfigurationImpl {
 
     public void setReconstructionMetricsCacheDurationInMinutes(int reconstructionMetricsCacheDurationInMinutes) {
         this.reconstructionMetricsCacheDurationInMinutes = reconstructionMetricsCacheDurationInMinutes;
+    }
+
+    public String getElasticsearchConfigurationFile() {
+        return elasticsearchConfigurationFile;
+    }
+
+    public AdminManagementConfiguration setElasticsearchConfigurationFile(String elasticSearchConfigurationFile) {
+        this.elasticsearchConfigurationFile = elasticSearchConfigurationFile;
+        return this;
     }
 }

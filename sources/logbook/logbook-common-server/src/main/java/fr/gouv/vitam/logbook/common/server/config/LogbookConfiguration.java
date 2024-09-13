@@ -115,6 +115,9 @@ public final class LogbookConfiguration extends DbConfigurationImpl {
     @JsonProperty("elasticsearchTenantIndexation")
     private LogbookIndexationConfiguration logbookTenantIndexation;
 
+    @JsonProperty("elasticsearchConfigurationFile")
+    private String elasticsearchConfigurationFile;
+
     /**
      * LogbookConfiguration constructor
      *
@@ -414,5 +417,13 @@ public final class LogbookConfiguration extends DbConfigurationImpl {
 
     public void setReconstructionMetricsCacheDurationInMinutes(int reconstructionMetricsCacheDurationInMinutes) {
         this.reconstructionMetricsCacheDurationInMinutes = reconstructionMetricsCacheDurationInMinutes;
+    }
+
+    public String getElasticsearchConfigurationFile() {
+        return elasticsearchConfigurationFile;
+    }
+
+    public void setElasticsearchConfigurationFile(String elasticSearchConfigurationFile) {
+        this.elasticsearchConfigurationFile = elasticSearchConfigurationFile;
     }
 }

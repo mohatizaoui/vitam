@@ -39,12 +39,19 @@ public class ElasticsearchTestHelper {
     public static final String OG_MAPPING_ES_FROM_ANSIBLE =
         "deployment/ansible-vitam/roles/elasticsearch-mapping/files/og-es-mapping.json";
 
+    public static final String ES_SETTINGS_FROM_ANSIBLE =
+        "/deployment/ansible-vitam/roles/vitam/files/elasticsearch-settings/elasticsearch-configuration.json";
+
     public static String loadUnitMapping() {
         return loadMapping(UNIT_MAPPING_ES_FROM_ANSIBLE);
     }
 
     public static String loadObjectGroupMapping() {
         return loadMapping(OG_MAPPING_ES_FROM_ANSIBLE);
+    }
+
+    public static String loadElasticSearchSettings() {
+        return loadMapping(ES_SETTINGS_FROM_ANSIBLE);
     }
 
     private static String loadMapping(String path) {

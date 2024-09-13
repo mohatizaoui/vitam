@@ -45,6 +45,7 @@ import java.util.stream.Collectors;
 public class ElasticsearchFunctionalAdminIndexManager {
 
     private final Map<FunctionalAdminCollections, ElasticsearchIndexSettings> elasticsearchIndexSettingsMap;
+    private final String elasticSearchConfigurationFile;
 
     public ElasticsearchFunctionalAdminIndexManager(AdminManagementConfiguration configuration) {
         FunctionalAdminIndexationConfiguration indexationConfiguration = configuration.getIndexationConfiguration();
@@ -82,6 +83,7 @@ public class ElasticsearchFunctionalAdminIndexManager {
         );
 
         this.elasticsearchIndexSettingsMap = buildElasticsearchIndexSettingsMap(collectionConfigurationMap);
+        this.elasticSearchConfigurationFile = configuration.getElasticsearchConfigurationFile();
     }
 
     private static Map<FunctionalAdminCollections, ElasticsearchIndexSettings> buildElasticsearchIndexSettingsMap(
@@ -108,6 +110,10 @@ public class ElasticsearchFunctionalAdminIndexManager {
 
     public ElasticsearchIndexSettings getElasticsearchIndexSettings(FunctionalAdminCollections collection) {
         return elasticsearchIndexSettingsMap.get(collection);
+    }
+
+    public String getElasticSearchConfigurationFile() {
+        return elasticSearchConfigurationFile;
     }
 
     private static Supplier<String> getMappingLoader(FunctionalAdminCollections collection) {

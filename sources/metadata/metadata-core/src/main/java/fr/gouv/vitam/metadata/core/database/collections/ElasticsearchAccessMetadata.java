@@ -130,7 +130,11 @@ public class ElasticsearchAccessMetadata extends ElasticsearchAccess {
                 this.indexManager.getElasticsearchIndexAliasResolver(collection).resolveIndexName(tenantId);
             ElasticsearchIndexSettings indexSettings =
                 this.indexManager.getElasticsearchIndexSettings(collection, tenantId);
-            super.createIndexAndAliasIfAliasNotExists(indexAlias, indexSettings);
+            super.createIndexAndAliasIfAliasNotExists(
+                indexAlias,
+                indexSettings,
+                this.indexManager.getElasticSearchConfigurationFile()
+            );
         } catch (final Exception e) {
             throw new MetaDataExecutionException("Error while set Mapping", e);
         }

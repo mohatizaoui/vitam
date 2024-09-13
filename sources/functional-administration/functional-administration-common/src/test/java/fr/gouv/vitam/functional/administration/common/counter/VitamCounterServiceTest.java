@@ -29,6 +29,7 @@ package fr.gouv.vitam.functional.administration.common.counter;
 import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.client.VitamClientFactory;
 import fr.gouv.vitam.common.database.server.mongodb.MongoDbAccess;
+import fr.gouv.vitam.common.elasticsearch.ElasticsearchTestHelper;
 import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.mongo.MongoRule;
 import fr.gouv.vitam.common.server.application.configuration.DbConfigurationImpl;
@@ -85,7 +86,9 @@ public class VitamCounterServiceTest {
         dbImpl = MongoDbAccessAdminFactory.create(
             new DbConfigurationImpl(nodes, mongoRule.getMongoDatabase().getName()),
             Collections::emptyList,
-            FunctionalAdminCollectionsTestUtils.createTestIndexManager()
+            FunctionalAdminCollectionsTestUtils.createTestIndexManager(
+                ElasticsearchTestHelper.loadElasticSearchSettings()
+            )
         );
         tenants.add(new Integer(TENANT_ID));
         Map<Integer, List<String>> listEnableExternalIdentifiers = new HashMap<>();

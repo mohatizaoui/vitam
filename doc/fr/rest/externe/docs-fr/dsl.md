@@ -1049,3 +1049,76 @@ Des champs sont protégés dans les requêtes :
     - Un raccourci existe : **#usage**
   - **#size** est la taille d'un objet
   - **#format** est le format (PUID) d'un objet
+
+# Recherche exacte sur des champs texte (Beta)
+
+Dans le cadre d'une évolution en mode beta d'utilisation d'un analyseur supplémentaire en mode exacte sur des champs de
+type texte.
+Si le champ a été déclaré avec un deuxième analyseur, il est possible de faire des recherches plus exactes, tout en
+continuant à faire la recherche de base sur le champ en question.
+
+Si l'analyseur a été ajouté au champ **Title** de la collection **Unit**, nous pouvons effectuer une recherche
+classique, et une recherche exacte (selon la définition de l'analyseur).
+
+## Recherche par requête DSL sur des champs configuré en recherche stricte
+
+Si l'analyseur de recherche exacte est positionné sur un champ nommé **NomDuChamps**, par convention Vitam :
+
+- la recherche classique se fait sur le critère de recherche "NomDuChamps"
+- la recherche exacte se fait sur le critère de recherche "NomDuChamps.Strict"
+ 
+Exemples
+
+Voici un example de recherche classique sur le champ **Title**
+
+```http request
+## Recherche simple sur le champ initial "Title"
+{
+  "$roots": [],
+  "$query": [
+    {
+      "$and": [ 
+        {
+          "$eq": {
+            "Title": "diplomate"
+          }
+        }
+      ]
+    }
+  ],
+  "$filter": {
+    "$offset": 0,
+    "$limit": 100
+  },
+  "$projection": {
+    "$fields": {}
+  }
+}
+```
+
+- Voici une example de recherche exacte sur le champ **Title** en utilisant le critère "Title.Strict"
+
+```http request
+## Recherche exacte sur le champ initial "Title" en utilisant le critère "Title.Strict"
+{
+  "$roots": [],
+  "$query": [
+    {
+      "$and": [ 
+        {
+          "$eq": {
+            "Title.Strict": "diplomate"
+          }
+        }
+      ]
+    }
+  ],
+  "$filter": {
+    "$offset": 0,
+    "$limit": 100
+  },
+  "$projection": {
+    "$fields": {}
+  }
+}
+```

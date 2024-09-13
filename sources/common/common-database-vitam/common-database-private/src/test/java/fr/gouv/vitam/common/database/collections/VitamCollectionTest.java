@@ -36,6 +36,7 @@ import fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchNode;
 import fr.gouv.vitam.common.database.server.mongodb.CollectionSample;
 import fr.gouv.vitam.common.database.server.mongodb.MongoDbAccess;
 import fr.gouv.vitam.common.elasticsearch.ElasticsearchRule;
+import fr.gouv.vitam.common.elasticsearch.ElasticsearchTestHelper;
 import fr.gouv.vitam.common.exception.DatabaseException;
 import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.mongo.MongoRule;
@@ -85,12 +86,14 @@ public class VitamCollectionTest {
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
         final List<ElasticsearchNode> nodes = new ArrayList<>();
+
         nodes.add(new ElasticsearchNode(ElasticsearchRule.getHost(), elasticsearchRule.getPort()));
 
         esClient = new ElasticsearchAccess(elasticsearchRule.getClusterName(), nodes);
         esClient.createIndexAndAliasIfAliasNotExists(
             ElasticsearchIndexAlias.ofCrossTenantCollection(PREFIX + CollectionSample.class.getSimpleName()),
-            new ElasticsearchIndexSettings(2, 2, () -> "{}")
+            new ElasticsearchIndexSettings(2, 2, () -> "{}"),
+            ElasticsearchTestHelper.loadElasticSearchSettings()
         );
     }
 

@@ -57,7 +57,8 @@ public final class MetadataCollectionsTestUtils {
     public static ElasticsearchMetadataIndexManager createTestIndexManager(
         List<Integer> dedicatedTenants,
         Map<String, List<Integer>> tenantGroups,
-        MappingLoader mappingLoader
+        MappingLoader mappingLoader,
+        String elasticsearchConfigurationFilePath
     ) {
         List<Integer> allTenants = Streams.concat(
             dedicatedTenants.stream(),
@@ -85,6 +86,8 @@ public final class MetadataCollectionsTestUtils {
                     )
                     .setGroupedTenantConfiguration(tenantGroupConfiguration)
             );
+
+        metadataConfiguration.setElasticsearchConfigurationFile(elasticsearchConfigurationFilePath);
         return new ElasticsearchMetadataIndexManager(metadataConfiguration, allTenants, mappingLoader);
     }
 

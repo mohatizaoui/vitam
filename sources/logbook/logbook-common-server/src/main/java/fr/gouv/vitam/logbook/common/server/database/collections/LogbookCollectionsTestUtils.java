@@ -54,7 +54,8 @@ public final class LogbookCollectionsTestUtils {
     @VisibleForTesting
     public static ElasticsearchLogbookIndexManager createTestIndexManager(
         List<Integer> dedicatedTenants,
-        Map<String, List<Integer>> tenantGroups
+        Map<String, List<Integer>> tenantGroups,
+        String elasticSearchConfigurationFilePath
     ) {
         List<Integer> allTenants = Streams.concat(
             dedicatedTenants.stream(),
@@ -80,6 +81,7 @@ public final class LogbookCollectionsTestUtils {
                     )
                     .setGroupedTenantConfiguration(tenantGroupConfiguration)
             );
+        logbookConfiguration.setElasticsearchConfigurationFile(elasticSearchConfigurationFilePath);
         return new ElasticsearchLogbookIndexManager(logbookConfiguration, allTenants);
     }
 

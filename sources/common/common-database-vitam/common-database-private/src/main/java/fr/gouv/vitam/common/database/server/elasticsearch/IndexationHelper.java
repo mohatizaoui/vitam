@@ -84,7 +84,8 @@ public class IndexationHelper {
         ElasticsearchIndexSettings indexSettings,
         ElasticsearchCollections elasticsearchCollection,
         List<Integer> tenantIds,
-        String tenantGroupName
+        String tenantGroupName,
+        String elasticsearchConfigurationFilePath
     ) throws DatabaseException {
         MongoCursor<Document> cursor = null;
         long numberOfDocumentsToIndex;
@@ -108,7 +109,11 @@ public class IndexationHelper {
             }
 
             // Create ElasticSearch new index for a given collection
-            ElasticsearchIndexAlias newIndexWithoutAlias = esClient.createIndexWithoutAlias(indexAlias, indexSettings);
+            ElasticsearchIndexAlias newIndexWithoutAlias = esClient.createIndexWithoutAlias(
+                indexAlias,
+                indexSettings,
+                elasticsearchConfigurationFilePath
+            );
 
             // Create repository for the given indexName
             VitamElasticsearchRepository vitamElasticsearchRepository = new VitamElasticsearchRepository(

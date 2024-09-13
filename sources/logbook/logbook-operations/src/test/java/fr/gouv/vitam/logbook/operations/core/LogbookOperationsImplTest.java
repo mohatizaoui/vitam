@@ -36,6 +36,7 @@ import fr.gouv.vitam.common.database.index.model.SwitchIndexResult;
 import fr.gouv.vitam.common.database.parameter.IndexParameters;
 import fr.gouv.vitam.common.database.server.elasticsearch.IndexationHelper;
 import fr.gouv.vitam.common.database.server.mongodb.VitamMongoCursor;
+import fr.gouv.vitam.common.elasticsearch.ElasticsearchTestHelper;
 import fr.gouv.vitam.common.exception.DatabaseException;
 import fr.gouv.vitam.common.guid.GUID;
 import fr.gouv.vitam.common.guid.GUIDFactory;
@@ -117,6 +118,10 @@ public class LogbookOperationsImplTest {
         doNothing().when(workspaceClient).putObject(anyString(), anyString(), any());
         doNothing().when(workspaceClient).deleteObject(anyString(), anyString());
         ElasticsearchLogbookIndexManager indexManager = mock(ElasticsearchLogbookIndexManager.class);
+
+        when(indexManager.getElasticsearchConfigurationFile()).thenReturn(
+            ElasticsearchTestHelper.loadElasticSearchSettings()
+        );
         logbookOperationsImpl = new LogbookOperationsImpl(
             mongoDbAccess,
             workspaceClientFactory,
@@ -203,7 +208,8 @@ public class LogbookOperationsImplTest {
         parameters.setTenants(tenants);
         ElasticsearchLogbookIndexManager indexManager = LogbookCollectionsTestUtils.createTestIndexManager(
             tenants,
-            Collections.emptyMap()
+            Collections.emptyMap(),
+            ElasticsearchTestHelper.loadElasticSearchSettings()
         );
         logbookOperationsImpl = new LogbookOperationsImpl(
             mongoDbAccess,
@@ -229,7 +235,8 @@ public class LogbookOperationsImplTest {
         parameters.setTenants(tenants);
         ElasticsearchLogbookIndexManager indexManager = LogbookCollectionsTestUtils.createTestIndexManager(
             tenants,
-            Collections.emptyMap()
+            Collections.emptyMap(),
+            ElasticsearchTestHelper.loadElasticSearchSettings()
         );
         logbookOperationsImpl = new LogbookOperationsImpl(
             mongoDbAccess,
@@ -252,7 +259,7 @@ public class LogbookOperationsImplTest {
 
     @Test
     public void reindexExceptionTest() throws Exception {
-        when(indexationHelper.reindex(any(), any(), any(), any(), any(), any(), any())).thenThrow(
+        when(indexationHelper.reindex(any(), any(), any(), any(), any(), any(), any(), anyString())).thenThrow(
             new DatabaseException("prb")
         );
         when(indexationHelper.getFullKOResult(any(), any())).thenCallRealMethod();

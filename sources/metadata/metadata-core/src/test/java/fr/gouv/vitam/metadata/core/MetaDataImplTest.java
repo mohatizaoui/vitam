@@ -44,6 +44,7 @@ import fr.gouv.vitam.common.database.parser.request.multiple.RequestParserMultip
 import fr.gouv.vitam.common.database.parser.request.multiple.SelectParserMultiple;
 import fr.gouv.vitam.common.database.server.elasticsearch.IndexationHelper;
 import fr.gouv.vitam.common.database.server.mongodb.VitamDocument;
+import fr.gouv.vitam.common.elasticsearch.ElasticsearchTestHelper;
 import fr.gouv.vitam.common.exception.DatabaseException;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.guid.GUIDFactory;
@@ -612,7 +613,8 @@ public class MetaDataImplTest {
         ElasticsearchMetadataIndexManager indexManager = MetadataCollectionsTestUtils.createTestIndexManager(
             tenants,
             emptyMap(),
-            MappingLoaderTestUtils.getTestMappingLoader()
+            MappingLoaderTestUtils.getTestMappingLoader(),
+            ElasticsearchTestHelper.loadElasticSearchSettings()
         );
         metaDataImpl = new MetaDataImpl(
             mongoDbAccessFactory,
@@ -641,7 +643,7 @@ public class MetaDataImplTest {
 
     @Test
     public void reindexIOExceptionTest() throws Exception {
-        when(indexationHelper.reindex(any(), any(), any(), any(), any(), any(), any())).thenThrow(
+        when(indexationHelper.reindex(any(), any(), any(), any(), any(), any(), any(), any())).thenThrow(
             new DatabaseException("prb")
         );
         when(indexationHelper.getFullKOResult(any(), any())).thenCallRealMethod();

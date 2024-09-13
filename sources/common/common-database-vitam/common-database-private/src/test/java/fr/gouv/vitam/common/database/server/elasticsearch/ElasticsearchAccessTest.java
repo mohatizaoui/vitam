@@ -40,6 +40,7 @@ import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.database.server.mongodb.CollectionSample;
 import fr.gouv.vitam.common.database.server.mongodb.VitamDocument;
 import fr.gouv.vitam.common.elasticsearch.ElasticsearchRule;
+import fr.gouv.vitam.common.elasticsearch.ElasticsearchTestHelper;
 import fr.gouv.vitam.common.exception.DatabaseException;
 import fr.gouv.vitam.common.exception.VitamException;
 import fr.gouv.vitam.common.guid.GUIDFactory;
@@ -121,9 +122,11 @@ public class ElasticsearchAccessTest {
     @Test
     public void testCreateIndexWithoutAlias() throws Exception {
         assertThat(elasticsearchAccess.existsIndex(myalias)).isFalse();
+
         ElasticsearchIndexAlias indexWithoutAlias = elasticsearchAccess.createIndexWithoutAlias(
             myalias,
-            new ElasticsearchIndexSettings(2, 1, () -> "{}")
+            new ElasticsearchIndexSettings(2, 1, () -> "{}"),
+            ElasticsearchTestHelper.loadElasticSearchSettings()
         );
 
         assertThat(elasticsearchAccess.existsAlias(myalias)).isFalse();
@@ -139,9 +142,11 @@ public class ElasticsearchAccessTest {
         CollectionSample document = new CollectionSample(
             JsonHandler.createObjectNode().put("_id", id).put("Identifier", "value")
         );
+
         elasticsearchAccess.createIndexAndAliasIfAliasNotExists(
             myalias,
-            new ElasticsearchIndexSettings(1, 0, () -> "{}")
+            new ElasticsearchIndexSettings(1, 0, () -> "{}"),
+            ElasticsearchTestHelper.loadElasticSearchSettings()
         );
 
         elasticsearchAccess.indexEntry(myalias, id, document);
@@ -384,7 +389,8 @@ public class ElasticsearchAccessTest {
 
         elasticsearchAccess.createIndexAndAliasIfAliasNotExists(
             myalias,
-            new ElasticsearchIndexSettings(2, 1, () -> mapping)
+            new ElasticsearchIndexSettings(2, 1, () -> mapping),
+            ElasticsearchTestHelper.loadElasticSearchSettings()
         );
 
         elasticsearchAccess.indexEntries(myalias, documents.values(), true);
@@ -400,7 +406,8 @@ public class ElasticsearchAccessTest {
         // When
         elasticsearchAccess.createIndexAndAliasIfAliasNotExists(
             myalias,
-            new ElasticsearchIndexSettings(2, 1, () -> "{}")
+            new ElasticsearchIndexSettings(2, 1, () -> "{}"),
+            ElasticsearchTestHelper.loadElasticSearchSettings()
         );
 
         // Then
@@ -419,7 +426,8 @@ public class ElasticsearchAccessTest {
         // Given
         elasticsearchAccess.createIndexAndAliasIfAliasNotExists(
             myalias,
-            new ElasticsearchIndexSettings(2, 1, () -> "{}")
+            new ElasticsearchIndexSettings(2, 1, () -> "{}"),
+            ElasticsearchTestHelper.loadElasticSearchSettings()
         );
         waitCycle();
         assertThat(elasticsearchAccess.existsAlias(myalias)).isTrue();
@@ -432,7 +440,8 @@ public class ElasticsearchAccessTest {
         // When
         elasticsearchAccess.createIndexAndAliasIfAliasNotExists(
             myalias,
-            new ElasticsearchIndexSettings(2, 1, () -> "{}")
+            new ElasticsearchIndexSettings(2, 1, () -> "{}"),
+            ElasticsearchTestHelper.loadElasticSearchSettings()
         );
 
         // Then
@@ -448,12 +457,14 @@ public class ElasticsearchAccessTest {
         // Given
         elasticsearchAccess.createIndexAndAliasIfAliasNotExists(
             myalias,
-            new ElasticsearchIndexSettings(2, 1, () -> "{}")
+            new ElasticsearchIndexSettings(2, 1, () -> "{}"),
+            ElasticsearchTestHelper.loadElasticSearchSettings()
         );
         waitCycle();
         ElasticsearchIndexAlias newIndex = elasticsearchAccess.createIndexWithoutAlias(
             myalias,
-            new ElasticsearchIndexSettings(2, 1, () -> "{}")
+            new ElasticsearchIndexSettings(2, 1, () -> "{}"),
+            ElasticsearchTestHelper.loadElasticSearchSettings()
         );
         ElasticsearchIndexAlias existingIndex = ElasticsearchIndexAlias.ofFullIndexName(
             elasticsearchAccess.getAlias(myalias).result().keySet().iterator().next()
@@ -479,7 +490,8 @@ public class ElasticsearchAccessTest {
         ElasticsearchIndexAlias nonExistingAlias = ElasticsearchIndexAlias.ofFullIndexName("unknown");
         ElasticsearchIndexAlias newIndex = elasticsearchAccess.createIndexWithoutAlias(
             myalias,
-            new ElasticsearchIndexSettings(2, 1, () -> "{}")
+            new ElasticsearchIndexSettings(2, 1, () -> "{}"),
+            ElasticsearchTestHelper.loadElasticSearchSettings()
         );
 
         // When / Then
@@ -496,7 +508,8 @@ public class ElasticsearchAccessTest {
         // Given
         elasticsearchAccess.createIndexAndAliasIfAliasNotExists(
             myalias,
-            new ElasticsearchIndexSettings(2, 1, () -> "{}")
+            new ElasticsearchIndexSettings(2, 1, () -> "{}"),
+            ElasticsearchTestHelper.loadElasticSearchSettings()
         );
         ElasticsearchIndexAlias newIndex = ElasticsearchIndexAlias.ofFullIndexName("unknown");
 

@@ -83,10 +83,12 @@ import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.database.server.mongodb.VitamDocument;
 import fr.gouv.vitam.common.exception.BadRequestException;
 import fr.gouv.vitam.common.exception.DatabaseException;
+import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.exception.VitamException;
 import fr.gouv.vitam.common.exception.VitamFatalRuntimeException;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
+import fr.gouv.vitam.common.security.SanityChecker;
 import fr.gouv.vitam.common.server.application.configuration.DatabaseConnection;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
@@ -97,8 +99,13 @@ import org.bson.Document;
 import org.elasticsearch.client.RestClient;
 
 import javax.ws.rs.core.Response;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -135,7 +142,6 @@ public class ElasticsearchAccess implements DatabaseConnection {
      * KEYWORD to activate scroll
      */
     public static final String SCROLL_ACTIVATE_KEYWORD = "START";
-    private static final String ES_CONFIGURATION_FILE = "/elasticsearch-configuration.json";
     private final AtomicReference<ElasticsearchClient> esClient = new AtomicReference<>();
     protected final String clusterName;
     protected final List<ElasticsearchNode> nodes;
@@ -174,7 +180,8 @@ public class ElasticsearchAccess implements DatabaseConnection {
 
     public final ElasticsearchIndexAlias createIndexWithoutAlias(
         ElasticsearchIndexAlias indexAlias,
-        ElasticsearchIndexSettings indexSettings
+        ElasticsearchIndexSettings indexSettings,
+        String elasticsearchConfigurationFile
     ) throws DatabaseException {
         ElasticsearchIndexAlias newIndexName = indexAlias.createUniqueIndexName();
         createIndexWithOptionalAlias(
@@ -182,7 +189,8 @@ public class ElasticsearchAccess implements DatabaseConnection {
             newIndexName.getName(),
             indexSettings.loadMapping(),
             indexSettings.getShards(),
-            indexSettings.getReplicas()
+            indexSettings.getReplicas(),
+            elasticsearchConfigurationFile
         );
         return newIndexName;
     }
@@ -192,12 +200,13 @@ public class ElasticsearchAccess implements DatabaseConnection {
         String indexName,
         String mapping,
         Integer shards,
-        Integer replicas
+        Integer replicas,
+        String elasticsearchConfigurationFile
     ) throws DatabaseException {
         try {
             CreateIndexRequest.Builder requestBuilder = new CreateIndexRequest.Builder()
                 .index(indexName)
-                .settings(createIndexSettings(shards, replicas))
+                .settings(createIndexSettings(shards, replicas, elasticsearchConfigurationFile))
                 .mappings(new TypeMapping.Builder().withJson(new StringReader(mapping)).build());
 
             if (aliasName != null) {
@@ -664,7 +673,8 @@ public class ElasticsearchAccess implements DatabaseConnection {
 
     public final void createIndexAndAliasIfAliasNotExists(
         ElasticsearchIndexAlias indexAlias,
-        ElasticsearchIndexSettings indexSettings
+        ElasticsearchIndexSettings indexSettings,
+        String elasticsearchConfigurationFile
     ) throws DatabaseException {
         LOGGER.debug("createIndexAndAliasIfAliasNotExists: {}", indexAlias.getName());
 
@@ -679,7 +689,8 @@ public class ElasticsearchAccess implements DatabaseConnection {
             indexName.getName(),
             indexSettings.loadMapping(),
             indexSettings.getShards(),
-            indexSettings.getReplicas()
+            indexSettings.getReplicas(),
+            elasticsearchConfigurationFile
         );
     }
 
@@ -806,11 +817,27 @@ public class ElasticsearchAccess implements DatabaseConnection {
         }
     }
 
-    private IndexSettings createIndexSettings(int shards, int replicas) throws IOException {
+    private IndexSettings createIndexSettings(int shards, int replicas, String elasticsearchConfigurationFile)
+        throws IOException {
         return new IndexSettings.Builder()
-            .withJson(ElasticsearchAccess.class.getResourceAsStream(ES_CONFIGURATION_FILE))
+            .withJson(getElasticSearchSettingAsInputStream(elasticsearchConfigurationFile))
             .numberOfShards(String.valueOf(shards))
             .numberOfReplicas(String.valueOf(replicas))
             .build();
+    }
+
+    private InputStream getElasticSearchSettingAsInputStream(String elasticsearchConfigurationFilePath)
+        throws FileNotFoundException {
+        try {
+            Path elasticSearchConfigPath = Paths.get(elasticsearchConfigurationFilePath);
+            SanityChecker.checkJsonFile(elasticSearchConfigPath.toFile());
+            return Files.newInputStream(elasticSearchConfigPath);
+        } catch (IOException e) {
+            LOGGER.error("Elastic search File not found with path " + elasticsearchConfigurationFilePath);
+            throw new FileNotFoundException(e.getMessage());
+        } catch (InvalidParseOperationException e) {
+            LOGGER.error("Invalid Elastic search settings file ");
+            throw new IllegalStateException(e.getMessage());
+        }
     }
 }

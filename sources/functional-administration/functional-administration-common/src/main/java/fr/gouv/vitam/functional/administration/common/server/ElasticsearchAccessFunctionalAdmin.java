@@ -83,7 +83,8 @@ public class ElasticsearchAccessFunctionalAdmin extends ElasticsearchAccess {
         try {
             super.createIndexAndAliasIfAliasNotExists(
                 indexManager.getElasticsearchIndexAliasResolver(collection).resolveIndexName(null),
-                indexManager.getElasticsearchIndexSettings(collection)
+                indexManager.getElasticsearchIndexSettings(collection),
+                indexManager.getElasticSearchConfigurationFile()
             );
         } catch (final Exception e) {
             LOGGER.error(e);

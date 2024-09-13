@@ -60,6 +60,8 @@ public class ElasticsearchLogbookIndexManager {
     private final ListValuedMap<String, Integer> tenantGroupToTenantMap = new ArrayListValuedHashMap<>();
     private final Map<Integer, ElasticsearchIndexSettings> logbookOperationIndexSettingsMap = new HashMap<>();
 
+    private final String elasticsearchConfigurationFile;
+
     public ElasticsearchLogbookIndexManager(LogbookConfiguration configuration, List<Integer> tenantIds) {
         this.tenantIds = tenantIds;
 
@@ -162,6 +164,7 @@ public class ElasticsearchLogbookIndexManager {
                     this.logbookOperationIndexSettingsMap.put(tenantId, elasticsearchIndexSettings);
                 }
             });
+        this.elasticsearchConfigurationFile = configuration.getElasticsearchConfigurationFile();
     }
 
     public ElasticsearchIndexAliasResolver getElasticsearchIndexAliasResolver(LogbookCollections collection) {
@@ -185,6 +188,10 @@ public class ElasticsearchLogbookIndexManager {
 
     public List<Integer> getDedicatedTenants() {
         return tenantIds.stream().filter(not(tenantToTenantGroupMap::containsKey)).collect(Collectors.toList());
+    }
+
+    public String getElasticsearchConfigurationFile() {
+        return elasticsearchConfigurationFile;
     }
 
     public Collection<String> getTenantGroups() {

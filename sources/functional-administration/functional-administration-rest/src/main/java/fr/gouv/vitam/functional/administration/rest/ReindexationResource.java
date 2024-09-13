@@ -139,7 +139,7 @@ public class ReindexationResource {
             if (VitamCollectionHelper.isLogbookCollection(index.getCollectionName())) {
                 indexationResult = reindexLogbookCollection(index);
             } else if (VitamCollectionHelper.isMetadataCollection(index.getCollectionName())) {
-                indexationResult = reindexMasterDataCollection(index);
+                indexationResult = reindexMetaDataCollection(index);
             } else {
                 indexationResult = reindexFunctionalAdminCollection(index);
             }
@@ -194,7 +194,7 @@ public class ReindexationResource {
         }
     }
 
-    private ReindexationResult reindexMasterDataCollection(IndexParameters indexParameters) {
+    private ReindexationResult reindexMetaDataCollection(IndexParameters indexParameters) {
         try (MetaDataClient metaDataClient = metaDataClientFactory.getClient()) {
             return JsonHandler.getFromJsonNode(metaDataClient.reindex(indexParameters), ReindexationResult.class);
         } catch (Exception e) {
@@ -236,7 +236,8 @@ public class ReindexationResource {
                 indexSettings,
                 collectionToReindex.getElasticsearchCollection(),
                 null,
-                null
+                null,
+                this.indexManager.getElasticSearchConfigurationFile()
             );
 
             ReindexationResult indexationResult = new ReindexationResult();

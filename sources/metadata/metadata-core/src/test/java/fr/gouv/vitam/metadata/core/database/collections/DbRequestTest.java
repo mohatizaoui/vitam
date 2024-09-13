@@ -326,7 +326,8 @@ public class DbRequestTest {
         MetadataCollectionsTestUtils.createTestIndexManager(
             Arrays.asList(TENANT_ID_0, TENANT_ID_1, TENANT_ID_2),
             emptyMap(),
-            mappingLoader
+            mappingLoader,
+            ElasticsearchTestHelper.loadElasticSearchSettings()
         );
 
     private ElasticsearchAccess esClientWithoutVitamBehavior;

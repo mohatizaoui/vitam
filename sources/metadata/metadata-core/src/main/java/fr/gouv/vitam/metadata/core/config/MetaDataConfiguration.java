@@ -98,6 +98,9 @@ public class MetaDataConfiguration extends DbConfigurationImpl {
     @JsonProperty("refreshElasticIndexPostBulkIndexing")
     private Boolean refreshElasticIndexPostBulkIndexing;
 
+    @JsonProperty("elasticsearchConfigurationFile")
+    private String elasticsearchConfigurationFile;
+
     /**
      * MetaDataConfiguration constructor
      *
@@ -422,5 +425,13 @@ public class MetaDataConfiguration extends DbConfigurationImpl {
 
     public void setRefreshElasticIndexPostBulkIndexing(Boolean refreshElasticIndexPostBulkIndexing) {
         this.refreshElasticIndexPostBulkIndexing = refreshElasticIndexPostBulkIndexing;
+    }
+
+    public String getElasticsearchConfigurationFile() {
+        return elasticsearchConfigurationFile;
+    }
+
+    public void setElasticsearchConfigurationFile(String elasticsearchConfigurationFile) {
+        this.elasticsearchConfigurationFile = elasticsearchConfigurationFile;
     }
 }

@@ -158,12 +158,14 @@ public class WebApplicationResourceDelete {
                     webApplicationConfig.getMasterdataDbName(),
                     true, webApplicationConfig.getDbUserName(), webApplicationConfig.getDbPassword(),
                     functionalAdminFunctionalAdminIndexationConfiguration);
+
             logbookConfiguration =
                 new LogbookConfiguration(webApplicationConfig.getMongoDbNodes(),
                     webApplicationConfig.getLogbookDbName(), webApplicationConfig.getClusterName(), webApplicationConfig
                     .getElasticsearchNodes(),
                     true, webApplicationConfig.getDbUserName(), webApplicationConfig.getDbPassword())
                     .setLogbookTenantIndexation(logbookLogbookIndexationConfiguration);
+
             mappingLoader = new MappingLoader(webApplicationConfig.getElasticsearchExternalMetadataMappings());
             metaDataConfiguration = new MetaDataConfiguration(webApplicationConfig.getMongoDbNodes(),
                 webApplicationConfig.getMetadataDbName(), webApplicationConfig.getClusterName(), webApplicationConfig
@@ -171,10 +173,12 @@ public class WebApplicationResourceDelete {
                 true, webApplicationConfig.getDbUserName(), webApplicationConfig
                 .getDbPassword(), mappingLoader)
                 .setIndexationConfiguration(metadataMetadataIndexationConfiguration);
+
         } else {
             adminConfiguration =
                 new AdminManagementConfiguration(webApplicationConfig.getMongoDbNodes(),
                     webApplicationConfig.getMasterdataDbName(), functionalAdminFunctionalAdminIndexationConfiguration);
+
             logbookConfiguration =
                 new LogbookConfiguration(webApplicationConfig.getMongoDbNodes(),
                     webApplicationConfig.getLogbookDbName(), webApplicationConfig.getClusterName(),
@@ -187,8 +191,11 @@ public class WebApplicationResourceDelete {
                 .getElasticsearchNodes(), mappingLoader)
                 .setIndexationConfiguration(metadataMetadataIndexationConfiguration);
         }
-
-
+        adminConfiguration.setElasticsearchConfigurationFile(webApplicationConfig.getElasticsearchConfigurationFile());
+        metaDataConfiguration.setElasticsearchConfigurationFile(
+            webApplicationConfig.getElasticsearchConfigurationFile());
+        logbookConfiguration.setElasticsearchConfigurationFile(
+            webApplicationConfig.getElasticsearchConfigurationFile());
         // Validate configuration
         AdminManagementConfigurationValidator.validateConfiguration(adminConfiguration);
         MetaDataConfigurationValidator.validateConfiguration(metaDataConfiguration);

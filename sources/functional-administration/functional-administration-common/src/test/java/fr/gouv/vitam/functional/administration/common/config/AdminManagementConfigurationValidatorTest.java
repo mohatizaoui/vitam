@@ -29,6 +29,7 @@ package fr.gouv.vitam.functional.administration.common.config;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
 import fr.gouv.vitam.common.PropertiesUtils;
+import fr.gouv.vitam.common.elasticsearch.ElasticsearchTestHelper;
 import org.junit.Test;
 
 import java.io.InputStream;
@@ -46,6 +47,7 @@ public class AdminManagementConfigurationValidatorTest {
             final InputStream yamlIS = PropertiesUtils.getConfigAsStream("./functional_administration_test_config.yml")
         ) {
             config = PropertiesUtils.readYaml(yamlIS, AdminManagementConfiguration.class);
+            config.setElasticsearchConfigurationFile(ElasticsearchTestHelper.loadElasticSearchSettings());
         }
 
         // When / Then
@@ -64,6 +66,7 @@ public class AdminManagementConfigurationValidatorTest {
             )
         ) {
             config = PropertiesUtils.readYaml(yamlIS, AdminManagementConfiguration.class);
+            config.setElasticsearchConfigurationFile(ElasticsearchTestHelper.loadElasticSearchSettings());
         }
 
         // When / Then

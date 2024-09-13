@@ -38,6 +38,7 @@ import fr.gouv.vitam.common.database.parser.request.GlobalDatasParser;
 import fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchNode;
 import fr.gouv.vitam.common.database.server.mongodb.MongoDbAccess;
 import fr.gouv.vitam.common.elasticsearch.ElasticsearchRule;
+import fr.gouv.vitam.common.elasticsearch.ElasticsearchTestHelper;
 import fr.gouv.vitam.common.error.VitamError;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.guid.GUIDFactory;
@@ -101,7 +102,12 @@ public class UpdateUnitResourceTest {
     private static final List<Integer> tenantList = Collections.singletonList(TENANT_ID_0);
     private static final MappingLoader mappingLoader = MappingLoaderTestUtils.getTestMappingLoader();
     private static final ElasticsearchMetadataIndexManager indexManager =
-        MetadataCollectionsTestUtils.createTestIndexManager(tenantList, Collections.emptyMap(), mappingLoader);
+        MetadataCollectionsTestUtils.createTestIndexManager(
+            tenantList,
+            Collections.emptyMap(),
+            mappingLoader,
+            ElasticsearchTestHelper.loadElasticSearchSettings()
+        );
 
     private static final String ID_UNIT = "aeaqaaaaaeaaaaakaarp4akuuf2ldmyaaaap";
     private static final String ID_UNIT_1 = "aeaqaaaaaeaaaaakaarp4akuuf2ldmyaaaaq";

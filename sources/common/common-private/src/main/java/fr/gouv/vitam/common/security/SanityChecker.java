@@ -199,6 +199,17 @@ public class SanityChecker {
         }
     }
 
+    public static void checkJsonFile(File jsonlFile) throws IOException, InvalidParseOperationException {
+        StringBuilder jsonFileContent = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new FileReader(jsonlFile, StandardCharsets.UTF_8))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                jsonFileContent.append(line);
+            }
+        }
+        checkJsonAll(jsonFileContent.toString());
+    }
+
     /**
      * checkJsonAll : Check sanity of json : size, invalid tag
      *
