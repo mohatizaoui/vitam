@@ -30,8 +30,6 @@ package fr.gouv.vitam.functional.administration.common.config;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.model.config.CollectionConfiguration;
 import fr.gouv.vitam.common.model.config.CollectionConfigurationUtils;
-import fr.gouv.vitam.common.security.IllegalPathException;
-import fr.gouv.vitam.common.security.SafeFileChecker;
 import fr.gouv.vitam.common.security.SanityChecker;
 
 import java.io.File;
@@ -57,11 +55,7 @@ public class AdminManagementConfigurationValidator {
         if (elasticsearchConfigurationFilePath == null) {
             throw new IllegalStateException("Invalid path of elasticsearch Configuration File. Null config");
         }
-        try {
-            SafeFileChecker.checkSafeFilePath(elasticsearchConfigurationFilePath);
-        } catch (IllegalPathException e) {
-            throw new IllegalStateException("Invalid path of elasticsearch Configuration File.");
-        }
+
         File elasticsearchConfigurationFile = new File(elasticsearchConfigurationFilePath);
         SanityChecker.checkJsonFile(elasticsearchConfigurationFile);
         if (!elasticsearchConfigurationFile.exists() || !elasticsearchConfigurationFile.isFile()) {
