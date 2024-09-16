@@ -355,7 +355,8 @@ public class ManifestBuilderTest {
         Assert.assertEquals(
             CONTENT +
             File.separator +
-            "123456789012345678901234567890" + UNDERSCORE +
+            "123456789012345678901234567890" +
+            UNDERSCORE +
             "very_long_filename_to_ensure_we_go_over_the_character_limit_for_most_filesystems_very_long_filename_to_ensure_we_go_over_the_character_limit.txt",
             result
         );
