@@ -103,6 +103,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.mongodb.client.model.Filters.and;
+import static fr.gouv.vitam.common.model.administration.AccessContractModel.EVERY_ORIGINATINGAGENCY;
+import static fr.gouv.vitam.common.model.administration.AccessContractModel.RULE_CATEGORY_TO_FILTER;
+import static fr.gouv.vitam.common.model.administration.AccessContractModel.RULE_CATEGORY_TO_FILTER_FOR_THE_OTHER_ORIGINATING_AGENCIES;
+import static org.apache.commons.collections4.CollectionUtils.isNotEmpty;
+import static org.apache.commons.lang3.BooleanUtils.isTrue;
 
 public class AccessContractImpl implements ContractService<AccessContractModel> {
 
@@ -115,6 +120,8 @@ public class AccessContractImpl implements ContractService<AccessContractModel> 
         "The Access contract EveryDataObjectVersion must be true or false but not ";
     private static final String THE_ACCESS_CONTRACT_EVERY_ORIGINATING_AGENCY_MUST_BE_TRUE_OR_FALSE_BUT_NOT =
         "The Access contract EveryOriginatingAgency must be true or false but not ";
+    private static final String THE_ACCESS_CONTRACT_DO_NOT_FILTER_FILING_SCHEMES_MUST_BE_TRUE_OR_FALSE_BUT_NOT =
+        "The Access contract DoNotFilterFilingSchemes must be true or false but not ";
     private static final String THE_ACCESS_CONTRACT_STATUS_MUST_BE_ACTIVE_OR_INACTIVE_BUT_NOT =
         "The Access contract status must be ACTIVE or INACTIVE but not ";
     private static final String DATE_MUST_BE_VALID = "must be a valid date";
@@ -131,6 +138,8 @@ public class AccessContractImpl implements ContractService<AccessContractModel> 
     private static final String AGENCY_NOT_FOUND_IN_DATABASE =
         CONTRACTS_IMPORT_EVENT + ContractLogbookService.AGENCY_NOT_FOUND_IN_DATABASE;
     private static final String CONTRACT_VALIDATION_ERROR =
+        CONTRACTS_IMPORT_EVENT + ContractLogbookService.CONTRACT_VALIDATION_ERROR;
+    private static final String CONSISTENCY_BETWEEN_FIELDS =
         CONTRACTS_IMPORT_EVENT + ContractLogbookService.CONTRACT_VALIDATION_ERROR;
     private static final String CONTRACT_BAD_REQUEST =
         CONTRACTS_IMPORT_EVENT + ContractLogbookService.CONTRACT_BAD_REQUEST;
@@ -608,6 +617,17 @@ public class AccessContractImpl implements ContractService<AccessContractModel> 
                     );
                 }
                 break;
+            case AccessContractModel.DO_NOT_FILTER_FILING_SCHEMES:
+                if (!(value instanceof BooleanNode)) {
+                    error.addToErrors(
+                        getVitamError(
+                            VitamCode.CONTRACT_VALIDATION_ERROR.getItem(),
+                            THE_ACCESS_CONTRACT_DO_NOT_FILTER_FILING_SCHEMES_MUST_BE_TRUE_OR_FALSE_BUT_NOT +
+                            value.asText()
+                        ).setMessage(UPDATE_VALUE_NOT_IN_ENUM)
+                    );
+                }
+                break;
             case AccessContractModel.ORIGINATING_AGENCIES:
                 if (!value.isArray()) {
                     error.addToErrors(
@@ -787,6 +807,7 @@ public class AccessContractImpl implements ContractService<AccessContractModel> 
                     put(createMandatoryParamsValidator(), EMPTY_REQUIRED_FIELD);
                     put(createWrongFieldFormatValidator(), EMPTY_REQUIRED_FIELD);
                     put(checkExistenceOriginatingAgenciesValidator(), AGENCY_NOT_FOUND_IN_DATABASE);
+                    put(checkConsistencyBetweenFields(), CONSISTENCY_BETWEEN_FIELDS);
                     put(createCheckDuplicateInDatabaseValidator(), DUPLICATE_IN_DATABASE);
                     put(validateExistsArchiveUnits(metaDataClient), CONTRACT_VALIDATION_ERROR);
                 }
@@ -970,9 +991,48 @@ public class AccessContractImpl implements ContractService<AccessContractModel> 
         }
 
         /**
+         * Le champ RuleCategoryToFilterForTheOtherOriginatingAgencies est exclusif avec le champ RuleCategoryToFilter (ne peuvent pas être définis ensemble)
+         * Le champ RuleCategoryToFilterForTheOtherOriginatingAgencies ne peut être défini QUE si EveryOriginatingAgency = false
+         */
+        private AccessContractValidator checkConsistencyBetweenFields() {
+            return (contract, contractName) -> {
+                if (
+                    isTrue(contract.getEveryOriginatingAgency()) &&
+                    isNotEmpty(contract.getRuleCategoryToFilterForTheOtherOriginatingAgencies())
+                ) {
+                    return Optional.of(
+                        GenericRejectionCause.rejectInconsistentContract(
+                            contractName,
+                            "Fields " +
+                            EVERY_ORIGINATINGAGENCY +
+                            " and " +
+                            RULE_CATEGORY_TO_FILTER_FOR_THE_OTHER_ORIGINATING_AGENCIES +
+                            " cannot be defined together"
+                        )
+                    );
+                }
+
+                if (
+                    isNotEmpty(contract.getRuleCategoryToFilter()) &&
+                    isNotEmpty(contract.getRuleCategoryToFilterForTheOtherOriginatingAgencies())
+                ) {
+                    return Optional.of(
+                        GenericRejectionCause.rejectInconsistentContract(
+                            contractName,
+                            "Fields " +
+                            RULE_CATEGORY_TO_FILTER +
+                            " and " +
+                            RULE_CATEGORY_TO_FILTER_FOR_THE_OTHER_ORIGINATING_AGENCIES +
+                            " cannot be defined together"
+                        )
+                    );
+                }
+                return Optional.empty();
+            };
+        }
+
+        /**
          * Check if the contract have root Units and all ArchiveUnits corresponding to the rootUnits exists in database
-         *
-         * @return
          */
         private AccessContractValidator validateExistsArchiveUnits(MetaDataClient metaDataClient) {
             return (contract, contractName) -> {

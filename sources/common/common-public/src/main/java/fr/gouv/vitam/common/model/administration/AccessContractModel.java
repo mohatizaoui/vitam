@@ -75,7 +75,9 @@ public class AccessContractModel extends AbstractContractModel {
      */
     private static final String ACCESS_LOG = "AccessLog";
     public static final String RULE_CATEGORY_TO_FILTER = "RuleCategoryToFilter";
-    public static final String SKIP_FILING_SCHEME_ORIGINATING_AGENCY_FILTER = "SkipFilingSchemeOriginatingAgencyFilter";
+    public static final String RULE_CATEGORY_TO_FILTER_FOR_THE_OTHER_ORIGINATING_AGENCIES =
+        "RuleCategoryToFilterForTheOtherOriginatingAgencies";
+    public static final String DO_NOT_FILTER_FILING_SCHEMES = "DoNotFilterFilingSchemes";
     public static final String SKIP_FILING_SCHEME_RULE_CATEGORY_FILTER = "SkipFilingSchemeRuleCategoryFilter";
 
     @JsonProperty(DATA_OBJECT_VERSION)
@@ -108,11 +110,27 @@ public class AccessContractModel extends AbstractContractModel {
     @JsonProperty(RULE_CATEGORY_TO_FILTER)
     private Set<RuleType> ruleCategoryToFilter;
 
-    @JsonProperty(SKIP_FILING_SCHEME_ORIGINATING_AGENCY_FILTER)
-    private Boolean skipFilingSchemeOriginatingAgencyFilter;
+    @JsonProperty(RULE_CATEGORY_TO_FILTER_FOR_THE_OTHER_ORIGINATING_AGENCIES)
+    private Set<RuleType> ruleCategoryToFilterForTheOtherOriginatingAgencies;
 
+    /**
+     * Champ caché / option avancée
+     * si null (par défaut) : RAS (on applique la valeur de DoNotFilterFilingSchemes)
+     * si false: Les filtres sur les règles s'appliquent aussi aux plans (n'a du sens que si DoNotFilterFilingSchemes = true)
+     * si true : Les filtres sur les règles ne s'appliquent pas aux plans (n'a du sens que si DoNotFilterFilingSchemes = false)
+     */
     @JsonProperty(SKIP_FILING_SCHEME_RULE_CATEGORY_FILTER)
     private Boolean skipFilingSchemeRuleCategoryFilter;
+
+    /**
+     * Permet de ne pas appliquer les filtres aux plans de classement:
+     * si TRUE autorise l'accès à tous les plans de classement
+     * si FALSE (par DEFAULT), on applique
+     * - les filtres de services producteurs OriginatingAgencies,
+     * - ainsi que les filtres sur les règles de gestion RuleCategoryToFilter/RuleCategoryToFilterForTheOtherOriginatingAgencies
+     */
+    @JsonProperty(DO_NOT_FILTER_FILING_SCHEMES)
+    private Boolean doNotFilterFilingSchemes;
 
     /**
      * Constructor without fields
@@ -136,8 +154,6 @@ public class AccessContractModel extends AbstractContractModel {
 
     /**
      * Set the collection of originating agency
-     *
-     * @param originatingAgencies
      */
     public AccessContractModel setOriginatingAgencies(Set<String> originatingAgencies) {
         this.originatingAgencies = originatingAgencies;
@@ -296,14 +312,17 @@ public class AccessContractModel extends AbstractContractModel {
         return this;
     }
 
-    public Boolean getSkipFilingSchemeOriginatingAgencyFilter() {
-        return skipFilingSchemeOriginatingAgencyFilter;
+    public Set<RuleType> getRuleCategoryToFilterForTheOtherOriginatingAgencies() {
+        if (ruleCategoryToFilterForTheOtherOriginatingAgencies == null) {
+            ruleCategoryToFilterForTheOtherOriginatingAgencies = new HashSet<>();
+        }
+        return ruleCategoryToFilterForTheOtherOriginatingAgencies;
     }
 
-    public AccessContractModel setSkipFilingSchemeOriginatingAgencyFilter(
-        Boolean skipFilingSchemeOriginatingAgencyFilter
+    public AccessContractModel setRuleCategoryToFilterForTheOtherOriginatingAgencies(
+        Set<RuleType> ruleCategoryToFilterForTheOtherOriginatingAgencies
     ) {
-        this.skipFilingSchemeOriginatingAgencyFilter = skipFilingSchemeOriginatingAgencyFilter;
+        this.ruleCategoryToFilterForTheOtherOriginatingAgencies = ruleCategoryToFilterForTheOtherOriginatingAgencies;
         return this;
     }
 
@@ -316,13 +335,21 @@ public class AccessContractModel extends AbstractContractModel {
         return this;
     }
 
+    public Boolean getDoNotFilterFilingSchemes() {
+        return doNotFilterFilingSchemes;
+    }
+
+    public AccessContractModel setDoNotFilterFilingSchemes(Boolean doNotFilterFilingSchemes) {
+        this.doNotFilterFilingSchemes = doNotFilterFilingSchemes;
+        return this;
+    }
+
     public void initializeDefaultValue() {
         writingPermission = firstNonNull(writingPermission, false);
         writingRestrictedDesc = firstNonNull(writingRestrictedDesc, false);
-        everyOriginatingAgency = firstNonNull(everyOriginatingAgency, false);
         everyDataObjectVersion = firstNonNull(everyDataObjectVersion, false);
         accessLog = firstNonNull(accessLog, ActivationStatus.INACTIVE);
-        skipFilingSchemeOriginatingAgencyFilter = firstNonNull(skipFilingSchemeOriginatingAgencyFilter, false);
-        skipFilingSchemeRuleCategoryFilter = firstNonNull(skipFilingSchemeRuleCategoryFilter, true);
+        everyOriginatingAgency = firstNonNull(everyOriginatingAgency, false);
+        doNotFilterFilingSchemes = firstNonNull(doNotFilterFilingSchemes, false);
     }
 }

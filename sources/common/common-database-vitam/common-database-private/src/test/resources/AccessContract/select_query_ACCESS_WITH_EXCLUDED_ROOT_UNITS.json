@@ -1,0 +1,34 @@
+{
+  "$roots": [],
+  "$query": [
+    {
+      "$and": [
+        {
+          "$nin": {
+            "#id": [
+              "excluded_root_unit_01",
+              "excluded_root_unit_02"
+            ]
+          }
+        },
+        {
+          "$nin": {
+            "#allunitups": [
+              "excluded_root_unit_01",
+              "excluded_root_unit_02"
+            ]
+          }
+        },
+        {
+          "$match": {
+            "Title": "mon titre test"
+          }
+        }
+      ],
+      "$depth": 1000
+    }
+  ],
+  "$filter": {},
+  "$projection": {},
+  "$facets": []
+}

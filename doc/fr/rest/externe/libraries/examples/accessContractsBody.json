@@ -14,7 +14,10 @@
       "AppraisalRule",
       "DisseminationRule"
     ],
-    "SkipFilingSchemeOriginatingAgencyFilter": true,
-    "SkipFilingSchemeRuleCategoryFilter": true
+    "RuleCategoryToFilterForTheOtherOriginatingAgencies": [
+      "StorageRule",
+      "ReuseRule"
+    ],
+    "DoNotFilterFilingSchemes": true
   }
 ]

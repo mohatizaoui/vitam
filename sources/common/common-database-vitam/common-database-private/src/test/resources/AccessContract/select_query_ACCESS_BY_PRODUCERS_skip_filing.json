@@ -1,0 +1,38 @@
+{
+  "$roots": [],
+  "$query": [
+    {
+      "$and": [
+        {
+          "$or": [
+            {
+              "$in": {
+                "#unitType": [
+                  "FILING_UNIT",
+                  "HOLDING_UNIT"
+                ]
+              }
+            },
+            {
+              "$in": {
+                "#originating_agencies": [
+                  "originating_agency_02",
+                  "originating_agency_01"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "$match": {
+            "Title": "mon titre test"
+          }
+        }
+      ],
+      "$depth": 1000
+    }
+  ],
+  "$filter": {},
+  "$projection": {},
+  "$facets": []
+}

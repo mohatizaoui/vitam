@@ -108,6 +108,8 @@ public final class LocalDateUtil {
     }
 
     /**
+     * 2024-12-25T12:34:56:123
+     * 2024-12-25T12:00:00.000
      * @return the LocalDateTime now in UTC
      */
     public static LocalDateTime now() {
@@ -115,10 +117,27 @@ public final class LocalDateUtil {
     }
 
     /**
+     * 2024-12-25
+     * 2024-12-25
+     * @return the LocalDate today in UTC
+     */
+    public static LocalDate today() {
+        return LocalDate.now(clock);
+    }
+
+    /**
+     * 2024-12-25T12:34:56:123
      * 2024-12-25T12:00:00.000
      */
     public static String nowFormatted() {
         return LocalDateUtil.getFormattedDateTimeForMongo(LocalDateUtil.now());
+    }
+
+    /**
+     * 2024-12-25
+     */
+    public static String todayFormatted() {
+        return LocalDateUtil.today().toString();
     }
 
     /**

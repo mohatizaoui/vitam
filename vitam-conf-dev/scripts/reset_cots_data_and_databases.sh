@@ -43,7 +43,7 @@ for i in `curl 'localhost:9200/_cat/indices?v' | tail -n +2 | awk '{print $3}'`;
 curl 'localhost:9200/_cat/indices?v' | tail -n +2
 
 # Delete mongo collections
-mongo admin -u vitamdb-admin -p 'azerty' <<EOF
+mongosh admin -u vitamdb-admin -p 'azerty' <<EOF
 
 db = db.getSiblingDB("offer")
 db.getCollectionNames().forEach(function(x) {db[x].remove({})})

@@ -28,13 +28,13 @@
 package fr.gouv.vitam.common.model.administration;
 
 public enum RuleType {
-    AppraisalRule,
     AccessRule,
-    StorageRule,
-    DisseminationRule,
+    AppraisalRule,
     ClassificationRule,
+    DisseminationRule,
+    HoldRule,
     ReuseRule,
-    HoldRule;
+    StorageRule;
 
     public static RuleType getEnumFromName(String name) {
         for (final RuleType e : values()) {

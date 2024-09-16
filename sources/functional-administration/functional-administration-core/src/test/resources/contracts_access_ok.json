@@ -5,7 +5,7 @@
 		"Status":"ACTIVE",
 		"OriginatingAgencies":["FR_ORG_AGEN"],
 		"RuleCategoryToFilter": [ "AppraisalRule", "DisseminationRule" ],
-		"SkipFilingSchemeOriginatingAgencyFilter": true,
+		"DoNotFilterFilingSchemes": false,
 		"SkipFilingSchemeRuleCategoryFilter": false,
 		"LastUpdate":"10/12/2016",
 		"CreationDate":"10/12/2016",

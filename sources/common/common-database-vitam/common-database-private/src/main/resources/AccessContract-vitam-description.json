@@ -96,7 +96,13 @@
     "indexed": true
   },
   {
-    "path": "SkipFilingSchemeOriginatingAgencyFilter",
+    "path": "RuleCategoryToFilterForTheOtherOriginatingAgencies",
+    "type": "keyword",
+    "cardinality": "many",
+    "indexed": true
+  },
+  {
+    "path": "DoNotFilterFilingSchemes",
     "type": "bool",
     "cardinality": "one",
     "indexed": true

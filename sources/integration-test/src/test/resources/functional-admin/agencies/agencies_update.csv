@@ -75,3 +75,7 @@ https://demo.logilab.fr/seda/157118,agency 2,une description de service agent
 CCCCCCCCCC,agency 2,une description de service agent
 NNNNNNNNN,agency 2,une description de service agent
 NO_SP,agency 2,une description de service agen
+originating_agency_01,originating_agency_01_IT,agency for integration tests
+originating_agency_02,originating_agency_02_IT,agency for integration tests
+originating_agency_03,originating_agency_03_IT,agency for integration tests
+originating_agency_04,originating_agency_04_IT,agency for integration tests

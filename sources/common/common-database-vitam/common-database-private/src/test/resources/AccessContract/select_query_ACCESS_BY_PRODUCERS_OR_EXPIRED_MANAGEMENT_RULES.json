@@ -1,0 +1,64 @@
+{
+  "$roots": [],
+  "$query": [
+    {
+      "$and": [
+        {
+          "$or": [
+            {
+              "$eq": {
+                "#unitType": "HOLDING_UNIT"
+              }
+            },
+            {
+              "$and": [
+                {
+                  "$lt": {
+                    "#computedInheritedRules.ClassificationRule.MaxEndDate": "2024-08-28"
+                  }
+                },
+                {
+                  "$lt": {
+                    "#computedInheritedRules.DisseminationRule.MaxEndDate": "2024-08-28"
+                  }
+                },
+                {
+                  "$lt": {
+                    "#computedInheritedRules.ReuseRule.MaxEndDate": "2024-08-28"
+                  }
+                },
+                {
+                  "$lt": {
+                    "#computedInheritedRules.StorageRule.MaxEndDate": "2024-08-28"
+                  }
+                }
+              ]
+            },
+            {
+              "$in": {
+                "#originating_agencies": [
+                  "originating_agency_01",
+                  "originating_agency_02"
+                ]
+              }
+            },
+            {
+              "$eq": {
+                "#unitType": "HOLDING_UNIT"
+              }
+            }
+          ]
+        },
+        {
+          "$match": {
+            "Title": "mon titre test"
+          }
+        }
+      ],
+      "$depth": 1000
+    }
+  ],
+  "$filter": {},
+  "$projection": {},
+  "$facets": []
+}

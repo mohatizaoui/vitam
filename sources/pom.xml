@@ -550,8 +550,7 @@
                     <version>${maven.javadoc.version}</version>
                     <inherited>false</inherited>
                     <configuration>
-                        <!-- hack for javadoc generation in java 8 format to avoid missing elasticsearch dependency from class path in javadoc:aggregate-jar -->
-                        <source>8</source>
+                        <source>17</source>
                         <detectJavaApiLink>false</detectJavaApiLink>
                         <!-- <additionalparam>-Xdoclint:none</additionalparam> -->
                         <doclint>none</doclint>

@@ -141,8 +141,7 @@ public class BackgroundObjectDigestValidator {
                 throw new NonUpdatableContentAddressableStorageException(
                     "Object with id " +
                     objectId +
-                    " already exists " +
-                    "and cannot be updated. Existing object digest: " +
+                    " already exists and cannot be updated. Existing object digest: " +
                     actualObjectDigest +
                     ". Digest of new objet to write " +
                     objectDigest

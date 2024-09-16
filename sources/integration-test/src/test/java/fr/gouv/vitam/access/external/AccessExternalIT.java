@@ -628,7 +628,7 @@ public class AccessExternalIT extends VitamRuleRunner {
         assertThat(resultUnit).isNotEmpty();
 
         //When
-        vitamContext.setAccessContract("aName6");
+        vitamContext.setAccessContract("access_contract_06");
 
         // THEN
         assertThatCode(

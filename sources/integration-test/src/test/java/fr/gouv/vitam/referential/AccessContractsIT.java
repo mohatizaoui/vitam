@@ -175,7 +175,7 @@ public class AccessContractsIT extends VitamRuleRunner {
                 AccessContractModel.class
             );
             assertThat(accessContractModel.getRuleCategoryToFilter()).contains(RuleType.HoldRule);
-            assertThat(accessContractModel.getSkipFilingSchemeOriginatingAgencyFilter()).isTrue();
+            assertThat(accessContractModel.getDoNotFilterFilingSchemes()).isFalse();
             assertThat(accessContractModel.getSkipFilingSchemeRuleCategoryFilter()).isFalse();
         }
     }
@@ -188,7 +188,7 @@ public class AccessContractsIT extends VitamRuleRunner {
             updateMultiQuery.setQuery(QueryHelper.in(AccessContractModel.TAG_NAME, "aName"));
             List<Action> actions = updateMultiQuery.getActions();
             actions.add(new SetAction(AccessContractModel.RULE_CATEGORY_TO_FILTER, List.of(RuleType.HoldRule.name())));
-            actions.add(new SetAction(AccessContractModel.SKIP_FILING_SCHEME_ORIGINATING_AGENCY_FILTER, false));
+            actions.add(new SetAction(AccessContractModel.DO_NOT_FILTER_FILING_SCHEMES, false));
             actions.add(new SetAction(AccessContractModel.SKIP_FILING_SCHEME_RULE_CATEGORY_FILTER, true));
             client.updateAccessContract("aName", updateMultiQuery.getFinalUpdate());
 
@@ -202,9 +202,31 @@ public class AccessContractsIT extends VitamRuleRunner {
             );
             assertThat(accessContractModel.getRuleCategoryToFilter()).contains(RuleType.HoldRule);
             // Defaults to false
-            assertThat(accessContractModel.getSkipFilingSchemeOriginatingAgencyFilter()).isFalse();
+            assertThat(accessContractModel.getDoNotFilterFilingSchemes()).isFalse();
             // Defaults to true
             assertThat(accessContractModel.getSkipFilingSchemeRuleCategoryFilter()).isTrue();
+        }
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void should_NOT_update_access_contract_with_RuleCategoryToFilter_and_RuleCategoryToFilterForTheOtherOriginatingAgencies()
+        throws Exception {
+        try (AdminManagementClient client = AdminManagementClientFactory.getInstance().getClient()) {
+            Update updateMultiQuery = new Update();
+            updateMultiQuery.setQuery(QueryHelper.in(AccessContractModel.TAG_NAME, "aName"));
+            List<Action> actions = updateMultiQuery.getActions();
+            actions.add(new SetAction(AccessContractModel.RULE_CATEGORY_TO_FILTER, List.of(RuleType.HoldRule.name())));
+            actions.add(
+                new SetAction(
+                    AccessContractModel.RULE_CATEGORY_TO_FILTER_FOR_THE_OTHER_ORIGINATING_AGENCIES,
+                    List.of(RuleType.HoldRule.name())
+                )
+            );
+
+            assertThatCode(() -> client.updateAccessContract("aName", updateMultiQuery.getFinalUpdate()))
+                .isInstanceOf(AdminManagementClientBadRequestException.class)
+                .hasMessageContaining("Document schema validation failed");
         }
     }
 }

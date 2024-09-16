@@ -2,7 +2,7 @@
 	{
 		"Identifier":"aName",
 		"Name":"aName",
-		"Description":"aDescription of the contract",
+		"Description":"integration-processing/access_contracts.json",
 		"Status":"ACTIVE",
 		"OriginatingAgencies":["FR_ORG_AGEN"],
 		"DataObjectVersion": ["PhysicalMaster", "BinaryMaster"],
@@ -16,7 +16,7 @@
 	{
 		"Identifier":"EveryOriginatingAgency",
 		"Name":"EveryOriginatingAgency",
-		"Description":"aDescription of the contract",
+		"Description":"integration-processing/access_contracts.json",
 		"Status":"ACTIVE",
 		"OriginatingAgencies":["FR_ORG_AGEN"],
 		"DataObjectVersion": ["PhysicalMaster", "BinaryMaster"],
@@ -30,7 +30,7 @@
 	{
 		"Name":"contract",
 		"Identifier":"contract",
-		"Description":"aDescription of the contract",
+		"Description":"integration-processing/access_contracts.json",
 		"Status":"ACTIVE",
 		"OriginatingAgencies":[],
 		"EveryOriginatingAgency": true,
@@ -45,7 +45,7 @@
 	{
 		"Name":"contract_rule",
 		"Identifier":"contract_rule",
-		"Description":"aDescription of the contract",
+		"Description":"integration-processing/access_contracts.json",
 		"Status":"ACTIVE",
 		"OriginatingAgencies":[],
 		"EveryOriginatingAgency": true,

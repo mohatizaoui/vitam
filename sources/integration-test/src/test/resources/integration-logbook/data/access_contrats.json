@@ -2,7 +2,7 @@
 	{
 		"Name":"aName",
 		"Identifier":"aName",
-		"Description":"aDescription of the contract",
+		"Description":"integration-logbook/data/access_contrats.json",
 		"Status":"ACTIVE",
 		"OriginatingAgencies":["FR_ORG_AGEN"],
 		"DataObjectVersion": ["PhysicalMaster", "BinaryMaster"],
@@ -15,7 +15,7 @@
 		{
 		"Name":"aName2",
 		"Identifier":"aName2",
-		"Description":"aDescription of the contract 2",
+		"Description":"integration-logbook/data/access_contrats.json 2",
 		"Status":"ACTIVE",
 		"OriginatingAgencies":["FR_ORG_AGEN"],
 		"DataObjectVersion": ["PhysicalMaster", "BinaryMaster"],
@@ -28,7 +28,7 @@
 	{
 		"Name":"aName3",
 		"Identifier":"aName3",
-		"Description":"aDescription of the contract",
+		"Description":"integration-logbook/data/access_contrats.json",
 		"Status":"ACTIVE",
 		"OriginatingAgencies":["FRAN_NP_005568", "FR_ORG_AGEN"],
 		"EveryDataObjectVersion": true,
@@ -42,7 +42,7 @@
 	{
 		"Name":"aName4",
 		"Identifier":"aName4",
-		"Description":"aDescription of the contract",
+		"Description":"integration-logbook/data/access_contrats.json",
 		"Status":"ACTIVE",
 		"OriginatingAgencies":["NO_SP", "TestReplayOriginAgency2", "TestReplayOriginAgency1"],
 		"DataObjectVersion": ["PhysicalMaster", "BinaryMaster"],
