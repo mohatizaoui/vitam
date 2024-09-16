@@ -55,6 +55,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import static fr.gouv.vitam.common.model.ModelConstants.UNDERSCORE;
 import static org.mockito.Mockito.mock;
 
 public class ManifestBuilderTest {
@@ -322,7 +323,7 @@ public class ManifestBuilderTest {
             existingFileNames,
             CONTENT + File.separator
         );
-        Assert.assertEquals(CONTENT + File.separator + "12345" + "example", result);
+        Assert.assertEquals(CONTENT + File.separator + "12345" + UNDERSCORE + "example", result);
     }
 
     @Test
@@ -354,8 +355,8 @@ public class ManifestBuilderTest {
         Assert.assertEquals(
             CONTENT +
             File.separator +
-            "123456789012345678901234567890" +
-            "very_long_filename_to_ensure_we_go_over_the_character_limit_for_most_filesystems_very_long_filename_to_ensure_we_go_over_the_character_limit_.txt",
+            "123456789012345678901234567890" + UNDERSCORE +
+            "very_long_filename_to_ensure_we_go_over_the_character_limit_for_most_filesystems_very_long_filename_to_ensure_we_go_over_the_character_limit.txt",
             result
         );
         Assert.assertTrue(result.length() <= ManifestBuilder.FULL_FILE_NAME_SIZE_LIMIT);
