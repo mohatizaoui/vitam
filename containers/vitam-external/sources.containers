@@ -4,6 +4,7 @@ logstash:8.14.3
 kibana:8.14.3
 elastic/metricbeat:8.14.3
 elastic/packetbeat:8.14.3
+elastic/filebeat:8.14.3
 grafana/grafana:10.3.5
 restic/restic:0.16.2
 hashicorp/consul:1.18.1

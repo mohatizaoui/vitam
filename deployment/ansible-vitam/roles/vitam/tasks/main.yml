@@ -8,7 +8,7 @@
   retries: "{{ packages_install_retries_number }}"
   until: result is succeeded
   delay: "{{ packages_install_retries_delay }}"
-  when: install_mode != "container"
+  when: (install_mode != "container") or (vitam_struct.vitam_component in legacy_components_list)
   tags: update_package_vitam
 
 - name: Install openjdk 17
@@ -19,7 +19,7 @@
   retries: "{{ packages_install_retries_number }}"
   until: result is succeeded
   delay: "{{ packages_install_retries_delay }}"
-  when: install_mode != "container"
+  when: (install_mode != "container") or (vitam_struct.vitam_component in legacy_components_list)
   tags: update_package_vitam
 
 - include_tasks: tape_offer.yml
@@ -38,7 +38,7 @@
     - update_package_vitam
   notify:
     - "vitam - restart service"
-  when: force_vitam_version is not defined and install_mode != "container"
+  when: (force_vitam_version is not defined and install_mode != "container") or (force_vitam_version is not defined and (vitam_struct.vitam_component in legacy_components_list))
 
 # Force a specific version to install (even downgrade)
 - block:
@@ -73,7 +73,7 @@
         - "vitam - restart service"
       when: ansible_os_family == "RedHat"
 
-  when: force_vitam_version is defined and install_mode != "container"
+  when: (force_vitam_version is defined and install_mode != "container") or (force_vitam_version is defined and (vitam_struct.vitam_component in legacy_components_list))
 
 #### Configuration ####
 
@@ -106,7 +106,7 @@
     mode: "{{ vitam_defaults.folder.folder_permission }}"
   notify:
     - "vitam - restart service"
-  when: install_mode != "container"
+  when: install_mode != "container" or (vitam_struct.vitam_component in legacy_components_list)
 
 - name: Deploy script for ExecStart
   template:
@@ -119,7 +119,7 @@
     - update_vitam_configuration
   notify:
     - "vitam - restart service"
-  when: install_mode != "container"
+  when: install_mode != "container" or (vitam_struct.vitam_component in legacy_components_list)
 
 - name: Set Debian systemd directory
   set_fact:
@@ -137,7 +137,7 @@
 
 - name: Deploy systemd service file
   template:
-    src: "vitam-{{ 'container-' if install_mode == 'container' else '' }}componentid.service.j2"
+    src: "vitam-{{ 'container-' if install_mode == 'container' and vitam_struct.vitam_component not in legacy_components_list else '' }}componentid.service.j2"
     dest: "{{ systemd_directory }}/vitam-{{ vitam_struct.vitam_component }}.service"
     owner: "root"
     group: "root"
@@ -160,7 +160,7 @@
     - update_jvmoptions_vitam
   notify:
     - "vitam - restart service"
-  when: install_mode != "container"
+  when: install_mode != "container" or (vitam_struct.vitam_component in legacy_components_list)
 
 - name: Deploy common configuration files
   template:

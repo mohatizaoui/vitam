@@ -12,7 +12,7 @@
   delay: "{{ packages_install_retries_delay }}"
   notify:
     - "mongos - restart service"
-  when: install_mode != "container"
+  when: install_mode != "container" or "mongos" in legacy_components_list
 
 - name: "Install vitam-user-vitamdb packages"
   package:
@@ -24,11 +24,11 @@
   until: result is succeeded
   delay: "{{ packages_install_retries_delay }}"
   notify: "mongod - restart service"
-  when: install_mode == "container"
+  when: install_mode == "container" and "mongos" not in legacy_components_list
 
 - name: Deploy systemd service file for vitam-mongos
   template:
-    src: "vitam-{{ 'container-' if install_mode == 'container' else '' }}mongos.service.j2"
+    src: "vitam-{{ 'container-' if install_mode == 'container' and 'mongos' not in legacy_components_list else '' }}mongos.service.j2"
     dest: "{{ '/lib/systemd/system' if ansible_os_family == 'Debian' else '/usr/lib/systemd/system' }}/vitam-mongos.service"
     owner: root
     group: root
