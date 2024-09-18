@@ -155,7 +155,7 @@
     <javax.servlet.version>4.0.1</javax.servlet.version>
     <json-sanitize.version>1.2.2</json-sanitize.version>
     <commons-collections4.version>4.4</commons-collections4.version>
-    <esapi.version>2.5.3.1</esapi.version>
+        <esapi.version>2.5.4.0</esapi.version>
     <!-- removed to support xerces with 1.1 support <xerces.version>2.11.0</xerces.version> -->
     <xerces-xsd11.version>2.12-beta-r1667115</xerces-xsd11.version>
     <xml-resolver.version>1.2</xml-resolver.version>
@@ -174,10 +174,10 @@
     <javax-validation.version>2.0.1.Final</javax-validation.version>
     <hibernate-validator.version>6.2.5.Final</hibernate-validator.version>
     <org.glassfish.web.version>3.0.1-b12</org.glassfish.web.version>
-    <javax.el-api.version>3.0.1-b06</javax.el-api.version>
+    <jakarta.el-api.version>6.0.1</jakarta.el-api.version>
     <retrofit2.version>2.11.0</retrofit2.version>
-    <org.xmlunit.version>2.9.1</org.xmlunit.version>
-    <com.github.tomakehurst.version>3.0.1</com.github.tomakehurst.version>
+    <org.xmlunit.version>2.10.0</org.xmlunit.version>
+    <org.wiremock.version>3.9.1</org.wiremock.version>
     <io.reactivex.rxjava2.version>2.2.21</io.reactivex.rxjava2.version>
     <cucumber.version>7.16.1</cucumber.version>
     <batik-css.version>1.17</batik-css.version>
@@ -1594,9 +1594,9 @@
         <scope>test</scope>
       </dependency>
       <dependency>
-        <groupId>com.github.tomakehurst</groupId>
+        <groupId>org.wiremock</groupId>
         <artifactId>wiremock-standalone</artifactId>
-        <version>${com.github.tomakehurst.version}</version>
+        <version>${org.wiremock.version}</version>
         <scope>test</scope>
         <exclusions>
           <exclusion>
