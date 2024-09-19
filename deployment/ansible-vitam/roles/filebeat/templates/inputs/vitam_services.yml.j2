@@ -40,6 +40,17 @@
         target_prefix: ""
     - drop_fields:
         fields: ["date_time"]
+    {% if filebeat.disable_health_checks | default(true) | bool %}
+    # Drop Consul and Prometheus health checks
+    - drop_event:
+        when:
+          and:
+            - range:
+                http_status_code.gte: 200
+                http_status_code.lte: 204
+            - regexp:
+                user_agent: "^(Consul|Prometheus).*"
+    {% endif %}
   {% endif %}
 
   {% if filebeat.services[vitam_service].enable_security | default(true) | bool %}
