@@ -34,5 +34,124 @@
     "type": "text",
     "cardinality": "one",
     "indexed": true
-  }
+  },
+  {
+    "path": "EntityType",
+    "type": "keyword",
+    "cardinality": "one",
+    "indexed": true
+  },
+  {
+  "path": "NameEntryParallel",
+  "type": "text",
+  "cardinality": "many",
+  "indexed": true
+},
+  {
+  "path": "AuthorizedForm",
+  "type": "text",
+  "cardinality": "many",
+  "indexed": true
+},
+  {
+  "path": "AlternativeForm",
+  "type": "text",
+  "cardinality": "many",
+  "indexed": true
+},
+  {
+  "path": "EntityId",
+  "type": "keyword",
+  "cardinality": "one",
+  "indexed": true
+},
+  {
+  "path": "FromDate",
+  "type": "datetime",
+  "cardinality": "one",
+  "indexed": true
+},
+  {
+  "path": "ToDate",
+  "type": "datetime",
+  "cardinality": "one",
+  "indexed": true
+},
+  {
+  "path": "Functions",
+  "type": "keyword",
+  "cardinality": "many",
+  "indexed": true
+},
+  {
+  "path": "BiogHist",
+  "type": "text",
+  "cardinality": "one",
+  "indexed": true
+},
+  {
+  "path": "Places",
+  "type": "text",
+  "cardinality": "many",
+  "indexed": true
+},
+  {
+  "path": "LegalStatuses",
+  "type": "text",
+  "cardinality": "many",
+  "indexed": true
+},
+  {
+  "path": "Mandates",
+  "type": "text",
+  "cardinality": "many",
+  "indexed": true
+},
+  {
+  "path": "StructureOrGenealogy",
+  "type": "text",
+  "cardinality": "one",
+  "indexed": true
+},
+  {
+  "path": "GeneralContext",
+  "type": "text",
+  "cardinality": "one",
+  "indexed": true
+},
+  {
+    "path": "CreationDate",
+    "type": "datetime",
+    "cardinality": "one",
+    "indexed": true
+  },
+  {
+    "path": "UpdateDate",
+    "type": "datetime",
+    "cardinality": "one",
+    "indexed": true
+  },{
+  "path": "MaintenanceStatus",
+  "type": "keyword",
+  "cardinality": "one",
+  "indexed": true
+},
+  {
+  "path": "LocalStatus",
+  "type": "keyword",
+  "cardinality": "one",
+  "indexed": true
+},
+  {
+  "path": "Sources",
+  "type": "text",
+  "cardinality": "many",
+  "indexed": true
+},
+  {
+  "path": "EventDescription",
+  "type": "text",
+  "cardinality": "one",
+  "indexed": true
+}
 ]

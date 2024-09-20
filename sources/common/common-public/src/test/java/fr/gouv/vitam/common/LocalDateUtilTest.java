@@ -304,4 +304,23 @@ public class LocalDateUtilTest {
         assertEquals(LocalDateTime.of(2024, 12, 25, 0, 0, 0), LocalDateUtil.parseDateTime("2024-12-25"));
         assertThrows(DateTimeParseException.class, () -> LocalDateUtil.parseDateTime("2024-12-2"));
     }
+
+    @Test
+    public void should_check_formatting_date() {
+        assertEquals("2024-12-25", LocalDateUtil.getFormattedDateOnlyForMongo("25/12/2024"));
+        assertEquals("2024-12-25", LocalDateUtil.getFormattedDateOnlyForMongo("2024-12-25"));
+        assertThrows(DateTimeParseException.class, () -> LocalDateUtil.getFormattedDateOnlyForMongo("2024-12-25T1"));
+        assertThrows(DateTimeParseException.class, () -> LocalDateUtil.getFormattedDateOnlyForMongo("2024-12-25T12:3"));
+        assertThrows(
+            DateTimeParseException.class,
+            () -> LocalDateUtil.getFormattedDateOnlyForMongo("2024-12-25T12:34")
+        );
+        assertThrows(DateTimeParseException.class, () -> LocalDateUtil.getFormattedDateOnlyForMongo("15 02 2024"));
+        assertThrows(DateTimeParseException.class, () -> LocalDateUtil.getFormattedDateOnlyForMongo("15 15 2024"));
+        assertThrows(DateTimeParseException.class, () -> LocalDateUtil.getFormattedDateOnlyForMongo("2024"));
+        assertThrows(
+            DateTimeParseException.class,
+            () -> LocalDateUtil.getFormattedDateOnlyForMongo("15/02/2015 15:02")
+        );
+    }
 }

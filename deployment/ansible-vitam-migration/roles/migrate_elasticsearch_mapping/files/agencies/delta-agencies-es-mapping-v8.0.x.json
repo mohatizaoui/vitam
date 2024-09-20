@@ -1,15 +1,5 @@
 {
   "properties": {
-    "Identifier": {
-      "type": "keyword"
-    },
-    "Name": {
-      "type": "text",
-      "fielddata": true
-    },
-    "Description": {
-      "type": "text"
-    },
     "EntityType": {
       "type": "keyword"
     },
@@ -73,12 +63,6 @@
     },
     "EventDescription": {
       "type": "text"
-    },
-    "_tenant": {
-      "type": "long"
-    },
-    "_v": {
-      "type": "long"
     }
   }
 }

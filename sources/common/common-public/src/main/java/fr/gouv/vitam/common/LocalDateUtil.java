@@ -85,6 +85,7 @@ public final class LocalDateUtil {
 
     /**
      * Formats date/time in ISO_DATE_TIME. Seconds / milliseconds are truncated when 0
+     *
      * @deprecated Use getFormattedDateTimeForMongo
      */
     public static String getString(LocalDateTime localDateTime) {
@@ -93,6 +94,7 @@ public final class LocalDateUtil {
 
     /**
      * Formats date/time in ISO_DATE_TIME. Seconds / milliseconds are truncated when 0
+     *
      * @deprecated Use getFormattedDateTimeForMongo
      */
     public static String getStringFormatted(LocalDateTime localDateTime) {
@@ -101,6 +103,7 @@ public final class LocalDateUtil {
 
     /**
      * Formats date/time in ISO_DATE_TIME. Seconds / milliseconds are truncated when 0
+     *
      * @deprecated Use getFormattedDateTimeForMongo
      */
     public static String getString(Date date) {
@@ -110,6 +113,7 @@ public final class LocalDateUtil {
     /**
      * 2024-12-25T12:34:56:123
      * 2024-12-25T12:00:00.000
+     *
      * @return the LocalDateTime now in UTC
      */
     public static LocalDateTime now() {
@@ -119,6 +123,7 @@ public final class LocalDateUtil {
     /**
      * 2024-12-25
      * 2024-12-25
+     *
      * @return the LocalDate today in UTC
      */
     public static LocalDate today() {
@@ -266,6 +271,11 @@ public final class LocalDateUtil {
         return getFormattedDateTimeForMongo(dateTime);
     }
 
+    public static String getFormattedDateOnlyForMongo(String date) {
+        LocalDate ld = LocalDateUtil.parseDateOnly(date);
+        return LocalDateUtil.getFormattedSimpleDate(ld);
+    }
+
     /**
      * @deprecated Use getFormattedDateTimeForMongo
      */
@@ -343,6 +353,24 @@ public final class LocalDateUtil {
             }
         }
         return ldt;
+    }
+
+    /**
+     * Parse Simple date from String with possible formats: yyyy-MM-dd or dd/MM/yyyy
+     *
+     * @param date string date
+     * @return formatted date
+     */
+    static LocalDate parseDateOnly(String date) {
+        LocalDate ld;
+        try {
+            ld = LocalDate.parse(date, DateTimeFormatter.ISO_LOCAL_DATE);
+        } catch (DateTimeParseException e) {
+            LOGGER.debug("Cannot use ISO_LOCAL_DATE formatter, try with Zoned one");
+            ld = LocalDate.parse(date, SLASHED_DATE);
+        }
+
+        return ld;
     }
 
     /**
