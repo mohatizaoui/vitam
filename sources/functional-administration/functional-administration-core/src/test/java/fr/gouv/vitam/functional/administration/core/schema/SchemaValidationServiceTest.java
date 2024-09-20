@@ -225,9 +225,12 @@ public class SchemaValidationServiceTest {
                 )
         )
             .isInstanceOf(SchemaImportValidationException.class)
-            .withFailMessage(
-                "Paths already in internal schema =  Addressee.BirthPlace.City, Addressee.BirthPlace.Country"
-            );
+            .hasMessage(
+                "Some paths have wrong format = Invoice-Provider, Invoice.Provider .BirthDate, " +
+                "Addressee.' ' BirthPlace.City, Invoice & wrong Invoice, Addressee*BirthPlace\\Country, " +
+                "With_Underscore"
+            )
+            .withFailMessage("Paths validation error");
     }
 
     @Test
