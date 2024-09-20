@@ -80,7 +80,7 @@ import java.util.stream.Collectors;
 public class SchemaValidationService {
 
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(SchemaValidationService.class);
-    private static final Pattern PATH_PATTERN = Pattern.compile("^\\w+(\\.\\w+)*$");
+    private static final Pattern PATH_PATTERN = Pattern.compile("^[a-zA-Z0-9]+(\\.[a-zA-Z0-9]+)*$");
     private final MongoDbAccessReferential mongoDbAccessReferential;
     private final LogbookOperationsClientFactory logbookOperationsClientFactory;
 
@@ -235,7 +235,7 @@ public class SchemaValidationService {
             }
         }
         if (!CollectionUtils.isEmpty(schemaInputsWithErrors)) {
-            LOGGER.error("Some paths wrong path format ");
+            LOGGER.error("Some paths have wrong path format");
             schemaInputsWithErrors
                 .stream()
                 .forEach(
@@ -252,7 +252,7 @@ public class SchemaValidationService {
                 );
 
             String message = String.format(
-                "Some paths wrong path format  =  %s  ",
+                "Some paths have wrong format = %s",
                 schemaInputsWithErrors
                     .stream()
                     .map(schemaInputModel -> schemaInputModel.getPath())

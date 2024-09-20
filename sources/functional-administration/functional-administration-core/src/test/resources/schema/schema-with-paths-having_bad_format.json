@@ -29,5 +29,11 @@
     "Path": "Addressee*BirthPlace\\Country",
     "StringSize": "SHORT",
     "ShortName": "Pays"
+  },
+  {
+    "Cardinality": "ONE",
+    "Path": "With_Underscore",
+    "StringSize": "SHORT",
+    "ShortName": "Underscore"
   }
 ]
