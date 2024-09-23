@@ -24,6 +24,14 @@
     - "kibana - restart service"
   when: install_mode != "container"
 
+- name: Removed former systemd service file for kibana
+  file:
+    path: /etc/systemd/system/kibana.service
+    state: absent
+  notify:
+    - "kibana - restart service"
+  when: install_mode != "container"
+
 - block:
 
   - name: Deploy systemd service file for kibana
