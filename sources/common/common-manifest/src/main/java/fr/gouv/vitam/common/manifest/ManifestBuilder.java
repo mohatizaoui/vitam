@@ -134,7 +134,6 @@ public class ManifestBuilder implements AutoCloseable {
 
     private static JAXBContext jaxbContext;
     public static final String XSI_URI = "http://www.w3.org/2001/XMLSchema-instance";
-    static final String CONTENT = "Content";
 
     static {
         try {
@@ -246,7 +245,6 @@ public class ManifestBuilder implements AutoCloseable {
             linkedAU,
             logbookLifeCycleObjectGroupStream,
             false,
-            false,
             new HashSet<>(),
             new HashSet<>(),
             ""
@@ -258,7 +256,6 @@ public class ManifestBuilder implements AutoCloseable {
         String linkedAU,
         Stream<LogbookLifeCycleObjectGroup> logbookLifeCycleObjectGroupStream,
         boolean useOriginalFilenames,
-        boolean exportWithTree,
         Set<String> existingFileNames,
         Set<String> existingDirectoryNames,
         String baseFilePath

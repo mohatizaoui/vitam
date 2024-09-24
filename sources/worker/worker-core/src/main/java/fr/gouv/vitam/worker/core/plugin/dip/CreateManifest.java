@@ -353,7 +353,6 @@ public class CreateManifest extends ActionHandler {
                             linkedUnits.get(linkedUnits.size() - 1),
                             logbookLifeCycleObjectGroupStream,
                             useOriginalFilenames,
-                            exportWithTree,
                             existingFileNames,
                             existingDirectoryNames,
                             directoryPath
