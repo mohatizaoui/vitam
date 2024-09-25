@@ -59,7 +59,7 @@ public interface MockOrRestClient extends VitamAutoCloseable {
 
     /**
      * Check the status from the service
-     * used to pass "X-SSL-CLIENT-CERT" header that contain a pem certificate
+     * used to passe "X-SSL-CLIENT-CERT" header that contain a pem certificate
      *
      * @param headers
      * @throws VitamApplicationServerException if the Server is unavailable
