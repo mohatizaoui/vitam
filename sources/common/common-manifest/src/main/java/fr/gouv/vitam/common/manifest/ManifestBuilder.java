@@ -32,7 +32,23 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Strings;
 import com.google.common.collect.ListMultimap;
-import fr.gouv.culture.archivesdefrance.seda.v2.*;
+import fr.gouv.culture.archivesdefrance.seda.v2.ArchiveUnitType;
+import fr.gouv.culture.archivesdefrance.seda.v2.BinaryDataObjectType;
+import fr.gouv.culture.archivesdefrance.seda.v2.CodeListVersionsType;
+import fr.gouv.culture.archivesdefrance.seda.v2.CodeType;
+import fr.gouv.culture.archivesdefrance.seda.v2.DataObjectGroupType;
+import fr.gouv.culture.archivesdefrance.seda.v2.DataObjectPackageType;
+import fr.gouv.culture.archivesdefrance.seda.v2.DataObjectRefType;
+import fr.gouv.culture.archivesdefrance.seda.v2.EventLogBookOgType;
+import fr.gouv.culture.archivesdefrance.seda.v2.IdentifierType;
+import fr.gouv.culture.archivesdefrance.seda.v2.LegalStatusType;
+import fr.gouv.culture.archivesdefrance.seda.v2.LogBookOgType;
+import fr.gouv.culture.archivesdefrance.seda.v2.LogBookType;
+import fr.gouv.culture.archivesdefrance.seda.v2.ManagementMetadataType;
+import fr.gouv.culture.archivesdefrance.seda.v2.ManagementType;
+import fr.gouv.culture.archivesdefrance.seda.v2.MinimalDataObjectType;
+import fr.gouv.culture.archivesdefrance.seda.v2.ObjectFactory;
+import fr.gouv.culture.archivesdefrance.seda.v2.OrganizationWithIdType;
 import fr.gouv.vitam.common.LocalDateUtil;
 import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.accesslog.AccessLogUtils;
@@ -41,6 +57,8 @@ import fr.gouv.vitam.common.exception.InternalServerException;
 import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
+import fr.gouv.vitam.common.manifest.naming.FilenameResolver;
+import fr.gouv.vitam.common.manifest.naming.FolderResolver;
 import fr.gouv.vitam.common.mapping.dip.ArchiveUnitMapper;
 import fr.gouv.vitam.common.mapping.dip.ObjectGroupMapper;
 import fr.gouv.vitam.common.model.export.ExportRequestParameters;
@@ -53,10 +71,8 @@ import fr.gouv.vitam.common.utils.SupportedSedaVersions;
 import fr.gouv.vitam.logbook.common.server.database.collections.LogbookLifeCycleObjectGroup;
 import fr.gouv.vitam.logbook.common.server.database.collections.LogbookLifeCycleUnit;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.bson.Document;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -70,14 +86,11 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -121,7 +134,6 @@ import static fr.gouv.vitam.common.SedaConstants.TAG_TRANSFERRING_AGENCY;
 import static fr.gouv.vitam.common.SedaConstants.TAG_TRANSFER_REQUEST_REPLY_IDENTIFIER;
 import static fr.gouv.vitam.common.SedaConstants.TAG_UNIT_IDENTIFIER;
 import static fr.gouv.vitam.common.mapping.mapper.VitamObjectMapper.getDeserializationObjectMapper;
-import static fr.gouv.vitam.common.model.ModelConstants.UNDERSCORE;
 import static fr.gouv.vitam.common.utils.SupportedSedaVersions.UNIFIED_NAMESPACE;
 
 /**
@@ -130,10 +142,9 @@ import static fr.gouv.vitam.common.utils.SupportedSedaVersions.UNIFIED_NAMESPACE
 public class ManifestBuilder implements AutoCloseable {
 
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(ManifestBuilder.class);
-    public static final int FULL_FILE_NAME_SIZE_LIMIT = 183;
 
     private static JAXBContext jaxbContext;
-    public static final String XSI_URI = "http://www.w3.org/2001/XMLSchema-instance";
+    private static final String XSI_URI = "http://www.w3.org/2001/XMLSchema-instance";
 
     static {
         try {
@@ -238,25 +249,11 @@ public class ManifestBuilder implements AutoCloseable {
     public Map<String, JsonNode> writeGOT(
         JsonNode og,
         String linkedAU,
-        Stream<LogbookLifeCycleObjectGroup> logbookLifeCycleObjectGroupStream
-    ) throws JsonProcessingException, JAXBException, InternalServerException {
-        return writeGOT(og, linkedAU, logbookLifeCycleObjectGroupStream, false, new HashSet<>(), new HashSet<>(), "");
-    }
-
-    public Map<String, JsonNode> writeGOT(
-        JsonNode og,
-        String linkedAU,
         Stream<LogbookLifeCycleObjectGroup> logbookLifeCycleObjectGroupStream,
-        boolean useOriginalFilenames,
-        Set<String> existingFileNames,
-        Set<String> existingDirectoryNames,
-        String baseFilePath
+        FolderResolver folderResolver,
+        FilenameResolver filenameResolver
     ) throws JsonProcessingException, JAXBException, InternalServerException {
         ObjectGroupResponse objectGroup = objectMapper.treeToValue(og, ObjectGroupResponse.class);
-
-        if (objectGroup.getQualifiers().isEmpty()) {
-            return Collections.emptyMap();
-        }
 
         Map<String, String> strategiesByVersion = objectGroup
             .getQualifiers()
@@ -281,7 +278,7 @@ public class ManifestBuilder implements AutoCloseable {
         List<EventLogBookOgType> events = logbookLifeCycleObjectGroupStream
             .flatMap(lifecycle -> Stream.concat(lifecycle.events().stream(), Stream.of(lifecycle)))
             .map(LogbookMapper::getEventOGTypeFromDocument)
-            .collect(Collectors.toList());
+            .toList();
 
         if (!events.isEmpty()) {
             LogBookOgType logbookType = new LogBookOgType();
@@ -292,21 +289,13 @@ public class ManifestBuilder implements AutoCloseable {
         List<MinimalDataObjectType> binaryDataObjectOrPhysicalDataObject =
             dataObjectGroup.getBinaryDataObjectOrPhysicalDataObject();
         for (MinimalDataObjectType minimalDataObjectType : binaryDataObjectOrPhysicalDataObject) {
-            if (minimalDataObjectType instanceof BinaryDataObjectType) {
-                BinaryDataObjectType binaryDataObjectType = (BinaryDataObjectType) minimalDataObjectType;
-
-                String extension = getExtension(binaryDataObjectType).toLowerCase();
-
-                String fileName = determineFileName(
+            if (minimalDataObjectType instanceof BinaryDataObjectType binaryDataObjectType) {
+                String fileName = generateExportFileName(
+                    folderResolver,
+                    filenameResolver,
                     binaryDataObjectType,
-                    extension,
-                    useOriginalFilenames,
-                    existingFileNames,
-                    baseFilePath
+                    dataObjectGroup
                 );
-                existingFileNames.add(fileName);
-
-                existingDirectoryNames.add(baseFilePath);
 
                 binaryDataObjectType.setUri(fileName);
 
@@ -330,78 +319,22 @@ public class ManifestBuilder implements AutoCloseable {
         return maps;
     }
 
-    protected String determineFileName(
+    private static String generateExportFileName(
+        FolderResolver folderResolver,
+        FilenameResolver filenameResolver,
         BinaryDataObjectType binaryDataObjectType,
-        String extension,
-        boolean useOriginalFilenames,
-        Set<String> existingFileNames,
-        String baseFilePath
+        DataObjectGroupType dataObjectGroup
     ) {
-        String ext = extension.isEmpty() ? "" : "." + extension;
-
-        if (
-            useOriginalFilenames &&
-            binaryDataObjectType.getFileInfo() != null &&
-            !Strings.isNullOrEmpty(binaryDataObjectType.getFileInfo().getFilename())
-        ) {
-            return buildFileNameWithOriginalFilename(binaryDataObjectType, ext, existingFileNames, baseFilePath);
-        } else {
-            return determineFileNameBasedOnUri(binaryDataObjectType, ext, baseFilePath);
-        }
-    }
-
-    private String buildFileNameWithOriginalFilename(
-        BinaryDataObjectType binaryDataObjectType,
-        String extension,
-        Set<String> existingFileNames,
-        String baseFilePath
-    ) {
-        String originalFileName = binaryDataObjectType.getFileInfo().getFilename();
-        String cleanedFileName = FileNameCleaner.cleanFileName(originalFileName);
-        String fullFileName = baseFilePath + cleanedFileName;
-
-        if (existingFileNames.contains(fullFileName)) {
-            String idPrefix = binaryDataObjectType.getId() != null ? binaryDataObjectType.getId() + UNDERSCORE : "";
-            cleanedFileName = idPrefix + cleanedFileName;
-        }
-
-        fullFileName = baseFilePath + cleanedFileName;
-
-        if (fullFileName.length() > FULL_FILE_NAME_SIZE_LIMIT) {
-            int maxFileNameLength = FULL_FILE_NAME_SIZE_LIMIT - baseFilePath.length() - extension.length();
-            String truncatedFileName = cleanedFileName.substring(0, maxFileNameLength);
-            fullFileName = baseFilePath + truncatedFileName + extension;
-        }
-
-        return fullFileName;
-    }
-
-    private String determineFileNameBasedOnUri(
-        BinaryDataObjectType binaryDataObjectType,
-        String extension,
-        String baseFilePath
-    ) {
-        if (
-            binaryDataObjectType.getUri() != null &&
-            binaryDataObjectType.getUri().contains(binaryDataObjectType.getId())
-        ) {
-            return binaryDataObjectType.getUri();
-        } else {
-            return baseFilePath + binaryDataObjectType.getId() + extension;
-        }
-    }
-
-    @Nonnull
-    private String getExtension(BinaryDataObjectType binaryDataObjectType) {
-        String extension = FilenameUtils.getExtension(binaryDataObjectType.getUri());
-        if (Strings.isNullOrEmpty(extension) && binaryDataObjectType.getFileInfo() != null) {
-            extension = FilenameUtils.getExtension(binaryDataObjectType.getFileInfo().getFilename());
-        }
-        if (Strings.isNullOrEmpty(extension)) {
-            extension = "";
-            LOGGER.warn("cannot find extension for object" + binaryDataObjectType.getId());
-        }
-        return extension;
+        String baseFilePath = folderResolver.resolve(dataObjectGroup.getId());
+        String binaryFilename = binaryDataObjectType.getFileInfo() != null
+            ? binaryDataObjectType.getFileInfo().getFilename()
+            : null;
+        return filenameResolver.resolve(
+            baseFilePath,
+            binaryDataObjectType.getId(),
+            binaryDataObjectType.getUri(),
+            binaryFilename
+        );
     }
 
     private void marshallHackForNonXmlRootObject(DataObjectGroupType dataObjectGroup) throws JAXBException {
@@ -462,7 +395,7 @@ public class ManifestBuilder implements AutoCloseable {
                     archiveUnitType.setArchiveUnitRefId(item);
                     return archiveUnitType;
                 })
-                .collect(Collectors.toList());
+                .toList();
         }
         xmlUnit.getArchiveUnitOrDataObjectReferenceOrDataObjectGroup().addAll(unitChildren);
 

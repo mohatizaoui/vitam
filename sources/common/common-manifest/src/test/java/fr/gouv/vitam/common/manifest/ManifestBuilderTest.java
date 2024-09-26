@@ -29,14 +29,17 @@ package fr.gouv.vitam.common.manifest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.ListMultimap;
-import fr.gouv.culture.archivesdefrance.seda.v2.BinaryDataObjectType;
-import fr.gouv.culture.archivesdefrance.seda.v2.FileInfoType;
 import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.SedaConstants;
 import fr.gouv.vitam.common.exception.InternalServerException;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.json.JsonHandler;
-import fr.gouv.vitam.common.model.unit.*;
+import fr.gouv.vitam.common.manifest.naming.FlatFolderResolver;
+import fr.gouv.vitam.common.manifest.naming.GuidFilenameResolver;
+import fr.gouv.vitam.common.model.unit.ArchiveUnitModel;
+import fr.gouv.vitam.common.model.unit.DescriptiveMetadataModel;
+import fr.gouv.vitam.common.model.unit.RuleCategoryModel;
+import fr.gouv.vitam.common.model.unit.RuleModel;
 import fr.gouv.vitam.common.utils.SupportedSedaVersions;
 import fr.gouv.vitam.logbook.common.server.database.collections.LogbookLifeCycleObjectGroup;
 import org.junit.Assert;
@@ -45,27 +48,20 @@ import org.junit.Test;
 import javax.xml.bind.JAXBException;
 import javax.xml.stream.XMLStreamException;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import static fr.gouv.vitam.common.model.ModelConstants.UNDERSCORE;
 import static org.mockito.Mockito.mock;
 
 public class ManifestBuilderTest {
 
     public static final String CONTENT = "Content";
-    private InputStream objectGroup;
 
     private static final String OBJECT_GROUP = "aeaaaaaaaaaam7myaaaamakxfgivuryaaaaq.json";
-
-    private JsonNode og;
 
     @Test
     public void should_write_archive_unit_without_empty_tags() throws Exception {
@@ -84,14 +80,20 @@ public class ManifestBuilderTest {
     @Test
     public void should_write_got_without_empty_tags()
         throws JAXBException, XMLStreamException, FileNotFoundException, InvalidParseOperationException, InternalServerException, JsonProcessingException {
-        objectGroup = PropertiesUtils.getResourceAsStream(OBJECT_GROUP);
-        og = JsonHandler.getFromInputStream(objectGroup);
+        InputStream objectGroup = PropertiesUtils.getResourceAsStream(OBJECT_GROUP);
+        JsonNode og = JsonHandler.getFromInputStream(objectGroup);
         Stream<LogbookLifeCycleObjectGroup> logbookLifeCycleObjectGroupStream = Stream.empty();
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
         ManifestBuilder manifestBuilder = new ManifestBuilder(outputStream, SupportedSedaVersions.SEDA_2_3);
-        manifestBuilder.writeGOT(og, "", logbookLifeCycleObjectGroupStream);
+        manifestBuilder.writeGOT(
+            og,
+            "",
+            logbookLifeCycleObjectGroupStream,
+            FlatFolderResolver.INSTANCE,
+            GuidFilenameResolver.INSTANCE
+        );
         String xmlContent = outputStream.toString();
         // Vérifier que le contenu XML ne contient aucune balise vide
         Assert.assertFalse("La chaîne XML contient des balises vides.", containsSomeEmptyTags(xmlContent));
@@ -238,146 +240,5 @@ public class ManifestBuilderTest {
         Assert.assertTrue(
             outputStream.toString().contains("DataObjectGroupReferenceId>" + dataObjectGroupReferenceId + "</")
         );
-    }
-
-    @Test
-    public void testDetermineFileNameWithOriginalFilename() throws Exception {
-        FileInfoType fileInfo = new FileInfoType();
-        fileInfo.setFilename("example");
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        BinaryDataObjectType binaryDataObjectType = new BinaryDataObjectType();
-        binaryDataObjectType.setFileInfo(fileInfo);
-
-        ManifestBuilder manifestBuilder = new ManifestBuilder(outputStream, SupportedSedaVersions.SEDA_2_3);
-
-        String result = manifestBuilder.determineFileName(
-            binaryDataObjectType,
-            "txt",
-            true,
-            new HashSet<>(),
-            CONTENT + File.separator
-        );
-        Assert.assertEquals(CONTENT + File.separator + "example", result);
-    }
-
-    @Test
-    public void testDetermineFileNameBasedOnUri() throws Exception {
-        FileInfoType fileInfo = new FileInfoType();
-        fileInfo.setFilename("example");
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        BinaryDataObjectType binaryDataObjectType = new BinaryDataObjectType();
-        binaryDataObjectType.setFileInfo(fileInfo);
-        binaryDataObjectType.setId("12345");
-
-        ManifestBuilder manifestBuilder = new ManifestBuilder(outputStream, SupportedSedaVersions.SEDA_2_3);
-
-        String result = manifestBuilder.determineFileName(
-            binaryDataObjectType,
-            "jpg",
-            false,
-            new HashSet<>(),
-            CONTENT + File.separator
-        );
-        Assert.assertEquals(CONTENT + File.separator + "12345.jpg", result);
-    }
-
-    @Test
-    public void testDetermineFileNameBasedOnExistingUri() throws Exception {
-        FileInfoType fileInfo = new FileInfoType();
-        fileInfo.setFilename("example");
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        BinaryDataObjectType binaryDataObjectType = new BinaryDataObjectType();
-        binaryDataObjectType.setFileInfo(fileInfo);
-        binaryDataObjectType.setUri("/path/to/content/12345.jpg");
-        binaryDataObjectType.setId("12345");
-
-        ManifestBuilder manifestBuilder = new ManifestBuilder(outputStream, SupportedSedaVersions.SEDA_2_3);
-
-        String result = manifestBuilder.determineFileName(
-            binaryDataObjectType,
-            "jpg",
-            false,
-            new HashSet<>(),
-            CONTENT + File.separator
-        );
-        Assert.assertEquals("/path/to/content/12345.jpg", result);
-    }
-
-    @Test
-    public void testFileNameWithDuplicateHandling() throws Exception {
-        FileInfoType fileInfo = new FileInfoType();
-        fileInfo.setFilename("example");
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        BinaryDataObjectType binaryDataObjectType = new BinaryDataObjectType();
-        binaryDataObjectType.setFileInfo(fileInfo);
-        binaryDataObjectType.setId("12345");
-        Set<String> existingFileNames = new HashSet<>();
-        existingFileNames.add(CONTENT + File.separator + "example");
-
-        ManifestBuilder manifestBuilder = new ManifestBuilder(outputStream, SupportedSedaVersions.SEDA_2_3);
-
-        String result = manifestBuilder.determineFileName(
-            binaryDataObjectType,
-            "txt",
-            true,
-            existingFileNames,
-            CONTENT + File.separator
-        );
-        Assert.assertEquals(CONTENT + File.separator + "12345" + UNDERSCORE + "example", result);
-    }
-
-    @Test
-    public void testFileNameWithTruncation() throws Exception {
-        FileInfoType fileInfo = new FileInfoType();
-        fileInfo.setFilename(
-            "very_long_filename_to_ensure_we_go_over_the_character_limit_for_most_filesystems_very_long_filename_to_ensure_we_go_over_the_character_limit_for_most_filesystems.txt"
-        );
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        BinaryDataObjectType binaryDataObjectType = new BinaryDataObjectType();
-        binaryDataObjectType.setFileInfo(fileInfo);
-        binaryDataObjectType.setId("123456789012345678901234567890");
-        Set<String> existingFileNames = new HashSet<>();
-        existingFileNames.add(
-            CONTENT +
-            File.separator +
-            "very_long_filename_to_ensure_we_go_over_the_character_limit_for_most_filesystems_very_long_filename_to_ensure_we_go_over_the_character_limit_for_most_filesystems.txt"
-        );
-
-        ManifestBuilder manifestBuilder = new ManifestBuilder(outputStream, SupportedSedaVersions.SEDA_2_3);
-
-        String result = manifestBuilder.determineFileName(
-            binaryDataObjectType,
-            "txt",
-            true,
-            existingFileNames,
-            CONTENT + File.separator
-        );
-        Assert.assertEquals(
-            CONTENT +
-            File.separator +
-            "123456789012345678901234567890" +
-            UNDERSCORE +
-            "very_long_filename_to_ensure_we_go_over_the_character_limit_for_most_filesystems_very_long_filename_to_ensure_we_go_over_the_character_limit.txt",
-            result
-        );
-        Assert.assertTrue(result.length() <= ManifestBuilder.FULL_FILE_NAME_SIZE_LIMIT);
-
-        fileInfo.setFilename(
-            "another_very_long_filename_to_ensure_we_go_over_the_character_limit_for_most_filesystems_very_long_filename_to_ensure_we_go_over_the_character_limit_for_most_filesystems_this_time_not_duplicated.txt"
-        );
-        result = manifestBuilder.determineFileName(
-            binaryDataObjectType,
-            "txt",
-            true,
-            existingFileNames,
-            CONTENT + File.separator
-        );
-        Assert.assertEquals(
-            CONTENT +
-            File.separator +
-            "another_very_long_filename_to_ensure_we_go_over_the_character_limit_for_most_filesystems_very_long_filename_to_ensure_we_go_over_the_character_limit_for_most_filesystems_t.txt",
-            result
-        );
-        Assert.assertTrue(result.length() <= ManifestBuilder.FULL_FILE_NAME_SIZE_LIMIT);
     }
 }

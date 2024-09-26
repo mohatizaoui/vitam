@@ -52,6 +52,7 @@ import fr.gouv.vitam.common.client.VitamClientFactory;
 import fr.gouv.vitam.common.client.VitamClientFactoryInterface;
 import fr.gouv.vitam.common.database.builder.query.QueryHelper;
 import fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper;
+import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
 import fr.gouv.vitam.common.database.builder.request.multiple.SelectMultiQuery;
 import fr.gouv.vitam.common.elasticsearch.ElasticsearchRule;
 import fr.gouv.vitam.common.exception.AccessUnauthorizedException;
@@ -89,6 +90,11 @@ import fr.gouv.vitam.logbook.common.exception.LogbookClientException;
 import fr.gouv.vitam.logbook.common.parameters.Contexts;
 import fr.gouv.vitam.logbook.common.parameters.LogbookTypeProcess;
 import fr.gouv.vitam.logbook.rest.LogbookMain;
+import fr.gouv.vitam.metadata.api.exception.MetaDataClientServerException;
+import fr.gouv.vitam.metadata.api.exception.MetaDataDocumentSizeException;
+import fr.gouv.vitam.metadata.api.exception.MetaDataExecutionException;
+import fr.gouv.vitam.metadata.client.MetaDataClient;
+import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.metadata.rest.MetadataMain;
 import fr.gouv.vitam.processing.management.rest.ProcessManagementMain;
 import fr.gouv.vitam.storage.engine.client.StorageClientFactory;
@@ -101,8 +107,11 @@ import fr.gouv.vitam.worker.core.plugin.transfer.reply.VerifyAtrPlugin;
 import fr.gouv.vitam.worker.core.utils.AtrParser;
 import fr.gouv.vitam.worker.server.rest.WorkerMain;
 import fr.gouv.vitam.workspace.rest.WorkspaceMain;
+import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -141,6 +150,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -541,11 +551,10 @@ public class TransferAndDipIT extends VitamRuleRunner {
 
     @Test
     @RunWithCustomExecutor
-    public void should_export_DIP_with_tree_and_unit_has_multiple_parents() throws Exception {
+    public void should_fail_when_export_DIP_with_tree_and_unit_has_multiple_parent_units() throws Exception {
         // Given
-        final String ingestOpId = VitamTestHelper.doIngest(TENANT_ID, SIP_OK_2_2);
-        // As FormatIdentifierMock is used, pdf is identified as Plain Text File => WARNING
-        verifyOperation(ingestOpId, WARNING);
+        final String ingestOpId = VitamTestHelper.doIngest(TENANT_ID, "sip/ComplexTree.zip");
+        verifyOperation(ingestOpId, OK);
 
         SelectMultiQuery select = new SelectMultiQuery();
         select.setQuery(QueryHelper.in(VitamFieldsHelper.operations(), ingestOpId));
@@ -553,7 +562,52 @@ public class TransferAndDipIT extends VitamRuleRunner {
         DipRequest dipRequest = getDipRequest(select, SupportedSedaVersions.SEDA_2_3, true, false, true);
         ExportRequest exportRequest = ExportRequest.from(dipRequest);
 
-        // When ArchiveDeliveryRequestReply
+        // When
+        String exportOperationId = exportDIP(exportRequest);
+
+        // Then
+        VitamTestHelper.verifyOperation(exportOperationId, KO);
+
+        JsonNode logbook = VitamTestHelper.findLogbook(exportOperationId);
+        assertNotNull(logbook);
+        RequestResponseOK<JsonNode> response = RequestResponseOK.getFromJsonNode(logbook);
+        assertThat(response.getResults()).isNotEmpty();
+        assertThat(response.getResults().get(0).get(EV_TYPE).asText()).isEqualTo(Contexts.EXPORT_DIP.getEventType());
+
+        List<LogbookEventOperation> logbookEvents = getLogbookEvents(exportOperationId);
+        System.out.println(JsonHandler.prettyPrint(logbookEvents));
+
+        LogbookEventOperation createManifestEvent = logbookEvents
+            .stream()
+            .filter(e -> CreateManifest.PLUGIN_NAME.equals(e.getEvType()))
+            .findFirst()
+            .orElseThrow();
+        assertThat(createManifestEvent.getOutcome()).isEqualTo(KO.name());
+        assertThat(createManifestEvent.getEvDetData()).contains("Multiple paths for unit with ID");
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void should_fail_when_export_DIP_with_tree_and_object_group_has_multiple_parent_units() throws Exception {
+        // Given
+        final String ingestOpId = VitamTestHelper.doIngest(TENANT_ID, "sip/ComplexTree.zip");
+        verifyOperation(ingestOpId, OK);
+
+        Map<String, String> unitByTitle = findUnitIdByTitleMap(ingestOpId);
+
+        SelectMultiQuery select = new SelectMultiQuery();
+        select.setQuery(
+            QueryHelper.and()
+                .add(
+                    QueryHelper.in(VitamFieldsHelper.operations(), ingestOpId),
+                    QueryHelper.nin(VitamFieldsHelper.id(), unitByTitle.get("Unit avec unité fille multi-rattachée 1"))
+                )
+        );
+
+        DipRequest dipRequest = getDipRequest(select, SupportedSedaVersions.SEDA_2_3, true, false, true);
+        ExportRequest exportRequest = ExportRequest.from(dipRequest);
+
+        // When
         String exportOperationId = exportDIP(exportRequest);
 
         // Then
@@ -567,7 +621,45 @@ public class TransferAndDipIT extends VitamRuleRunner {
 
         List<LogbookEventOperation> logbookEvents = getLogbookEvents(exportOperationId);
 
-        assertThat(logbookEvents).extracting(EV_TYPE, OUTCOME).contains(tuple(CreateManifest.PLUGIN_NAME, KO.name()));
+        LogbookEventOperation createManifestEvent = logbookEvents
+            .stream()
+            .filter(e -> CreateManifest.PLUGIN_NAME.equals(e.getEvType()))
+            .findFirst()
+            .orElseThrow();
+        assertThat(createManifestEvent.getOutcome()).isEqualTo(KO.name());
+        assertThat(createManifestEvent.getEvDetData()).contains("Multiple paths for object group with ID");
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void should_export_DIP_with_tree_and_only_single_parent_unit_exported() throws Exception {
+        // Given
+        final String ingestOpId = VitamTestHelper.doIngest(TENANT_ID, "sip/ComplexTree.zip");
+        verifyOperation(ingestOpId, OK);
+
+        Map<String, String> unitByTitle = findUnitIdByTitleMap(ingestOpId);
+
+        SelectMultiQuery select = new SelectMultiQuery();
+        select.setQuery(
+            QueryHelper.and()
+                .add(
+                    QueryHelper.in(VitamFieldsHelper.operations(), ingestOpId),
+                    QueryHelper.nin(
+                        VitamFieldsHelper.id(),
+                        unitByTitle.get("Unit avec unité fille multi-rattachée 1"),
+                        unitByTitle.get("Unit avec Got multi-rattaché 1")
+                    )
+                )
+        );
+
+        DipRequest dipRequest = getDipRequest(select, SupportedSedaVersions.SEDA_2_3, true, false, true);
+        ExportRequest exportRequest = ExportRequest.from(dipRequest);
+
+        // When
+        String exportOperationId = exportDIP(exportRequest);
+
+        // Then
+        VitamTestHelper.verifyOperation(exportOperationId, OK);
     }
 
     private boolean checkPathsExistInZip(byte[] zipContent, List<String> pathsToCheck) throws IOException {
@@ -1449,6 +1541,266 @@ public class TransferAndDipIT extends VitamRuleRunner {
         assertThat(
             archiveUnits.stream().filter(unit -> !unit.getArchiveUnitOrDataObjectReferenceOrDataObjectGroup().isEmpty())
         ).hasSize(1);
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void testDipExportWithOriginalFilenames() throws Exception {
+        // Given
+        final String ingestOpId = VitamTestHelper.doIngest(TENANT_ID, "sip/ComplexTree.zip");
+        verifyOperation(ingestOpId, OK, WARNING);
+
+        SelectMultiQuery select = new SelectMultiQuery();
+        select.setQuery(QueryHelper.in(VitamFieldsHelper.operations(), ingestOpId));
+
+        DipRequest dipRequest = getDipRequest(select, SupportedSedaVersions.SEDA_2_3, false, true, false);
+        dipRequest.setDataObjectVersionToExport(
+            new DataObjectVersions(Map.of(BINARY_MASTER, Set.of(ALL), PHYSICAL_MASTER, Set.of(ALL)))
+        );
+        ExportRequest exportRequest = ExportRequest.from(dipRequest);
+
+        // When
+        String exportOperationId = exportDIP(exportRequest);
+
+        // Then
+        VitamTestHelper.verifyOperation(exportOperationId, OK);
+
+        String manifest = getManifestString(getDip(exportOperationId));
+        List<String> filenames = listZipFiles(getDip(exportOperationId));
+        LOGGER.info("Manifest: " + manifest);
+
+        ArchiveDeliveryRequestReplyType report = parseArchiveDeliveryRequestReply(manifest);
+        Set<String> uris = report
+            .getDataObjectPackage()
+            .getDataObjectGroupOrBinaryDataObjectOrPhysicalDataObject()
+            .stream()
+            .map(entry -> (DataObjectGroupType) entry)
+            .map(DataObjectGroupType::getBinaryDataObjectOrPhysicalDataObject)
+            .flatMap(Collection::stream)
+            .filter(obj -> obj instanceof BinaryDataObjectType)
+            .map(obj -> (BinaryDataObjectType) obj)
+            .map(BinaryDataObjectType::getUri)
+            .collect(Collectors.toSet());
+
+        LOGGER.info("URIs: " + uris);
+        assertThat(uris).hasSize(17);
+
+        List<String> expectedUris = List.of(
+            "Content/<guid>.txt",
+            "Content/<guid>.txt",
+            "Content/contrat_<guid>.txt",
+            "Content/contrat_<guid>.txt",
+            "Content/contrat_<guid>.txt",
+            "Content/contrat_<guid>.txt",
+            "Content/contrat_<guid>.txt",
+            "Content/contrat_<guid>.txt",
+            "Content/contrat_multi_rattachement.txt",
+            "Content/contrat_racine.txt",
+            "Content/contrat.txt",
+            "Content/Got_multi-rattache.txt",
+            "Content/Nom_de_fichier__non_a_cii__des___________co_.txt",
+            "Content/Rapport_avec_un_autre_nom_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tre_<guid>.txt",
+            "Content/Rapport_avec_un_autre_nom_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tr_<guid>",
+            "Content/Rapport_avec_un_nom_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_<guid>.txt",
+            "Content/Rapport_avec_un_nom_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_<guid>.txt"
+        );
+        assertThat(
+            uris.stream().map(uri -> uri.replaceAll("[a-z0-9]{36}", "<guid>"))
+        ).containsExactlyInAnyOrderElementsOf(expectedUris);
+
+        assertThat(filenames).containsExactlyInAnyOrderElementsOf(uris);
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void testDipExportWithTree() throws Exception {
+        // Given
+        final String ingestOpId = VitamTestHelper.doIngest(TENANT_ID, "sip/ComplexTree.zip");
+        verifyOperation(ingestOpId, OK);
+
+        Map<String, String> unitByTitle = findUnitIdByTitleMap(ingestOpId);
+
+        SelectMultiQuery select = new SelectMultiQuery();
+        select.setQuery(
+            QueryHelper.and()
+                .add(
+                    QueryHelper.in(VitamFieldsHelper.operations(), ingestOpId),
+                    QueryHelper.nin(
+                        VitamFieldsHelper.id(),
+                        unitByTitle.get("Unit avec unité fille multi-rattachée 1"),
+                        unitByTitle.get("Unit avec Got multi-rattaché 1")
+                    )
+                )
+        );
+
+        DipRequest dipRequest = getDipRequest(select, SupportedSedaVersions.SEDA_2_3, false, false, true);
+        dipRequest.setDataObjectVersionToExport(
+            new DataObjectVersions(Map.of(BINARY_MASTER, Set.of(ALL), PHYSICAL_MASTER, Set.of(ALL)))
+        );
+        ExportRequest exportRequest = ExportRequest.from(dipRequest);
+
+        // When
+        String exportOperationId = exportDIP(exportRequest);
+
+        // Then
+        VitamTestHelper.verifyOperation(exportOperationId, OK);
+
+        String manifest = getManifestString(getDip(exportOperationId));
+        List<String> filenames = listZipFiles(getDip(exportOperationId));
+        LOGGER.info("Manifest: " + manifest);
+
+        ArchiveDeliveryRequestReplyType report = parseArchiveDeliveryRequestReply(manifest);
+        Set<String> uris = report
+            .getDataObjectPackage()
+            .getDataObjectGroupOrBinaryDataObjectOrPhysicalDataObject()
+            .stream()
+            .map(entry -> (DataObjectGroupType) entry)
+            .map(DataObjectGroupType::getBinaryDataObjectOrPhysicalDataObject)
+            .flatMap(Collection::stream)
+            .filter(obj -> obj instanceof BinaryDataObjectType)
+            .map(obj -> (BinaryDataObjectType) obj)
+            .map(BinaryDataObjectType::getUri)
+            .collect(Collectors.toSet());
+
+        LOGGER.info("URIs: " + uris);
+        assertThat(uris).hasSize(17);
+
+        List<String> expectedUris = List.of(
+            "Content/Fevrier/<guid>.txt",
+            "Content/Export_annee_2024/Dossier_avec_un_titre_tres_tres_tres_tres_tres_tres_tres_tres_t_<guid>/Sous-dossier_avec_un_titre_tres_tres_tres_tres_tres_tres_tres_t_<guid>/<guid>.txt",
+            "Content/Export_annee_2024/Dossier_avec_un_titre_tres_tres_tres_tres_tres_tres_tres_tres_t_<guid>/Sous-dossier_avec_un_titre_tres_tres_tres_tres_tres_tres_tres_t_<guid>/<guid>.txt",
+            "Content/Export_annee_2023/Fevrier/<guid>.txt",
+            "Content/Unit_avec_unite_fille_multi-rattachee_2/Unit_fille_multi-rattachee/<guid>.txt",
+            "Content/Export_annee_2024/Dossier_avec_un_titre_tres_tres_tres_tres_tres_tres_tres_tres_t_<guid>/Sous-dossier_avec_un_titre_tres_tres_tres_tres_tres_tres_tres_t_<guid>/<guid>.txt",
+            "Content/Export_annee_2024/Dossier_avec_un_titre_tres_tres_tres_tres_tres_tres_tres_tres_t_<guid>/Sous-dossier_avec_un_titre_tres_tres_tres_tres_tres_tres_tres_t_<guid>/<guid>.txt",
+            "Content/Export_annee_2024/Dossier_avec_un_titre_tres_tres_tres_tres_tres_tres_tres_tres_t_<guid>/Sous-dossier_avec_un_titre_tres_tres_tres_tres_tres_tres_tres_t_<guid>/<guid>.txt",
+            "Content/Unit_avec_Got_multi-rattache_2/<guid>.txt",
+            "Content/Fevrier_<guid>/<guid>.txt",
+            "Content/Export_annee_2024/Dossier_avec_un_titre_tres_tres_tres_tres_tres_tres_tres_tres_t_<guid>/Sous-dossier_avec_un_titre_tres_tres_tres_tres_tres_tres_tres_t_<guid>/<guid>.txt",
+            "Content/Export_annee_2023/______/<guid>.txt",
+            "Content/Export_annee_2024/Dossier_avec_un_titre_tres_tres_tres_tres_tres_tres_tres_tres_t_<guid>/Sous-dossier_avec_un_titre_tres_tres_tres_tres_tres_tres_tres_t_<guid>/<guid>.txt",
+            "Content/Export_annee_2023/Fevrier/<guid>.txt",
+            "Content/Export_annee_2023/Fevrier_<guid>/<guid>.txt",
+            "Content/Export_annee_2023/Fevrier_<guid>/<guid>.txt",
+            "Content/Export_annee_2023/<guid>.txt"
+        );
+        assertThat(
+            uris.stream().map(uri -> uri.replaceAll("[a-z0-9]{36}", "<guid>"))
+        ).containsExactlyInAnyOrderElementsOf(expectedUris);
+
+        assertThat(filenames).containsExactlyInAnyOrderElementsOf(uris);
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void testDipExportWithOriginalFilenamesAndTree() throws Exception {
+        // Given
+        final String ingestOpId = VitamTestHelper.doIngest(TENANT_ID, "sip/ComplexTree.zip");
+        verifyOperation(ingestOpId, OK);
+
+        Map<String, String> unitByTitle = findUnitIdByTitleMap(ingestOpId);
+
+        SelectMultiQuery select = new SelectMultiQuery();
+        select.setQuery(
+            QueryHelper.and()
+                .add(
+                    QueryHelper.in(VitamFieldsHelper.operations(), ingestOpId),
+                    QueryHelper.nin(
+                        VitamFieldsHelper.id(),
+                        unitByTitle.get("Unit avec unité fille multi-rattachée 1"),
+                        unitByTitle.get("Unit avec Got multi-rattaché 1")
+                    )
+                )
+        );
+
+        DipRequest dipRequest = getDipRequest(select, SupportedSedaVersions.SEDA_2_3, false, true, true);
+        dipRequest.setDataObjectVersionToExport(
+            new DataObjectVersions(Map.of(BINARY_MASTER, Set.of(ALL), PHYSICAL_MASTER, Set.of(ALL)))
+        );
+        ExportRequest exportRequest = ExportRequest.from(dipRequest);
+
+        // When
+        String exportOperationId = exportDIP(exportRequest);
+
+        // Then
+        VitamTestHelper.verifyOperation(exportOperationId, OK);
+
+        String manifest = getManifestString(getDip(exportOperationId));
+        List<String> filenames = listZipFiles(getDip(exportOperationId));
+        LOGGER.info("Manifest: " + manifest);
+
+        ArchiveDeliveryRequestReplyType report = parseArchiveDeliveryRequestReply(manifest);
+        Set<String> uris = report
+            .getDataObjectPackage()
+            .getDataObjectGroupOrBinaryDataObjectOrPhysicalDataObject()
+            .stream()
+            .map(entry -> (DataObjectGroupType) entry)
+            .map(DataObjectGroupType::getBinaryDataObjectOrPhysicalDataObject)
+            .flatMap(Collection::stream)
+            .filter(obj -> obj instanceof BinaryDataObjectType)
+            .map(obj -> (BinaryDataObjectType) obj)
+            .map(BinaryDataObjectType::getUri)
+            .collect(Collectors.toSet());
+
+        LOGGER.info("URIs: " + uris);
+        assertThat(uris).hasSize(17);
+
+        List<String> expectedUris = List.of(
+            "Content/Fevrier/contrat.txt",
+            "Content/Unit_avec_Got_multi-rattache_2/contrat_multi_rattachement.txt",
+            "Content/Export_annee_2024/Dossier_avec_un_titre_tres_tres_tres_tres_tres_tres_tres_tres_t_<guid>/Sous-dossier_avec_un_titre_tres_tres_tres_tres_tres_tres_tres_t_<guid>/Rapport_avec_un_nom_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_<guid>.txt",
+            "Content/Export_annee_2024/Dossier_avec_un_titre_tres_tres_tres_tres_tres_tres_tres_tres_t_<guid>/Sous-dossier_avec_un_titre_tres_tres_tres_tres_tres_tres_tres_t_<guid>/Rapport_avec_un_autre_nom_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tre_<guid>.txt",
+            "Content/Export_annee_2024/Dossier_avec_un_titre_tres_tres_tres_tres_tres_tres_tres_tres_t_<guid>/Sous-dossier_avec_un_titre_tres_tres_tres_tres_tres_tres_tres_t_<guid>/Rapport_avec_un_nom_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_<guid>.txt",
+            "Content/Export_annee_2024/Dossier_avec_un_titre_tres_tres_tres_tres_tres_tres_tres_tres_t_<guid>/Sous-dossier_avec_un_titre_tres_tres_tres_tres_tres_tres_tres_t_<guid>/Nom_de_fichier__non_a_cii__des___________co_.txt",
+            "Content/Unit_avec_unite_fille_multi-rattachee_2/Unit_fille_multi-rattachee/Got_multi-rattache.txt",
+            "Content/Export_annee_2023/Fevrier_<guid>/contrat.txt",
+            "Content/Fevrier_<guid>/contrat.txt",
+            "Content/Export_annee_2023/Fevrier/contrat.txt",
+            "Content/Export_annee_2023/Fevrier_<guid>/contrat.txt",
+            "Content/Export_annee_2023/contrat_racine.txt",
+            "Content/Export_annee_2023/______/contrat.txt",
+            "Content/Export_annee_2024/Dossier_avec_un_titre_tres_tres_tres_tres_tres_tres_tres_tres_t_<guid>/Sous-dossier_avec_un_titre_tres_tres_tres_tres_tres_tres_tres_t_<guid>/<guid>.txt",
+            "Content/Export_annee_2023/Fevrier/contrat_<guid>.txt",
+            "Content/Export_annee_2024/Dossier_avec_un_titre_tres_tres_tres_tres_tres_tres_tres_tres_t_<guid>/Sous-dossier_avec_un_titre_tres_tres_tres_tres_tres_tres_tres_t_<guid>/Rapport_avec_un_autre_nom_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tres_tr_<guid>",
+            "Content/Export_annee_2024/Dossier_avec_un_titre_tres_tres_tres_tres_tres_tres_tres_tres_t_<guid>/Sous-dossier_avec_un_titre_tres_tres_tres_tres_tres_tres_tres_t_<guid>/<guid>.txt"
+        );
+        assertThat(
+            uris.stream().map(uri -> uri.replaceAll("[a-z0-9]{36}", "<guid>"))
+        ).containsExactlyInAnyOrderElementsOf(expectedUris);
+
+        assertThat(filenames).containsExactlyInAnyOrderElementsOf(uris);
+    }
+
+    private static Map<String, String> findUnitIdByTitleMap(String ingestOpId)
+        throws InvalidCreateOperationException, MetaDataExecutionException, MetaDataDocumentSizeException, InvalidParseOperationException, MetaDataClientServerException {
+        SelectMultiQuery selectMultiQuery = new SelectMultiQuery();
+        selectMultiQuery.setQuery(QueryHelper.in(VitamFieldsHelper.operations(), ingestOpId));
+
+        Map<String, String> unitByTitle = new HashMap<>();
+        try (MetaDataClient metaDataClient = MetaDataClientFactory.getInstance().getClient()) {
+            for (JsonNode unit : metaDataClient.selectUnits(selectMultiQuery.getFinalSelect()).get("$results")) {
+                if (unit.has("Title")) {
+                    String id = unit.get(VitamFieldsHelper.id()).asText();
+                    String title = unit.get("Title").asText();
+                    unitByTitle.put(title, id);
+                }
+            }
+        }
+        return unitByTitle;
+    }
+
+    private List<String> listZipFiles(InputStream transferSIP) throws IOException {
+        List<String> filenames = new ArrayList<>();
+        try (ZipArchiveInputStream zipArchiveInputStream = new ZipArchiveInputStream(transferSIP)) {
+            ArchiveEntry entry;
+            while ((entry = zipArchiveInputStream.getNextEntry()) != null) {
+                String filename = FilenameUtils.separatorsToSystem(entry.getName());
+                if (!entry.isDirectory() && !MANIFEST_XML.equals(filename)) {
+                    filenames.add(filename);
+                }
+            }
+        }
+        return filenames;
     }
 
     private String retrieveArchiveUnitGuidById(String manifest) {
