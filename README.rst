@@ -19,7 +19,7 @@ Il a pour objectif :
 * la conception, la réalisation et la maintenance mutualisées d’une solution logicielle générique d’archivage électronique. Cette solution logicielle est appelée Vitam. Elle est l'objet du document ;
 * la mise en place ou la mise à jour, dans chacun des trois ministères porteurs, de plates-formes d’archivage utilisant la solution logicielle Vitam ;
 * la réutilisation de la solution logicielle Vitam par le plus grand nombre d’acteurs publics possible, en veillant à sa capacité d'usage dans des contextes divers.
-* les documents sont sous "La Licence Ouverte V2" et le code sous CeCILL 2.1
+* les documents sont sous `"La Licence Ouverte V2" <https://www.etalab.gouv.fr/wp-content/uploads/2017/04/ETALAB-Licence-Ouverte-v2.0.pdf>`_ et le code sous `CeCILL 2.1 <http://www.cecill.info/licenses/Licence_CeCILL_V2.1.html>`_.
 * La "Licence Ouverte V2" est compatible avec la license `Creative Commons CC-By-SA 2.0 <https://creativecommons.org/licenses/by-sa/2.0/>`_; Une copie de cette licence est disponible dans le fichier `<./Licence_CC-By-SA_2.0-en.txt>`_.
 
 Pour plus d’information sur le programme, voir `www.programmevitam.fr <http://www.programmevitam.fr/pages/presentation/>`_.
@@ -60,267 +60,200 @@ Le projet se compose des sous-dossiers suivants :
 * ``dev-deployment`` : environnement Docker de développement ;
 * ``packaging`` : constitution d'un package standalone de la solution logicielle.
 
-Build
-=====
+Procédure d’installation manuelle de Vitam Core
+===============================================
 
-.. tip:: Les conteneurs docker présents (AlmaLinux et Debian) dans le dossier ``dev-deployment`` contient les dépendances permettant de construire une version du logiciel (à l'exception de la documentation) ; son usage est abordé dans le paragraphe dédié du déploiement sur un poste de développement.
-
-.. caution:: Pour construire VITAM au sein d'un environnement public, il est nécessaire de désactiver le profile maven ``vitam`` (activé par défaut) (Cf. `la documentation maven <https://maven.apache.org/guides/introduction/introduction-to-profiles.html#Deactivating_a_profile>`_).
-
-.. caution:: Pour *builder* la solution logicielle VITAM, il est nécessaire, au préalable, de *builder* elasticsearch-metrics-reporter-java (version 2.3.0-VITAM https://github.com/ProgrammeVitam/elasticsearch-metrics-reporter-java/tree/2.3.0-VITAM).
-
-Toutes les instructions suivantes s'exécutent dans le répertoire racine de ce dépôt.
-
-Composants Java
----------------
-
-Les composants Java sont présents dans le répertoire ``sources``.
-
-Pré-requis
-**********
-
-* jdk 17
-* maven (version 3.6.3 minimale)
-* rpm-build
-
-Il est nécessaire de builder la librairie elasticsearch-metrics-reporter-java mise à jour par le projet VITAM:
-
-Cloner le dépot https://github.com/ProgrammeVitam/elasticsearch-metrics-reporter-java.git
-
-Builder le projet elasticsearch-metrics-reporter-java:
-
-.. code-block:: bash
-
-    mvn clean install
-
-Instructions
-************
-
-Pour construire globalement les packages VITAM :
-
-.. code-block:: bash
-
-    mvn package rpm:attached-rpm jdeb:jdeb install -f sources/pom.xml -P-vitam
-
-Autres commandes utiles
-***********************
-
-Pour ignorer tous les tests:
-
-.. code-block:: bash
-
-    mvn clean install -DskipTests -f sources/pom.xml -P-vitam
-
-Pour ignorer les tests d'intégration:
-
-.. code-block:: bash
-
-    mvn clean test`` ou ``mvn clean install -DskipITs -f sources/pom.xml -P-vitam
-
-Pour exécuter uniquement les tests d'intégration:
-
-.. code-block:: bash
-
-    mvn clean test-compile failsafe:integration-test -f sources/pom.xml -P-vitam
-
-Packages externes
------------------
-
-Les packages issus de composants externes sont présents dans le répertoire :
-
-* ``rpm``, si déploiement RedHat family (AlmaLinux)
-* ``deb``, si déploiement Debian family
-
-Pré-requis
-**********
-
-* rpm-build et rpmdevtools (pour AlmaLinux)
-* dpkg-scanpackages (pour Debian)
-* golang (>= 1.6)
-* npm
-
-.. note:: Pour les packages rpm, la seule plate-forme de compilation possible est AlmaLinux 9 (en raison de la dépendance vers les rpmdevtools).
-
-Instructions
-************
-
-AlmaLinux
+Prérequis
 ---------
 
-Pour construire les packages rpm dédiés :
+Linux (x86) ou MacOS (y compris Apple Silicon)
 
-.. code-block:: bash
+Logiciels: 
+- IntelliJ IDEA 24 (Ultimate recommandé) 
+  - Plugin multirun
+  - Code Style: `VitamStyle_Spotless.xml <https://assistance.programmevitam.fr/plugins/document/projetvitam/folder/50>`__
+- Maven 3.9.X et `nvm <https://github.com/nvm-sh/nvm?tab=readme-ov-file>`__ 
+- Java 17 JDK
+- Docker (utiliser Rancher Desktop pour Mac)
 
-    ./rpm/vitam-product/build-all.sh
+Matériels: - Mémoire vive: 16GiB - Stockage: 20GiB
 
-Pour construire le cache des packages externes :
+Récupération du code et mise en place de l’environnement de travail
+-------------------------------------------------------------------
 
-.. code-block:: bash
+Cloner le code sur https://gitlab.dev.programmevitam.fr/vitam/vitam.git ainsi que le jeu de donnéesde test sur https://github.com/ProgrammeVitam/vitam-itests.git. Nous présumons que le dossier du code source se nomme **vitam_repo** par la suite.
 
-    ./rpm/vitam-external/build_repo.sh
+S’assurer que JAVA_HOME et M2_HOME sont renseignés dans le ``.bashrc`` ou équivalent (JAVA_HOME pointe vers le répertoire de Java 17, et on peut obtenir M2_HOME avec la commande ``mvn -version``
+)
 
-Debian
-------
+Dans le fichier vitam_repo/sources/pom.xml désactiver les modules ``ihm-demo`` et ``ihm-recette``
 
-Pour construire les packages deb dédiés :
+Installer node 18 avec la commande ``nvm install 18 && nvm use 18``
 
-.. code-block:: bash
+Dans les paramètres IntelliJ: Editor > Code Style > Scheme > Import Scheme > IntelliJ IDEA code style XML et sélectionner le code style téléchargé plus tôt
 
-    ./deb/vitam-product/build-all.sh
+Copier le répertoire vitam_repo/vitam-conf-dev/intellig-conf/runConfigurations vers vitam_repo/.idea/runConfigurations (si le dossier existe déjà, remplacer le contenu.)
 
-Pour construire le cache des packages externes :
+Relancer Intellij IDEA.
 
-.. code-block:: bash
+Editer le fichier ``/etc/hosts`` (ou équivalent) et y ajouter les enregistrements suivants:
 
-    ./deb/vitam-external/build_repo.sh
+::
 
-Documentation
--------------
+   # Vitam 
 
-La documentation est présente dans le répertoire ``doc``.
+  127.0.0.1 access-external.service
+  127.0.0.1 access-internal.service
+  127.0.0.1 functional-administration.service
+  127.0.0.1 scheduler.service
+  127.0.0.1 elastic-kibana-interceptor.service
+  127.0.0.1 batch-report.service
+  127.0.0.1 ingest-external.service
+  127.0.0.1 ingest-internal.service
+  127.0.0.1 ihm-demo.service
+  127.0.0.1 logbook.service
+  127.0.0.1 metadata.service
+  127.0.0.1 processing.service
+  127.0.0.1 security-internal.service
+  127.0.0.1 storage.service
+  127.0.0.1 worker.service
+  127.0.0.1 collect-internal.service
+  127.0.0.1 collect-external.service
+  127.0.0.1 metadata-collect.service
+  127.0.0.1 workspace-collect.serviceccess-internal.service
+  127.0.0.1 worker.service  
+  127.0.0.1 workspace.service
+  127.0.0.1 workspace-collect.service
 
-Pré-requis
-**********
 
-* jdk 17
-* maven (version 3.6.3 minimale)
-* rpm-build
-* sphinx-build (ainsi que le thème rtd)
-* Pour construire le pdf : une distribution latex (Miktex, texlive, mactex, ...)
-* make
-* raml2html (version : ``raml2html@7.8.0``)
+Création de l’arborescence /vitam
+---------------------------------
 
-.. tip:: Sur Centos 7, pour l'installation de sphinx, il faut installer les 2 packages ``python-sphinx`` et ``python-sphinx_rtd_theme`` puis créer le lien symbolique : ``ln -s /usr/lib/python2.7/site-packages/sphinx_rtd_theme /usr/lib/python2.7/site-packages/sphinx/themes/``.
+Vitam Core a besoin d’avoir un dossier stockant des données dans la racine de l’ordinateur. Voici l’arborescence nécessaire :
 
-.. tip:: Un exemple d'image docker permettant le build de la documentation de Vitam se trouve dans ``vitam-conf-dev/build_doc``
+::
 
-Instructions
-************
+   /vitam/
+   ├── conf
+   ├── data
+   │   ├── ihm-recette
+   │   │   └── test-data
+   │   └── storage
+   ├── log
+   └── tmp
 
-Pour construire la documentation ainsi que le package du serveur de documentation :
+S’assurer que tous les répertoires appartiennent à votre utilisateur (chown).
 
-.. code-block:: bash
 
-    mvn package rpm:attached-rpm jdeb:jdeb install -f doc/pom.xml -P-vitam
+Ouvrir les paramètres IntelliJ IDEA > Appearance and Behavior > Path Variables et y ajouter une variable nommée ``vitamLocalShareFolder`` pointant vers ``/vitam``.
 
-Autres commandes
-****************
+Créer dans ``/vitam/data/storage`` un fichier nommé ``fr.gouv.vitam.storage.offers.workspace.driver.DriverImpl`` avec le contenu ``offer-fs-1.service.consul``
 
-Il est possibles de construire uniquement le site statique de documentation ; pour cela, il est nécessaire de se placer dans le répertoire ``doc`` et d'exécuter la commande ``make clean symlinks html latexpdf raml autres``. Le résultat est disponible dans ``/doc/target``.
+Créer un lien symbolique de ``/vitam/data/ihm-recette/test-data/data`` vers ``vitam-itests/data`` (vitam-itests étant le deuxième dépôt cloné au départ.)
 
+Faire un lien symbolique de ``vitam_repo/vitam-conf-dev/conf`` vers ``/vitam/conf``. 
+Aller dans ``/vitam/conf/metadata/mapping`` et vérifier que les fichiers ``unit-es-mapping.json`` et ``og-es-mapping.json`` sont des liens symboliques vers les fichiers dans ``vitam_repo/deployment/ansible-vitam/roles/elasticsearch-mapping/files/``.
 
-Deploiement sur poste de développement
-======================================
+Aller dans ``/vitam/conf/worker`` et s’assurer que ``plugins.json`` est bien un lien vers ``vitam_repo/deployment/ansible-vitam/roles/vitam/files/worker/plugins.json``
 
-2 méthodes existent pour déployer vitam sur un poste de développement.
+Créer un lien symbolique de ``/vitam/data/ihm-recette/test-data/data`` vers ``vitam-itests/data`` (vitam-itests étant le deuxième repository cloné au départ).
 
-Alternative 1 : docker
-----------------------
 
-Cette méthode permet de construire et déployer un système VITAM de manière presque automatique au sein d'un conteneur docker qui héberge l'intégralité des outils requis pour construire et déployer la solution.
+Compilation
+-----------
 
-Pré-requis
-**********
+Depuis le répertoire vitam_repo/sources exécuter la commande
 
-* Docker 1.12 minimum avec driver "devicemapper" (en overlay, des comportements non-attendus ont été observés)
-* OS récent (des problèmes ont été rencontrés avec Ubuntu 12.04)
-* Répertoire contenant un clone du dépôt git vitam/vitam
-* Utilisateur autre que root, soit appartenant au group  docker, soit ayant des capacités de sudo
-* Le répertoire ${HOME}/.m2 existe et accessible en écriture
-* Les ports "classiques" MongoDB (27017), Elasticsearch (9200, 9201), apache (80), SSL (8443) ne sont pas déjà attribués sur l'hôte
+``mvn clean install -D-skipTests -P-vitam``
 
-Procédure
-*********
+La procédure peut prendre environ 10 à 20 minutes.
 
-* Lancer le script : ``/vitam/dev-deployment/run.sh <environnement>`` , où <environnement> peut être rpm ou deb ;
-* Le script demande "Please enter the location of your vitam git repository" (par exemple : ``/$HOME/git/vitam``) ;
-* Le script construit (si besoin) le conteneur docker ``vitam/dev-rpm-base`` et le lance (détaché), puis ouvre un terminal à l'intérieur ;
-* Une fois le shell ouvert dans le conteneur, executer ``vitam-build-repo`` pour construire l'intégralité des packages (dans le dossier ``/code``) ;
-* A l'issue de l'étape suivante, se positionner dans ``/code/deployment`` ;
-* Suivre les indications du ``README.rst`` présent dans ce répertoire, en utilisant l'inventaire ``hosts.local``. Les composants sont déployés dans le conteneur ; les ports d'écoute des composants sont mappés à l'extérieur du conteneur, sur les mêmes ports.
+Compilation des COTS
+--------------------
 
-Alternative 2 : manuelle (virtualisation)
------------------------------------------
+Les COTS sont des dépendances externes nécessaires pour lancer le projet en local (mongo et elasticSearch)
 
-.. note:: L'installation manuelle de VITAM est plus complexe, et n'inclut pas les étapes de build ; par conséquent, elle n'est conseillée que lorsque la méthode utilisant le conteneur docker ne fonctionne pas.
+L’option la plus simple est d’utiliser docker compose, dont le fichier .yaml se trouve dans ``vitam_repo/dev-deployment/docker-cots`` Puis lancer avec IntelliJ ou docker compose: ``docker compose up``
 
-Pré-requis
-**********
+Installation avec l’aide du script
+=====================================
 
-Système hôte
-++++++++++++
+Prérequis
+----------
 
-* Virtualbox ou équivalent, avec une machine virtuelle (AlmaLinux 9 ou Debian 12) installée et configurée (SELinux en mode 'disabled') ; le répertoire contenant le dépôt git vitam doit être mappé sur un répertoire à l'intérieur de la VM (par la suite, on considérera que le point de montage dans la VM est ``/code``).
-* Répertoire contenant un clone du dépôt git ``vitam/vitam``
-* Pouvoir builder VITAM sur le poste local (Cf. paragraphe "Build")
+Linux (x86) ou MacOS (y compris Apple Silicon)
 
-Configuration initiale de la VM
-+++++++++++++++++++++++++++++++
+Logiciels: 
+* IntelliJ IDEA 24 (Ultimate recommandé) 
+* Plugin multirun 
+* Code style: `VitamStyle_Spotless.xml <https://assistance.programmevitam.fr/plugins/document/projetvitam/folder/50>`__
+* Maven 3.9.X et `nvm <https://github.com/nvm-sh/nvm?tab=readme-ov-file>`__ 
+* Java 17 JDK
+* Docker (utiliser Rancher Desktop pour Mac)
 
-* Installer les dépôts epel : ``yum install -y epel-release``
-* Installer ansible : ``yum install -y ansible`` ; valider que la version installée est bien au moins la version 2.3 (``ansible --version``)
-* Installer les dépendances requises pour la construction d'un dépôt : ``yum install -y createrepo initscripts.x86_64``
-* Déclarer un dépôt yum local pointant vers ``/code/target`` ; pour cela, insérer le contenu suivant dans un fichier ``devlocal.repo`` dans le répertoire ``/etc/yum.repos.d`` :
+Matériels:
+* Mémoire vive: 16GiB
+* Stockage: 20GiB
 
-.. code-block:: ini
+Mise en place de l’espace de travail
+------------------------------------
 
-    [local]
-    name=Local repo
-    baseurl=file:///code/target
-    enabled=1
-    gpgcheck=0
-    protect=1
+Cloner le code sur https://gitlab.dev.programmevitam.fr/vitam/vitam.git ainsi que le jeu de données de test sur https://github.com/ProgrammeVitam/vitam-itests.git. Nous présumons que le dossier du code source se nomme **vitam_repo** par la suite.
 
-* Ajouter ``nameserver 127.0.0.1`` au début du fichier resolv.conf (pour permettre la bonne résolution des noms de service Consul)
+S’assurer que JAVA_HOME (Pointant vers le dossier de Java 17) et M2_HOME sont renseignés dans le ``.bashrc`` ou équivalent (On peut obtenir M2_HOME avec la commande ``mvn -version`` )
 
-Procédure
-*********
+Dans les paramètres IntelliJ: Editor > Code Style > Scheme > Import Scheme > IntelliJ IDEA code style XML et sélectionner le code style téléchargé plus tôt
 
-Sur le poste de développement :
+Dans le fichier /etc/hosts ajouter ces enregistrements:
 
-* Exécuter la compilation des sources et la construction de tous les paquets RPM, tel que défini dans les instructions de build présentes plus haut dans cette page.
+::
 
-Dans la VM :
+   # Vitam 
 
-* Se connecter en root dans /code
-* Puis rassembler les fichiers rpm produits dans le répertoire ``target/packages``:
+  127.0.0.1 access-external.service
+  127.0.0.1 access-internal.service
+  127.0.0.1 functional-administration.service
+  127.0.0.1 scheduler.service
+  127.0.0.1 elastic-kibana-interceptor.service
+  127.0.0.1 batch-report.service
+  127.0.0.1 ingest-external.service
+  127.0.0.1 ingest-internal.service
+  127.0.0.1 ihm-demo.service
+  127.0.0.1 logbook.service
+  127.0.0.1 metadata.service
+  127.0.0.1 processing.service
+  127.0.0.1 security-internal.service
+  127.0.0.1 storage.service
+  127.0.0.1 worker.service
+  127.0.0.1 collect-internal.service
+  127.0.0.1 collect-external.service
+  127.0.0.1 metadata-collect.service
+  127.0.0.1 workspace-collect.serviceccess-internal.service
+  127.0.0.1 worker.service  
+  127.0.0.1 workspace.service
+  127.0.0.1 workspace-collect.service
 
-.. code-block:: bash
+Compilation
+===========
 
-    rm -rf target/packages
-    mkdir -p target/packages
-    find . -name '*.rpm' -type f -exec cp {} target/packages \;
+Se mettre dans le dossier ``vitam_repo/vitam-conf-dev/scripts/`` et exécuter ``vitam_install.sh``
 
-* Construire l'index du répôt rpm :
+Lancement
+=========
 
-.. code-block:: bash
+Dans IntelliJ, lancer la configuration multiRun Vitam, qui doit normalement éxecuter les 13 services le composant.
 
-    createrepo -x '.git/*' .
+Initialisation des données
+==========================
 
-* Construire l'index du répôt deb :
+Lancer le script ``init_data_vitam.sh`` depuis ``vitam-conf-dev/scripts``. Celui-ci doit s’exécuter sans erreurs.
 
-.. code-block:: bash
+Lancer la configuration multirun Cucumber Init, qui doit également se dérouler sans erreurs. 
 
-    dpkg-scanpackages -m. |gzip -9c > Packages.gz
+Test de requêtes 
+================
 
-* Nettoyer le cache yum (AlmaLinux) pour prendre en compte les modifications de dépôt :
-
-.. code-block:: bash
-
-    yum clean all
-
-* Nettoyer le cache apt (Debian) pour prendre en compte les modifications de dépôt :
-
-.. code-block:: bash
-
-    apt-get clean
-
-* Puis valider la liste des rpm présents dans le dépôt local, en RPM :
-
-.. code-block:: bash
-
-    yum --disablerepo="*" --enablerepo="local" list available
-
-* Enfin, se positionner dans le répertoire ``deployment`` et suivre les indications du README.rst présent dans ce répertoire.
-
-L'accès aux composants une fois démarrés dépend de la nature de la connexion réseau présentée par la VM (bridge, NAT ou host).
+Lorsque Vitam est démarré vous pouvez ensuite effectuer des requêtes. La liste de ces requêtes se trouve dans ``vitam-conf-dev/making-vitam-requests`` 
+Pour vérifier que tout est en place, lancer la requête ``referential/access-contracts.http``.
+Cette requête doit se terminer par un code 200 (OK). 
+Certaines requêtes ne sont pas possibles car des services Vitam external ne sont pas lancés. Les requêtes dans "Collect" requièrent le lancement des services CollectExternal, Metadata, Metadata Collect.
