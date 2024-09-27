@@ -134,7 +134,6 @@ public class ManifestBuilder implements AutoCloseable {
 
     private static JAXBContext jaxbContext;
     public static final String XSI_URI = "http://www.w3.org/2001/XMLSchema-instance";
-    static final String CONTENT = "Content";
 
     static {
         try {
@@ -241,16 +240,7 @@ public class ManifestBuilder implements AutoCloseable {
         String linkedAU,
         Stream<LogbookLifeCycleObjectGroup> logbookLifeCycleObjectGroupStream
     ) throws JsonProcessingException, JAXBException, InternalServerException {
-        return writeGOT(
-            og,
-            linkedAU,
-            logbookLifeCycleObjectGroupStream,
-            false,
-            false,
-            new HashSet<>(),
-            new HashSet<>(),
-            ""
-        );
+        return writeGOT(og, linkedAU, logbookLifeCycleObjectGroupStream, false, new HashSet<>(), new HashSet<>(), "");
     }
 
     public Map<String, JsonNode> writeGOT(
@@ -258,7 +248,6 @@ public class ManifestBuilder implements AutoCloseable {
         String linkedAU,
         Stream<LogbookLifeCycleObjectGroup> logbookLifeCycleObjectGroupStream,
         boolean useOriginalFilenames,
-        boolean exportWithTree,
         Set<String> existingFileNames,
         Set<String> existingDirectoryNames,
         String baseFilePath
@@ -350,7 +339,11 @@ public class ManifestBuilder implements AutoCloseable {
     ) {
         String ext = extension.isEmpty() ? "" : "." + extension;
 
-        if (useOriginalFilenames && !Strings.isNullOrEmpty(binaryDataObjectType.getFileInfo().getFilename())) {
+        if (
+            useOriginalFilenames &&
+            binaryDataObjectType.getFileInfo() != null &&
+            !Strings.isNullOrEmpty(binaryDataObjectType.getFileInfo().getFilename())
+        ) {
             return buildFileNameWithOriginalFilename(binaryDataObjectType, ext, existingFileNames, baseFilePath);
         } else {
             return determineFileNameBasedOnUri(binaryDataObjectType, ext, baseFilePath);
@@ -401,7 +394,7 @@ public class ManifestBuilder implements AutoCloseable {
     @Nonnull
     private String getExtension(BinaryDataObjectType binaryDataObjectType) {
         String extension = FilenameUtils.getExtension(binaryDataObjectType.getUri());
-        if (Strings.isNullOrEmpty(extension)) {
+        if (Strings.isNullOrEmpty(extension) && binaryDataObjectType.getFileInfo() != null) {
             extension = FilenameUtils.getExtension(binaryDataObjectType.getFileInfo().getFilename());
         }
         if (Strings.isNullOrEmpty(extension)) {

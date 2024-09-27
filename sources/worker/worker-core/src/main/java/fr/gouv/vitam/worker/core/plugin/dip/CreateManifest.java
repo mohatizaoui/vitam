@@ -165,6 +165,7 @@ public class CreateManifest extends ActionHandler {
     /**
      * constructor use for plugin instantiation
      */
+    @SuppressWarnings("unused")
     public CreateManifest() {
         this(MetaDataClientFactory.getInstance());
     }
@@ -353,7 +354,6 @@ public class CreateManifest extends ActionHandler {
                             linkedUnits.get(linkedUnits.size() - 1),
                             logbookLifeCycleObjectGroupStream,
                             useOriginalFilenames,
-                            exportWithTree,
                             existingFileNames,
                             existingDirectoryNames,
                             directoryPath
