@@ -1,0 +1,4 @@
+---
+# defaults file for migrate_profiles
+
+archive_unit_profiles__default_seda_version: "2.3"

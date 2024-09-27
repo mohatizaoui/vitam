@@ -45,8 +45,9 @@ import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
-import fr.gouv.vitam.common.model.administration.ProfileModel;
 import fr.gouv.vitam.common.model.administration.ProfileSedaVersion;
+import fr.gouv.vitam.common.model.administration.profile.CreateProfileModel;
+import fr.gouv.vitam.common.model.administration.profile.ProfileModel;
 import fr.gouv.vitam.common.mongo.MongoRule;
 import fr.gouv.vitam.common.server.application.configuration.DbConfigurationImpl;
 import fr.gouv.vitam.common.server.application.configuration.MongoDbNode;
@@ -109,8 +110,6 @@ public class ProfileServiceImplTest {
 
     static ProfileService profileService;
     static FunctionalBackupService functionalBackupService = Mockito.mock(FunctionalBackupService.class);
-    private static VitamCounterService vitamCounterService;
-    private static MongoDbAccessAdminImpl dbImpl;
 
     @Rule
     public RunWithCustomExecutorRule runInThread = new RunWithCustomExecutorRule(
@@ -133,7 +132,7 @@ public class ProfileServiceImplTest {
         final List<MongoDbNode> nodes = new ArrayList<>();
         nodes.add(new MongoDbNode(DATABASE_HOST, MongoRule.getDataBasePort()));
 
-        dbImpl = MongoDbAccessAdminFactory.create(
+        MongoDbAccessAdminImpl dbImpl = MongoDbAccessAdminFactory.create(
             new DbConfigurationImpl(nodes, mongoRule.getMongoDatabase().getName()),
             Collections::emptyList,
             indexManager
@@ -144,7 +143,11 @@ public class ProfileServiceImplTest {
         list_tenant.add("PROFILE");
         listEnableExternalIdentifiers.put(EXTERNAL_TENANT, list_tenant);
 
-        vitamCounterService = new VitamCounterService(dbImpl, tenants, listEnableExternalIdentifiers);
+        VitamCounterService vitamCounterService = new VitamCounterService(
+            dbImpl,
+            tenants,
+            listEnableExternalIdentifiers
+        );
 
         LogbookOperationsClientFactory.changeMode(null);
 
@@ -181,7 +184,7 @@ public class ProfileServiceImplTest {
     public void givenTestImportXSDProfileFile() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
         final File fileMetadataProfile = PropertiesUtils.getResourceFile("profile_ok.json");
-        final List<ProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
+        final List<CreateProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
             fileMetadataProfile,
             new TypeReference<>() {}
         );
@@ -206,7 +209,7 @@ public class ProfileServiceImplTest {
     public void givenTestImportRNGProfileFile() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
         final File fileMetadataProfile = PropertiesUtils.getResourceFile("profile_ok.json");
-        final List<ProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
+        final List<CreateProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
             fileMetadataProfile,
             new TypeReference<>() {}
         );
@@ -256,7 +259,7 @@ public class ProfileServiceImplTest {
     public void givenTestImportNotValideRNGProfileFile() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
         final File fileMetadataProfile = PropertiesUtils.getResourceFile("profile_ok.json");
-        final List<ProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
+        final List<CreateProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
             fileMetadataProfile,
             new TypeReference<>() {}
         );
@@ -281,7 +284,7 @@ public class ProfileServiceImplTest {
     public void givenTestDownloadProfileFile() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
         final File fileMetadataProfile = PropertiesUtils.getResourceFile("profile_ok.json");
-        final List<ProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
+        final List<CreateProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
             fileMetadataProfile,
             new TypeReference<>() {}
         );
@@ -309,7 +312,7 @@ public class ProfileServiceImplTest {
     public void givenWellFormedProfileMetadataThenImportSuccessfully() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
         final File fileMetadataProfile = PropertiesUtils.getResourceFile("profile_ok.json");
-        final List<ProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
+        final List<CreateProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
             fileMetadataProfile,
             new TypeReference<>() {}
         );
@@ -325,7 +328,7 @@ public class ProfileServiceImplTest {
     public void givenATestMissingIdentifierReturnBadRequest() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(EXTERNAL_TENANT);
         final File fileMetadataProfile = PropertiesUtils.getResourceFile("profile_missing_identifier.json");
-        final List<ProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
+        final List<CreateProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
             fileMetadataProfile,
             new TypeReference<>() {}
         );
@@ -340,7 +343,7 @@ public class ProfileServiceImplTest {
     public void givenTestIdentifiers() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
         final File fileMetadataProfile = PropertiesUtils.getResourceFile("profile_duplicate_identifier.json");
-        final List<ProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
+        final List<CreateProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
             fileMetadataProfile,
             new TypeReference<>() {}
         );
@@ -354,52 +357,13 @@ public class ProfileServiceImplTest {
     public void givenTestDuplicateNames() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
         final File fileMetadataProfile = PropertiesUtils.getResourceFile("profile_duplicate_name.json");
-        final List<ProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
+        final List<CreateProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
             fileMetadataProfile,
             new TypeReference<>() {}
         );
         final RequestResponse<ProfileModel> response = profileService.createProfiles(profileModelList);
 
         assertThat(response.isOk()).isTrue();
-    }
-
-    @Test
-    @RunWithCustomExecutor
-    public void givenTestFilledPath() throws Exception {
-        VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
-        final File fileMetadataProfile = PropertiesUtils.getResourceFile("profile_filled_path.json");
-        final List<ProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
-            fileMetadataProfile,
-            new TypeReference<>() {}
-        );
-        final RequestResponse<ProfileModel> response = profileService.createProfiles(profileModelList);
-
-        assertThat(response.isOk()).isFalse();
-        assertThat(((VitamError<ProfileModel>) response).getErrors().size()).isEqualTo(1);
-        assertThat(((VitamError<ProfileModel>) response).getErrors().get(0).getMessage()).isEqualTo(
-            ProfileServiceImpl.PATH_SHOULD_NOT_BE_FILLED
-        );
-    }
-
-    @Test
-    @RunWithCustomExecutor
-    public void givenTestNotAllowedNotNullIdInCreation() throws Exception {
-        VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
-        final File fileMetadataProfile = PropertiesUtils.getResourceFile("profile_ok.json");
-
-        final List<ProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
-            fileMetadataProfile,
-            new TypeReference<>() {}
-        );
-        RequestResponse<ProfileModel> response = profileService.createProfiles(profileModelList);
-
-        final RequestResponseOK<ProfileModel> responseCast = (RequestResponseOK<ProfileModel>) response;
-        assertThat(responseCast.getResults()).hasSize(2);
-
-        // Try to recreate the same profile but with id
-        response = profileService.createProfiles(responseCast.getResults());
-
-        assertThat(response.isOk()).isFalse();
     }
 
     @Test
@@ -423,16 +387,14 @@ public class ProfileServiceImplTest {
     }
 
     /**
-     * Check that the created access conrtact have the tenant owner after persisted to database
-     *
-     * @throws Exception
+     * Check that the created access contract have the tenant owner after persisted to database
      */
     @Test
     @RunWithCustomExecutor
     public void givenTestTenantOwner() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
         final File fileMetadataProfile = PropertiesUtils.getResourceFile("profile_ok.json");
-        final List<ProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
+        final List<CreateProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
             fileMetadataProfile,
             new TypeReference<>() {}
         );
@@ -459,14 +421,13 @@ public class ProfileServiceImplTest {
      * Profile of tenant 1, try to get the same profile with id mongo but with tenant 2 This sgould not return the
      * profile as tenant 2 is not the owner of the profile
      *
-     * @throws Exception
      */
     @Test
     @RunWithCustomExecutor
     public void givenTestNotTenantOwner() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
         final File fileMetadataProfile = PropertiesUtils.getResourceFile("profile_ok.json");
-        final List<ProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
+        final List<CreateProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
             fileMetadataProfile,
             new TypeReference<>() {}
         );
@@ -492,7 +453,7 @@ public class ProfileServiceImplTest {
     public void givenTestfindByID() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(EXTERNAL_TENANT);
         final File fileMetadataProfile = PropertiesUtils.getResourceFile("profile_ok.json");
-        final List<ProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
+        final List<CreateProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
             fileMetadataProfile,
             new TypeReference<>() {}
         );
@@ -505,7 +466,7 @@ public class ProfileServiceImplTest {
     public void givenTestImportExternalIdentifier_KO() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(EXTERNAL_TENANT);
         final File fileMetadataProfile = PropertiesUtils.getResourceFile("profile_ok_id.json");
-        final List<ProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
+        final List<CreateProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
             fileMetadataProfile,
             new TypeReference<>() {}
         );
@@ -533,7 +494,7 @@ public class ProfileServiceImplTest {
     public void givenTestImportExternalIdentifier() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
         final File fileMetadataProfile = PropertiesUtils.getResourceFile("profile_ok.json");
-        final List<ProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
+        final List<CreateProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
             fileMetadataProfile,
             new TypeReference<>() {}
         );
@@ -571,7 +532,7 @@ public class ProfileServiceImplTest {
     public void givenTestFindAllThenReturnTwoProfiles() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
         final File fileMetadataProfile = PropertiesUtils.getResourceFile("profile_ok.json");
-        final List<ProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
+        final List<CreateProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
             fileMetadataProfile,
             new TypeReference<>() {}
         );
@@ -591,7 +552,7 @@ public class ProfileServiceImplTest {
     public void givenTestFindByIdentifier() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
         final File fileMetadataProfile = PropertiesUtils.getResourceFile("profile_ok.json");
-        final List<ProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
+        final List<CreateProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
             fileMetadataProfile,
             new TypeReference<>() {}
         );
@@ -600,11 +561,8 @@ public class ProfileServiceImplTest {
         final RequestResponseOK<ProfileModel> responseCast = (RequestResponseOK<ProfileModel>) response;
         assertThat(responseCast.getResults()).hasSize(2);
 
-        final ProfileModel acm = profileModelList.iterator().next();
+        final ProfileModel acm = responseCast.getResults().iterator().next();
         assertThat(acm).isNotNull();
-
-        final String id1 = acm.getId();
-        assertThat(id1).isNotNull();
 
         final String identifier = acm.getIdentifier();
         assertThat(identifier).isNotNull();
@@ -625,10 +583,10 @@ public class ProfileServiceImplTest {
 
     @Test
     @RunWithCustomExecutor
-    public void should_update_profil() throws Exception {
+    public void should_update_profile() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
         final File fileMetadataProfile = PropertiesUtils.getResourceFile("profile_ok_1.json");
-        final List<ProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
+        final List<CreateProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
             fileMetadataProfile,
             new TypeReference<>() {}
         );
@@ -648,16 +606,16 @@ public class ProfileServiceImplTest {
         Select select = new Select();
         select.setQuery(QueryHelper.eq(ProfileModel.TAG_NAME, "PToUpdate"));
         RequestResponseOK<ProfileModel> result = profileService.findProfiles(select.getFinalSelect());
-        ProfileModel profil = result.getFirstResult();
-        assertThat(profil).isNotNull();
-        assertThat(profil.getName()).isEqualTo("PToUpdate");
+        ProfileModel profile = result.getFirstResult();
+        assertThat(profile).isNotNull();
+        assertThat(profile.getName()).isEqualTo("PToUpdate");
 
         //profileService.
         String query =
             "{\"$query\":{\"$eq\":{\"Identifier\":\"" +
-            profil.getIdentifier() +
+            profile.getIdentifier() +
             "\"}},\"$filter\":{},\"$action\":[{\"$set\":{\"Name\":\"profil test \"}}]}";
-        response = profileService.updateProfile(profil, JsonHandler.getFromString(query));
+        response = profileService.updateProfile(profile, JsonHandler.getFromString(query));
 
         assertThat(response.isOk()).isTrue();
 
@@ -676,7 +634,7 @@ public class ProfileServiceImplTest {
         // Given
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
         final File fileMetadataProfile = PropertiesUtils.getResourceFile("profile_ok_same_name.json");
-        final List<ProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
+        final List<CreateProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
             fileMetadataProfile,
             new TypeReference<>() {}
         );
@@ -691,7 +649,7 @@ public class ProfileServiceImplTest {
     public void should_not_update_profil_due_to_path_update() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
         final File fileMetadataProfile = PropertiesUtils.getResourceFile("profile_ok_1.json");
-        final List<ProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
+        final List<CreateProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
             fileMetadataProfile,
             new TypeReference<>() {}
         );
@@ -734,7 +692,7 @@ public class ProfileServiceImplTest {
     public void should_create_profile_with_default_seda_version() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
         final File fileMetadataProfile = PropertiesUtils.getResourceFile("profile_ok_no_seda_version.json");
-        final List<ProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
+        final List<CreateProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
             fileMetadataProfile,
             new TypeReference<>() {}
         );
@@ -745,7 +703,7 @@ public class ProfileServiceImplTest {
         final RequestResponseOK<ProfileModel> responseCast = (RequestResponseOK<ProfileModel>) response;
         assertThat(responseCast.getResults()).hasSize(1);
 
-        final ProfileModel pm = profileModelList.iterator().next();
+        final CreateProfileModel pm = profileModelList.iterator().next();
         assertThat(pm).isNotNull();
 
         final ProfileSedaVersion sedaVersion = pm.getSedaVersion();
@@ -757,7 +715,7 @@ public class ProfileServiceImplTest {
     public void givenTestImportRNGProfileFileWithSedaVersionMismatchAccordingToProfile() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
         final File fileMetadataProfile = PropertiesUtils.getResourceFile("profile_ok.json");
-        final List<ProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
+        final List<CreateProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
             fileMetadataProfile,
             new TypeReference<>() {}
         );
@@ -801,7 +759,7 @@ public class ProfileServiceImplTest {
     public void shouldNotUpdateNoticeWhenNextSedaVersionIsDifferentFromCurrentNoticeAndProfile() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
         final File fileMetadataProfile = PropertiesUtils.getResourceFile("profile_ok.json");
-        final List<ProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
+        final List<CreateProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
             fileMetadataProfile,
             new TypeReference<>() {}
         );
@@ -877,7 +835,7 @@ public class ProfileServiceImplTest {
     public void shouldUpdateNoticeWhenProfileIsNotDefinedYet() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
         final File fileMetadataProfile = PropertiesUtils.getResourceFile("profile_ok.json");
-        final List<ProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
+        final List<CreateProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
             fileMetadataProfile,
             new TypeReference<>() {}
         );

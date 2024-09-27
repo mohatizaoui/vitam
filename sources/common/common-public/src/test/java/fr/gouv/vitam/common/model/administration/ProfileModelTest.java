@@ -26,6 +26,7 @@
  */
 package fr.gouv.vitam.common.model.administration;
 
+import fr.gouv.vitam.common.model.administration.profile.ProfileModel;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -54,10 +55,10 @@ public class ProfileModelTest {
             .setDescription(description)
             .setStatus(ProfileStatus.ACTIVE)
             .setFormat(ProfileFormat.XSD)
-            .setLastupdate(lastupdate)
-            .setCreationdate(lastupdate)
-            .setActivationdate(lastupdate)
-            .setDeactivationdate(lastupdate);
+            .setLastUpdate(lastupdate)
+            .setCreationDate(lastupdate)
+            .setActivationDate(lastupdate)
+            .setDeactivationDate(lastupdate);
 
         assertEquals(id, profile.getId());
         assertEquals(identifier, profile.getIdentifier());
@@ -65,8 +66,8 @@ public class ProfileModelTest {
         assertEquals(description, profile.getDescription());
         assertEquals(ProfileStatus.ACTIVE, profile.getStatus());
         assertEquals(ProfileFormat.XSD, profile.getFormat());
-        assertEquals(lastupdate, profile.getCreationdate());
-        assertEquals(lastupdate, profile.getActivationdate());
-        assertEquals(lastupdate, profile.getDeactivationdate());
+        assertEquals(lastupdate, profile.getCreationDate());
+        assertEquals(lastupdate, profile.getActivationDate());
+        assertEquals(lastupdate, profile.getDeactivationDate());
     }
 }

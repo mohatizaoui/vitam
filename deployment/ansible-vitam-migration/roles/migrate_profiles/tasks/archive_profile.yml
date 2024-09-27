@@ -1,0 +1,39 @@
+---
+
+- name: "[{{ __profile.Identifier }}] Download archive profile file"
+  uri:
+    url: "{{ _archive_profiles_base_url }}/{{ __profile.Identifier }}"
+    method: GET
+    headers:
+      X-Tenant-Id: "{{ vitam_tenant_admin }}"
+    return_content: yes
+    client_cert: "{{ _tmp_pem }}"
+    validate_certs: false
+    status_code:
+      - 200
+      - 500
+    timeout: 36000
+  register: __response
+
+- name: "[{{ __profile.Identifier }}] Extract seda version from file"
+  set_fact:
+    __seda_version: "{{ __response.content | regex_search(_seda_version_pattern, '\\1') | first | default(None) }}"
+  when: __response.status == 200
+
+- name: "[{{ __profile.Identifier }}] Update archive profile"
+  uri:
+    url: "{{ _archive_profiles_base_url }}/{{ __profile.Identifier }}"
+    method: PUT
+    body:
+      $action:
+        - $set:
+            SedaVersion: "{{ __seda_version | default(archive_unit_profiles__default_seda_version) }}"
+    body_format: "json"
+    headers:
+      Content-Type: "application/json"
+      X-Tenant-Id: "{{ vitam_tenant_admin }}"
+    client_cert: "{{ _tmp_pem }}"
+    validate_certs: false
+    return_content: yes
+    status_code: 200
+    timeout: 36000

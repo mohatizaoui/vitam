@@ -1,0 +1,26 @@
+---
+
+- hosts: localhost
+  any_errors_fatal: yes
+  gather_facts: no
+  vars_prompt:
+    - name: confirmation
+      prompt: |
+        This playbook migrates archive profiles from version v7.1 to v8.0 of Vitam.
+
+        Are you sure you want to run this playbook?
+        Answer with yes to confirm.
+      default: yes
+      private: no
+  tasks:
+    - name: Check Confirmation
+      fail:
+        msg: Playbook run confirmation failed
+      when: not confirmation
+      tags: always
+
+- hosts: hosts_access_external
+  roles:
+    - migrate_profiles
+  run_once: true
+  tags: always

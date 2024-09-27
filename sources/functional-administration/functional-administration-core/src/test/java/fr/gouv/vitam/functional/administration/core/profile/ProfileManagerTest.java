@@ -29,7 +29,7 @@ package fr.gouv.vitam.functional.administration.core.profile;
 import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.error.VitamError;
 import fr.gouv.vitam.common.model.administration.ProfileFormat;
-import fr.gouv.vitam.common.model.administration.ProfileModel;
+import fr.gouv.vitam.common.model.administration.profile.ProfileModel;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;

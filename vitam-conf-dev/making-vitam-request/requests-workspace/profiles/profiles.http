@@ -42,9 +42,32 @@ X-Tenant-Id: {{tenant}}
   "Name": "Test d'import d'une notice PA",
   "Status": "ACTIVE",
   "Format": "RNG",
-  "SedaVersion": "v2.3",
+  "SedaVersion": "2.3",
   "CreationDate": "2024-07-09T11:41:59.241",
   "LastUpdate": "2024-07-09T11:42:00.292",
   "ActivationDate": "2024-07-09T11:41:59.241",
   "DeactivationDate": "2024-07-09T11:41:59.241"
+}
+
+### Importer un fichier de profile
+PUT {{url-access}}/admin-external/v1/profiles/{{ profile-identifier }}
+Content-Type: application/octet-stream
+X-Tenant-Id: {{tenant}}
+
+< /home/danrad/Downloads/2.2.rng
+
+
+### Mettre à jour une notice
+PUT {{url-access}}/admin-external/v1/profiles/{{ profile-identifier }}
+Content-Type: application/json
+X-Tenant-Id: {{tenant}}
+
+{
+  "$action": [
+    {
+      "$set": {
+        "SedaVersion": "2.2"
+      }
+    }
+  ]
 }

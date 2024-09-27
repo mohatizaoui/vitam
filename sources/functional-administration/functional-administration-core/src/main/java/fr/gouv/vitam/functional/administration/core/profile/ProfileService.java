@@ -32,7 +32,8 @@ import fr.gouv.vitam.common.exception.VitamException;
 import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.VitamAutoCloseable;
-import fr.gouv.vitam.common.model.administration.ProfileModel;
+import fr.gouv.vitam.common.model.administration.profile.CreateProfileModel;
+import fr.gouv.vitam.common.model.administration.profile.ProfileModel;
 import fr.gouv.vitam.functional.administration.common.exception.ProfileNotFoundException;
 import fr.gouv.vitam.functional.administration.common.exception.ReferentialException;
 
@@ -54,11 +55,11 @@ public interface ProfileService extends VitamAutoCloseable {
      * <li>A field has an invalid format</li>
      * <li>One or many profile already exist in the database</li>
      *
-     * @param profileModelList the list of profiles to be created
+     * @param createProfileModels the list of profiles to be created
      * @return RequestResponseOK if success or VitamError
      * @throws VitamException if in error occurs while validating contracts
      */
-    RequestResponse<ProfileModel> createProfiles(List<ProfileModel> profileModelList) throws VitamException;
+    RequestResponse<ProfileModel> createProfiles(List<CreateProfileModel> createProfileModels) throws VitamException;
 
     /**
      * 1. Check that the document with given id exists else return VitamError
@@ -82,7 +83,6 @@ public interface ProfileService extends VitamAutoCloseable {
      * @throws ProfileNotFoundException thrown if the profile could not be found
      * @throws InvalidParseOperationException thrown if the query could not be executed
      * @throws ReferentialException thrown if the query could not be executed
-     * @throws VitamException thrown if another error is encountered
      */
     Response downloadProfileFile(String profileIdentifier)
         throws ProfileNotFoundException, InvalidParseOperationException, ReferentialException;

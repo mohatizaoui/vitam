@@ -43,7 +43,7 @@ X-Tenant-Id: {{tenant}}
     "Name": "Notice PUA 3",
     "Description": "Test d'import d'une notice PUA",
     "Status": "ACTIVE",
-    "SedaVersion": "v2.3",
+    "SedaVersion": "2.3",
     "CreationDate": "2024-07-09T11:41:59.241",
     "LastUpdate": "2024-07-09T11:42:00.292",
     "ActivationDate": "2024-07-09T11:41:59.241",
@@ -51,3 +51,18 @@ X-Tenant-Id: {{tenant}}
     "ControlSchema": "{ \"$schema\": \"http://vitam-json-schema.org/draft-04/schema#\", \"id\": \"http://example.com/root.json\", \"type\": \"object\", \"properties\": { \"Title\": { \"type\": \"string\" } } }"
   }
 ]
+
+### Mettre à jour une notice
+PUT {{url-access}}/admin-external/v1/archiveunitprofiles/{{ archive-unit-profile-identifier }}
+Content-Type: application/json
+X-Tenant-Id: {{tenant}}
+
+{ 
+  "$action": [
+    {
+      "$set": {
+        "SedaVersion": "2.2"
+      }
+    }
+  ]  
+}

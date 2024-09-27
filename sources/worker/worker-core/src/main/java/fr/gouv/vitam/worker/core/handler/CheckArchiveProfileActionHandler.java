@@ -43,7 +43,7 @@ import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.administration.ProfileFormat;
-import fr.gouv.vitam.common.model.administration.ProfileModel;
+import fr.gouv.vitam.common.model.administration.profile.ProfileModel;
 import fr.gouv.vitam.common.stream.StreamUtils;
 import fr.gouv.vitam.common.xml.ValidationXsdUtils;
 import fr.gouv.vitam.functional.administration.client.AdminManagementClient;

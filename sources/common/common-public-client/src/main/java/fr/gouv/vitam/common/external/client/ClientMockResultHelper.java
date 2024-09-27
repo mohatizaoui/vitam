@@ -54,12 +54,12 @@ import fr.gouv.vitam.common.model.administration.OntologyOrigin;
 import fr.gouv.vitam.common.model.administration.OntologyType;
 import fr.gouv.vitam.common.model.administration.PermissionModel;
 import fr.gouv.vitam.common.model.administration.ProfileFormat;
-import fr.gouv.vitam.common.model.administration.ProfileModel;
 import fr.gouv.vitam.common.model.administration.ProfileStatus;
 import fr.gouv.vitam.common.model.administration.RegisterValueDetailModel;
 import fr.gouv.vitam.common.model.administration.RuleMeasurementEnum;
 import fr.gouv.vitam.common.model.administration.RuleType;
 import fr.gouv.vitam.common.model.administration.StorageDetailModel;
+import fr.gouv.vitam.common.model.administration.profile.ProfileModel;
 import fr.gouv.vitam.common.model.logbook.LogbookEventOperation;
 import fr.gouv.vitam.common.model.logbook.LogbookLifecycle;
 import fr.gouv.vitam.common.model.logbook.LogbookOperation;
@@ -399,13 +399,13 @@ public class ClientMockResultHelper {
         profile.setTenant(0);
         profile.setIdentifier("FAKE_IDENTIFIER");
         profile.setName("Un Profile");
-        profile.setDeactivationdate("DESCRIPTION D'UN PROFILE");
+        profile.setDeactivationDate("DESCRIPTION D'UN PROFILE");
         profile.setStatus(ProfileStatus.ACTIVE);
         profile.setFormat(ProfileFormat.XSD);
-        profile.setCreationdate("2016-11-02");
-        profile.setLastupdate("2016-11-05");
-        profile.setActivationdate("2016-11-04");
-        profile.setDeactivationdate("2016-11-03");
+        profile.setCreationDate("2016-11-02");
+        profile.setLastUpdate("2016-11-05");
+        profile.setActivationDate("2016-11-04");
+        profile.setDeactivationDate("2016-11-03");
         return profile;
     }
 
