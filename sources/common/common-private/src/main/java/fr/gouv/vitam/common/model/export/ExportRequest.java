@@ -69,11 +69,7 @@ public class ExportRequest {
 
     public ExportRequest() {}
 
-    public ExportRequest(JsonNode dslRequest) {
-        this.dslRequest = dslRequest;
-    }
-
-    public ExportRequest(
+    private ExportRequest(
         DataObjectVersions dataObjectVersionToExport,
         JsonNode dslRequest,
         boolean withLogBookLFC,
@@ -81,7 +77,9 @@ public class ExportRequest {
         Long maxSizeThreshold,
         String sedaVersion,
         boolean useOriginalFilenames,
-        boolean exportWithTree
+        boolean exportWithTree,
+        ExportType exportType,
+        ExportRequestParameters exportRequestParameters
     ) {
         this.dataObjectVersionToExport = dataObjectVersionToExport;
         this.dslRequest = dslRequest;
@@ -91,134 +89,42 @@ public class ExportRequest {
         this.sedaVersion = sedaVersion;
         this.useOriginalFilenames = useOriginalFilenames;
         this.exportWithTree = exportWithTree;
-    }
-
-    public ExportRequest(
-        DataObjectVersions dataObjectVersionToExport,
-        JsonNode dslRequest,
-        boolean withLogBookLFC,
-        Long maxSizeThreshold,
-        String sedaVersion
-    ) {
-        this(dataObjectVersionToExport, dslRequest, withLogBookLFC, false, maxSizeThreshold, sedaVersion, false, false);
-    }
-
-    /**
-     * Seda version to export is setted to default value "2.2"
-     *
-     * @param dataObjectVersionToExport
-     * @param dslRequest
-     * @param withLogBookLFC
-     */
-    public ExportRequest(
-        DataObjectVersions dataObjectVersionToExport,
-        JsonNode dslRequest,
-        boolean withLogBookLFC,
-        boolean withoutObjects
-    ) {
-        this(
-            dataObjectVersionToExport,
-            dslRequest,
-            withLogBookLFC,
-            withoutObjects,
-            null,
-            SupportedSedaVersions.SEDA_2_2.getVersion(),
-            false,
-            false
-        );
-    }
-
-    public ExportRequest(DataObjectVersions dataObjectVersionToExport, JsonNode dslRequest, boolean withLogBookLFC) {
-        this(
-            dataObjectVersionToExport,
-            dslRequest,
-            withLogBookLFC,
-            false,
-            null,
-            SupportedSedaVersions.SEDA_2_2.getVersion(),
-            false,
-            false
-        );
-    }
-
-    public ExportRequest(
-        DataObjectVersions dataObjectVersionToExport,
-        boolean useOriginalFilenames,
-        JsonNode dslRequest,
-        boolean withLogBookLFC
-    ) {
-        this(
-            dataObjectVersionToExport,
-            dslRequest,
-            withLogBookLFC,
-            false,
-            null,
-            SupportedSedaVersions.SEDA_2_2.getVersion(),
-            useOriginalFilenames,
-            false
-        );
-    }
-
-    public ExportRequest(
-        DataObjectVersions dataObjectVersionToExport,
-        boolean useOriginalFilenames,
-        boolean exportWithTree,
-        JsonNode dslRequest,
-        boolean withLogBookLFC
-    ) {
-        this(
-            dataObjectVersionToExport,
-            dslRequest,
-            withLogBookLFC,
-            false,
-            null,
-            SupportedSedaVersions.SEDA_2_2.getVersion(),
-            useOriginalFilenames,
-            exportWithTree
-        );
+        this.exportType = exportType;
+        this.exportRequestParameters = exportRequestParameters;
     }
 
     public static ExportRequest from(DipRequest dipRequest) {
-        ExportRequest exportRequest = new ExportRequest(
+        return new ExportRequest(
             dipRequest.getDataObjectVersionToExport(),
             dipRequest.getDslRequest(),
             dipRequest.isExportWithLogBookLFC(),
-            dipRequest.isExportWithoutObjects()
-        );
-        exportRequest.setExportType(ExportType.get(dipRequest.getDipExportType()));
-        exportRequest.setExportRequestParameters(ExportRequestParameters.from(dipRequest.getDipRequestParameters()));
-        exportRequest.setMaxSizeThreshold(dipRequest.getMaxSizeThreshold());
-        exportRequest.setSedaVersion(
+            dipRequest.isExportWithoutObjects(),
+            dipRequest.getMaxSizeThreshold(),
             dipRequest.getSedaVersion() != null
                 ? dipRequest.getSedaVersion()
-                : SupportedSedaVersions.SEDA_2_2.getVersion()
+                : SupportedSedaVersions.SEDA_2_2.getVersion(),
+            dipRequest.isUseOriginalFilenames(),
+            dipRequest.isExportWithTree(),
+            ExportType.get(dipRequest.getDipExportType()),
+            ExportRequestParameters.from(dipRequest.getDipRequestParameters())
         );
-        exportRequest.setUseOriginalFilenames(dipRequest.isUseOriginalFilenames());
-        exportRequest.setExportWithTree(dipRequest.isExportWithTree());
-
-        return exportRequest;
     }
 
     public static ExportRequest from(TransferRequest transferRequest) {
-        ExportRequest exportRequest = new ExportRequest(
+        return new ExportRequest(
             transferRequest.getDataObjectVersionToExport(),
             transferRequest.getDslRequest(),
             transferRequest.isTransferWithLogBookLFC(),
-            transferRequest.isTransferWithoutObjects()
-        );
-        exportRequest.setExportType(ExportType.ArchiveTransfer);
-        exportRequest.setExportRequestParameters(
-            ExportRequestParameters.from(transferRequest.getTransferRequestParameters())
-        );
-        exportRequest.setMaxSizeThreshold(transferRequest.getMaxSizeThreshold());
-        exportRequest.setSedaVersion(
+            transferRequest.isTransferWithoutObjects(),
+            transferRequest.getMaxSizeThreshold(),
             transferRequest.getSedaVersion() != null
                 ? transferRequest.getSedaVersion()
-                : SupportedSedaVersions.SEDA_2_2.getVersion()
+                : SupportedSedaVersions.SEDA_2_2.getVersion(),
+            false,
+            false,
+            ExportType.ArchiveTransfer,
+            ExportRequestParameters.from(transferRequest.getTransferRequestParameters())
         );
-        exportRequest.setUseOriginalFilenames(transferRequest.isUseOriginalFilenames());
-
-        return exportRequest;
     }
 
     public DataObjectVersions getDataObjectVersionToExport() {
@@ -265,8 +171,8 @@ public class ExportRequest {
         return exportWithoutObjects;
     }
 
-    public void setExportWithoutObjects(boolean exportWithLogBookLFC) {
-        this.exportWithoutObjects = exportWithLogBookLFC;
+    public void setExportWithoutObjects(boolean exportWithoutObjects) {
+        this.exportWithoutObjects = exportWithoutObjects;
     }
 
     public Long getMaxSizeThreshold() {

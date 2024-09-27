@@ -295,6 +295,10 @@ types:
           description: True pour générer un export en mode arborescence
           type: boolean
           required: false
+        useOriginalFilenames:
+          description: True pour générer un export avec les noms de fichiers d'origine
+          type: boolean
+          required: false
         dslRequest:
           description: Contient la requête de recherche
           type: DslTypes.DslMultipleQuery
@@ -359,7 +363,7 @@ types:
           type: boolean
           required: false
         transferWithoutObjects:
-          description: True pour inclure tous les objets des unités archivistiques pour le transfert
+          description: True pour exclure tous les objets des unités archivistiques pour le transfert
           type: boolean
           required: false
         dslRequest:
