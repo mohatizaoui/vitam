@@ -32,7 +32,7 @@ services:
       # - /Users/ebernard/IdeaProjects/vitam/basedir:/vitam
       - /vitam:/vitam
   mongo-express:
-    image: mongo-express:1.0.0-18-alpine3.18
+    image: mongo-express
     ports:
       - 8888:8081
     environment:
