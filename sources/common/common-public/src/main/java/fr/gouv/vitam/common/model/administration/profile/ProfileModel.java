@@ -24,11 +24,14 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL-C license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.common.model.administration;
+package fr.gouv.vitam.common.model.administration.profile;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import fr.gouv.vitam.common.model.ModelConstants;
+import fr.gouv.vitam.common.model.administration.ProfileFormat;
+import fr.gouv.vitam.common.model.administration.ProfileSedaVersion;
+import fr.gouv.vitam.common.model.administration.ProfileStatus;
 
 /**
  * Data Transfer Object Model of Profile (DTO).
@@ -41,7 +44,7 @@ public class ProfileModel {
     public static final String TAG_DESCRIPTION = "Description";
     public static final String TAG_STATUS = "Status";
     public static final String TAG_FORMAT = "Format";
-    public static final String TAG_SEDAVERSION = "SedaVersion";
+    public static final String TAG_SEDA_VERSION = "SedaVersion";
     public static final String TAG_PATH = "Path";
     public static final String CREATION_DATE = "CreationDate";
     public static final String LAST_UPDATE = "LastUpdate";
@@ -67,43 +70,52 @@ public class ProfileModel {
     private Integer version;
 
     @JsonProperty(TAG_IDENTIFIER)
-    private String identifier;
+    protected String identifier;
 
     @JsonProperty(TAG_NAME)
-    private String name;
+    protected String name;
 
     @JsonProperty(TAG_DESCRIPTION)
-    private String description;
+    protected String description;
 
     @JsonProperty(TAG_STATUS)
-    private ProfileStatus status;
+    protected ProfileStatus status;
 
     @JsonProperty(TAG_FORMAT)
-    private ProfileFormat format;
+    protected ProfileFormat format;
 
-    @JsonProperty(TAG_SEDAVERSION)
-    private ProfileSedaVersion sedaVersion = ProfileSedaVersion.VERSION_2_3;
+    @JsonProperty(TAG_SEDA_VERSION)
+    protected ProfileSedaVersion sedaVersion;
 
     @JsonProperty(TAG_PATH)
     private String path;
 
     @JsonProperty(CREATION_DATE)
-    private String creationdate;
+    private String creationDate;
 
     @JsonProperty(LAST_UPDATE)
-    private String lastupdate;
+    private String lastUpdate;
 
     @JsonProperty(ACTIVATION_DATE)
-    private String activationdate;
+    private String activationDate;
 
     @JsonProperty(DEACTIVATION_DATE)
-    private String deactivationdate;
+    private String deactivationDate;
 
     /**
      * Constructor without fields use for jackson
      */
     public ProfileModel() {
         super();
+    }
+
+    public ProfileModel(CreateProfileModel createProfileModel) {
+        identifier = createProfileModel.getIdentifier();
+        name = createProfileModel.getName();
+        description = createProfileModel.getDescription();
+        status = createProfileModel.getStatus();
+        format = createProfileModel.getFormat();
+        sedaVersion = createProfileModel.getSedaVersion();
     }
 
     /**
@@ -146,7 +158,7 @@ public class ProfileModel {
     }
 
     /**
-     * @param version
+     * @param version to set
      */
     public void setVersion(Integer version) {
         this.version = version;
@@ -244,7 +256,7 @@ public class ProfileModel {
     /**
      * Set the profile file format (xsd, rng, ...)
      *
-     * @param format
+     * @param format to set
      * @return this
      */
     public ProfileModel setFormat(ProfileFormat format) {
@@ -264,7 +276,7 @@ public class ProfileModel {
     /**
      * Set the profile seda version (2.1, 2.2, 2.3, ...)
      *
-     * @param sedaVersion
+     * @param sedaVersion to set
      * @return this
      */
     public ProfileModel setSedaVersion(ProfileSedaVersion sedaVersion) {
@@ -282,7 +294,7 @@ public class ProfileModel {
     /**
      * Profile path in storage
      *
-     * @param path
+     * @param path to set
      * @return this
      */
     public ProfileModel setPath(String path) {
@@ -293,64 +305,64 @@ public class ProfileModel {
     /**
      * @return the creation date of profile
      */
-    public String getCreationdate() {
-        return creationdate;
+    public String getCreationDate() {
+        return creationDate;
     }
 
     /**
-     * @param creationdate to set
+     * @param creationDate to set
      * @return this
      */
-    public ProfileModel setCreationdate(String creationdate) {
-        this.creationdate = creationdate;
+    public ProfileModel setCreationDate(String creationDate) {
+        this.creationDate = creationDate;
         return this;
     }
 
     /**
      * @return last update of profile
      */
-    public String getLastupdate() {
-        return lastupdate;
+    public String getLastUpdate() {
+        return lastUpdate;
     }
 
     /**
-     * @param lastupdate to set
+     * @param lastUpdate to set
      * @return this
      */
-    public ProfileModel setLastupdate(String lastupdate) {
-        this.lastupdate = lastupdate;
+    public ProfileModel setLastUpdate(String lastUpdate) {
+        this.lastUpdate = lastUpdate;
         return this;
     }
 
     /**
      * @return the activation date of profile
      */
-    public String getActivationdate() {
-        return activationdate;
+    public String getActivationDate() {
+        return activationDate;
     }
 
     /**
-     * @param activationdate to set
+     * @param activationDate to set
      * @return this
      */
-    public ProfileModel setActivationdate(String activationdate) {
-        this.activationdate = activationdate;
+    public ProfileModel setActivationDate(String activationDate) {
+        this.activationDate = activationDate;
         return this;
     }
 
     /**
      * @return the desactivation date of profile
      */
-    public String getDeactivationdate() {
-        return deactivationdate;
+    public String getDeactivationDate() {
+        return deactivationDate;
     }
 
     /**
-     * @param deactivationdate to set
+     * @param deactivationDate to set
      * @return this
      */
-    public ProfileModel setDeactivationdate(String deactivationdate) {
-        this.deactivationdate = activationdate;
+    public ProfileModel setDeactivationDate(String deactivationDate) {
+        this.deactivationDate = deactivationDate;
         return this;
     }
 }

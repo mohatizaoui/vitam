@@ -26,7 +26,7 @@
  */
 package fr.gouv.vitam.functional.administration.core.profile;
 
-import fr.gouv.vitam.common.model.administration.ProfileModel;
+import fr.gouv.vitam.common.model.administration.profile.ProfileModel;
 
 import java.util.List;
 import java.util.Optional;
@@ -85,16 +85,6 @@ public interface ProfileValidator {
          */
         public RejectionCause(String error) {
             setReason(error);
-        }
-
-        /**
-         * Reject if id exisit and the action is creation. If id exists, it should be an update instead of create
-         *
-         * @param profileIdentifier
-         * @return RejectionCause
-         */
-        public static RejectionCause rejectIdNotAllowedInCreate(String profileIdentifier) {
-            return new RejectionCause(String.format(ERR_ID_NOT_ALLOWED_IN_CREATE, profileIdentifier));
         }
 
         /**

@@ -1,0 +1,40 @@
+---
+
+- name: "Get all archive unit profiles"
+  uri:
+    url: "{{ _archive_unit_profiles_base_url }}"
+    method: GET
+    body:
+      $query:
+        $not:
+          - $exists: SedaVersion
+      $projection: { }
+    body_format: json
+    headers:
+      Content-Type: application/json
+      X-Tenant-Id: "{{ vitam_tenant_admin }}"
+    client_cert: "{{ _tmp_pem }}"
+    validate_certs: false
+    return_content: yes
+    status_code: 200
+    timeout: 36000
+  register: __get_archive_unit_profiles_results
+
+- name: "[{{ item.Identifier }}] Update archive unit profile"
+  uri:
+    url: "{{ _archive_unit_profiles_base_url }}/{{ item.Identifier }}"
+    method: PUT
+    body:
+      $action:
+        - $set:
+            SedaVersion: "{{ archive_unit_profiles__default_seda_version }}"
+    body_format: json
+    headers:
+      Content-Type: application/json
+      X-Tenant-Id: "{{ vitam_tenant_admin }}"
+    client_cert: "{{ _tmp_pem }}"
+    validate_certs: false
+    return_content: yes
+    status_code: 200
+    timeout: 36000
+  with_items: "{{ __get_archive_unit_profiles_results.json['$results'] }}"

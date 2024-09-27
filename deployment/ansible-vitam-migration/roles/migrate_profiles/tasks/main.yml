@@ -1,0 +1,33 @@
+---
+# tasks file for migrate_profiles
+
+- name: Extract PEM certificate
+  local_action: |
+    shell openssl pkcs12 \
+    -in {{ _p12 }} \
+    -out {{ _pem }} \
+    -passin pass:{{ keystores.client_external.vitam_admin_int }} \
+    -passout pass:{{ keystores.client_external.vitam_admin_int }} \
+    -nodes
+  no_log: "{{ hide_passwords_during_deploy }}"
+  vars:
+    ansible_become: no
+
+- name: Copy temporary PEM certificate
+  copy:
+    src: "{{ _pem }}"
+    dest: "{{ _tmp_pem }}"
+    remote_src: no
+    owner: "{{ vitam_defaults.users.vitam }}"
+    group: "{{ vitam_defaults.users.group }}"
+    mode: "{{ vitam_defaults.folder.conf_permission }}"
+
+- include_tasks: archive_unit_profiles.yml
+- include_tasks: archive_profiles.yml
+
+- name: Remove temporary PEM certificates
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - "{{ _tmp_pem }}"

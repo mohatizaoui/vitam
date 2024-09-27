@@ -27,7 +27,7 @@
 package fr.gouv.vitam.functional.administration.client.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import fr.gouv.vitam.common.model.administration.ProfileModel;
+import fr.gouv.vitam.common.model.administration.profile.ProfileModel;
 import fr.gouv.vitam.common.server.application.junit.ResteasyTestApplication;
 
 import javax.ws.rs.ApplicationPath;

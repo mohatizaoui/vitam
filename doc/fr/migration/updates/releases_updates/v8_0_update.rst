@@ -126,4 +126,25 @@ Lancement du master playbook extra
 Procédures à exécuter APRÈS la montée de version
 ================================================
 
-N/A
+Migration des profiles
+----------------------
+
+.. caution:: Cette migration est à effectuer APRÈS la montée de version vers Vitam V8.0 et uniquement sur **site primaire**.
+
+Ce playbook de migration a pour but de mettre à jour les notices en y intégrant la notion de **SedaVersion**.
+
+Le script effectue les actions suivantes :
+- Définit par défaut la version **SEDA 2.3** pour les AUP (*Archive Unit Profile*).
+- Si un fichier est présent pour les AP (*Archive Profile*), il tente de déterminer la version à partir de celui-ci. Dans le cas contraire, la version par défaut sera appliquée.
+
+Il est possible de modifier la version SEDA par défaut en spécifiant une autre version via la commande suivante :
+
+.. code-block:: bash
+
+    -e archive_unit_profiles__default_seda_version="2.2"
+
+Pour lancer ce playbook, utilisez la commande suivante :
+
+.. code-block:: bash
+
+    ansible-playbook -i environments/<inventaire> ansible-vitam-migration/migrate_profiles_v7.1_to_v8.0.yml --ask-vault-pass

@@ -30,6 +30,16 @@ package fr.gouv.vitam.common.model.administration;
  * Created by djamel Hamas on 5/9/17.
  */
 public enum ProfileFormat {
-    XSD,
-    RNG,
+    XSD("xsd"),
+    RNG("rng");
+
+    private final String extention;
+
+    private ProfileFormat(final String format) {
+        this.extention = format;
+    }
+
+    public String getExtention() {
+        return extention;
+    }
 }

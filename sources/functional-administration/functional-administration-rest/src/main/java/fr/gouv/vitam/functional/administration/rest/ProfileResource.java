@@ -38,7 +38,8 @@ import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
-import fr.gouv.vitam.common.model.administration.ProfileModel;
+import fr.gouv.vitam.common.model.administration.profile.CreateProfileModel;
+import fr.gouv.vitam.common.model.administration.profile.ProfileModel;
 import fr.gouv.vitam.common.security.SanityChecker;
 import fr.gouv.vitam.common.stream.StreamUtils;
 import fr.gouv.vitam.functional.administration.common.config.AdminManagementConfiguration;
@@ -52,6 +53,7 @@ import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
 import fr.gouv.vitam.workspace.client.WorkspaceType;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import javax.validation.Valid;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -133,7 +135,7 @@ public class ProfileResource {
      * <li>One or many profile already exist in the database</li>
      * </ul>
      *
-     * @param profileModelList as InputStream
+     * @param createProfileModels as InputStream
      * @param uri the uri info
      * @return Response
      */
@@ -141,8 +143,8 @@ public class ProfileResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response createProfiles(List<ProfileModel> profileModelList, @Context UriInfo uri) {
-        ParametersChecker.checkParameter(PROFILE_JSON_IS_MANDATORY_PATAMETER, profileModelList);
+    public Response createProfiles(@Valid List<CreateProfileModel> createProfileModels, @Context UriInfo uri) {
+        ParametersChecker.checkParameter(PROFILE_JSON_IS_MANDATORY_PATAMETER, createProfileModels);
 
         try (
             ProfileService profileService = new ProfileServiceImpl(
@@ -151,7 +153,7 @@ public class ProfileResource {
                 functionalBackupService
             )
         ) {
-            RequestResponse requestResponse = profileService.createProfiles(profileModelList);
+            RequestResponse<ProfileModel> requestResponse = profileService.createProfiles(createProfileModels);
 
             if (!requestResponse.isOk()) {
                 return Response.status(requestResponse.getHttpCode()).entity(requestResponse).build();

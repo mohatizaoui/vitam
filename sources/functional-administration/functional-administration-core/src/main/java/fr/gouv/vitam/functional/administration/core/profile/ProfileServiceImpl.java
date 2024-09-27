@@ -60,9 +60,10 @@ import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.administration.ProfileFormat;
-import fr.gouv.vitam.common.model.administration.ProfileModel;
 import fr.gouv.vitam.common.model.administration.ProfileSedaVersion;
 import fr.gouv.vitam.common.model.administration.ProfileStatus;
+import fr.gouv.vitam.common.model.administration.profile.CreateProfileModel;
+import fr.gouv.vitam.common.model.administration.profile.ProfileModel;
 import fr.gouv.vitam.common.parameter.ParameterHelper;
 import fr.gouv.vitam.common.security.SanityChecker;
 import fr.gouv.vitam.common.stream.VitamAsyncInputStreamResponse;
@@ -169,27 +170,24 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     @Override
-    public RequestResponse<ProfileModel> createProfiles(List<ProfileModel> profileModelList) throws VitamException {
-        ParametersChecker.checkParameter(PROFILE_IS_MANDATORY_PARAMETER, profileModelList);
+    public RequestResponse<ProfileModel> createProfiles(List<CreateProfileModel> createProfileModels)
+        throws VitamException {
+        ParametersChecker.checkParameter(PROFILE_IS_MANDATORY_PARAMETER, createProfileModels);
 
-        if (profileModelList.isEmpty()) {
+        if (createProfileModels.isEmpty()) {
             return new RequestResponseOK<>();
         }
 
-        String operationId = VitamThreadUtils.getVitamSession().getRequestId();
-        GUID eip = GUIDReader.getGUID(operationId);
-
-        boolean slaveMode = vitamCounterService.isSlaveFunctionnalCollectionOnTenant(
+        final boolean slaveMode = vitamCounterService.isSlaveFunctionnalCollectionOnTenant(
             SequenceType.PROFILE_SEQUENCE.getCollection(),
             ParameterHelper.getTenantParameter()
         );
-
-        ProfileManager manager = new ProfileManager(logbookClient, eip);
+        final String operationId = VitamThreadUtils.getVitamSession().getRequestId();
+        final GUID eip = GUIDReader.getGUID(operationId);
+        final ProfileManager manager = new ProfileManager(logbookClient, eip);
         manager.logStarted(PROFILES_IMPORT_EVENT, null);
 
         final Set<String> profileIdentifiers = new HashSet<>();
-        final Set<String> profileNames = new HashSet<>();
-        ArrayNode profilesToPersist;
 
         final VitamError<ProfileModel> error = getVitamError(
             VitamCode.PROFILE_FILE_IMPORT_ERROR.getItem(),
@@ -197,18 +195,7 @@ public class ProfileServiceImpl implements ProfileService {
         ).setHttpCode(Response.Status.BAD_REQUEST.getStatusCode());
 
         try {
-            for (final ProfileModel pm : profileModelList) {
-                // if a profile have and id
-                if (null != pm.getId()) {
-                    error.addToErrors(
-                        getVitamError(
-                            VitamCode.PROFILE_VALIDATION_ERROR.getItem(),
-                            RejectionCause.rejectIdNotAllowedInCreate(pm.getName()).getReason()
-                        )
-                    );
-                    continue;
-                }
-
+            for (final CreateProfileModel pm : createProfileModels) {
                 // if a profile with the same identifier is already treated mark the current one as duplicated
                 if (ParametersChecker.isNotEmpty(pm.getIdentifier())) {
                     if (profileIdentifiers.contains(pm.getIdentifier())) {
@@ -224,37 +211,15 @@ public class ProfileServiceImpl implements ProfileService {
                     }
                 }
 
-                // mark the current profile as treated
-                profileNames.add(pm.getName());
-
-                // validate profile
-                if (manager.validateProfile(pm, error)) {
-                    pm.setId(GUIDFactory.newProfileGUID(ParameterHelper.getTenantParameter()).getId());
-                }
-                if (pm.getTenant() == null) {
-                    pm.setTenant(ParameterHelper.getTenantParameter());
-                }
-
-                if (slaveMode) {
-                    final Optional<ProfileValidator.RejectionCause> result = manager
-                        .checkEmptyIdentifierSlaveModeValidator()
-                        .validate(pm);
-                    result.ifPresent(
-                        t ->
-                            error.addToErrors(
-                                new VitamError<ProfileModel>(VitamCode.PROFILE_VALIDATION_ERROR.getItem())
-                                    .setDescription(result.get().getReason())
-                                    .setMessage(ProfileManager.DUPLICATE_IN_DATABASE)
-                            )
-                    );
-                }
-
-                // Check Path
-                if (pm.getPath() != null) {
+                if (slaveMode && (pm.getIdentifier() == null || pm.getIdentifier().isEmpty())) {
                     error.addToErrors(
-                        getVitamError(VitamCode.PROFILE_VALIDATION_ERROR.getItem(), PATH_UNUPDATABLE).setMessage(
-                            PATH_SHOULD_NOT_BE_FILLED
-                        )
+                        new VitamError<ProfileModel>(VitamCode.PROFILE_VALIDATION_ERROR.getItem())
+                            .setDescription(
+                                new RejectionCause(
+                                    String.format("The field %s is mandatory.", CreateProfileModel.TAG_IDENTIFIER)
+                                ).getReason()
+                            )
+                            .setMessage(ProfileManager.EMPTY_REQUIRED_FIELD)
                     );
                 }
             }
@@ -276,29 +241,24 @@ public class ProfileServiceImpl implements ProfileService {
                 return error;
             }
 
-            profilesToPersist = JsonHandler.createArrayNode();
-            for (final ProfileModel pm : profileModelList) {
-                setIdentifier(slaveMode, pm);
+            final List<ProfileModel> profilesToCreate = createProfileModels
+                .stream()
+                .map(createProfileModel -> createProfileModel(createProfileModel, manager, error, slaveMode))
+                .toList();
+            final ArrayNode payload = JsonHandler.createArrayNode();
+            final List<ObjectNode> profilesToPersist = profilesToCreate
+                .stream()
+                .map(this::convertToProfileNode)
+                .toList();
 
-                final ObjectNode profileNode = (ObjectNode) JsonHandler.toJsonNode(pm);
-                JsonNode jsonNode = profileNode.remove(VitamFieldsHelper.id());
-                /* contract is valid, add it to the list to persist */
+            profilesToPersist.forEach(payload::add);
 
-                if (jsonNode != null) {
-                    profileNode.set(ID, jsonNode);
-                }
-                JsonNode hashTenant = profileNode.remove(VitamFieldsHelper.tenant());
-                if (hashTenant != null) {
-                    profileNode.set(TENANT, hashTenant);
-                }
-                profilesToPersist.add(profileNode);
-            }
             // at this point no exception occurred and no validation error detected
             // persist in collection
             // profilesToPersist.values().stream().map();
             // TODO: 3/28/17 create insertDocuments method that accepts VitamDocument instead of ArrayNode, so we can
             // use Profile at this point
-            mongoAccess.insertDocuments(profilesToPersist, FunctionalAdminCollections.PROFILE).close();
+            mongoAccess.insertDocuments(payload, FunctionalAdminCollections.PROFILE).close();
 
             functionalBackupService.saveCollectionAndSequence(
                 eip,
@@ -306,6 +266,12 @@ public class ProfileServiceImpl implements ProfileService {
                 FunctionalAdminCollections.PROFILE,
                 eip.toString()
             );
+
+            manager.logSuccess(PROFILES_IMPORT_EVENT, null, null);
+
+            return new RequestResponseOK<ProfileModel>()
+                .addAllResults(profilesToCreate)
+                .setHttpCode(Response.Status.CREATED.getStatusCode());
         } catch (final Exception exp) {
             LOGGER.error(exp);
             final String err = "Import profiles error : " + exp.getMessage();
@@ -314,12 +280,68 @@ public class ProfileServiceImpl implements ProfileService {
                 Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()
             );
         }
+    }
 
-        manager.logSuccess(PROFILES_IMPORT_EVENT, null, null);
+    // Méthode privée pour créer et configurer un profil
+    private ProfileModel createProfileModel(
+        CreateProfileModel createProfileModel,
+        ProfileManager manager,
+        VitamError<ProfileModel> error,
+        boolean slaveMode
+    ) {
+        ProfileModel profileModelToPersist = new ProfileModel(createProfileModel);
 
-        return new RequestResponseOK<ProfileModel>()
-            .addAllResults(profileModelList)
-            .setHttpCode(Response.Status.CREATED.getStatusCode());
+        validateAndSetId(profileModelToPersist, error, manager); // manager et error passés ici
+        ensureTenantIsSet(profileModelToPersist);
+
+        try {
+            setIdentifier(slaveMode, profileModelToPersist);
+        } catch (ReferentialException e) {
+            throw new RuntimeException("Failed to set identifier for profile: " + profileModelToPersist.getId(), e);
+        }
+
+        return profileModelToPersist;
+    }
+
+    // Valide et génère un ID pour le profil
+    private void validateAndSetId(
+        ProfileModel profileModelToPersist,
+        VitamError<ProfileModel> error,
+        ProfileManager manager
+    ) {
+        if (manager.validateProfile(profileModelToPersist, error)) {
+            profileModelToPersist.setId(GUIDFactory.newProfileGUID(ParameterHelper.getTenantParameter()).getId());
+        }
+    }
+
+    // Assure que le tenant est défini
+    private void ensureTenantIsSet(ProfileModel profileModelToPersist) {
+        if (profileModelToPersist.getTenant() == null) {
+            profileModelToPersist.setTenant(ParameterHelper.getTenantParameter());
+        }
+    }
+
+    // Méthode privée pour simplifier la transformation d'un profil
+    private ObjectNode convertToProfileNode(ProfileModel profileModel) {
+        ObjectNode profileNode;
+        try {
+            profileNode = (ObjectNode) JsonHandler.toJsonNode(profileModel);
+        } catch (InvalidParseOperationException e) {
+            throw new RuntimeException("Error converting profileModel to JsonNode", e);
+        }
+
+        handleFieldRemoval(profileNode, VitamFieldsHelper.id(), ID);
+        handleFieldRemoval(profileNode, VitamFieldsHelper.tenant(), TENANT);
+
+        return profileNode;
+    }
+
+    // Méthode privée pour gérer la suppression et l'ajout des champs
+    private void handleFieldRemoval(ObjectNode profileNode, String fieldToRemove, String fieldToAdd) {
+        JsonNode removedField = profileNode.remove(fieldToRemove);
+        if (removedField != null) {
+            profileNode.set(fieldToAdd, removedField);
+        }
     }
 
     private void setIdentifier(boolean slaveMode, ProfileModel pm) throws ReferentialException {
@@ -335,7 +357,7 @@ public class ProfileServiceImpl implements ProfileService {
     @Override
     public RequestResponse<ProfileModel> importProfileFile(String profileIdentifier, InputStream profileFile)
         throws VitamException {
-        final ProfileModel profileMetadata = findByIdentifier(profileIdentifier);
+        final ProfileModel profileModel = findByIdentifier(profileIdentifier);
         final GUID eip = GUIDFactory.newOperationLogbookGUID(ParameterHelper.getTenantParameter());
         final ProfileManager manager = new ProfileManager(logbookClient, eip);
         final VitamError<ProfileModel> vitamError = getVitamError(
@@ -343,7 +365,7 @@ public class ProfileServiceImpl implements ProfileService {
             "Global import profile error"
         ).setHttpCode(Response.Status.BAD_REQUEST.getStatusCode());
 
-        if (null == profileMetadata) {
+        if (null == profileModel) {
             LOGGER.error(PROFILE_NOT_FOUND_WITH_IDENTIFIER + profileIdentifier + MANDATORY_PROFILE_METADATA);
 
             manager.logValidationError(
@@ -363,64 +385,19 @@ public class ProfileServiceImpl implements ProfileService {
         manager.logStarted(PROFILES_FILE_IMPORT_EVENT, null);
 
         File file = null;
+        final ProfileSedaVersion sedaVersionToUpdate;
 
         try {
             file = File.createTempFile(GUIDFactory.newGUID().getId(), "profile");
             Files.copy(profileFile, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
-            if (profileMetadata.getSedaVersion() == null) {
-                final String errorDetails =
-                    "A profile must have a seda version defined to import a schema definition file";
-                LOGGER.error(errorDetails);
-                manager.logValidationError(
-                    PROFILES_FILE_IMPORT_EVENT,
-                    profileIdentifier,
-                    errorDetails,
-                    ProfileManager.IMPORT_KO
-                );
-                return vitamError.addToErrors(
-                    getVitamError(VitamCode.PROFILE_FILE_IMPORT_ERROR.getItem(), errorDetails)
-                );
-            }
-
             final FileInputStream fileInputStream = new FileInputStream(file);
             final InputSource inputSource = new InputSource(fileInputStream);
-            try {
-                final ProfileSedaVersion sedaVersion = extractSedaVersion(inputSource);
+            final ProfileSedaVersion schemaDefinitionSedaVersion = extractSedaVersion(inputSource);
+            final ProfileSedaVersion currentSedaVersion = profileModel.getSedaVersion();
 
-                if (sedaVersion == null) {
-                    final String errorDetails = "No seda version found in schema definition file";
-                    LOGGER.error(errorDetails);
-                    manager.logValidationError(
-                        PROFILES_FILE_IMPORT_EVENT,
-                        profileIdentifier,
-                        errorDetails,
-                        ProfileManager.IMPORT_KO
-                    );
-                    return vitamError.addToErrors(
-                        getVitamError(VitamCode.PROFILE_FILE_IMPORT_ERROR.getItem(), errorDetails)
-                    );
-                }
-
-                if (profileMetadata.getSedaVersion() != sedaVersion) {
-                    final String errorDetails =
-                        "Extracted seda version from schema definition file '%s', not matches profile ones '%s'".formatted(
-                                sedaVersion.getVersion(),
-                                profileMetadata.getSedaVersion().getVersion()
-                            );
-                    LOGGER.error(errorDetails);
-                    manager.logValidationError(
-                        PROFILES_FILE_IMPORT_EVENT,
-                        profileIdentifier,
-                        errorDetails,
-                        ProfileManager.IMPORT_KO
-                    );
-                    return vitamError.addToErrors(
-                        getVitamError(VitamCode.PROFILE_FILE_IMPORT_ERROR.getItem(), errorDetails)
-                    );
-                }
-            } catch (ParserConfigurationException | IOException | SAXException e) {
-                final String errorDetails = e.getMessage();
+            if (schemaDefinitionSedaVersion == null) {
+                final String errorDetails = "No seda version found in schema definition file";
                 LOGGER.error(errorDetails);
                 manager.logValidationError(
                     PROFILES_FILE_IMPORT_EVENT,
@@ -432,11 +409,31 @@ public class ProfileServiceImpl implements ProfileService {
                     getVitamError(VitamCode.PROFILE_FILE_IMPORT_ERROR.getItem(), errorDetails)
                 );
             }
+
+            if (currentSedaVersion != null && !currentSedaVersion.equals(schemaDefinitionSedaVersion)) {
+                final String errorDetails =
+                    "Extracted seda version from schema definition file '%s', not matches profile ones '%s'".formatted(
+                            schemaDefinitionSedaVersion.getVersion(),
+                            currentSedaVersion.getVersion()
+                        );
+                LOGGER.error(errorDetails);
+                manager.logValidationError(
+                    PROFILES_FILE_IMPORT_EVENT,
+                    profileIdentifier,
+                    errorDetails,
+                    ProfileManager.IMPORT_KO
+                );
+                return vitamError.addToErrors(
+                    getVitamError(VitamCode.PROFILE_FILE_IMPORT_ERROR.getItem(), errorDetails)
+                );
+            }
+
+            sedaVersionToUpdate = Optional.ofNullable(currentSedaVersion).orElse(schemaDefinitionSedaVersion);
 
             /*
              * Validate the stream
              */
-            boolean isValid = manager.validateProfileFile(profileMetadata, file, vitamError);
+            boolean isValid = manager.validateProfileFile(profileModel, file, vitamError);
 
             if (!isValid) {
                 final String errorsDetails = vitamError
@@ -446,45 +443,38 @@ public class ProfileServiceImpl implements ProfileService {
                     .collect(Collectors.joining(","));
                 manager.logValidationError(
                     PROFILES_FILE_IMPORT_EVENT,
-                    profileMetadata.getId(),
+                    profileModel.getId(),
                     "Profile file validate error : " + errorsDetails,
                     ProfileManager.IMPORT_KO
                 );
                 return vitamError;
             }
 
-            String extension = "xsd";
-            if (profileMetadata.getFormat().equals(ProfileFormat.RNG)) {
-                extension = "rng";
-            }
-
-            Integer tenantId = ParameterHelper.getTenantParameter();
+            final String extension = profileModel.getFormat().getExtention();
+            final Integer tenantId = ParameterHelper.getTenantParameter();
             final String fileName = String.format(
                 "%d_profile_%s_%s.%s",
                 tenantId,
-                profileMetadata.getId(),
+                profileModel.getId(),
                 now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")),
                 extension
             );
 
-            final String oldPath = profileMetadata.getPath();
-
-            InputStream profileIS = new FileInputStream(file);
-
+            final String oldPath = profileModel.getPath();
+            final InputStream profileIS = new FileInputStream(file);
             functionalBackupService.saveFile(profileIS, eip, OP_PROFILE_STORAGE, DataCategory.PROFILE, fileName);
 
             final UpdateParserSingle updateParserActive = new UpdateParserSingle(new SingleVarNameAdapter());
-            Update update = new Update();
-            update.setQuery(eq(ProfileModel.TAG_IDENTIFIER, profileMetadata.getIdentifier()));
+            final Update update = new Update();
+            update.setQuery(eq(ProfileModel.TAG_IDENTIFIER, profileModel.getIdentifier()));
             update.addActions(
                 UpdateActionHelper.set(ProfileModel.TAG_PATH, fileName),
+                UpdateActionHelper.set(ProfileModel.TAG_SEDA_VERSION, sedaVersionToUpdate.getVersion()),
                 UpdateActionHelper.set(ProfileModel.LAST_UPDATE, LocalDateUtil.nowFormatted())
             );
             updateParserActive.parse(update.getFinalUpdate());
             final JsonNode queryDsl = updateParserActive.getRequest().getFinalUpdate();
-
             mongoAccess.updateData(queryDsl, FunctionalAdminCollections.PROFILE).close();
-
             // Collection backup
             functionalBackupService.saveCollectionAndSequence(
                 eip,
@@ -512,7 +502,7 @@ public class ProfileServiceImpl implements ProfileService {
             LOGGER.error(e);
             String err = "Import profiles storage workspace error : " + e.getMessage();
             LOGGER.error(err, e);
-            manager.logFatalError(OP_PROFILE_STORAGE, profileMetadata.getId(), err);
+            manager.logFatalError(OP_PROFILE_STORAGE, profileModel.getId(), err);
             return getVitamError(VitamCode.GLOBAL_INTERNAL_SERVER_ERROR.getItem(), err).setHttpCode(
                 Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()
             );
@@ -780,7 +770,7 @@ public class ProfileServiceImpl implements ProfileService {
                         );
                     }
 
-                    if (schemaDefinitionSedaVersion != null && nextSedaVersion != schemaDefinitionSedaVersion) {
+                    if (schemaDefinitionSedaVersion != null && !nextSedaVersion.equals(schemaDefinitionSedaVersion)) {
                         final String errorDetails =
                             "The new SEDA version value '%s' does not match the one in the schema definition file '%s'".formatted(
                                     nextSedaVersion.getVersion(),
@@ -796,11 +786,15 @@ public class ProfileServiceImpl implements ProfileService {
                         );
                     }
 
-                    if (schemaDefinitionSedaVersion != null && nextSedaVersion != currentSedaVersion) {
+                    if (
+                        schemaDefinitionSedaVersion != null &&
+                        currentSedaVersion != null &&
+                        !nextSedaVersion.equals(currentSedaVersion)
+                    ) {
                         final String errorDetails =
                             "The new SEDA version value '%s' does not match the one in the profile '%s'".formatted(
                                     nextSedaVersion.getVersion(),
-                                    schemaDefinitionSedaVersion.getVersion()
+                                    currentSedaVersion.getVersion()
                                 );
 
                         LOGGER.error(errorDetails);

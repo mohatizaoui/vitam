@@ -42,14 +42,13 @@ import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.administration.ProfileFormat;
-import fr.gouv.vitam.common.model.administration.ProfileModel;
 import fr.gouv.vitam.common.model.administration.ProfileSedaVersion;
 import fr.gouv.vitam.common.model.administration.ProfileStatus;
+import fr.gouv.vitam.common.model.administration.profile.ProfileModel;
 import fr.gouv.vitam.common.parameter.ParameterHelper;
 import fr.gouv.vitam.common.security.SanityChecker;
 import fr.gouv.vitam.common.xml.ValidationXsdUtils;
 import fr.gouv.vitam.common.xml.XMLInputFactoryUtils;
-import fr.gouv.vitam.functional.administration.common.AccessContract;
 import fr.gouv.vitam.functional.administration.common.Profile;
 import fr.gouv.vitam.functional.administration.common.server.FunctionalAdminCollections;
 import fr.gouv.vitam.functional.administration.core.profile.ProfileValidator.RejectionCause;
@@ -440,55 +439,41 @@ public class ProfileManager {
             }
 
             try {
-                if (profile.getCreationdate() == null || profile.getCreationdate().trim().isEmpty()) {
-                    profile.setCreationdate(now);
+                if (profile.getCreationDate() == null || profile.getCreationDate().trim().isEmpty()) {
+                    profile.setCreationDate(now);
                 } else {
-                    profile.setCreationdate(LocalDateUtil.getFormattedDateTimeForMongo(profile.getCreationdate()));
+                    profile.setCreationDate(LocalDateUtil.getFormattedDateTimeForMongo(profile.getCreationDate()));
                 }
             } catch (Exception e) {
                 LOGGER.error(PARSE_PROFILE_DATE_ERROR, e);
-                rejection = RejectionCause.rejectMandatoryMissing("Creationdate");
+                rejection = RejectionCause.rejectMandatoryMissing(ProfileModel.CREATION_DATE);
             }
             try {
-                if (profile.getActivationdate() == null || profile.getActivationdate().trim().isEmpty()) {
-                    profile.setActivationdate(now);
+                if (profile.getActivationDate() == null || profile.getActivationDate().trim().isEmpty()) {
+                    profile.setActivationDate(now);
                 } else {
-                    profile.setActivationdate(LocalDateUtil.getFormattedDateTimeForMongo(profile.getActivationdate()));
+                    profile.setActivationDate(LocalDateUtil.getFormattedDateTimeForMongo(profile.getActivationDate()));
                 }
             } catch (Exception e) {
                 LOGGER.error(PARSE_PROFILE_DATE_ERROR, e);
-                rejection = RejectionCause.rejectMandatoryMissing("ActivationDate");
+                rejection = RejectionCause.rejectMandatoryMissing(ProfileModel.ACTIVATION_DATE);
             }
             try {
-                if (profile.getDeactivationdate() == null || profile.getDeactivationdate().trim().isEmpty()) {
-                    profile.setDeactivationdate(null);
+                if (profile.getDeactivationDate() == null || profile.getDeactivationDate().trim().isEmpty()) {
+                    profile.setDeactivationDate(null);
                 } else {
-                    profile.setDeactivationdate(
-                        LocalDateUtil.getFormattedDateTimeForMongo(profile.getDeactivationdate())
+                    profile.setDeactivationDate(
+                        LocalDateUtil.getFormattedDateTimeForMongo(profile.getDeactivationDate())
                     );
                 }
             } catch (Exception e) {
                 LOGGER.error(PARSE_PROFILE_DATE_ERROR, e);
-                rejection = RejectionCause.rejectMandatoryMissing("deactivationdate");
+                rejection = RejectionCause.rejectMandatoryMissing(ProfileModel.DEACTIVATION_DATE);
             }
 
-            profile.setLastupdate(now);
+            profile.setLastUpdate(now);
 
             return (rejection == null) ? Optional.empty() : Optional.of(rejection);
-        };
-    }
-
-    /**
-     * Check if the Id of the  contract  already exists in database
-     *
-     * @return
-     */
-    public ProfileValidator checkEmptyIdentifierSlaveModeValidator() {
-        return profileModel -> {
-            if (profileModel.getIdentifier() == null || profileModel.getIdentifier().isEmpty()) {
-                return Optional.of(ProfileValidator.RejectionCause.rejectMandatoryMissing(AccessContract.IDENTIFIER));
-            }
-            return Optional.empty();
         };
     }
 
