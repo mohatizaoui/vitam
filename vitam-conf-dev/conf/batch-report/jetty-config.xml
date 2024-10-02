@@ -152,7 +152,9 @@
             </Array>
         </Arg>
         <Set name="host">0.0.0.0</Set>
-        <Set name="port">8015</Set>
+        <Set name="port">
+            <SystemProperty name="jetty.port" default="8015"/>
+        </Set>
 	<Set name="name">business</Set>
         <Set name="idleTimeout">
             <Property name="http.timeout" default="86400"/>

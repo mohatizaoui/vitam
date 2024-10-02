@@ -139,7 +139,9 @@
         <Set name="sendDateHeader">false</Set>	
         <Call name="addCustomizer">
             <Arg>
-                <New class="org.eclipse.jetty.server.SecureRequestCustomizer" />
+                <New class="org.eclipse.jetty.server.SecureRequestCustomizer">
+                    <Arg name="sniHostCheck" type="boolean">false</Arg>
+                </New>
             </Arg>
         </Call>
     </New>
