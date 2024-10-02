@@ -56,6 +56,25 @@ public class JsonSchemaParserTest {
     }
 
     @Test
+    public void testParseControlSchemaArrayWithRegex() throws InvalidParseOperationException {
+        String controlSchema =
+            "{ \"$schema\": \"http://vitam-json-schema.org/draft-04/schema#\", \"id\": \"http://example.com/root.json\", \"type\": \"object\", \"properties\": { \"Title\": { \"type\": \"array\", \"items\": { \"type\": \"string\", \"pattern\": \"^FACT_[0-9]{10}$\"} } } }";
+
+        ControlProcessor controlProcessor = new ControlProcessor();
+
+        Map<String, SchemaControl> controls = controlProcessor.parseControlSchema(
+            JsonHandler.getFromString(controlSchema)
+        );
+
+        Assert.assertNotNull(controls);
+        Assert.assertTrue(controls.containsKey("Title"));
+
+        SchemaControl titleControl = controls.get("Title");
+        Assert.assertEquals("REGEX", titleControl.getType());
+        Assert.assertEquals("^FACT_[0-9]{10}$", titleControl.getValue());
+    }
+
+    @Test
     public void testParseControlSchemaWithoutEnum() throws InvalidParseOperationException {
         String controlSchema =
             "{ \"$schema\": \"http://vitam-json-schema.org/draft-04/schema#\", \"id\": \"http://example.com/root.json\", \"type\": \"object\", \"properties\": { \"Title\": { \"type\": \"string\" } } }";
@@ -78,6 +97,25 @@ public class JsonSchemaParserTest {
     public void testParseControlSchemaWithSelect() throws InvalidParseOperationException {
         String controlSchema =
             "{ \"$schema\": \"http://vitam-json-schema.org/draft-04/schema#\", \"id\": \"http://example.com/root.json\", \"type\": \"object\", \"properties\": { \"Status\": { \"type\": \"string\", \"enum\": [\"ACTIVE\", \"INACTIVE\"] } } }";
+
+        ControlProcessor controlProcessor = new ControlProcessor();
+        Map<String, SchemaControl> controls = controlProcessor.parseControlSchema(
+            JsonHandler.getFromString(controlSchema)
+        );
+
+        Assert.assertNotNull(controls);
+        Assert.assertTrue(controls.containsKey("Status"));
+
+        SchemaControl statusControl = controls.get("Status");
+        Assert.assertEquals("SELECT", statusControl.getType());
+        Assert.assertTrue(statusControl.getValues().contains("ACTIVE"));
+        Assert.assertTrue(statusControl.getValues().contains("INACTIVE"));
+    }
+
+    @Test
+    public void testParseControlSchemaArrayWithSelect() throws InvalidParseOperationException {
+        String controlSchema =
+            "{ \"$schema\": \"http://vitam-json-schema.org/draft-04/schema#\", \"id\": \"http://example.com/root.json\", \"type\": \"object\", \"properties\": { \"Status\": { \"type\": \"array\", \"items\": { \"type\": \"string\", \"enum\": [\"ACTIVE\", \"INACTIVE\"] } } } }";
 
         ControlProcessor controlProcessor = new ControlProcessor();
         Map<String, SchemaControl> controls = controlProcessor.parseControlSchema(
