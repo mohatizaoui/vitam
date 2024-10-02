@@ -24,25 +24,43 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.common.manifest;
 
-import org.junit.Test;
+package fr.gouv.vitam.common.manifest.naming;
 
-import static org.junit.Assert.*;
+import fr.gouv.vitam.common.logging.VitamLogger;
+import fr.gouv.vitam.common.logging.VitamLoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 
-public class FileNameCleanerTest {
+public class GuidFilenameResolver implements FilenameResolver {
 
-    @Test
-    public void testCleanFileNameValidCases() {
-        assertEquals("l_hopital.txt", FileNameCleaner.cleanFileName("l'hôpital.txt"));
-        assertEquals("example_file_name_.txt", FileNameCleaner.cleanFileName("example_file_name?.txt"));
-        assertEquals("document@2022_06_10.pdf", FileNameCleaner.cleanFileName("document@2022*06&10.pdf"));
-        assertEquals("email_address@domain.com", FileNameCleaner.cleanFileName("email_address@domain.com"));
-        assertEquals("multiple.dots.in.name.docx", FileNameCleaner.cleanFileName("multiple....dots...in...name.docx"));
-        assertEquals(
-            "file-name_with-dash-and_underscore.mp3",
-            FileNameCleaner.cleanFileName("file-name_with-dash-and_underscore.mp3")
-        );
-        assertEquals("file_name", FileNameCleaner.cleanFileName(".file_name."));
+    private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(GuidFilenameResolver.class);
+    private static final String CONTENT_PREFIX = "Content/";
+    private static final String PATH_SEPARATOR = "/";
+
+    public static GuidFilenameResolver INSTANCE = new GuidFilenameResolver();
+
+    private GuidFilenameResolver() {}
+
+    @Override
+    public String resolve(String basePath, String objectId, String uri, String filename) {
+        String objectPath = getObjectPathFromObjectId(objectId, uri, filename);
+        return CONTENT_PREFIX + (basePath.isEmpty() ? objectPath : basePath + PATH_SEPARATOR + objectPath);
+    }
+
+    private String getObjectPathFromObjectId(String objectId, String uri, String filename) {
+        String extension = getExtension(objectId, uri, filename).toLowerCase();
+        return objectId + (extension.isEmpty() ? "" : "." + extension);
+    }
+
+    private String getExtension(String objectId, String uri, String filename) {
+        String extension = ExtensionHelper.getExtension(uri);
+        if (StringUtils.isEmpty(extension)) {
+            extension = ExtensionHelper.getExtension(filename);
+        }
+        if (StringUtils.isEmpty(extension)) {
+            extension = "";
+            LOGGER.warn("cannot find extension for object" + objectId);
+        }
+        return extension;
     }
 }

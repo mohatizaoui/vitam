@@ -24,6 +24,7 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
+
 package fr.gouv.vitam.worker.core.plugin.dip;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -53,7 +54,12 @@ import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.iterables.SpliteratorIterator;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.manifest.ManifestBuilder;
-import fr.gouv.vitam.common.manifest.PathGenerator;
+import fr.gouv.vitam.common.manifest.naming.FilenameResolver;
+import fr.gouv.vitam.common.manifest.naming.FlatFolderResolver;
+import fr.gouv.vitam.common.manifest.naming.FolderResolver;
+import fr.gouv.vitam.common.manifest.naming.GuidFilenameResolver;
+import fr.gouv.vitam.common.manifest.naming.OriginalFilenameResolver;
+import fr.gouv.vitam.common.manifest.naming.UnitTreeFolderResolver;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.StatusCode;
@@ -119,7 +125,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import static com.google.common.collect.Iterables.partition;
 import static fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper.id;
@@ -135,7 +140,6 @@ import static fr.gouv.vitam.common.mapping.mapper.VitamObjectMapper.getDeseriali
 import static fr.gouv.vitam.common.model.RequestResponseOK.TAG_RESULTS;
 import static fr.gouv.vitam.common.model.export.ExportRequest.EXPORT_QUERY_FILE_NAME;
 import static fr.gouv.vitam.common.model.export.ExportType.ArchiveTransfer;
-import static fr.gouv.vitam.worker.core.plugin.dip.StoreExports.CONTENT;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Comparator.comparing;
 
@@ -180,6 +184,7 @@ public class CreateManifest extends ActionHandler {
         fields.put(OBJECT.exactToken(), 1);
         fields.put(SEDAVERSION.exactToken(), 1);
         fields.put("Title", 1);
+        fields.put("Title_", 1);
 
         this.projection = JsonHandler.createObjectNode();
         this.projection.set(FIELDS.exactToken(), fields);
@@ -246,7 +251,7 @@ public class CreateManifest extends ActionHandler {
                 exportRequest.getExportRequestParameters()
             );
 
-            ListMultimap<String, String> multimap = ArrayListMultimap.create();
+            ListMultimap<String, String> unitIdToChildUnitIds = ArrayListMultimap.create();
             Set<String> originatingAgencies = new HashSet<>();
             String originatingAgency = VitamConfiguration.getDefaultOriginatingAgencyForExport(
                 ParameterHelper.getTenantParameter()
@@ -265,13 +270,19 @@ public class CreateManifest extends ActionHandler {
                 request
             );
 
-            List<JsonNode> items = StreamSupport.stream(scrollRequest, false).collect(Collectors.toList());
+            List<JsonNode> unitJsons = scrollRequest.toStream().toList();
 
-            for (JsonNode item : items) {
-                prepareGraphCreation(multimap, originatingAgencies, unitIdToObjectGroupId, item, sedaVersionToExport);
+            for (JsonNode item : unitJsons) {
+                prepareGraphCreation(
+                    unitIdToChildUnitIds,
+                    originatingAgencies,
+                    unitIdToObjectGroupId,
+                    item,
+                    sedaVersionToExport
+                );
             }
 
-            if (checkEmptinessSelectedUnits(itemStatus, scrollRequest.estimateSize())) {
+            if (checkEmptinessSelectedUnits(itemStatus, unitJsons.size())) {
                 return new ItemStatus(PLUGIN_NAME).setItemsStatus(PLUGIN_NAME, itemStatus);
             }
 
@@ -289,6 +300,9 @@ public class CreateManifest extends ActionHandler {
             boolean exportWithoutObjects = exportRequest.isExportWithoutObjects();
             boolean useOriginalFilenames = exportRequest.isUseOriginalFilenames();
             boolean exportWithTree = exportRequest.isExportWithTree();
+
+            FolderResolver folderResolver = createFolderResolver(unitJsons, exportWithTree);
+            FilenameResolver filenameResolver = createFilenameResolver(useOriginalFilenames);
 
             final Map<DataObjectVersionType, Set<QualifierVersion>> dataObjectVersions =
                 DataObjectVersionToPatternsConvertor.computeDataObjectVersionsPatterns(
@@ -312,15 +326,13 @@ public class CreateManifest extends ActionHandler {
                         (list1, list2) -> list1.putAll(list2)
                     );
 
-                InQuery in = QueryHelper.in(id(), partition.stream().map(Entry::getValue).toArray(String[]::new));
+                InQuery in = QueryHelper.in(id(), unitsForObjectGroupId.keySet().toArray(String[]::new));
                 select.setQuery(in);
                 JsonNode response = client.selectObjectGroups(select.getFinalSelect());
-                ArrayNode objects = (ArrayNode) response.get(TAG_RESULTS);
-                Set<String> existingFileNames = new HashSet<>();
-                Set<String> existingDirectoryNames = new HashSet<>();
-                for (JsonNode object : objects) {
+                ArrayNode objectGroups = (ArrayNode) response.get(TAG_RESULTS);
+                for (JsonNode object : objectGroups) {
                     String objectGroupId = object.get(id()).textValue();
-                    List<String> linkedUnits = unitsForObjectGroupId.get(objectGroupId);
+                    List<String> parentUnits = unitsForObjectGroupId.get(objectGroupId);
                     JsonNode selectObjectGroupLifeCycleById = logbookLifeCyclesClient.selectObjectGroupLifeCycleById(
                         objectGroupId,
                         new Select().getFinalSelect()
@@ -346,23 +358,13 @@ public class CreateManifest extends ActionHandler {
                             .map(LogbookLifeCycleObjectGroup::new)
                         : Stream.empty();
 
-                    String directoryPath = CONTENT + File.separator;
-
-                    if (exportWithTree) {
-                        directoryPath +=
-                        PathGenerator.generatePath(items, multimap, linkedUnits, existingDirectoryNames) +
-                        File.separator;
-                    }
-
                     idBinaryWithFileName.putAll(
                         manifestBuilder.writeGOT(
                             currentObject,
-                            linkedUnits.get(linkedUnits.size() - 1),
+                            parentUnits.get(parentUnits.size() - 1),
                             logbookLifeCycleObjectGroupStream,
-                            useOriginalFilenames,
-                            existingFileNames,
-                            existingDirectoryNames,
-                            directoryPath
+                            folderResolver,
+                            filenameResolver
                         )
                     );
 
@@ -376,8 +378,6 @@ public class CreateManifest extends ActionHandler {
                         .sum();
                     exportedObjectGroupIds.add(objectGroupId);
                 }
-                existingFileNames.clear();
-                existingDirectoryNames.clear();
             }
 
             SelectParserMultiple initialQueryParser = new SelectParserMultiple();
@@ -428,7 +428,12 @@ public class CreateManifest extends ActionHandler {
                     .map(LogbookLifeCycleUnit::new)
                     .orElse(null);
 
-                unit = manifestBuilder.writeArchiveUnitWithLFC(archiveUnitModel, multimap, filteredOgs, logbookLFC);
+                unit = manifestBuilder.writeArchiveUnitWithLFC(
+                    archiveUnitModel,
+                    unitIdToChildUnitIds,
+                    filteredOgs,
+                    logbookLFC
+                );
 
                 if (ArchiveTransfer.equals(exportRequest.getExportType())) {
                     List<String> opts = ListUtils.defaultIfNull(unit.getOpts(), new ArrayList<>());
@@ -563,7 +568,7 @@ public class CreateManifest extends ActionHandler {
                     .flatMap(version -> getVersions(qualifier, version).stream())
                     .distinct()
                     .sorted(comparing(VersionsModel::getVersion))
-                    .collect(Collectors.toList());
+                    .toList();
                 qualifier.setVersions(versionsToExport);
             });
         }
@@ -685,7 +690,7 @@ public class CreateManifest extends ActionHandler {
         return qualifier.getVersions().stream().min(comparing(VersionsModel::getVersion));
     }
 
-    private boolean checkEmptinessSelectedUnits(ItemStatus itemStatus, long total) {
+    private boolean checkEmptinessSelectedUnits(ItemStatus itemStatus, int total) {
         if (total == 0) {
             itemStatus.increment(StatusCode.KO);
             ObjectNode infoNode = JsonHandler.createObjectNode();
@@ -698,9 +703,9 @@ public class CreateManifest extends ActionHandler {
     }
 
     private void prepareGraphCreation(
-        ListMultimap<String, String> multimap,
+        ListMultimap<String, String> unitIdToChildUnitIds,
         Set<String> originatingAgencies,
-        Map<String, String> ogs,
+        Map<String, String> unitIdToObjectGroupId,
         JsonNode unit,
         String sedaVersionToExport
     ) throws ExportException {
@@ -713,40 +718,26 @@ public class CreateManifest extends ActionHandler {
                 unit.get(id()).asText();
             throw new ExportException(errorMsg);
         }
-        createGraph(multimap, originatingAgencies, ogs, unit);
+        createGraph(unitIdToChildUnitIds, originatingAgencies, unitIdToObjectGroupId, unit);
     }
 
     private void createGraph(
-        ListMultimap<String, String> multimap,
+        ListMultimap<String, String> unitIdToChildUnitIds,
         Set<String> originatingAgencies,
-        Map<String, String> ogs,
+        Map<String, String> unitIdToObjectGroupId,
         JsonNode unit
     ) {
         String archiveUnitId = unit.get(id()).asText();
         ArrayNode nodes = (ArrayNode) unit.get(VitamFieldsHelper.unitups());
         for (JsonNode node : nodes) {
-            multimap.put(node.asText(), archiveUnitId);
+            unitIdToChildUnitIds.put(node.asText(), archiveUnitId);
         }
         Optional<JsonNode> originatingAgency = Optional.ofNullable(unit.get(VitamFieldsHelper.originatingAgency()));
         originatingAgency.ifPresent(jsonNode -> originatingAgencies.add(jsonNode.asText()));
         JsonNode objectIdNode = unit.get(VitamFieldsHelper.object());
         if (objectIdNode != null) {
-            ogs.put(archiveUnitId, objectIdNode.asText());
+            unitIdToObjectGroupId.put(archiveUnitId, objectIdNode.asText());
         }
-    }
-
-    private void prepareDirectory(StringBuilder directoryBuilder, JsonNode unit) {
-        JsonNode item = unit.get(VitamFieldsHelper.object());
-
-        String title = unit.get("Title").asText();
-
-        directoryBuilder.append(title).append(File.separator);
-
-        directoryOfExport(directoryBuilder);
-    }
-
-    private String directoryOfExport(StringBuilder directoryBuilder) {
-        return directoryBuilder.toString();
     }
 
     private void storeBinaryInformationOnWorkspace(HandlerIO handlerIO, Map<String, JsonNode> maps)
@@ -781,5 +772,20 @@ public class CreateManifest extends ActionHandler {
     @Override
     public void checkMandatoryIOParameter(HandlerIO handler) throws ProcessingException {
         // TODO: add check on file listUnit.json.
+    }
+
+    private static FolderResolver createFolderResolver(List<JsonNode> units, boolean exportUnitTree)
+        throws ExportException {
+        if (!exportUnitTree) {
+            return FlatFolderResolver.INSTANCE;
+        }
+        return new UnitTreeFolderResolver(units);
+    }
+
+    private static FilenameResolver createFilenameResolver(boolean useOriginalFilenames) {
+        if (!useOriginalFilenames) {
+            return GuidFilenameResolver.INSTANCE;
+        }
+        return new OriginalFilenameResolver();
     }
 }

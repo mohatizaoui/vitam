@@ -51,6 +51,8 @@ import fr.gouv.vitam.common.exception.VitamRuntimeException;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.common.manifest.ManifestBuilder;
+import fr.gouv.vitam.common.manifest.naming.CollectFilenameResolver;
+import fr.gouv.vitam.common.manifest.naming.FlatFolderResolver;
 import fr.gouv.vitam.common.mapping.mapper.VitamObjectMapper;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.export.ExportRequest;
@@ -165,7 +167,13 @@ public class SipService {
                     List<String> linkedUnits = unitsForObjectGroupId.get(
                         object.get(ParserTokens.PROJECTIONARGS.ID.exactToken()).textValue()
                     );
-                    manifestBuilder.writeGOT(object, linkedUnits.get(linkedUnits.size() - 1), Stream.empty());
+                    manifestBuilder.writeGOT(
+                        object,
+                        linkedUnits.get(linkedUnits.size() - 1),
+                        Stream.empty(),
+                        FlatFolderResolver.INSTANCE,
+                        CollectFilenameResolver.INSTANCE
+                    );
                 }
             }
             manifestBuilder.startDescriptiveMetadata();

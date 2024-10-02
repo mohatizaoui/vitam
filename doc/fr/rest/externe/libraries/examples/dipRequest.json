@@ -6,6 +6,8 @@
     ]
   },
   "exportWithLogBookLFC": true,
+  "exportWithTree": false,
+  "useOriginalFilenames": false,
   "dipRequestParameters": {
     "archivalAgreement": "ArchivalAgreement",
     "originatingAgencyIdentifier": "OriginatingAgencyIdentifier",

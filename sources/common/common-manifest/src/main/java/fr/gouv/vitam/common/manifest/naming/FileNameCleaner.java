@@ -24,22 +24,29 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.common.manifest;
+package fr.gouv.vitam.common.manifest.naming;
 
 import fr.gouv.vitam.common.security.SafeFileChecker;
 import org.apache.commons.lang3.StringUtils;
 
 public class FileNameCleaner {
 
+    private FileNameCleaner() {
+        // Empty private constructor
+    }
+
     public static String cleanFileName(String fileName) {
         // Strip accents
         String stripped = StringUtils.stripAccents(fileName);
         // Replace spaces and undesired characters with underscores
-        stripped = stripped.replaceAll("[^a-zA-Z0-9\\.\\-_@]", "_");
+        stripped = stripped.replaceAll("[^a-zA-Z0-9.\\-_@]", "_");
         // Remove leading or trailing dots which are not allowed
-        stripped = stripped.replaceAll("^\\.+|\\.+$", "");
+        stripped = stripped.replaceAll("(^\\.+)|(\\.+$)", "");
         // Replace multiple consecutive dots with a single dot
         stripped = stripped.replaceAll("\\.{2,}", ".");
+        if (stripped.isEmpty()) {
+            stripped = "_";
+        }
         // Check if the cleaned filename matches the regex
         if (SafeFileChecker.FILENAME_PATTERN.matcher(stripped).matches()) {
             return stripped;
