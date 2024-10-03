@@ -271,7 +271,6 @@ public class SchemaIT extends VitamRuleRunner {
 
             assertThat(ontologiesImportResponse.getStatus()).isEqualTo(200);
 
-
             final InputStream schemaInputStream = PropertiesUtils.getResourceAsStream(
                 "schema/external-unit-schema-object-without-shortname.json"
             );
