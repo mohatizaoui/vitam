@@ -2240,9 +2240,9 @@ public class ManagementContractImplTest {
             .setName("New name")
             .setIdentifier(identifier)
             .setDescription("existing description")
-            .setCreationdate("2017-04-10T11:30:33.798")
-            .setActivationdate("2017-04-10T11:30:33.798")
-            .setLastupdate("2017-04-11T11:30:33.798")
+            .setCreationDate("2017-04-10T11:30:33.798")
+            .setActivationDate("2017-04-10T11:30:33.798")
+            .setLastUpdate("2017-04-11T11:30:33.798")
             .setStatus(ActivationStatus.ACTIVE);
         return mc;
     }

@@ -41,7 +41,7 @@ public class VersionUsagePermissionValidator {
 
         for (VersionsModel item : items) {
             boolean isAllowed =
-                accessContract.isEveryDataObjectVersion() ||
+                accessContract.getEveryDataObjectVersion() ||
                 accessContract
                     .getDataObjectVersion()
                     .stream()

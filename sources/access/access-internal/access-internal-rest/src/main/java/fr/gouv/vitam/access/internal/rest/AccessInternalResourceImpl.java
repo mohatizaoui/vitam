@@ -1247,7 +1247,7 @@ public class AccessInternalResourceImpl extends ApplicationStatusResource implem
         final String xQualifier = multipleMap.get(GlobalDataRest.X_QUALIFIER).get(0);
         final String xVersion = multipleMap.get(GlobalDataRest.X_VERSION).get(0);
 
-        if (!getVitamSession().getContract().isEveryDataObjectVersion() && !validUsage(xQualifier.split("_")[0])) {
+        if (!getVitamSession().getContract().getEveryDataObjectVersion() && !validUsage(xQualifier.split("_")[0])) {
             return Optional.of(
                 Response.status(UNAUTHORIZED).entity(getErrorStream(UNAUTHORIZED, "Qualifier not allowed")).build()
             );

@@ -872,11 +872,11 @@ public class AccessContractImpl implements ContractService<AccessContractModel> 
                 }
 
                 try {
-                    if (contract.getCreationdate() == null || contract.getCreationdate().trim().isEmpty()) {
-                        contract.setCreationdate(now);
+                    if (contract.getCreationDate() == null || contract.getCreationDate().trim().isEmpty()) {
+                        contract.setCreationDate(now);
                     } else {
-                        contract.setCreationdate(
-                            LocalDateUtil.getFormattedDateTimeForMongo(contract.getCreationdate())
+                        contract.setCreationDate(
+                            LocalDateUtil.getFormattedDateTimeForMongo(contract.getCreationDate())
                         );
                     }
                 } catch (final Exception e) {
@@ -884,11 +884,11 @@ public class AccessContractImpl implements ContractService<AccessContractModel> 
                     rejection = GenericRejectionCause.rejectMandatoryMissing("Creationdate");
                 }
                 try {
-                    if (contract.getActivationdate() == null || contract.getActivationdate().trim().isEmpty()) {
-                        contract.setActivationdate(now);
+                    if (contract.getActivationDate() == null || contract.getActivationDate().trim().isEmpty()) {
+                        contract.setActivationDate(now);
                     } else {
-                        contract.setActivationdate(
-                            LocalDateUtil.getFormattedDateTimeForMongo(contract.getActivationdate())
+                        contract.setActivationDate(
+                            LocalDateUtil.getFormattedDateTimeForMongo(contract.getActivationDate())
                         );
                     }
                 } catch (final Exception e) {
@@ -896,11 +896,11 @@ public class AccessContractImpl implements ContractService<AccessContractModel> 
                     rejection = GenericRejectionCause.rejectMandatoryMissing("ActivationDate");
                 }
                 try {
-                    if (contract.getDeactivationdate() == null || contract.getDeactivationdate().trim().isEmpty()) {
-                        contract.setDeactivationdate(null);
+                    if (contract.getDeactivationDate() == null || contract.getDeactivationDate().trim().isEmpty()) {
+                        contract.setDeactivationDate(null);
                     } else {
-                        contract.setDeactivationdate(
-                            LocalDateUtil.getFormattedDateTimeForMongo(contract.getDeactivationdate())
+                        contract.setDeactivationDate(
+                            LocalDateUtil.getFormattedDateTimeForMongo(contract.getDeactivationDate())
                         );
                     }
                 } catch (final Exception e) {
@@ -908,7 +908,7 @@ public class AccessContractImpl implements ContractService<AccessContractModel> 
                     rejection = GenericRejectionCause.rejectMandatoryMissing("deactivationdate");
                 }
 
-                contract.setLastupdate(now);
+                contract.setLastUpdate(now);
 
                 return rejection == null ? Optional.empty() : Optional.of(rejection);
             };
