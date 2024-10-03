@@ -56,18 +56,18 @@ public class IngestContractModelTest {
             .setName(name)
             .setDescription(description)
             .setStatus(ActivationStatus.ACTIVE)
-            .setLastupdate(lastupdate)
-            .setCreationdate(lastupdate)
-            .setActivationdate(lastupdate)
-            .setDeactivationdate(lastupdate);
+            .setLastUpdate(lastupdate)
+            .setCreationDate(lastupdate)
+            .setActivationDate(lastupdate)
+            .setDeactivationDate(lastupdate);
         contract.setArchiveProfiles(archiveProfiles);
 
         assertEquals(id, contract.getId());
         assertEquals(name, contract.getName());
         assertEquals(description, contract.getDescription());
-        assertEquals(lastupdate, contract.getCreationdate());
-        assertEquals(lastupdate, contract.getActivationdate());
-        assertEquals(lastupdate, contract.getDeactivationdate());
+        assertEquals(lastupdate, contract.getCreationDate());
+        assertEquals(lastupdate, contract.getActivationDate());
+        assertEquals(lastupdate, contract.getDeactivationDate());
         assertEquals(archiveProfiles, contract.getArchiveProfiles());
     }
 }

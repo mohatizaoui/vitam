@@ -858,8 +858,8 @@ public class IngestContractImplTest {
         assertThat(ingestContractModelListForassert.getResults()).isNotEmpty();
         for (final IngestContractModel ingestContractModel : ingestContractModelListForassert.getResults()) {
             assertThat(ActivationStatus.INACTIVE.equals(ingestContractModel.getStatus())).isTrue();
-            assertThat(ingestContractModel.getDeactivationdate()).isNotEmpty();
-            assertThat(ingestContractModel.getLastupdate()).isNotEmpty();
+            assertThat(ingestContractModel.getDeactivationDate()).isNotEmpty();
+            assertThat(ingestContractModel.getLastUpdate()).isNotEmpty();
             assertThat(ingestContractModel.getSignaturePolicy().isDeclaredSignature()).isFalse();
             assertThat(ingestContractModel.getSignaturePolicy().isDeclaredTimestamp()).isFalse();
             assertThat(ingestContractModel.getSignaturePolicy().isDeclaredAdditionalProof()).isFalse();
@@ -888,8 +888,8 @@ public class IngestContractImplTest {
         assertThat(ingestContractModelListForassert2.getResults()).isNotEmpty();
         for (final IngestContractModel ingestContractModel : ingestContractModelListForassert2.getResults()) {
             assertThat(ActivationStatus.ACTIVE.equals(ingestContractModel.getStatus())).isTrue();
-            assertThat(ingestContractModel.getActivationdate()).isNotEmpty();
-            assertThat(ingestContractModel.getLastupdate()).isNotEmpty();
+            assertThat(ingestContractModel.getActivationDate()).isNotEmpty();
+            assertThat(ingestContractModel.getLastUpdate()).isNotEmpty();
             assertThat(ingestContractModel.getLinkParentId()).isEqualTo("");
             assertEquals(IngestContractCheckState.AUTHORIZED, ingestContractModel.getCheckParentLink());
         }

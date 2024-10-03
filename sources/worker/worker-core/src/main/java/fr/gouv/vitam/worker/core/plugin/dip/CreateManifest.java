@@ -550,7 +550,7 @@ public class CreateManifest extends ActionHandler {
     ) {
         final List<QualifiersModel> qualifiers = objectGroup.getQualifiers();
 
-        if (Boolean.FALSE.equals(accessContract.isEveryDataObjectVersion())) {
+        if (Boolean.FALSE.equals(accessContract.getEveryDataObjectVersion())) {
             qualifiers.removeIf(qualifier -> !accessContract.getDataObjectVersion().contains(qualifier.getQualifier()));
         }
 

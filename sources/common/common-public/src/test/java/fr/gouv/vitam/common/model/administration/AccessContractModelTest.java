@@ -65,10 +65,10 @@ public class AccessContractModelTest {
             .setName(name)
             .setDescription(description)
             .setStatus(ActivationStatus.ACTIVE)
-            .setLastupdate(lastupdate)
-            .setCreationdate(creationdate)
-            .setActivationdate(activationdate)
-            .setDeactivationdate(deactivationdate);
+            .setLastUpdate(lastupdate)
+            .setCreationDate(creationdate)
+            .setActivationDate(activationdate)
+            .setDeactivationDate(deactivationdate);
         contract
             .setOriginatingAgencies(originatingAgencies)
             .setEveryOriginatingAgency(true)
@@ -82,9 +82,9 @@ public class AccessContractModelTest {
         assertEquals(id, contract.getId());
         assertEquals(name, contract.getName());
         assertEquals(description, contract.getDescription());
-        assertEquals(creationdate, contract.getCreationdate());
-        assertEquals(activationdate, contract.getActivationdate());
-        assertEquals(deactivationdate, contract.getDeactivationdate());
+        assertEquals(creationdate, contract.getCreationDate());
+        assertEquals(activationdate, contract.getActivationDate());
+        assertEquals(deactivationdate, contract.getDeactivationDate());
         assertEquals(originatingAgencies, contract.getOriginatingAgencies());
         assertEquals(rootUnits, contract.getRootUnits());
         assertEquals(excludedRootUnits, contract.getExcludedRootUnits());
@@ -105,7 +105,7 @@ public class AccessContractModelTest {
         // Then
         assertThat(accessContractModel.getEveryOriginatingAgency()).isFalse();
         assertThat(accessContractModel.getWritingPermission()).isFalse();
-        assertThat(accessContractModel.isEveryDataObjectVersion()).isFalse();
+        assertThat(accessContractModel.getEveryDataObjectVersion()).isFalse();
         assertThat(accessContractModel.getWritingRestrictedDesc()).isFalse();
         assertEquals(ActivationStatus.INACTIVE, accessContractModel.getAccessLog());
         assertThat(accessContractModel.getDoNotFilterFilingSchemes()).isFalse();
@@ -129,7 +129,7 @@ public class AccessContractModelTest {
         // Then
         assertThat(accessContractModel.getEveryOriginatingAgency()).isTrue();
         assertThat(accessContractModel.getWritingPermission()).isTrue();
-        assertThat(accessContractModel.isEveryDataObjectVersion()).isTrue();
+        assertThat(accessContractModel.getEveryDataObjectVersion()).isTrue();
         assertThat(accessContractModel.getWritingRestrictedDesc()).isTrue();
         assertEquals(ActivationStatus.INACTIVE, accessContractModel.getAccessLog());
         assertThat(accessContractModel.getDoNotFilterFilingSchemes()).isFalse();

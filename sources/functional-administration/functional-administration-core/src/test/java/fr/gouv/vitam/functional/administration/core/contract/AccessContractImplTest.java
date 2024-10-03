@@ -479,8 +479,8 @@ public class AccessContractImplTest {
         assertThat(accessContractModelListForassert.getResults()).isNotEmpty();
         for (final AccessContractModel accessContractModel : accessContractModelListForassert.getResults()) {
             assertThat(ActivationStatus.INACTIVE.equals(accessContractModel.getStatus())).isTrue();
-            assertThat(accessContractModel.getDeactivationdate()).isNotEmpty();
-            assertThat(accessContractModel.getLastupdate()).isNotEmpty();
+            assertThat(accessContractModel.getDeactivationDate()).isNotEmpty();
+            assertThat(accessContractModel.getLastUpdate()).isNotEmpty();
         }
 
         // Test update for access contract Status => Active
@@ -505,8 +505,8 @@ public class AccessContractImplTest {
         assertThat(accessContractModelListForassert2.getResults()).isNotEmpty();
         for (final AccessContractModel accessContractModel : accessContractModelListForassert2.getResults()) {
             assertThat(ActivationStatus.ACTIVE.equals(accessContractModel.getStatus())).isTrue();
-            assertThat(accessContractModel.getActivationdate()).isNotEmpty();
-            assertThat(accessContractModel.getLastupdate()).isNotEmpty();
+            assertThat(accessContractModel.getActivationDate()).isNotEmpty();
+            assertThat(accessContractModel.getLastUpdate()).isNotEmpty();
         }
 
         // we try to update access contract with same value -> Bad Request
@@ -583,8 +583,8 @@ public class AccessContractImplTest {
         for (final AccessContractModel accessContractModel : accessContractModelListForassert.getResults()) {
             assertThat(ActivationStatus.INACTIVE.equals(accessContractModel.getStatus())).isTrue();
             assertThat(accessContractModel.getEveryOriginatingAgency()).isFalse();
-            assertThat(accessContractModel.getDeactivationdate()).isNotEmpty();
-            assertThat(accessContractModel.getLastupdate()).isNotEmpty();
+            assertThat(accessContractModel.getDeactivationDate()).isNotEmpty();
+            assertThat(accessContractModel.getLastUpdate()).isNotEmpty();
         }
 
         // Test update for access contract Status => Active
@@ -604,8 +604,8 @@ public class AccessContractImplTest {
         for (final AccessContractModel accessContractModel : accessContractModelListForassert2.getResults()) {
             assertThat(ActivationStatus.INACTIVE.equals(accessContractModel.getStatus())).isTrue();
             assertThat(accessContractModel.getEveryOriginatingAgency()).isTrue();
-            assertThat(accessContractModel.getActivationdate()).isNotEmpty();
-            assertThat(accessContractModel.getLastupdate()).isNotEmpty();
+            assertThat(accessContractModel.getActivationDate()).isNotEmpty();
+            assertThat(accessContractModel.getLastUpdate()).isNotEmpty();
         }
     }
 

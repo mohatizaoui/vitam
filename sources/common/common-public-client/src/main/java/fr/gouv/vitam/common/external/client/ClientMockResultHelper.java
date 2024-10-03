@@ -298,10 +298,10 @@ public class ClientMockResultHelper {
         contract.setName("Un contrat");
         contract.setDescription("DESCRIPTION D'UN CONTRAT");
         contract.setStatus(ActivationStatus.ACTIVE);
-        contract.setCreationdate("2016-11-02");
-        contract.setLastupdate("2016-11-05");
-        contract.setActivationdate("2016-11-04");
-        contract.setDeactivationdate("2016-11-03");
+        contract.setCreationDate("2016-11-02");
+        contract.setLastUpdate("2016-11-05");
+        contract.setActivationDate("2016-11-04");
+        contract.setDeactivationDate("2016-11-03");
         return contract;
     }
 
@@ -323,10 +323,10 @@ public class ClientMockResultHelper {
         contract.setName("Un contrat");
         contract.setDescription("DESCRIPTION D'UN CONTRAT");
         contract.setStatus(ActivationStatus.ACTIVE);
-        contract.setCreationdate("2016-11-02");
-        contract.setLastupdate("2016-11-05");
-        contract.setActivationdate("2016-11-04");
-        contract.setDeactivationdate("2016-11-03");
+        contract.setCreationDate("2016-11-02");
+        contract.setLastUpdate("2016-11-05");
+        contract.setActivationDate("2016-11-04");
+        contract.setDeactivationDate("2016-11-03");
         contract.setDataObjectVersion(
             new HashSet<String>() {
                 {
@@ -357,10 +357,10 @@ public class ClientMockResultHelper {
         contract.setName("Un contrat");
         contract.setDescription("DESCRIPTION D'UN CONTRAT");
         contract.setStatus(ActivationStatus.ACTIVE);
-        contract.setCreationdate("2016-11-02");
-        contract.setLastupdate("2016-11-05");
-        contract.setActivationdate("2016-11-04");
-        contract.setDeactivationdate("2016-11-03");
+        contract.setCreationDate("2016-11-02");
+        contract.setLastUpdate("2016-11-05");
+        contract.setActivationDate("2016-11-04");
+        contract.setDeactivationDate("2016-11-03");
         contract.setStorage(
             new StorageDetailModel()
                 .setUnitStrategy("default")

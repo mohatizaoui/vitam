@@ -36,7 +36,7 @@ public class DownloadPermissionValidator {
 
     public void validate() throws AccessUnauthorizedException {
         final boolean isAllowed =
-            getVitamSession().getContract().isEveryDataObjectVersion() ||
+            getVitamSession().getContract().getEveryDataObjectVersion() ||
             !getVitamSession().getContract().getDataObjectVersion().isEmpty();
 
         if (!isAllowed) {

@@ -26,6 +26,7 @@
  */
 package fr.gouv.vitam.common.model.administration;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -171,7 +172,6 @@ public class AccessContractModel extends AbstractContractModel {
     }
 
     /**
-     * @param dataObjectVersion
      * @return AccessContractModel
      */
     public AccessContractModel setDataObjectVersion(Set<String> dataObjectVersion) {
@@ -187,7 +187,6 @@ public class AccessContractModel extends AbstractContractModel {
     }
 
     /**
-     * @param writingPermission
      * @return AccessContractModel
      */
     public AccessContractModel setWritingPermission(Boolean writingPermission) {
@@ -203,10 +202,9 @@ public class AccessContractModel extends AbstractContractModel {
     }
 
     /**
-     * @param writingRestrictedDesc
      * @return AccessContractModel
      */
-    AccessContractModel setWritingRestrictedDesc(Boolean writingRestrictedDesc) {
+    public AccessContractModel setWritingRestrictedDesc(Boolean writingRestrictedDesc) {
         this.writingRestrictedDesc = writingRestrictedDesc;
         return this;
     }
@@ -232,6 +230,15 @@ public class AccessContractModel extends AbstractContractModel {
     /**
      * @return true if all data object version are enabled for this contract
      */
+    public Boolean getEveryDataObjectVersion() {
+        return everyDataObjectVersion;
+    }
+
+    /**
+     * @deprecated since 8.0, replaced with {@link #getEveryDataObjectVersion()}
+     */
+    @Deprecated(forRemoval = true, since = "8.0")
+    @JsonIgnore
     public Boolean isEveryDataObjectVersion() {
         return everyDataObjectVersion;
     }

@@ -26,6 +26,7 @@
  */
 package fr.gouv.vitam.common.model.administration;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import fr.gouv.vitam.common.model.ModelConstants;
@@ -79,16 +80,16 @@ public class AbstractContractModel {
     private ActivationStatus status;
 
     @JsonProperty(TAG_CREATION_DATE)
-    private String creationdate;
+    private String creationDate;
 
     @JsonProperty(TAG_LAST_UPDATE)
-    private String lastupdate;
+    private String lastUpdate;
 
     @JsonProperty("ActivationDate")
-    private String activationdate;
+    private String activationDate;
 
     @JsonProperty("DeactivationDate")
-    private String deactivationdate;
+    private String deactivationDate;
 
     /**
      * Constructor without fields use for jackson
@@ -139,8 +140,9 @@ public class AbstractContractModel {
     /**
      * @param version
      */
-    public void setVersion(Integer version) {
+    public AbstractContractModel setVersion(Integer version) {
         this.version = version;
+        return this;
     }
 
     /**
@@ -226,64 +228,140 @@ public class AbstractContractModel {
     /**
      * @return the creation date of contract
      */
-    public String getCreationdate() {
-        return this.creationdate;
+    public String getCreationDate() {
+        return this.creationDate;
     }
 
     /**
-     * @param creationdate to set
+     * @deprecated since 8.0, replaced with {@link #getCreationDate()}
+     */
+    @Deprecated(forRemoval = true, since = "8.0")
+    @JsonIgnore
+    public String getCreationdate() {
+        return this.creationDate;
+    }
+
+    /**
+     * @param creationDate to set
      * @return this
      */
+    public AbstractContractModel setCreationDate(String creationDate) {
+        this.creationDate = creationDate;
+        return this;
+    }
+
+    /**
+     * @deprecated since 8.0, replaced with {@link #setCreationDate(String creationDate)}
+     */
+    @Deprecated(forRemoval = true, since = "8.0")
+    @JsonIgnore
     public AbstractContractModel setCreationdate(String creationdate) {
-        this.creationdate = creationdate;
+        this.creationDate = creationdate;
         return this;
     }
 
     /**
      * @return last update of contract
      */
-    public String getLastupdate() {
-        return this.lastupdate;
+    public String getLastUpdate() {
+        return this.lastUpdate;
     }
 
     /**
-     * @param lastupdate to set
+     * @deprecated since 8.0, replaced with {@link #getLastUpdate()}
+     */
+    @Deprecated(forRemoval = true, since = "8.0")
+    @JsonIgnore
+    public String getLastupdate() {
+        return this.lastUpdate;
+    }
+
+    /**
+     * @param lastUpdate to set
      * @return this
      */
+    public AbstractContractModel setLastUpdate(String lastUpdate) {
+        this.lastUpdate = lastUpdate;
+        return this;
+    }
+
+    /**
+     * @deprecated since 8.0, replaced with {@link #setLastUpdate(String lastUpdate)}
+     */
+    @Deprecated(forRemoval = true, since = "8.0")
+    @JsonIgnore
     public AbstractContractModel setLastupdate(String lastupdate) {
-        this.lastupdate = lastupdate;
+        this.lastUpdate = lastupdate;
         return this;
     }
 
     /**
      * @return the activation date of contracr
      */
-    public String getActivationdate() {
-        return this.activationdate;
+    public String getActivationDate() {
+        return this.activationDate;
     }
 
     /**
-     * @param activationdate to set
+     * @deprecated since 8.0, replaced with {@link #getActivationDate()}
+     */
+    @Deprecated(forRemoval = true, since = "8.0")
+    @JsonIgnore
+    public String getActivationdate() {
+        return this.activationDate;
+    }
+
+    /**
+     * @param activationDate to set
      * @return this
      */
+    public AbstractContractModel setActivationDate(String activationDate) {
+        this.activationDate = activationDate;
+        return this;
+    }
+
+    /**
+     * @deprecated since 8.0, replaced with {@link #setActivationDate(String activationDate)}
+     */
+    @Deprecated(forRemoval = true, since = "8.0")
+    @JsonIgnore
     public AbstractContractModel setActivationdate(String activationdate) {
-        this.activationdate = activationdate;
+        this.activationDate = activationdate;
         return this;
     }
 
     /**
      * @return the desactivation date of contract
      */
-    public String getDeactivationdate() {
-        return this.deactivationdate;
+    public String getDeactivationDate() {
+        return this.deactivationDate;
     }
 
     /**
-     * @param deactivationdate to set
+     * @deprecated since 8.0, replaced with {@link #getDeactivationDate()}
+     */
+    @Deprecated(forRemoval = true, since = "8.0")
+    @JsonIgnore
+    public String getDeactivationdate() {
+        return this.deactivationDate;
+    }
+
+    /**
+     * @param deactivationDate to set
      * @return this
      */
+    public AbstractContractModel setDeactivationDate(String deactivationDate) {
+        this.deactivationDate = deactivationDate;
+        return this;
+    }
+
+    /**
+     * @deprecated since 8.0, replaced with {@link #setDeactivationDate(String deactivationDate)}
+     */
+    @Deprecated(forRemoval = true, since = "8.0")
+    @JsonIgnore
     public AbstractContractModel setDeactivationdate(String deactivationdate) {
-        this.deactivationdate = deactivationdate;
+        this.deactivationDate = deactivationdate;
         return this;
     }
 }

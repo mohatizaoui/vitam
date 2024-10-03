@@ -396,8 +396,8 @@ public class AdminManagementResourceTest {
         contractModel.setIdentifier(contractId);
         contractModel.setName(contractId);
         contractModel.setStatus(ActivationStatus.ACTIVE);
-        contractModel.setCreationdate("2019-02-12T14:51:22.567");
-        contractModel.setLastupdate("2019-02-12T14:51:23.567");
+        contractModel.setCreationDate("2019-02-12T14:51:22.567");
+        contractModel.setLastUpdate("2019-02-12T14:51:23.567");
         contractModel.initializeDefaultValue();
 
         mongoDbAccess
