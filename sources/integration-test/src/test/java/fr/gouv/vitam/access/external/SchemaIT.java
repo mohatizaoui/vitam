@@ -149,6 +149,7 @@ public class SchemaIT extends VitamRuleRunner {
                 MetadataCollections.OBJECTGROUP.getName(),
                 FunctionalAdminCollections.ACCESSION_REGISTER_SUMMARY.getName(),
                 FunctionalAdminCollections.ACCESSION_REGISTER_DETAIL.getName(),
+                FunctionalAdminCollections.SCHEMA.getName(),
                 LogbookCollections.OPERATION.getName(),
                 LogbookCollections.LIFECYCLE_UNIT.getName(),
                 LogbookCollections.LIFECYCLE_OBJECTGROUP.getName(),
@@ -169,7 +170,8 @@ public class SchemaIT extends VitamRuleRunner {
             ),
             ElasticsearchIndexAlias.ofCrossTenantCollection(
                 FunctionalAdminCollections.ACCESSION_REGISTER_SUMMARY.getName()
-            )
+            ),
+            ElasticsearchIndexAlias.ofCrossTenantCollection(FunctionalAdminCollections.SCHEMA.getName())
         );
     }
 
