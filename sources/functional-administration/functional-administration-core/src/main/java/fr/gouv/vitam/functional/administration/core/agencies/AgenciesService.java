@@ -34,7 +34,9 @@ import fr.gouv.vitam.common.FileUtil;
 import fr.gouv.vitam.common.LocalDateUtil;
 import fr.gouv.vitam.common.database.builder.query.QueryHelper;
 import fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper;
+import fr.gouv.vitam.common.database.builder.query.action.Action;
 import fr.gouv.vitam.common.database.builder.query.action.SetAction;
+import fr.gouv.vitam.common.database.builder.query.action.UnsetAction;
 import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
 import fr.gouv.vitam.common.database.builder.request.single.Delete;
 import fr.gouv.vitam.common.database.builder.request.single.Select;
@@ -74,6 +76,7 @@ import fr.gouv.vitam.functional.administration.common.counter.SequenceType;
 import fr.gouv.vitam.functional.administration.common.counter.VitamCounterService;
 import fr.gouv.vitam.functional.administration.common.exception.AgencyImportDeletionException;
 import fr.gouv.vitam.functional.administration.common.exception.InvalidFileException;
+import fr.gouv.vitam.functional.administration.common.exception.InvalidFileFormatParseException;
 import fr.gouv.vitam.functional.administration.common.exception.ReferentialException;
 import fr.gouv.vitam.functional.administration.common.exception.ReferentialImportInProgressException;
 import fr.gouv.vitam.functional.administration.common.server.FunctionalAdminCollections;
@@ -83,6 +86,7 @@ import fr.gouv.vitam.functional.administration.core.contract.AccessContractImpl;
 import fr.gouv.vitam.functional.administration.core.contract.ContractService;
 import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClientFactory;
 import fr.gouv.vitam.storage.engine.common.model.DataCategory;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -96,11 +100,14 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -154,7 +161,7 @@ public class AgenciesService {
     private static final String UND_TENANT = "_tenant";
     private static final String AGENCIES_PROCESS_IMPORT_ALREADY_EXIST =
         "There is already another agencies import in progress";
-
+    public static final String CSV_MULTIPLE_STRINGS_SEPARATOR = "\\|";
     private final MongoDbAccessAdminImpl mongoAccess;
     private final FunctionalBackupService backupService;
     private final LogbookAgenciesImportManager manager;
@@ -246,6 +253,15 @@ public class AgenciesService {
                 CSVFormat.DEFAULT.withHeader().withTrim().withIgnoreEmptyLines(false)
             );
             try {
+                List<String> headerNames = parser.getHeaderNames();
+                List<String> unknownFields = headerNames
+                    .stream()
+                    .filter(element -> !AgenciesModel.getAllFieldNames().contains(element))
+                    .collect(Collectors.toList());
+                if (CollectionUtils.isNotEmpty(unknownFields)) {
+                    throw new InvalidFileException("Unknown fields found: " + String.join(",", unknownFields));
+                }
+
                 for (final CSVRecord record : parser) {
                     List<ErrorReportAgencies> errors = new ArrayList<>();
                     lineNumber++;
@@ -255,8 +271,68 @@ public class AgenciesService {
                         final String description = record.get(AgenciesModel.TAG_DESCRIPTION);
 
                         final AgenciesModel agenciesModel = new AgenciesModel(identifier, name, description, tenantId);
-
                         checkParametersNotEmpty(identifier, name, errors, lineNumber);
+
+                        extractOptionalStringField(record, AgenciesModel.TAG_ENTITY_TYPE).ifPresent(
+                            agenciesModel::setEntityType
+                        );
+
+                        extractOptionalStringArrayField(record, AgenciesModel.TAG_ALTERNATIVE_FORM).ifPresent(
+                            agenciesModel::setAlternativeForm
+                        );
+
+                        extractOptionalStringArrayField(record, AgenciesModel.TAG_AUTHORIZED_FORM).ifPresent(
+                            agenciesModel::setAuthorizedForm
+                        );
+
+                        extractOptionalStringField(record, AgenciesModel.TAG_BIOG_HIST).ifPresent(
+                            agenciesModel::setBiogHist
+                        );
+                        extractOptionalStringField(record, AgenciesModel.TAG_GENERAL_CONTEXT).ifPresent(
+                            agenciesModel::setGeneralContext
+                        );
+
+                        Optional<String> fromDateValue = extractOptionalDateField(record, AgenciesModel.TAG_FROM_DATE);
+                        fromDateValue.ifPresent(agenciesModel::setFromDate);
+
+                        Optional<String> toDateValue = extractOptionalDateField(record, AgenciesModel.TAG_TO_DATE);
+                        toDateValue.ifPresent(agenciesModel::setToDate);
+
+                        extractOptionalStringField(record, AgenciesModel.TAG_EVENT_DESCRIPTION).ifPresent(
+                            agenciesModel::setEventDescription
+                        );
+
+                        extractOptionalStringField(record, AgenciesModel.TAG_ENTITY_ID).ifPresent(
+                            agenciesModel::setEntityId
+                        );
+                        extractOptionalStringArrayField(record, AgenciesModel.TAG_NAME_ENTRY_PARALLEL).ifPresent(
+                            agenciesModel::setNameEntryParallel
+                        );
+                        extractOptionalStringArrayField(record, AgenciesModel.TAG_FUNCTIONS).ifPresent(
+                            agenciesModel::setFunctions
+                        );
+                        extractOptionalStringField(record, AgenciesModel.TAG_STRUCTURE_OR_GENEALOGY).ifPresent(
+                            agenciesModel::setStructureOrGenealogy
+                        );
+                        extractOptionalStringArrayField(record, AgenciesModel.TAG_LEGAL_STATUSES).ifPresent(
+                            agenciesModel::setLegalStatuses
+                        );
+                        extractOptionalStringArrayField(record, AgenciesModel.TAG_SOURCES).ifPresent(
+                            agenciesModel::setSources
+                        );
+                        extractOptionalStringField(record, AgenciesModel.TAG_LOCAL_STATUS).ifPresent(
+                            agenciesModel::setLocalStatus
+                        );
+                        extractOptionalStringArrayField(record, AgenciesModel.TAG_MANDATES).ifPresent(
+                            agenciesModel::setMandates
+                        );
+                        extractOptionalStringField(record, AgenciesModel.TAG_MAINTENANCE_STATUS).ifPresent(
+                            agenciesModel::setMaintenanceStatus
+                        );
+
+                        extractOptionalStringArrayField(record, AgenciesModel.TAG_PLACES).ifPresent(
+                            agenciesModel::setPlaces
+                        );
 
                         if (agenciesModelMap.containsKey(identifier)) {
                             errors.add(
@@ -292,6 +368,48 @@ public class AgenciesService {
 
             return new AgenciesImportResult(new HashSet<>(agenciesModelMap.values()), errorsMap);
         }
+    }
+
+    private Optional<String> extractOptionalStringField(CSVRecord record, String fieldName) {
+        return Optional.ofNullable(record.isSet(fieldName) ? record.get(fieldName) : null).filter(
+            StringUtils::isNotEmpty
+        );
+    }
+
+    private Optional<String> extractOptionalDateField(CSVRecord record, String fieldName)
+        throws InvalidFileFormatParseException {
+        try {
+            if (!record.isSet(fieldName)) {
+                return Optional.empty();
+            }
+            if (StringUtils.isEmpty(record.get(fieldName))) return Optional.empty();
+
+            return Optional.of(LocalDateUtil.getFormattedDateOnlyForMongo(record.get(fieldName)));
+        } catch (DateTimeParseException e) {
+            throw new InvalidFileFormatParseException("The field " + fieldName + " contains bad date format value", e);
+        }
+    }
+
+    private Optional<List<String>> extractOptionalStringArrayField(CSVRecord record, String fieldName)
+        throws InvalidFileFormatParseException {
+        if (record.isSet(fieldName)) {
+            String fieldValue = record.get(fieldName);
+            if (StringUtils.isNotEmpty(fieldValue)) {
+                List<String> fieldValueTokens = Arrays.asList(fieldValue.split(CSV_MULTIPLE_STRINGS_SEPARATOR));
+                List<String> fieldValueTokensCleaned = fieldValueTokens
+                    .stream()
+                    .filter(StringUtils::isNotBlank)
+                    .toList();
+
+                if (fieldValueTokensCleaned.size() < fieldValueTokens.size()) {
+                    throw new InvalidFileFormatParseException(
+                        "The field " + fieldName + " contains bad formatted values"
+                    );
+                }
+                return Optional.of(fieldValueTokensCleaned);
+            }
+        }
+        return Optional.empty();
     }
 
     /**
@@ -379,7 +497,7 @@ public class AgenciesService {
             agenciesToUpdate.removeAll(agenciesToInsert);
 
             agenciesImportResult.setUpdatedAgencies(agenciesToUpdate);
-
+            agenciesToUpdate.forEach(agencyModel -> agencyModel.setUpdateDate(LocalDateUtil.nowFormatted()));
             Set<AgenciesModel> agenciesToDelete = agenciesInDb
                 .stream()
                 .filter(
@@ -447,7 +565,6 @@ public class AgenciesService {
                     manager.logEventWarning(eip, AGENCIES_IMPORT_AU_USAGE);
                 }
                 agenciesImportResult.setUsedAgenciesAU(usedAgenciesInMetadataToUpdate);
-
                 commitAgencies(agenciesToInsert, agenciesToUpdate, agenciesToDelete);
 
                 // store source File
@@ -517,7 +634,7 @@ public class AgenciesService {
                 AgenciesService.AGENCIES_PROCESS_IMPORT_ALREADY_EXIST,
                 AGENCIES_IMPORT_CONCURRENCE_ERROR
             );
-        } catch (InvalidFileException e) {
+        } catch (InvalidFileException | InvalidFileFormatParseException e) {
             LOGGER.error(MESSAGE_ERROR, e);
             return generateVitamBadRequestError(eip, MESSAGE_ERROR + e.getMessage(), null);
         } catch (IOException | IllegalPathException | VitamException e) {
@@ -586,8 +703,11 @@ public class AgenciesService {
         ArrayNode agenciesNodeToPersist = JsonHandler.createArrayNode();
 
         for (final AgenciesModel agency : agenciesToInsert) {
+            String currentDate = LocalDateUtil.nowFormatted();
             agency.setId(GUIDFactory.newGUID().getId());
             agency.setTenant(ParameterHelper.getTenantParameter());
+            agency.setCreationDate(currentDate);
+            agency.setUpdateDate(currentDate);
             ObjectNode agencyNode = (ObjectNode) JsonHandler.toJsonNode(agency);
             JsonNode jsonNode = agencyNode.remove(VitamFieldsHelper.id());
             if (jsonNode != null) {
@@ -633,21 +753,118 @@ public class AgenciesService {
         throws InvalidCreateOperationException, ReferentialException, InvalidParseOperationException, SchemaValidationException, BadRequestException {
         final UpdateParserSingle updateParser = new UpdateParserSingle(new VarNameAdapter());
         final Update updateFileAgencies = new Update();
-        List<SetAction> actions = new ArrayList<>();
-        SetAction setAgencyValue = new SetAction(AgenciesModel.TAG_NAME, fileAgenciesModel.getName());
-        SetAction setAgencyDescription = new SetAction(
-            AgenciesModel.TAG_DESCRIPTION,
-            fileAgenciesModel.getDescription()
-        );
+        fileAgenciesModel.setUpdateDate(LocalDateUtil.nowFormatted());
 
-        actions.add(setAgencyValue);
-        actions.add(setAgencyDescription);
+        List<Action> actions = prepareUpdateActions(fileAgenciesModel);
         updateFileAgencies.setQuery(eq(AgenciesModel.TAG_IDENTIFIER, fileAgenciesModel.getIdentifier()));
-        updateFileAgencies.addActions(actions.toArray(new SetAction[0]));
+        updateFileAgencies.addActions(actions.toArray(new Action[0]));
 
         updateParser.parse(updateFileAgencies.getFinalUpdate());
 
         mongoAccess.updateData(updateParser.getRequest().getFinalUpdate(), AGENCIES, sequence);
+    }
+
+    private List<Action> prepareUpdateActions(AgenciesModel fileAgenciesModel) throws InvalidCreateOperationException {
+        List<Action> actions = new ArrayList<>();
+        actions.add(new SetAction(AgenciesModel.TAG_NAME, fileAgenciesModel.getName()));
+        actions.add(new SetAction(AgenciesModel.TAG_DESCRIPTION, fileAgenciesModel.getDescription()));
+        actions.add(new SetAction(AgenciesModel.TAG_UPDATE_DATE, fileAgenciesModel.getUpdateDate()));
+        if (StringUtils.isNotEmpty(fileAgenciesModel.getEntityType())) {
+            actions.add(new SetAction(AgenciesModel.TAG_ENTITY_TYPE, fileAgenciesModel.getEntityType()));
+        } else {
+            actions.add(new UnsetAction(AgenciesModel.TAG_ENTITY_TYPE));
+        }
+        if (CollectionUtils.isNotEmpty(fileAgenciesModel.getNameEntryParallel())) {
+            actions.add(new SetAction(AgenciesModel.TAG_NAME_ENTRY_PARALLEL, fileAgenciesModel.getNameEntryParallel()));
+        } else {
+            actions.add(new UnsetAction(AgenciesModel.TAG_NAME_ENTRY_PARALLEL));
+        }
+        if (CollectionUtils.isNotEmpty(fileAgenciesModel.getAuthorizedForm())) {
+            actions.add(new SetAction(AgenciesModel.TAG_AUTHORIZED_FORM, fileAgenciesModel.getAuthorizedForm()));
+        } else {
+            actions.add(new UnsetAction(AgenciesModel.TAG_AUTHORIZED_FORM));
+        }
+        if (CollectionUtils.isNotEmpty(fileAgenciesModel.getAlternativeForm())) {
+            actions.add(new SetAction(AgenciesModel.TAG_ALTERNATIVE_FORM, fileAgenciesModel.getAlternativeForm()));
+        } else {
+            actions.add(new UnsetAction(AgenciesModel.TAG_ALTERNATIVE_FORM));
+        }
+        if (StringUtils.isNotEmpty(fileAgenciesModel.getEntityId())) {
+            actions.add(new SetAction(AgenciesModel.TAG_ENTITY_ID, fileAgenciesModel.getEntityId()));
+        } else {
+            actions.add(new UnsetAction(AgenciesModel.TAG_ENTITY_ID));
+        }
+        if (StringUtils.isNotEmpty(fileAgenciesModel.getFromDate())) {
+            actions.add(new SetAction(AgenciesModel.TAG_FROM_DATE, fileAgenciesModel.getFromDate()));
+        } else {
+            actions.add(new UnsetAction(AgenciesModel.TAG_FROM_DATE));
+        }
+        if (StringUtils.isNotEmpty(fileAgenciesModel.getToDate())) {
+            actions.add(new SetAction(AgenciesModel.TAG_TO_DATE, fileAgenciesModel.getToDate()));
+        } else {
+            actions.add(new UnsetAction(AgenciesModel.TAG_TO_DATE));
+        }
+        if (CollectionUtils.isNotEmpty(fileAgenciesModel.getFunctions())) {
+            actions.add(new SetAction(AgenciesModel.TAG_FUNCTIONS, fileAgenciesModel.getFunctions()));
+        } else {
+            actions.add(new UnsetAction(AgenciesModel.TAG_FUNCTIONS));
+        }
+        if (StringUtils.isNotEmpty(fileAgenciesModel.getBiogHist())) {
+            actions.add(new SetAction(AgenciesModel.TAG_BIOG_HIST, fileAgenciesModel.getBiogHist()));
+        } else {
+            actions.add(new UnsetAction(AgenciesModel.TAG_BIOG_HIST));
+        }
+        if (CollectionUtils.isNotEmpty(fileAgenciesModel.getPlaces())) {
+            actions.add(new SetAction(AgenciesModel.TAG_PLACES, fileAgenciesModel.getPlaces()));
+        } else {
+            actions.add(new UnsetAction(AgenciesModel.TAG_PLACES));
+        }
+        if (CollectionUtils.isNotEmpty(fileAgenciesModel.getLegalStatuses())) {
+            actions.add(new SetAction(AgenciesModel.TAG_LEGAL_STATUSES, fileAgenciesModel.getLegalStatuses()));
+        } else {
+            actions.add(new UnsetAction(AgenciesModel.TAG_LEGAL_STATUSES));
+        }
+        if (CollectionUtils.isNotEmpty(fileAgenciesModel.getMandates())) {
+            actions.add(new SetAction(AgenciesModel.TAG_MANDATES, fileAgenciesModel.getMandates()));
+        } else {
+            actions.add(new UnsetAction(AgenciesModel.TAG_MANDATES));
+        }
+        if (StringUtils.isNotEmpty(fileAgenciesModel.getStructureOrGenealogy())) {
+            actions.add(
+                new SetAction(AgenciesModel.TAG_STRUCTURE_OR_GENEALOGY, fileAgenciesModel.getStructureOrGenealogy())
+            );
+        } else {
+            actions.add(new UnsetAction(AgenciesModel.TAG_STRUCTURE_OR_GENEALOGY));
+        }
+        if (StringUtils.isNotEmpty(fileAgenciesModel.getGeneralContext())) {
+            actions.add(new SetAction(AgenciesModel.TAG_GENERAL_CONTEXT, fileAgenciesModel.getGeneralContext()));
+        } else {
+            actions.add(new UnsetAction(AgenciesModel.TAG_GENERAL_CONTEXT));
+        }
+        if (StringUtils.isNotEmpty(fileAgenciesModel.getMaintenanceStatus())) {
+            actions.add(new SetAction(AgenciesModel.TAG_MAINTENANCE_STATUS, fileAgenciesModel.getMaintenanceStatus()));
+        } else {
+            actions.add(new UnsetAction(AgenciesModel.TAG_MAINTENANCE_STATUS));
+        }
+
+        if (StringUtils.isNotEmpty(fileAgenciesModel.getLocalStatus())) {
+            actions.add(new SetAction(AgenciesModel.TAG_LOCAL_STATUS, fileAgenciesModel.getLocalStatus()));
+        } else {
+            actions.add(new UnsetAction(AgenciesModel.TAG_LOCAL_STATUS));
+        }
+
+        if (CollectionUtils.isNotEmpty(fileAgenciesModel.getSources())) {
+            actions.add(new SetAction(AgenciesModel.TAG_SOURCES, fileAgenciesModel.getSources()));
+        } else {
+            actions.add(new UnsetAction(AgenciesModel.TAG_SOURCES));
+        }
+
+        if (StringUtils.isNotEmpty(fileAgenciesModel.getEventDescription())) {
+            actions.add(new SetAction(AgenciesModel.TAG_EVENT_DESCRIPTION, fileAgenciesModel.getEventDescription()));
+        } else {
+            actions.add(new UnsetAction(AgenciesModel.TAG_EVENT_DESCRIPTION));
+        }
+        return actions;
     }
 
     private void deleteAgency(AgenciesModel fileAgenciesModel) throws BadRequestException, ReferentialException {

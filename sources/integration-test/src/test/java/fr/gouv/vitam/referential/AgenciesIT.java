@@ -36,6 +36,7 @@ import fr.gouv.vitam.common.database.offset.OffsetRepository;
 import fr.gouv.vitam.common.database.server.mongodb.MongoDbAccess;
 import fr.gouv.vitam.common.database.server.mongodb.SimpleMongoDBAccess;
 import fr.gouv.vitam.common.elasticsearch.ElasticsearchRule;
+import fr.gouv.vitam.common.exception.BadRequestException;
 import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.model.administration.AgenciesModel;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
@@ -43,6 +44,7 @@ import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.functional.administration.client.AdminManagementClient;
 import fr.gouv.vitam.functional.administration.client.AdminManagementClientFactory;
 import fr.gouv.vitam.functional.administration.common.Agencies;
+import fr.gouv.vitam.functional.administration.common.exception.AdminManagementClientServerException;
 import fr.gouv.vitam.functional.administration.common.server.FunctionalAdminCollections;
 import fr.gouv.vitam.functional.administration.rest.AdminManagementMain;
 import fr.gouv.vitam.logbook.rest.LogbookMain;
@@ -50,13 +52,16 @@ import fr.gouv.vitam.metadata.rest.MetadataMain;
 import fr.gouv.vitam.storage.engine.server.rest.StorageMain;
 import fr.gouv.vitam.storage.offers.rest.DefaultOfferMain;
 import fr.gouv.vitam.workspace.rest.WorkspaceMain;
+import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
+import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -73,6 +78,9 @@ public class AgenciesIT extends VitamRuleRunner {
 
     private static final String AGENCY_PATH_1 = "referential/agencies_1.csv";
     private static final String AGENCY_PATH_2 = "referential/agencies_2.csv";
+    private static final String AGENCY_WITH_OPTIONAL_FIELDS_PATH = "referential/agencies_with_optional_fields_.csv";
+    private static final String AGENCY_WITH_OPTIONAL_FIELDS_PATH_FAILED =
+        "referential/agencies_with_optional_fields_wrong_format.csv";
     private static final int TENANT_0 = 0;
 
     @ClassRule
@@ -163,6 +171,153 @@ public class AgenciesIT extends VitamRuleRunner {
         assertThat(agencies)
             .extracting(AgenciesModel::getDescription)
             .containsOnly("BLOU---1", "BLOU---2", "BLOU---3", "BLOU---4", "BLOU---5", "BLOU---6");
+        assertThat(agencies)
+            .extracting(AgenciesModel::getTenant)
+            .containsOnly(TENANT_0, TENANT_0, TENANT_0, TENANT_0, TENANT_0, TENANT_0);
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void should_import_agencies_with_optional_fields() throws Exception {
+        VitamThreadUtils.getVitamSession().setTenantId(TENANT_0);
+        VitamThreadUtils.getVitamSession().setRequestId(newOperationLogbookGUID(TENANT_0));
+
+        OffsetRepository offsetRepository;
+
+        MongoDbAccess mongoDbAccess = new SimpleMongoDBAccess(
+            mongoRule.getMongoClient(),
+            mongoRule.getMongoDatabase().getName()
+        );
+        offsetRepository = new OffsetRepository(mongoDbAccess);
+
+        offsetRepository.createOrUpdateOffset(
+            TENANT_0,
+            VitamConfiguration.getDefaultStrategy(),
+            FunctionalAdminCollections.ACCESSION_REGISTER_DETAIL.getName(),
+            0L
+        );
+
+        try (AdminManagementClient client = AdminManagementClientFactory.getInstance().getClient()) {
+            client.importAgenciesFile(PropertiesUtils.getResourceAsStream(AGENCY_PATH_1), "agencies_1.csv");
+        }
+
+        VitamThreadUtils.getVitamSession().setTenantId(TENANT_0);
+        VitamThreadUtils.getVitamSession().setRequestId(newOperationLogbookGUID(TENANT_0));
+
+        // When
+        try (AdminManagementClient client = AdminManagementClientFactory.getInstance().getClient()) {
+            client.importAgenciesFile(
+                PropertiesUtils.getResourceAsStream(AGENCY_WITH_OPTIONAL_FIELDS_PATH),
+                "agencies_with_optional_fields_.csv"
+            );
+        }
+
+        // Then
+        List<AgenciesModel> agencies = new ArrayList<>();
+        FunctionalAdminCollections.AGENCIES.<Agencies>getVitamCollection()
+            .getCollection()
+            .find()
+            .map(
+                d ->
+                    new AgenciesModel(d.getIdentifier(), d.getName(), d.getDescription(), d.getTenantId())
+                        .setToDate(d.getToDate())
+                        .setEntityType(d.getEntityType())
+                        .setLegalStatuses(d.getLegalStatuses())
+            )
+            .forEach((Consumer<AgenciesModel>) agencies::add);
+
+        assertThat(agencies)
+            .extracting(AgenciesModel::getIdentifier)
+            .containsOnly("AGG-00001", "AGG-00002", "AGG-00004");
+        assertThat(agencies).extracting(AgenciesModel::getName).containsOnly("agency 1", "agency 2", "agency 4");
+        assertThat(agencies)
+            .extracting(AgenciesModel::getDescription)
+            .containsOnly(
+                "une description de service agent",
+                "une description de service agent",
+                "une description de service agent4"
+            );
+        assertThat(agencies)
+            .extracting(AgenciesModel::getEntityType)
+            .containsOnly("EntityType example1", "EntityType example2", "EntityType example3");
+        assertThat(agencies)
+            .extracting(AgenciesModel::getLegalStatuses)
+            .contains(
+                List.of("LegalStatus1", "LegalStatus2", "LegalStatus3"),
+                List.of("LegalStatus1", "LegalStatus2"),
+                List.of("LegalStatus1", "LegalStatus2")
+            );
+        assertThat(agencies)
+            .extracting(AgenciesModel::getTenant)
+            .containsOnly(TENANT_0, TENANT_0, TENANT_0, TENANT_0, TENANT_0, TENANT_0);
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void should_not_import_agencies_with_optional_fields_on_failed() throws Exception {
+        VitamThreadUtils.getVitamSession().setTenantId(TENANT_0);
+        VitamThreadUtils.getVitamSession().setRequestId(newOperationLogbookGUID(TENANT_0));
+
+        OffsetRepository offsetRepository;
+
+        MongoDbAccess mongoDbAccess = new SimpleMongoDBAccess(
+            mongoRule.getMongoClient(),
+            mongoRule.getMongoDatabase().getName()
+        );
+        offsetRepository = new OffsetRepository(mongoDbAccess);
+
+        offsetRepository.createOrUpdateOffset(
+            TENANT_0,
+            VitamConfiguration.getDefaultStrategy(),
+            FunctionalAdminCollections.ACCESSION_REGISTER_DETAIL.getName(),
+            0L
+        );
+        try (AdminManagementClient client = AdminManagementClientFactory.getInstance().getClient()) {
+            client.importAgenciesFile(PropertiesUtils.getResourceAsStream(AGENCY_PATH_1), "agencies_1.csv");
+        }
+        VitamThreadUtils.getVitamSession().setTenantId(TENANT_0);
+        VitamThreadUtils.getVitamSession().setRequestId(newOperationLogbookGUID(TENANT_0));
+
+        // When
+
+        AdminManagementClientServerException exception = Assert.assertThrows(
+            AdminManagementClientServerException.class,
+            () -> {
+                try (AdminManagementClient client = AdminManagementClientFactory.getInstance().getClient()) {
+                    Response.Status status = client.importAgenciesFile(
+                        PropertiesUtils.getResourceAsStream(AGENCY_WITH_OPTIONAL_FIELDS_PATH_FAILED),
+                        "agencies_with_optional_fields_wrong_format.csv"
+                    );
+                    Assertions.assertThat(status.getStatusCode()).isEqualTo(400);
+                }
+            }
+        );
+
+        BadRequestException badRequestException = ((BadRequestException) exception.getCause());
+        String exceptionMessage = badRequestException.getMessage();
+        assertThat(exceptionMessage).contains(
+            "Import agency error > The field FromDate contains bad date format value"
+        );
+
+        // Then
+        List<AgenciesModel> agencies = new ArrayList<>();
+        FunctionalAdminCollections.AGENCIES.<Agencies>getVitamCollection()
+            .getCollection()
+            .find()
+            .map(
+                d ->
+                    new AgenciesModel(d.getIdentifier(), d.getName(), d.getDescription(), d.getTenantId())
+                        .setToDate(d.getToDate())
+                        .setEntityType(d.getEntityType())
+                        .setLegalStatuses(d.getLegalStatuses())
+            )
+            .forEach((Consumer<AgenciesModel>) agencies::add);
+
+        assertThat(agencies)
+            .extracting(AgenciesModel::getIdentifier)
+            .containsOnly("AGG-00001", "AGG-00003", "AGG-00002");
+        assertThat(agencies).extracting(AgenciesModel::getName).containsOnly("agency 1", "agency 2", "agency 3");
+
         assertThat(agencies)
             .extracting(AgenciesModel::getTenant)
             .containsOnly(TENANT_0, TENANT_0, TENANT_0, TENANT_0, TENANT_0, TENANT_0);

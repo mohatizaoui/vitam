@@ -102,6 +102,7 @@ import java.util.List;
 import static fr.gouv.vitam.common.database.builder.query.QueryHelper.in;
 import static fr.gouv.vitam.functional.administration.common.server.FunctionalAdminCollections.AGENCIES;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -289,6 +290,37 @@ public class AgenciesServiceTest {
 
     @Test
     @RunWithCustomExecutor
+    public void should_import_correctly_agencies_with_optional_fields() throws Exception {
+        // Given
+        Path reportPath = Paths.get(tempFolder.newFolder().getAbsolutePath(), "report_agencies.json");
+        doAnswer(arguments -> {
+            Files.copy(arguments.<InputStream>getArgument(0), reportPath);
+            return null;
+        })
+            .when(functionalBackupService)
+            .saveFile(
+                any(InputStream.class),
+                any(GUID.class),
+                eq(AGENCIES_REPORT),
+                eq(DataCategory.REPORT),
+                endsWith(".json")
+            );
+
+        // When
+        RequestResponse<AgenciesModel> response = agencyService.importAgencies(
+            new FileInputStream(PropertiesUtils.getResourceFile("agencies/agencies_with_optional_fields.csv")),
+            "MY-FILE-NAME"
+        );
+        // Then
+        assertThat(response.isOk()).isTrue();
+
+        AgenciesReport report = JsonHandler.getFromFile(reportPath.toFile(), AgenciesReport.class);
+
+        assertThat(report.getInsertedAgencies()).containsOnly("AG-000010", "AG-000011", "AG-000012", "AG-000013");
+    }
+
+    @Test
+    @RunWithCustomExecutor
     public void should_report_error_when_deleting_used_agency() throws Exception {
         // Given
         Path reportPath = Paths.get(tempFolder.newFolder().getAbsolutePath(), "report_agencies.json");
@@ -384,6 +416,105 @@ public class AgenciesServiceTest {
         assertNotNull(report);
         assertThat(report.getInsertedAgencies()).isNullOrEmpty();
         assertThat(report.getUpdatedAgencies()).isNullOrEmpty();
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void should_report_error_when_csv_has_malformed_dates() throws Exception {
+        // Given
+        Path reportPath = Paths.get(tempFolder.newFolder().getAbsolutePath(), "report_agencies.json");
+        doAnswer(arguments -> {
+            Files.copy(arguments.<InputStream>getArgument(0), reportPath);
+            return null;
+        })
+            .when(functionalBackupService)
+            .saveFile(
+                any(InputStream.class),
+                any(GUID.class),
+                eq(AGENCIES_REPORT),
+                eq(DataCategory.REPORT),
+                endsWith(".json")
+            );
+
+        // When
+        RequestResponse<AgenciesModel> response = agencyService.importAgencies(
+            new FileInputStream(PropertiesUtils.getResourceFile("agencies/agencies_malformed_date.csv")),
+            "MY-FILE-NAME"
+        );
+        // Then
+        assertTrue(response instanceof VitamError);
+        VitamError errorResponse = (VitamError) response;
+        assertEquals(errorResponse.getHttpCode(), 400);
+        assertEquals(
+            errorResponse.getDescription(),
+            "Import agency error > The field FromDate contains bad date format value"
+        );
+        assertThat(reportPath.toFile()).doesNotExist();
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void should_report_error_when_csv_has_malformed_arrays() throws Exception {
+        // Given
+        Path reportPath = Paths.get(tempFolder.newFolder().getAbsolutePath(), "report_agencies.json");
+        doAnswer(arguments -> {
+            Files.copy(arguments.<InputStream>getArgument(0), reportPath);
+            return null;
+        })
+            .when(functionalBackupService)
+            .saveFile(
+                any(InputStream.class),
+                any(GUID.class),
+                eq(AGENCIES_REPORT),
+                eq(DataCategory.REPORT),
+                endsWith(".json")
+            );
+
+        // When
+        RequestResponse<AgenciesModel> response = agencyService.importAgencies(
+            new FileInputStream(PropertiesUtils.getResourceFile("agencies/agencies_malformed_arrays.csv")),
+            "MY-FILE-NAME"
+        );
+        // Then
+        assertTrue(response instanceof VitamError);
+        VitamError errorResponse = (VitamError) response;
+        assertEquals(errorResponse.getHttpCode(), 400);
+        assertEquals(
+            errorResponse.getDescription(),
+            "Import agency error > The field Functions contains bad formatted values"
+        );
+        assertThat(reportPath.toFile()).doesNotExist();
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void should_report_error_when_csv_has_malformed_headers() throws Exception {
+        // Given
+        Path reportPath = Paths.get(tempFolder.newFolder().getAbsolutePath(), "report_agencies.json");
+        doAnswer(arguments -> {
+            Files.copy(arguments.<InputStream>getArgument(0), reportPath);
+            return null;
+        })
+            .when(functionalBackupService)
+            .saveFile(
+                any(InputStream.class),
+                any(GUID.class),
+                eq(AGENCIES_REPORT),
+                eq(DataCategory.REPORT),
+                endsWith(".json")
+            );
+
+        // When
+        RequestResponse<AgenciesModel> response = agencyService.importAgencies(
+            new FileInputStream(PropertiesUtils.getResourceFile("agencies/agencies_malformed_headers.csv")),
+            "MY-FILE-NAME"
+        );
+        // Then
+        assertTrue(response instanceof VitamError);
+        VitamError errorResponse = (VitamError) response;
+        assertEquals(errorResponse.getHttpCode(), 400);
+        assertEquals(errorResponse.getDescription(), "Import agency error > Unknown fields found: EntityTyp");
+        assertThat(reportPath.toFile()).doesNotExist();
     }
 
     @Test

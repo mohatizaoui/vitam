@@ -1,0 +1,41 @@
+# Configuration
+@tenant = 1
+
+### GET des agencies list
+GET {{url-access}}/admin-external/v1/agencies
+Accept: application/json
+Content-Type: application/json
+X-Tenant-Id: {{tenant}}
+
+{
+  "$query": {
+  },
+  "$filter": {
+    "$limit": 100,
+    "$offset": 0
+  },
+  "$projection": {
+    "$fields": {
+    }
+  }
+}
+
+
+### importing agencies with mandatory fields
+POST {{url-access}}/admin-external/v1/agencies
+Accept: application/json
+Content-Type: application/octet-stream
+X-Tenant-Id: {{tenant}}
+X-Filename: agencies.csv
+
+< ./agencies.csv
+
+
+### importing agencies including optional fields
+POST {{url-access}}/admin-external/v1/agencies
+Accept: application/json
+Content-Type: application/octet-stream
+X-Tenant-Id: {{tenant}}
+X-Filename: agencies.csv
+
+< ./agencies-with-optionals.csv

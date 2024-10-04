@@ -1,5 +1,24 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
+  "definitions": {
+    "date-opt-time": {
+      "description": "pattern: Date",
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+        },
+        {
+          "type": "string",
+          "format": "date-time"
+        },
+        {
+          "type": "string",
+          "format": "date-time-vitam"
+        }
+      ]
+    }
+  },
   "type": "object",
   "additionalProperties": false,
   "properties": {
@@ -10,6 +29,91 @@
       "type": "string"
     },
     "Description": {
+      "type": "string"
+    },
+
+    "EntityType": {
+      "type": "string"
+    },
+    "NameEntryParallel": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "AuthorizedForm": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "AlternativeForm": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "EntityId": {
+      "type": "string"
+    },
+    "FromDate": {
+      "$ref": "#/definitions/date-opt-time"
+    },
+    "ToDate": {
+      "$ref": "#/definitions/date-opt-time"
+    },
+    "Functions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "BiogHist": {
+      "type": "string"
+    },
+    "Places": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "LegalStatuses": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "Mandates": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "StructureOrGenealogy": {
+      "type": "string"
+    },
+    "GeneralContext": {
+      "type": "string"
+    },
+    "CreationDate": {
+      "$ref": "#/definitions/date-opt-time"
+    },
+    "UpdateDate": {
+      "$ref": "#/definitions/date-opt-time"
+    },
+    "MaintenanceStatus": {
+      "type": "string"
+    },
+    "LocalStatus": {
+      "type": "string"
+    },
+    "Sources": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "EventDescription": {
       "type": "string"
     },
     "_id": {
