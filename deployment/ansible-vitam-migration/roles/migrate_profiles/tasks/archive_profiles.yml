@@ -1,26 +1,12 @@
 ---
 
-- name: "Get all archive profiles"
-  uri:
-    url: "{{ _archive_profiles_base_url }}"
-    method: GET
-    body:
-      $query:
-        $not:
-          - $exists: SedaVersion
-      $projection: { }
-    body_format: "json"
-    headers:
-      Content-Type: "application/json"
-      X-Tenant-Id: "{{ vitam_tenant_admin }}"
-    client_cert: "{{ _tmp_pem }}"
-    validate_certs: false
-    return_content: yes
-    status_code: 200
-    timeout: 36000
+- name: Get all archive profiles
+  command: "mongosh mongo-data-mongos.service.{{ consul_domain }}:{{ mongodb.mongos_port }}/masterdata -u {{ mongodb['mongo-data'].admin.user }} -p {{ mongodb['mongo-data'].admin.password }} --quiet --eval 'EJSON.stringify(db.Profile.find({ SedaVersion: { $exists: false } }, { Identifier: 1, _tenant: 1 }).toArray());'"
+  no_log: "{{ hide_passwords_during_deploy }}"
+  delegate_to: "{{ groups['hosts_mongos_data']|first }}"
   register: __get_archive_profiles_results
 
 - include_tasks: archive_profile.yml
-  with_items: "{{ __get_archive_profiles_results.json['$results'] }}"
+  with_items: "{{ __get_archive_profiles_results.stdout }}"
   loop_control:
     loop_var: __profile

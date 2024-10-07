@@ -5,7 +5,7 @@
     url: "{{ _archive_profiles_base_url }}/{{ __profile.Identifier }}"
     method: GET
     headers:
-      X-Tenant-Id: "{{ vitam_tenant_admin }}"
+      X-Tenant-Id: "{{ __profile._tenant }}"
     return_content: yes
     client_cert: "{{ _tmp_pem }}"
     validate_certs: false
@@ -15,10 +15,25 @@
     timeout: 36000
   register: __response
 
-- name: "[{{ __profile.Identifier }}] Extract seda version from file"
+- name: "[{{ __profile.Identifier }}] Extract seda version from RNG file"
   set_fact:
-    __seda_version: "{{ __response.content | regex_search(_seda_version_pattern, '\\1') | first | default(None) }}"
+    __extraction_result: "{{ __response.content | regex_search(_seda_version_pattern, '\\1') }}"
   when: __response.status == 200
+
+- name: "[{{ __profile.Identifier }}] Set final seda version if found in RNG"
+  set_fact:
+    __seda_version: "{{ __extraction_result | first }}"
+  when:
+    - __extraction_result is defined
+    - __extraction_result != None
+    - __extraction_result | length > 0
+
+- name: "[{{ __profile.Identifier }}] Set final seda version to default if not found in RNG"
+  set_fact:
+    __seda_version: "{{ archive_unit_profiles__default_seda_version }}"
+  when:
+    - __extraction_result is defined
+    - (__extraction_result == None) or (__extraction_result | length == 0)
 
 - name: "[{{ __profile.Identifier }}] Update archive profile"
   uri:
@@ -27,13 +42,27 @@
     body:
       $action:
         - $set:
-            SedaVersion: "{{ __seda_version | default(archive_unit_profiles__default_seda_version) }}"
+            SedaVersion: "{{ __seda_version }}"
     body_format: "json"
     headers:
       Content-Type: "application/json"
-      X-Tenant-Id: "{{ vitam_tenant_admin }}"
+      X-Tenant-Id: "{{ __profile._tenant }}"
     client_cert: "{{ _tmp_pem }}"
     validate_certs: false
     return_content: yes
-    status_code: 200
+    status_code:
+      - 200
+      - 400
     timeout: 36000
+  register: __update_response
+  when: __seda_version is defined
+
+- name: Check authorized client errors
+  assert:
+    that:
+      - "'Schema definition file not contains seda version' in __update_response.content"
+    fail_msg: "Unexpected client error"
+    success_msg: "The file {{ __profile.Identifier }} must contain a SEDA versioned namespace"
+  when:
+    - __update_response is defined
+    - __update_response.status == 400

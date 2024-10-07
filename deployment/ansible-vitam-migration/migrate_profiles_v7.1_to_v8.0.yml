@@ -20,6 +20,7 @@
       tags: always
 
 - hosts: hosts_access_external
+  gather_facts: no
   roles:
     - migrate_profiles
   run_once: true
