@@ -32,6 +32,7 @@ import fr.gouv.culture.archivesdefrance.seda.v2.ArchiveUnitType;
 import fr.gouv.culture.archivesdefrance.seda.v2.BinaryDataObjectType;
 import fr.gouv.culture.archivesdefrance.seda.v2.DataObjectGroupType;
 import fr.gouv.culture.archivesdefrance.seda.v2.MinimalDataObjectType;
+import fr.gouv.vitam.common.EnumObjectWhiteListedFields;
 import fr.gouv.vitam.common.SedaConstants;
 import fr.gouv.vitam.common.digest.DigestType;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
@@ -50,10 +51,13 @@ import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.processing.common.exception.ProcessingMalformedDataException;
 import fr.gouv.vitam.processing.common.exception.ProcessingObjectReferenceException;
 import fr.gouv.vitam.worker.common.HandlerIO;
+import fr.gouv.vitam.worker.common.utils.DataObjectAtrExtra;
 import fr.gouv.vitam.worker.common.utils.DataObjectDetail;
 import fr.gouv.vitam.worker.common.utils.DataObjectInfo;
+import fr.gouv.vitam.worker.core.distribution.JsonLineWriter;
 import fr.gouv.vitam.worker.core.handler.LogbookEventMapper;
 import fr.gouv.vitam.worker.core.mapping.ObjectGroupMapper;
+import fr.gouv.vitam.worker.core.utils.ConfigurationUtil;
 import fr.gouv.vitam.worker.core.utils.JsonLineDataBase;
 
 import javax.xml.bind.JAXBElement;
@@ -82,14 +86,16 @@ public class ExtractMetadataListener extends Unmarshaller.Listener {
         IngestSession ingestSession,
         JsonLineDataBase unitsDatabase,
         JsonLineDataBase objectsDatabase,
-        MetaDataClientFactory metaDataClientFactory
+        MetaDataClientFactory metaDataClientFactory,
+        JsonLineWriter jsonLineWriter
     ) {
         archiveUnitListener = new ArchiveUnitListener(
             handlerIO,
             ingestContext,
             ingestSession,
             unitsDatabase,
-            metaDataClientFactory
+            metaDataClientFactory,
+            jsonLineWriter
         );
         this.handlerIO = handlerIO;
         this.ingestSession = ingestSession;
@@ -182,6 +188,11 @@ public class ExtractMetadataListener extends Unmarshaller.Listener {
                 dataObjectInfo.setAlgo(DigestType.fromValue(versionsModel.getAlgorithm()));
                 dataObjectInfo.setMessageDigest(versionsModel.getMessageDigest());
 
+                DataObjectAtrExtra dataObjectAtrExtra = extractExtraInfoFromObject(versionsModel);
+                dataObjectAtrExtra.setId(versionsModel.getId());
+
+                ingestSession.getDataObjectIdToDataObjectAtrExtra().put(objectGuid, dataObjectAtrExtra);
+
                 long gotSize = checkAndComputeSize(versionsModel, dataObjectInfo);
                 dataObjectInfo.setSize(gotSize);
                 detail.setVersion(
@@ -228,6 +239,29 @@ public class ExtractMetadataListener extends Unmarshaller.Listener {
         } catch (ProcessingMalformedDataException | ProcessingObjectReferenceException e) {
             throw new VitamRuntimeException(e);
         }
+    }
+
+    private static DataObjectAtrExtra extractExtraInfoFromObject(DbVersionsModel versionsModel) {
+        DataObjectAtrExtra dataObjectAtrExtra = new DataObjectAtrExtra();
+
+        for (EnumObjectWhiteListedFields metadataKey : ConfigurationUtil.getIngestReportObjectExtraFields()) {
+            switch (metadataKey) {
+                case PersistentIdentifier:
+                    if (versionsModel.getPersistentIdentifier() != null) {
+                        dataObjectAtrExtra.setPersistentIdentifier(versionsModel.getPersistentIdentifier());
+                    }
+                    break;
+                case PhysicalId:
+                    if (versionsModel.getPhysicalId() != null) {
+                        dataObjectAtrExtra.setPhysicalId(versionsModel.getPhysicalId());
+                    }
+                    break;
+                default:
+                    throw new IllegalStateException("invalid value" + metadataKey);
+            }
+        }
+
+        return dataObjectAtrExtra;
     }
 
     private long checkAndComputeSize(DbVersionsModel versionsModel, DataObjectInfo dataObjectInfo) {

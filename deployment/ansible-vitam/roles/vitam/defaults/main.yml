@@ -45,4 +45,6 @@ reconstruction:
   log_level: "{{ vitam_defaults.reconstruction.log_level | default('INFO') }}"
 
 default_eliminationReportExtraFields: "{{ extendedConfiguration.default.eliminationReportExtraFields | default([]) }}"
+default_ingestReportUnitExtraFields: "{{ extendedConfiguration.default.ingestReportUnitExtraFields | default(['PersistentIdentifier']) }}"
+default_ingestReportObjectExtraFields: "{{ extendedConfiguration.default.ingestReportObjectExtraFields | default(['PersistentIdentifier']) }}"
 default_objectGroupBlackListedFields: "{{ extendedConfiguration.default.objectGroupBlackListedFields | default(['Filename']) }}"

@@ -30,6 +30,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import fr.gouv.vitam.common.configuration.ClassificationLevel;
 import fr.gouv.vitam.common.configuration.EliminationReportConfiguration;
+import fr.gouv.vitam.common.configuration.IngestReportExportedObjectGroupFieldConfiguration;
+import fr.gouv.vitam.common.configuration.IngestReportExportedUnitFieldConfiguration;
 import fr.gouv.vitam.common.digest.DigestType;
 import fr.gouv.vitam.common.exception.VitamRuntimeException;
 import fr.gouv.vitam.common.logging.SysErrLogger;
@@ -573,6 +575,10 @@ public class VitamConfiguration {
     private static int processEngineWaitForStepTimeout = 172800;
 
     private static Map<Integer, List<String>> eliminationReportExtraFields = new HashMap<>();
+
+    private static Map<Integer, List<EnumUnitWhiteListedFields>> ingestReportUnitExtraFields = new HashMap<>();
+
+    private static Map<Integer, List<EnumObjectWhiteListedFields>> ingestReportObjectExtraFields = new HashMap<>();
 
     static {
         getConfiguration().setDefault();
@@ -1195,6 +1201,34 @@ public class VitamConfiguration {
                         Collectors.toMap(
                             EliminationReportConfiguration::getTenant,
                             EliminationReportConfiguration::getMetadataFields
+                        )
+                    )
+            );
+        }
+
+        if (null != parameters.getIngestReportUnitExtraFields()) {
+            setIngestReportUnitExtraFields(
+                parameters
+                    .getIngestReportUnitExtraFields()
+                    .stream()
+                    .collect(
+                        Collectors.toMap(
+                            IngestReportExportedUnitFieldConfiguration::getTenant,
+                            IngestReportExportedUnitFieldConfiguration::getMetadataFields
+                        )
+                    )
+            );
+        }
+
+        if (null != parameters.getIngestReportObjectExtraFields()) {
+            setIngestReportObjectExtraFields(
+                parameters
+                    .getIngestReportObjectExtraFields()
+                    .stream()
+                    .collect(
+                        Collectors.toMap(
+                            IngestReportExportedObjectGroupFieldConfiguration::getTenant,
+                            IngestReportExportedObjectGroupFieldConfiguration::getMetadataFields
                         )
                     )
             );
@@ -2677,6 +2711,26 @@ public class VitamConfiguration {
 
     public static void setEliminationReportExtraFields(Map<Integer, List<String>> eliminationReportExtraFields) {
         VitamConfiguration.eliminationReportExtraFields = eliminationReportExtraFields;
+    }
+
+    public static Map<Integer, List<EnumUnitWhiteListedFields>> getIngestReportUnitExtraFields() {
+        return ingestReportUnitExtraFields;
+    }
+
+    public static void setIngestReportUnitExtraFields(
+        Map<Integer, List<EnumUnitWhiteListedFields>> ingestReportUnitExtraFields
+    ) {
+        VitamConfiguration.ingestReportUnitExtraFields = ingestReportUnitExtraFields;
+    }
+
+    public static Map<Integer, List<EnumObjectWhiteListedFields>> getIngestReportObjectExtraFields() {
+        return ingestReportObjectExtraFields;
+    }
+
+    public static void setIngestReportObjectExtraFields(
+        Map<Integer, List<EnumObjectWhiteListedFields>> ingestReportObjectExtraFields
+    ) {
+        VitamConfiguration.ingestReportObjectExtraFields = ingestReportObjectExtraFields;
     }
 
     public static short getDiffVersion() {

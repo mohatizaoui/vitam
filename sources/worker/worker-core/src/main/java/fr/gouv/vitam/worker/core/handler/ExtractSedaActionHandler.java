@@ -143,6 +143,7 @@ import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.worker.common.HandlerIO;
 import fr.gouv.vitam.worker.common.utils.SedaUtils;
 import fr.gouv.vitam.worker.common.utils.SedaUtilsFactory;
+import fr.gouv.vitam.worker.core.distribution.JsonLineWriter;
 import fr.gouv.vitam.worker.core.exception.ProcessingStatusException;
 import fr.gouv.vitam.worker.core.exception.WorkerspaceQueueException;
 import fr.gouv.vitam.worker.core.extractseda.ExtractMetadataListener;
@@ -180,6 +181,7 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -260,11 +262,13 @@ public class ExtractSedaActionHandler extends ActionHandler {
     private static final int GLOBAL_SEDA_PARAMETERS_FILE_IO_RANK = 7;
     private static final int EXISTING_GOT_RANK = 9;
     private static final int GUID_TO_UNIT_ID_IO_RANK = 10;
-    private static final int HANDLER_IO_OUT_PARAMETER_NUMBER = 15;
+    private static final int HANDLER_IO_OUT_PARAMETER_NUMBER = 17;
     private static final int ONTOLOGY_IO_RANK = 11;
     private static final int EXISTING_GOT_TO_NEW_GOT_GUID_FOR_ATTACHMENT_RANK = 12;
     private static final int EXISTING_UNITS_GUID_FOR_ATTACHMENT_RANK = 13;
     private static final int EXISTING_GOTS_GUID_FOR_ATTACHMENT_RANK = 14;
+    private static final int UNIT_ID_TO_UNIT_DETAIL_IO_RANK = 15;
+    private static final int DO_GUID_TO_DO_IO_RANK = 16;
     // IN RANK
     private static final int UNIT_TYPE_INPUT_RANK = 1;
     private static final int STORAGE_INFO_INPUT_RANK = 2;
@@ -455,71 +459,83 @@ public class ExtractSedaActionHandler extends ActionHandler {
             JsonLineDataBase unitsDatabase = new JsonLineDataBase(handlerIO, "tmp_units");
             JsonLineDataBase objectsDatabase = new JsonLineDataBase(handlerIO, "tmp_objectGroups");
 
-            ExtractMetadataListener listener = new ExtractMetadataListener(
-                handlerIO,
-                ingestContext,
-                ingestSession,
-                unitsDatabase,
-                objectsDatabase,
-                metaDataClientFactory
+            final File unitDetailFile = handlerIO.getNewLocalFile(
+                handlerIO.getOutput(UNIT_ID_TO_UNIT_DETAIL_IO_RANK).getPath()
             );
 
-            unmarshaller.setListener(listener);
-            ObjectNode evDetData = extractSEDA(
-                handlerIO,
-                unmarshaller,
-                ingestContext,
-                ingestSession,
-                unitsDatabase,
-                objectsDatabase,
-                globalCompositeItemStatus
-            );
-
-            if (!ingestSession.getExistingUnitGuids().isEmpty()) {
-                evDetData.set(ATTACHMENT_IDS, JsonHandler.toJsonNode(ingestSession.getExistingUnitGuids()));
-            }
-
-            globalCompositeItemStatus.setEvDetailData(JsonHandler.unprettyPrint(evDetData));
-            globalCompositeItemStatus.setMasterData(
-                LogbookParameterName.eventDetailData.name(),
-                JsonHandler.unprettyPrint(evDetData)
-            );
-            globalCompositeItemStatus.increment(StatusCode.OK);
-
-            if (asyncIO) {
-                handlerIO.enableAsync(false);
-            }
-            ObjectNode agIdExt = buildAgIdExt(ingestContext);
-            /*
-             * setting agIdExt information
-             */
-            if (agIdExt.size() > 0) {
-                globalCompositeItemStatus.setMasterData(LogbookMongoDbName.agIdExt.getDbname(), agIdExt.toString());
-                globalCompositeItemStatus.setData(LogbookMongoDbName.agIdExt.getDbname(), agIdExt.toString());
-            }
-
-            extractOntology(handlerIO);
-
-            ObjectNode rightsStatementIdentifier = buildRightsStatementIdentifier(ingestContext);
-            /*
-             * setting rightsStatementIdentifier information
-             */
-            if (rightsStatementIdentifier.size() > 0) {
-                globalCompositeItemStatus.setData(
-                    LogbookMongoDbName.rightsStatementIdentifier.getDbname(),
-                    rightsStatementIdentifier.toString()
+            try (JsonLineWriter jsonLineUnitsWriter = new JsonLineWriter(new FileOutputStream(unitDetailFile))) {
+                ExtractMetadataListener listener = new ExtractMetadataListener(
+                    handlerIO,
+                    ingestContext,
+                    ingestSession,
+                    unitsDatabase,
+                    objectsDatabase,
+                    metaDataClientFactory,
+                    jsonLineUnitsWriter
                 );
+
+                unmarshaller.setListener(listener);
+                ObjectNode evDetData = extractSEDA(
+                    handlerIO,
+                    unmarshaller,
+                    ingestContext,
+                    ingestSession,
+                    unitsDatabase,
+                    objectsDatabase,
+                    globalCompositeItemStatus,
+                    jsonLineUnitsWriter
+                );
+
+                if (!ingestSession.getExistingUnitGuids().isEmpty()) {
+                    evDetData.set(ATTACHMENT_IDS, JsonHandler.toJsonNode(ingestSession.getExistingUnitGuids()));
+                }
+
+                globalCompositeItemStatus.setEvDetailData(JsonHandler.unprettyPrint(evDetData));
                 globalCompositeItemStatus.setMasterData(
-                    LogbookMongoDbName.rightsStatementIdentifier.getDbname(),
-                    rightsStatementIdentifier.toString()
+                    LogbookParameterName.eventDetailData.name(),
+                    JsonHandler.unprettyPrint(evDetData)
                 );
-                ObjectNode data = (ObjectNode) JsonHandler.getFromString(globalCompositeItemStatus.getEvDetailData());
-                data.set(LogbookMongoDbName.rightsStatementIdentifier.getDbname(), rightsStatementIdentifier);
-                globalCompositeItemStatus.setEvDetailData(data.toString());
-                globalCompositeItemStatus.setData(
-                    LogbookMongoDbName.rightsStatementIdentifier.getDbname(),
-                    rightsStatementIdentifier.toString()
-                );
+                globalCompositeItemStatus.increment(StatusCode.OK);
+
+                if (asyncIO) {
+                    handlerIO.enableAsync(false);
+                }
+                ObjectNode agIdExt = buildAgIdExt(ingestContext);
+                /*
+                 * setting agIdExt information
+                 */
+                if (agIdExt.size() > 0) {
+                    globalCompositeItemStatus.setMasterData(LogbookMongoDbName.agIdExt.getDbname(), agIdExt.toString());
+                    globalCompositeItemStatus.setData(LogbookMongoDbName.agIdExt.getDbname(), agIdExt.toString());
+                }
+
+                extractOntology(handlerIO);
+
+                ObjectNode rightsStatementIdentifier = buildRightsStatementIdentifier(ingestContext);
+                /*
+                 * setting rightsStatementIdentifier information
+                 */
+                if (rightsStatementIdentifier.size() > 0) {
+                    globalCompositeItemStatus.setData(
+                        LogbookMongoDbName.rightsStatementIdentifier.getDbname(),
+                        rightsStatementIdentifier.toString()
+                    );
+                    globalCompositeItemStatus.setMasterData(
+                        LogbookMongoDbName.rightsStatementIdentifier.getDbname(),
+                        rightsStatementIdentifier.toString()
+                    );
+                    ObjectNode data = (ObjectNode) JsonHandler.getFromString(
+                        globalCompositeItemStatus.getEvDetailData()
+                    );
+                    data.set(LogbookMongoDbName.rightsStatementIdentifier.getDbname(), rightsStatementIdentifier);
+                    globalCompositeItemStatus.setEvDetailData(data.toString());
+                    globalCompositeItemStatus.setData(
+                        LogbookMongoDbName.rightsStatementIdentifier.getDbname(),
+                        rightsStatementIdentifier.toString()
+                    );
+                }
+            } catch (IOException e) {
+                throw new VitamRuntimeException("Error while writing units details map", e);
             }
         } catch (final ProcessingDuplicatedVersionException e) {
             LOGGER.debug("ProcessingException: duplicated version", e);
@@ -787,7 +803,8 @@ public class ExtractSedaActionHandler extends ActionHandler {
         IngestSession ingestSession,
         JsonLineDataBase unitsDatabase,
         JsonLineDataBase objectsDatabase,
-        ItemStatus globalCompositeItemStatus
+        ItemStatus globalCompositeItemStatus,
+        JsonLineWriter jsonLineUnitsWriter
     ) throws ProcessingException, CycleFoundException {
         ParametersChecker.checkParameter("ContainerId is a mandatory parameter", ingestContext);
         ParametersChecker.checkParameter("itemStatus is a mandatory parameter", globalCompositeItemStatus);
@@ -1093,6 +1110,13 @@ public class ExtractSedaActionHandler extends ActionHandler {
 
             // save maps
             saveGuids(handlerIO, ingestSession);
+
+            //save jsonLineUnitsWriter
+            jsonLineUnitsWriter.close();
+            final File unitDetailFile = handlerIO.getNewLocalFile(
+                handlerIO.getOutput(UNIT_ID_TO_UNIT_DETAIL_IO_RANK).getPath()
+            );
+            handlerIO.addOutputResult(UNIT_ID_TO_UNIT_DETAIL_IO_RANK, unitDetailFile, true);
 
             // Fill evDetData EvDetailReq, ArchivalAgreement, ArchivalProfile and ServiceLevel properties
             try {
@@ -1420,6 +1444,14 @@ public class ExtractSedaActionHandler extends ActionHandler {
     private void saveGuids(HandlerIO handlerIO, IngestSession ingestSession) throws IOException, ProcessingException {
         // Save DataObjectIdToGuid Map
         HandlerUtils.saveMap(handlerIO, ingestSession.getDataObjectIdToGuid(), DO_ID_TO_GUID_IO_RANK, true, asyncIO);
+        // Save DataObjectGuidToDataObject Map
+        HandlerUtils.saveMap(
+            handlerIO,
+            ingestSession.getDataObjectIdToDataObjectAtrExtra(),
+            DO_GUID_TO_DO_IO_RANK,
+            true,
+            asyncIO
+        );
         // Save objectGroupIdToUnitId Map
         handlerIO.addOutputResult(OG_ID_TO_UNID_ID_IO_RANK, ingestSession.getObjectGroupIdToUnitId(), asyncIO);
         // Save dataObjectIdToDetailDataObject Map

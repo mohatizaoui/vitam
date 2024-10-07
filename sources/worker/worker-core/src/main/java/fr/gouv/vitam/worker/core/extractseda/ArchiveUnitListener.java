@@ -38,6 +38,7 @@ import fr.gouv.culture.archivesdefrance.seda.v2.DataObjectRefType;
 import fr.gouv.culture.archivesdefrance.seda.v2.DescriptiveMetadataContentType;
 import fr.gouv.culture.archivesdefrance.seda.v2.ObjectGroupRefType;
 import fr.gouv.culture.archivesdefrance.seda.v2.RelatedObjectReferenceType;
+import fr.gouv.vitam.common.EnumUnitWhiteListedFields;
 import fr.gouv.vitam.common.SedaConstants;
 import fr.gouv.vitam.common.database.builder.query.Query;
 import fr.gouv.vitam.common.database.builder.query.QueryHelper;
@@ -90,15 +91,20 @@ import fr.gouv.vitam.processing.common.exception.ProcessingObjectReferenceExcept
 import fr.gouv.vitam.processing.common.exception.ProcessingTooManyUnitsFoundException;
 import fr.gouv.vitam.processing.common.exception.ProcessingUnitLinkingException;
 import fr.gouv.vitam.worker.common.HandlerIO;
+import fr.gouv.vitam.worker.common.utils.ArchiveUnitAtrExtra;
+import fr.gouv.vitam.worker.core.distribution.JsonLineWriter;
 import fr.gouv.vitam.worker.core.handler.PersistentIdentifierGenerationService;
 import fr.gouv.vitam.worker.core.mapping.ArchiveUnitMapper;
 import fr.gouv.vitam.worker.core.mapping.DescriptiveMetadataMapper;
 import fr.gouv.vitam.worker.core.mapping.RuleMapper;
+import fr.gouv.vitam.worker.core.utils.ConfigurationUtil;
 import fr.gouv.vitam.worker.core.utils.JsonLineDataBase;
+import org.apache.commons.collections.CollectionUtils;
 
 import javax.annotation.Nonnull;
 import javax.xml.bind.JAXBElement;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -145,6 +151,8 @@ public class ArchiveUnitListener {
 
     private final PersistentIdentifierGenerationService persistentIdentifierGenerationService;
 
+    private final JsonLineWriter jsonLineUnitsWriter;
+
     /**
      * @param handlerIO
      */
@@ -153,7 +161,8 @@ public class ArchiveUnitListener {
         IngestContext ingestContext,
         IngestSession ingestSession,
         JsonLineDataBase unitsDatabase,
-        MetaDataClientFactory metaDataClientFactory
+        MetaDataClientFactory metaDataClientFactory,
+        JsonLineWriter jsonLineUnitsWriter
     ) {
         this.handlerIO = handlerIO;
         this.ingestContext = ingestContext;
@@ -164,6 +173,77 @@ public class ArchiveUnitListener {
         archiveUnitMapper = new ArchiveUnitMapper(descriptiveMetadataMapper, ruleMapper);
         this.metaDataClientFactory = metaDataClientFactory;
         this.persistentIdentifierGenerationService = PersistentIdentifierGenerationService.getInstance();
+        this.jsonLineUnitsWriter = jsonLineUnitsWriter;
+    }
+
+    private static ArchiveUnitAtrExtra extractExtraInfoFromUnit(ArchiveUnitType archiveUnitType, String elementGUID) {
+        ArchiveUnitAtrExtra archiveUnitAtrExtra = new ArchiveUnitAtrExtra();
+
+        if (archiveUnitType.getContent() != null) {
+            archiveUnitAtrExtra.setId(archiveUnitType.getId());
+            archiveUnitAtrExtra.setSystemId(elementGUID);
+
+            for (EnumUnitWhiteListedFields metadataKey : ConfigurationUtil.getIngestReportUnitExtraFields()) {
+                switch (metadataKey) {
+                    case FilePlanPosition:
+                        if (CollectionUtils.isNotEmpty(archiveUnitType.getContent().getFilePlanPosition())) {
+                            archiveUnitAtrExtra.setFilePlanPosition(archiveUnitType.getContent().getFilePlanPosition());
+                        }
+                        break;
+                    case OriginatingSystemId:
+                        if (CollectionUtils.isNotEmpty(archiveUnitType.getContent().getOriginatingSystemId())) {
+                            archiveUnitAtrExtra.setOriginatingSystemId(
+                                archiveUnitType.getContent().getOriginatingSystemId()
+                            );
+                        }
+                        break;
+                    case ArchivalAgencyArchiveUnitIdentifier:
+                        if (
+                            CollectionUtils.isNotEmpty(
+                                archiveUnitType.getContent().getArchivalAgencyArchiveUnitIdentifier()
+                            )
+                        ) {
+                            archiveUnitAtrExtra.setArchivalAgencyArchiveUnitIdentifier(
+                                archiveUnitType.getContent().getArchivalAgencyArchiveUnitIdentifier()
+                            );
+                        }
+                        break;
+                    case OriginatingAgencyArchiveUnitIdentifier:
+                        if (
+                            CollectionUtils.isNotEmpty(
+                                archiveUnitType.getContent().getOriginatingAgencyArchiveUnitIdentifier()
+                            )
+                        ) {
+                            archiveUnitAtrExtra.setOriginatingAgencyArchiveUnitIdentifier(
+                                archiveUnitType.getContent().getOriginatingAgencyArchiveUnitIdentifier()
+                            );
+                        }
+                        break;
+                    case TransferringAgencyArchiveUnitIdentifier:
+                        if (
+                            CollectionUtils.isNotEmpty(
+                                archiveUnitType.getContent().getTransferringAgencyArchiveUnitIdentifier()
+                            )
+                        ) {
+                            archiveUnitAtrExtra.setTransferringAgencyArchiveUnitIdentifier(
+                                archiveUnitType.getContent().getTransferringAgencyArchiveUnitIdentifier()
+                            );
+                        }
+                        break;
+                    case PersistentIdentifier:
+                        if (CollectionUtils.isNotEmpty(archiveUnitType.getContent().getPersistentIdentifier())) {
+                            archiveUnitAtrExtra.setPersistentIdentifier(
+                                archiveUnitType.getContent().getPersistentIdentifier()
+                            );
+                        }
+                        break;
+                    default:
+                        throw new IllegalStateException("invalid value" + metadataKey);
+                }
+            }
+        }
+
+        return archiveUnitAtrExtra;
     }
 
     /**
@@ -255,6 +335,8 @@ public class ArchiveUnitListener {
                 ingestContext.getSedaVersion()
             );
 
+            jsonLineUnitsWriter.addEntry(extractExtraInfoFromUnit(archiveUnitType, elementGUID));
+
             ManagementContractModel managementContractModel = ingestContext.getManagementContractModel();
             fillManagementContract(archiveUnitRoot, managementContractModel);
             persistentIdentifierGenerationService.handlePersistentIdentifierForUnit(
@@ -263,7 +345,7 @@ public class ArchiveUnitListener {
                 managementContractModel,
                 PersistentIdentifierPolicyTypeEnum.ARK
             );
-        } catch (ProcessingMalformedDataException | ProcessingObjectReferenceException e) {
+        } catch (ProcessingMalformedDataException | ProcessingObjectReferenceException | IOException e) {
             throw new VitamRuntimeException(e);
         }
 

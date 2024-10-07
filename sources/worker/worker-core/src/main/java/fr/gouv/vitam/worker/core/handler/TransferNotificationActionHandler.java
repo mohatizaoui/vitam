@@ -24,8 +24,12 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
+
 package fr.gouv.vitam.worker.core.handler;
 
+import com.amazonaws.util.CollectionUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.annotations.VisibleForTesting;
 import fr.gouv.culture.archivesdefrance.seda.v2.ArchiveTransferReplyType;
@@ -47,6 +51,7 @@ import fr.gouv.culture.archivesdefrance.seda.v2.MinimalDataObjectType;
 import fr.gouv.culture.archivesdefrance.seda.v2.ObjectFactory;
 import fr.gouv.culture.archivesdefrance.seda.v2.OperationType;
 import fr.gouv.culture.archivesdefrance.seda.v2.OrganizationWithIdType;
+import fr.gouv.culture.archivesdefrance.seda.v2.PhysicalDataObjectType;
 import fr.gouv.vitam.common.ParametersChecker;
 import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.SedaConstants;
@@ -58,6 +63,7 @@ import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOper
 import fr.gouv.vitam.common.database.builder.request.single.Select;
 import fr.gouv.vitam.common.digest.Digest;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
+import fr.gouv.vitam.common.exception.VitamClientException;
 import fr.gouv.vitam.common.i18n.VitamLogbookMessages;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.logging.VitamLogger;
@@ -66,6 +72,7 @@ import fr.gouv.vitam.common.model.IngestWorkflowConstants;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.LifeCycleStatusCode;
 import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.common.model.unit.PersistentIdentifierModel;
 import fr.gouv.vitam.common.utils.SupportedSedaVersions;
 import fr.gouv.vitam.common.xml.ValidationXsdUtils;
 import fr.gouv.vitam.logbook.common.exception.LogbookClientException;
@@ -87,13 +94,17 @@ import fr.gouv.vitam.storage.engine.client.exception.StorageClientException;
 import fr.gouv.vitam.storage.engine.common.model.DataCategory;
 import fr.gouv.vitam.storage.engine.common.model.request.ObjectDescription;
 import fr.gouv.vitam.worker.common.HandlerIO;
+import fr.gouv.vitam.worker.common.utils.ArchiveUnitAtrExtra;
+import fr.gouv.vitam.worker.common.utils.DataObjectAtrExtra;
 import fr.gouv.vitam.worker.common.utils.DataObjectDetail;
 import fr.gouv.vitam.worker.common.utils.SedaIngestParams;
 import fr.gouv.vitam.worker.core.MarshallerObjectCache;
+import fr.gouv.vitam.worker.core.distribution.JsonLineGenericIterator;
 import fr.gouv.vitam.worker.core.impl.HandlerIOImpl;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageNotFoundException;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
+import org.apache.commons.lang.StringUtils;
 import org.bson.Document;
 import org.xml.sax.SAXException;
 
@@ -116,6 +127,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -135,7 +147,6 @@ public class TransferNotificationActionHandler extends ActionHandler {
     private static final int ATR_RESULT_OUT_RANK = 0;
 
     //  input Params
-    private static final int ARCHIVE_UNIT_MAP_RANK = 0;
     private static final int DATAOBJECT_MAP_RANK = 1;
     private static final int BDO_OG_STORED_MAP_RANK = 2;
     private static final int DATAOBJECT_ID_TO_DATAOBJECT_DETAIL_MAP_RANK = 3;
@@ -144,8 +155,10 @@ public class TransferNotificationActionHandler extends ActionHandler {
     private static final int EXISTING_GOT_TO_NEW_GOT_GUID_FOR_ATTACHMENT_RANK = 6;
     private static final int SEDA_INGEST_PARAMS = 7;
     public static final String SEDA_INGEST_PARAMS_FILE = "Maps/sedaParams.json";
+    private static final int UNIT_ID_TO_UNIT_DETAIL_IO_RANK = 8;
+    private static final int DO_GUID_TO_DO_IO_RANK = 9;
 
-    static final int HANDLER_IO_PARAMETER_NUMBER = 8;
+    static final int HANDLER_IO_PARAMETER_NUMBER = 10;
 
     private static final String XML = ".xml";
     private static final String HANDLER_ID = "ATR_NOTIFICATION";
@@ -666,60 +679,56 @@ public class TransferNotificationActionHandler extends ActionHandler {
         try (LogbookLifeCyclesClient client = handlerIO.getLifecyclesClient()) {
             ////Build DescriptiveMetadata/List(ArchiveUnit)
             try {
-                Map<String, Object> archiveUnitSystemGuid;
-                InputStream archiveUnitMapTmpFile = null;
-                final File file = (File) handlerIO.getInput(ARCHIVE_UNIT_MAP_RANK);
-                if (file != null) {
-                    archiveUnitMapTmpFile = new FileInputStream(file);
-                }
+                Map<String, ArchiveUnitAtrExtra> unitGuidUnitAtrExtraMap = new HashMap<>();
+                final File unitDetailFile = (File) handlerIO.getInput(UNIT_ID_TO_UNIT_DETAIL_IO_RANK);
 
-                Map<String, String> systemGuidArchiveUnitId = new HashMap<>();
-
-                if (archiveUnitMapTmpFile != null) {
-                    archiveUnitSystemGuid = JsonHandler.getMapFromInputStream(archiveUnitMapTmpFile);
-                    if (archiveUnitSystemGuid != null) {
-                        for (final Map.Entry<String, Object> entry : archiveUnitSystemGuid.entrySet()) {
-                            systemGuidArchiveUnitId.put(entry.getValue().toString(), entry.getKey());
-                        }
-                        //build archiveUnit List
-                        List<ArchiveUnitType> auList = archiveTransferReply
-                            .getDataObjectPackage()
-                            .getDescriptiveMetadata()
-                            .getArchiveUnit();
-                        //case KO or OK with warning
-                        if (
-                            workflowStatus.isGreaterOrEqualToKo() ||
-                            StatusCode.WARNING.name().equals(workflowStatus.name())
-                        ) {
-                            try (
-                                CloseableIterator<JsonNode> lifecyclesSpliterator = handlerLogbookLifeCycleUnit(
-                                    containerName,
-                                    client,
-                                    LifeCycleStatusCode.LIFE_CYCLE_IN_PROCESS
-                                )
-                            ) {
-                                CloseableIteratorUtils.map(
-                                    lifecyclesSpliterator,
-                                    LogbookLifeCycleUnitInProcess::new
-                                ).forEachRemaining(
-                                    logbookLifeCycleUnit ->
-                                        auList.add(
-                                            buildArchiveUnit(
-                                                statusToBeChecked,
-                                                systemGuidArchiveUnitId,
-                                                logbookLifeCycleUnit
-                                            )
-                                        )
-                                );
-                            }
-                        } else {
-                            //set only archiveUnit(id,systemId) List
-                            auList.addAll(buildListOfSimpleArchiveUnitWithoutEvents(archiveUnitSystemGuid));
-                        }
+                if (unitDetailFile != null) {
+                    JsonLineGenericIterator<ArchiveUnitAtrExtra> jsonLineGenericIterator =
+                        new JsonLineGenericIterator<>(new FileInputStream(unitDetailFile), new TypeReference<>() {});
+                    while (jsonLineGenericIterator.hasNext()) {
+                        ArchiveUnitAtrExtra archiveUnitAtrExtra = jsonLineGenericIterator.next();
+                        unitGuidUnitAtrExtraMap.put(archiveUnitAtrExtra.getSystemId(), archiveUnitAtrExtra);
                     }
+                }
+                //build archiveUnit List
+                List<ArchiveUnitType> auList = archiveTransferReply
+                    .getDataObjectPackage()
+                    .getDescriptiveMetadata()
+                    .getArchiveUnit();
+                //case KO or OK with warning
+                if (workflowStatus.isGreaterOrEqualToKo() || StatusCode.WARNING.name().equals(workflowStatus.name())) {
+                    try (
+                        CloseableIterator<JsonNode> lifecyclesSpliterator = handlerLogbookLifeCycleUnit(
+                            containerName,
+                            client,
+                            LifeCycleStatusCode.LIFE_CYCLE_IN_PROCESS
+                        )
+                    ) {
+                        CloseableIteratorUtils.map(
+                            lifecyclesSpliterator,
+                            LogbookLifeCycleUnitInProcess::new
+                        ).forEachRemaining(logbookLifeCycleUnit -> {
+                            try {
+                                auList.add(
+                                    buildArchiveUnitWithDetail(
+                                        statusToBeChecked,
+                                        unitGuidUnitAtrExtraMap,
+                                        logbookLifeCycleUnit
+                                    )
+                                );
+                            } catch (JsonProcessingException | VitamClientException e) {
+                                throw new RuntimeException(e);
+                            }
+                        });
+                    }
+                } else {
+                    //set only archiveUnit List
+                    auList.addAll(buildListOfArchiveUnitWithDetailsWithoutEvents(unitGuidUnitAtrExtraMap.values()));
                 }
             } catch (final IllegalStateException e) {
                 throw new ProcessingException("Exception when building ArchiveUnitList for ArchiveTransferReply KO", e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
 
             //Build DataObjectGroup
@@ -797,46 +806,58 @@ public class TransferNotificationActionHandler extends ActionHandler {
                     .getDataObjectPackage()
                     .getDataObjectGroupOrBinaryDataObjectOrPhysicalDataObject();
 
-                if (dataObjectSystemGuid != null) {
-                    //case KO or OK with warning
-                    if (
-                        workflowStatus.isGreaterOrEqualToKo() || StatusCode.WARNING.name().equals(workflowStatus.name())
+                final File doGuidToDoMapTmpFile = (File) handlerIO.getInput(DO_GUID_TO_DO_IO_RANK);
+
+                Map<String, DataObjectAtrExtra> guidToDataObjectAtrExtraMap;
+
+                if (doGuidToDoMapTmpFile != null) {
+                    final InputStream doGuidToDoMapFIS = new FileInputStream(doGuidToDoMapTmpFile);
+                    guidToDataObjectAtrExtraMap = JsonHandler.getMapFromInputStream(
+                        doGuidToDoMapFIS,
+                        DataObjectAtrExtra.class
+                    );
+                } else {
+                    guidToDataObjectAtrExtraMap = new HashMap<>();
+                }
+
+                //case KO or OK with warning
+                if (workflowStatus.isGreaterOrEqualToKo() || StatusCode.WARNING.name().equals(workflowStatus.name())) {
+                    try (
+                        CloseableIterator<JsonNode> lifecyclesSpliterator = handleLogbookLifeCyclesObjectGroup(
+                            containerName,
+                            client
+                        )
                     ) {
-                        try (
-                            CloseableIterator<JsonNode> lifecyclesSpliterator = handleLogbookLifeCyclesObjectGroup(
-                                containerName,
-                                client
-                            )
-                        ) {
-                            CloseableIteratorUtils.map(
-                                lifecyclesSpliterator,
-                                LogbookLifeCycleObjectGroupInProcess::new
-                            ).forEachRemaining(
-                                logbookLifeCycleObjectGroup ->
-                                    dataObjectGroupList.add(
-                                        buildDataObjectGroup(
-                                            statusToBeChecked,
-                                            objectGroupGuid,
-                                            dataObjectsForOG,
-                                            dataObjectSystemGuid,
-                                            dataObjectToDetailDataObject,
-                                            existingGOTGUIDToNewGotGUIDInAttachment,
-                                            logbookLifeCycleObjectGroup
-                                        )
+                        CloseableIteratorUtils.map(
+                            lifecyclesSpliterator,
+                            LogbookLifeCycleObjectGroupInProcess::new
+                        ).forEachRemaining(
+                            logbookLifeCycleObjectGroup ->
+                                dataObjectGroupList.add(
+                                    buildDataObjectGroup(
+                                        statusToBeChecked,
+                                        objectGroupGuid,
+                                        dataObjectsForOG,
+                                        dataObjectSystemGuid,
+                                        dataObjectToDetailDataObject,
+                                        existingGOTGUIDToNewGotGUIDInAttachment,
+                                        guidToDataObjectAtrExtraMap,
+                                        logbookLifeCycleObjectGroup
                                     )
-                            );
-                        }
-                    } else {
-                        dataObjectGroupList.addAll(
-                            buildListOfSimpleDataObjectGroup(
-                                dataObjectsForOG,
-                                dataObjectSystemGuid,
-                                dataObjectToDetailDataObject,
-                                objectGroupSystemGuid,
-                                existingGOTGUIDToNewGotGUIDInAttachment
-                            )
+                                )
                         );
                     }
+                } else {
+                    dataObjectGroupList.addAll(
+                        buildListOfSimpleDataObjectGroup(
+                            dataObjectsForOG,
+                            dataObjectSystemGuid,
+                            dataObjectToDetailDataObject,
+                            objectGroupSystemGuid,
+                            existingGOTGUIDToNewGotGUIDInAttachment,
+                            guidToDataObjectAtrExtraMap
+                        )
+                    );
                 }
             } catch (final IllegalStateException | InvalidParseOperationException | IllegalArgumentException e) {
                 throw new ProcessingException("Exception when building DataObjectGroup for ArchiveTransferReply KO", e);
@@ -870,15 +891,51 @@ public class TransferNotificationActionHandler extends ActionHandler {
         }
     }
 
-    private List<ArchiveUnitType> buildListOfSimpleArchiveUnitWithoutEvents(Map<String, Object> archiveUnitSystemGuid) {
+    private List<ArchiveUnitType> buildListOfArchiveUnitWithDetailsWithoutEvents(
+        Collection<ArchiveUnitAtrExtra> unitIdUnitAtrExtras
+    ) throws JsonProcessingException {
         List<ArchiveUnitType> archiveUnitTypeList = new ArrayList<>();
 
-        for (final Map.Entry<String, Object> entry : archiveUnitSystemGuid.entrySet()) {
+        for (ArchiveUnitAtrExtra unit : unitIdUnitAtrExtras) {
             ArchiveUnitType archiveUnit = objectFactory.createArchiveUnitType();
+
             DescriptiveMetadataContentType descContent = new DescriptiveMetadataContentType();
 
-            archiveUnit.setId(entry.getKey());
-            descContent.getSystemId().add(entry.getValue().toString());
+            archiveUnit.setId(unit.getId());
+
+            if (StringUtils.isNotEmpty(unit.getSystemId())) {
+                descContent.getSystemId().add(unit.getSystemId());
+            }
+
+            if (!CollectionUtils.isNullOrEmpty(unit.getFilePlanPosition())) {
+                descContent.getFilePlanPosition().addAll(unit.getFilePlanPosition());
+            }
+            if (!CollectionUtils.isNullOrEmpty(unit.getOriginatingSystemId())) {
+                descContent.getOriginatingSystemId().addAll(unit.getOriginatingSystemId());
+            }
+            if (!CollectionUtils.isNullOrEmpty(unit.getArchivalAgencyArchiveUnitIdentifier())) {
+                descContent
+                    .getArchivalAgencyArchiveUnitIdentifier()
+                    .addAll(unit.getArchivalAgencyArchiveUnitIdentifier());
+            }
+            if (!CollectionUtils.isNullOrEmpty(unit.getOriginatingAgencyArchiveUnitIdentifier())) {
+                descContent
+                    .getOriginatingAgencyArchiveUnitIdentifier()
+                    .addAll(unit.getOriginatingAgencyArchiveUnitIdentifier());
+            }
+            if (!CollectionUtils.isNullOrEmpty(unit.getTransferringAgencyArchiveUnitIdentifier())) {
+                descContent
+                    .getTransferringAgencyArchiveUnitIdentifier()
+                    .addAll(unit.getTransferringAgencyArchiveUnitIdentifier());
+            }
+            if (!CollectionUtils.isNullOrEmpty(unit.getPersistentIdentifier())) {
+                List<PersistentIdentifierModel> listOfPersistentIdentifierModel = unit.getPersistentIdentifier();
+
+                for (PersistentIdentifierModel persistentIdentifierModel : listOfPersistentIdentifierModel) {
+                    descContent.getPersistentIdentifier().add(persistentIdentifierModel);
+                }
+            }
+
             archiveUnit.setContent(descContent);
             archiveUnitTypeList.add(archiveUnit);
         }
@@ -886,29 +943,65 @@ public class TransferNotificationActionHandler extends ActionHandler {
         return archiveUnitTypeList;
     }
 
-    private ArchiveUnitType buildArchiveUnit(
+    private ArchiveUnitType buildArchiveUnitWithDetail(
         List<String> statusToBeChecked,
-        Map<String, String> systemGuidArchiveUnitId,
+        Map<String, ArchiveUnitAtrExtra> unitGuidUnitAtrExtraMap,
         LogbookLifeCycleUnitInProcess logbookLifeCycleUnit
-    ) {
+    ) throws JsonProcessingException, VitamClientException {
         List<Document> logbookLifeCycleUnitEvents = (List<Document>) logbookLifeCycleUnit.get(LogbookDocument.EVENTS);
 
         ArchiveUnitType archiveUnit = objectFactory.createArchiveUnitType();
-        DescriptiveMetadataContentType descMetadataContent = objectFactory.createDescriptiveMetadataContentType();
+        DescriptiveMetadataContentType descContent = objectFactory.createDescriptiveMetadataContentType();
 
         if (
-            !systemGuidArchiveUnitId.isEmpty() &&
+            !unitGuidUnitAtrExtraMap.isEmpty() &&
             logbookLifeCycleUnit.get(SedaConstants.PREFIX_ID) != null &&
-            systemGuidArchiveUnitId.get(logbookLifeCycleUnit.get(SedaConstants.PREFIX_ID).toString()) != null
+            unitGuidUnitAtrExtraMap.get(logbookLifeCycleUnit.get(SedaConstants.PREFIX_ID).toString()) != null
         ) {
-            archiveUnit.setId(
-                systemGuidArchiveUnitId.get(logbookLifeCycleUnit.get(SedaConstants.PREFIX_ID).toString())
+            ArchiveUnitAtrExtra archiveUnitAtrExtra = unitGuidUnitAtrExtraMap.get(
+                logbookLifeCycleUnit.get(SedaConstants.PREFIX_ID).toString()
             );
 
-            descMetadataContent.getSystemId().add(logbookLifeCycleUnit.get(SedaConstants.PREFIX_ID).toString());
+            if (archiveUnitAtrExtra != null) {
+                archiveUnit.setId(archiveUnitAtrExtra.getId());
+
+                descContent.getSystemId().add(archiveUnitAtrExtra.getSystemId());
+
+                if (!CollectionUtils.isNullOrEmpty(archiveUnitAtrExtra.getFilePlanPosition())) {
+                    descContent.getFilePlanPosition().addAll(archiveUnitAtrExtra.getFilePlanPosition());
+                }
+                if (!CollectionUtils.isNullOrEmpty(archiveUnitAtrExtra.getOriginatingSystemId())) {
+                    descContent.getOriginatingSystemId().addAll(archiveUnitAtrExtra.getOriginatingSystemId());
+                }
+                if (!CollectionUtils.isNullOrEmpty(archiveUnitAtrExtra.getArchivalAgencyArchiveUnitIdentifier())) {
+                    descContent
+                        .getArchivalAgencyArchiveUnitIdentifier()
+                        .addAll(archiveUnitAtrExtra.getArchivalAgencyArchiveUnitIdentifier());
+                }
+                if (!CollectionUtils.isNullOrEmpty(archiveUnitAtrExtra.getOriginatingAgencyArchiveUnitIdentifier())) {
+                    descContent
+                        .getOriginatingAgencyArchiveUnitIdentifier()
+                        .addAll(archiveUnitAtrExtra.getOriginatingAgencyArchiveUnitIdentifier());
+                }
+                if (!CollectionUtils.isNullOrEmpty(archiveUnitAtrExtra.getTransferringAgencyArchiveUnitIdentifier())) {
+                    descContent
+                        .getTransferringAgencyArchiveUnitIdentifier()
+                        .addAll(archiveUnitAtrExtra.getTransferringAgencyArchiveUnitIdentifier());
+                }
+                if (!CollectionUtils.isNullOrEmpty(archiveUnitAtrExtra.getPersistentIdentifier())) {
+                    List<PersistentIdentifierModel> listOfPersistentIdentifierModel =
+                        archiveUnitAtrExtra.getPersistentIdentifier();
+
+                    for (PersistentIdentifierModel persistentIdentifierModel : listOfPersistentIdentifierModel) {
+                        descContent.getPersistentIdentifier().add(persistentIdentifierModel);
+                    }
+                }
+            } else {
+                throw new VitamClientException("the ArchiveUnit is null");
+            }
         }
 
-        archiveUnit.setContent(descMetadataContent);
+        archiveUnit.setContent(descContent);
 
         ManagementType archiveUnitMgmt = objectFactory.createManagementType();
 
@@ -941,7 +1034,8 @@ public class TransferNotificationActionHandler extends ActionHandler {
         Map<String, Object> dataObjectSystemGuid,
         Map<String, DataObjectDetail> dataObjectToDetailDataObject,
         Map<String, Object> objectGroupSystemGuid,
-        Map<String, String> existingGOTGUIDToNewGotGUIDInAttachment
+        Map<String, String> existingGOTGUIDToNewGotGUIDInAttachment,
+        Map<String, DataObjectAtrExtra> guidToDataObjectAtrExtraMap
     ) {
         final List<DataObjectGroupType> dataObjectGroupList = new ArrayList<>();
 
@@ -984,9 +1078,16 @@ public class TransferNotificationActionHandler extends ActionHandler {
                 }
 
                 binaryOrPhysicalDataObject.setDataObjectVersion(dataObjectDetail.getVersion());
-
                 //add  dataObject to dataObjectGroup
-                dataObjectGroup.getBinaryDataObjectOrPhysicalDataObject().add(binaryOrPhysicalDataObject);
+                dataObjectGroup
+                    .getBinaryDataObjectOrPhysicalDataObject()
+                    .add(
+                        checkDataObjectExtraFields(
+                            guidToDataObjectAtrExtraMap,
+                            dataObjectSystemGUID,
+                            binaryOrPhysicalDataObject
+                        )
+                    );
             }
             //add ObjectGroup object to result list
             dataObjectGroupList.add(dataObjectGroup);
@@ -1002,6 +1103,7 @@ public class TransferNotificationActionHandler extends ActionHandler {
         Map<String, Object> dataObjectSystemGuid,
         Map<String, DataObjectDetail> dataObjectToDetailDataObject,
         Map<String, String> existingGOTGUIDToNewGotGUIDInAttachment,
+        Map<String, DataObjectAtrExtra> guidToDataObjectAtrExtraMap,
         LogbookLifeCycleObjectGroupInProcess logbookLifeCycleObjectGroup
     ) {
         Map<String, String> dataObjectSystemGUIDToID = new TreeMap<>();
@@ -1053,7 +1155,15 @@ public class TransferNotificationActionHandler extends ActionHandler {
                 );
 
                 //add  dataObject to dataObjectGroup
-                dataObjectGroup.getBinaryDataObjectOrPhysicalDataObject().add(binaryOrPhysicalDataObject);
+                dataObjectGroup
+                    .getBinaryDataObjectOrPhysicalDataObject()
+                    .add(
+                        checkDataObjectExtraFields(
+                            guidToDataObjectAtrExtraMap,
+                            dataObjectSystemGUID,
+                            binaryOrPhysicalDataObject
+                        )
+                    );
             }
         }
 
@@ -1140,6 +1250,31 @@ public class TransferNotificationActionHandler extends ActionHandler {
         if (!handler.checkHandlerIO(1, handlerInitialIOList)) {
             throw new ProcessingException(HandlerIOImpl.NOT_CONFORM_PARAM);
         }
+    }
+
+    private MinimalDataObjectType checkDataObjectExtraFields(
+        Map<String, DataObjectAtrExtra> guidToDataObjectAtrExtraMap,
+        String dataObjectSystemGUID,
+        MinimalDataObjectType binaryOrPhysicalDataObject
+    ) {
+        if (guidToDataObjectAtrExtraMap.containsKey(dataObjectSystemGUID)) {
+            DataObjectAtrExtra dataObjectAtrExtra = guidToDataObjectAtrExtraMap.get(dataObjectSystemGUID);
+            if (!CollectionUtils.isNullOrEmpty(dataObjectAtrExtra.getPersistentIdentifier())) {
+                for (PersistentIdentifierModel persistentIdentifierModel : dataObjectAtrExtra.getPersistentIdentifier()) {
+                    binaryOrPhysicalDataObject.getPersistentIdentifier().add(persistentIdentifierModel);
+                }
+            }
+            if (
+                binaryOrPhysicalDataObject instanceof PhysicalDataObjectType &&
+                StringUtils.isNotEmpty(dataObjectAtrExtra.getPhysicalId())
+            ) {
+                ((PhysicalDataObjectType) binaryOrPhysicalDataObject).setPhysicalId(
+                        (buildIdentifierType(dataObjectAtrExtra.getPhysicalId()))
+                    );
+            }
+        }
+
+        return binaryOrPhysicalDataObject;
     }
 
     /**

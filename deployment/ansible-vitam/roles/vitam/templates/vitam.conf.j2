@@ -47,6 +47,18 @@ eliminationReportExtraFields:
   - tenant: {{ tenant_id }}
     metadataFields: {{ extendedConfiguration.custom[tenant_id].eliminationReportExtraFields | default(default_eliminationReportExtraFields) | to_json }}
 {% endfor %}
+
+ingestReportUnitExtraFields:
+{% for tenant_id in vitam_tenant_ids %}
+  - tenant: {{ tenant_id }}
+    metadataFields: {{ extendedConfiguration.custom[tenant_id].ingestReportUnitExtraFields | default(default_ingestReportUnitExtraFields) | to_json }}
+{% endfor %}
+
+ingestReportObjectExtraFields:
+{% for tenant_id in vitam_tenant_ids %}
+  - tenant: {{ tenant_id }}
+    metadataFields: {{ extendedConfiguration.custom[tenant_id].ingestReportObjectExtraFields | default(default_ingestReportObjectExtraFields) | to_json }}
+{% endfor %}
 {% endif %}
 
 keywordMaxLength: {{ vitam_defaults.keywordMaxLength | default(32766) }}
