@@ -1,0 +1,15 @@
+{
+  "aebqaaaaaceaaaabale5mamsm4ffneqaaaba" : {
+    "Id" : "ID21",
+    "PersistentIdentifier" : [ {
+      "PersistentIdentifierType" : "ark",
+      "PersistentIdentifierOrigin" : "OriginatingAgency",
+      "PersistentIdentifierReference" : "Agency-00021",
+      "PersistentIdentifierContent" : "ark:/23567/001a9d7db5eadabac_binary_master"
+    } ]
+  },
+  "aebqaaaaaceaaaabale5mamsm4ffndaaaaba" : {
+    "Id" : "ID17",
+    "PersistentIdentifier" : [ ]
+  }
+}

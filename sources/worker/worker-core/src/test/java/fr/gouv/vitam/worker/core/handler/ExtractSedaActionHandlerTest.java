@@ -299,6 +299,12 @@ public class ExtractSedaActionHandlerTest {
                 .setUri(new ProcessingUri(UriPrefix.WORKSPACE, "Maps/EXISTING_GOTS_GUID_FOR_ATTACHMENT_MAP.json"))
         );
 
+        out.add(
+            new IOParameter()
+                .setUri(new ProcessingUri(UriPrefix.WORKSPACE, "Maps/ARCHIVE_ID_TO_ARCHIVE_DETAIL_MAP.jsonl"))
+        );
+
+        out.add(new IOParameter().setUri(new ProcessingUri(UriPrefix.WORKSPACE, "Maps/DO_GUID_TO_DO_MAP.json")));
         in = new ArrayList<>();
         in.add(new IOParameter().setUri(new ProcessingUri(UriPrefix.VALUE, "false")));
         in.add(new IOParameter().setUri(new ProcessingUri(UriPrefix.VALUE, "INGEST")));

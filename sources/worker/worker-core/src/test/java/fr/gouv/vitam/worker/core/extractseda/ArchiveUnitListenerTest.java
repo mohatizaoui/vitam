@@ -26,6 +26,7 @@
  */
 package fr.gouv.vitam.worker.core.extractseda;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -38,10 +39,13 @@ import fr.gouv.culture.archivesdefrance.seda.v2.DescriptiveMetadataContentType;
 import fr.gouv.culture.archivesdefrance.seda.v2.ManagementType;
 import fr.gouv.culture.archivesdefrance.seda.v2.RelatedObjectReferenceType;
 import fr.gouv.culture.archivesdefrance.seda.v2.UpdateOperationType;
+import fr.gouv.vitam.common.EnumUnitWhiteListedFields;
+import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.exception.VitamRuntimeException;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.UnitType;
+import fr.gouv.vitam.common.model.unit.PersistentIdentifierModel;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -53,8 +57,13 @@ import fr.gouv.vitam.processing.common.exception.ProcessingNotFoundException;
 import fr.gouv.vitam.processing.common.exception.ProcessingNotValidLinkingException;
 import fr.gouv.vitam.processing.common.exception.ProcessingUnitLinkingException;
 import fr.gouv.vitam.worker.common.HandlerIO;
+import fr.gouv.vitam.worker.common.utils.ArchiveUnitAtrExtra;
+import fr.gouv.vitam.worker.core.distribution.JsonLineGenericIterator;
+import fr.gouv.vitam.worker.core.distribution.JsonLineWriter;
 import fr.gouv.vitam.worker.core.impl.HandlerIOImpl;
 import fr.gouv.vitam.worker.core.utils.JsonLineDataBase;
+import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -64,7 +73,9 @@ import org.junit.rules.TemporaryFolder;
 import javax.xml.bind.JAXBElement;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -80,6 +91,7 @@ public class ArchiveUnitListenerTest {
     private static MetaDataClient metaDataClient;
 
     private IngestContext ingestContext;
+    JsonLineWriter jsonLineWriter = mock(JsonLineWriter.class);
 
     @Rule
     public RunWithCustomExecutorRule runInThread = new RunWithCustomExecutorRule(
@@ -104,6 +116,11 @@ public class ArchiveUnitListenerTest {
         ingestContext.setTypeProcess(LogbookTypeProcess.INGEST_TEST);
     }
 
+    @After
+    public void cleanup() {
+        VitamConfiguration.setIngestReportUnitExtraFields(Collections.emptyMap());
+    }
+
     @Test
     @RunWithCustomExecutor
     public void testAfterUnmarshalLinkedSystemIdNotFoundKO() throws Exception {
@@ -117,7 +134,8 @@ public class ArchiveUnitListenerTest {
             ingestContext,
             new IngestSession(),
             mock(JsonLineDataBase.class),
-            metaDataClientFactory
+            metaDataClientFactory,
+            jsonLineWriter
         );
 
         when(target.getArchiveUnitRefId()).thenReturn(null);
@@ -154,7 +172,8 @@ public class ArchiveUnitListenerTest {
             ingestContext,
             new IngestSession(),
             mock(JsonLineDataBase.class),
-            metaDataClientFactory
+            metaDataClientFactory,
+            jsonLineWriter
         );
 
         when(target.getArchiveUnitRefId()).thenReturn(null);
@@ -196,7 +215,8 @@ public class ArchiveUnitListenerTest {
             ingestContext,
             new IngestSession(),
             mock(JsonLineDataBase.class),
-            metaDataClientFactory
+            metaDataClientFactory,
+            jsonLineWriter
         );
 
         when(target.getArchiveUnitRefId()).thenReturn(null);
@@ -241,7 +261,8 @@ public class ArchiveUnitListenerTest {
             ingestContext,
             new IngestSession(),
             mock(JsonLineDataBase.class),
-            metaDataClientFactory
+            metaDataClientFactory,
+            jsonLineWriter
         );
 
         when(target.getArchiveUnitRefId()).thenReturn(null);
@@ -282,7 +303,8 @@ public class ArchiveUnitListenerTest {
             ingestContext,
             new IngestSession(),
             mock(JsonLineDataBase.class),
-            metaDataClientFactory
+            metaDataClientFactory,
+            jsonLineWriter
         );
 
         when(target.getArchiveUnitRefId()).thenReturn(null);
@@ -329,7 +351,8 @@ public class ArchiveUnitListenerTest {
             ingestContext,
             ingestSession,
             mock(JsonLineDataBase.class),
-            metaDataClientFactory
+            metaDataClientFactory,
+            jsonLineWriter
         );
 
         when(target.getArchiveUnitRefId()).thenReturn(null);
@@ -376,7 +399,8 @@ public class ArchiveUnitListenerTest {
             ingestContext,
             ingestSession,
             mock(JsonLineDataBase.class),
-            metaDataClientFactory
+            metaDataClientFactory,
+            jsonLineWriter
         );
 
         when(target.getArchiveUnitRefId()).thenReturn(null);
@@ -413,6 +437,72 @@ public class ArchiveUnitListenerTest {
 
     @Test
     @RunWithCustomExecutor
+    public void testExtractArchiveUnitExtraAttributesToJsonlWriter() throws Exception {
+        VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
+        VitamConfiguration.setIngestReportUnitExtraFields(
+            Map.of(
+                TENANT_ID,
+                List.of(
+                    EnumUnitWhiteListedFields.OriginatingSystemId,
+                    EnumUnitWhiteListedFields.OriginatingSystemId,
+                    EnumUnitWhiteListedFields.FilePlanPosition
+                )
+            )
+        );
+        JAXBElement<?> parent = mock(JAXBElement.class);
+
+        HandlerIO handlerIO = mock(HandlerIO.class);
+        IngestSession ingestSession = new IngestSession();
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        try (JsonLineWriter writer = new JsonLineWriter(byteArrayOutputStream)) {
+            ArchiveUnitListener archiveUnitListener = new ArchiveUnitListener(
+                handlerIO,
+                ingestContext,
+                ingestSession,
+                mock(JsonLineDataBase.class),
+                metaDataClientFactory,
+                writer
+            );
+
+            ArchiveUnitType target = new ArchiveUnitType();
+            target.setId("MyXmlId");
+            DescriptiveMetadataContentType content = new DescriptiveMetadataContentType();
+            content.getFilePlanPosition().add("MyTestFilePlanPosition");
+            content.getOriginatingSystemId().add("MySystemId");
+            PersistentIdentifierModel persistentIdentifierModel = new PersistentIdentifierModel();
+            persistentIdentifierModel.setPersistentIdentifierType("ark");
+            persistentIdentifierModel.setPersistentIdentifierOrigin("OriginatingAgency");
+            persistentIdentifierModel.setPersistentIdentifierReference("originatingAgency1");
+            persistentIdentifierModel.setPersistentIdentifierContent("ark://ark-id");
+            content.getPersistentIdentifier().add(persistentIdentifierModel);
+            target.setContent(content);
+            ManagementType managementType = new ManagementType();
+            target.setManagement(managementType);
+            when(parent.isGlobalScope()).thenReturn(true);
+
+            File file = temporaryFolder.newFile();
+            when(handlerIO.getNewLocalFile(anyString())).thenReturn(file);
+
+            assertThatCode(() -> archiveUnitListener.extractArchiveUnit(target, parent)).doesNotThrowAnyException();
+        }
+
+        JsonLineGenericIterator<ArchiveUnitAtrExtra> archiveUnitAtrExtraIterator = new JsonLineGenericIterator<>(
+            byteArrayOutputStream.toInputStream(),
+            new TypeReference<>() {}
+        );
+
+        assertThat(archiveUnitAtrExtraIterator.hasNext()).isTrue();
+        ArchiveUnitAtrExtra archiveUnitAtrExtra = archiveUnitAtrExtraIterator.next();
+        assertThat(archiveUnitAtrExtra.getId()).isEqualTo("MyXmlId");
+        assertThat(archiveUnitAtrExtra.getSystemId()).isNotNull().matches("[a-z0-9]{36}");
+        assertThat(archiveUnitAtrExtra.getFilePlanPosition()).containsExactly("MyTestFilePlanPosition");
+        assertThat(archiveUnitAtrExtra.getOriginatingSystemId()).containsExactly("MySystemId");
+        assertThat(archiveUnitAtrExtra.getPersistentIdentifier()).isNull();
+    }
+
+    @Test
+    @RunWithCustomExecutor
     public void testAfterUnmarshalCustodialHistoryShouldNotThrowException() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
 
@@ -428,7 +518,8 @@ public class ArchiveUnitListenerTest {
             ingestContext,
             ingestSession,
             mock(JsonLineDataBase.class),
-            metaDataClientFactory
+            metaDataClientFactory,
+            jsonLineWriter
         );
         File file = temporaryFolder.newFile();
         when(handlerIO.getNewLocalFile(anyString())).thenReturn(file);
@@ -461,7 +552,8 @@ public class ArchiveUnitListenerTest {
             ingestContext,
             new IngestSession(),
             mock(JsonLineDataBase.class),
-            metaDataClientFactory
+            metaDataClientFactory,
+            jsonLineWriter
         );
         File file = temporaryFolder.newFile();
         when(handlerIO.getNewLocalFile(anyString())).thenReturn(file);
@@ -501,7 +593,8 @@ public class ArchiveUnitListenerTest {
             ingestContext,
             ingestSession,
             mock(JsonLineDataBase.class),
-            metaDataClientFactory
+            metaDataClientFactory,
+            jsonLineWriter
         );
 
         File file = temporaryFolder.newFile();

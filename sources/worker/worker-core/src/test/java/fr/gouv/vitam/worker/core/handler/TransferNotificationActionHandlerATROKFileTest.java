@@ -78,6 +78,9 @@ import static org.mockito.Mockito.when;
 public class TransferNotificationActionHandlerATROKFileTest {
 
     private static final String ARCHIVE_ID_TO_GUID_MAP = "ARCHIVE_ID_TO_GUID_MAP_obj.json";
+    private static final String ARCHIVE_ID_TO_ARCHIVE_DETAIL_MAP = "ARCHIVE_ID_TO_ARCHIVE_DETAIL_MAP.jsonl";
+    private static final String DATA_OBJECT_ID_TO_DATA_OBJECT_MAP = "DATA_OBJECT_ID_TO_DATA_OBJECT_MAP.json";
+
     private static final String DATA_OBJECT_ID_TO_GUID_MAP = "DATA_OBJECT_ID_TO_GUID_MAP_obj.json";
     private static final String DATA_OBJECT_TO_OBJECT_GROUP_ID_MAP = "DATA_OBJECT_TO_OBJECT_GROUP_ID_MAP.json";
     private static final String DATA_OBJECT_ID_TO_DATA_OBJECT_DETAIL_MAP =
@@ -158,6 +161,8 @@ public class TransferNotificationActionHandlerATROKFileTest {
         handlerIO.addOutputResult(4, PropertiesUtils.getResourceFile(ATR_GLOBAL_SEDA_PARAMETERS), false);
         handlerIO.addOutputResult(5, PropertiesUtils.getResourceFile(OBJECT_GROUP_ID_TO_GUID_MAP), false);
         handlerIO.addOutputResult(7, PropertiesUtils.getResourceFile(SEDA_PARAMS), false);
+        handlerIO.addOutputResult(8, PropertiesUtils.getResourceFile(ARCHIVE_ID_TO_ARCHIVE_DETAIL_MAP), false);
+        handlerIO.addOutputResult(9, PropertiesUtils.getResourceFile(DATA_OBJECT_ID_TO_DATA_OBJECT_MAP), false);
 
         File existingGOTGUIDToNewGotGUIDInAttachmentFile = handlerIO.getNewLocalFile(
             "existingGOTGUIDToNewGotGUIDInAttachmentFile"

@@ -40,6 +40,8 @@ import fr.gouv.vitam.access.external.rest.AccessExternalMain;
 import fr.gouv.vitam.access.internal.rest.AccessInternalMain;
 import fr.gouv.vitam.batch.report.rest.BatchReportMain;
 import fr.gouv.vitam.common.DataLoader;
+import fr.gouv.vitam.common.EnumObjectWhiteListedFields;
+import fr.gouv.vitam.common.EnumUnitWhiteListedFields;
 import fr.gouv.vitam.common.GlobalDataRest;
 import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.VitamConfiguration;
@@ -56,6 +58,7 @@ import fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchIndexAlia
 import fr.gouv.vitam.common.elasticsearch.ElasticsearchRule;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.exception.VitamClientException;
+import fr.gouv.vitam.common.external.client.IngestCollection;
 import fr.gouv.vitam.common.format.identification.FormatIdentifierFactory;
 import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.json.JsonHandler;
@@ -124,13 +127,19 @@ import retrofit2.http.Path;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static fr.gouv.vitam.common.GlobalDataRest.X_REQUEST_ID;
 import static fr.gouv.vitam.common.VitamTestHelper.waitOperation;
@@ -145,10 +154,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 
 public class EndToEndAccessExternalIT extends VitamRuleRunner {
 
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(EndToEndAccessExternalIT.class);
+
+    private static final List<String> ALLOWED_TAG_OBJECT = List.of(
+        "DataObjectSystemId",
+        "DataObjectGroupSystemId",
+        "DataObjectVersion"
+    );
     private static final Integer tenantId = 0;
     private static final String XML = ".xml";
 
@@ -244,7 +260,7 @@ public class EndToEndAccessExternalIT extends VitamRuleRunner {
         final VitamContext context = new VitamContext(tenantId)
             .setApplicationSessionId("ApplicationSessionId")
             .setAccessContract("aName3");
-        ingest(context, "elimination/ARK_IDS_AND_TO_GENERATE_NEW_1.zip");
+        ingest(context, "sip/TEST_INGEST_ARK_IDS_AND_AUTOGENERATE_ARK_IDS.zip");
 
         try (final AccessExternalClient client = AccessExternalClientFactory.getInstance().getClient()) {
             final String persistentIdentifier = "ark:/23567/001a9d7db5eadabac_binary_master";
@@ -266,12 +282,413 @@ public class EndToEndAccessExternalIT extends VitamRuleRunner {
 
     @Test
     @RunWithCustomExecutor
+    public void verifyWhenAtrOKWithoutConf() throws Exception {
+        //given
+        final VitamContext context = new VitamContext(tenantId)
+            .setApplicationSessionId("ApplicationSessionId")
+            .setAccessContract("aName3");
+
+        Map<Integer, List<EnumUnitWhiteListedFields>> confEnum = new HashMap<>();
+        List<EnumUnitWhiteListedFields> fieldsEnum = new ArrayList<>();
+        fieldsEnum.add(EnumUnitWhiteListedFields.PersistentIdentifier);
+
+        confEnum.put(0, fieldsEnum);
+
+        VitamConfiguration.setIngestReportUnitExtraFields(confEnum);
+        //WHEN
+        String operationId = ingest(context, "sip/TEST_INGEST_ARK_IDS_AND_AUTOGENERATE_ARK_IDS.zip");
+
+        //THEN
+        List<String> allowedTags = Arrays.asList("SystemId", "PersistentIdentifier");
+
+        List<String> expectedFields = new ArrayList<>();
+        expectedFields.add("<PersistentIdentifierType>ark</PersistentIdentifierType>");
+        expectedFields.add("<PersistentIdentifierContent>ark:/2778447/1234567xyz</PersistentIdentifierContent>");
+        Map<String, List<String>> unitMap = new HashMap<>();
+        unitMap.put("ID18", expectedFields);
+
+        expectedFields = new ArrayList<>();
+        expectedFields.add("<PersistentIdentifierType>ark</PersistentIdentifierType>");
+        expectedFields.add("<PersistentIdentifierContent>ark:/666567/001a957db5eadaac</PersistentIdentifierContent>");
+        unitMap.put("ID14", expectedFields);
+
+        String atrContent = getAtrContent(context, operationId);
+        assertTrue(validateUnit(atrContent, unitMap, allowedTags));
+
+        expectedFields = new ArrayList<>();
+        expectedFields.add("<PersistentIdentifierType>ark</PersistentIdentifierType>");
+        expectedFields.add("<PersistentIdentifierOrigin>OriginatingAgency</PersistentIdentifierOrigin>");
+        expectedFields.add("<PersistentIdentifierReference>Agency-00021</PersistentIdentifierReference>");
+
+        expectedFields.add(
+            "<PersistentIdentifierContent>ark:/23567/001a9d7db5eadabac_binary_master</PersistentIdentifierContent>"
+        );
+
+        Map<String, List<String>> objectMap = new HashMap<>();
+        objectMap.put("ID21", expectedFields);
+
+        List<String> allowedTagsObject = new ArrayList<>(ALLOWED_TAG_OBJECT);
+        allowedTagsObject.add("PersistentIdentifier");
+        assertTrue(validateObject(atrContent, objectMap, allowedTagsObject));
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void verifyWhenAtrOKWithConf() throws Exception {
+        //given
+        final VitamContext context = new VitamContext(0)
+            .setApplicationSessionId("ApplicationSessionId")
+            .setAccessContract("aName3");
+
+        Map<Integer, List<EnumUnitWhiteListedFields>> confEnum = new HashMap<>();
+        List<EnumUnitWhiteListedFields> fieldsEnum = new ArrayList<>();
+        fieldsEnum.add(EnumUnitWhiteListedFields.FilePlanPosition);
+        fieldsEnum.add(EnumUnitWhiteListedFields.OriginatingSystemId);
+
+        confEnum.put(0, fieldsEnum);
+
+        VitamConfiguration.setIngestReportUnitExtraFields(confEnum);
+
+        Map<Integer, List<EnumObjectWhiteListedFields>> confObjectEnum = new HashMap<>();
+        List<EnumObjectWhiteListedFields> fieldsObjectEnum = new ArrayList<>();
+        fieldsObjectEnum.add(EnumObjectWhiteListedFields.PersistentIdentifier);
+
+        confObjectEnum.put(0, fieldsObjectEnum);
+
+        VitamConfiguration.setIngestReportObjectExtraFields(confObjectEnum);
+
+        //WHEN
+        String operationId = ingest(context, "sip/TEST_INGEST_CAS_OK.zip");
+
+        //THEN
+        String atrContent = getAtrContent(context, operationId);
+        List<String> allowedTags = Arrays.asList("SystemId", "FilePlanPosition", "OriginatingSystemId");
+
+        List<String> expectedFields = new ArrayList<>();
+        expectedFields.add("<FilePlanPosition>13.1.</FilePlanPosition>");
+        expectedFields.add("<FilePlanPosition>RATP.13.1.</FilePlanPosition>");
+        expectedFields.add("<OriginatingSystemId>123456</OriginatingSystemId>");
+        expectedFields.add("<OriginatingSystemId>AZERTY</OriginatingSystemId>");
+        Map<String, List<String>> unitMap = new HashMap<>();
+        unitMap.put("ID4", expectedFields);
+
+        expectedFields = new ArrayList<>();
+        expectedFields.add("<FilePlanPosition>testilePlanPosition</FilePlanPosition>");
+        unitMap.put("ID6", expectedFields);
+        assertTrue(validateUnit(atrContent, unitMap, allowedTags));
+
+        Map<String, List<String>> objectMap = new HashMap<>();
+        objectMap.put("ID13", List.of("<DataObjectVersion>BinaryMaster_1</DataObjectVersion>"));
+        assertTrue(validateObject(atrContent, objectMap, ALLOWED_TAG_OBJECT));
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void verifyWhenAtrKOWithConf() throws Exception {
+        //given
+        final VitamContext context = new VitamContext(0)
+            .setApplicationSessionId("ApplicationSessionId")
+            .setAccessContract("aName3");
+
+        Map<Integer, List<EnumUnitWhiteListedFields>> confEnum = new HashMap<>();
+        List<EnumUnitWhiteListedFields> fieldsEnum = new ArrayList<>();
+        fieldsEnum.add(EnumUnitWhiteListedFields.FilePlanPosition);
+        fieldsEnum.add(EnumUnitWhiteListedFields.OriginatingSystemId);
+        fieldsEnum.add(EnumUnitWhiteListedFields.TransferringAgencyArchiveUnitIdentifier);
+        fieldsEnum.add(EnumUnitWhiteListedFields.OriginatingAgencyArchiveUnitIdentifier);
+        fieldsEnum.add(EnumUnitWhiteListedFields.ArchivalAgencyArchiveUnitIdentifier);
+
+        confEnum.put(0, fieldsEnum);
+        confEnum.put(1, new ArrayList<>());
+
+        VitamConfiguration.setIngestReportUnitExtraFields(confEnum);
+
+        Map<Integer, List<EnumObjectWhiteListedFields>> confObjectEnum = new HashMap<>();
+        List<EnumObjectWhiteListedFields> fieldsObjectEnum = new ArrayList<>();
+        fieldsObjectEnum.add(EnumObjectWhiteListedFields.PersistentIdentifier);
+
+        confObjectEnum.put(0, fieldsObjectEnum);
+        confObjectEnum.put(1, fieldsObjectEnum);
+
+        VitamConfiguration.setIngestReportObjectExtraFields(confObjectEnum);
+
+        //WHEN
+        String operationId = ingest(context, "sip/TEST_INGEST_CAS_KO.zip");
+
+        //THEN
+        String atrContent = getAtrContent(context, operationId);
+        List<String> allowedTags = Arrays.asList(
+            "SystemId",
+            "FilePlanPosition",
+            "OriginatingSystemId",
+            "TransferringAgencyArchiveUnitIdentifier",
+            "OriginatingAgencyArchiveUnitIdentifier",
+            "ArchivalAgencyArchiveUnitIdentifier"
+        );
+
+        List<String> expectedFields = new ArrayList<>();
+        expectedFields.add("<FilePlanPosition>13.1.</FilePlanPosition>");
+        expectedFields.add("<FilePlanPosition>RATP.13.1.</FilePlanPosition>");
+        expectedFields.add("<OriginatingSystemId>123456</OriginatingSystemId>");
+        expectedFields.add("<OriginatingSystemId>AZERTY</OriginatingSystemId>");
+        expectedFields.add("<OriginatingAgencyArchiveUnitIdentifier>7890</OriginatingAgencyArchiveUnitIdentifier>");
+        expectedFields.add("<OriginatingAgencyArchiveUnitIdentifier>QWERTY</OriginatingAgencyArchiveUnitIdentifier>");
+        expectedFields.add("<TransferringAgencyArchiveUnitIdentifier>Toto1</TransferringAgencyArchiveUnitIdentifier>");
+        expectedFields.add("<TransferringAgencyArchiveUnitIdentifier>1Otot</TransferringAgencyArchiveUnitIdentifier>");
+        expectedFields.add("<ArchivalAgencyArchiveUnitIdentifier>20170045/1</ArchivalAgencyArchiveUnitIdentifier>");
+        expectedFields.add("<ArchivalAgencyArchiveUnitIdentifier>AMN.X/12</ArchivalAgencyArchiveUnitIdentifier>");
+        Map<String, List<String>> unitMap = new HashMap<>();
+        unitMap.put("ID4", expectedFields);
+
+        expectedFields = new ArrayList<>();
+        expectedFields.add("<FilePlanPosition>testilePlanPosition</FilePlanPosition>");
+        unitMap.put("ID6", expectedFields);
+        assertTrue(validateUnit(atrContent, unitMap, allowedTags));
+
+        Map<String, List<String>> objectMap = new HashMap<>();
+        objectMap.put("ID13", List.of("<DataObjectVersion>BinaryMaster_1</DataObjectVersion>"));
+        assertTrue(validateObject(atrContent, objectMap, ALLOWED_TAG_OBJECT));
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void verifyWhenAtrWarningWithConf() throws Exception {
+        //given
+        final VitamContext context = new VitamContext(0)
+            .setApplicationSessionId("ApplicationSessionId")
+            .setAccessContract("aName3");
+
+        Map<Integer, List<EnumUnitWhiteListedFields>> confEnum = new HashMap<>();
+        List<EnumUnitWhiteListedFields> fieldsEnum = new ArrayList<>();
+        fieldsEnum.add(EnumUnitWhiteListedFields.FilePlanPosition);
+        fieldsEnum.add(EnumUnitWhiteListedFields.OriginatingSystemId);
+        fieldsEnum.add(EnumUnitWhiteListedFields.TransferringAgencyArchiveUnitIdentifier);
+        fieldsEnum.add(EnumUnitWhiteListedFields.OriginatingAgencyArchiveUnitIdentifier);
+        fieldsEnum.add(EnumUnitWhiteListedFields.ArchivalAgencyArchiveUnitIdentifier);
+
+        confEnum.put(0, fieldsEnum);
+        confEnum.put(1, new ArrayList<>());
+
+        VitamConfiguration.setIngestReportUnitExtraFields(confEnum);
+
+        Map<Integer, List<EnumObjectWhiteListedFields>> confObjectEnum = new HashMap<>();
+        List<EnumObjectWhiteListedFields> fieldsObjectEnum = new ArrayList<>();
+        fieldsObjectEnum.add(EnumObjectWhiteListedFields.PersistentIdentifier);
+
+        confObjectEnum.put(0, fieldsObjectEnum);
+        confObjectEnum.put(1, fieldsObjectEnum);
+
+        VitamConfiguration.setIngestReportObjectExtraFields(confObjectEnum);
+
+        //WHEN
+        String operationId = ingest(context, "sip/TEST_INGEST_CAS_WARNING.zip");
+
+        //THEN
+        String atrContent = getAtrContent(context, operationId);
+        List<String> allowedTags = Arrays.asList(
+            "SystemId",
+            "FilePlanPosition",
+            "OriginatingSystemId",
+            "TransferringAgencyArchiveUnitIdentifier",
+            "OriginatingAgencyArchiveUnitIdentifier",
+            "ArchivalAgencyArchiveUnitIdentifier"
+        );
+
+        List<String> expectedFields = new ArrayList<>();
+        expectedFields.add("<FilePlanPosition>13.1.</FilePlanPosition>");
+        expectedFields.add("<FilePlanPosition>RATP.13.1.</FilePlanPosition>");
+        expectedFields.add("<OriginatingSystemId>123456</OriginatingSystemId>");
+        expectedFields.add("<OriginatingSystemId>AZERTY</OriginatingSystemId>");
+        expectedFields.add("<OriginatingAgencyArchiveUnitIdentifier>7890</OriginatingAgencyArchiveUnitIdentifier>");
+        expectedFields.add("<OriginatingAgencyArchiveUnitIdentifier>QWERTY</OriginatingAgencyArchiveUnitIdentifier>");
+        expectedFields.add("<TransferringAgencyArchiveUnitIdentifier>Toto1</TransferringAgencyArchiveUnitIdentifier>");
+        expectedFields.add("<TransferringAgencyArchiveUnitIdentifier>1Otot</TransferringAgencyArchiveUnitIdentifier>");
+        expectedFields.add("<ArchivalAgencyArchiveUnitIdentifier>20170045/1</ArchivalAgencyArchiveUnitIdentifier>");
+        expectedFields.add("<ArchivalAgencyArchiveUnitIdentifier>AMN.X/12</ArchivalAgencyArchiveUnitIdentifier>");
+        Map<String, List<String>> unitMap = new HashMap<>();
+        unitMap.put("ID4", expectedFields);
+
+        expectedFields = new ArrayList<>();
+        expectedFields.add("<FilePlanPosition>testilePlanPosition</FilePlanPosition>");
+        unitMap.put("ID6", expectedFields);
+        assertTrue(validateUnit(atrContent, unitMap, allowedTags));
+
+        Map<String, List<String>> objectMap = new HashMap<>();
+        objectMap.put("ID35", List.of("<DataObjectVersion>BinaryMaster_1</DataObjectVersion>"));
+        assertTrue(validateObject(atrContent, objectMap, ALLOWED_TAG_OBJECT));
+
+        Map<String, List<String>> objectGroupMap = new HashMap<>();
+        objectGroupMap.put(
+            "ID34",
+            List.of("<BinaryDataObject id=\"ID35\">", "<EventTypeCode>LFC.CHECK_OBJECT_SIZE.CHECK_SIZE</EventTypeCode>")
+        );
+        assertTrue(
+            validateLogbook(atrContent, objectGroupMap, List.of("PhysicalDataObject", "BinaryDataObject", "LogBook"))
+        );
+    }
+
+    private boolean validateAllowedTags(String content, List<String> allowedTags) {
+        // Regex to capture only the top-level tags (first-level tags only)
+        String parentTagRegex = "<(\\w+)(?:\\s+[^>]*)?>.*?</\\1>";
+        Pattern tagPattern = Pattern.compile(parentTagRegex, Pattern.DOTALL);
+        Matcher tagMatcher = tagPattern.matcher(content);
+
+        // Iterate through each top-level tag and check if it's in the allowed tags list
+        while (tagMatcher.find()) {
+            String tagName = tagMatcher.group(1);
+            if (!allowedTags.contains(tagName)) {
+                System.err.println("The tag <" + tagName + "> is not allowed.");
+                return false; // Return false if a disallowed top-level tag is found
+            }
+        }
+
+        return true; // All top-level tags are allowed
+    }
+
+    public String getAtrContent(VitamContext context, String operationId) {
+        try (final IngestExternalClient client = IngestExternalClientFactory.getInstance().getClient()) {
+            try (
+                final Response response = client.downloadObjectAsync(
+                    context,
+                    operationId,
+                    IngestCollection.ARCHIVETRANSFERREPLY
+                )
+            ) {
+                try (InputStream atr = response.readEntity(InputStream.class)) {
+                    return IOUtils.toString(atr, StandardCharsets.UTF_8);
+                } catch (IOException e) {
+                    throw new RuntimeException("Error while reading ATR content", e);
+                }
+            } catch (VitamClientException e) {
+                throw new RuntimeException("Error while downloading ATR", e);
+            }
+        }
+    }
+
+    public boolean validateUnit(String atrContent, Map<String, List<String>> expectedValues, List<String> allowedTags) {
+        // Regex to capture each ArchiveUnit with its ID and content block
+        String archiveUnitRegex = "<ArchiveUnit id=\"(.*?)\">.*?<Content>(.*?)</Content>.*?</ArchiveUnit>";
+        Pattern archiveUnitPattern = Pattern.compile(archiveUnitRegex, Pattern.DOTALL);
+        Matcher archiveUnitMatcher = archiveUnitPattern.matcher(atrContent);
+
+        int archiveUnitCount = 0; // Counter for ArchiveUnits found
+        boolean foundExpectedUnit = false; // Flag indicating if an expected ArchiveUnit was found
+
+        // Iterate through each ArchiveUnit and check for expected tags and values
+        while (archiveUnitMatcher.find()) {
+            archiveUnitCount++; // Increment the counter for each ArchiveUnit found
+            String unitId = archiveUnitMatcher.group(1);
+            String contentBlock = archiveUnitMatcher.group(2);
+
+            // Validate allowed tags in the content block
+            if (!validateAllowedTags(contentBlock, allowedTags)) {
+                return false; // Return false if a disallowed tag is found
+            }
+
+            // Validate expected fields only for specified ArchiveUnits
+            if (expectedValues.containsKey(unitId)) {
+                foundExpectedUnit = true; // Found an expected ArchiveUnit
+                if (!validateExpectedFields(contentBlock, expectedValues.get(unitId))) {
+                    return false; // Return false if expected fields do not match
+                }
+            }
+        }
+
+        // Return false if no ArchiveUnits were found or if no expected ArchiveUnit was found
+        return archiveUnitCount > 0 && foundExpectedUnit;
+    }
+
+    private boolean validateExpectedFields(String contentBlock, List<String> expectedFields) {
+        for (String value : expectedFields) {
+            if (!contentBlock.contains(value)) {
+                return false; // Return false if a field is missing
+            }
+        }
+        return true; // Return true if all expected fields are present
+    }
+
+    public boolean validateLogbook(
+        String atrContent,
+        Map<String, List<String>> expectedValues,
+        List<String> allowedTags
+    ) {
+        // Regex to capture each DataObjectGroup with its ID and content
+        String dataObjectGroupRegex = "<DataObjectGroup id=\"(.*?)\">(.*?)</DataObjectGroup>";
+        Pattern dataObjectGroupPattern = Pattern.compile(dataObjectGroupRegex, Pattern.DOTALL);
+        Matcher dataObjectGroupMatcher = dataObjectGroupPattern.matcher(atrContent);
+
+        int dataObjectGroupCount = 0; // Counter for DataObjectGroups found
+        boolean foundExpectedObject = false; // Flag indicating if an expected DataObjectGroup was found
+
+        // Iterate through each DataObjectGroup and check for expected tags and values
+        while (dataObjectGroupMatcher.find()) {
+            dataObjectGroupCount++; // Increment the counter for each DataObjectGroup found
+            String objectId = dataObjectGroupMatcher.group(1);
+            String dataObjectGroupBlock = dataObjectGroupMatcher.group(2);
+
+            // Validate allowed top-level tags in the DataObjectGroup block
+            if (!validateAllowedTags(dataObjectGroupBlock, allowedTags)) {
+                return false; // Return false if a disallowed tag is found
+            }
+
+            // Validate expected fields only for specified DataObjectGroups
+            if (expectedValues.containsKey(objectId)) {
+                foundExpectedObject = true; // Found an expected DataObjectGroup
+                if (!validateExpectedFields(dataObjectGroupBlock, expectedValues.get(objectId))) {
+                    return false; // Return false if expected fields do not match
+                }
+            }
+        }
+
+        // Return false if no DataObjectGroups were found or if no expected DataObjectGroup was found
+        return dataObjectGroupCount > 0 && foundExpectedObject;
+    }
+
+    public boolean validateObject(
+        String atrContent,
+        Map<String, List<String>> expectedValues,
+        List<String> allowedTags
+    ) {
+        // Regex to capture each BinaryDataObject with its ID and content
+        String binaryObjectRegex = "<BinaryDataObject id=\"(.*?)\">(.*?)</BinaryDataObject>";
+        Pattern binaryObjectPattern = Pattern.compile(binaryObjectRegex, Pattern.DOTALL);
+        Matcher binaryObjectMatcher = binaryObjectPattern.matcher(atrContent);
+
+        int binaryObjectCount = 0; // Counter for BinaryDataObjects found
+        boolean foundExpectedObject = false; // Flag indicating if an expected BinaryDataObject was found
+
+        // Iterate through each BinaryDataObject and check for expected tags and values
+        while (binaryObjectMatcher.find()) {
+            binaryObjectCount++; // Increment the counter for each BinaryDataObject found
+            String objectId = binaryObjectMatcher.group(1);
+            String binaryBlock = binaryObjectMatcher.group(2);
+
+            // Validate allowed tags in the BinaryDataObject block
+            if (!validateAllowedTags(binaryBlock, allowedTags)) {
+                return false; // Return false if a disallowed tag is found
+            }
+
+            // Validate expected fields only for specified BinaryDataObjects
+            if (expectedValues.containsKey(objectId)) {
+                foundExpectedObject = true; // Found an expected BinaryDataObject
+                if (!validateExpectedFields(binaryBlock, expectedValues.get(objectId))) {
+                    return false; // Return false if expected fields do not match
+                }
+            }
+        }
+
+        // Return false if no BinaryDataObjects were found or if no expected BinaryDataObject was found
+        return binaryObjectCount > 0 && foundExpectedObject;
+    }
+
+    @Test
+    @RunWithCustomExecutor
     public void shouldObjectBeNotFoundWhenTryingToDownloadAnArchiveUnitPersistentIdentifier() throws Exception {
         final String persistentIdentifier = "ark:/666567/001a957db5eadaac";
         final VitamContext context = new VitamContext(tenantId)
             .setApplicationSessionId("ApplicationSessionId")
             .setAccessContract("aName3");
-        ingest(context, "elimination/ARK_IDS_AND_TO_GENERATE_NEW_1.zip");
+        ingest(context, "sip/TEST_INGEST_ARK_IDS_AND_AUTOGENERATE_ARK_IDS.zip");
 
         try (final AccessExternalClient client = AccessExternalClientFactory.getInstance().getClient()) {
             final VitamClientException vitamClientException = assertThrows(
@@ -302,7 +719,7 @@ public class EndToEndAccessExternalIT extends VitamRuleRunner {
     @Test
     @RunWithCustomExecutor
     public void shouldObjectBeNotFoundWhenItsObjectGroupIsEliminated() throws Exception {
-        final String sip = "elimination/ARK_IDS_AND_TO_GENERATE_NEW_1.zip";
+        final String sip = "sip/TEST_INGEST_ARK_IDS_AND_AUTOGENERATE_ARK_IDS.zip";
         final VitamContext context = new VitamContext(tenantId)
             .setApplicationSessionId("ApplicationSessionId")
             .setAccessContract("contract");

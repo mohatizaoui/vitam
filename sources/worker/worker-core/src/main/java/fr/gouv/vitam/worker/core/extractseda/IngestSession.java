@@ -33,6 +33,7 @@ import com.google.common.collect.Multimap;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.unit.GotObj;
 import fr.gouv.vitam.logbook.common.parameters.LogbookLifeCycleParameters;
+import fr.gouv.vitam.worker.common.utils.DataObjectAtrExtra;
 import fr.gouv.vitam.worker.common.utils.DataObjectDetail;
 import fr.gouv.vitam.worker.common.utils.DataObjectInfo;
 import fr.gouv.vitam.worker.core.utils.FastValueAccessMap;
@@ -71,7 +72,7 @@ public class IngestSession {
     private final Map<String, Boolean> dataObjectGroupMasterMandatory = new HashMap<>();
     private final Set<String> physicalDataObjetsGuids = new HashSet<>();
     private final Map<String, Long> fileWithParmsFromFolder = new HashMap<>();
-
+    private final Map<String, DataObjectAtrExtra> dataObjectIdToDataObjectAtrExtra = new HashMap<>();
     private final Multimap<String, String> usageToObjectGroupId = HashMultimap.create();
 
     public ObjectNode getArchiveUnitTree() {
@@ -152,6 +153,10 @@ public class IngestSession {
 
     public Map<String, DataObjectInfo> getObjectGuidToDataObject() {
         return objectGuidToDataObject;
+    }
+
+    public Map<String, DataObjectAtrExtra> getDataObjectIdToDataObjectAtrExtra() {
+        return dataObjectIdToDataObjectAtrExtra;
     }
 
     public Map<String, DataObjectDetail> getDataObjectIdToDetailDataObject() {

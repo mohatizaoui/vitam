@@ -123,6 +123,14 @@
               {
                 "name": "mapsExisitingGotsForAttachment.file",
                 "uri": "WORKSPACE:Maps/EXISTING_GOTS_GUID_FOR_ATTACHMENT_MAP.json"
+              },
+              {
+                "name": "mapsUnitIdToUnitDetail.file",
+                "uri": "WORKSPACE:Maps/ARCHIVE_ID_TO_ARCHIVE_DETAIL_MAP.jsonl"
+              },
+              {
+                "name": "mapsDOGuidToDO.file",
+                "uri": "WORKSPACE:Maps/DO_GUID_TO_DO_MAP.json"
               }
             ]
           }

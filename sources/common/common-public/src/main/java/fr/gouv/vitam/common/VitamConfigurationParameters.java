@@ -29,6 +29,8 @@ package fr.gouv.vitam.common;
 import com.google.common.base.Strings;
 import fr.gouv.vitam.common.configuration.ClassificationLevel;
 import fr.gouv.vitam.common.configuration.EliminationReportConfiguration;
+import fr.gouv.vitam.common.configuration.IngestReportExportedObjectGroupFieldConfiguration;
+import fr.gouv.vitam.common.configuration.IngestReportExportedUnitFieldConfiguration;
 import fr.gouv.vitam.common.model.dip.BinarySizePlatformThreshold;
 import fr.gouv.vitam.common.model.dip.BinarySizeTenantThreshold;
 
@@ -400,6 +402,10 @@ public class VitamConfigurationParameters {
     private Integer elasticSearchScrollLimit;
 
     private List<EliminationReportConfiguration> eliminationReportExtraFields;
+
+    private List<IngestReportExportedUnitFieldConfiguration> ingestReportUnitExtraFields;
+
+    private List<IngestReportExportedObjectGroupFieldConfiguration> ingestReportObjectExtraFields;
 
     /**
      * VitamData empty constructor for YAMLFactory
@@ -1601,5 +1607,25 @@ public class VitamConfigurationParameters {
 
     public void setEliminationReportExtraFields(List<EliminationReportConfiguration> eliminationReportExtraFields) {
         this.eliminationReportExtraFields = eliminationReportExtraFields;
+    }
+
+    public void setIngestReportUnitExtraFields(
+        List<IngestReportExportedUnitFieldConfiguration> ingestReportUnitExtraFields
+    ) {
+        this.ingestReportUnitExtraFields = ingestReportUnitExtraFields;
+    }
+
+    public List<IngestReportExportedUnitFieldConfiguration> getIngestReportUnitExtraFields() {
+        return ingestReportUnitExtraFields;
+    }
+
+    public List<IngestReportExportedObjectGroupFieldConfiguration> getIngestReportObjectExtraFields() {
+        return ingestReportObjectExtraFields;
+    }
+
+    public void setIngestReportObjectExtraFields(
+        List<IngestReportExportedObjectGroupFieldConfiguration> ingestReportObjectExtraFields
+    ) {
+        this.ingestReportObjectExtraFields = ingestReportObjectExtraFields;
     }
 }
