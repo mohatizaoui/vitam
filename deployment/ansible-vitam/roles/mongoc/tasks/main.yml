@@ -11,7 +11,7 @@
   until: result is succeeded
   delay: "{{ packages_install_retries_delay }}"
   notify: "mongoc - restart service"
-  when: install_mode != "container"
+  when: install_mode != "container" or "mongoc" in legacy_components_list
 
 - name: "Install vitam-user-vitamdb packages"
   package:
@@ -23,18 +23,18 @@
   until: result is succeeded
   delay: "{{ packages_install_retries_delay }}"
   notify: "mongoc - restart service"
-  when: install_mode == "container"
+  when: install_mode == "container" and "mongoc" not in legacy_components_list
 
 - name: Disable mongod default service
   service:
     name: mongod
     state: stopped
     enabled: no
-  when: install_mode != "container"
+  when: install_mode != "container" or "mongoc" in legacy_components_list
 
 - name: Deploy systemd service file for vitam-mongoc
   template:
-    src: "vitam-{{ 'container-' if install_mode == 'container' else '' }}mongoc.service.j2"
+    src: "vitam-{{ 'container-' if install_mode == 'container' and 'mongoc' not in legacy_components_list else '' }}mongoc.service.j2"
     dest: "{{ '/lib/systemd/system' if ansible_os_family == 'Debian' else '/usr/lib/systemd/system' }}/vitam-mongoc.service"
     owner: root
     group: root

@@ -45,7 +45,7 @@
 
 - name: "change max map count"
   shell: sysctl -w vm.max_map_count=262144
-  when: install_mode == "container"
+  when: install_mode == "container" and composant.cluster_name not in legacy_components_list
 
 - name: "Install {{ elasticsearch_package }} packages"
   package:
@@ -59,7 +59,7 @@
   delay: "{{ packages_install_retries_delay }}"
   notify:
     - "elasticsearch-cluster - restart service"
-  when: install_mode != "container"
+  when: install_mode != "container" or composant.cluster_name in legacy_components_list
 
 - name: "Install vitam-user-vitamdb packages"
   package:
@@ -72,7 +72,7 @@
   delay: "{{ packages_install_retries_delay }}"
   notify:
     - "elasticsearch-cluster - restart service"
-  when: install_mode == "container"
+  when: install_mode == "container" and composant.cluster_name not in legacy_components_list
 
 - name: Install ICU analysis plugin for elastic-data
   package:
@@ -87,7 +87,7 @@
 
 - name: "Deploy systemd service file for vitam-{{ composant.cluster_name }}"
   template:
-    src: "vitam-{{ 'container-' if install_mode == 'container' else '' }}{{ composant.cluster_name }}.service.j2"
+    src: "vitam-{{ 'container-' if install_mode == 'container' and composant.cluster_name not in legacy_components_list else '' }}{{ composant.cluster_name }}.service.j2"
     dest: "{{ '/lib/systemd/system' if ansible_os_family == 'Debian' else '/usr/lib/systemd/system' }}/vitam-{{ composant.cluster_name }}.service"
     owner: root
     group: root
@@ -119,20 +119,20 @@
     name: elasticsearch
     state: stopped
     enabled: no
-  when: install_mode != "container"
+  when: install_mode != "container" or composant.cluster_name in legacy_components_list
 
 - name: ensure default config file is readable for anyone
   file:
     path: "/etc/{{ sysconfig_dir }}/elasticsearch"
     mode: 0664
-  when: install_mode != "container"
+  when: install_mode != "container" or composant.cluster_name in legacy_components_list
 
 - name: change default config ES_PATH_CONF value
   lineinfile:
     path: "/etc/{{ sysconfig_dir }}/elasticsearch"
     regexp: '^ES_PATH_CONF='
     line: "#ES_PATH_CONF="
-  when: install_mode != "container"
+  when: install_mode != "container" or composant.cluster_name in legacy_components_list
 
 - name: Ensure elasticsearch directories exist
   file:
