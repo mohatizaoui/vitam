@@ -117,7 +117,7 @@ public class ReconstructionOperationRepositoryImpl implements ReconstructionOper
                 "DELETE_GOT_VERSIONS.OK",
                 "DELETE_GOT_VERSIONS.WARNING",
                 "TRANSFER_REPLY.OK",
-                "TRANSFER_REPLY.WARNING"
+                "TRANSFER_REPLY.WARNING",
             };
             final InQuery status = QueryHelper.in("events" + "." + "outDetail", operationOutDetails);
             select.setLimitFilter(0, 10000);
