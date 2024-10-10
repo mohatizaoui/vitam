@@ -11397,7 +11397,7 @@
     "Path": "_sp",
     "ApiField": "#originating_agency",
     "Collection": "Unit",
-    "Category": "DESCRIPTION",
+    "Category": "OTHER",
     "ApiPath": "#originating_agency",
     "SedaField": "OriginatingAgencyIdentifier",
     "ShortName": "Service producteur responsable de l'entrée"
@@ -11411,7 +11411,7 @@
     "Path": "_sps",
     "ApiField": "#originating_agencies",
     "Collection": "Unit",
-    "Category": "DESCRIPTION",
+    "Category": "OTHER",
     "ApiPath": "#originating_agencies",
     "ShortName": "Service(s) producteur(s) ayant des droits sur l'unité"
   },
