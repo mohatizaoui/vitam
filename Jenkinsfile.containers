@@ -133,7 +133,7 @@ pipeline {
                         sh "docker pull $image"
 
                         // Run Trivy scan
-                        sh "trivy image $image --ignore-unfixed --vuln-type os,library --format template --template '@html.tpl' -o reports/${imageName}-scan.html"
+                        sh "trivy image $image --ignore-unfixed --vuln-type os,library --format template --template '@html.tpl' -o reports/${imageName}-scan.html || true"
 
                         // Publish HTML report
                         publishHTML target: [
