@@ -7,7 +7,7 @@ elastic/packetbeat:8.14.3
 elastic/filebeat:8.14.3
 grafana/grafana:10.3.5
 restic/restic:0.16.2
-hashicorp/consul:1.18.1
+hashicorp/consul:1.18.1-ubi
 lmenezes/cerebro:0.9.4
 prom/prometheus:v2.51.2
 prom/alertmanager:v0.27.0
