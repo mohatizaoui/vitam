@@ -1280,7 +1280,13 @@ public class DbRequest {
             );
 
             //remove documents to ignore
-            documentsResultToIgnore.keySet().forEach(transformedDocumentsToUpdateInMongo::remove);
+
+            documentsResultToIgnore
+                .keySet()
+                .forEach(documentId -> {
+                    transformedDocumentsToUpdateInMongo.remove(documentId);
+                    requestsByIdToApplyOnMongoDb.removeIf(requestById -> requestById.getDocumentId() == documentId);
+                });
 
             List<WriteModel<MetadataDocument<?>>> bulkOperations = prepareDbBulkOperations(
                 transformedDocumentsToUpdateInMongo,
