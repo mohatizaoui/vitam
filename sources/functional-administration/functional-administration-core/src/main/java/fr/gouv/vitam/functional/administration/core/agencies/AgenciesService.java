@@ -109,6 +109,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static fr.gouv.vitam.common.database.builder.query.QueryHelper.eq;
@@ -254,10 +255,25 @@ public class AgenciesService {
             );
             try {
                 List<String> headerNames = parser.getHeaderNames();
+                Set<String> duplicatedFields = headerNames
+                    .stream()
+                    .collect(Collectors.groupingBy(Function.identity(), Collectors.counting())) // Count occurrences
+                    .entrySet()
+                    .stream()
+                    .filter(entry -> entry.getValue() > 1)
+                    .map(Map.Entry::getKey)
+                    .collect(Collectors.toSet());
+
+                if (CollectionUtils.isNotEmpty(duplicatedFields)) {
+                    throw new InvalidFileException(
+                        "Duplicate fields found in the CSV : " + String.join(",", duplicatedFields)
+                    );
+                }
+
                 List<String> unknownFields = headerNames
                     .stream()
                     .filter(element -> !AgenciesModel.getAllFieldNames().contains(element))
-                    .collect(Collectors.toList());
+                    .toList();
                 if (CollectionUtils.isNotEmpty(unknownFields)) {
                     throw new InvalidFileException("Unknown fields found: " + String.join(",", unknownFields));
                 }
