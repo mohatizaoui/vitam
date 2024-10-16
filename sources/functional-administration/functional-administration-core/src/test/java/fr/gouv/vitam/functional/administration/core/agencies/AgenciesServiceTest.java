@@ -519,6 +519,40 @@ public class AgenciesServiceTest {
 
     @Test
     @RunWithCustomExecutor
+    public void should_report_error_when_csv_contains_duplicate_headers() throws Exception {
+        // Given
+        Path reportPath = Paths.get(tempFolder.newFolder().getAbsolutePath(), "report_agencies.json");
+        doAnswer(arguments -> {
+            Files.copy(arguments.<InputStream>getArgument(0), reportPath);
+            return null;
+        })
+            .when(functionalBackupService)
+            .saveFile(
+                any(InputStream.class),
+                any(GUID.class),
+                eq(AGENCIES_REPORT),
+                eq(DataCategory.REPORT),
+                endsWith(".json")
+            );
+
+        // When
+        RequestResponse<AgenciesModel> response = agencyService.importAgencies(
+            new FileInputStream(PropertiesUtils.getResourceFile("agencies/agencies_with_duplicate_headers.csv")),
+            "MY-FILE-NAME"
+        );
+        // Then
+        assertTrue(response instanceof VitamError);
+        VitamError errorResponse = (VitamError) response;
+        assertEquals(errorResponse.getHttpCode(), 400);
+        assertEquals(
+            errorResponse.getDescription(),
+            "Import agency error > Duplicate fields found in the CSV : EntityType"
+        );
+        assertThat(reportPath.toFile()).doesNotExist();
+    }
+
+    @Test
+    @RunWithCustomExecutor
     public void should_report_error_when_csv_malformed() throws Exception {
         // Given
         Path reportPath = Paths.get(tempFolder.newFolder().getAbsolutePath(), "report_agencies.json");
