@@ -371,12 +371,13 @@ class AdminManagementClientRest extends DefaultClient implements AdminManagement
             return fromStatusCode(response.getStatus());
         } catch (
             final VitamClientInternalException
-            | BadRequestException
             | AccessUnauthorizedException
             | ForbiddenClientException
             | DatabaseConflictException e
         ) {
             throw new AdminManagementClientServerException(INTERNAL_SERVER_ERROR_MSG, e);
+        } catch (BadRequestException e) {
+            throw new AdminManagementClientBadRequestException(e);
         }
     }
 
