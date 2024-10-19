@@ -148,3 +148,23 @@ Pour lancer ce playbook, utilisez la commande suivante :
 .. code-block:: bash
 
     ansible-playbook -i environments/<inventaire> ansible-vitam-migration/migrate_profiles_v7.1_to_v8.0.yml --ask-vault-pass
+
+Migration unités archivistiques avec demande de transfert non complétée
+-----------------------------------------------------------------------
+
+Cette migration permet de corriger des erreurs de sécurisation ou d'audit sur des unités archivistiques pour lesquelles une demande de transfert a été initiée, mais dont le transfert effectif n'a pas été finalisée.
+
+.. caution:: Cette procédure doit être exécutée uniquement en cas de migration majeure vers Vitam V8.0+ depuis :
+    - Une version 7.1.1 ou inférieure
+    - Une version 7.0.1 ou inférieure
+    - Une version 6.3-1 ou inférieure
+
+.. caution:: Cette migration est à effectuer **APRES** l'installation et uniquement sur le **site primaire**.
+
+.. caution:: Dans le cas où un tenant comporte un très grand nombre d'unités archivistiques dont la demande de transfert a été initiée pour un tenant donné (plus de 100 000 unités archivistiques), la migration ne pourra alors s'opérer. Le support Vitam devra alors être contacté.
+
+Pour lancer la migration, le playbook suivant doit être exécuté :
+
+.. code-block:: bash
+
+    ansible-playbook -i environments/<inventaire> ansible-vitam-migration/migration_metadata_transfer_request_traceability.yml --ask-vault-pass

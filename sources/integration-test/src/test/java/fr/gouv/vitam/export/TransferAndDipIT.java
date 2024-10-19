@@ -78,6 +78,7 @@ import fr.gouv.vitam.common.model.export.transfer.TransferRequestParameters;
 import fr.gouv.vitam.common.model.logbook.LogbookEventOperation;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
+import fr.gouv.vitam.common.time.LogicalClockRule;
 import fr.gouv.vitam.common.utils.SupportedSedaVersions;
 import fr.gouv.vitam.common.xml.XMLInputFactoryUtils;
 import fr.gouv.vitam.functional.administration.rest.AdminManagementMain;
@@ -87,8 +88,11 @@ import fr.gouv.vitam.ingest.internal.common.exception.IngestInternalClientNotFou
 import fr.gouv.vitam.ingest.internal.common.exception.IngestInternalClientServerException;
 import fr.gouv.vitam.ingest.internal.upload.rest.IngestInternalMain;
 import fr.gouv.vitam.logbook.common.exception.LogbookClientException;
+import fr.gouv.vitam.logbook.common.exception.LogbookClientServerException;
 import fr.gouv.vitam.logbook.common.parameters.Contexts;
 import fr.gouv.vitam.logbook.common.parameters.LogbookTypeProcess;
+import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClient;
+import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClientFactory;
 import fr.gouv.vitam.logbook.rest.LogbookMain;
 import fr.gouv.vitam.metadata.api.exception.MetaDataClientServerException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataDocumentSizeException;
@@ -118,6 +122,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
@@ -146,6 +151,7 @@ import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -159,6 +165,7 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 
 import static fr.gouv.vitam.common.VitamTestHelper.verifyOperation;
+import static fr.gouv.vitam.common.VitamTestHelper.waitOperation;
 import static fr.gouv.vitam.common.guid.GUIDFactory.newOperationLogbookGUID;
 import static fr.gouv.vitam.common.model.ProcessAction.RESUME;
 import static fr.gouv.vitam.common.model.RequestResponseOK.TAG_RESULTS;
@@ -181,6 +188,7 @@ import static fr.gouv.vitam.common.thread.VitamThreadUtils.getVitamSession;
 import static fr.gouv.vitam.logbook.common.parameters.Contexts.DEFAULT_WORKFLOW;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -237,6 +245,9 @@ public class TransferAndDipIT extends VitamRuleRunner {
             BatchReportMain.class
         )
     );
+
+    @Rule
+    public LogicalClockRule logicalClock = new LogicalClockRule();
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
@@ -1769,6 +1780,47 @@ public class TransferAndDipIT extends VitamRuleRunner {
         ).containsExactlyInAnyOrderElementsOf(expectedUris);
 
         assertThat(filenames).containsExactlyInAnyOrderElementsOf(uris);
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void test_transfer_request_does_not_cause_traceability_failed() throws Exception {
+        // Given
+        final String ingestOpId = VitamTestHelper.doIngest(TENANT_ID, "sip/SimpleTree.zip");
+        verifyOperation(ingestOpId, OK);
+
+        SelectMultiQuery select = new SelectMultiQuery();
+        select.setQuery(QueryHelper.in(VitamFieldsHelper.operations(), ingestOpId));
+
+        logicalClock.logicalSleep(5, ChronoUnit.MINUTES);
+
+        TransferRequest transferRequest = getTransferRequest(select, SupportedSedaVersions.SEDA_2_2);
+        ExportRequest exportRequest = ExportRequest.from(transferRequest);
+
+        logicalClock.logicalSleep(5, ChronoUnit.MINUTES);
+
+        // When
+        String exportOperationId = exportDIP(exportRequest);
+        String traceabilityOperationId = secureUnitLFCData();
+        // Then
+        VitamTestHelper.verifyOperation(exportOperationId, OK);
+        VitamTestHelper.verifyOperation(traceabilityOperationId, OK);
+    }
+
+    private String secureUnitLFCData() {
+        GUID operationGuid = GUIDFactory.newOperationLogbookGUID(TENANT_ID);
+        VitamThreadUtils.getVitamSession().setRequestId(operationGuid);
+        try (
+            LogbookOperationsClient logbookOperationsClient = LogbookOperationsClientFactory.getInstance().getClient()
+        ) {
+            RequestResponseOK<String> response = logbookOperationsClient.traceabilityLfcUnit();
+            String opId = response.getResults().get(0);
+            waitOperation(opId);
+            return opId;
+        } catch (InvalidParseOperationException | LogbookClientServerException e) {
+            fail("Error while securing UNIT data", e);
+        }
+        return null;
     }
 
     private static Map<String, String> findUnitIdByTitleMap(String ingestOpId)

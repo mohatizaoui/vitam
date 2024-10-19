@@ -24,6 +24,7 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
+
 package fr.gouv.vitam.worker.core.utils;
 
 import fr.gouv.vitam.common.EnumObjectWhiteListedFields;
@@ -31,7 +32,8 @@ import fr.gouv.vitam.common.EnumUnitWhiteListedFields;
 import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Basic helper methods for reclassification plugins
