@@ -181,9 +181,7 @@ public class SchemaValidationServiceTest {
                 )
         )
             .isInstanceOf(SchemaImportValidationException.class)
-            .withFailMessage(
-                "Paths already in internal schema =  Addressee.BirthPlace.City, Addressee.BirthPlace.Country"
-            );
+            .hasMessage("Paths already in current schema = Addressee.BirthPlace.City, Addressee.BirthPlace.Country");
     }
 
     @Test
@@ -226,11 +224,11 @@ public class SchemaValidationServiceTest {
         )
             .isInstanceOf(SchemaImportValidationException.class)
             .hasMessage(
-                "Some paths have wrong format = Invoice-Provider, Invoice.Provider .BirthDate, " +
+                "Some inputs have validation errors: Path (Invoice-Provider, Invoice.Provider .BirthDate, " +
                 "Addressee.' ' BirthPlace.City, Invoice & wrong Invoice, Addressee*BirthPlace\\Country, " +
-                "With_Underscore"
-            )
-            .withFailMessage("Paths validation error");
+                "With_Underscore), Description (Invoice & wrong Invoice, With_Underscore), " +
+                "ShortName (Addressee*BirthPlace\\Country, With_Underscore)"
+            );
     }
 
     @Test
@@ -309,7 +307,7 @@ public class SchemaValidationServiceTest {
                 )
         )
             .isInstanceOf(SchemaImportValidationException.class)
-            .withFailMessage("Import schema errors : Paths leaf missed =  Invoice, Provider, SomeDate");
+            .hasMessage("Path leaf missed = SomeDate");
     }
 
     @Test
@@ -405,8 +403,8 @@ public class SchemaValidationServiceTest {
                 )
         )
             .isInstanceOf(SchemaImportValidationException.class)
-            .withFailMessage(
-                "Paths already in internal schema =  Addressee.BirthPlace.City, Addressee.BirthPlace.Country"
+            .hasMessage(
+                "Paths already in current schema for the current or other tenants = Invoice.Provider.BirthDate, Invoice, Invoice.Provider"
             );
     }
 
