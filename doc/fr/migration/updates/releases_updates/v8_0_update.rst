@@ -137,12 +137,6 @@ Le script effectue les actions suivantes :
 - Définit par défaut la version **SEDA 2.3** pour les AUP (*Archive Unit Profile*).
 - Si un fichier est présent pour les AP (*Archive Profile*), il tente de déterminer la version à partir de celui-ci. Dans le cas contraire, la version par défaut sera appliquée.
 
-Il est possible de modifier la version SEDA par défaut en spécifiant une autre version via la commande suivante :
-
-.. code-block:: bash
-
-    -e archive_unit_profiles__default_seda_version="2.2"
-
 Pour lancer ce playbook, utilisez la commande suivante :
 
 .. code-block:: bash

@@ -30,10 +30,9 @@
 
 - name: "[{{ __profile.Identifier }}] Set final seda version to default if not found in RNG"
   set_fact:
-    __seda_version: "{{ archive_unit_profiles__default_seda_version }}"
+    __seda_version: "{{ default_seda_version }}"
   when:
-    - __extraction_result is defined
-    - (__extraction_result == None) or (__extraction_result | length == 0)
+    - __extraction_result is not defined or __extraction_result == None or __extraction_result | length == 0
 
 - name: "[{{ __profile.Identifier }}] Update archive profile"
   uri:
@@ -55,7 +54,6 @@
       - 400
     timeout: 36000
   register: __update_response
-  when: __seda_version is defined
 
 - name: Check authorized client errors
   assert:
