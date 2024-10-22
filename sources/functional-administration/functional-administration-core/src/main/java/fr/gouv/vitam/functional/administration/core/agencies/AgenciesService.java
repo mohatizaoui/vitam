@@ -249,11 +249,11 @@ public class AgenciesService {
         int lineNumber = 1;
         final Map<String, AgenciesModel> agenciesModelMap = new HashMap<>();
         try (FileReader reader = new FileReader(csvFile)) {
-            final CSVParser parser = new CSVParser(
-                reader,
-                CSVFormat.DEFAULT.withHeader().withTrim().withIgnoreEmptyLines(false)
-            );
             try {
+                final CSVParser parser = new CSVParser(
+                    reader,
+                    CSVFormat.DEFAULT.withHeader().withTrim().withIgnoreEmptyLines(false)
+                );
                 List<String> headerNames = parser.getHeaderNames();
                 Set<String> duplicatedFields = headerNames
                     .stream()
