@@ -329,7 +329,64 @@ public class EndToEndAccessExternalIT extends VitamRuleRunner {
 
         List<String> allowedTagsObject = new ArrayList<>(ALLOWED_TAG_OBJECT);
         allowedTagsObject.add("PersistentIdentifier");
-        assertTrue(validateObject(atrContent, objectMap, allowedTagsObject));
+        assertTrue(validateBinaryObject(atrContent, objectMap, allowedTagsObject));
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void verifyAtrWithThumbnailAndPhysicalObjectWithoutConf() throws Exception {
+        // Given
+        final VitamContext context = new VitamContext(tenantId)
+            .setApplicationSessionId("ApplicationSessionId")
+            .setAccessContract("aName3");
+
+        Map<Integer, List<EnumUnitWhiteListedFields>> confEnum = Map.of(
+            0,
+            Arrays.asList(EnumUnitWhiteListedFields.PersistentIdentifier)
+        );
+        VitamConfiguration.setIngestReportUnitExtraFields(confEnum);
+
+        // When
+        String operationId = ingest(context, "sip/OK_SIP_multiusagesversions_withIdArk_2.3.zip");
+        String atrContent = getAtrContent(context, operationId);
+
+        // Then
+        // Validation for Unit
+        List<String> allowedTags = Arrays.asList("SystemId", "PersistentIdentifier");
+        Map<String, List<String>> unitMap = Map.of(
+            "ID18",
+            Arrays.asList(
+                "<PersistentIdentifierType>ark</PersistentIdentifierType>",
+                "<PersistentIdentifierContent>ark:/22567/001a957db5blablablasuppr2AU1</PersistentIdentifierContent>"
+            )
+        );
+        assertTrue(validateUnit(atrContent, unitMap, allowedTags));
+
+        // Validation for Physical Object
+        List<String> allowedTagsObject = new ArrayList<>(ALLOWED_TAG_OBJECT);
+        allowedTagsObject.add("PersistentIdentifier");
+        Map<String, List<String>> physicalObjectMap = Map.of(
+            "IDPHY2",
+            Arrays.asList(
+                "<PersistentIdentifierType>ark</PersistentIdentifierType>",
+                "<PersistentIdentifierOrigin>OriginatingAgency</PersistentIdentifierOrigin>",
+                "<PersistentIdentifierReference>Identifier0</PersistentIdentifierReference>",
+                "<PersistentIdentifierContent>ark:/22567/001a957db5blablabla</PersistentIdentifierContent>"
+            )
+        );
+        assertTrue(validatePhysicalObject(atrContent, physicalObjectMap, allowedTagsObject));
+
+        // Validation for Binary Object
+        Map<String, List<String>> binaryObjectMap = Map.of(
+            "ID00011",
+            Arrays.asList(
+                "<PersistentIdentifierType>ark</PersistentIdentifierType>",
+                "<PersistentIdentifierOrigin>OriginatingAgency</PersistentIdentifierOrigin>",
+                "<PersistentIdentifierReference>Identifier0</PersistentIdentifierReference>",
+                "<PersistentIdentifierContent>ark:/22567/001a957db5blablablasuppr15</PersistentIdentifierContent>"
+            )
+        );
+        assertTrue(validateBinaryObject(atrContent, binaryObjectMap, allowedTagsObject));
     }
 
     @Test
@@ -379,7 +436,7 @@ public class EndToEndAccessExternalIT extends VitamRuleRunner {
 
         Map<String, List<String>> objectMap = new HashMap<>();
         objectMap.put("ID13", List.of("<DataObjectVersion>BinaryMaster_1</DataObjectVersion>"));
-        assertTrue(validateObject(atrContent, objectMap, ALLOWED_TAG_OBJECT));
+        assertTrue(validateBinaryObject(atrContent, objectMap, ALLOWED_TAG_OBJECT));
     }
 
     @Test
@@ -447,7 +504,7 @@ public class EndToEndAccessExternalIT extends VitamRuleRunner {
 
         Map<String, List<String>> objectMap = new HashMap<>();
         objectMap.put("ID13", List.of("<DataObjectVersion>BinaryMaster_1</DataObjectVersion>"));
-        assertTrue(validateObject(atrContent, objectMap, ALLOWED_TAG_OBJECT));
+        assertTrue(validateBinaryObject(atrContent, objectMap, ALLOWED_TAG_OBJECT));
     }
 
     @Test
@@ -515,7 +572,7 @@ public class EndToEndAccessExternalIT extends VitamRuleRunner {
 
         Map<String, List<String>> objectMap = new HashMap<>();
         objectMap.put("ID35", List.of("<DataObjectVersion>BinaryMaster_1</DataObjectVersion>"));
-        assertTrue(validateObject(atrContent, objectMap, ALLOWED_TAG_OBJECT));
+        assertTrue(validateBinaryObject(atrContent, objectMap, ALLOWED_TAG_OBJECT));
 
         Map<String, List<String>> objectGroupMap = new HashMap<>();
         objectGroupMap.put(
@@ -647,38 +704,58 @@ public class EndToEndAccessExternalIT extends VitamRuleRunner {
     public boolean validateObject(
         String atrContent,
         Map<String, List<String>> expectedValues,
-        List<String> allowedTags
+        List<String> allowedTags,
+        String objectRegex
     ) {
-        // Regex to capture each BinaryDataObject with its ID and content
-        String binaryObjectRegex = "<BinaryDataObject id=\"(.*?)\">(.*?)</BinaryDataObject>";
-        Pattern binaryObjectPattern = Pattern.compile(binaryObjectRegex, Pattern.DOTALL);
-        Matcher binaryObjectMatcher = binaryObjectPattern.matcher(atrContent);
+        // Compile regex to capture each object with its ID and content
+        Pattern objectPattern = Pattern.compile(objectRegex, Pattern.DOTALL);
+        Matcher objectMatcher = objectPattern.matcher(atrContent);
 
-        int binaryObjectCount = 0; // Counter for BinaryDataObjects found
-        boolean foundExpectedObject = false; // Flag indicating if an expected BinaryDataObject was found
+        int objectCount = 0; // Counter for objects found
+        boolean foundExpectedObject = false; // Flag indicating if an expected object was found
 
-        // Iterate through each BinaryDataObject and check for expected tags and values
-        while (binaryObjectMatcher.find()) {
-            binaryObjectCount++; // Increment the counter for each BinaryDataObject found
-            String objectId = binaryObjectMatcher.group(1);
-            String binaryBlock = binaryObjectMatcher.group(2);
+        // Iterate through each object and check for expected tags and values
+        while (objectMatcher.find()) {
+            objectCount++; // Increment the counter for each object found
+            String objectId = objectMatcher.group(1);
+            String objectBlock = objectMatcher.group(2);
 
-            // Validate allowed tags in the BinaryDataObject block
-            if (!validateAllowedTags(binaryBlock, allowedTags)) {
+            // Validate allowed tags in the object block
+            if (!validateAllowedTags(objectBlock, allowedTags)) {
                 return false; // Return false if a disallowed tag is found
             }
 
-            // Validate expected fields only for specified BinaryDataObjects
+            // Validate expected fields only for specified objects
             if (expectedValues.containsKey(objectId)) {
-                foundExpectedObject = true; // Found an expected BinaryDataObject
-                if (!validateExpectedFields(binaryBlock, expectedValues.get(objectId))) {
+                foundExpectedObject = true; // Found an expected object
+                if (!validateExpectedFields(objectBlock, expectedValues.get(objectId))) {
                     return false; // Return false if expected fields do not match
                 }
             }
         }
 
-        // Return false if no BinaryDataObjects were found or if no expected BinaryDataObject was found
-        return binaryObjectCount > 0 && foundExpectedObject;
+        // Return false if no objects were found or if no expected object was found
+        return objectCount > 0 && foundExpectedObject;
+    }
+
+    public boolean validateBinaryObject(
+        String atrContent,
+        Map<String, List<String>> expectedValues,
+        List<String> allowedTags
+    ) {
+        // Regex for BinaryDataObject
+        String binaryObjectRegex = "<BinaryDataObject id=\"(.*?)\">(.*?)</BinaryDataObject>";
+        return validateObject(atrContent, expectedValues, allowedTags, binaryObjectRegex);
+    }
+
+    public boolean validatePhysicalObject(
+        String atrContent,
+        Map<String, List<String>> expectedValues,
+        List<String> allowedTags
+    ) {
+        // Regex for PhysicalDataObject
+        String physicalObjectRegex = "<PhysicalDataObject id=\"(.*?)\">(.*?)</PhysicalDataObject>";
+        return validateObject(atrContent, expectedValues, allowedTags, physicalObjectRegex);
     }
 
     @Test
