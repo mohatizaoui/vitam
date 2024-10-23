@@ -188,11 +188,6 @@ public class ExtractMetadataListener extends Unmarshaller.Listener {
                 dataObjectInfo.setAlgo(DigestType.fromValue(versionsModel.getAlgorithm()));
                 dataObjectInfo.setMessageDigest(versionsModel.getMessageDigest());
 
-                DataObjectAtrExtra dataObjectAtrExtra = extractExtraInfoFromObject(versionsModel);
-                dataObjectAtrExtra.setId(versionsModel.getId());
-
-                ingestSession.getDataObjectIdToDataObjectAtrExtra().put(objectGuid, dataObjectAtrExtra);
-
                 long gotSize = checkAndComputeSize(versionsModel, dataObjectInfo);
                 dataObjectInfo.setSize(gotSize);
                 detail.setVersion(
@@ -223,6 +218,10 @@ public class ExtractMetadataListener extends Unmarshaller.Listener {
                 ingestSession.getDataObjectGroupMasterMandatory().put(currentGroupId, true);
             }
 
+            DataObjectAtrExtra dataObjectAtrExtra = extractExtraInfoFromObject(versionsModel);
+            dataObjectAtrExtra.setId(versionsModel.getId());
+
+            ingestSession.getDataObjectIdToDataObjectAtrExtra().put(objectGuid, dataObjectAtrExtra);
             ingestSession.getDataObjectIdToDetailDataObject().put(dataObject.getId(), detail);
             ingestSession.getDataObjectIdToObjectGroupId().put(versionsModel.getId(), currentGroupId);
             ingestSession.getDataObjectIdToGuid().put(versionsModel.getId(), objectGuid);
