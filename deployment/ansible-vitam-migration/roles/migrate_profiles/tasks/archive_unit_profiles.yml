@@ -13,7 +13,7 @@
     body:
       $action:
         - $set:
-            SedaVersion: "{{ archive_unit_profiles__default_seda_version }}"
+            SedaVersion: "{{ default_seda_version }}"
     body_format: json
     headers:
       Content-Type: application/json

@@ -1,5 +1,8 @@
 ---
 # vars file for migrate_profiles
+
+default_seda_version: "2.3"
+
 _base_url: "http{% if vitam.accessexternal.https_enabled | bool == true %}s{% endif %}://{{ vitam.accessexternal.host }}:{{ vitam.accessexternal.port_service }}/admin-external/v1"
 _archive_unit_profiles_base_url: "{{ _base_url }}/archiveunitprofiles"
 _archive_profiles_base_url: "{{ _base_url }}/profiles"
