@@ -1,5 +1,9 @@
 ---
 
+- name: "[{{ __profile.Identifier }}] Set back seda version to default version"
+  set_fact:
+    __seda_version: "{{ default_seda_version }}"
+
 - name: "[{{ __profile.Identifier }}] Download archive profile file"
   uri:
     url: "{{ _archive_profiles_base_url }}/{{ __profile.Identifier }}"
@@ -27,12 +31,6 @@
     - __extraction_result is defined
     - __extraction_result != None
     - __extraction_result | length > 0
-
-- name: "[{{ __profile.Identifier }}] Set final seda version to default if not found in RNG"
-  set_fact:
-    __seda_version: "{{ default_seda_version }}"
-  when:
-    - __extraction_result is not defined or __extraction_result == None or __extraction_result | length == 0
 
 - name: "[{{ __profile.Identifier }}] Update archive profile"
   uri:
