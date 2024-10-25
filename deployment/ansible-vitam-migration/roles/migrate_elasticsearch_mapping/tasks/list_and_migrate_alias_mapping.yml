@@ -1,8 +1,8 @@
 ---
 
-- name: List elasticsearch-data {{ alias_prefix }} indexes
+- name: "List elasticsearch-data {{ alias_prefix }} indexes"
   uri:
-    url: "http://{{ elasticsearch.data.host }}:{{ elasticsearch.data.port_http }}/_cat/aliases/{{ alias_prefix}}_*"
+    url: "http://{{ elasticsearch.data.host }}:{{ elasticsearch.data.port_http }}/_cat/aliases/{{ alias_prefix }}*"
     method: GET
     return_content: true
     headers:
