@@ -62,6 +62,48 @@ Le paramètre ``operations_delay_in_minutes`` correspond au paramètre de la ver
 
 Le paramètre ``frequency`` correspond aux fréquences précédemment définies dans les paramètres ``vitam_timers.functional_administration.frequency_integrity_audit`` et ``vitam_timers.functional_administration.frequency_existence_audit``.
 
+Déploiement des exporters pour VitamUI
+--------------------------------------
+
+Si vous utilisez VitamUI et que vous souhaitez déployer les exporters permettant de mettre en place la remontée de métriques dans Prometheus, vous devrez ajouter les groupes suivants au fichier d'inventaire (cf. inventaire d'exemple: ``environments/hosts.example``):
+
+.. code-block:: ini
+
+[hosts:children]
+hosts_vitamui
+
+################################################################################
+# ZONE VITAMUI
+################################################################################
+[hosts_vitamui]
+# optional: To deploy exporters on VitamUI
+
+
+[hosts_vitamui:children]
+hosts_vitamui_mongod
+
+[hosts_vitamui_mongod]
+# optional: To deploy mongodb-exporter on VitamUI
+
+..
+
+Pour permettre de déployer l'exporter mongodb, vous devrez ajouter au fichier ``environments/group_vars/all/main/vault-vitam.yml`` les paramètres associés à la BDD mongo-vitamui:
+
+.. code-block:: yaml
+
+mongodb:
+  mongo-vitamui:
+    mongod_port: 27017
+    admin:
+      user: vitamdb-admin
+      password: admin1234
+
+..
+
+Avant de pouvoir exécuter le playbook de configuration des exporters pour VitamUI, il faudra au préalable récupérer les host_vars à l'aide du playbook ``ansible-vitam-exploitation/generate_hostvars_for_2_network_interfaces.yml`` ou ``ansible-vitam-exploitation/generate_hostvars_for_1_network_interface.yml``.
+
+Ensuite, ces exporters seront déployés à l'aide du playbook: ``ansible-vitam-extra/vitamui_prometheus.yml``.
+
 Procédures à exécuter AVANT la montée de version
 ================================================
 
