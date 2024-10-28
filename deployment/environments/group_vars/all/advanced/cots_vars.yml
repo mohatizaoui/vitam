@@ -311,7 +311,7 @@ clamav:
 #         gpgcheck: no
 #         proxy: _none_
 #         # For Debian family
-#         baseurl: '"deb https://repo.avcdn.net/linux-av/deb debian-bookworm release'
+#         baseurl: 'deb https://repo.avcdn.net/linux-av/deb debian-bookworm release'
 #     vps_repository: http://linux-av.u.avcdn.net/linux-av/avast/x86_64
 #     ## List of sha256 hash of excluded files from antivirus. Useful for test environments.
 #     whitelist:
