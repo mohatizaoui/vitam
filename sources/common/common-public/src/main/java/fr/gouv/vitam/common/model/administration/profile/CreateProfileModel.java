@@ -67,7 +67,7 @@ public class CreateProfileModel {
 
     public CreateProfileModel() {
         super();
-        this.sedaVersion = ProfileSedaVersion.VERSION_2_3;
+        this.sedaVersion = ProfileSedaVersion.DEFAULT;
         this.status = ProfileStatus.INACTIVE;
     }
 

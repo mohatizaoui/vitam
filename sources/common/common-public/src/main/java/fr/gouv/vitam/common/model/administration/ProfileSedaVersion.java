@@ -41,6 +41,8 @@ public enum ProfileSedaVersion {
     VERSION_2_2("2.2"),
     VERSION_2_3("2.3");
 
+    public static final ProfileSedaVersion DEFAULT = VERSION_2_3;
+
     private static final Map<String, ProfileSedaVersion> VERSION_MAP = Stream.of(ProfileSedaVersion.values()).collect(
         Collectors.toMap(ProfileSedaVersion::getVersion, Function.identity())
     );
@@ -64,7 +66,7 @@ public enum ProfileSedaVersion {
     @JsonCreator
     public static ProfileSedaVersion forVersion(String version) throws IllegalArgumentException {
         if (version == null) {
-            return ProfileSedaVersion.VERSION_2_3;
+            return ProfileSedaVersion.DEFAULT;
         }
         return Optional.ofNullable(VERSION_MAP.get(version)).orElseThrow(
             () -> new IllegalArgumentException("Cannot find ProfileSedaVersion " + version)
