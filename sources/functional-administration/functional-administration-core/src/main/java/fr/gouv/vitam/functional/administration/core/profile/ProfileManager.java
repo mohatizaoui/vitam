@@ -435,7 +435,7 @@ public class ProfileManager {
             }
 
             if (profile.getSedaVersion() == null) {
-                profile.setSedaVersion(ProfileSedaVersion.VERSION_2_3);
+                profile.setSedaVersion(ProfileSedaVersion.DEFAULT);
             }
 
             try {

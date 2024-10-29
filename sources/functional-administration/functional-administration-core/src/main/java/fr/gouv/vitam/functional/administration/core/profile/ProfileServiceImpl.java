@@ -609,7 +609,7 @@ public class ProfileServiceImpl implements ProfileService {
         ).setHttpCode(Response.Status.BAD_REQUEST.getStatusCode());
 
         final JsonNode actionNode = jsonDsl.get(BuilderToken.GLOBAL.ACTION.exactToken());
-        ProfileSedaVersion sedaVersion = ProfileSedaVersion.VERSION_2_3;
+        ProfileSedaVersion sedaVersion = ProfileSedaVersion.DEFAULT;
 
         if (profileModel.getSedaVersion() != null) sedaVersion = profileModel.getSedaVersion();
 
@@ -907,7 +907,7 @@ public class ProfileServiceImpl implements ProfileService {
         }
     }
 
-    private ProfileSedaVersion extractSedaVersion(final InputSource inputSource)
+    ProfileSedaVersion extractSedaVersion(final InputSource inputSource)
         throws SAXException, ParserConfigurationException, IOException {
         final SAXParserFactory factory = SAXParserFactory.newInstance();
 

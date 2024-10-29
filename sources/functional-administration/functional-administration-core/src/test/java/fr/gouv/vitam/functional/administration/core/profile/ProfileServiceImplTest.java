@@ -75,6 +75,7 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.xml.sax.InputSource;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -871,5 +872,24 @@ public class ProfileServiceImplTest {
         );
 
         assertThat(updateProfileActionResponse.getStatus()).isEqualTo(200);
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void givenRngExtractCorrectSedaVersion() throws Exception {
+        ProfileSedaVersion sedaVersion = extractSedaVersion("profile_ok.rng");
+        assertThat(sedaVersion).isEqualTo(ProfileSedaVersion.VERSION_2_1);
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void givenRngWithoutVersionExtractDefaultVersion() throws Exception {
+        ProfileSedaVersion sedaVersion = extractSedaVersion("profile_badversion.rng");
+        assertThat(sedaVersion).isEqualTo(ProfileSedaVersion.DEFAULT);
+    }
+
+    protected ProfileSedaVersion extractSedaVersion(String fileName) throws Exception {
+        InputSource inputSource = new InputSource(getClass().getClassLoader().getResourceAsStream(fileName));
+        return ((ProfileServiceImpl) profileService).extractSedaVersion(inputSource);
     }
 }

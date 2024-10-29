@@ -26,12 +26,16 @@
  */
 package fr.gouv.vitam.functional.administration.core.profile;
 
+import fr.gouv.vitam.common.logging.VitamLogger;
+import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.common.model.administration.ProfileSedaVersion;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 public class ProfileSax2Handler extends DefaultHandler {
+
+    private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(ProfileSax2Handler.class);
 
     private ProfileSedaVersion sedaVersion = null;
 
@@ -51,7 +55,14 @@ public class ProfileSax2Handler extends DefaultHandler {
             attributes.getValue("ns")
         );
 
-        if (sedaVersion != null) this.sedaVersion = ProfileSedaVersion.forVersion(sedaVersion);
+        if (sedaVersion != null) {
+            try {
+                this.sedaVersion = ProfileSedaVersion.forVersion(sedaVersion);
+            } catch (IllegalArgumentException e) {
+                LOGGER.error("Invalid Seda version {}, fallback to default.", sedaVersion);
+                this.sedaVersion = ProfileSedaVersion.DEFAULT;
+            }
+        }
     }
 
     private String extractVersion(String... namespaces) {
