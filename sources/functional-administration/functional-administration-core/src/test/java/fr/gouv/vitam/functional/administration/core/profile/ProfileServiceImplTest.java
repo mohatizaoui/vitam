@@ -207,6 +207,32 @@ public class ProfileServiceImplTest {
 
     @Test
     @RunWithCustomExecutor
+    public void givenTestImportXSDProfileFileNoVersion() throws Exception {
+        VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
+        final File fileMetadataProfile = PropertiesUtils.getResourceFile("profile_ok_noversion.json");
+        final List<CreateProfileModel> profileModelList = JsonHandler.getFromFileAsTypeReference(
+            fileMetadataProfile,
+            new TypeReference<>() {}
+        );
+        final RequestResponse<ProfileModel> response = profileService.createProfiles(profileModelList);
+
+        assertThat(response.isOk()).isTrue();
+        final RequestResponseOK<ProfileModel> responseCast = (RequestResponseOK<ProfileModel>) response;
+        assertThat(responseCast.getResults()).hasSize(2);
+
+        final ProfileModel profileModel = responseCast.getResults().iterator().next();
+        profileModel.setVersion(null); // Force empty version to simulate profile migration
+        final InputStream xsdProfile = new FileInputStream(PropertiesUtils.getResourceFile("profile_ok.xsd"));
+
+        RequestResponse<ProfileModel> requestResponse = profileService.importProfileFile(
+            profileModel.getIdentifier(),
+            xsdProfile
+        );
+        assertThat(requestResponse.isOk()).isTrue();
+    }
+
+    @Test
+    @RunWithCustomExecutor
     public void givenTestImportRNGProfileFile() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
         final File fileMetadataProfile = PropertiesUtils.getResourceFile("profile_ok.json");

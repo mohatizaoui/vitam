@@ -388,12 +388,19 @@ public class ProfileServiceImpl implements ProfileService {
         final ProfileSedaVersion sedaVersionToUpdate;
 
         try {
+            ProfileSedaVersion schemaDefinitionSedaVersion = ProfileSedaVersion.DEFAULT;
+
             file = File.createTempFile(GUIDFactory.newGUID().getId(), "profile");
             Files.copy(profileFile, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
 
-            final FileInputStream fileInputStream = new FileInputStream(file);
-            final InputSource inputSource = new InputSource(fileInputStream);
-            final ProfileSedaVersion schemaDefinitionSedaVersion = extractSedaVersion(inputSource);
+            if (profileModel.getFormat() == ProfileFormat.RNG) {
+                final FileInputStream fileInputStream = new FileInputStream(file);
+                final InputSource inputSource = new InputSource(fileInputStream);
+                schemaDefinitionSedaVersion = extractSedaVersion(inputSource);
+            } else if (profileModel.getFormat() == ProfileFormat.XSD && profileModel.getSedaVersion() != null) {
+                schemaDefinitionSedaVersion = profileModel.getSedaVersion();
+            }
+
             final ProfileSedaVersion currentSedaVersion = profileModel.getSedaVersion();
 
             if (schemaDefinitionSedaVersion == null) {
@@ -749,12 +756,17 @@ public class ProfileServiceImpl implements ProfileService {
 
             try (final Response response = downloadProfileFile(profileModel.getIdentifier())) {
                 if (response.getStatus() == 200) {
-                    final InputStream inputStream = response.getEntity() instanceof InputStream
-                        ? (InputStream) response.getEntity()
-                        : response.readEntity(InputStream.class);
-                    final InputSource inputSource = new InputSource(inputStream);
-                    final ProfileSedaVersion schemaDefinitionSedaVersion = extractSedaVersion(inputSource);
-                    final ProfileSedaVersion currentSedaVersion = profileModel.getSedaVersion();
+                    ProfileSedaVersion schemaDefinitionSedaVersion = ProfileSedaVersion.DEFAULT;
+                    ProfileSedaVersion currentSedaVersion = profileModel.getSedaVersion();
+                    if (profileModel.getFormat() == ProfileFormat.RNG) {
+                        final InputStream inputStream = response.getEntity() instanceof InputStream
+                            ? (InputStream) response.getEntity()
+                            : response.readEntity(InputStream.class);
+                        final InputSource inputSource = new InputSource(inputStream);
+                        schemaDefinitionSedaVersion = extractSedaVersion(inputSource);
+                    } else if (profileModel.getFormat() == ProfileFormat.XSD && profileModel.getSedaVersion() != null) {
+                        schemaDefinitionSedaVersion = profileModel.getSedaVersion();
+                    }
                     final ProfileSedaVersion nextSedaVersion = ProfileSedaVersion.forVersion(value.asText());
 
                     if (schemaDefinitionSedaVersion == null) {

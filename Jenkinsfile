@@ -197,6 +197,7 @@ pipeline {
                     script {
                         try {
                             // Build Vitam
+                            sh '$MVN_COMMAND -f pom.xml spotless:check -T 1C'
                             sh '$MVN_COMMAND -f pom.xml clean verify org.owasp:dependency-check-maven:aggregate sonar:sonar -Dsonar.projectName=$GIT_BRANCH -Dsonar.projectKey=$(sed -E \'s/[^[:alnum:]]+/_/g\' <<< ${GIT_BRANCH#*/}) -Ddownloader.quick.query.timestamp=false'
                         } finally {
                             // Force termination / cleanup of containers

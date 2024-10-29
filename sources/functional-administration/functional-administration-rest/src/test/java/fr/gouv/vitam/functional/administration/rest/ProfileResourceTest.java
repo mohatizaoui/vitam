@@ -51,6 +51,7 @@ import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.junit.JunitHelper;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
+import fr.gouv.vitam.common.model.administration.ProfileSedaVersion;
 import fr.gouv.vitam.common.mongo.MongoRule;
 import fr.gouv.vitam.common.server.application.configuration.DbConfigurationImpl;
 import fr.gouv.vitam.common.server.application.configuration.MongoDbNode;
@@ -95,7 +96,6 @@ import static fr.gouv.vitam.common.database.builder.query.QueryHelper.match;
 import static fr.gouv.vitam.common.guid.GUIDFactory.newOperationLogbookGUID;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
@@ -501,7 +501,7 @@ public class ProfileResourceTest {
 
     @Test
     @RunWithCustomExecutor
-    public void shouldRejectXSDWithoutSedaVersion() throws Exception {
+    public void shouldDefaultXSDWithoutSedaVersionToDefaultSedaVersion() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
         VitamThreadUtils.getVitamSession().setRequestId(newOperationLogbookGUID(TENANT_ID));
         mongoDbAccess.deleteCollectionForTesting(FunctionalAdminCollections.PROFILE).close();
@@ -537,6 +537,11 @@ public class ProfileResourceTest {
         assertThat(identifiers.get(0)).contains("PR-");
         assertThat(identifiers.get(1)).contains("PR-");
 
+        List<String> sedaVersions = result.get("$results.SedaVersion");
+        assertThat(sedaVersions).hasSize(2);
+        assertThat(sedaVersions.get(0)).isEqualTo(ProfileSedaVersion.DEFAULT.getVersion());
+        assertThat(sedaVersions.get(1)).isEqualTo(ProfileSedaVersion.DEFAULT.getVersion());
+
         String identifierProfile = identifiers.iterator().next();
 
         InputStream xsdProfile = new FileInputStream(PropertiesUtils.getResourceFile("profile_ok.xsd"));
@@ -557,7 +562,6 @@ public class ProfileResourceTest {
             .when()
             .put(ProfileResource.PROFILE_URI + "/" + identifierProfile)
             .then()
-            .statusCode(Status.BAD_REQUEST.getStatusCode())
-            .body(containsString("No seda version found in schema definition file"));
+            .statusCode(Status.CREATED.getStatusCode());
     }
 }
