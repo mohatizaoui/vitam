@@ -432,7 +432,6 @@ public class AccessInternalResourceImpl extends ApplicationStatusResource implem
         JsonNode selectQuery
     ) {
         try {
-            downloadPermissionValidator.validate();
             final ObjectGroupResponse objectGroupResponse = accessModule.findOneObjectGroupByPersistentId(
                 persistentIdentifier,
                 selectQuery

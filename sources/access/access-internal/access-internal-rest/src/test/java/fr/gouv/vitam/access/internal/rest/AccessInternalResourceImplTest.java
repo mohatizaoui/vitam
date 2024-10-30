@@ -30,6 +30,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.gouv.vitam.common.GlobalDataRest;
 import fr.gouv.vitam.common.PropertiesUtils;
+import fr.gouv.vitam.common.client.ClientMockResultHelper;
 import fr.gouv.vitam.common.client.CustomVitamHttpStatusCode;
 import fr.gouv.vitam.common.client.VitamClientFactory;
 import fr.gouv.vitam.common.collection.CloseableIterator;
@@ -1533,13 +1534,50 @@ public class AccessInternalResourceImplTest extends ResteasyTestApplication {
             .header(GlobalDataRest.X_TENANT_ID, "0")
             .body(buildDSLWithRoots(DATA))
             .when()
-            .log()
-            .all()
-            .header(GlobalDataRest.X_ACCESS_CONTRAT_ID, "all")
             .get("/objects/stream")
             .then()
-            .log()
-            .all()
             .statusCode(Status.OK.getStatusCode());
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void getObjectsByObjectPersistentIdentifier_test() throws Exception {
+        when(metaDataClient.streamObjects(any())).thenReturn(
+            javax.ws.rs.core.Response.ok(new ByteArrayInputStream("okokok".getBytes())).build()
+        );
+        given()
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON)
+            .header(
+                GlobalDataRest.X_ACCESS_CONTRAT_ID,
+                ClientMockResultHelper.ACCESS_CONTRACT_NO_DOWNLOAD.getIdentifier()
+            )
+            .header(GlobalDataRest.X_TENANT_ID, "0")
+            .body(EMPTY_QUERY)
+            .when()
+            .get("/objects/objectpid/ark:/80085/819_80085")
+            .then()
+            .statusCode(Status.OK.getStatusCode());
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void downloadObjectsByUnitPersistentIdentifier_test() throws Exception {
+        when(metaDataClient.streamObjects(any())).thenReturn(
+            javax.ws.rs.core.Response.ok(new ByteArrayInputStream("okokok".getBytes())).build()
+        );
+        given()
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_OCTET_STREAM)
+            .header(
+                GlobalDataRest.X_ACCESS_CONTRAT_ID,
+                ClientMockResultHelper.ACCESS_CONTRACT_NO_DOWNLOAD.getIdentifier()
+            )
+            .header(GlobalDataRest.X_TENANT_ID, "0")
+            .body(EMPTY_QUERY)
+            .when()
+            .get("/objects/objectpid/ark:/80085/819_80085")
+            .then()
+            .statusCode(Status.UNAUTHORIZED.getStatusCode());
     }
 }

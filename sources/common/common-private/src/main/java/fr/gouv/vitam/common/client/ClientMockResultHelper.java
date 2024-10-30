@@ -34,12 +34,15 @@ import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
+import fr.gouv.vitam.common.model.administration.AccessContractModel;
+import fr.gouv.vitam.common.model.administration.ActivationStatus;
 import fr.gouv.vitam.common.model.administration.ContextModel;
 import fr.gouv.vitam.common.model.administration.IngestContractModel;
 import fr.gouv.vitam.common.model.administration.OntologyModel;
 import fr.gouv.vitam.common.model.administration.OntologyOrigin;
 import fr.gouv.vitam.common.model.administration.OntologyType;
 import fr.gouv.vitam.common.stream.StreamUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedHashMap;
@@ -48,6 +51,7 @@ import javax.ws.rs.core.Response.Status;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Results for client mock
@@ -203,26 +207,60 @@ public class ClientMockResultHelper {
         "\"ActivationDate\":\"2016-11-02\", " +
         "\"DeactivationDate\":\"2016-11-02\"}";
 
-    public static final String ACCESS_CONTRACTS =
-        "{\"_id\":\"aeaaaaaaaaaaaaabaa4ikakyetch6mqaaacq\", " +
-        "\"_tenant\":0, " +
-        "\"DataObjectVersion\":[\"PhysicalMaster\", \"BinaryMaster\"], " +
-        "\"WritingPermission\": \"true\", " +
-        "\"Name\":\"Un contrat\", " +
-        "\"Description\":\"DESCRIPTION D'UN CONTRAT\", " +
-        "\"Status\":\"ACTIVE\", " +
-        "\"OriginatingAgencies\": [\"FR_ORG_AGEC\", \"OriginatingAgency\", \"Identifier0\", \"Identifier1\", \"Identifier2\", \"Identifier3\", \"Identifier4\"], " +
-        "\"EveryDataObjectVersion\": false, " +
-        "\"CreationDate\":\"2016-11-02\", " +
-        "\"LastUpdate\":\"2016-11-02\", " +
-        "\"ActivationDate\":\"2016-11-02\", " +
-        "\"EveryOriginatingAgency\": \"false\", " +
-        "\"DeactivationDate\":\"2016-11-02\"}";
+    public static final AccessContractModel DEFAULT_ACCESS_CONTRACT = (AccessContractModel) new AccessContractModel()
+        .setWritingPermission(true)
+        .setEveryDataObjectVersion(false)
+        .setDataObjectVersion(Set.of("PhysicalMaster", "BinaryMaster"))
+        .setEveryOriginatingAgency(false)
+        .setOriginatingAgencies(
+            Set.of(
+                "FR_ORG_AGEC",
+                "OriginatingAgency",
+                "Identifier0",
+                "Identifier1",
+                "Identifier2",
+                "Identifier3",
+                "Identifier4"
+            )
+        )
+        .setCreationDate("2016-11-02")
+        .setLastUpdate("2016-11-05")
+        .setActivationDate("2016-11-04")
+        .setDeactivationDate("2016-11-03")
+        .setId("aeaaaaaaaaaaaaabaa4ikakyetch6mqaaacq")
+        .setIdentifier("DEFAULT_ACCESS_CONTRACT")
+        .setName("TESTS_ACCESS_CONTRACT_01")
+        .setTenant(0)
+        .setStatus(ActivationStatus.ACTIVE)
+        .setDescription("DESCRIPTION D'UN CONTRAT D'ACCES");
+
+    public static final AccessContractModel ACCESS_CONTRACT_NO_DOWNLOAD =
+        (AccessContractModel) new AccessContractModel()
+            .setWritingPermission(true)
+            .setEveryDataObjectVersion(false)
+            .setDataObjectVersion(Collections.emptySet())
+            .setEveryOriginatingAgency(false)
+            .setOriginatingAgencies(Set.of("FR_ORG_AGEC", "OriginatingAgency"))
+            .setCreationDate("2016-11-02")
+            .setLastUpdate("2016-11-05")
+            .setActivationDate("2016-11-04")
+            .setDeactivationDate("2016-11-03")
+            .setId("TESTS_ACCESS_CONTRACT_NO_DOWNLOAD")
+            .setIdentifier("TESTS_ACCESS_CONTRACT_NO_DOWNLOAD")
+            .setName("TESTS_ACCESS_CONTRACT_NO_DOWNLOAD")
+            .setTenant(0)
+            .setStatus(ActivationStatus.ACTIVE)
+            .setDescription("DESCRIPTION D'UN CONTRAT D'ACCES");
+
+    public static final List<AccessContractModel> ACCESS_CONTRACTS = List.of(
+        DEFAULT_ACCESS_CONTRACT,
+        ACCESS_CONTRACT_NO_DOWNLOAD
+    );
 
     public static final String MANAGEMENT_CONTRACTS =
         "{\"_id\":\"aeaaaaaaaaaaaaabaa4ikakyetch6mqaaacq\", " +
         "\"_tenant\":0, " +
-        "\"Name\":\"Un contrat\", " +
+        "\"Name\":\"TESTS_MANAGEMENT_CONTRACT_01\", " +
         "\"Description\":\"DESCRIPTION D'UN CONTRAT\", " +
         "\"Status\":\"ACTIVE\", " +
         "\"Storage\": {\"UnitStrategy\" : \"default\", \"ObjectGroupStrategy\": \"default\", \"ObjectStrategy\": \"default\"}, " +
@@ -607,8 +645,13 @@ public class ClientMockResultHelper {
      * @return a RequestResponse containing access contracts json
      * @throws InvalidParseOperationException
      */
-    public static RequestResponse getAccessContracts() throws InvalidParseOperationException {
-        return createResponse(ACCESS_CONTRACTS);
+    public static RequestResponse getAccessContractOrDefault(String identifier) throws InvalidParseOperationException {
+        return createResponse(
+            ACCESS_CONTRACTS.stream()
+                .filter(ac -> StringUtils.equals(ac.getIdentifier(), identifier))
+                .findFirst()
+                .orElse(DEFAULT_ACCESS_CONTRACT)
+        );
     }
 
     /**
