@@ -3,34 +3,39 @@
 - name: "[{{ __profile.Identifier }}] Set back seda version to default version"
   set_fact:
     __seda_version: "{{ default_seda_version }}"
+    __extraction_result:
 
-- name: "[{{ __profile.Identifier }}] Download archive profile file"
-  uri:
-    url: "{{ _archive_profiles_base_url }}/{{ __profile.Identifier }}"
-    method: GET
-    headers:
-      X-Tenant-Id: "{{ __profile._tenant }}"
-    return_content: yes
-    client_cert: "{{ _tmp_pem }}"
-    validate_certs: false
-    status_code:
-      - 200
-      - 500
-    timeout: 36000
-  register: __response
+- block:
 
-- name: "[{{ __profile.Identifier }}] Extract seda version from RNG file"
-  set_fact:
-    __extraction_result: "{{ __response.content | regex_search(_seda_version_pattern, '\\1') }}"
-  when: __response.status == 200
+  - name: "[{{ __profile.Identifier }}] Download archive profile file"
+    uri:
+      url: "{{ _archive_profiles_base_url }}/{{ __profile.Identifier }}"
+      method: GET
+      headers:
+        X-Tenant-Id: "{{ __profile._tenant }}"
+      return_content: yes
+      client_cert: "{{ _tmp_pem }}"
+      validate_certs: false
+      status_code:
+        - 200
+        - 500
+      timeout: 36000
+    register: __response
 
-- name: "[{{ __profile.Identifier }}] Set final seda version if found in RNG"
-  set_fact:
-    __seda_version: "{{ __extraction_result | first }}"
-  when:
-    - __extraction_result is defined
-    - __extraction_result != None
-    - __extraction_result | length > 0
+  - name: "[{{ __profile.Identifier }}] Extract seda version from RNG file"
+    set_fact:
+      __extraction_result: "{{ __response.content | regex_search(_seda_version_pattern, '\\1') }}"
+    when: __response.status == 200
+
+  - name: "[{{ __profile.Identifier }}] Set final seda version if found in RNG"
+    set_fact:
+      __seda_version: "{{ __extraction_result | first }}"
+    when:
+      - __extraction_result is defined
+      - __extraction_result != None
+      - __extraction_result | length > 0
+
+  when: __profile.Format == 'RNG'
 
 - name: "[{{ __profile.Identifier }}] Update archive profile"
   uri:
@@ -39,7 +44,7 @@
     body:
       $action:
         - $set:
-            SedaVersion: "{{ __seda_version }}"
+            SedaVersion: "{{ __seda_version if __profile.Format == 'RNG' else '2.3' }}"
     body_format: "json"
     headers:
       Content-Type: "application/json"
