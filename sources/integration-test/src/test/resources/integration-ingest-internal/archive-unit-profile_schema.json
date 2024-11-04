@@ -2919,7 +2919,7 @@
     "ApiPath": "PersistentIdentifier.PersistentIdentifierType",
     "Category": "DESCRIPTION",
     "Description": "Persistent Identifier Type",
-    "Cardinality": "ONE",
+    "Cardinality": "ONE_REQUIRED",
     "Type": "KEYWORD",
     "Origin": "INTERNAL",
     "ShortName": "Type",
