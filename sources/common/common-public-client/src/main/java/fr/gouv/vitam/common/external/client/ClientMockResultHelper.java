@@ -71,8 +71,8 @@ import javax.ws.rs.core.Response.Status;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Results for client mock
@@ -295,7 +295,7 @@ public class ClientMockResultHelper {
         contract.setId("aeaaaaaaaaaaaaabaa4ikakyetch6mqaaacq");
         contract.setTenant(0);
         contract.setIdentifier("FAKE_IDENTIFIER");
-        contract.setName("Un contrat");
+        contract.setName("TESTS_INGEST_CONTRACT_02");
         contract.setDescription("DESCRIPTION D'UN CONTRAT");
         contract.setStatus(ActivationStatus.ACTIVE);
         contract.setCreationDate("2016-11-02");
@@ -316,37 +316,22 @@ public class ClientMockResultHelper {
     }
 
     private static AccessContractModel getAccessContractItem() {
-        AccessContractModel contract = new AccessContractModel();
-        contract.setId("aeaaaaaaaaaaaaabaa4ikakyetch6mqaaacq");
-        contract.setTenant(0);
-        contract.setIdentifier("FAKE_IDENTIFIER");
-        contract.setName("Un contrat");
-        contract.setDescription("DESCRIPTION D'UN CONTRAT");
-        contract.setStatus(ActivationStatus.ACTIVE);
-        contract.setCreationDate("2016-11-02");
-        contract.setLastUpdate("2016-11-05");
-        contract.setActivationDate("2016-11-04");
-        contract.setDeactivationDate("2016-11-03");
-        contract.setDataObjectVersion(
-            new HashSet<String>() {
-                {
-                    add("PhysicalMaster");
-                    add("BinaryMaster");
-                }
-            }
-        );
-        contract.setWritingPermission(true);
-        contract.setOriginatingAgencies(
-            new HashSet<String>() {
-                {
-                    add("FR_ORG_AGEC");
-                    add("OriginatingAgency");
-                }
-            }
-        );
-        contract.setEveryDataObjectVersion(false);
-        contract.setEveryOriginatingAgency(false);
-        return contract;
+        return (AccessContractModel) new AccessContractModel()
+            .setDataObjectVersion(Set.of("BinaryMaster", "PhysicalMaster"))
+            .setWritingPermission(true)
+            .setOriginatingAgencies(Set.of("FR_ORG_AGEC", "OriginatingAgency"))
+            .setEveryDataObjectVersion(false)
+            .setEveryOriginatingAgency(false)
+            .setId("aeaaaaaaaaaaaaabaa4ikakyetch6mqaaacq")
+            .setTenant(0)
+            .setIdentifier("FAKE_IDENTIFIER")
+            .setName("TESTS_ACCESS_CONTRACT_02")
+            .setDescription("DESCRIPTION D'UN CONTRAT D'ACCES")
+            .setStatus(ActivationStatus.ACTIVE)
+            .setCreationDate("2016-11-02")
+            .setLastUpdate("2016-11-05")
+            .setActivationDate("2016-11-04")
+            .setDeactivationDate("2016-11-03");
     }
 
     private static ManagementContractModel getManagementContractItem() {
@@ -354,7 +339,7 @@ public class ClientMockResultHelper {
         contract.setId("aeaaaaaaaaaaaaabaa4ikakyetch6mqaaacq");
         contract.setTenant(0);
         contract.setIdentifier("FAKE_IDENTIFIER");
-        contract.setName("Un contrat");
+        contract.setName("TESTS_MANAGEMENT_CONTRACT_02");
         contract.setDescription("DESCRIPTION D'UN CONTRAT");
         contract.setStatus(ActivationStatus.ACTIVE);
         contract.setCreationDate("2016-11-02");

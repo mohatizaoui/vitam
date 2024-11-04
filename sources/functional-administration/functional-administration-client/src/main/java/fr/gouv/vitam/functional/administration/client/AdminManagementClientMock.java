@@ -296,17 +296,19 @@ public class AdminManagementClientMock extends AbstractMockClient implements Adm
         if (VitamThreadUtils.getVitamSession().getTenantId() == null) {
             VitamThreadUtils.getVitamSession().setTenantId(0);
         }
-        AccessContractModel model = JsonHandler.getFromString(
-            ClientMockResultHelper.ACCESS_CONTRACTS,
-            AccessContractModel.class
+        String identifier = queryDsl.findPath("Identifier").asText();
+        return ClientMockResultHelper.createResponse(
+            ClientMockResultHelper.ACCESS_CONTRACTS.stream()
+                .filter(ac -> ac.getIdentifier().equals(identifier))
+                .findFirst()
+                .orElse(ClientMockResultHelper.DEFAULT_ACCESS_CONTRACT)
         );
-        return ClientMockResultHelper.createResponse(model);
     }
 
     @Override
     public RequestResponse findAccessContractsByID(String documentId) throws InvalidParseOperationException {
         LOGGER.debug("find access contracts by id request ");
-        return ClientMockResultHelper.getAccessContracts();
+        return ClientMockResultHelper.getAccessContractOrDefault(documentId);
     }
 
     @Override
