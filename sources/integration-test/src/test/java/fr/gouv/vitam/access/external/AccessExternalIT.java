@@ -820,9 +820,9 @@ public class AccessExternalIT extends VitamRuleRunner {
         assertEquals(addressBirthPlaceAdressSchemaElt.getSedaField(), "Address");
         assertEquals(addressBirthPlaceAdressSchemaElt.getCollection(), MetadataType.UNIT.getName());
         assertEquals(addressBirthPlaceAdressSchemaElt.getCardinality(), SchemaCardinality.ONE);
-        assertThat(addressBirthPlaceAdressSchemaElt.getSedaVersions().contains("2.1"));
-        assertThat(addressBirthPlaceAdressSchemaElt.getSedaVersions().contains("2.2"));
-        assertThat(addressBirthPlaceAdressSchemaElt.getSedaVersions().contains("2.3"));
+        assertThat(addressBirthPlaceAdressSchemaElt.getSedaVersions()).contains("2.1");
+        assertThat(addressBirthPlaceAdressSchemaElt.getSedaVersions()).contains("2.2");
+        assertThat(addressBirthPlaceAdressSchemaElt.getSedaVersions()).contains("2.3");
 
         Optional<SchemaResponse> persistentIdentifierContentSchemaEltOpt = schemaModelUnit
             .stream()
@@ -876,9 +876,9 @@ public class AccessExternalIT extends VitamRuleRunner {
             assertEquals(addressBirthPlaceAdressSchemaElt.getSedaField(), "Address");
             assertEquals(addressBirthPlaceAdressSchemaElt.getCollection(), MetadataType.UNIT.getName());
             assertEquals(addressBirthPlaceAdressSchemaElt.getCardinality(), SchemaCardinality.ONE);
-            assertThat(addressBirthPlaceAdressSchemaElt.getSedaVersions().contains("2.1"));
-            assertThat(addressBirthPlaceAdressSchemaElt.getSedaVersions().contains("2.2"));
-            assertThat(addressBirthPlaceAdressSchemaElt.getSedaVersions().contains("2.3"));
+            assertThat(addressBirthPlaceAdressSchemaElt.getSedaVersions()).contains("2.1");
+            assertThat(addressBirthPlaceAdressSchemaElt.getSedaVersions()).contains("2.2");
+            assertThat(addressBirthPlaceAdressSchemaElt.getSedaVersions()).contains("2.3");
 
             List<SchemaResponse> externalSchemaElts = schemaModelUnit
                 .stream()
@@ -938,9 +938,9 @@ public class AccessExternalIT extends VitamRuleRunner {
         assertEquals(algorithSchemaElt.getApiPath(), "#qualifiers.versions.Algorithm");
         assertEquals(algorithSchemaElt.getCollection(), MetadataType.OBJECTGROUP.getName());
         assertEquals(algorithSchemaElt.getCardinality(), SchemaCardinality.ONE);
-        assertThat(algorithSchemaElt.getSedaVersions().contains("2.1"));
-        assertThat(algorithSchemaElt.getSedaVersions().contains("2.2"));
-        assertThat(algorithSchemaElt.getSedaVersions().contains("2.3"));
+        assertThat(algorithSchemaElt.getSedaVersions()).contains("2.1");
+        assertThat(algorithSchemaElt.getSedaVersions()).contains("2.2");
+        assertThat(algorithSchemaElt.getSedaVersions()).contains("2.3");
 
         Optional<SchemaResponse> persistentIdentifierContentSchemaEltOpt = schemaModelUnit
             .stream()
@@ -956,9 +956,9 @@ public class AccessExternalIT extends VitamRuleRunner {
         assertEquals(persistentIdentifierContentElt.getSedaField(), "PersistentIdentifierContent");
         assertEquals(persistentIdentifierContentElt.getCollection(), MetadataType.OBJECTGROUP.getName());
         assertEquals(persistentIdentifierContentElt.getCardinality(), SchemaCardinality.ONE);
-        assertThat(persistentIdentifierContentElt.getSedaVersions().contains("2.2"));
-        assertThat(persistentIdentifierContentElt.getSedaVersions().contains("2.3"));
-        assertThat(!persistentIdentifierContentElt.getSedaVersions().contains("2.1"));
+        assertThat(persistentIdentifierContentElt.getSedaVersions()).contains("2.2");
+        assertThat(persistentIdentifierContentElt.getSedaVersions()).contains("2.3");
+        assertThat(persistentIdentifierContentElt.getSedaVersions()).doesNotContain("2.1");
     }
 
     @Test
