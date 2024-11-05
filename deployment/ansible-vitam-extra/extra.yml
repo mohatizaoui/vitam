@@ -2,7 +2,7 @@
 # Doc: http://www.programmevitam.fr/ressources/DocCourante/html/installation/installation/80-extras.html#extras-complet
 
 ### HOSTS NETWORK VARS CHECK ###
-- hosts: hosts
+- hosts: vitam
   roles:
     - checks
 
