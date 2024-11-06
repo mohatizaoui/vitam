@@ -174,7 +174,7 @@ public class BusinessApplication extends ConfigurationApplication {
             singletons.add(projectInternalResource);
             singletons.add(collectMetadataInternalResource);
         } catch (IOException e) {
-            LOGGER.debug("Error when starting BusinessApplication : {}", e);
+            LOGGER.debug("Error when starting BusinessApplication :", e);
             throw new CollectInternalException(e);
         }
     }

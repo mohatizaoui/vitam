@@ -141,7 +141,7 @@ public class CollectService {
             }
             return objectDto;
         } catch (CollectInternalException e) {
-            LOGGER.error("Error when saving Object in metadata: {}", e);
+            LOGGER.error("Error when saving Object in metadata:", e);
             throw new CollectInternalException(e);
         }
     }
@@ -190,7 +190,7 @@ public class CollectService {
                 );
             }
         } catch (InvalidParseOperationException e) {
-            LOGGER.error("Error when updating existing Object : {}", e);
+            LOGGER.error("Error when updating existing Object :", e);
             throw new CollectInternalException(e);
         }
     }
@@ -231,7 +231,7 @@ public class CollectService {
             if (gotCreated) {
                 metadataRepository.deleteObjectGroups(Collections.singletonList(gotId));
             }
-            LOGGER.error("Error when saving new objectGroup in metadata : {}", e);
+            LOGGER.error("Error when saving new objectGroup in metadata :", e);
             throw new CollectInternalException("Error when saving new objectGroup in metadata: " + e);
         }
     }
@@ -246,7 +246,7 @@ public class CollectService {
             UpdateMultiQuery query = QueryHandler.getQualifiersAddMultiQuery(objectGroup, usage, version, objectDto);
             metadataRepository.updateObjectGroupById(query, objectGroup.getId(), objectGroup.getOpi());
         } catch (final InvalidParseOperationException | InvalidCreateOperationException e) {
-            LOGGER.error("Error when adding usage/version to existing qualifier: {}", e);
+            LOGGER.error("Error when adding usage/version to existing qualifier:", e);
             throw new CollectInternalException("Error when adding usage/version to existing qualifier: " + e);
         }
     }
@@ -271,7 +271,7 @@ public class CollectService {
 
             metadataRepository.updateObjectGroupById(query, objectGroup.getId(), objectGroup.getOpi());
         } catch (InvalidParseOperationException | InvalidCreateOperationException e) {
-            LOGGER.error("Error when adding version to Object: {}", e);
+            LOGGER.error("Error when adding version to Object:", e);
             throw new CollectInternalException("Error when adding version to Object: " + e);
         }
     }
@@ -288,7 +288,7 @@ public class CollectService {
             JsonNode objectGroup = metadataRepository.selectObjectGroupById(unitModel.getOg(), true);
             return JsonHandler.getFromJsonNode(objectGroup, DbObjectGroupModel.class);
         } catch (InvalidParseOperationException e) {
-            LOGGER.error("Error when fetching Object from metadata: {}", e);
+            LOGGER.error("Error when fetching Object from metadata:", e);
             throw new CollectInternalException("Error when fetching Object from metadata: " + e);
         }
     }

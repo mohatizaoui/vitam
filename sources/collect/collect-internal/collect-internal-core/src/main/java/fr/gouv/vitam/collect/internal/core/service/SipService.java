@@ -271,7 +271,7 @@ public class SipService {
                 sipInputStream = (InputStream) response.getEntity();
             }
         } catch (ContentAddressableStorageServerException | ContentAddressableStorageNotFoundException e) {
-            LOGGER.error("Error when processing ingest: {}", e);
+            LOGGER.error("Error when processing ingest:", e);
             throw new CollectInternalException(e);
         }
 

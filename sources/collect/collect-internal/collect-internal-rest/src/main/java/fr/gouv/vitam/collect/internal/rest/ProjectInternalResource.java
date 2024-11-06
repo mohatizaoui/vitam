@@ -116,7 +116,7 @@ public class ProjectInternalResource {
             final List<ProjectDto> listProjects = projectService.searchProject(null);
             return CollectRequestResponse.toResponseOK(listProjects);
         } catch (IllegalArgumentException | CollectInternalException e) {
-            LOGGER.error("Error when fetching projects by tenant Id : {}", e);
+            LOGGER.error("Error when fetching projects by tenant Id :", e);
             return CollectRequestResponse.toVitamError(BAD_REQUEST, e.getLocalizedMessage());
         }
     }
@@ -131,7 +131,7 @@ public class ProjectInternalResource {
             final List<ProjectDto> listProjects = projectService.searchProject(criteriaProjectDto);
             return CollectRequestResponse.toResponseOK(listProjects);
         } catch (InvalidParseOperationException | CollectInternalException | IllegalArgumentException e) {
-            LOGGER.error("Error when trying to parse : {}", e);
+            LOGGER.error("Error when trying to parse :", e);
             return CollectRequestResponse.toVitamError(BAD_REQUEST, e.getLocalizedMessage());
         }
     }
@@ -151,7 +151,7 @@ public class ProjectInternalResource {
         } catch (CollectInternalException e) {
             return CollectRequestResponse.toVitamError(INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
         } catch (IllegalArgumentException | InvalidParseOperationException e) {
-            LOGGER.error("Error when trying to parse : {}", e);
+            LOGGER.error("Error when trying to parse :", e);
             return CollectRequestResponse.toVitamError(BAD_REQUEST, e.getLocalizedMessage());
         }
     }
@@ -175,7 +175,7 @@ public class ProjectInternalResource {
 
             return CollectRequestResponse.toResponseOK(projectDto);
         } catch (InvalidParseOperationException | CollectInternalException | IllegalArgumentException e) {
-            LOGGER.error("Error when trying to parse : {}", e);
+            LOGGER.error("Error when trying to parse :", e);
             return CollectRequestResponse.toVitamError(BAD_REQUEST, e.getLocalizedMessage());
         }
     }
@@ -195,10 +195,10 @@ public class ProjectInternalResource {
             }
             return CollectRequestResponse.toResponseOK(projectOpt.get());
         } catch (CollectInternalException e) {
-            LOGGER.error("Error when fetching project by Id : {}", e);
+            LOGGER.error("Error when fetching project by Id :", e);
             return CollectRequestResponse.toVitamError(INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
         } catch (IllegalArgumentException | InvalidParseOperationException e) {
-            LOGGER.error("Error when fetching project by Id : {}", e);
+            LOGGER.error("Error when fetching project by Id :", e);
             return CollectRequestResponse.toVitamError(BAD_REQUEST, e.getLocalizedMessage());
         }
     }
@@ -225,10 +225,10 @@ public class ProjectInternalResource {
 
             return Response.status(Response.Status.OK).build();
         } catch (CollectInternalException e) {
-            LOGGER.error("Error when delete project by Id : {}", e);
+            LOGGER.error("Error when delete project by Id :", e);
             return CollectRequestResponse.toVitamError(INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
         } catch (IllegalArgumentException | InvalidParseOperationException e) {
-            LOGGER.error("Error when delete project by Id : {}", e);
+            LOGGER.error("Error when delete project by Id :", e);
             return CollectRequestResponse.toVitamError(BAD_REQUEST, e.getLocalizedMessage());
         }
     }
@@ -279,7 +279,7 @@ public class ProjectInternalResource {
         } catch (CollectInternalException e) {
             return CollectRequestResponse.toVitamError(INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
         } catch (IllegalArgumentException | InvalidParseOperationException e) {
-            LOGGER.error("Error when trying to parse : {}", e);
+            LOGGER.error("Error when trying to parse :", e);
             return CollectRequestResponse.toVitamError(BAD_REQUEST, e.getLocalizedMessage());
         }
     }
@@ -307,7 +307,7 @@ public class ProjectInternalResource {
         } catch (CollectInternalException e) {
             return CollectRequestResponse.toVitamError(INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
         } catch (IllegalArgumentException | InvalidParseOperationException e) {
-            LOGGER.error("Error when trying to parse : {}", e);
+            LOGGER.error("Error when trying to parse :", e);
             return CollectRequestResponse.toVitamError(BAD_REQUEST, e.getLocalizedMessage());
         }
     }
@@ -325,7 +325,7 @@ public class ProjectInternalResource {
             ParametersChecker.checkParameter("You must supply a ZIP input stream body!", inputStreamObject);
             SanityChecker.checkParameter(projectId);
         } catch (IllegalArgumentException | InvalidParseOperationException e) {
-            LOGGER.error("An error occurs when try to upload the ZIP: {}", e);
+            LOGGER.error("An error occurs when try to upload the ZIP:", e);
             return CollectRequestResponse.toVitamError(BAD_REQUEST, e.getLocalizedMessage());
         }
 
@@ -342,10 +342,10 @@ public class ProjectInternalResource {
             fluxService.processStream(inputStreamObject, projectId, virtualTransactionId, encoding);
             return Response.ok(new RequestResponseOK<>().addResult(virtualTransactionId)).build();
         } catch (CollectInternalInvalidRequestException | IllegalArgumentException e) {
-            LOGGER.error("An error occurs when try to upload the ZIP: {}", e);
+            LOGGER.error("An error occurs when try to upload the ZIP:", e);
             return CollectRequestResponse.toVitamError(BAD_REQUEST, e.getLocalizedMessage());
         } catch (CollectInternalException e) {
-            LOGGER.error("An error occurs when try to upload the ZIP: {}", e);
+            LOGGER.error("An error occurs when try to upload the ZIP:", e);
             return CollectRequestResponse.toVitamError(INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
         }
     }

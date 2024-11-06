@@ -95,7 +95,7 @@ public class MetadataRepository {
             | MetaDataDocumentSizeException
             | InvalidCreateOperationException e
         ) {
-            LOGGER.error("Error when getting units in metadata: {}", e);
+            LOGGER.error("Error when getting units in metadata:", e);
             throw new CollectInternalException("Error when getting units in metadata: " + e);
         }
     }
@@ -148,7 +148,7 @@ public class MetadataRepository {
             }
             return response.getFirstResult();
         } catch (final MetaDataException | InvalidParseOperationException e) {
-            LOGGER.error("Error when fetching unit in metadata: {}", e);
+            LOGGER.error("Error when fetching unit in metadata:", e);
             throw new CollectInternalException("Error when fetching unit in metadata: " + e);
         }
     }
@@ -167,7 +167,7 @@ public class MetadataRepository {
             | MetaDataDocumentSizeException
             | InvalidCreateOperationException e
         ) {
-            LOGGER.error("Error when getting units in metadata: {}", e);
+            LOGGER.error("Error when getting units in metadata:", e);
             throw new CollectInternalException("Error when getting units in metadata: " + e);
         }
     }
@@ -181,7 +181,7 @@ public class MetadataRepository {
                 return client.selectObjectGrouptbyId(select.getFinalSelect(), objectGroupId);
             }
         } catch (final MetaDataException | InvalidParseOperationException | VitamClientException e) {
-            LOGGER.error("Error when fetching unit in metadata: {}", e);
+            LOGGER.error("Error when fetching unit in metadata:", e);
             throw new CollectInternalException("Error when fetching unit in metadata: " + e);
         }
     }
@@ -206,7 +206,7 @@ public class MetadataRepository {
             BulkUnitInsertEntry insertEntry = createInsertEntry(unit);
             return client.insertUnitBulk(new BulkUnitInsertRequest(Collections.singletonList(insertEntry)));
         } catch (final MetaDataException | InvalidParseOperationException e) {
-            LOGGER.error("Error while saving unit in metadata: {}", e);
+            LOGGER.error("Error while saving unit in metadata:", e);
             throw new CollectInternalException("Error while saving unit in metadata: " + e);
         }
     }
@@ -219,7 +219,7 @@ public class MetadataRepository {
                 .collect(Collectors.toList());
             return client.insertUnitBulk(new BulkUnitInsertRequest(list));
         } catch (final MetaDataException | InvalidParseOperationException e) {
-            LOGGER.error("Error while saving unit in metadata: {}", e);
+            LOGGER.error("Error while saving unit in metadata:", e);
             throw new CollectInternalException("Error while saving unit in metadata: " + e);
         }
     }
@@ -242,7 +242,7 @@ public class MetadataRepository {
             applyTransactionToQuery(transactionId, updateQuery);
             client.updateUnitById(updateQuery.getFinalUpdateById(), unitId);
         } catch (final MetaDataException | InvalidParseOperationException | InvalidCreateOperationException e) {
-            LOGGER.error("Error while update updating in metadata: {}", e);
+            LOGGER.error("Error while update updating in metadata:", e);
             throw new CollectInternalException("Error while updating unit in metadata: " + e);
         }
     }
@@ -255,7 +255,7 @@ public class MetadataRepository {
             insert.addData(og);
             return client.insertObjectGroup(insert.getFinalInsert());
         } catch (final MetaDataException | InvalidParseOperationException e) {
-            LOGGER.error("Error while saving objectGroup in metadata: {}", e);
+            LOGGER.error("Error while saving objectGroup in metadata:", e);
             throw new CollectInternalException("Error while saving objectGroup in metadata: " + e);
         }
     }
@@ -273,7 +273,7 @@ public class MetadataRepository {
                 .collect(Collectors.toList());
             return client.insertObjectGroups(collect);
         } catch (final MetaDataException | InvalidParseOperationException e) {
-            LOGGER.error("Error while saving objectGroup in metadata: {}", e);
+            LOGGER.error("Error while saving objectGroup in metadata:", e);
             throw new CollectInternalException("Error while saving objectGroup in metadata: " + e);
         }
     }
@@ -284,7 +284,7 @@ public class MetadataRepository {
             applyTransactionToQuery(transactionId, updateQuery);
             client.updateObjectGroupById(updateQuery.getFinalUpdate(), objectGroupId);
         } catch (final MetaDataException | InvalidParseOperationException | InvalidCreateOperationException e) {
-            LOGGER.error("Error while updating objectGroup in metadata: {}", e);
+            LOGGER.error("Error while updating objectGroup in metadata:", e);
             throw new CollectInternalException("Error while updating objectGroup in metadata: " + e);
         }
     }
@@ -293,7 +293,7 @@ public class MetadataRepository {
         try (MetaDataClient client = metaDataCollectClientFactory.getClient()) {
             client.deleteUnitsBulk(listUnitIds);
         } catch (final MetaDataException e) {
-            LOGGER.error("Error when delete units and objects in metadata: {}", e);
+            LOGGER.error("Error when delete units and objects in metadata:", e);
             throw new CollectInternalException("Error when delete units and objects in metadata: " + e);
         }
     }
@@ -302,7 +302,7 @@ public class MetadataRepository {
         try (MetaDataClient client = metaDataCollectClientFactory.getClient()) {
             client.deleteObjectGroupBulk(listGotGUID);
         } catch (final MetaDataException | InvalidParseOperationException e) {
-            LOGGER.error("Error when delete units and objects in metadata: {}", e);
+            LOGGER.error("Error when delete units and objects in metadata:", e);
             throw new CollectInternalException("Error when delete units and objects in metadata: " + e);
         }
     }

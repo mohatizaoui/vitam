@@ -74,7 +74,7 @@ public class ManageStatusThread implements Runnable {
         try {
             process();
         } catch (CollectInternalException e) {
-            LOGGER.error("Error when executing threads: {}", e);
+            LOGGER.error("Error when executing threads:", e);
         }
     }
 
@@ -95,7 +95,7 @@ public class ManageStatusThread implements Runnable {
                         try {
                             this.transactionService.manageTransactionsStatus();
                         } catch (Exception e) {
-                            LOGGER.error("Error when managing status transaction: {}", e);
+                            LOGGER.error("Error when managing status transaction:", e);
                         }
                     },
                     executorService

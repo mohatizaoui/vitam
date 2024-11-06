@@ -86,7 +86,7 @@ public class AutomaticIngestThread implements Runnable {
         try {
             process();
         } catch (Exception e) {
-            LOGGER.error("Error when executing threads: {}", e);
+            LOGGER.error("Error when executing threads:", e);
         }
     }
 
@@ -125,7 +125,7 @@ public class AutomaticIngestThread implements Runnable {
                         try {
                             generateAndSendSip(transaction.getKey(), transaction.getValue());
                         } catch (Exception e) {
-                            LOGGER.error("Error when sending transaction: {}", e);
+                            LOGGER.error("Error when sending transaction:", e);
                         }
                     },
                     executorService

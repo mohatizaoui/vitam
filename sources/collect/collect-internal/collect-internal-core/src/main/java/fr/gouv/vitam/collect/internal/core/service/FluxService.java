@@ -216,7 +216,7 @@ public class FluxService {
                 }
             }
         } catch (IOException | ArchiveException e) {
-            LOGGER.error("An error occurs when try to upload the ZIP: {}", e);
+            LOGGER.error("An error occurs when try to upload the ZIP:", e);
             throw new CollectInternalException("An error occurs when try to upload the ZIP: {}");
         } catch (InvalidParseOperationException | CsvParseInternalException e) {
             throw new CollectInternalException(e.getMessage(), e);
