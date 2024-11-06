@@ -35,6 +35,7 @@ import io.prometheus.client.Summary;
 import org.apache.commons.io.input.CountingInputStream;
 
 import javax.ws.rs.container.ContainerRequestContext;
+import java.io.IOException;
 import java.io.InputStream;
 
 public class RequestLengthCountingInputStreamMetrics extends CountingInputStream {
@@ -60,7 +61,7 @@ public class RequestLengthCountingInputStreamMetrics extends CountingInputStream
     }
 
     @Override
-    protected void afterRead(int n) {
+    protected void afterRead(int n) throws IOException {
         if (n == -1 && first) {
             first = false;
 
