@@ -86,7 +86,7 @@ public class PurgeTransactionThread implements Runnable {
         try {
             process();
         } catch (CollectInternalException e) {
-            LOGGER.error("Error when processing purge transaction: {}", e);
+            LOGGER.error("Error when processing purge transaction:", e);
         }
     }
 
@@ -124,7 +124,7 @@ public class PurgeTransactionThread implements Runnable {
                         try {
                             deleteTransaction(entry.getKey(), entry.getValue());
                         } catch (ParseException | CollectInternalException e) {
-                            LOGGER.error("Error when deleting transaction: {}", e);
+                            LOGGER.error("Error when deleting transaction:", e);
                         }
                     },
                     executorService

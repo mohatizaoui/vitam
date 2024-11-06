@@ -86,7 +86,7 @@ public class CollectInternalMain {
             try {
                 collectInternalMain.stop();
             } catch (VitamApplicationServerException ex) {
-                LOGGER.error("Error when trying to stop Collect application: \n {}", e);
+                LOGGER.error("Error when trying to stop Collect application: \n", e);
                 ex.printStackTrace();
             }
             System.exit(1);

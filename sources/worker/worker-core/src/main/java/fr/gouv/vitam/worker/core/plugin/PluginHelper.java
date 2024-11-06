@@ -46,7 +46,7 @@ public class PluginHelper {
         try {
             FileUtils.deleteDirectory(batchDirectory.toFile());
         } catch (IOException e) {
-            LOGGER.error("Cannot delete input folder. {}", e);
+            LOGGER.error("Cannot delete input folder.", e);
         }
     }
 }

@@ -91,10 +91,10 @@ public class CollectMetadataInternalResource extends ApplicationStatusResource {
             JsonNode response = metadataService.selectUnitById(unitId);
             return CollectRequestResponse.toResponseOK(response);
         } catch (CollectInternalException e) {
-            LOGGER.error("Error when fetching unit in metadata : {}", e);
+            LOGGER.error("Error when fetching unit in metadata :", e);
             return CollectRequestResponse.toVitamError(INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
         } catch (IllegalArgumentException e) {
-            LOGGER.error("Error when fetching unit in metadata : {}", e);
+            LOGGER.error("Error when fetching unit in metadata :", e);
             return CollectRequestResponse.toVitamError(BAD_REQUEST, e.getLocalizedMessage());
         }
     }
@@ -133,10 +133,10 @@ public class CollectMetadataInternalResource extends ApplicationStatusResource {
 
             return CollectRequestResponse.toResponseOK(savedObjectDto);
         } catch (CollectInternalException e) {
-            LOGGER.error("Error while trying to save objects : {}", e);
+            LOGGER.error("Error while trying to save objects :", e);
             return CollectRequestResponse.toVitamError(INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
         } catch (IllegalArgumentException | InvalidParseOperationException e) {
-            LOGGER.error("Error while trying to save objects : {}", e);
+            LOGGER.error("Error while trying to save objects :", e);
             return CollectRequestResponse.toVitamError(BAD_REQUEST, e.getLocalizedMessage());
         }
     }
@@ -150,10 +150,10 @@ public class CollectMetadataInternalResource extends ApplicationStatusResource {
             JsonNode objectGroup = metadataService.selectObjectGroupById(gotId);
             return CollectRequestResponse.toResponseOK(objectGroup);
         } catch (CollectInternalException e) {
-            LOGGER.error("Error when fetching object in metadata : {}", e);
+            LOGGER.error("Error when fetching object in metadata :", e);
             return CollectRequestResponse.toVitamError(INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
         } catch (IllegalArgumentException | InvalidParseOperationException e) {
-            LOGGER.error("Error when fetching object in metadata : {}", e);
+            LOGGER.error("Error when fetching object in metadata :", e);
             return CollectRequestResponse.toVitamError(BAD_REQUEST, e.getLocalizedMessage());
         }
     }
@@ -208,10 +208,10 @@ public class CollectMetadataInternalResource extends ApplicationStatusResource {
             return Response.status(OK).build();
         } catch (CollectInternalException e) {
             // TODO : Manage rollback -> delete file ?
-            LOGGER.debug("An error occurs when try to fetch data from database : {}", e);
+            LOGGER.debug("An error occurs when try to fetch data from database :", e);
             return CollectRequestResponse.toVitamError(INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
         } catch (IllegalArgumentException | InvalidParseOperationException e) {
-            LOGGER.error("An error occurs when try to fetch data from database : {}", e);
+            LOGGER.error("An error occurs when try to fetch data from database :", e);
             return CollectRequestResponse.toVitamError(INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
         }
     }
@@ -241,10 +241,10 @@ public class CollectMetadataInternalResource extends ApplicationStatusResource {
             collectService.getDbObjectGroup(archiveUnitModel);
             return collectService.getBinaryByUsageAndVersion(archiveUnitModel, usage, version);
         } catch (CollectInternalException e) {
-            LOGGER.debug("An error occurs when try to fetch binary from database : {}", e);
+            LOGGER.debug("An error occurs when try to fetch binary from database :", e);
             return Response.status(INTERNAL_SERVER_ERROR).build();
         } catch (IllegalArgumentException | InvalidParseOperationException e) {
-            LOGGER.error("An error occurs when try to fetch binary from database : {}", e);
+            LOGGER.error("An error occurs when try to fetch binary from database :", e);
             return Response.status(INTERNAL_SERVER_ERROR).build();
         } catch (StorageNotFoundException e) {
             return Response.status(INTERNAL_SERVER_ERROR).build();

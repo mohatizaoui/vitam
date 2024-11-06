@@ -266,7 +266,7 @@ public class ProfileResource {
                 .entity(getErrorEntity(Status.BAD_REQUEST, e.getMessage(), null))
                 .build();
         } catch (Exception e) {
-            LOGGER.error("Unexpected server error {}", e);
+            LOGGER.error("Unexpected server error", e);
             return Response.status(Status.INTERNAL_SERVER_ERROR)
                 .entity(getErrorEntity(Status.INTERNAL_SERVER_ERROR, e.getMessage(), null))
                 .build();

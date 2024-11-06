@@ -185,7 +185,7 @@ public class PreservationSiegfriedPlugin extends ActionHandler {
                 return OutputExtra.inError(KO_FILE_FORMAT_NOT_FOUND + SUBSTATUS_UNKNOWN);
             }
         } catch (FileFormatNotFoundException e) {
-            logger.warn(KO_FILE_FORMAT_NOT_FOUND + SUBSTATUS_UNKNOWN + ", {}", e);
+            logger.warn(KO_FILE_FORMAT_NOT_FOUND + SUBSTATUS_UNKNOWN, e);
             return OutputExtra.inError(e.getMessage());
         } catch (FormatIdentifierNotFoundException e) {
             tryDeleteLocalPreservationFiles(batchDirectory);

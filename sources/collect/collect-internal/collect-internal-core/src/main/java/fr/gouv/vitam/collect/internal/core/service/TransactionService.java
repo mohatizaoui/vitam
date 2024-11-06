@@ -350,7 +350,7 @@ public class TransactionService {
             InQuery in = QueryHelper.in(id(), vitamOperationsIds.toArray(new String[0]));
             select.setQuery(in);
         } catch (InvalidCreateOperationException e) {
-            LOGGER.error("Error when generate DSL for get Operations: {}", e);
+            LOGGER.error("Error when generate DSL for get Operations:", e);
             throw new CollectInternalException(e);
         }
         return select.getFinalSelect();
@@ -423,7 +423,7 @@ public class TransactionService {
 
             return results;
         } catch (VitamClientException e) {
-            LOGGER.error("Error when select operation: {}", e);
+            LOGGER.error("Error when select operation:", e);
             throw new CollectInternalException(e);
         } catch (LogbookClientException | InvalidParseOperationException e) {
             throw new CollectInternalException(e);
@@ -750,7 +750,7 @@ public class TransactionService {
             );
             return Response.ok().build();
         } catch (CollectInternalInvalidRequestException e) {
-            LOGGER.error("An error occurs when try to upload the ZIP: {}", e);
+            LOGGER.error("An error occurs when try to upload the ZIP:", e);
             return CollectRequestResponse.toVitamError(BAD_REQUEST, e.getLocalizedMessage());
         } catch (CollectInternalException e) {
             purgeFailedUploadSilently(transactionModel);
