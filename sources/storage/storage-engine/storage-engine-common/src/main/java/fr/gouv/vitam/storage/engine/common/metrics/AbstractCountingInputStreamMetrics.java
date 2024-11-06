@@ -30,6 +30,7 @@ package fr.gouv.vitam.storage.engine.common.metrics;
 import fr.gouv.vitam.storage.engine.common.model.DataCategory;
 import org.apache.commons.io.input.CountingInputStream;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 abstract class AbstractCountingInputStreamMetrics extends CountingInputStream {
@@ -58,7 +59,7 @@ abstract class AbstractCountingInputStreamMetrics extends CountingInputStream {
     }
 
     @Override
-    protected void afterRead(int n) {
+    protected void afterRead(int n) throws IOException {
         if (n == -1 && first) {
             first = false;
 
