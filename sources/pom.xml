@@ -1151,6 +1151,7 @@
                 <groupId>net.sf.saxon</groupId>
                 <artifactId>Saxon-HE</artifactId>
                 <version>${Saxon-HE.version}</version>
+                <scope>test</scope>
             </dependency>
 
             <dependency>
@@ -1164,7 +1165,7 @@
                     </exclusion>
                     <exclusion>
                         <groupId>net.sf.saxon</groupId>
-                        <artifactId>saxon</artifactId>
+                        <artifactId>Saxon-HE</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>xerces</groupId>
@@ -1183,7 +1184,7 @@
                     </exclusion>
                     <exclusion>
                         <groupId>net.sf.saxon</groupId>
-                        <artifactId>saxon</artifactId>
+                        <artifactId>Saxon-HE</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>xerces</groupId>
