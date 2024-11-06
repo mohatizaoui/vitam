@@ -34,10 +34,8 @@
   retries: "{{ packages_install_retries_number }}"
   until: result is succeeded
   delay: "{{ packages_install_retries_delay }}"
-  tags:
-    - update_package_vitam
-  notify:
-    - "vitam - restart service"
+  tags: update_package_vitam
+  notify: "vitam - restart service"
   when: (force_vitam_version is not defined and install_mode != "container") or (force_vitam_version is not defined and (vitam_struct.vitam_component in legacy_components_list))
 
 # Force a specific version to install (even downgrade)
@@ -134,6 +132,11 @@
   when: ansible_os_family == "RedHat"
   tags:
     - update_vitam_configuration
+
+- name: get passwd for vitam
+  getent:
+    database: passwd
+    key: "{{ vitam_defaults.users.vitam | default('vitam') }}"
 
 - name: Deploy systemd service file
   template:
