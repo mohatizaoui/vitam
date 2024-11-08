@@ -237,6 +237,10 @@ public class DbRequestTest {
         "{$query: [ { $match : { 'Description' : 'OK' } } ]," +
         "$facets : [ { $name : 'has_validComputedInheritedRules',  $terms: { $field: '#validComputedInheritedRules', \"$order\" : \"ASC\", \"$size\" : 100 } }] }";
 
+    private static final String REQUEST_SELECT_TEST_ES_9 =
+        "{$query: [ { $eq : { 'DescriptionLevel' : 'Item' } } ]," +
+        "$facets : [ { $name : 'sum_max_facet' , $sum : { $field : '#max' } } ] }";
+
     private static final String REQUEST_INSERT_TEST_ES_1_TENANT_1 =
         "{ \"#id\": \"aebaaaaaaaaaaaabaahbcakzu2stfryaabaq\", " +
         "\"#tenant\": 1, " +
@@ -2156,6 +2160,14 @@ public class DbRequestTest {
         assertEquals(1, buckets.size());
         assertEquals("true", buckets.get(0).getValue());
         assertEquals(1, buckets.get(0).getCount());
+
+        final JsonNode selectRequest9 = JsonHandler.getFromString(REQUEST_SELECT_TEST_ES_9);
+        final SelectParserMultiple selectParser9 = new SelectParserMultiple(mongoDbVarNameAdapter);
+        selectParser9.parse(selectRequest9);
+        LOGGER.debug("SelectParser: {}", selectRequest9);
+        final Result resultSelect9 = dbRequest.execRequest(selectParser9, Collections.emptyList());
+        assertEquals(1, resultSelect9.nbResult);
+        assertEquals(1, resultSelect9.facetResult.size());
 
         InsertMultiQuery insert = new InsertMultiQuery();
         insert.parseData(REQUEST_INSERT_TEST_ES_2).addRoots(UUID2);

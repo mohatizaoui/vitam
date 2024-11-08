@@ -400,6 +400,12 @@
         "optional": true,
         "hint": "Terms facet of type bucket"
       },
+      "$sum": {
+        "format": "ref",
+        "type": "SUM_FACET",
+        "optional": true,
+        "hint": "SUM facet"
+      },
       "$date_range": {
         "format": "ref",
         "type": "DATE_RANGE_FACET",
@@ -443,6 +449,23 @@
         ],
         "optional": false,
         "hint": "Order of buckets"
+      }
+    }
+  },
+  "SUM_FACET": {
+    "format": "object",
+    "elements": {
+      "$subobject": {
+        "format": "ref",
+        "type": "string",
+        "optional": true,
+        "hint": "Nested path Field of facet"
+      },
+      "$field": {
+        "format": "ref",
+        "type": "string",
+        "optional": false,
+        "hint": "Field of facet"
       }
     }
   },

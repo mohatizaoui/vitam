@@ -212,7 +212,9 @@ public class DslQueryHelperTest {
                 Optional.empty()),
 
             new FacetItem("ObjectFacet", FacetType.FILTERS, null, null, null, null, null, objectfilters,
-                Optional.empty())
+                Optional.empty()),
+            new FacetItem("TotalMax", FacetType.SUM, "#Max", null, null, null,
+                null, null, Optional.empty())
 
         );
 
@@ -235,7 +237,7 @@ public class DslQueryHelperTest {
         assertTrue(selectParser.getRequest().getFilter().get("$orderby") != null);
         assertTrue(selectParser.getRequest().getProjection().size() == 1);
 
-        assertTrue(selectParser.getRequest().getFacets().size() == 9);
+        assertTrue(selectParser.getRequest().getFacets().size() == 10);
 
         assertTrue(selectParser.getRequest().getFacets().get(0).toString().contains(
             "{\"$name\":\"NestedFacet\",\"$terms\":{\"$field\":\"#qualifiers.versions.FormatIdentification.FormatLitteral\",\"$subobject\":\"#qualifiers.versions\",\"$size\":100,\"$order\":\"ASC\"}}"));
@@ -264,6 +266,8 @@ public class DslQueryHelperTest {
         assertTrue(selectParser.getRequest().getFacets().get(8).toString().contains(
             "{\"$name\":\"ObjectFacet\",\"$filters\":{\"$query_filters\":[{\"$name\":\"ExistsObject\",\"$query\":{\"$exists\":\"#object\"}},{\"$name\":\"MissingObject\",\"$query\":{\"$missing\":\"#object\"}}]}}"));
 
+        assertTrue(selectParser.getRequest().getFacets().get(9).toString().contains(
+            "{\"$name\":\"TotalMax\",\"$sum\":{\"$field\":\"#Max\"}}"));
     }
 
     @Test

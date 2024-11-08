@@ -76,3 +76,41 @@ X-Tenant-Id: {{tenant}}
   },
   "$facets": []
 }
+
+
+### Recherche d'un groupe dont le nom du fichier correspond à 'IGI1300' avec calcul du nombre d'objets et la taille des versions en utilisant des facettes
+GET {{url-access}}/access-external/v1/objects
+Accept: application/json
+Content-Type: application/json
+X-Access-Contract-Id: {{access-contract}}
+X-Tenant-Id: {{tenant}}
+
+{
+  "$roots": [],
+  "$query": [
+    {
+      "$match": {
+        "FileInfo.Filename": "IGI1300"
+      }
+    }
+  ],
+  "$filter": {
+    "$offset": 0,
+    "$limit": 100
+  },
+  "$projection": {},
+  "$facets": [
+    {
+      "$name": "facet_sum_nbobjects",
+      "$sum": {
+        "$field": "#nbobjects"
+      }
+    },{
+      "$name": "qualifiers_qualifier_size",
+      "$sum": {
+        "$field": "#qualifiers.versions.size",
+        "$subobject": "#qualifiers.versions"
+      }
+    }
+  ]
+}

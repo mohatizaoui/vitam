@@ -64,6 +64,11 @@
 					}
 				]
 			}
+		},{
+			"$name": "sum_facet",
+			"$sum": {
+				"$field": "#max"
+			}
 		}
 	]
 }

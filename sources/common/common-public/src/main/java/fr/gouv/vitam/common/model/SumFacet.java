@@ -26,17 +26,57 @@
  */
 package fr.gouv.vitam.common.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import fr.gouv.vitam.common.json.JsonHandler;
+
+import java.util.Objects;
+
 /**
- * Enumeration of the Vitam Facet types. <br/>
+ * Facet bucket
  */
-public enum FacetType {
-    TERMS,
-    DATE_RANGE,
-    FILTERS,
-    SUM;
+public class SumFacet {
+
+    @JsonProperty("sum")
+    private double sum;
 
     /**
-     * default constructor. <br/>
+     * Constructor
      */
-    FacetType() {}
+    public SumFacet() {}
+
+    /**
+     * Constructor
+     *
+     * @param sum sum
+     */
+    public SumFacet(double sum) {
+        super();
+        this.sum = sum;
+    }
+
+    public double getSum() {
+        return sum;
+    }
+
+    public void setSum(double sum) {
+        this.sum = sum;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SumFacet that = (SumFacet) o;
+        return Objects.equals(sum, that.sum);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(sum);
+    }
+
+    @Override
+    public String toString() {
+        return JsonHandler.createObjectNode().put("sum", sum).toString();
+    }
 }

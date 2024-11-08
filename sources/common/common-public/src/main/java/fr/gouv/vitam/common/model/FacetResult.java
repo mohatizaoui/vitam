@@ -26,6 +26,7 @@
  */
 package fr.gouv.vitam.common.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
@@ -33,6 +34,7 @@ import java.util.List;
 /**
  * Facet Result
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class FacetResult {
 
     @JsonProperty("name")
@@ -40,6 +42,9 @@ public class FacetResult {
 
     @JsonProperty("buckets")
     private List<FacetBucket> buckets;
+
+    @JsonProperty("sumFacet")
+    private SumFacet sumFacet;
 
     /**
      * Constructor
@@ -56,6 +61,26 @@ public class FacetResult {
         super();
         this.name = name;
         this.buckets = buckets;
+    }
+
+    /**
+     * Constructor
+     *
+     * @param name name
+     * @param sumFacet sumFacet
+     */
+    public FacetResult(String name, SumFacet sumFacet) {
+        super();
+        this.name = name;
+        this.sumFacet = sumFacet;
+    }
+
+    public static FacetResult createBucketFacetResult(String name, List<FacetBucket> buckets) {
+        return new FacetResult(name, buckets);
+    }
+
+    public static FacetResult createSumFacetResult(String name, SumFacet sumFacet) {
+        return new FacetResult(name, sumFacet);
     }
 
     /**
@@ -84,5 +109,13 @@ public class FacetResult {
      */
     public void setBuckets(List<FacetBucket> buckets) {
         this.buckets = buckets;
+    }
+
+    public SumFacet getSumFacet() {
+        return sumFacet;
+    }
+
+    public void setSumFacet(SumFacet sumFacet) {
+        this.sumFacet = sumFacet;
     }
 }

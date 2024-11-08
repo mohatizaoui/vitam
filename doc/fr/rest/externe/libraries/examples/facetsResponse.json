@@ -1,0 +1,26 @@
+"$facetResults": [
+    {
+      "name": "qualifiers_qualifier_size",
+      "buckets": null,
+      "sumFacet": {
+        "sum": 15
+      }
+    },
+    {
+      "name": "qualifiers_qualifier_DataObjectVersion",
+      "buckets": [
+        {
+          "value": "BinaryMaster_1",
+          "count": 2
+        },
+        {
+          "value": "Dissemination_1",
+          "count": 2
+        },
+        {
+          "value": "PhysicalMaster_1",
+          "count": 2
+        }
+      ]
+    }
+  ]

@@ -53,6 +53,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import static fr.gouv.vitam.common.database.builder.facet.FacetHelper.filters;
+import static fr.gouv.vitam.common.database.builder.facet.FacetHelper.sum;
 import static fr.gouv.vitam.common.database.builder.facet.FacetHelper.terms;
 import static fr.gouv.vitam.common.database.builder.query.QueryHelper.and;
 import static fr.gouv.vitam.common.database.builder.query.QueryHelper.eq;
@@ -124,7 +125,8 @@ public class SelectParserMultipleTest {
             "            {\"$name\": \"AccessRules\",\"$query\": {\"$exists\": \"#management.AccessRule.Rules.Rule\"}}" +
             "        ]" +
             "    }" +
-            "}" +
+            "}," +
+            "{\"$name\":\"sum_facet\", \"$sum\":{\"$field\":\"mavar_sum\"}}" +
             "]}"
         );
 
@@ -161,7 +163,8 @@ public class SelectParserMultipleTest {
             "            {$name: 'AccessRules',$query: {$exists: '#management.AccessRule.Rules.Rule'}}" +
             "        ]\n" +
             "    }" +
-            "}" +
+            "}," +
+            "{$name : 'sum_facet', $sum : {$field : 'mavar_sum'}}" +
             "] }"
         );
 
@@ -319,6 +322,7 @@ public class SelectParserMultipleTest {
             filterQueries.put("StorageRules", exists("#management.StorageRule.Rules.Rule"));
             filterQueries.put("AccessRules", exists("#management.AccessRule.Rules.Rule"));
             select.addFacets(filters("filters_facet", filterQueries));
+            select.addFacets(sum("sum_facet", "mavar_sum"));
             final SelectParserMultiple request2 = new SelectParserMultiple();
             request2.parse(select.getFinalSelect());
             assertNotNull(request2);

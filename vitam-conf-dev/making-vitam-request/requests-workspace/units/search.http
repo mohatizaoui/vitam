@@ -203,3 +203,64 @@ X-Tenant-Id: {{tenant}}
   },
   "$facets": []
 }
+
+
+
+
+### Recherche d'unitées archivistiques dont la description contient 'RATP' avec plusieurs types de facets
+GET {{url-access}}/access-external/v1/units/
+Accept: application/json
+Content-Type: application/json
+X-Access-Contract-Id: {{access-contract}}
+X-Tenant-Id: {{tenant}}
+
+{
+  "$roots": [],
+  "$query": [
+    {
+      "$and": [
+        {
+          "$match": {
+            "Description": "RATP"
+          }
+        }
+      ]
+    }
+  ],
+  "$filter": {
+    "$offset": 0,
+    "$limit": 100
+  },
+  "$projection": {
+    "$fields": {}
+  },
+  "$facets": [
+    {
+      "$name": "facet_desclevel",
+      "$terms": {
+        "$field": "DescriptionLevel",
+        "$size": 5,
+        "$order": "ASC"
+      }
+    },{
+      "$name": "facet_originating_agency",
+      "$terms": {
+        "$field": "#originating_agency",
+        "$size": 10,
+        "$order": "ASC"
+      }
+    },{
+      "$name" : "facet_startdate" ,
+      "$date_range": {
+        "$field" : "StartDate",
+        "$format" : "yyyy" ,
+        "$ranges": [
+          {
+            "$from": "2010",
+            "$to": "2025"
+          }
+        ]
+      }
+    }
+    ]
+}

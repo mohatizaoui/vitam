@@ -34,6 +34,7 @@ import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
 import co.elastic.clients.elasticsearch._types.aggregations.AggregationBuilders;
 import co.elastic.clients.elasticsearch._types.aggregations.DateRangeAggregation;
+import co.elastic.clients.elasticsearch._types.aggregations.SumAggregation;
 import co.elastic.clients.elasticsearch._types.aggregations.TermsAggregation;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Operator;
@@ -1058,6 +1059,9 @@ public class QueryToElasticsearch {
                     case TERMS:
                         termsFacet(aggregations, facet);
                         break;
+                    case SUM:
+                        sumFacet(aggregations, facet);
+                        break;
                     case DATE_RANGE:
                         dateRangeFacet(aggregations, facet);
                         break;
@@ -1139,6 +1143,32 @@ public class QueryToElasticsearch {
         }
 
         aggregations.put(facet.getName(), termsBuilder.build()._toAggregation());
+    }
+
+    /**
+     * Add terms es facet from facet
+     *
+     * @param aggregations es facets
+     * @param facet facet
+     */
+    private static void sumFacet(Map<String, Aggregation> aggregations, Facet facet) {
+        JsonNode sumNode = facet.getCurrentFacet().get(facet.getCurrentTokenFACET().exactToken());
+        String fieldName = sumNode.get(FACETARGS.FIELD.exactToken()).asText();
+        SumAggregation.Builder sumBuilder = AggregationBuilders.sum();
+        sumBuilder.field(fieldName);
+
+        if (sumNode.get(FACETARGS.SUBOBJECT.exactToken()) != null) {
+            aggregations.put(
+                facet.getName(),
+                new Aggregation.Builder()
+                    .nested(n -> n.path(sumNode.get(FACETARGS.SUBOBJECT.exactToken()).asText()))
+                    .aggregations(facet.getName(), sumBuilder.build()._toAggregation())
+                    .build()
+            );
+            return;
+        }
+
+        aggregations.put(facet.getName(), sumBuilder.build()._toAggregation());
     }
 
     /**

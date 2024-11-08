@@ -102,6 +102,7 @@ public abstract class BuilderToken {
         THRESOLD("threshold"),
         /**
          * Action part (in case of update)
+         *
          * @deprecated : DSL with $rules is no more supported
          */
         RULES("rules"),
@@ -421,7 +422,8 @@ public abstract class BuilderToken {
     public enum FACET {
         TERMS("terms"),
         DATE_RANGE("date_range"),
-        FILTERS("filters");
+        FILTERS("filters"),
+        SUM("sum");
 
         private final String exactToken;
 

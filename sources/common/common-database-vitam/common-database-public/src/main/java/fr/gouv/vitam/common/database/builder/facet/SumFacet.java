@@ -24,19 +24,52 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL-C license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.common.model;
+package fr.gouv.vitam.common.database.builder.facet;
+
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import fr.gouv.vitam.common.database.builder.request.configuration.BuilderToken.FACET;
+import fr.gouv.vitam.common.database.builder.request.configuration.BuilderToken.FACETARGS;
+import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
+import fr.gouv.vitam.common.json.JsonHandler;
 
 /**
- * Enumeration of the Vitam Facet types. <br/>
+ * Sum facet
  */
-public enum FacetType {
-    TERMS,
-    DATE_RANGE,
-    FILTERS,
-    SUM;
+public class SumFacet extends Facet {
 
     /**
-     * default constructor. <br/>
+     * Sum Facet constructor
+     *
+     * @param name name of the facet
+     * @param field field of the facet data
+     * @param nestedPath nested path of field of the facet data
+     * @throws InvalidCreateOperationException not valid
      */
-    FacetType() {}
+    public SumFacet(String name, String field, String nestedPath) throws InvalidCreateOperationException {
+        super(name);
+        populateFacet(name, field, nestedPath);
+    }
+
+    /**
+     * SUM Facet constructor
+     *
+     * @param name name of the facet
+     * @param field field of the facet data
+     * @throws InvalidCreateOperationException not valid
+     */
+    public SumFacet(String name, String field) throws InvalidCreateOperationException {
+        super(name);
+        populateFacet(name, field, null);
+    }
+
+    private void populateFacet(String name, String field, String nestedPath) throws InvalidCreateOperationException {
+        setName(name);
+        currentTokenFACET = FACET.SUM;
+        ObjectNode facetNode = JsonHandler.createObjectNode();
+        facetNode.put(FACETARGS.FIELD.exactToken(), field);
+        if (nestedPath != null) {
+            facetNode.put(FACETARGS.SUBOBJECT.exactToken(), nestedPath);
+        }
+        currentFacet = facetNode;
+    }
 }

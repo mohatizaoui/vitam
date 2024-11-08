@@ -104,6 +104,38 @@ public class FacetParserHelper extends FacetHelper {
     }
 
     /**
+     * Transform facet jsonNode in sum Facet object
+     *
+     * @param facet facet node
+     * @param adapter adapter
+     * @return sum Facet object
+     * @throws InvalidCreateOperationException error while creating sum Facet
+     * @throws InvalidParseOperationException error in adapater
+     */
+    public static final Facet sum(final JsonNode facet, VarNameAdapter adapter)
+        throws InvalidCreateOperationException, InvalidParseOperationException {
+        final String name = facet.get(FACETARGS.NAME.exactToken()).asText();
+        JsonNode sumNode = facet.get(FACET.SUM.exactToken());
+
+        String translatedNestedPath = null;
+        if (sumNode.get(FACETARGS.SUBOBJECT.exactToken()) != null) {
+            String nestedPath = sumNode.get(FACETARGS.SUBOBJECT.exactToken()).asText();
+            translatedNestedPath = adapter.getVariableName(nestedPath);
+            if (translatedNestedPath == null) {
+                translatedNestedPath = nestedPath;
+            }
+        }
+
+        String fieldName = sumNode.get(FACETARGS.FIELD.exactToken()).asText();
+        String translatedFieldName = adapter.getVariableName(fieldName);
+        if (translatedFieldName == null) {
+            translatedFieldName = fieldName;
+        }
+
+        return FacetHelper.sum(name, translatedFieldName, translatedNestedPath);
+    }
+
+    /**
      * Transform facet jsonNode into a dateRange Facet object
      *
      * @param facet
