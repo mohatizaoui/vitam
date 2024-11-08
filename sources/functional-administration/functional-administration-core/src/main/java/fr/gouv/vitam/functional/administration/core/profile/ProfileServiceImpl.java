@@ -68,6 +68,7 @@ import fr.gouv.vitam.common.parameter.ParameterHelper;
 import fr.gouv.vitam.common.security.SanityChecker;
 import fr.gouv.vitam.common.stream.VitamAsyncInputStreamResponse;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
+import fr.gouv.vitam.common.xml.SecureXMLFactoryUtils;
 import fr.gouv.vitam.functional.administration.common.Profile;
 import fr.gouv.vitam.functional.administration.common.VitamErrorUtils;
 import fr.gouv.vitam.functional.administration.common.counter.SequenceType;
@@ -921,15 +922,7 @@ public class ProfileServiceImpl implements ProfileService {
 
     ProfileSedaVersion extractSedaVersion(final InputSource inputSource)
         throws SAXException, ParserConfigurationException, IOException {
-        final SAXParserFactory factory = SAXParserFactory.newInstance();
-
-        // Désactiver les DTDs
-        factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-
-        // Désactiver les entités externes générales et les DTD externes
-        factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
-        factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-        factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        final SAXParserFactory factory = SecureXMLFactoryUtils.createSecureSAXParserFactory();
 
         // Créer un SAXParser sécurisé
         final ProfileSax2Handler handler = new ProfileSax2Handler();
