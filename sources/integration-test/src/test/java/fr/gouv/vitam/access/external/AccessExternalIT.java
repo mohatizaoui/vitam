@@ -46,22 +46,27 @@ import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.VitamRuleRunner;
 import fr.gouv.vitam.common.VitamServerRunner;
 import fr.gouv.vitam.common.client.VitamContext;
+import fr.gouv.vitam.common.database.builder.facet.RangeFacetValue;
 import fr.gouv.vitam.common.database.builder.query.QueryHelper;
 import fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper;
 import fr.gouv.vitam.common.database.builder.request.configuration.BuilderToken;
 import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
 import fr.gouv.vitam.common.database.builder.request.multiple.SelectMultiQuery;
+import fr.gouv.vitam.common.database.facet.model.FacetOrder;
 import fr.gouv.vitam.common.elasticsearch.ElasticsearchRule;
 import fr.gouv.vitam.common.error.VitamError;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.exception.VitamClientException;
 import fr.gouv.vitam.common.json.JsonHandler;
+import fr.gouv.vitam.common.model.FacetBucket;
+import fr.gouv.vitam.common.model.FacetResult;
 import fr.gouv.vitam.common.model.JsonLineIterator;
 import fr.gouv.vitam.common.model.MetadataType;
 import fr.gouv.vitam.common.model.ProcessAction;
 import fr.gouv.vitam.common.model.ProcessState;
 import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
+import fr.gouv.vitam.common.model.SumFacet;
 import fr.gouv.vitam.common.model.administration.CombinedSchemaModel;
 import fr.gouv.vitam.common.model.administration.schema.SchemaCardinality;
 import fr.gouv.vitam.common.model.administration.schema.SchemaOrigin;
@@ -110,6 +115,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static fr.gouv.vitam.common.GlobalDataRest.X_REQUEST_ID;
+import static fr.gouv.vitam.common.database.builder.facet.FacetHelper.dateRange;
+import static fr.gouv.vitam.common.database.builder.facet.FacetHelper.sum;
+import static fr.gouv.vitam.common.database.builder.facet.FacetHelper.terms;
 import static fr.gouv.vitam.common.model.objectgroup.FileInfoModel.FILENAME;
 import static fr.gouv.vitam.common.model.objectgroup.FileInfoModel.LAST_MODIFIED;
 import static fr.gouv.vitam.common.model.objectgroup.ObjectGroupResponse.ID;
@@ -139,6 +147,8 @@ public class AccessExternalIT extends VitamRuleRunner {
     private static final String AUP_SCHEMA_FILE = "integration-ingest-internal/archive-unit-profile_schema.json";
     private static final String INTEGRATION_PROCESSING_FULL_SEDA = "integration-processing/OK_SIP_FULL_SEDA2.3.zip";
     private static final String EXTERNAL_UNIT_SCHEMA_JSON = "schema/external-unit-schema.json";
+
+    private static String ingestOperationId;
 
     @ClassRule
     public static VitamServerRunner runner = new VitamServerRunner(
@@ -190,21 +200,23 @@ public class AccessExternalIT extends VitamRuleRunner {
 
             assertThat(response.isOk()).as(JsonHandler.unprettyPrint(response)).isTrue();
 
-            final String operationId = response.getHeaderString(GlobalDataRest.X_REQUEST_ID);
+            ingestOperationId = response.getHeaderString(GlobalDataRest.X_REQUEST_ID);
 
-            assertThat(operationId).as(format("%s not found for request", X_REQUEST_ID)).isNotNull();
+            assertThat(ingestOperationId).as(format("%s not found for request", X_REQUEST_ID)).isNotNull();
 
             final VitamPoolingClient vitamPoolingClient = new VitamPoolingClient(adminExternalClient);
             boolean process_timeout = vitamPoolingClient.wait(
                 TENANT_ID,
-                operationId,
+                ingestOperationId,
                 ProcessState.COMPLETED,
                 1800,
                 1_000L,
                 TimeUnit.MILLISECONDS
             );
             if (!process_timeout) {
-                Assertions.fail("Sip processing not finished : operation (" + operationId + "). Timeout exceeded.");
+                Assertions.fail(
+                    "Sip processing not finished : operation (" + ingestOperationId + "). Timeout exceeded."
+                );
             }
         }
     }
@@ -1055,5 +1067,135 @@ public class AccessExternalIT extends VitamRuleRunner {
                 "ARCHIVE_UNIT_PROFILE"
             );
         }
+    }
+
+    @RunWithCustomExecutor
+    @Test
+    public void selectUnitsByDSLWithFacets() throws Exception {
+        // given
+        VitamContext vitamContext = new VitamContext(TENANT_ID)
+            .setApplicationSessionId(APPLICATION_SESSION_ID)
+            .setAccessContract(ACCESS_CONTRACT);
+
+        SelectMultiQuery query = new SelectMultiQuery();
+        query.addQueries(QueryHelper.eq(VitamFieldsHelper.initialOperation(), ingestOperationId));
+
+        query.addFacets(terms("facet_originatingAgency", "#originating_agency", 5, FacetOrder.ASC));
+        query.addFacets(
+            dateRange("facet_startdate", "StartDate", "yyyy", List.of(new RangeFacetValue("2010", "2025")))
+        );
+        RequestResponse<JsonNode> responseUnits = accessExternalClient.selectUnits(
+            vitamContext,
+            query.getFinalSelect()
+        );
+        // THEN
+        assertThat(responseUnits.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        RequestResponseOK<JsonNode> requestResponseOK = (RequestResponseOK<JsonNode>) responseUnits;
+
+        List<FacetResult> facetResults = requestResponseOK.getFacetResults();
+        assertEquals(2, facetResults.size());
+
+        FacetResult facetStartDate = getFacetResultByName(facetResults, "facet_startdate");
+        FacetResult facetOriginatingAgency = getFacetResultByName(facetResults, "facet_originatingAgency");
+
+        validateFacetResultCount(facetOriginatingAgency, "FRAN_NP_009913", 5L);
+        validateFacetResultCount(facetStartDate, "2010-2025", 3L);
+    }
+
+    @RunWithCustomExecutor
+    @Test
+    public void selectObjectsByDSLWithFacets() throws Exception {
+        // given
+        VitamContext vitamContext = new VitamContext(TENANT_ID)
+            .setApplicationSessionId(APPLICATION_SESSION_ID)
+            .setAccessContract(ACCESS_CONTRACT);
+
+        SelectMultiQuery query = new SelectMultiQuery();
+        query.addQueries(QueryHelper.eq(VitamFieldsHelper.initialOperation(), ingestOperationId));
+
+        query.addFacets(sum("facet_nbobjects_total", "#nbobjects"));
+
+        RequestResponse<JsonNode> responseObjects = accessExternalClient.selectObjects(
+            vitamContext,
+            query.getFinalSelect()
+        );
+
+        // THEN
+        assertThat(responseObjects.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        RequestResponseOK<JsonNode> requestResponseOK = (RequestResponseOK<JsonNode>) responseObjects;
+
+        List<FacetResult> facetResults = requestResponseOK.getFacetResults();
+        assertEquals(1, facetResults.size());
+
+        FacetResult facetNbObjectsTotal = getFacetResultByName(facetResults, "facet_nbobjects_total");
+
+        validateFacetResultSum(facetNbObjectsTotal, 5d);
+    }
+
+    @RunWithCustomExecutor
+    @Test
+    public void selectObjectsByDSLWithNestedFacets() throws Exception {
+        // given
+        VitamContext vitamContext = new VitamContext(TENANT_ID)
+            .setApplicationSessionId(APPLICATION_SESSION_ID)
+            .setAccessContract(ACCESS_CONTRACT);
+
+        SelectMultiQuery query = new SelectMultiQuery();
+        query.addQueries(QueryHelper.eq(VitamFieldsHelper.initialOperation(), ingestOperationId));
+
+        query.addFacets(
+            terms(
+                "nested_facet_terms",
+                "#qualifiers.versions.DataObjectVersion",
+                "#qualifiers.versions",
+                5,
+                FacetOrder.ASC
+            )
+        );
+        query.addFacets(sum("nested_facet_sum", "#qualifiers.versions.Size", "#qualifiers.versions"));
+
+        RequestResponse<JsonNode> responseObjects = accessExternalClient.selectObjects(
+            vitamContext,
+            query.getFinalSelect()
+        );
+
+        // THEN
+        assertThat(responseObjects.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        RequestResponseOK<JsonNode> requestResponseOK = (RequestResponseOK<JsonNode>) responseObjects;
+
+        List<FacetResult> facetResults = requestResponseOK.getFacetResults();
+        assertEquals(2, facetResults.size());
+
+        FacetResult nestedFacetDataObjectVersion = getFacetResultByName(facetResults, "nested_facet_terms");
+        validateFacetResultCount(nestedFacetDataObjectVersion, "BinaryMaster_1", 2L);
+
+        FacetResult nestedFacetSize = getFacetResultByName(facetResults, "nested_facet_sum");
+        validateFacetResultSum(nestedFacetSize, 156647d);
+    }
+
+    private FacetResult getFacetResultByName(List<FacetResult> facetResults, String name) {
+        return facetResults
+            .stream()
+            .filter(facetResult -> name.equals(facetResult.getName()))
+            .findAny()
+            .orElseThrow(() -> new AssertionError("Facet result with name " + name + " not found"));
+    }
+
+    private void validateFacetResultCount(FacetResult facetResult, String expectedValue, long expectedCount) {
+        assertNotNull(facetResult);
+        FacetBucket firstBucket = facetResult.getBuckets().get(0);
+        assertNotNull(firstBucket);
+        assertEquals(expectedValue, firstBucket.getValue());
+        assertEquals(expectedCount, firstBucket.getCount());
+    }
+
+    private void validateFacetResultSum(FacetResult facetResult, double expectedSum) {
+        assertNotNull(facetResult);
+        SumFacet firstBucket = facetResult.getSumFacet();
+        assertNotNull(firstBucket);
+        assertEquals(expectedSum, firstBucket.getSum(), 0);
     }
 }

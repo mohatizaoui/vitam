@@ -36,6 +36,7 @@ import fr.gouv.vitam.common.LocalDateUtil;
 import fr.gouv.vitam.common.database.builder.facet.DateRangeFacet;
 import fr.gouv.vitam.common.database.builder.facet.FiltersFacet;
 import fr.gouv.vitam.common.database.builder.facet.RangeFacetValue;
+import fr.gouv.vitam.common.database.builder.facet.SumFacet;
 import fr.gouv.vitam.common.database.builder.facet.TermsFacet;
 import fr.gouv.vitam.common.database.builder.query.BooleanQuery;
 import fr.gouv.vitam.common.database.builder.query.CompareQuery;
@@ -59,7 +60,6 @@ import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.common.model.RequestFacetItem;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -589,7 +589,10 @@ public class DslQueryHelper {
                                 select.addFacets(new TermsFacet(facetItem.getName(), facetItem.getField(),
                                     facetItem.getSubobject(), facetItem.getSize(), facetItem.getOrder()));
                                 break;
-
+                            case SUM:
+                                select.addFacets(new SumFacet(facetItem.getName(), facetItem.getField(),
+                                    facetItem.getSubobject()));
+                                break;
                             case DATE_RANGE:
                                 List<RangeFacetValue> ranges = facetItem.getRanges().stream()
                                     .map(range -> new RangeFacetValue(range.getDateMin(), range.getDateMax()))

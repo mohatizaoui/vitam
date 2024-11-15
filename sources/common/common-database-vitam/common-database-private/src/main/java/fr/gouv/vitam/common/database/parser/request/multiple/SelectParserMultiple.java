@@ -162,6 +162,8 @@ public class SelectParserMultiple extends RequestParserMultiple {
                 return FacetParserHelper.dateRange(facet, adapter);
             case FILTERS:
                 return FacetParserHelper.filters(facet, adapter);
+            case SUM:
+                return FacetParserHelper.sum(facet, adapter);
             default:
                 throw new InvalidParseOperationException(
                     "Invalid parse: command not a facet " + facetCommand.exactToken()

@@ -77,6 +77,31 @@ public class FacetHelper {
     }
 
     /**
+     * Create a sum facet
+     *
+     * @param name name of the facet
+     * @param field field of facet data
+     * @param nestdPath nested path of field of facet data
+     * @return a Facet
+     * @throws InvalidCreateOperationException when creating facet errors
+     */
+    public static final Facet sum(String name, String field, String nestdPath) throws InvalidCreateOperationException {
+        return new SumFacet(name, field, nestdPath);
+    }
+
+    /**
+     * Create a SUM facet
+     *
+     * @param name name of the facet
+     * @param field field of facet data
+     * @return a SUM Facet
+     * @throws InvalidCreateOperationException when creating facet errors
+     */
+    public static final Facet sum(String name, String field) throws InvalidCreateOperationException {
+        return new SumFacet(name, field);
+    }
+
+    /**
      * Create a date range facet
      *
      * @param name name of the facet

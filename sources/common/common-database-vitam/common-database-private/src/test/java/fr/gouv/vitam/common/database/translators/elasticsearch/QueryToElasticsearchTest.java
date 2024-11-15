@@ -94,7 +94,8 @@ public class QueryToElasticsearchTest {
         "            {$name: 'AccessRules',$query: {$exists: '#management.AccessRule.Rules.Rule'}}" +
         "        ]" +
         "    }" +
-        "}" +
+        "}," +
+        "{$name : 'mafacet_sum', $sum : {$field : 'mavar_sum'} }" +
         "] }";
 
     private static JsonNode example;
@@ -174,7 +175,7 @@ public class QueryToElasticsearchTest {
         final List<SortOptions> sortBuilders = QueryToElasticsearch.getSorts(parser, true, parserTokens);
         final Map<String, Aggregation> facetBuilders = QueryToElasticsearch.getFacets(parser, parserTokens);
         assertEquals(4, sortBuilders.size());
-        assertEquals(2, facetBuilders.size());
+        assertEquals(3, facetBuilders.size());
         final List<Query> list = select.getQueries();
         for (int i = 0; i < list.size(); i++) {
             System.out.println(i + " = " + list.get(i).toString());
@@ -220,6 +221,7 @@ public class QueryToElasticsearchTest {
                 "        ]" +
                 "    }" +
                 "}" +
+                "{$name : 'mafacet_sum', $sum : {$field : 'mavar_sum'} }," +
                 "] }"
             )
         );

@@ -34,6 +34,7 @@ import co.elastic.clients.elasticsearch._types.aggregations.RangeBucket;
 import co.elastic.clients.elasticsearch._types.aggregations.StringTermsBucket;
 import fr.gouv.vitam.common.model.FacetBucket;
 import fr.gouv.vitam.common.model.FacetResult;
+import fr.gouv.vitam.common.model.SumFacet;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -52,24 +53,29 @@ public class ElasticsearchFacetResultHelper {
      * @return FacetResult
      */
     public static FacetResult transformFromEsAggregation(String name, Aggregate aggregation) {
-        FacetResult facetResult = new FacetResult();
-        facetResult.setName(name);
+        FacetResult facetResult;
         Aggregate.Kind aggType = aggregation._kind();
         switch (aggType) {
             case DateRange:
-                facetResult.setBuckets(extractBucketDateRangeAggregation(aggregation));
+                facetResult = FacetResult.createBucketFacetResult(name, extractBucketDateRangeAggregation(aggregation));
                 break;
             case Sterms:
-                facetResult.setBuckets(extractBucketStringTermsAggregation(aggregation));
+                facetResult = FacetResult.createBucketFacetResult(
+                    name,
+                    extractBucketStringTermsAggregation(aggregation)
+                );
+                break;
+            case Sum:
+                facetResult = FacetResult.createSumFacetResult(name, extractBucketSumAggregation(aggregation));
                 break;
             case Lterms:
-                facetResult.setBuckets(extractBucketLongTermsAggregation(aggregation));
+                facetResult = FacetResult.createBucketFacetResult(name, extractBucketLongTermsAggregation(aggregation));
                 break;
             case Filters:
-                facetResult.setBuckets(extractBucketFiltersAggregation(aggregation));
+                facetResult = FacetResult.createBucketFacetResult(name, extractBucketFiltersAggregation(aggregation));
                 break;
             case Nested:
-                facetResult.setBuckets(extractBucketNestedAggregation(aggregation));
+                facetResult = extractFacetResultNestedAggregation(aggregation);
                 break;
             default:
                 throw new IllegalStateException("Unexpected aggregate type " + aggType);
@@ -104,6 +110,17 @@ public class ElasticsearchFacetResultHelper {
     }
 
     /**
+     * Transform es Sum aggregation to SumFacet
+     *
+     * @param aggregation es aggregation
+     * @return SumFacet
+     */
+    private static SumFacet extractBucketSumAggregation(Aggregate aggregation) {
+        double sumValue = aggregation.sum().value();
+        return new SumFacet(sumValue);
+    }
+
+    /**
      * Transform es Long Terms aggregation buckets to FacetBucket
      *
      * @param aggregation es aggregation
@@ -133,6 +150,22 @@ public class ElasticsearchFacetResultHelper {
         } else {
             String key = aggregations.keySet().iterator().next();
             return transformFromEsAggregation(key, aggregations.get(key)).getBuckets();
+        }
+    }
+
+    /**
+     * Transform es terms aggregation buckets to FacetBucket
+     *
+     * @param aggregation es aggregation
+     * @return list of FacetBucket
+     */
+    private static FacetResult extractFacetResultNestedAggregation(Aggregate aggregation) {
+        Map<String, Aggregate> aggregations = aggregation.nested().aggregations();
+        if (aggregations.isEmpty()) {
+            return null;
+        } else {
+            String key = aggregations.keySet().iterator().next();
+            return transformFromEsAggregation(key, aggregations.get(key));
         }
     }
 

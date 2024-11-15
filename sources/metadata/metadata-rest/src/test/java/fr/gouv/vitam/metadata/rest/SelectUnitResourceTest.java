@@ -183,6 +183,9 @@ public class SelectUnitResourceTest {
         "{\"$query\": [{\"$exists\" : \"#id\"}], \"$projection\": {}, \"$filter\": {}, \"$facets\": [{\"$name\":\"mgt_facet\",\"$terms\":{\"$field\":\"#management.StorageRule.Rules.Rule\", \"$size\": 5, \"$order\": \"ASC\"}}]}";
     private static final String SEARCH_QUERY_WITH_FACET_DESC_LEVEL =
         "{\"$query\": [{\"$exists\" : \"#id\"}], \"$projection\": {}, \"$filter\": {}, \"$facets\": [{\"$name\":\"desc_level_facet\",\"$terms\":{\"$field\":\"DescriptionLevel\", \"$size\": 5, \"$order\": \"ASC\"}}]}";
+
+    private static final String SEARCH_QUERY_WITH_FACET_SUM_MAX =
+        "{\"$query\": [{\"$exists\" : \"#id\"}], \"$projection\": {}, \"$filter\": {}, \"$facets\": [{\"$name\":\"sum_max_facet\",\"$sum\":{\"$field\":\"#max\"}}]}";
     private static final String SEARCH_QUERY_WITH_FACET_TERMS_INVALID_SIZE =
         "{\"$query\": [{\"$exists\" : \"#id\"}], \"$projection\": {}, \"$filter\": {}, \"$facets\": [{\"$name\":\"desc_level_facet\",\"$terms\":{\"$field\":\"DescriptionLevel\", \"$order\": \"ASC\"}}]}";
     private static final String SEARCH_QUERY_WITH_FACET_TERMS_INVALID_ORDER =
@@ -505,6 +508,23 @@ public class SelectUnitResourceTest {
         assertThat(responseOK3.getFacetResults().get(0).getBuckets().get(0).getCount()).isEqualTo(1);
         assertThat(responseOK3.getFacetResults().get(0).getBuckets().get(1).getValue()).isEqualTo("StorageRules");
         assertThat(responseOK3.getFacetResults().get(0).getBuckets().get(1).getCount()).isEqualTo(1);
+
+        stream = given()
+            .contentType(ContentType.JSON)
+            .header(GlobalDataRest.X_TENANT_ID, TENANT_ID)
+            .body(JsonHandler.getFromString(SEARCH_QUERY_WITH_FACET_SUM_MAX))
+            .when()
+            .get("/units")
+            .then()
+            .statusCode(Status.OK.getStatusCode())
+            .extract()
+            .asInputStream();
+
+        RequestResponseOK<JsonNode> responseSumOK = JsonHandler.getFromInputStream(stream, RequestResponseOK.class);
+        assertThat(responseSumOK.getFacetResults().size()).isEqualTo(1);
+        assertThat(responseSumOK.getFacetResults().get(0).getName()).isEqualTo("sum_max_facet");
+        assertThat(responseSumOK.getFacetResults().get(0).getSumFacet()).isNotNull();
+        assertThat(responseSumOK.getFacetResults().get(0).getSumFacet().getSum()).isEqualTo(2d);
 
         stream = given()
             .contentType(ContentType.JSON)

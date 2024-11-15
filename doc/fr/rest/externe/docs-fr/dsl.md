@@ -195,6 +195,12 @@ Il s'agit d'une recherche de Units contenant des requêtes d'aggrégation en plu
 - **$xxxx** : une commande de facet (cf la liste)
 Les facets peuvent être jouées sur une recherche mono-requête ou multi-requêtes.
 
+Vitam supporte les types de facettes suivants :
+1- "$terms" : Calcule des facettes ou des catégories basées sur les valeurs distinctes d'un champ spécifique et le nombre associé.
+2- "$filters" : pour obtenir des résultats d'agrégations par filtres sur les résultats. 
+3- "$range" : pour obtenir des agrégations par plages de dates.
+4- "$sum" : pour obtenir des totaux sur des champs.
+
 **Exemples :**
 
 1/ Rechercher les unités ayant "Alpha" uniquement sur les enfants des unités de $roots ayant une profondeur relative de 1 à 5 et le nombre d'unité archivistiques par DescriptionLevel pour les 5 valeurs de DescriptionLevel les plus utilisées.
@@ -253,6 +259,32 @@ Les facets peuvent être jouées sur une recherche mono-requête ou multi-requê
         "$field": "DescriptionLevel",
         "$size": 5,
         "$order": "ASC"
+      }
+    }
+  ]
+}
+```
+
+
+
+3/ Rechercher les unités ayant le texte "Alpha" dans le titre et le total sur un champ donné "champSize".
+
+```json
+{
+  "$roots": [],
+  "$query": [
+    {
+      "$match": { "Title": "Alpha" },
+      "$depth": 5
+    }
+  ],
+  "$filter": {},
+  "$projection": {},
+  "$facets": [
+    {
+      "$name": "total_champSize",
+      "$sum": {
+        "$field": "champSize"
       }
     }
   ]
@@ -767,11 +799,12 @@ La valeur **1** indique que le champ est activé (renvoyé au client). Toute aut
 
 Les commandes de la Facet peuvent être :
 
-| Opérateur            | Arguments                                  | Commentaire                                                                   |
-|----------------------|--------------------------------------------|-------------------------------------------------------------------------------|
-| $terms               | nom du champ, nombre et ordre des résulats | Répartition selon des valeurs textuelles du champ                             |
-| $date_range          | nom de champ,  format, ranges              | Répartition selon les dates selon un intervalle défini "ranges"       |
-| $filters             | requêtes de filtre                         | Répartition selon les requêtes définies (même format qu'une $query)        |
+| Opérateur   | Arguments                                  | Commentaire                                                         |
+|-------------|--------------------------------------------|---------------------------------------------------------------------|
+| $terms      | nom du champ, nombre et ordre des résulats | Répartition selon des valeurs textuelles du champ                   |
+| $date_range | nom de champ,  format, ranges              | Répartition selon les dates selon un intervalle défini "ranges"     |
+| $filters    | requêtes de filtre                         | Répartition selon les requêtes définies (même format qu'une $query) |
+| $sum        | nom du champ                               | Somme des valeurs du champ                                          |
 
 ### Opérateur $terms : répartition selon des valeurs textuelles du champ
 
@@ -839,6 +872,47 @@ Recherche la répartition des résultat pour la présence d'un champ titre en fr
       ]
     }
   }
+```
+
+### Opérateur $sum : Calcul de la somme des valeurs du champ
+
+**Format :**
+- `{ "$sum" : { "$field" : "field_name" } }` : où *field_name* (obligatoire) est le nom du champ.
+
+
+**Exemple :**
+Calculer la somme des valeurs du champ *Ingested*:
+
+```json
+{
+  "$facets": [
+    {
+      "$name": "Sum_Ingested",
+      "$sum": {
+        "$field": "Ingested"
+      }
+    }
+  ]
+}
+```
+
+
+
+**Exemple de facette sur des champs Nested :**
+Calculer la somme du champ *Size* de l'objet nested *#qualifiers.versions*:
+
+```json
+
+ "$facets": [
+   {
+     "$name": "facet_total_Version",
+     "$sum": {
+       "$field": "#qualifiers.versions.Size",
+       "$subobject": "#qualifiers.versions"
+     }
+   }
+  ]
+
 ```
 
 ### Notes sur les opérateurs

@@ -4,7 +4,7 @@
     "dataObjectVersions": [
       "BinaryMaster"
     ]
-  },
+},
   "exportWithLogBookLFC": true,
   "exportWithTree": false,
   "useOriginalFilenames": false,
@@ -17,19 +17,19 @@
     "authorizationRequestReplyIdentifier": "AuthorizationRequestReplyIdentifier",
     "archivalAgencyIdentifier": "ArchivalAgencyIdentifier",
     "requesterIdentifier": "RequesterIdentifier"
-  },
+},
   "dslRequest": {
     "$roots": [
       "id0"
     ],
     "$query": [
-      {
+{
         "$match": {
           "title": "titre"
-        },
+},
         "$depth": 4
-      }
-    ],
+}
+],
     "$filter": {
       "$limit": 1000,
       "$offset": 10
@@ -43,7 +43,7 @@
         "#parents": 1,
         "#object": 1
       }
-    }
+}
   },
   "maxSizeThreshold": 1024,
   "sedaVersion": "2.2"

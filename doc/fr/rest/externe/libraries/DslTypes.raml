@@ -74,7 +74,16 @@ types:
                 $to:
                   type: string
                   example: "2020"
-
+      $sum:
+        type: object
+        required: false
+        properties:
+          $field:
+            type: string
+            example: "#qualifiers.versions.Size"
+          $subobject:
+            type: string
+            example: "#qualifiers.versions"
 
 
   Filter:
@@ -386,6 +395,7 @@ types:
         required: false
         description: Contient la resultat facet
         type: object[]
+        example: !include examples/facetsResponse.json
       $context:
         required: false
         description: toto
