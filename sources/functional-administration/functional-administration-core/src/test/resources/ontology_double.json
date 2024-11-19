@@ -5,6 +5,10 @@
     "Origin": "INTERNAL",
     "Type": "DOUBLE",
     "TypeDetail": "DOUBLE",
+    "Collections": [
+      "Unit",
+      "ObjectGroup"
+    ],
     "Description": "Extension au SEDA. Elément de type double"
   }
 ]

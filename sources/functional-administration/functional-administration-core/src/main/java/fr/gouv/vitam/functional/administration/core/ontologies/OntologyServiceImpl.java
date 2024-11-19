@@ -93,6 +93,7 @@ import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.shiro.util.CollectionUtils;
 
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
@@ -703,6 +704,18 @@ public class OntologyServiceImpl implements OntologyService {
                             "The field " +
                             Ontology.STRING_SIZE +
                             " is mandatory for internal ontology with STRING TypeDetail",
+                            ontology
+                        ),
+                        errors
+                    );
+                }
+                if (CollectionUtils.isEmpty(ontology.getCollections())) {
+                    manager.addError(
+                        ontology.getIdentifier(),
+                        new ErrorReportOntologies(
+                            OntologyErrorCode.STP_IMPORT_ONTOLOGIES_MISSING_COLLECTION,
+                            Ontology.COLLECTIONS,
+                            "The field " + Ontology.COLLECTIONS + " is mandatory",
                             ontology
                         ),
                         errors
