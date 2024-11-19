@@ -13,7 +13,34 @@ X-Access-Contract-Id: {{access-contract}}
 {
   "$query": {},
   "$projection": {},
-  "$filter":{}
+  "$filter":{},
+  "$facets": [
+    {
+      "$name": "facet_objectSizes",
+      "$sum": {
+        "$field": "ObjectSize.ingested"
+      }
+    },
+    {
+      "$name": "facet_totalUnits",
+      "$sum": {
+        "$field": "TotalUnits.ingested"
+      }
+    },
+    {
+      "$name": "facet_totalObjects",
+      "$sum": {
+        "$field": "TotalObjects.ingested"
+      }
+    },
+    {
+      "$name": "facet_totalObjectsGroups",
+      "$sum": {
+        "$field": "TotalObjectGroups.ingested"
+      }
+    }
+
+  ]
 }
 
 

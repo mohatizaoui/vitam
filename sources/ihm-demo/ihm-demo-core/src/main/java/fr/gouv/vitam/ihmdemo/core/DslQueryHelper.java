@@ -250,6 +250,63 @@ public class DslQueryHelper {
                 } else {
                     select.addOrderByDescFilter(realSortField);
                 }
+            }
+            // add facets
+            else if (searchKeys.startsWith(FACETS_PREFIX)) {
+                List<FacetItem> facetSettings = (List<FacetItem>) entry.getValue();
+                for (int i = 0; i < facetSettings.size(); i++) {
+                    FacetItem facetItem = JsonHandler
+                        .getFromString(JsonHandler.writeAsString(facetSettings.get(i)), FacetItem.class);
+
+                    if (facetItem.getFacetType() != null) {
+                        switch (facetItem.getFacetType()) {
+                            case TERMS:
+                                select.addFacets(new TermsFacet(facetItem.getName(), facetItem.getField(),
+                                    facetItem.getSubobject(), facetItem.getSize(), facetItem.getOrder()));
+                                break;
+                            case SUM:
+                                select.addFacets(new SumFacet(facetItem.getName(), facetItem.getField(),
+                                    facetItem.getSubobject()));
+                                break;
+                            case DATE_RANGE:
+                                List<RangeFacetValue> ranges = facetItem.getRanges().stream()
+                                    .map(range -> new RangeFacetValue(range.getDateMin(), range.getDateMax()))
+                                    .collect(Collectors.toList());
+
+                                select.addFacets(
+                                    new DateRangeFacet(facetItem.getName(), facetItem.getField(),
+                                        facetItem.getSubobject(), facetItem.getFormat(), ranges));
+                                break;
+
+                            case FILTERS:
+                                Map<String, Query> filters = new HashMap<>();
+                                facetItem.getFilters().forEach(filter -> {
+                                    if (filter.getQuery().get(EXISTS) != null) {
+                                        try {
+                                            filters.put(filter.getName(),
+                                                QueryHelper.exists(filter.getQuery().get(EXISTS).asText()));
+                                        } catch (InvalidCreateOperationException e) {
+                                            LOGGER.error(e);
+                                        }
+                                    } else if (filter.getQuery().get(MISSING) != null) {
+                                        try {
+                                            filters.put(filter.getName(),
+                                                QueryHelper.missing(filter.getQuery().get(MISSING).asText()));
+                                        } catch (InvalidCreateOperationException e) {
+                                            LOGGER.error(e);
+                                        }
+                                    }
+
+                                });
+                                select.addFacets(new FiltersFacet(facetItem.getName(), filters));
+                                break;
+
+                            default:
+                                break;
+                        }
+                    }
+                }
+                continue;
             } else {
                 final String searchValue = (String) entry.getValue();
                 switch (searchKeys) {

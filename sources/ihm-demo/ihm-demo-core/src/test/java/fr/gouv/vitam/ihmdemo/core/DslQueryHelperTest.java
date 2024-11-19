@@ -71,12 +71,20 @@ public class DslQueryHelperTest {
             "{\"$exists\":\"PUID\"},{\"$or\":[{\"$eq\":{\"evTypeProc\":\"INGEST\"}},{\"$eq\":{\"evTypeProc\":\"INGEST_TEST\"}}]}," +
             "{\"$eq\":{\"title\":\"Archive2\"}}]}\n" +
             "\tFilter: {\"$limit\":10000,\"$orderby\":{\"evDateTime\":-1}}\n" +
-            "\tProjection: {}";
+            "\tProjection: {}\n" +
+            "\tFacets: []";
 
     private static final String result2 =
         "QUERY: Requests: " + "{\"$and\":[{\"$exists\":\"evTypeProc\"},{\"$exists\":\"evIdProc\"}]}\n" +
             "\tFilter: {\"$limit\":10000}\n" +
-            "\tProjection: {}";
+            "\tProjection: {}\n" +
+            "\tFacets: []";
+
+    private static final String result3WithFacets =
+        "QUERY: Requests: " + "{\"$and\":[{\"$exists\":\"evTypeProc\"},{\"$exists\":\"evIdProc\"}]}\n" +
+            "\tFilter: {\"$limit\":10000}\n" +
+            "\tProjection: {}\n" +
+            "\tFacets: [{\"$name\":\"DescriptionLevelFacet\",\"$terms\":{\"$field\":\"DescriptionLevel\",\"$size\":100,\"$order\":\"ASC\"}}, {\"$name\":\"TotalMax\",\"$sum\":{\"$field\":\"#max\"}}]";
 
     private DslQueryHelper dslQueryHelper = DslQueryHelper.getInstance();
 
@@ -133,6 +141,33 @@ public class DslQueryHelperTest {
         request2.parse(request);
         assertEquals(result2, request2.toString());
         System.out.println(request2.toString());
+
+    }
+
+
+    @Test
+    public void testCreateSingleQueryDSLEventWithFacets()
+        throws InvalidParseOperationException, InvalidCreateOperationException {
+        final HashMap<String, Object> myHashMap = new HashMap();
+
+        List<FacetItem> facetItems = Arrays.asList(
+
+            new FacetItem("DescriptionLevelFacet", FacetType.TERMS, "DescriptionLevel", 100, FacetOrder.ASC, null,
+                null, null, Optional.empty()),
+            new FacetItem("TotalMax", FacetType.SUM, "#max", null, null, null,
+                null, null, Optional.empty())
+
+        );
+
+        myHashMap.put("EventID", "all");
+        myHashMap.put("EventType", "all");
+        myHashMap.put("facets", facetItems);
+        final JsonNode request = dslQueryHelper.createSingleQueryDSL(myHashMap);
+        assertNotNull(request);
+        final SelectParserSingle request3 = new SelectParserSingle();
+        request3.parse(request);
+        assertEquals(result3WithFacets, request3.toString());
+        System.out.println(request3.toString());
 
     }
 
@@ -213,7 +248,7 @@ public class DslQueryHelperTest {
 
             new FacetItem("ObjectFacet", FacetType.FILTERS, null, null, null, null, null, objectfilters,
                 Optional.empty()),
-            new FacetItem("TotalMax", FacetType.SUM, "#Max", null, null, null,
+            new FacetItem("TotalMax", FacetType.SUM, "#max", null, null, null,
                 null, null, Optional.empty())
 
         );
@@ -267,7 +302,7 @@ public class DslQueryHelperTest {
             "{\"$name\":\"ObjectFacet\",\"$filters\":{\"$query_filters\":[{\"$name\":\"ExistsObject\",\"$query\":{\"$exists\":\"#object\"}},{\"$name\":\"MissingObject\",\"$query\":{\"$missing\":\"#object\"}}]}}"));
 
         assertTrue(selectParser.getRequest().getFacets().get(9).toString().contains(
-            "{\"$name\":\"TotalMax\",\"$sum\":{\"$field\":\"#Max\"}}"));
+            "{\"$name\":\"TotalMax\",\"$sum\":{\"$field\":\"#max\"}}"));
     }
 
     @Test

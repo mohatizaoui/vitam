@@ -35,6 +35,7 @@ import fr.gouv.vitam.common.database.builder.request.configuration.BuilderToken.
 import fr.gouv.vitam.common.database.builder.request.configuration.GlobalDatas;
 import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
 import fr.gouv.vitam.common.database.builder.request.single.Select;
+import fr.gouv.vitam.common.database.facet.model.FacetOrder;
 import fr.gouv.vitam.common.database.parser.request.GlobalDatasParser;
 import fr.gouv.vitam.common.database.translators.mongodb.SelectToMongodb;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
@@ -47,6 +48,7 @@ import org.junit.Test;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
+import static fr.gouv.vitam.common.database.builder.facet.FacetHelper.terms;
 import static fr.gouv.vitam.common.database.builder.query.QueryHelper.and;
 import static fr.gouv.vitam.common.database.builder.query.QueryHelper.eq;
 import static fr.gouv.vitam.common.database.builder.query.QueryHelper.exists;
@@ -539,6 +541,30 @@ public class SelectParserSingleTest {
             "{\"$eq\":{\"var5\":\"value\"}}]}," +
             "\"$filter\":{\"$limit\":10000,\"$orderby\":{\"var1\":1,\"var2\":-1}}," +
             "\"$projection\":{\"$fields\":{\"var3\":1,\"var4\":0}}}",
+            request.getRootNode().toString()
+        );
+    }
+
+    @Test
+    public void testAddConditionParseSelectWithFacets()
+        throws InvalidParseOperationException, InvalidCreateOperationException {
+        final SelectParserSingle request = new SelectParserSingle();
+        final Select select = new Select();
+        select.setQuery(and().add(term("var01", "value1"), gte("var02", 3)));
+        select
+            .addOrderByAscFilter("var1")
+            .addOrderByDescFilter("var2")
+            .addUsedProjection("var3")
+            .addUnusedProjection("var4");
+        select.addFacets(terms("myfacet", "mavar1", 5, FacetOrder.ASC));
+        request.parse(select.getFinalSelect());
+        assertNotNull(request.getRequest());
+        request.addCondition(eq("var5", "value"));
+        assertEquals(
+            "{\"$query\":{\"$and\":[{\"$term\":{\"var01\":\"value1\"}},{\"$gte\":{\"var02\":3}}," +
+            "{\"$eq\":{\"var5\":\"value\"}}]}," +
+            "\"$filter\":{\"$limit\":10000,\"$orderby\":{\"var1\":1,\"var2\":-1}}," +
+            "\"$projection\":{\"$fields\":{\"var3\":1,\"var4\":0}},\"$facets\":[{\"$name\":\"myfacet\",\"$terms\":{\"$field\":\"mavar1\",\"$size\":5,\"$order\":\"ASC\"}}]}",
             request.getRootNode().toString()
         );
     }

@@ -55,6 +55,7 @@ import fr.gouv.vitam.common.database.builder.request.configuration.BuilderToken.
 import fr.gouv.vitam.common.database.builder.request.configuration.BuilderToken.SELECTFILTER;
 import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
 import fr.gouv.vitam.common.database.builder.request.multiple.SelectMultiQuery;
+import fr.gouv.vitam.common.database.builder.request.single.Select;
 import fr.gouv.vitam.common.database.collections.DynamicParserTokens;
 import fr.gouv.vitam.common.database.parser.query.QueryParserHelper;
 import fr.gouv.vitam.common.database.parser.request.AbstractParser;
@@ -65,6 +66,7 @@ import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1052,24 +1054,31 @@ public class QueryToElasticsearch {
         DynamicParserTokens parserTokens
     ) throws InvalidParseOperationException {
         Map<String, Aggregation> aggregations = new HashMap<>();
-        if (requestParser.getRequest() instanceof SelectMultiQuery) {
-            List<Facet> facets = ((SelectMultiQuery) requestParser.getRequest()).getFacets();
-            for (Facet facet : facets) {
-                switch (facet.getCurrentTokenFACET()) {
-                    case TERMS:
-                        termsFacet(aggregations, facet);
-                        break;
-                    case SUM:
-                        sumFacet(aggregations, facet);
-                        break;
-                    case DATE_RANGE:
-                        dateRangeFacet(aggregations, facet);
-                        break;
-                    case FILTERS:
-                        filtersFacet(aggregations, facet, requestParser.getAdapter(), parserTokens);
-                        break;
-                    default:
-                        throw new IllegalStateException("Unexpected value: " + facet.getCurrentTokenFACET());
+        if (requestParser.getRequest() instanceof SelectMultiQuery || requestParser.getRequest() instanceof Select) {
+            List<Facet> facets = null;
+            if (requestParser.getRequest() instanceof SelectMultiQuery) {
+                facets = ((SelectMultiQuery) requestParser.getRequest()).getFacets();
+            } else if (requestParser.getRequest() instanceof Select) {
+                facets = ((Select) requestParser.getRequest()).getFacets();
+            }
+            if (CollectionUtils.isNotEmpty(facets)) {
+                for (Facet facet : facets) {
+                    switch (facet.getCurrentTokenFACET()) {
+                        case TERMS:
+                            termsFacet(aggregations, facet);
+                            break;
+                        case SUM:
+                            sumFacet(aggregations, facet);
+                            break;
+                        case DATE_RANGE:
+                            dateRangeFacet(aggregations, facet);
+                            break;
+                        case FILTERS:
+                            filtersFacet(aggregations, facet, requestParser.getAdapter(), parserTokens);
+                            break;
+                        default:
+                            throw new IllegalStateException("Unexpected value: " + facet.getCurrentTokenFACET());
+                    }
                 }
             }
         }

@@ -34,6 +34,7 @@ import fr.gouv.vitam.common.database.server.mongodb.BsonHelper;
 import fr.gouv.vitam.common.database.server.mongodb.VitamDocument;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.model.DatabaseCursor;
+import fr.gouv.vitam.common.model.FacetResult;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.VitamAutoCloseable;
 
@@ -55,6 +56,8 @@ public class DbRequestResult implements VitamAutoCloseable {
     private MongoCursor<VitamDocument<?>> cursor;
     private List<VitamDocument<?>> documents;
 
+    protected List<FacetResult> facetResult;
+
     /**
      * empty constructor
      */
@@ -70,6 +73,7 @@ public class DbRequestResult implements VitamAutoCloseable {
         diffs = new HashMap<>(requestResult.diffs);
         limit = requestResult.limit;
         offset = requestResult.offset;
+        facetResult = requestResult.facetResult;
     }
 
     /**
@@ -244,6 +248,7 @@ public class DbRequestResult implements VitamAutoCloseable {
         // Save before addAll
         DatabaseCursor currentCursor = getDatabaseCursor();
         response.addAllResults(getDocuments(cls)).setHits(currentCursor);
+        response.addAllFacetResults(getFacet());
         close();
         return response;
     }
@@ -307,6 +312,7 @@ public class DbRequestResult implements VitamAutoCloseable {
         // Save before addAll
         DatabaseCursor currentCursor = getDatabaseCursor();
         response.addAllResults(getDocuments(cls, clsFromJson)).setHits(currentCursor);
+        response.addAllFacetResults(getFacet());
         close();
         return response;
     }
@@ -316,6 +322,29 @@ public class DbRequestResult implements VitamAutoCloseable {
      */
     public DatabaseCursor getDatabaseCursor() {
         return new DatabaseCursor(total, offset, limit, count);
+    }
+
+    /**
+     * @return the list of FacetResult
+     */
+    public List<FacetResult> getFacet() {
+        if (facetResult == null) {
+            facetResult = new ArrayList<>();
+        }
+        return facetResult;
+    }
+
+    /**
+     * Add a FacetResult
+     *
+     * @param facetResult facetResult
+     */
+    public void addFacetResult(FacetResult facetResult) {
+        getFacet().add(facetResult);
+    }
+
+    public MongoCursor<VitamDocument<?>> getCursor() {
+        return cursor;
     }
 
     @Override

@@ -157,7 +157,8 @@ public class ElasticsearchAccessTest {
             null,
             null,
             0,
-            100
+            100,
+            null
         );
         assertThat(searchResponseAfter.hits().total()).isNotNull();
         assertThat(searchResponseAfter.hits().total().value()).isEqualTo(1L);
@@ -177,7 +178,8 @@ public class ElasticsearchAccessTest {
             null,
             null,
             0,
-            100
+            100,
+            null
         );
         assertThat(searchResponseAfter.hits().total()).isNotNull();
         assertThat(searchResponseAfter.hits().total().value()).isEqualTo(documents.size());
@@ -213,7 +215,8 @@ public class ElasticsearchAccessTest {
             null,
             null,
             0,
-            100
+            100,
+            null
         );
         assertThat(searchResponseAfter.hits().total()).isNotNull();
         assertThat(searchResponseAfter.hits().total().value()).isEqualTo(documents.size());
@@ -245,7 +248,8 @@ public class ElasticsearchAccessTest {
             null,
             null,
             0,
-            100
+            100,
+            null
         );
 
         assertThat(searchResponse.hits().total()).isNotNull();
@@ -336,7 +340,8 @@ public class ElasticsearchAccessTest {
             null,
             null,
             0,
-            100
+            100,
+            null
         );
         assertThat(searchResponseAfter.hits().total()).isNotNull();
         assertThat(searchResponseAfter.hits().total().value()).isEqualTo(documents.size() - 1);

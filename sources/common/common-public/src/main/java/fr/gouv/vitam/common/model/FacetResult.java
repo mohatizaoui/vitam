@@ -43,7 +43,7 @@ public class FacetResult {
     @JsonProperty("buckets")
     private List<FacetBucket> buckets;
 
-    @JsonProperty("sumFacet")
+    @JsonProperty("sum")
     private SumFacet sumFacet;
 
     /**

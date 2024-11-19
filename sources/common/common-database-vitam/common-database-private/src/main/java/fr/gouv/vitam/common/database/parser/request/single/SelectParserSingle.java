@@ -28,11 +28,15 @@ package fr.gouv.vitam.common.database.parser.request.single;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import fr.gouv.vitam.common.database.builder.facet.Facet;
+import fr.gouv.vitam.common.database.builder.request.configuration.BuilderToken;
 import fr.gouv.vitam.common.database.builder.request.configuration.BuilderToken.GLOBAL;
 import fr.gouv.vitam.common.database.builder.request.configuration.BuilderToken.PROJECTION;
 import fr.gouv.vitam.common.database.builder.request.configuration.GlobalDatas;
+import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
 import fr.gouv.vitam.common.database.builder.request.single.RequestSingle;
 import fr.gouv.vitam.common.database.builder.request.single.Select;
+import fr.gouv.vitam.common.database.parser.facet.FacetParserHelper;
 import fr.gouv.vitam.common.database.parser.request.adapter.VarNameAdapter;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.json.JsonHandler;
@@ -77,8 +81,64 @@ public class SelectParserSingle extends RequestParserSingle {
      * @throws InvalidParseOperationException if rootNode could parse to projection
      */
     private void internalParseSelect() throws InvalidParseOperationException {
-        // { $query : query, $filter : filter, $projection : projection }
+        // { $query : query, $filter : filter, $projection : projection, $facets : facets }
         projectionParse(rootNode.get(GLOBAL.PROJECTION.exactToken()));
+        facetsParse(rootNode.get(GLOBAL.FACETS.exactToken()));
+    }
+
+    /**
+     * Parse facets
+     *
+     * @param rootNode JsonNode
+     * @throws InvalidParseOperationException if rootNode could not parse to JSON
+     */
+    protected void facetsParse(final JsonNode rootNode) throws InvalidParseOperationException {
+        if (rootNode == null) {
+            return;
+        }
+        if (!rootNode.isArray()) {
+            throw new InvalidParseOperationException("Parse in error for Field: should be an array");
+        }
+        GlobalDatas.sanityParametersCheck(rootNode.toString(), GlobalDatas.NB_FACETS);
+        try {
+            ((Select) request).resetFacets();
+            for (final JsonNode facet : rootNode) {
+                if (!facet.has(BuilderToken.FACETARGS.NAME.exactToken())) {
+                    throw new InvalidParseOperationException("Invalid parse: name is mandatory");
+                }
+                BuilderToken.FACET facetCommand = getFacetCommand(facet);
+                ((Select) request).addFacets(analyzeOneFacet(facet, facetCommand));
+            }
+        } catch (final Exception e) {
+            throw new InvalidParseOperationException("Parse in error for Field: " + rootNode, e);
+        }
+    }
+
+    /**
+     * Generate a Facet from a Json + command
+     *
+     * @param facet facet as json
+     * @param facetCommand facet command
+     * @return Facet
+     * @throws InvalidCreateOperationException parsing error
+     * @throws InvalidParseOperationException invalid command type
+     */
+    protected Facet analyzeOneFacet(final JsonNode facet, BuilderToken.FACET facetCommand)
+        throws InvalidCreateOperationException, InvalidParseOperationException {
+        switch (facetCommand) {
+            case TERMS:
+                return FacetParserHelper.terms(facet, adapter);
+            case DATE_RANGE:
+                return FacetParserHelper.dateRange(facet, adapter);
+            case SUM:
+                return FacetParserHelper.sum(facet, adapter);
+            case FILTERS:
+                return FacetParserHelper.filters(facet, adapter);
+            default:
+                throw new InvalidParseOperationException(
+                    "Invalid parse: command not a facet " + facetCommand.exactToken()
+                );
+        }
     }
 
     /**
@@ -147,6 +207,22 @@ public class SelectParserSingle extends RequestParserSingle {
         } catch (final Exception e) {
             throw new InvalidParseOperationException("Parse in error for Projection: " + slice, e);
         }
+    }
+
+    /**
+     * Get the facet command
+     *
+     * @param facet facet
+     * @return FACET command
+     * @throws InvalidParseOperationException when valid command could not be found
+     */
+    public static final BuilderToken.FACET getFacetCommand(final JsonNode facet) throws InvalidParseOperationException {
+        for (BuilderToken.FACET facetCommand : BuilderToken.FACET.values()) {
+            if (facet.has(facetCommand.exactToken())) {
+                return facetCommand;
+            }
+        }
+        throw new InvalidParseOperationException("Invalid parse : facet command not found");
     }
 
     @Override
