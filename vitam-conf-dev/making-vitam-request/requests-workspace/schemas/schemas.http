@@ -31,18 +31,63 @@ X-Tenant-Id: {{tenant}}
     "Cardinality": "MANY",
     "Path": "Invoice",
     "ApiPath": "Invoice",
-    "ShortName": "Facture"
+    "ShortName": "Facture",
+    "Description": "Informations de facturation"
   },
   {
     "IsObject": true,
     "Cardinality": "MANY",
     "Path": "Invoice.Provider",
-    "ShortName": "Provider"
+    "ShortName": "Provider",
+    "Description": "Émetteur de la facture"
   },
   {
     "Cardinality": "ONE",
     "Path": "Invoice.Provider.BirthDate",
-    "ShortName": "Date de naissance"
+    "ShortName": "Date de naissance",
+    "Description": "Date de naissance"
+  },
+  {
+    "Cardinality": "ONE_REQUIRED",
+    "Path": "Invoice.Provider.MyKeyword",
+    "ShortName": "My keyword",
+    "Description": "Description My Keyword (ONE_REQUIRED)"
+  },
+  {
+    "Cardinality": "ONE",
+    "Path": "Invoice.Provider.MyText",
+    "ShortName": "My text",
+    "Description": "Description My text (ONE)"
+  },
+  {
+    "Cardinality": "MANY",
+    "Path": "Invoice.Provider.MyDate",
+    "ShortName": "My date",
+    "Description": "Description My date (MANY)"
+  },
+  {
+    "Cardinality": "MANY_REQUIRED",
+    "Path": "Invoice.Provider.MyBoolean",
+    "ShortName": "My boolean",
+    "Description": "Description My boolean (MANY_REQUIRED)"
+  },
+  {
+    "Cardinality": "ONE",
+    "Path": "Invoice.Provider.MyLong",
+    "ShortName": "My long",
+    "Description": "Description My long (ONE)"
+  },
+  {
+    "Cardinality": "ONE",
+    "Path": "Invoice.Provider.MyDouble",
+    "ShortName": "My double",
+    "Description": "Description My double (ONE)"
+  },
+  {
+    "Cardinality": "ONE",
+    "Path": "Invoice.Provider.MyEnum",
+    "ShortName": "My enum",
+    "Description": "Description My enum (ONE)"
   }
 ]
 
@@ -55,5 +100,13 @@ X-Tenant-Id: {{tenant}}
 
 [
   "Invoice",
-  "Invoice.Provider"
+  "Invoice.Provider",
+  "Invoice.Provider.BirthDate",
+  "Invoice.Provider.MyKeyword",
+  "Invoice.Provider.MyText",
+  "Invoice.Provider.MyDate",
+  "Invoice.Provider.MyBoolean",
+  "Invoice.Provider.MyLong",
+  "Invoice.Provider.MyDouble",
+  "Invoice.Provider.MyEnum"
 ]
