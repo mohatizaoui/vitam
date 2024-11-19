@@ -6,10 +6,6 @@
     "Type": "KEYWORD",
     "TypeDetail": "STRING",
     "StringSize": "MEDIUM",
-    "Collections": [
-      "Unit",
-      "ObjectGroup"
-    ],
     "Description": "Extension au SEDA. Elément de type text"
   }
 ]

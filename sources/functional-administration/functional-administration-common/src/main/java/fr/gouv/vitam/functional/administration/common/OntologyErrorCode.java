@@ -96,9 +96,4 @@ public enum OntologyErrorCode {
      * Conflict merging internal and external at initialization
      */
     STP_IMPORT_ONTOLOGIES_INTERNAL_EXTERNAL_CONFLICT_EXCEPTION,
-
-    /**
-     * Missing collection
-     */
-    STP_IMPORT_ONTOLOGIES_MISSING_COLLECTION,
 }

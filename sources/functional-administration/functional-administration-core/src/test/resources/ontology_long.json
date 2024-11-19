@@ -5,10 +5,6 @@
     "Origin": "INTERNAL",
     "Type": "LONG",
     "TypeDetail": "LONG",
-    "Collections": [
-      "Unit",
-      "ObjectGroup"
-    ],
     "Description": "Extension au SEDA. Elément de type long"
   }
 ]
