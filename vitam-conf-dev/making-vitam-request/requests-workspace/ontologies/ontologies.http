@@ -21,3 +21,41 @@ X-Access-Contract-Id: {{access-contract}}
 #Force-Update: true
 
 < ./VitamOntologyAndExternal.json
+
+### Extraire la liste des ontologies avec des facettes
+GET {{url-access}}/admin-external/v1/ontologies/
+Accept: application/json
+Content-Type: application/json
+X-Tenant-Id: {{tenant}}
+
+{
+  "$query":
+   {
+    }
+  ,
+  "$filter": {
+    "$offset": 0,
+    "$limit": 10
+  },
+  "$projection": {},
+
+  "$facets": [ {
+    "$name": "Facet_TypeDetail",
+    "$terms": {
+      "$field": "TypeDetail",
+      "$size": 10,
+      "$order": "ASC"
+    }
+  },
+  {
+    "$name": "Facet_Collections",
+    "$terms": {
+      "$field": "Collections",
+      "$size": 10,
+      "$order": "ASC"
+    }
+  }
+]
+}
+
+

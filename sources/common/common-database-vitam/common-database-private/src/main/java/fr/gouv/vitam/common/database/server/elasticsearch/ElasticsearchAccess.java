@@ -450,9 +450,10 @@ public class ElasticsearchAccess implements DatabaseConnection {
         String[] esProjection,
         final List<SortOptions> sorts,
         int offset,
-        Integer limit
+        Integer limit,
+        final Map<String, Aggregation> facets
     ) throws DatabaseException, BadRequestException {
-        return search(indexAlias, query, esProjection, sorts, offset, limit, null, null, null, false);
+        return search(indexAlias, query, esProjection, sorts, offset, limit, facets, null, null, false);
     }
 
     public final ResponseBody<ObjectNode> searchCrossIndices(

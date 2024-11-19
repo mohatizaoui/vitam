@@ -7,5 +7,6 @@
     }
   },
   "$filter": {},
-  "$projection": {}
+  "$projection": {},
+  "$facets": []
 }

@@ -19,6 +19,12 @@
         "type": "PROJECTION",
         "optional": false,
         "hint": "Projections to apply on results"
+      },
+      "$facets": {
+        "format": "array",
+        "itemtype": "FACET",
+        "optional": true,
+        "hint": "List of facets"
       }
     }
   },
@@ -340,6 +346,170 @@
         },
         "optional": true,
         "hint": "Fields to retrieve in the result"
+      }
+    }
+  },
+  "FACET": {
+    "format": "object",
+    "min": 2,
+    "max": 2,
+    "elements": {
+      "$name": {
+        "format": "ref",
+        "type": "string",
+        "optional": false,
+        "hint": "Name of facet"
+      },
+      "$terms": {
+        "format": "ref",
+        "type": "TERMS_FACET",
+        "optional": true,
+        "hint": "Terms facet of type bucket"
+      },
+      "$sum": {
+        "format": "ref",
+        "type": "SUM_FACET",
+        "optional": true,
+        "hint": "SUM facet of type bucket"
+      },
+      "$date_range": {
+        "format": "ref",
+        "type": "DATE_RANGE_FACET",
+        "optional": true,
+        "hint": "Date range facet"
+      },
+      "$filters": {
+        "format": "ref",
+        "type": "FILTERS_FACET",
+        "optional": true,
+        "hint": "Filters facet of type bucket"
+      }
+    }
+  },
+  "TERMS_FACET": {
+    "format": "object",
+    "elements": {
+      "$subobject": {
+        "format": "ref",
+        "type": "string",
+        "optional": true,
+        "hint": "Nested path Field of facet"
+      },
+      "$field": {
+        "format": "ref",
+        "type": "string",
+        "optional": false,
+        "hint": "Field of facet"
+      },
+      "$size": {
+        "format": "ref",
+        "type": "posinteger",
+        "optional": false,
+        "hint": "Max number of buckets"
+      },
+      "$order": {
+        "format": "enum",
+        "values": [
+          "ASC",
+          "DESC"
+        ],
+        "optional": false,
+        "hint": "Order of buckets"
+      }
+    }
+  },
+  "SUM_FACET": {
+    "format": "object",
+    "elements": {
+      "$subobject": {
+        "format": "ref",
+        "type": "string",
+        "optional": true,
+        "hint": "Nested path Field of facet"
+      },
+      "$field": {
+        "format": "ref",
+        "type": "string",
+        "optional": false,
+        "hint": "Field of facet"
+      }
+    }
+  },
+  "DATE_RANGE_FACET": {
+    "format": "object",
+    "elements": {
+      "$subobject": {
+        "format": "ref",
+        "type": "string",
+        "optional": true,
+        "hint": "Nested path Field of facet"
+      },
+      "$field": {
+        "format": "ref",
+        "type": "string",
+        "optional": false,
+        "hint": "Field of facet"
+      },
+      "$format": {
+        "format": "ref",
+        "type": "string",
+        "optional": false,
+        "hint": "Date format"
+      },
+      "$ranges": {
+        "format": "array",
+        "itemtype": "RANGE",
+        "optional": false,
+        "min": 1,
+        "hint": "List of ranges"
+      }
+    }
+  },
+  "RANGE": {
+    "format": "object",
+    "min": 1,
+    "max": 2,
+    "elements": {
+      "$from": {
+        "format": "ref",
+        "type": "string",
+        "optional": true,
+        "hint": "Date from"
+      },
+      "$to": {
+        "format": "ref",
+        "type": "string",
+        "optional": true,
+        "hint": "Date to"
+      }
+    }
+  },
+  "FILTERS_FACET": {
+    "format": "object",
+    "elements": {
+      "$query_filters": {
+        "format": "array",
+        "itemtype": "FILTERS_QUERY_OBJECT",
+        "min": 1,
+        "optional": false,
+        "hint": "List of filter query objects"
+      }
+    }
+  },
+  "FILTERS_QUERY_OBJECT": {
+    "format": "object",
+    "elements": {
+      "$name": {
+        "format": "ref",
+        "type": "string",
+        "optional": false,
+        "hint": "Name of filter bucket"
+      },
+      "$query": {
+        "format": "ref",
+        "type": "QUERY",
+        "optional": false,
+        "hint": "Query of the facet filter bucket"
       }
     }
   }

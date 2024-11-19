@@ -52,6 +52,7 @@ import fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper;
 import fr.gouv.vitam.common.database.builder.request.configuration.BuilderToken;
 import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
 import fr.gouv.vitam.common.database.builder.request.multiple.SelectMultiQuery;
+import fr.gouv.vitam.common.database.builder.request.single.Select;
 import fr.gouv.vitam.common.database.facet.model.FacetOrder;
 import fr.gouv.vitam.common.elasticsearch.ElasticsearchRule;
 import fr.gouv.vitam.common.error.VitamError;
@@ -67,7 +68,9 @@ import fr.gouv.vitam.common.model.ProcessState;
 import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.SumFacet;
+import fr.gouv.vitam.common.model.administration.AccessionRegisterDetailModel;
 import fr.gouv.vitam.common.model.administration.CombinedSchemaModel;
+import fr.gouv.vitam.common.model.administration.OntologyModel;
 import fr.gouv.vitam.common.model.administration.schema.SchemaCardinality;
 import fr.gouv.vitam.common.model.administration.schema.SchemaOrigin;
 import fr.gouv.vitam.common.model.administration.schema.SchemaResponse;
@@ -1197,5 +1200,83 @@ public class AccessExternalIT extends VitamRuleRunner {
         SumFacet firstBucket = facetResult.getSumFacet();
         assertNotNull(firstBucket);
         assertEquals(expectedSum, firstBucket.getSum(), 0);
+    }
+
+    @RunWithCustomExecutor
+    @Test
+    public void extractAccessionRegisterDetailsWithFacets() throws Exception {
+        // given
+        VitamContext vitamContext = new VitamContext(TENANT_ID)
+            .setApplicationSessionId(APPLICATION_SESSION_ID)
+            .setAccessContract(ACCESS_CONTRACT);
+
+        Select query = new Select();
+        query.setQuery(QueryHelper.eq("Opi", ingestOperationId));
+
+        query.addFacets(sum("facet_objectSizes", "ObjectSize.ingested"));
+        query.addFacets(sum("facet_totalUnits", "TotalUnits.ingested"));
+        query.addFacets(sum("facet_totalObjects", "TotalObjects.ingested"));
+        query.addFacets(sum("facet_totalObjectsGroups", "TotalObjectGroups.ingested"));
+
+        // When
+
+        RequestResponse<AccessionRegisterDetailModel> accessionRegisterResponse =
+            adminExternalClient.findAccessionRegisterDetails(vitamContext, query.getFinalSelect());
+
+        // THEN
+        assertThat(accessionRegisterResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        RequestResponseOK<fr.gouv.vitam.common.model.administration.AccessionRegisterDetailModel> requestResponseOK =
+            (RequestResponseOK<
+                    fr.gouv.vitam.common.model.administration.AccessionRegisterDetailModel
+                >) accessionRegisterResponse;
+
+        List<FacetResult> facetResults = requestResponseOK.getFacetResults();
+        assertEquals(4, facetResults.size());
+
+        FacetResult facetObjectSizes = getFacetResultByName(facetResults, "facet_objectSizes");
+        FacetResult facetNbUnits = getFacetResultByName(facetResults, "facet_totalUnits");
+        FacetResult facetNbObjects = getFacetResultByName(facetResults, "facet_totalObjects");
+        FacetResult facetNbObjectsGroupTotal = getFacetResultByName(facetResults, "facet_totalObjectsGroups");
+
+        validateFacetResultSum(facetObjectSizes, 156_647d);
+        validateFacetResultSum(facetNbUnits, 5d);
+        validateFacetResultSum(facetNbObjects, 5d);
+        validateFacetResultSum(facetNbObjectsGroupTotal, 2d);
+    }
+
+    @RunWithCustomExecutor
+    @Test
+    public void extractOntologiesWithFacets() throws Exception {
+        // given
+        VitamContext vitamContext = new VitamContext(TENANT_ID)
+            .setApplicationSessionId(APPLICATION_SESSION_ID)
+            .setAccessContract(ACCESS_CONTRACT);
+
+        Select query = new Select();
+
+        query.addFacets(terms("Facet_TypeDetail", "TypeDetail", 10, FacetOrder.ASC));
+        query.addFacets(terms("Facet_Collections", "Collections", 10, FacetOrder.ASC));
+
+        // When
+
+        RequestResponse<OntologyModel> ontologyModelResponse = adminExternalClient.findOntologies(
+            vitamContext,
+            query.getFinalSelect()
+        );
+
+        // THEN
+        assertThat(ontologyModelResponse.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        RequestResponseOK<OntologyModel> requestResponseOK = (RequestResponseOK<OntologyModel>) ontologyModelResponse;
+
+        List<FacetResult> facetResults = requestResponseOK.getFacetResults();
+        assertEquals(2, facetResults.size());
+
+        FacetResult facetTypeDetail = getFacetResultByName(facetResults, "Facet_TypeDetail");
+        FacetResult facetCollections = getFacetResultByName(facetResults, "Facet_Collections");
+
+        validateFacetResultCount(facetTypeDetail, "STRING", 245);
+        validateFacetResultCount(facetCollections, "Unit", 161);
     }
 }

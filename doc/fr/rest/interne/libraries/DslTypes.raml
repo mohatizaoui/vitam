@@ -107,6 +107,9 @@ types:
         $projection?:
           description: Contient la projection à appliquer
           type: StandardTypes.Projection
+        $facets?:
+          description: Contient les agrégations à appliquer
+          type: StandardTypes.Facets
       example: {
         "$roots": ["guid1","guid2"],
         "$query": [

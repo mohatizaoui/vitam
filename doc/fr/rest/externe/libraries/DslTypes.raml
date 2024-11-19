@@ -140,6 +140,11 @@ types:
         $projection?:
           description: Contains projection to apply (for GET only)
           type: Projection
+        $facets?:
+         description: Contains facet if requested
+         type: array
+         items:
+          type: Facet
       example: {
         "$query": {
           "$eq": { "myField1": "myValue" }
@@ -410,6 +415,11 @@ types:
         required: true
         description: Contient la requête DSL liée à la réponse
         type: DslSingleQuery
+      $facetResults:
+        required: false
+        description: Contient le résultat des facettes
+        type: object[]
+        example: !include examples/facetsResponse.json
 
     example: {
         "httpCode": 200,
@@ -434,7 +444,22 @@ types:
         "$results": [
           { "myField1": "myValue1", "myField2.mySubField": "mySubValue1" },
           { "myField1": "myValue2", "myField2.mySubField": "mySubValue2"  }
-        ]
+        ],
+       "$facetResults": [
+         {
+           "name": "facet_name",
+           "buckets": [
+             {
+               "value": "value1",
+               "count": long_value1
+             },
+             {
+               "value": "value2",
+               "count": long_value2
+             }
+           ]
+         }
+       ]
       }
 
   DslMultipeResponse:
@@ -485,6 +510,21 @@ types:
         "$results": [
           { "myField1": "myValue1", "myField2.mySubField": "mySubValue1" },
           { "myField1": "myValue2", "myField2.mySubField": "mySubValue2"  }
+        ],
+        "$facetResults": [
+          {
+            "name": "facet_name",
+            "buckets": [
+              {
+                "value": "value1",
+                "count": long_value1
+              },
+              {
+                "value": "value2",
+                "count": long_value2
+              }
+            ]
+          }
         ]
       }
 

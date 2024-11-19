@@ -1,8 +1,7 @@
 "$facetResults": [
     {
       "name": "qualifiers_qualifier_size",
-      "buckets": null,
-      "sumFacet": {
+      "sum": {
         "sum": 15
       }
     },

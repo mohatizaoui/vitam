@@ -27,6 +27,8 @@
 package fr.gouv.vitam.common.database.server;
 
 import co.elastic.clients.elasticsearch._types.SortOptions;
+import co.elastic.clients.elasticsearch._types.aggregations.Aggregate;
+import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.elasticsearch.core.search.HitsMetadata;
@@ -61,6 +63,7 @@ import fr.gouv.vitam.common.database.parser.request.adapter.SingleVarNameAdapter
 import fr.gouv.vitam.common.database.parser.request.adapter.VarNameAdapter;
 import fr.gouv.vitam.common.database.parser.request.single.SelectParserSingle;
 import fr.gouv.vitam.common.database.parser.request.single.UpdateParserSingle;
+import fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchFacetResultHelper;
 import fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchIndexAlias;
 import fr.gouv.vitam.common.database.server.mongodb.EmptyMongoCursor;
 import fr.gouv.vitam.common.database.server.mongodb.VitamDocument;
@@ -244,9 +247,7 @@ public class DbRequestSingle {
         DynamicParserTokens parserTokens,
         boolean restrictOnCurrentTenant
     ) throws DatabaseException, BadRequestException, VitamDBException {
-        MongoCursor<VitamDocument<?>> cursor = search(select, parserTokens, restrictOnCurrentTenant);
-        return new DbRequestResult()
-            .setCursor(cursor)
+        return search(select, parserTokens, restrictOnCurrentTenant)
             .setTotal(total > 0 ? total : count)
             .setCount(count)
             .setLimit(limit)
@@ -263,11 +264,8 @@ public class DbRequestSingle {
      * @throws DatabaseException
      * @throws BadRequestException
      */
-    private MongoCursor<VitamDocument<?>> search(
-        JsonNode select,
-        DynamicParserTokens parserTokens,
-        boolean restrictOnCurrentTenant
-    ) throws DatabaseException, BadRequestException, VitamDBException {
+    private DbRequestResult search(JsonNode select, DynamicParserTokens parserTokens, boolean restrictOnCurrentTenant)
+        throws DatabaseException, BadRequestException, VitamDBException {
         try {
             final SelectParserSingle parser = new SelectParserSingle(vaNameAdapter);
             parser.parse(select);
@@ -277,7 +275,9 @@ public class DbRequestSingle {
             if (vitamCollection.getEsClient() != null) {
                 return selectElasticsearchExecute(parser, parserTokens);
             } else {
-                return selectMongoDbExecute(parser);
+                DbRequestResult requestResult = new DbRequestResult();
+                requestResult.setCursor(selectMongoDbExecute(parser));
+                return requestResult;
             }
         } catch (final InvalidParseOperationException | InvalidCreateOperationException e) {
             LOGGER.error("find Document Exception", e);
@@ -290,17 +290,14 @@ public class DbRequestSingle {
      *
      * @param parser
      * @param parserTokens
-     * @return MongoCursor<VitamDocument < ?>>
+     * @return DbRequestResult
      * @throws InvalidParseOperationException
      * @throws DatabaseException
      * @throws InvalidCreateOperationException
      * @throws DatabaseException
      * @throws BadRequestException
      */
-    private MongoCursor<VitamDocument<?>> selectElasticsearchExecute(
-        SelectParserSingle parser,
-        DynamicParserTokens parserTokens
-    )
+    private DbRequestResult selectElasticsearchExecute(SelectParserSingle parser, DynamicParserTokens parserTokens)
         throws InvalidParseOperationException, InvalidCreateOperationException, DatabaseException, BadRequestException, VitamDBException {
         SelectToElasticsearch requestToEs = new SelectToElasticsearch(parser);
         Query query = QueryToElasticsearch.getCommand(requestToEs.getNthQuery(0), parser.getAdapter(), parserTokens);
@@ -311,7 +308,8 @@ public class DbRequestSingle {
             query,
             sorts,
             requestToEs.getFinalOffset(),
-            requestToEs.getFinalLimit()
+            requestToEs.getFinalLimit(),
+            QueryToElasticsearch.getFacets(parser, parserTokens)
         );
         if (elasticSearchResponse.timedOut() || Boolean.TRUE.equals(elasticSearchResponse.terminatedEarly())) {
             LOGGER.error("Request timed out or terminated early " + elasticSearchResponse);
@@ -319,7 +317,9 @@ public class DbRequestSingle {
         }
         final HitsMetadata<ObjectNode> hits = elasticSearchResponse.hits();
         if (hits.total() == null || hits.total().value() == 0L) {
-            return new EmptyMongoCursor<>();
+            DbRequestResult dbRequestResult = new DbRequestResult();
+            dbRequestResult.setCursor(new EmptyMongoCursor<>());
+            return dbRequestResult;
         }
         total = hits.total().value();
         final List<Hit<ObjectNode>> resultSet = hits.hits();
@@ -330,8 +330,33 @@ public class DbRequestSingle {
             ids.add(hit.id());
             scores.add(hit.score());
         }
+
+        return buildResponse(parser, elasticSearchResponse, ids, scores);
+    }
+
+    private DbRequestResult buildResponse(
+        SelectParserSingle parser,
+        ResponseBody<ObjectNode> elasticSearchResponse,
+        List<String> ids,
+        List<Double> scores
+    ) throws InvalidCreateOperationException, InvalidParseOperationException, VitamDBException {
+        // extract facets
+        DbRequestResult dbRequestResult = new DbRequestResult();
+        Map<String, Aggregate> aggregations = elasticSearchResponse.aggregations();
+        if (aggregations != null) {
+            for (Map.Entry<String, Aggregate> aggregationEntry : aggregations.entrySet()) {
+                dbRequestResult.addFacetResult(
+                    ElasticsearchFacetResultHelper.transformFromEsAggregation(
+                        aggregationEntry.getKey(),
+                        aggregationEntry.getValue()
+                    )
+                );
+            }
+        }
         parser.getRequest().setQuery(new NopQuery());
-        return selectMongoDbExecute(parser, ids, scores);
+        MongoCursor<VitamDocument<?>> vitamDocumentMongoCursor = selectMongoDbExecute(parser, ids, scores);
+        dbRequestResult.setCursor(vitamDocumentMongoCursor);
+        return dbRequestResult;
     }
 
     /**
@@ -404,6 +429,7 @@ public class DbRequestSingle {
      * @param sorts the list of sort
      * @param offset the offset
      * @param limit the limit
+     * @param facets the facets map
      * @return a structure as ResultInterface
      * @throws DatabaseException
      * @throws BadRequestException
@@ -412,11 +438,12 @@ public class DbRequestSingle {
         final Query query,
         List<SortOptions> sorts,
         final int offset,
-        final int limit
+        final int limit,
+        final Map<String, Aggregation> facets
     ) throws DatabaseException, BadRequestException {
         return vitamCollection
             .getEsClient()
-            .search(elasticsearchIndexAlias, query, VitamDocument.ES_FILTER_OUT, sorts, offset, limit);
+            .search(elasticsearchIndexAlias, query, VitamDocument.ES_FILTER_OUT, sorts, offset, limit, facets);
     }
 
     /**
@@ -442,17 +469,16 @@ public class DbRequestSingle {
         }
         final Select selectQuery = new Select();
         selectQuery.setQuery(parser.getRequest().getQuery());
+        DbRequestResult searchResult = search(selectQuery.getFinalSelect(), parserTokens, true);
 
-        MongoCursor<VitamDocument<?>> searchResult = search(selectQuery.getFinalSelect(), parserTokens, true);
-
-        if (searchResult == null || !searchResult.hasNext()) {
+        if (searchResult == null || searchResult.getCursor() == null || !searchResult.getCursor().hasNext()) {
             throw new DatabaseException("Document not found");
         }
 
         List<VitamDocument<?>> listDocuments = new ArrayList<>();
 
-        while (searchResult.hasNext()) {
-            listDocuments.add(searchResult.next());
+        while (searchResult.getCursor().hasNext()) {
+            listDocuments.add(searchResult.getCursor().next());
         }
         searchResult.close();
         final Map<String, List<String>> diffs = new HashMap<>();
@@ -568,22 +594,19 @@ public class DbRequestSingle {
         final SelectParserSingle parser = new SelectParserSingle(vaNameAdapter);
         parser.parse(request);
         parser.addProjection(JsonHandler.createObjectNode(), JsonHandler.createObjectNode().put(VitamDocument.ID, 1));
-        final MongoCursor<VitamDocument<?>> searchResult = search(
-            parser.getRequest().getFinalSelect(),
-            parserTokens,
-            true
-        );
-        if (searchResult == null || !searchResult.hasNext()) {
+        DbRequestResult requestResult = search(parser.getRequest().getFinalSelect(), parserTokens, true);
+        MongoCursor<VitamDocument<?>> cursor = requestResult.getCursor();
+        if (cursor == null || !cursor.hasNext()) {
             throw new DatabaseException("Document not found");
         }
 
         final List<String> ids = new ArrayList<>();
-        while (searchResult.hasNext()) {
-            final String documentId = searchResult.next().getId();
+        while (cursor.hasNext()) {
+            final String documentId = cursor.next().getId();
             ids.add(documentId);
         }
         PathQuery newQuery = QueryHelper.path(ids.toArray(new String[0]));
-        searchResult.close();
+        cursor.close();
         final Bson filter = QueryToMongodb.getCommand(newQuery);
         DeleteResult result;
         try {

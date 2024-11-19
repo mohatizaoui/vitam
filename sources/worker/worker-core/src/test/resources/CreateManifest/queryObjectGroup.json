@@ -9,5 +9,6 @@
     }
   },
   "$filter": {},
-  "$projection": {}
+  "$projection": {},
+  "$facets": []
 }

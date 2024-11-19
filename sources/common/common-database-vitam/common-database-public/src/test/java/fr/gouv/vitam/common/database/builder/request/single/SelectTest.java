@@ -27,6 +27,7 @@
 package fr.gouv.vitam.common.database.builder.request.single;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import fr.gouv.vitam.common.database.builder.facet.TermsFacet;
 import fr.gouv.vitam.common.database.builder.query.BooleanQuery;
 import fr.gouv.vitam.common.database.builder.query.ExistsQuery;
 import fr.gouv.vitam.common.database.builder.request.configuration.BuilderToken.FILTERARGS;
@@ -34,6 +35,7 @@ import fr.gouv.vitam.common.database.builder.request.configuration.BuilderToken.
 import fr.gouv.vitam.common.database.builder.request.configuration.BuilderToken.QUERY;
 import fr.gouv.vitam.common.database.builder.request.configuration.BuilderToken.SELECTFILTER;
 import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
+import fr.gouv.vitam.common.database.facet.model.FacetOrder;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import org.junit.Test;
 
@@ -171,9 +173,45 @@ public class SelectTest {
                 select.addOrderByAscFilter("var1").addOrderByDescFilter("var2");
                 select.addUsedProjection("var3").addUnusedProjection("var4");
                 ObjectNode node = select.getFinalSelect();
-                assertEquals(3, node.size());
                 node = select.getFinalSelect();
                 assertEquals(3, node.size());
+                assertTrue(node.has("$filter"));
+                assertTrue(node.has("$projection"));
+                assertTrue(node.has("$query"));
+                select.resetQuery();
+                assertEquals(0, select.getQuery().getCurrentQuery().size());
+            } catch (final InvalidParseOperationException e) {
+                e.printStackTrace();
+                fail(e.getMessage());
+            }
+        } catch (final InvalidCreateOperationException e) {
+            e.printStackTrace();
+            fail(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testAddRequestsWihFacets() {
+        final Select select = new Select();
+        assertTrue(select.query == null);
+        try {
+            select.setQuery(
+                new BooleanQuery(QUERY.AND).add(new ExistsQuery(QUERY.EXISTS, "varA")).setRelativeDepthLimit(5)
+            );
+            assertNotNull(select.getQuery());
+            select.setLimitFilter(10, 10);
+            try {
+                select.addHintFilter(FILTERARGS.CACHE.exactToken());
+                select.addOrderByAscFilter("var1").addOrderByDescFilter("var2");
+                select.addUsedProjection("var3").addUnusedProjection("var4");
+                select.addFacets(new TermsFacet("var1facet", "var1", 2, FacetOrder.ASC));
+                ObjectNode node = select.getFinalSelect();
+                node = select.getFinalSelect();
+                assertEquals(4, node.size());
+                assertTrue(node.has("$filter"));
+                assertTrue(node.has("$projection"));
+                assertTrue(node.has("$facets"));
+                assertTrue(node.has("$query"));
                 select.resetQuery();
                 assertEquals(0, select.getQuery().getCurrentQuery().size());
             } catch (final InvalidParseOperationException e) {
@@ -213,7 +251,8 @@ public class SelectTest {
         final String s =
             "QUERY: Requests: \n" +
             "\tFilter: {\"$limit\":5,\"$orderby\":{\"maclef1\":1,\"maclef2\":-1}}\n" +
-            "\tProjection: {\"$fields\":{\"#dua\":1,\"#all\":1}}";
+            "\tProjection: {\"$fields\":{\"#dua\":1,\"#all\":1}}\n" +
+            "\tFacets: []";
         assertEquals(s, select.toString());
     }
 

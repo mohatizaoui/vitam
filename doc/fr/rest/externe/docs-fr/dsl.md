@@ -190,16 +190,16 @@ La succession est exécutée avec la signification suivante :
 
 
 ##### **Recherche avec facet**
-Il s'agit d'une recherche de Units contenant des requêtes d'aggrégation en plus. Dans ce mode, **$facets** contient au moins une requête d'aggrégation. La forme des facets est la suivante :
+Il s'agit d'une recherche de Units contenant des requêtes d'agrégation en plus. Dans ce mode, **$facets** contient au moins une requête d'agrégation. La forme des facets est la suivante :
 - **$name** : le nom de la facet (repris dans la réponse), doit être unique dans la liste des facets
 - **$xxxx** : une commande de facet (cf la liste)
 Les facets peuvent être jouées sur une recherche mono-requête ou multi-requêtes.
 
 Vitam supporte les types de facettes suivants :
-1- "$terms" : Calcule des facettes ou des catégories basées sur les valeurs distinctes d'un champ spécifique et le nombre associé.
-2- "$filters" : pour obtenir des résultats d'agrégations par filtres sur les résultats. 
-3- "$range" : pour obtenir des agrégations par plages de dates.
-4- "$sum" : pour obtenir des totaux sur des champs.
+- "$terms" : Calcule des facettes ou des catégories basées sur les valeurs distinctes d'un champ spécifique et le nombre associé.
+- "$filters" : pour obtenir des résultats d'agrégations par filtres sur les résultats. 
+- "$range" : pour obtenir des agrégations par plages de dates.
+- "$sum" : pour obtenir des totaux sur des champs.
 
 **Exemples :**
 

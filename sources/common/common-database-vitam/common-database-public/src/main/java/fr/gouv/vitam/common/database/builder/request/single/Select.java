@@ -27,14 +27,23 @@
 package fr.gouv.vitam.common.database.builder.request.single;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import fr.gouv.vitam.common.ParametersChecker;
+import fr.gouv.vitam.common.database.builder.facet.Facet;
 import fr.gouv.vitam.common.database.builder.request.configuration.BuilderToken;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
+import fr.gouv.vitam.common.json.JsonHandler;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * SELECT for Single Mode Query
  */
 public class Select extends RequestSingle {
+
+    protected List<Facet> facets = new ArrayList<>();
 
     /**
      * @return this Query
@@ -193,10 +202,27 @@ public class Select extends RequestSingle {
     }
 
     /**
-     * @return the Final Select containing all 3 parts: query, filter and projection
+     * @return the Final Select containing all parts: query, filter , projection and facets
      */
     public final ObjectNode getFinalSelect() {
-        return selectGetFinalSelect();
+        final ObjectNode node = selectGetFinalSelect();
+        addFacetsToNode(node);
+        return node;
+    }
+
+    /**
+     * Add facets to given node
+     *
+     * @param node with facets
+     */
+    protected void addFacetsToNode(ObjectNode node) {
+        if (facets != null && !facets.isEmpty()) {
+            final ArrayNode array = JsonHandler.createArrayNode();
+            for (final Facet facet : facets) {
+                array.add(facet.getCurrentFacet());
+            }
+            node.set(BuilderToken.GLOBAL.FACETS.exactToken(), array);
+        }
     }
 
     /**
@@ -206,13 +232,61 @@ public class Select extends RequestSingle {
         final ObjectNode objectNode = selectGetFinalSelect();
         objectNode.remove(BuilderToken.GLOBAL.FILTER.exactToken());
         objectNode.remove(BuilderToken.GLOBAL.QUERY.exactToken());
+        objectNode.remove(BuilderToken.GLOBAL.FACETS.exactToken());
         return objectNode;
+    }
+
+    /**
+     * getFacets
+     *
+     * @return
+     */
+    public List<Facet> getFacets() {
+        return facets;
+    }
+
+    /**
+     * setFacets
+     *
+     * @param facets
+     */
+    public void setFacets(List<Facet> facets) {
+        this.facets = facets;
+    }
+
+    /**
+     * @return this Request
+     */
+    public final Select resetFacets() {
+        if (facets != null) {
+            facets.clear();
+        }
+        return this;
+    }
+
+    /**
+     * @param facets list of facet
+     * @return this Request
+     * @throws IllegalArgumentException when facet is invalid
+     */
+    public final Select addFacets(final Facet... facets) {
+        for (final Facet facet : facets) {
+            ParametersChecker.checkParameter("Facet is a mandatory parameter", facet);
+            this.facets.add(facet);
+        }
+        return this;
     }
 
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();
-        builder.append("QUERY: ").append(super.toString()).append("\n\tProjection: ").append(projection);
+        builder
+            .append("QUERY: ")
+            .append(super.toString())
+            .append("\n\tProjection: ")
+            .append(projection)
+            .append("\n\tFacets: ")
+            .append(facets);
         return builder.toString();
     }
 }
