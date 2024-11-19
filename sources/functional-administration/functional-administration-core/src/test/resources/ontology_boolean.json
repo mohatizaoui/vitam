@@ -5,6 +5,10 @@
     "Origin": "INTERNAL",
     "Type": "BOOLEAN",
     "TypeDetail": "BOOLEAN",
+    "Collections": [
+      "Unit",
+      "ObjectGroup"
+    ],
     "Description": "Extension au SEDA. Elément de type boolean"
   }
 ]
