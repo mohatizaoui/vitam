@@ -67,7 +67,7 @@ import fr.gouv.vitam.common.model.ProcessAction;
 import fr.gouv.vitam.common.model.ProcessState;
 import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
-import fr.gouv.vitam.common.model.SumFacet;
+import fr.gouv.vitam.common.model.SingleValueFacet;
 import fr.gouv.vitam.common.model.administration.AccessionRegisterDetailModel;
 import fr.gouv.vitam.common.model.administration.CombinedSchemaModel;
 import fr.gouv.vitam.common.model.administration.OntologyModel;
@@ -118,6 +118,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static fr.gouv.vitam.common.GlobalDataRest.X_REQUEST_ID;
+import static fr.gouv.vitam.common.database.builder.facet.FacetHelper.cardinality;
+import static fr.gouv.vitam.common.database.builder.facet.FacetHelper.count;
 import static fr.gouv.vitam.common.database.builder.facet.FacetHelper.dateRange;
 import static fr.gouv.vitam.common.database.builder.facet.FacetHelper.sum;
 import static fr.gouv.vitam.common.database.builder.facet.FacetHelper.terms;
@@ -1102,8 +1104,8 @@ public class AccessExternalIT extends VitamRuleRunner {
         FacetResult facetStartDate = getFacetResultByName(facetResults, "facet_startdate");
         FacetResult facetOriginatingAgency = getFacetResultByName(facetResults, "facet_originatingAgency");
 
-        validateFacetResultCount(facetOriginatingAgency, "FRAN_NP_009913", 5L);
-        validateFacetResultCount(facetStartDate, "2010-2025", 3L);
+        validateFacetResultBucketCount(facetOriginatingAgency, "FRAN_NP_009913", 5L);
+        validateFacetResultBucketCount(facetStartDate, "2010-2025", 3L);
     }
 
     @RunWithCustomExecutor
@@ -1134,7 +1136,7 @@ public class AccessExternalIT extends VitamRuleRunner {
 
         FacetResult facetNbObjectsTotal = getFacetResultByName(facetResults, "facet_nbobjects_total");
 
-        validateFacetResultSum(facetNbObjectsTotal, 5d);
+        validateSingleValueFacet(facetNbObjectsTotal, 5d);
     }
 
     @RunWithCustomExecutor
@@ -1155,7 +1157,9 @@ public class AccessExternalIT extends VitamRuleRunner {
                 "#qualifiers.versions",
                 5,
                 FacetOrder.ASC
-            )
+            ),
+            count("nested_facet_algorithm_count", "#qualifiers.versions.Algorithm", "#qualifiers.versions"),
+            cardinality("nested_facet_algorithm_cardinality", "#qualifiers.versions.Algorithm", "#qualifiers.versions")
         );
         query.addFacets(sum("nested_facet_sum", "#qualifiers.versions.Size", "#qualifiers.versions"));
 
@@ -1170,13 +1174,22 @@ public class AccessExternalIT extends VitamRuleRunner {
         RequestResponseOK<JsonNode> requestResponseOK = (RequestResponseOK<JsonNode>) responseObjects;
 
         List<FacetResult> facetResults = requestResponseOK.getFacetResults();
-        assertEquals(2, facetResults.size());
+        assertEquals(4, facetResults.size());
 
         FacetResult nestedFacetDataObjectVersion = getFacetResultByName(facetResults, "nested_facet_terms");
-        validateFacetResultCount(nestedFacetDataObjectVersion, "BinaryMaster_1", 2L);
+        validateFacetResultBucketCount(nestedFacetDataObjectVersion, "BinaryMaster_1", 2L);
 
         FacetResult nestedFacetSize = getFacetResultByName(facetResults, "nested_facet_sum");
-        validateFacetResultSum(nestedFacetSize, 156647d);
+        validateSingleValueFacet(nestedFacetSize, 156647d);
+
+        FacetResult nestedFacetAlgorithmCount = getFacetResultByName(facetResults, "nested_facet_algorithm_count");
+        validateSingleValueFacet(nestedFacetAlgorithmCount, 4d);
+
+        FacetResult nestedFacetAlgorithmCardinality = getFacetResultByName(
+            facetResults,
+            "nested_facet_algorithm_cardinality"
+        );
+        validateSingleValueFacet(nestedFacetAlgorithmCardinality, 1d);
     }
 
     private FacetResult getFacetResultByName(List<FacetResult> facetResults, String name) {
@@ -1187,7 +1200,7 @@ public class AccessExternalIT extends VitamRuleRunner {
             .orElseThrow(() -> new AssertionError("Facet result with name " + name + " not found"));
     }
 
-    private void validateFacetResultCount(FacetResult facetResult, String expectedValue, long expectedCount) {
+    private void validateFacetResultBucketCount(FacetResult facetResult, String expectedValue, long expectedCount) {
         assertNotNull(facetResult);
         FacetBucket firstBucket = facetResult.getBuckets().get(0);
         assertNotNull(firstBucket);
@@ -1195,11 +1208,11 @@ public class AccessExternalIT extends VitamRuleRunner {
         assertEquals(expectedCount, firstBucket.getCount());
     }
 
-    private void validateFacetResultSum(FacetResult facetResult, double expectedSum) {
+    private void validateSingleValueFacet(FacetResult facetResult, Double expectedSum) {
         assertNotNull(facetResult);
-        SumFacet firstBucket = facetResult.getSumFacet();
+        SingleValueFacet firstBucket = facetResult.getSingleValueFacet();
         assertNotNull(firstBucket);
-        assertEquals(expectedSum, firstBucket.getSum(), 0);
+        assertEquals(expectedSum, firstBucket.getValue(), 0);
     }
 
     @RunWithCustomExecutor
@@ -1217,6 +1230,8 @@ public class AccessExternalIT extends VitamRuleRunner {
         query.addFacets(sum("facet_totalUnits", "TotalUnits.ingested"));
         query.addFacets(sum("facet_totalObjects", "TotalObjects.ingested"));
         query.addFacets(sum("facet_totalObjectsGroups", "TotalObjectGroups.ingested"));
+        query.addFacets(count("facet_OriginatingAgency", "OriginatingAgency"));
+        query.addFacets(cardinality("facet_Status", "Status"));
 
         // When
 
@@ -1232,17 +1247,21 @@ public class AccessExternalIT extends VitamRuleRunner {
                 >) accessionRegisterResponse;
 
         List<FacetResult> facetResults = requestResponseOK.getFacetResults();
-        assertEquals(4, facetResults.size());
+        assertEquals(6, facetResults.size());
 
         FacetResult facetObjectSizes = getFacetResultByName(facetResults, "facet_objectSizes");
         FacetResult facetNbUnits = getFacetResultByName(facetResults, "facet_totalUnits");
         FacetResult facetNbObjects = getFacetResultByName(facetResults, "facet_totalObjects");
         FacetResult facetNbObjectsGroupTotal = getFacetResultByName(facetResults, "facet_totalObjectsGroups");
+        FacetResult facetOriginatingAgency = getFacetResultByName(facetResults, "facet_OriginatingAgency");
+        FacetResult facetStatus = getFacetResultByName(facetResults, "facet_Status");
 
-        validateFacetResultSum(facetObjectSizes, 156_647d);
-        validateFacetResultSum(facetNbUnits, 5d);
-        validateFacetResultSum(facetNbObjects, 5d);
-        validateFacetResultSum(facetNbObjectsGroupTotal, 2d);
+        validateSingleValueFacet(facetObjectSizes, 156_647d);
+        validateSingleValueFacet(facetNbUnits, 5d);
+        validateSingleValueFacet(facetNbObjects, 5d);
+        validateSingleValueFacet(facetNbObjectsGroupTotal, 2d);
+        validateSingleValueFacet(facetOriginatingAgency, 1d);
+        validateSingleValueFacet(facetStatus, 1d);
     }
 
     @RunWithCustomExecutor
@@ -1257,6 +1276,7 @@ public class AccessExternalIT extends VitamRuleRunner {
 
         query.addFacets(terms("Facet_TypeDetail", "TypeDetail", 10, FacetOrder.ASC));
         query.addFacets(terms("Facet_Collections", "Collections", 10, FacetOrder.ASC));
+        query.addFacets(cardinality("Facet_Collections_card", "Collections"));
 
         // When
 
@@ -1271,12 +1291,37 @@ public class AccessExternalIT extends VitamRuleRunner {
         RequestResponseOK<OntologyModel> requestResponseOK = (RequestResponseOK<OntologyModel>) ontologyModelResponse;
 
         List<FacetResult> facetResults = requestResponseOK.getFacetResults();
-        assertEquals(2, facetResults.size());
+        assertEquals(3, facetResults.size());
 
         FacetResult facetTypeDetail = getFacetResultByName(facetResults, "Facet_TypeDetail");
         FacetResult facetCollections = getFacetResultByName(facetResults, "Facet_Collections");
+        FacetResult facetCollectionsCardinality = getFacetResultByName(facetResults, "Facet_Collections_card");
 
-        validateFacetResultCount(facetTypeDetail, "STRING", 245);
-        validateFacetResultCount(facetCollections, "Unit", 161);
+        validateFacetResultBucketCount(facetTypeDetail, "STRING", 245);
+        validateFacetResultBucketCount(facetCollections, "Unit", 161);
+        validateSingleValueFacet(facetCollectionsCardinality, 22d);
+    }
+
+    @RunWithCustomExecutor
+    @Test
+    public void should_fail_when_field_is_internal_and_unknown_on_compute_facets() throws Exception {
+        // given
+        VitamContext vitamContext = new VitamContext(TENANT_ID)
+            .setApplicationSessionId(APPLICATION_SESSION_ID)
+            .setAccessContract(ACCESS_CONTRACT);
+
+        Select query = new Select();
+
+        query.addFacets(terms("unknown_field_facet", "#unknown", 10, FacetOrder.ASC));
+
+        // When
+
+        RequestResponse<OntologyModel> ontologyModelResponse = adminExternalClient.findOntologies(
+            vitamContext,
+            query.getFinalSelect()
+        );
+
+        // THEN
+        assertThat(ontologyModelResponse.getStatus()).isNotEqualTo(Status.OK.getStatusCode());
     }
 }

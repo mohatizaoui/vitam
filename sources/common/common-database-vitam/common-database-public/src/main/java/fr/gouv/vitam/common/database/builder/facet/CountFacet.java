@@ -24,59 +24,52 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL-C license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.common.model;
+package fr.gouv.vitam.common.database.builder.facet;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import fr.gouv.vitam.common.database.builder.request.configuration.BuilderToken.FACET;
+import fr.gouv.vitam.common.database.builder.request.configuration.BuilderToken.FACETARGS;
+import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
 import fr.gouv.vitam.common.json.JsonHandler;
 
-import java.util.Objects;
-
 /**
- * Facet bucket
+ * count facet
  */
-public class SumFacet {
-
-    @JsonProperty("sum")
-    private double sum;
+public class CountFacet extends Facet {
 
     /**
-     * Constructor
-     */
-    public SumFacet() {}
-
-    /**
-     * Constructor
+     * count Facet constructor
      *
-     * @param sum sum
+     * @param name name of the facet
+     * @param field field of the facet data
+     * @param nestedPath nested path of field of the facet data
+     * @throws InvalidCreateOperationException not valid
      */
-    public SumFacet(double sum) {
-        super();
-        this.sum = sum;
+    public CountFacet(String name, String field, String nestedPath) throws InvalidCreateOperationException {
+        super(name);
+        populateFacet(name, field, nestedPath);
     }
 
-    public double getSum() {
-        return sum;
+    /**
+     * Count Facet constructor
+     *
+     * @param name name of the facet
+     * @param field field of the facet data
+     * @throws InvalidCreateOperationException not valid
+     */
+    public CountFacet(String name, String field) throws InvalidCreateOperationException {
+        super(name);
+        populateFacet(name, field, null);
     }
 
-    public void setSum(double sum) {
-        this.sum = sum;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        SumFacet that = (SumFacet) o;
-        return Objects.equals(sum, that.sum);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(sum);
-    }
-
-    @Override
-    public String toString() {
-        return JsonHandler.createObjectNode().put("sum", sum).toString();
+    private void populateFacet(String name, String field, String nestedPath) throws InvalidCreateOperationException {
+        setName(name);
+        currentTokenFACET = FACET.COUNT;
+        ObjectNode facetNode = JsonHandler.createObjectNode();
+        facetNode.put(FACETARGS.FIELD.exactToken(), field);
+        if (nestedPath != null) {
+            facetNode.put(FACETARGS.SUBOBJECT.exactToken(), nestedPath);
+        }
+        currentFacet = facetNode;
     }
 }

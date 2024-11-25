@@ -39,7 +39,19 @@ X-Access-Contract-Id: {{access-contract}}
         "$field": "TotalObjectGroups.ingested"
       }
     }
-
+  ,
+    {
+      "$name": "facet_count_OriginatingAgency",
+      "$count": {
+        "$field": "OriginatingAgency"
+      }
+    },
+    {
+      "$name": "facet_count_SubmissionAgency",
+      "$cardinality": {
+        "$field": "SubmissionAgency"
+      }
+    }
   ]
 }
 

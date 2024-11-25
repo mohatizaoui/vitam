@@ -136,6 +136,70 @@ public class FacetParserHelper extends FacetHelper {
     }
 
     /**
+     * Transform facet jsonNode in cardinality Facet object
+     *
+     * @param facet facet node
+     * @param adapter adapter
+     * @return count Facet object
+     * @throws InvalidCreateOperationException error while creating sum Facet
+     * @throws InvalidParseOperationException error in adapater
+     */
+    public static final Facet cardinality(final JsonNode facet, VarNameAdapter adapter)
+        throws InvalidCreateOperationException, InvalidParseOperationException {
+        final String name = facet.get(FACETARGS.NAME.exactToken()).asText();
+        JsonNode cardinalityNode = facet.get(FACET.CARDINALITY.exactToken());
+
+        String translatedNestedPath = null;
+        if (cardinalityNode.get(FACETARGS.SUBOBJECT.exactToken()) != null) {
+            String nestedPath = cardinalityNode.get(FACETARGS.SUBOBJECT.exactToken()).asText();
+            translatedNestedPath = adapter.getVariableName(nestedPath);
+            if (translatedNestedPath == null) {
+                translatedNestedPath = nestedPath;
+            }
+        }
+
+        String fieldName = cardinalityNode.get(FACETARGS.FIELD.exactToken()).asText();
+        String translatedFieldName = adapter.getVariableName(fieldName);
+        if (translatedFieldName == null) {
+            translatedFieldName = fieldName;
+        }
+
+        return FacetHelper.cardinality(name, translatedFieldName, translatedNestedPath);
+    }
+
+    /**
+     * Transform facet jsonNode in count Facet object
+     *
+     * @param facet facet node
+     * @param adapter adapter
+     * @return count Facet object
+     * @throws InvalidCreateOperationException error while creating sum Facet
+     * @throws InvalidParseOperationException error in adapater
+     */
+    public static final Facet count(final JsonNode facet, VarNameAdapter adapter)
+        throws InvalidCreateOperationException, InvalidParseOperationException {
+        final String name = facet.get(FACETARGS.NAME.exactToken()).asText();
+        JsonNode countNode = facet.get(FACET.COUNT.exactToken());
+
+        String translatedNestedPath = null;
+        if (countNode.get(FACETARGS.SUBOBJECT.exactToken()) != null) {
+            String nestedPath = countNode.get(FACETARGS.SUBOBJECT.exactToken()).asText();
+            translatedNestedPath = adapter.getVariableName(nestedPath);
+            if (translatedNestedPath == null) {
+                translatedNestedPath = nestedPath;
+            }
+        }
+
+        String fieldName = countNode.get(FACETARGS.FIELD.exactToken()).asText();
+        String translatedFieldName = adapter.getVariableName(fieldName);
+        if (translatedFieldName == null) {
+            translatedFieldName = fieldName;
+        }
+
+        return FacetHelper.count(name, translatedFieldName, translatedNestedPath);
+    }
+
+    /**
      * Transform facet jsonNode into a dateRange Facet object
      *
      * @param facet

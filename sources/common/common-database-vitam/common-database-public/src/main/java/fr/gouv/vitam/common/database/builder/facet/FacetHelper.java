@@ -90,6 +90,58 @@ public class FacetHelper {
     }
 
     /**
+     * Create a cardinality facet
+     *
+     * @param name name of the facet
+     * @param field field of facet data
+     * @param nestdPath nested path of field of facet data
+     * @return a Facet
+     * @throws InvalidCreateOperationException when creating facet errors
+     */
+    public static final Facet cardinality(String name, String field, String nestdPath)
+        throws InvalidCreateOperationException {
+        return new CardinalityFacet(name, field, nestdPath);
+    }
+
+    /**
+     * Create a cardinality facet
+     *
+     * @param name name of the facet
+     * @param field field of facet data
+     * @return a Facet
+     * @throws InvalidCreateOperationException when creating facet errors
+     */
+    public static final Facet cardinality(String name, String field) throws InvalidCreateOperationException {
+        return new CardinalityFacet(name, field);
+    }
+
+    /**
+     * Create a count facet
+     *
+     * @param name name of the facet
+     * @param field field of facet data
+     * @param nestdPath nested path of field of facet data
+     * @return a Facet
+     * @throws InvalidCreateOperationException when creating facet errors
+     */
+    public static final Facet count(String name, String field, String nestdPath)
+        throws InvalidCreateOperationException {
+        return new CountFacet(name, field, nestdPath);
+    }
+
+    /**
+     * Create a count facet
+     *
+     * @param name name of the facet
+     * @param field field of facet data
+     * @return a SUM Facet
+     * @throws InvalidCreateOperationException when creating facet errors
+     */
+    public static final Facet count(String name, String field) throws InvalidCreateOperationException {
+        return new CountFacet(name, field);
+    }
+
+    /**
      * Create a SUM facet
      *
      * @param name name of the facet

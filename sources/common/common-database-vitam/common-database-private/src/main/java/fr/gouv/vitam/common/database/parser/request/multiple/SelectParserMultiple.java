@@ -164,6 +164,10 @@ public class SelectParserMultiple extends RequestParserMultiple {
                 return FacetParserHelper.filters(facet, adapter);
             case SUM:
                 return FacetParserHelper.sum(facet, adapter);
+            case CARDINALITY:
+                return FacetParserHelper.cardinality(facet, adapter);
+            case COUNT:
+                return FacetParserHelper.count(facet, adapter);
             default:
                 throw new InvalidParseOperationException(
                     "Invalid parse: command not a facet " + facetCommand.exactToken()

@@ -26,19 +26,57 @@
  */
 package fr.gouv.vitam.common.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import fr.gouv.vitam.common.json.JsonHandler;
+
+import java.util.Objects;
+
 /**
- * Enumeration of the Vitam Facet types. <br/>
+ * Single Value Facet for name and value
  */
-public enum FacetType {
-    TERMS,
-    DATE_RANGE,
-    FILTERS,
-    SUM,
-    COUNT,
-    CARDINALITY;
+public class SingleValueFacet {
+
+    @JsonProperty("value")
+    private Double value;
 
     /**
-     * default constructor. <br/>
+     * Constructor
      */
-    FacetType() {}
+    public SingleValueFacet() {}
+
+    /**
+     * Constructor
+     *
+     * @param value value
+     */
+    public SingleValueFacet(Double value) {
+        super();
+        this.value = value;
+    }
+
+    public Double getValue() {
+        return value;
+    }
+
+    public void setValue(Double value) {
+        this.value = value;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SingleValueFacet that = (SingleValueFacet) o;
+        return Objects.equals(value, that.value);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(value);
+    }
+
+    @Override
+    public String toString() {
+        return JsonHandler.createObjectNode().put("value", value).toString();
+    }
 }

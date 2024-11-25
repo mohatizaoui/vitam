@@ -30,11 +30,22 @@ package fr.gouv.vitam.common.database.server.elasticsearch;
 import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import co.elastic.clients.elasticsearch._types.SortOptions;
 import co.elastic.clients.elasticsearch._types.SortOrder;
+import co.elastic.clients.elasticsearch._types.aggregations.Aggregate;
+import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
+import co.elastic.clients.elasticsearch._types.aggregations.CardinalityAggregate;
+import co.elastic.clients.elasticsearch._types.aggregations.CardinalityAggregation;
+import co.elastic.clients.elasticsearch._types.aggregations.StringTermsAggregate;
+import co.elastic.clients.elasticsearch._types.aggregations.SumAggregate;
+import co.elastic.clients.elasticsearch._types.aggregations.SumAggregation;
+import co.elastic.clients.elasticsearch._types.aggregations.TermsAggregation;
+import co.elastic.clients.elasticsearch._types.aggregations.ValueCountAggregate;
+import co.elastic.clients.elasticsearch._types.aggregations.ValueCountAggregation;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.elasticsearch.core.search.ResponseBody;
 import co.elastic.clients.elasticsearch.indices.GetAliasResponse;
+import co.elastic.clients.util.NamedValue;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.database.server.mongodb.CollectionSample;
@@ -58,6 +69,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.getFieldSorts;
 import static fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchUtil.matchAll;
@@ -169,6 +181,68 @@ public class ElasticsearchAccessTest {
     }
 
     @Test
+    public void testIndexEntryWithFacets() throws Exception {
+        Map<String, VitamDocument<?>> documents = insertDataSet();
+
+        // Define facets
+        Map<String, Aggregation> facets = new HashMap<>();
+
+        facets.put(
+            "FacetOriginatingAgencyTerms",
+            new TermsAggregation.Builder()
+                .field("OriginatingAgency")
+                .order(NamedValue.of("_key", SortOrder.Asc))
+                .size(10)
+                .build()
+                ._toAggregation()
+        );
+        facets.put("FacetSizeSum", new SumAggregation.Builder().field("Size").build()._toAggregation());
+        facets.put(
+            "FacetOriginatingAgencyCount",
+            new ValueCountAggregation.Builder().field("OriginatingAgency").build()._toAggregation()
+        );
+        facets.put(
+            "FacetOriginatingAgencyCardinality",
+            new CardinalityAggregation.Builder().field("OriginatingAgency").build()._toAggregation()
+        );
+
+        ResponseBody<ObjectNode> searchResponseAfter = elasticsearchAccess.search(
+            myalias,
+            matchAll(),
+            null,
+            null,
+            0,
+            100,
+            facets
+        );
+        assertThat(searchResponseAfter.hits().total()).isNotNull();
+        assertThat(searchResponseAfter.hits().total().value()).isEqualTo(documents.size());
+
+        List<Hit<ObjectNode>> hits = searchResponseAfter.hits().hits();
+        assertThat(hits.stream().map(Hit::id)).containsExactlyInAnyOrderElementsOf(documents.keySet());
+
+        for (Hit<ObjectNode> hit : hits) {
+            assertThat(hit.source().get("Identifier").asText()).isEqualTo("value" + hit.id());
+        }
+        assertThat(searchResponseAfter.aggregations()).isNotNull();
+        assertThat(searchResponseAfter.aggregations().size()).isEqualTo(4);
+        Map<String, Aggregate> aggregations = searchResponseAfter.aggregations();
+        SumAggregate facetSizeSum = aggregations.get("FacetSizeSum").sum();
+        StringTermsAggregate stringTermsAggregate = aggregations.get("FacetOriginatingAgencyTerms").sterms();
+        ValueCountAggregate facetOriginatingAgencyCount = aggregations.get("FacetOriginatingAgencyCount").valueCount();
+        CardinalityAggregate facetOriginatingAgencyCardinality = aggregations
+            .get("FacetOriginatingAgencyCardinality")
+            .cardinality();
+
+        assertThat(facetSizeSum.value()).isEqualTo(IntStream.range(0, 15).sum());
+        assertThat(facetOriginatingAgencyCount.value()).isEqualTo(12); //12 non null value
+        assertThat(facetOriginatingAgencyCardinality.value()).isEqualTo(3); // 3 non null different values
+        assertThat(stringTermsAggregate.buckets()).isNotNull();
+        assertThat(stringTermsAggregate.buckets().array().get(0).key()._toJsonString()).isEqualTo("Agency1");
+        assertThat(stringTermsAggregate.buckets().array().get(0).docCount()).isEqualTo(7);
+    }
+
+    @Test
     public void testIndexEntries() throws Exception {
         Map<String, VitamDocument<?>> documents = insertDataSet();
 
@@ -188,7 +262,7 @@ public class ElasticsearchAccessTest {
         assertThat(hits.stream().map(Hit::id)).containsExactlyInAnyOrderElementsOf(documents.keySet());
 
         for (Hit<ObjectNode> hit : hits) {
-            assertThat(hit.source().fieldNames()).toIterable().containsOnly("Identifier", "Name", "_tenant");
+            assertThat(hit.source().fieldNames()).toIterable().contains("Identifier", "Name", "_tenant", "Size");
             assertThat(hit.source().get("Identifier").asText()).isEqualTo("value" + hit.id());
         }
     }
@@ -231,7 +305,7 @@ public class ElasticsearchAccessTest {
                 assertThat(hit.source().get("newKey").asText()).isEqualTo("newValue" + hit.id());
             } else {
                 // Non updated documents
-                assertThat(hit.source().fieldNames()).toIterable().containsOnly("Identifier", "Name", "_tenant");
+                assertThat(hit.source().fieldNames()).toIterable().contains("Identifier", "Name", "_tenant", "Size");
                 assertThat(hit.source().get("Identifier").asText()).isEqualTo("value" + hit.id());
             }
         }
@@ -374,8 +448,20 @@ public class ElasticsearchAccessTest {
 
     private Map<String, VitamDocument<?>> insertDataSet() throws IOException, DatabaseException {
         Map<String, VitamDocument<?>> documents = new HashMap<>();
+
         for (int i = 0; i < 15; i++) {
             String id = GUIDFactory.newGUID().getId();
+            String agencyValue = null; //3 values
+            if (i < 7) {
+                agencyValue = "Agency1"; //7 values
+            }
+            if (i >= 7 && i < 10) {
+                agencyValue = "Agency2"; //3 values
+            }
+            if (i >= 10 && i < 12) {
+                agencyValue = "Agency3"; //2 values
+            }
+
             documents.put(
                 id,
                 new CollectionSample(
@@ -384,6 +470,8 @@ public class ElasticsearchAccessTest {
                         .put("Identifier", "value" + id)
                         .put("Name", "Lorem ipsum dolor sit amet, consectetur adipiscing elit")
                         .put("_tenant", i)
+                        .put("Size", i)
+                        .put("OriginatingAgency", agencyValue)
                 )
             );
         }

@@ -523,8 +523,8 @@ public class SelectUnitResourceTest {
         RequestResponseOK<JsonNode> responseSumOK = JsonHandler.getFromInputStream(stream, RequestResponseOK.class);
         assertThat(responseSumOK.getFacetResults().size()).isEqualTo(1);
         assertThat(responseSumOK.getFacetResults().get(0).getName()).isEqualTo("sum_max_facet");
-        assertThat(responseSumOK.getFacetResults().get(0).getSumFacet()).isNotNull();
-        assertThat(responseSumOK.getFacetResults().get(0).getSumFacet().getSum()).isEqualTo(2d);
+        assertThat(responseSumOK.getFacetResults().get(0).getSingleValueFacet()).isNotNull();
+        assertThat(responseSumOK.getFacetResults().get(0).getSingleValueFacet().getValue()).isEqualTo(2d);
 
         stream = given()
             .contentType(ContentType.JSON)
