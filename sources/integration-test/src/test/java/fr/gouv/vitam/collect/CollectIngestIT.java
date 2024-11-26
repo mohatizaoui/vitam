@@ -207,7 +207,9 @@ public class CollectIngestIT extends VitamRuleRunner {
                 RequestResponse<JsonNode> response = collectClient.uploadZipToTransaction(
                     vitamContext,
                     transactionDtoResult.getId(),
-                    inputStream
+                    inputStream,
+                    null,
+                    null
                 );
                 Assertions.assertThat(response.getStatus()).isEqualTo(200);
             }
@@ -389,7 +391,9 @@ public class CollectIngestIT extends VitamRuleRunner {
                 RequestResponse<JsonNode> response = collectClient.uploadZipToTransaction(
                     vitamContext,
                     idTransaction,
-                    inputStream
+                    inputStream,
+                    null,
+                    null
                 );
                 Assertions.assertThat(response.getStatus()).isEqualTo(200);
             }

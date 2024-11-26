@@ -586,7 +586,7 @@ public class ProjectInternalResourceTest extends CollectInternalResourceBaseTest
             .post(PROJECTS + "/prId/upload")
             .then()
             .statusCode(Response.Status.OK.getStatusCode());
-        verify(fluxService).processStream(any(), eq("prId"), eq("VIRTUAL_TX_prId"), eq("x-mac-greek"));
+        verify(fluxService).processStream(any(), eq("prId"), eq("VIRTUAL_TX_prId"), eq("x-mac-greek"), any());
     }
 
     @Test
@@ -601,7 +601,7 @@ public class ProjectInternalResourceTest extends CollectInternalResourceBaseTest
             .post(PROJECTS + "/prId/upload")
             .then()
             .statusCode(Response.Status.NOT_FOUND.getStatusCode());
-        verify(fluxService, never()).processStream(any(), eq("prId"), eq("VIRTUAL_TX_prId"), any());
+        verify(fluxService, never()).processStream(any(), eq("prId"), eq("VIRTUAL_TX_prId"), any(), any());
     }
 
     @Test
@@ -611,7 +611,7 @@ public class ProjectInternalResourceTest extends CollectInternalResourceBaseTest
         doReturn(Optional.of(project)).when(projectService).findProject("prId");
         doThrow(new CollectInternalException("error"))
             .when(fluxService)
-            .processStream(any(), eq("prId"), eq("VIRTUAL_TX_prId"), any());
+            .processStream(any(), eq("prId"), eq("VIRTUAL_TX_prId"), any(), any());
         given()
             .contentType(CommonMediaType.ZIP)
             .accept(ContentType.JSON)

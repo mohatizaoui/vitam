@@ -311,7 +311,9 @@ public class TransactionExternalResourceTest extends ResteasyTestApplication {
 
     @Test
     public void upload_zip_to_project_OK() throws Exception {
-        Mockito.doNothing().when(collectInternalClient).uploadZipToTransaction(eq("transaction-id"), any(), any());
+        Mockito.doNothing()
+            .when(collectInternalClient)
+            .uploadZipToTransaction(eq("transaction-id"), any(), any(), eq(null));
 
         given()
             .contentType(CommonMediaType.ZIP)
@@ -327,7 +329,34 @@ public class TransactionExternalResourceTest extends ResteasyTestApplication {
         verify(collectInternalClient).uploadZipToTransaction(
             eq("transaction-id"),
             any(InputStream.class),
-            eq("MacRoman")
+            eq("MacRoman"),
+            eq(null)
+        );
+    }
+
+    @Test
+    public void upload_zip_to_project_OK_with_attachement() throws Exception {
+        Mockito.doNothing()
+            .when(collectInternalClient)
+            .uploadZipToTransaction(eq("transaction-id"), any(), any(), eq("attachement-id"));
+
+        given()
+            .contentType(CommonMediaType.ZIP)
+            .accept(ContentType.JSON)
+            .header(GlobalDataRest.X_TENANT_ID, 1)
+            .header(GlobalDataRest.X_ENCODING, "MacRoman")
+            .header(GlobalDataRest.X_ATTACHEMENT_ID, "attachement-id")
+            .body(new NullInputStream(100))
+            .when()
+            .post("/transactions/transaction-id/upload")
+            .then()
+            .statusCode(OK.getStatusCode());
+
+        verify(collectInternalClient).uploadZipToTransaction(
+            eq("transaction-id"),
+            any(InputStream.class),
+            eq("MacRoman"),
+            eq("attachement-id")
         );
     }
 
@@ -345,6 +374,6 @@ public class TransactionExternalResourceTest extends ResteasyTestApplication {
             .statusCode(BAD_REQUEST.getStatusCode())
             .body("message", Matchers.equalTo("Unsupported encoding imaginary-encoding"));
 
-        verify(collectInternalClient, never()).uploadZipToTransaction(any(), any(), any());
+        verify(collectInternalClient, never()).uploadZipToTransaction(any(), any(), any(), any());
     }
 }

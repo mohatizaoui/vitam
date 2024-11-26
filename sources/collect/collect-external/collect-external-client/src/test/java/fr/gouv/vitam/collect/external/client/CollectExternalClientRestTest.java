@@ -190,7 +190,9 @@ public class CollectExternalClientRestTest extends ResteasyTestApplication {
         RequestResponse<JsonNode> response = client.uploadZipToTransaction(
             new VitamContext(TENANT_ID),
             "TX_ID",
-            new NullInputStream(100)
+            new NullInputStream(100),
+            null,
+            "some-attachement-id"
         );
         Assertions.assertThat(response).isNotNull();
     }
@@ -204,7 +206,8 @@ public class CollectExternalClientRestTest extends ResteasyTestApplication {
             new VitamContext(TENANT_ID),
             "TX_ID",
             new NullInputStream(100),
-            "Ventura-Math"
+            "Ventura-Math",
+            "some-attachement-id"
         );
         Assertions.assertThat(response).isNotNull();
     }

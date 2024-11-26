@@ -339,7 +339,7 @@ public class ProjectInternalResource {
             // Use projectId to ensure the virtual transactionId is reused within the same project
             String virtualTransactionId = VIRTUAL_TX + projectId;
 
-            fluxService.processStream(inputStreamObject, projectId, virtualTransactionId, encoding);
+            fluxService.processStream(inputStreamObject, projectId, virtualTransactionId, encoding, null);
             return Response.ok(new RequestResponseOK<>().addResult(virtualTransactionId)).build();
         } catch (CollectInternalInvalidRequestException | IllegalArgumentException e) {
             LOGGER.error("An error occurs when try to upload the ZIP:", e);

@@ -406,17 +406,19 @@ public class CollectExternalClientRest extends DefaultClient implements CollectE
     public RequestResponse<JsonNode> uploadZipToTransaction(
         VitamContext vitamContext,
         String transactionId,
-        InputStream inputStreamUploaded
+        InputStream inputStreamUploaded,
+        @Nullable String encoding,
+        @Nullable String attachementId
     ) throws VitamClientException {
-        return uploadZipToTransaction(vitamContext, transactionId, inputStreamUploaded, null);
+        return callUploadZipToTransaction(vitamContext, transactionId, inputStreamUploaded, encoding, attachementId);
     }
 
-    @Override
-    public RequestResponse<JsonNode> uploadZipToTransaction(
+    private RequestResponse<JsonNode> callUploadZipToTransaction(
         VitamContext vitamContext,
         String transactionId,
         InputStream inputStreamUploaded,
-        @Nullable String encoding
+        @Nullable String encoding,
+        @Nullable String attachementId
     ) throws VitamClientException {
         try (
             Response response = make(
@@ -424,6 +426,7 @@ public class CollectExternalClientRest extends DefaultClient implements CollectE
                     .withPath(TRANSACTION_PATH + "/" + transactionId + "/upload")
                     .withHeaders(vitamContext.getHeaders())
                     .withOptionalHeader(GlobalDataRest.X_ENCODING, encoding)
+                    .withOptionalHeader(GlobalDataRest.X_ATTACHEMENT_ID, attachementId)
                     .withBody(inputStreamUploaded)
                     .withContentType(CommonMediaType.ZIP_TYPE)
                     .withJsonAccept()

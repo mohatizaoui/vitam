@@ -274,7 +274,7 @@ public interface CollectExternalClient extends MockOrRestClient {
         String transactionId,
         InputStream inputStreamUploaded
     ) throws VitamClientException {
-        return uploadZipToTransaction(vitamContext, transactionId, inputStreamUploaded);
+        return uploadZipToTransaction(vitamContext, transactionId, inputStreamUploaded, null, null);
     }
 
     /**
@@ -310,19 +310,6 @@ public interface CollectExternalClient extends MockOrRestClient {
 
     /**
      * Upload zip to a transaction.
-     * Consumes a ZIP (application/zip).
-     *
-     * @return RequestResponse<JsonNode>
-     * @throws VitamClientException exception occurs when parse operation failed
-     */
-    RequestResponse<JsonNode> uploadZipToTransaction(
-        VitamContext vitamContext,
-        String transactionId,
-        InputStream inputStreamUploaded
-    ) throws VitamClientException;
-
-    /**
-     * Upload zip to a transaction.
      * Consumes a ZIP (application/zip) and it's encoding (optional)
      *
      * @return RequestResponse<JsonNode>
@@ -332,7 +319,8 @@ public interface CollectExternalClient extends MockOrRestClient {
         VitamContext vitamContext,
         String transactionId,
         InputStream inputStreamUploaded,
-        @Nullable String encoding
+        @Nullable String encoding,
+        @Nullable String attachementId
     ) throws VitamClientException;
 
     /**

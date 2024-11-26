@@ -423,7 +423,6 @@ public class MetadataService {
                     attachmentUnitsBySystemId.put(projectModel.getUnitUp(), unit.getId());
                 }
             }
-
             if (projectModel.getUnitUps() != null) {
                 for (MetadataUnitUp unitUp : projectModel.getUnitUps()) {
                     if (!attachmentUnitsBySystemId.containsKey(unitUp.getUnitUp())) {

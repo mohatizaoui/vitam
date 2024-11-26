@@ -467,7 +467,8 @@ public class TransactionExternalResource extends ApplicationStatusResource {
     public Response uploadTransactionZip(
         @PathParam("transactionId") String transactionId,
         InputStream inputStreamObject,
-        @HeaderParam(GlobalDataRest.X_ENCODING) @Nullable String encoding
+        @HeaderParam(GlobalDataRest.X_ENCODING) @Nullable String encoding,
+        @HeaderParam(GlobalDataRest.X_ATTACHEMENT_ID) @Nullable String attachementId
     ) {
         try (CollectInternalClient client = collectInternalClientFactory.getClient()) {
             SanityChecker.checkParameter(transactionId);
@@ -478,7 +479,7 @@ public class TransactionExternalResource extends ApplicationStatusResource {
                     return CollectRequestResponse.toVitamError(BAD_REQUEST, "Unsupported encoding " + encoding);
                 }
             }
-            client.uploadZipToTransaction(transactionId, inputStreamObject, encoding);
+            client.uploadZipToTransaction(transactionId, inputStreamObject, encoding, attachementId);
             return Response.ok().build();
         } catch (CollectInternalClientInvalidRequestException e) {
             LOGGER.error("Error when uploading transaction Zip - BAD REQUEST ", e);
