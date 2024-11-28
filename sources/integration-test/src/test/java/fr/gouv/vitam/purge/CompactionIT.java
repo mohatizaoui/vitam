@@ -440,7 +440,7 @@ public class CompactionIT extends VitamRuleRunner {
                 .getMongoDatabase()
                 .getCollection(OFFER_LOG.getName())
                 .find(in(CONTAINER, containers))
-                .sort(Sorts.ascending(CompactedOfferLog.SEQUENCE_START))
+                .sort(Sorts.ascending(OfferLog.SEQUENCE))
                 .map(this::mapToOfferLog)
                 .iterator()
         );
