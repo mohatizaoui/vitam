@@ -25,6 +25,11 @@
             }
           }
         }
+      },
+      {
+        "$unset": [
+          "Title_"
+        ]
       }
     ]
   },
@@ -44,6 +49,11 @@
           "DescriptionLevel": "RecordGrp",
           "Title": "ROOT"
         }
+      },
+      {
+        "$unset": [
+          "Title_"
+        ]
       }
     ]
   },
@@ -73,6 +83,11 @@
             }
           }
         }
+      },
+      {
+        "$unset": [
+          "Title_"
+        ]
       }
     ]
   },
@@ -124,6 +139,11 @@
             }
           }
         }
+      },
+      {
+        "$unset": [
+          "Title_"
+        ]
       }
     ]
   },
@@ -149,6 +169,12 @@
           },
           "DescriptionLevel": "Item"
         }
+      },
+      {
+        "$unset": [
+          "Title",
+          "Description"
+        ]
       }
     ]
   },
@@ -174,6 +200,12 @@
           "DescriptionLevel": "Item",
           "EndDate": "2022-10-08T01:00:00"
         }
+      },
+      {
+        "$unset": [
+          "Title",
+          "Description_"
+        ]
       }
     ]
   },
@@ -220,6 +252,11 @@
             }
           }
         }
+      },
+      {
+        "$unset": [
+          "Title_"
+        ]
       }
     ]
   }
