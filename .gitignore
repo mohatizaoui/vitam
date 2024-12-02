@@ -41,3 +41,4 @@ cucumber-reports
 .run
 deployment/environments/keystores
 deployment/environments/certs
+.java-version
