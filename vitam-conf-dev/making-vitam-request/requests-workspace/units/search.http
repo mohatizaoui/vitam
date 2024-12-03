@@ -261,6 +261,23 @@ X-Tenant-Id: {{tenant}}
           }
         ]
       }
+    },{
+      "$name": "sum_versions_facet",
+      "$sum": {
+        "$field": "#version"
+      }
+    }
+  ,{
+      "$name": "facet_count_DescriptionLevel",
+      "$count": {
+        "$field": "DescriptionLevel"
+      }
+    },
+    {
+      "$name": "facet_distinct_strategy",
+      "$cardinality": {
+        "$field": "#storage.strategyId"
+      }
     }
     ]
 }

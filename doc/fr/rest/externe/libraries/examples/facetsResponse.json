@@ -1,9 +1,10 @@
 "$facetResults": [
     {
-      "name": "qualifiers_qualifier_size",
-      "sum": {
-        "sum": 15
-      }
+      "name":"qualifiers_qualifier_size",
+      "singleValueFacet":
+        {
+          "value":15.0
+        }
     },
     {
       "name": "qualifiers_qualifier_DataObjectVersion",

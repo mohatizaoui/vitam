@@ -423,7 +423,9 @@ public abstract class BuilderToken {
         TERMS("terms"),
         DATE_RANGE("date_range"),
         FILTERS("filters"),
-        SUM("sum");
+        SUM("sum"),
+        CARDINALITY("cardinality"),
+        COUNT("count");
 
         private final String exactToken;
 

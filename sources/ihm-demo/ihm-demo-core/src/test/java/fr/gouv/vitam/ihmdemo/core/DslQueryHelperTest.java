@@ -84,7 +84,7 @@ public class DslQueryHelperTest {
         "QUERY: Requests: " + "{\"$and\":[{\"$exists\":\"evTypeProc\"},{\"$exists\":\"evIdProc\"}]}\n" +
             "\tFilter: {\"$limit\":10000}\n" +
             "\tProjection: {}\n" +
-            "\tFacets: [{\"$name\":\"DescriptionLevelFacet\",\"$terms\":{\"$field\":\"DescriptionLevel\",\"$size\":100,\"$order\":\"ASC\"}}, {\"$name\":\"TotalMax\",\"$sum\":{\"$field\":\"#max\"}}]";
+            "\tFacets: [{\"$name\":\"DescriptionLevelFacet\",\"$terms\":{\"$field\":\"DescriptionLevel\",\"$size\":100,\"$order\":\"ASC\"}}, {\"$name\":\"TotalMax\",\"$sum\":{\"$field\":\"#max\"}}, {\"$name\":\"TotalNestedField\",\"$sum\":{\"$field\":\"#qualifiers.versions.DataObjectVersion\",\"$subobject\":\"#qualifiers.versions\"}}]";
 
     private DslQueryHelper dslQueryHelper = DslQueryHelper.getInstance();
 
@@ -155,7 +155,9 @@ public class DslQueryHelperTest {
             new FacetItem("DescriptionLevelFacet", FacetType.TERMS, "DescriptionLevel", 100, FacetOrder.ASC, null,
                 null, null, Optional.empty()),
             new FacetItem("TotalMax", FacetType.SUM, "#max", null, null, null,
-                null, null, Optional.empty())
+                null, null, Optional.empty()),
+            new FacetItem("TotalNestedField", FacetType.SUM, "#qualifiers.versions.DataObjectVersion", null, null, null,
+                null, null, null)
 
         );
 
@@ -249,6 +251,10 @@ public class DslQueryHelperTest {
             new FacetItem("ObjectFacet", FacetType.FILTERS, null, null, null, null, null, objectfilters,
                 Optional.empty()),
             new FacetItem("TotalMax", FacetType.SUM, "#max", null, null, null,
+                null, null, Optional.empty()),
+            new FacetItem("OriginatingAgencyFacetCount", FacetType.COUNT, "#originating_agency", null, null, null,
+                null, null, Optional.empty()),
+            new FacetItem("LanguageFacetCardinality", FacetType.CARDINALITY, "Language", null, null, null,
                 null, null, Optional.empty())
 
         );

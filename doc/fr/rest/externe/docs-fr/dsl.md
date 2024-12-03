@@ -200,6 +200,7 @@ Vitam supporte les types de facettes suivants :
 - "$filters" : pour obtenir des résultats d'agrégations par filtres sur les résultats. 
 - "$range" : pour obtenir des agrégations par plages de dates.
 - "$sum" : pour obtenir des totaux sur des champs.
+- "$count" : pour obtenir le nombre de valeurs présentes sur des champs.
 
 **Exemples :**
 
@@ -290,6 +291,32 @@ Vitam supporte les types de facettes suivants :
   ]
 }
 ```
+
+
+4/ Rechercher les unités ayant le texte "Alpha" dans le titre et le nombre de valeurs présentes sur le champ "champ".
+
+```json
+{
+  "$roots": [],
+  "$query": [
+    {
+      "$match": { "Title": "Alpha" },
+      "$depth": 5
+    }
+  ],
+  "$filter": {},
+  "$projection": {},
+  "$facets": [
+    {
+      "$name": "count_not_null_values",
+      "$count": {
+        "$field": "champ"
+      }
+    }
+  ]
+}
+```
+
 
 #### Requêtes de recherche sur les autres collections (SELECT SINGLE)
 
@@ -799,12 +826,13 @@ La valeur **1** indique que le champ est activé (renvoyé au client). Toute aut
 
 Les commandes de la Facet peuvent être :
 
-| Opérateur   | Arguments                                  | Commentaire                                                         |
-|-------------|--------------------------------------------|---------------------------------------------------------------------|
-| $terms      | nom du champ, nombre et ordre des résulats | Répartition selon des valeurs textuelles du champ                   |
-| $date_range | nom de champ,  format, ranges              | Répartition selon les dates selon un intervalle défini "ranges"     |
-| $filters    | requêtes de filtre                         | Répartition selon les requêtes définies (même format qu'une $query) |
-| $sum        | nom du champ                               | Somme des valeurs du champ                                          |
+| Opérateur      | Arguments                                  | Commentaire                                                         |
+|----------------|--------------------------------------------|---------------------------------------------------------------------|
+| $terms         | nom du champ, nombre et ordre des résulats | Répartition selon des valeurs textuelles du champ                   |
+| $date_range    | nom de champ,  format, ranges              | Répartition selon les dates selon un intervalle défini "ranges"     |
+| $filters       | requêtes de filtre                         | Répartition selon les requêtes définies (même format qu'une $query) |
+| $sum           | nom du champ                               | Somme des valeurs du champ                                          |
+| $count         | nom du champ                               | Nombre de valeurs présentes du champ                  |
 
 ### Opérateur $terms : répartition selon des valeurs textuelles du champ
 
@@ -852,7 +880,7 @@ Recherche du nombre de résultats pour une date EndDate située entre 2010 et 20
 - `{ "$filters" : { "$query_filters" : [ { "$name" : "filter_name", "$query" : { QUERY } } ] } }` : où pour chaque filtre *name* (obligatoire) est le nom du filter et *query* contient une query dsl valide (cf partie QUERY de cette documentation).
 
 **Exemple :**
-Recherche la répartition des résultat pour la présence d'un champ titre en français et la présence d'un champ titre en anglais :
+Recherche la répartition des résultats pour la présence d'un champ titre en français et la présence d'un champ titre en anglais :
 
 ```json
 { "$name": "facet_title_langs", "$filters" : {
@@ -914,6 +942,30 @@ Calculer la somme du champ *Size* de l'objet nested *#qualifiers.versions*:
   ]
 
 ```
+
+
+### Opérateur $count : Calcul du nombre de valeurs présentes du champ
+
+**Format :**
+- `{ "$count" : { "$field" : "field_name" } }` : où *field_name* (obligatoire) est le nom du champ.
+
+
+**Exemple :**
+Calculer le nombre de valeurs présentes du champ *SubmissionAgency*:
+
+```json
+{
+  "$facets": [
+    {
+      "$name": "count_SubmissionAgency",
+      "$count": {
+        "$field": "SubmissionAgency"
+      }
+    }
+  ]
+}
+```
+
 
 ### Notes sur les opérateurs
 

@@ -43,8 +43,8 @@ public class FacetResult {
     @JsonProperty("buckets")
     private List<FacetBucket> buckets;
 
-    @JsonProperty("sum")
-    private SumFacet sumFacet;
+    @JsonProperty("singleValueFacet")
+    private SingleValueFacet singleValueFacet;
 
     /**
      * Constructor
@@ -67,20 +67,20 @@ public class FacetResult {
      * Constructor
      *
      * @param name name
-     * @param sumFacet sumFacet
+     * @param singleValueFacet singleValueFacet
      */
-    public FacetResult(String name, SumFacet sumFacet) {
+    public FacetResult(String name, SingleValueFacet singleValueFacet) {
         super();
         this.name = name;
-        this.sumFacet = sumFacet;
+        this.singleValueFacet = singleValueFacet;
     }
 
     public static FacetResult createBucketFacetResult(String name, List<FacetBucket> buckets) {
         return new FacetResult(name, buckets);
     }
 
-    public static FacetResult createSumFacetResult(String name, SumFacet sumFacet) {
-        return new FacetResult(name, sumFacet);
+    public static FacetResult createSingleValueFacetResult(String name, SingleValueFacet singleValueFacet) {
+        return new FacetResult(name, singleValueFacet);
     }
 
     /**
@@ -111,11 +111,11 @@ public class FacetResult {
         this.buckets = buckets;
     }
 
-    public SumFacet getSumFacet() {
-        return sumFacet;
+    public SingleValueFacet getSingleValueFacet() {
+        return singleValueFacet;
     }
 
-    public void setSumFacet(SumFacet sumFacet) {
-        this.sumFacet = sumFacet;
+    public void setSingleValueFacet(SingleValueFacet singleValueFacet) {
+        this.singleValueFacet = singleValueFacet;
     }
 }

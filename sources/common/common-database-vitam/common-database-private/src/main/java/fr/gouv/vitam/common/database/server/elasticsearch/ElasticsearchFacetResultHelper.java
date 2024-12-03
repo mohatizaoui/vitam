@@ -34,7 +34,7 @@ import co.elastic.clients.elasticsearch._types.aggregations.RangeBucket;
 import co.elastic.clients.elasticsearch._types.aggregations.StringTermsBucket;
 import fr.gouv.vitam.common.model.FacetBucket;
 import fr.gouv.vitam.common.model.FacetResult;
-import fr.gouv.vitam.common.model.SumFacet;
+import fr.gouv.vitam.common.model.SingleValueFacet;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -66,7 +66,16 @@ public class ElasticsearchFacetResultHelper {
                 );
                 break;
             case Sum:
-                facetResult = FacetResult.createSumFacetResult(name, extractBucketSumAggregation(aggregation));
+                facetResult = FacetResult.createSingleValueFacetResult(name, extractSumAggregation(aggregation));
+                break;
+            case Cardinality:
+                facetResult = FacetResult.createSingleValueFacetResult(
+                    name,
+                    extractCardinalityAggregation(aggregation)
+                );
+                break;
+            case ValueCount:
+                facetResult = FacetResult.createSingleValueFacetResult(name, extractValueCountAggregation(aggregation));
                 break;
             case Lterms:
                 facetResult = FacetResult.createBucketFacetResult(name, extractBucketLongTermsAggregation(aggregation));
@@ -115,9 +124,31 @@ public class ElasticsearchFacetResultHelper {
      * @param aggregation es aggregation
      * @return SumFacet
      */
-    private static SumFacet extractBucketSumAggregation(Aggregate aggregation) {
+    private static SingleValueFacet extractSumAggregation(Aggregate aggregation) {
         double sumValue = aggregation.sum().value();
-        return new SumFacet(sumValue);
+        return new SingleValueFacet(sumValue);
+    }
+
+    /**
+     * Transform es value_count aggregation to SingleValueFacet
+     *
+     * @param aggregation es aggregation
+     * @return SingleValueFacet
+     */
+    private static SingleValueFacet extractValueCountAggregation(Aggregate aggregation) {
+        double countValue = aggregation.valueCount().value();
+        return new SingleValueFacet(countValue);
+    }
+
+    /**
+     * Transform es cardinality aggregation to SingleValueFacet
+     *
+     * @param aggregation es aggregation
+     * @return SingleValueFacet
+     */
+    private static SingleValueFacet extractCardinalityAggregation(Aggregate aggregation) {
+        double value = aggregation.cardinality().value();
+        return new SingleValueFacet(value);
     }
 
     /**

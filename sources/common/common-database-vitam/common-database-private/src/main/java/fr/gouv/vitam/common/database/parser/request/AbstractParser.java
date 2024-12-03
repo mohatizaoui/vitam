@@ -28,11 +28,13 @@ package fr.gouv.vitam.common.database.parser.request;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import fr.gouv.vitam.common.database.builder.facet.Facet;
 import fr.gouv.vitam.common.database.builder.query.Query;
 import fr.gouv.vitam.common.database.builder.request.AbstractRequest;
 import fr.gouv.vitam.common.database.builder.request.configuration.BuilderToken;
 import fr.gouv.vitam.common.database.builder.request.configuration.BuilderToken.FILTERARGS;
 import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
+import fr.gouv.vitam.common.database.parser.facet.FacetParserHelper;
 import fr.gouv.vitam.common.database.parser.query.QueryParserHelper;
 import fr.gouv.vitam.common.database.parser.request.adapter.VarNameAdapter;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
@@ -165,6 +167,37 @@ public abstract class AbstractParser<E extends AbstractRequest> {
             }
             node.removeAll();
             node.setAll(finalNode);
+        }
+    }
+
+    /**
+     * Generate a Facet from a Json + command
+     *
+     * @param facet facet as json
+     * @param facetCommand facet command
+     * @return Facet
+     * @throws InvalidCreateOperationException parsing error
+     * @throws InvalidParseOperationException invalid command type
+     */
+    protected Facet analyzeOneFacet(final JsonNode facet, BuilderToken.FACET facetCommand)
+        throws InvalidCreateOperationException, InvalidParseOperationException {
+        switch (facetCommand) {
+            case TERMS:
+                return FacetParserHelper.terms(facet, adapter);
+            case DATE_RANGE:
+                return FacetParserHelper.dateRange(facet, adapter);
+            case FILTERS:
+                return FacetParserHelper.filters(facet, adapter);
+            case SUM:
+                return FacetParserHelper.sum(facet, adapter);
+            case CARDINALITY:
+                return FacetParserHelper.cardinality(facet, adapter);
+            case COUNT:
+                return FacetParserHelper.count(facet, adapter);
+            default:
+                throw new InvalidParseOperationException(
+                    "Invalid parse: command not a facet " + facetCommand.exactToken()
+                );
         }
     }
 }

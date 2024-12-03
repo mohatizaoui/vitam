@@ -9,6 +9,12 @@
     },
     "Identifier": {
       "type": "keyword"
+    },
+    "OriginatingAgency": {
+      "type": "keyword"
+    },
+    "Size": {
+      "type": "long"
     }
   }
 }

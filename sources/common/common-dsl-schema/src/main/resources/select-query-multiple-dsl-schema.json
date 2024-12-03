@@ -402,7 +402,7 @@
       },
       "$sum": {
         "format": "ref",
-        "type": "SUM_FACET",
+        "type": "SIMPLE_COUNTING_FACET",
         "optional": true,
         "hint": "SUM facet"
       },
@@ -417,6 +417,18 @@
         "type": "FILTERS_FACET",
         "optional": true,
         "hint": "Filters facet of type bucket"
+      },
+      "$count": {
+        "format": "ref",
+        "type": "SIMPLE_COUNTING_FACET",
+        "optional": true,
+        "hint": "Count facet"
+      },
+      "$cardinality": {
+        "format": "ref",
+        "type": "SIMPLE_COUNTING_FACET",
+        "optional": true,
+        "hint": "Cardinality facet"
       }
     }
   },
@@ -449,23 +461,6 @@
         ],
         "optional": false,
         "hint": "Order of buckets"
-      }
-    }
-  },
-  "SUM_FACET": {
-    "format": "object",
-    "elements": {
-      "$subobject": {
-        "format": "ref",
-        "type": "string",
-        "optional": true,
-        "hint": "Nested path Field of facet"
-      },
-      "$field": {
-        "format": "ref",
-        "type": "string",
-        "optional": false,
-        "hint": "Field of facet"
       }
     }
   },
@@ -552,5 +547,22 @@
     "type": "posinteger",
     "optional": true,
     "hint": "Threshold"
+  },
+  "SIMPLE_COUNTING_FACET": {
+    "format": "object",
+    "elements": {
+      "$subobject": {
+        "format": "ref",
+        "type": "string",
+        "optional": true,
+        "hint": "Nested path Field of facet"
+      },
+      "$field": {
+        "format": "ref",
+        "type": "string",
+        "optional": false,
+        "hint": "Field of facet"
+      }
+    }
   }
 }

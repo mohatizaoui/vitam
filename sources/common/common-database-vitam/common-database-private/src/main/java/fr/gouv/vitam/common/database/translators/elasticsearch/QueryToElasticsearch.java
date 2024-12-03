@@ -33,9 +33,11 @@ import co.elastic.clients.elasticsearch._types.SortOptions;
 import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch._types.aggregations.Aggregation;
 import co.elastic.clients.elasticsearch._types.aggregations.AggregationBuilders;
+import co.elastic.clients.elasticsearch._types.aggregations.CardinalityAggregation;
 import co.elastic.clients.elasticsearch._types.aggregations.DateRangeAggregation;
 import co.elastic.clients.elasticsearch._types.aggregations.SumAggregation;
 import co.elastic.clients.elasticsearch._types.aggregations.TermsAggregation;
+import co.elastic.clients.elasticsearch._types.aggregations.ValueCountAggregation;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Operator;
 import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
@@ -1067,14 +1069,20 @@ public class QueryToElasticsearch {
                         case TERMS:
                             termsFacet(aggregations, facet);
                             break;
-                        case SUM:
-                            sumFacet(aggregations, facet);
-                            break;
                         case DATE_RANGE:
                             dateRangeFacet(aggregations, facet);
                             break;
                         case FILTERS:
                             filtersFacet(aggregations, facet, requestParser.getAdapter(), parserTokens);
+                            break;
+                        case SUM:
+                            sumFacet(aggregations, facet);
+                            break;
+                        case CARDINALITY:
+                            cardinalityFacet(aggregations, facet);
+                            break;
+                        case COUNT:
+                            countFacet(aggregations, facet);
                             break;
                         default:
                             throw new IllegalStateException("Unexpected value: " + facet.getCurrentTokenFACET());
@@ -1155,7 +1163,7 @@ public class QueryToElasticsearch {
     }
 
     /**
-     * Add terms es facet from facet
+     * Add sum aggregation es facet from facet
      *
      * @param aggregations es facets
      * @param facet facet
@@ -1178,6 +1186,58 @@ public class QueryToElasticsearch {
         }
 
         aggregations.put(facet.getName(), sumBuilder.build()._toAggregation());
+    }
+
+    /**
+     * Add value_count aggregation es facet from facet
+     *
+     * @param aggregations es facets
+     * @param facet facet
+     */
+    private static void countFacet(Map<String, Aggregation> aggregations, Facet facet) {
+        JsonNode valueCountNode = facet.getCurrentFacet().get(facet.getCurrentTokenFACET().exactToken());
+        String fieldName = valueCountNode.get(FACETARGS.FIELD.exactToken()).asText();
+        ValueCountAggregation.Builder valueCountBuilder = AggregationBuilders.valueCount();
+        valueCountBuilder.field(fieldName);
+
+        if (valueCountNode.get(FACETARGS.SUBOBJECT.exactToken()) != null) {
+            aggregations.put(
+                facet.getName(),
+                new Aggregation.Builder()
+                    .nested(n -> n.path(valueCountNode.get(FACETARGS.SUBOBJECT.exactToken()).asText()))
+                    .aggregations(facet.getName(), valueCountBuilder.build()._toAggregation())
+                    .build()
+            );
+            return;
+        }
+
+        aggregations.put(facet.getName(), valueCountBuilder.build()._toAggregation());
+    }
+
+    /**
+     * Add cardinality aggregation es facet from facet
+     *
+     * @param aggregations es facets
+     * @param facet facet
+     */
+    private static void cardinalityFacet(Map<String, Aggregation> aggregations, Facet facet) {
+        JsonNode vardinalityNode = facet.getCurrentFacet().get(facet.getCurrentTokenFACET().exactToken());
+        String fieldName = vardinalityNode.get(FACETARGS.FIELD.exactToken()).asText();
+        CardinalityAggregation.Builder cardinalityBuilder = AggregationBuilders.cardinality();
+        cardinalityBuilder.field(fieldName);
+
+        if (vardinalityNode.get(FACETARGS.SUBOBJECT.exactToken()) != null) {
+            aggregations.put(
+                facet.getName(),
+                new Aggregation.Builder()
+                    .nested(n -> n.path(vardinalityNode.get(FACETARGS.SUBOBJECT.exactToken()).asText()))
+                    .aggregations(facet.getName(), cardinalityBuilder.build()._toAggregation())
+                    .build()
+            );
+            return;
+        }
+
+        aggregations.put(facet.getName(), cardinalityBuilder.build()._toAggregation());
     }
 
     /**

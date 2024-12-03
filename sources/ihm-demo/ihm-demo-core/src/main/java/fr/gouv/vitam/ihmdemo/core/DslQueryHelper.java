@@ -33,6 +33,8 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
 import com.google.common.base.Strings;
 import fr.gouv.vitam.common.LocalDateUtil;
+import fr.gouv.vitam.common.database.builder.facet.CardinalityFacet;
+import fr.gouv.vitam.common.database.builder.facet.CountFacet;
 import fr.gouv.vitam.common.database.builder.facet.DateRangeFacet;
 import fr.gouv.vitam.common.database.builder.facet.FiltersFacet;
 import fr.gouv.vitam.common.database.builder.facet.RangeFacetValue;
@@ -266,6 +268,14 @@ public class DslQueryHelper {
                                 break;
                             case SUM:
                                 select.addFacets(new SumFacet(facetItem.getName(), facetItem.getField(),
+                                    facetItem.getSubobject()));
+                                break;
+                            case COUNT:
+                                select.addFacets(new CountFacet(facetItem.getName(), facetItem.getField(),
+                                    facetItem.getSubobject()));
+                                break;
+                            case CARDINALITY:
+                                select.addFacets(new CardinalityFacet(facetItem.getName(), facetItem.getField(),
                                     facetItem.getSubobject()));
                                 break;
                             case DATE_RANGE:

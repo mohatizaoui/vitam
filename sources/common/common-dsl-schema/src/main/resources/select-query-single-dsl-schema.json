@@ -368,7 +368,7 @@
       },
       "$sum": {
         "format": "ref",
-        "type": "SUM_FACET",
+        "type": "SIMPLE_COUNTING_FACET",
         "optional": true,
         "hint": "SUM facet of type bucket"
       },
@@ -383,6 +383,18 @@
         "type": "FILTERS_FACET",
         "optional": true,
         "hint": "Filters facet of type bucket"
+      },
+      "$count": {
+        "format": "ref",
+        "type": "SIMPLE_COUNTING_FACET",
+        "optional": true,
+        "hint": "Count facet"
+      },
+      "$cardinality": {
+        "format": "ref",
+        "type": "SIMPLE_COUNTING_FACET",
+        "optional": true,
+        "hint": "Cardinality facet"
       }
     }
   },
@@ -418,7 +430,7 @@
       }
     }
   },
-  "SUM_FACET": {
+  "SIMPLE_COUNTING_FACET": {
     "format": "object",
     "elements": {
       "$subobject": {
