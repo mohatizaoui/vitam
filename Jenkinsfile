@@ -150,13 +150,15 @@ pipeline {
             }
             steps {
                 dir('sources') {
-                    script {
-                        try {
-                            // Build Vitam
-                            sh '$MVN_COMMAND -f pom.xml clean verify org.owasp:dependency-check-maven:aggregate sonar:sonar -Dsonar.projectName=$GIT_BRANCH -Dsonar.projectKey=$(sed -E \'s/[^[:alnum:]]+/_/g\' <<< ${GIT_BRANCH#*/}) -Ddownloader.quick.query.timestamp=false'
-                        } finally {
-                            // Force termination / cleanup of containers
-                            sh 'docker rm -f miniossl elasticsearch mongodb minionossl openio swift'
+                    nvm('v18.20.3') {
+                        script {
+                            try {
+                                // Build Vitam
+                                sh '$MVN_COMMAND -f pom.xml clean verify org.owasp:dependency-check-maven:aggregate sonar:sonar -Dsonar.projectName=$GIT_BRANCH -Dsonar.projectKey=$(sed -E \'s/[^[:alnum:]]+/_/g\' <<< ${GIT_BRANCH#*/}) -Ddownloader.quick.query.timestamp=false'
+                            } finally {
+                                // Force termination / cleanup of containers
+                                sh 'docker rm -f miniossl elasticsearch mongodb minionossl openio swift'
+                            }
                         }
                     }
                 }
@@ -199,7 +201,7 @@ pipeline {
                             try {
                                 // Build Vitam
                                 sh '$MVN_COMMAND -f pom.xml spotless:check -T 1C'
-                                sh '$MVN_COMMAND -f pom.xml clean verify org.owasp:dependency-check-maven:aggregate sonar:sonar -Dsonar.projectName=$GIT_BRANCH -Dsonar.projectKey=$(sed -E \'s/[^[:alnum:]]+/_/g\' <<< ${GIT_BRANCH#*/}) -Ddownloader.quick.query.timestamp=false'
+                                sh '$MVN_COMMAND -f pom.xml clean verify org.owasp:dependency-check-maven:aggregate sonar:sonar -Dsonar.projectName=$GIT_BRANCH -Dsonar.projectKey=$(sed -E \'s/[^[:alnum:]]+/_/g\' <<< ${GIT_BRANCH#*/}) -Ddownloader.quick.query.timestamp=false -Dspotless.check.skip'
                             } finally {
                                 // Force termination / cleanup of containers
                                 sh 'docker rm -f miniossl elasticsearch mongodb minionossl openio swift'
