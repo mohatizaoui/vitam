@@ -252,8 +252,8 @@ pipeline {
                             // Hack / workaround for javadoc build bug that causes locally built artefacts to be pulled from remote repository
                             // First clean / install artefacts to local repository without deploy
                             // Then rebuild with javadoc, and forcing usage of local artefacts
-                            sh '$MVN_COMMAND -f pom.xml -Dmaven.test.skip=true -DskipTests=true clean install -T 1C'
-                            sh '$MVN_COMMAND -f pom.xml -Dmaven.test.skip=true -DskipTests=true --no-snapshot-updates javadoc:aggregate-jar deploy rpm:attached-rpm jdeb:jdeb'
+                            sh '$MVN_COMMAND -f pom.xml -Dmaven.test.skip=true -DskipTests=true -Dspotless.check.skip clean install -T 1C'
+                            sh '$MVN_COMMAND -f pom.xml -Dmaven.test.skip=true -DskipTests=true -Dspotless.check.skip --no-snapshot-updates javadoc:aggregate-jar deploy rpm:attached-rpm jdeb:jdeb'
                             // -T 1C // Doesn't work with the javadoc:aggregate-jar goal, nor with jdeb plugin (works but not thread safe)
                         }
                     },
@@ -282,7 +282,7 @@ pipeline {
             steps {
                 dir('doc') {
                     // -T 1C does not work with jdeb:jdeb (works but not thread safe)
-                    sh '$MVN_COMMAND -f pom.xml clean install jdeb:jdeb rpm:attached-rpm deploy'
+                    sh '$MVN_COMMAND -f pom.xml -Dspotless.check.skip clean install jdeb:jdeb rpm:attached-rpm deploy'
                 }
             }
             post {
