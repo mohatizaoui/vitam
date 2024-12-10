@@ -88,8 +88,8 @@
 		</dependency>
 		<dependency>
 			<groupId>org.glassfish</groupId>
-			<artifactId>javax.el</artifactId>
-			<version>${org.glassfish.web.version}</version>
+			<artifactId>jakarta.el</artifactId>
+			<version>${jakarta.el.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.flipkart.zjsonpatch</groupId>
