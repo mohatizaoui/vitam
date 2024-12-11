@@ -289,6 +289,7 @@ public class GlobalDataRest {
      * Optional. ZIP encoding. Use Content-Encoding ?
      */
     public static final String X_ENCODING = "X-Encoding";
+    public static final String X_ATTACHEMENT_ID = "X-Attachement-Id";
 
     private GlobalDataRest() {
         // empty

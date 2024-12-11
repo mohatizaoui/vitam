@@ -739,14 +739,16 @@ public class TransactionService {
     public Response uploadTransactionZip(
         InputStream inputStreamObject,
         TransactionModel transactionModel,
-        @Nullable String encoding
+        @Nullable String encoding,
+        @Nullable String attachementId
     ) throws CollectInternalException {
         try {
             fluxService.processStream(
                 inputStreamObject,
                 transactionModel.getProjectId(),
                 transactionModel.getId(),
-                encoding
+                encoding,
+                attachementId
             );
             return Response.ok().build();
         } catch (CollectInternalInvalidRequestException e) {

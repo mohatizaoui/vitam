@@ -182,7 +182,7 @@ public class FluxServiceTest {
         when(metadataService.prepareAttachmentUnits(any(), anyString())).thenReturn(new HashMap<>());
 
         try (final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(TRANSACTION_ZIP_PATH)) {
-            fluxService.processStream(resourceAsStream, PROJECT_ID, TRANSACTION_ID, null);
+            fluxService.processStream(resourceAsStream, PROJECT_ID, TRANSACTION_ID, null, null);
         }
 
         final JsonNode expectedUnits = JsonHandler.getFromFile(PropertiesUtils.getResourceFile(UNITS_PATH));
@@ -246,7 +246,7 @@ public class FluxServiceTest {
                 TRANSACTION_ZIP_WITH_METADATA_CSV_PATH
             )
         ) {
-            fluxService.processStream(resourceAsStream, PROJECT_ID, TRANSACTION_ID, null);
+            fluxService.processStream(resourceAsStream, PROJECT_ID, TRANSACTION_ID, null, null);
         }
 
         JsonNode transformedMetadataFileLines = JsonHandler.toJsonNode(
@@ -295,7 +295,7 @@ public class FluxServiceTest {
                 TRANSACTION_ZIP_WITH_METADATA_JSONL_PATH
             )
         ) {
-            fluxService.processStream(resourceAsStream, PROJECT_ID, TRANSACTION_ID, null);
+            fluxService.processStream(resourceAsStream, PROJECT_ID, TRANSACTION_ID, null, null);
         }
 
         JsonNode transformedMetadataFileLines = JsonHandler.toJsonNode(
@@ -351,7 +351,7 @@ public class FluxServiceTest {
         ) {
             CollectInternalException exception = Assert.assertThrows(
                 CollectInternalException.class,
-                () -> fluxService.processStream(resourceAsStream, PROJECT_ID, TRANSACTION_ID, null)
+                () -> fluxService.processStream(resourceAsStream, PROJECT_ID, TRANSACTION_ID, null, null)
             );
             Assert.assertEquals(
                 "Mapping for File not found, expected one of [Content.DescriptionLevel, Content.Title]",
@@ -402,7 +402,7 @@ public class FluxServiceTest {
         when(metadataService.prepareAttachmentUnits(any(), anyString())).thenReturn(new HashMap<>());
 
         try (final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(TRANSACTION_ZIP_PATH)) {
-            fluxService.processStream(resourceAsStream, transaction.getProjectId(), transaction.getId(), null);
+            fluxService.processStream(resourceAsStream, transaction.getProjectId(), transaction.getId(), null, null);
         }
 
         final JsonNode expectedUnits = JsonHandler.getFromFile(
@@ -449,6 +449,52 @@ public class FluxServiceTest {
 
     @Test
     @RunWithCustomExecutor
+    public void processStream_with_attachment_should_be_ok() throws Exception {
+        final ProjectModel project = JsonHandler.getFromString(
+            PropertiesUtils.getResourceAsString("json/01_project_flux_auto_attach_param.json"),
+            ProjectModel.class
+        );
+        final TransactionModel transaction = JsonHandler.getFromString(
+            PropertiesUtils.getResourceAsString("json/01_transaction.json"),
+            TransactionModel.class
+        );
+
+        when(projectRepository.findProjectById(anyString())).thenReturn(Optional.of(project));
+        Map<String, JsonNode> units = new HashMap<>();
+        when(metadataRepository.saveArchiveUnits(ArgumentMatchers.anyList())).thenAnswer(e -> {
+            final List<ObjectNode> unitsToSave = e.getArgument(0);
+            for (ObjectNode unit : unitsToSave) {
+                units.put(unit.get(VitamFieldsHelper.id()).asText(), unit);
+            }
+            return JsonHandler.toJsonNode(
+                new RequestResponseOK<>(JsonHandler.createObjectNode(), unitsToSave, unitsToSave.size())
+            );
+        });
+        when(metadataService.prepareAttachmentUnits(any(), anyString())).thenReturn(new HashMap<>());
+
+        try (final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(TRANSACTION_ZIP_PATH)) {
+            fluxService.processStream(
+                resourceAsStream,
+                transaction.getProjectId(),
+                transaction.getId(),
+                null,
+                "some-attachement-id"
+            );
+        }
+
+        JsonNode rootUnit = units
+            .values()
+            .stream()
+            .filter(unit -> unit.get("Title").asText().equals("ROOT"))
+            .findFirst()
+            .get();
+
+        JsonNode unitUpsNode = rootUnit.get("#unitups");
+        Assert.assertTrue(unitUpsNode.toString().contains("some-attachement-id"));
+    }
+
+    @Test
+    @RunWithCustomExecutor
     public void processStream_with_arborescence_with_accents_windows_zip() throws Exception {
         Map<String, JsonNode> units = new HashMap<>();
         Map<String, JsonNode> objectGroups = new HashMap<>();
@@ -475,7 +521,7 @@ public class FluxServiceTest {
         });
 
         try (final InputStream resourceAsStream = getResourceAsStream(ARBORESCENCE_WITH_ACCENTS_WINDOWS_ZIP)) {
-            fluxService.processStream(resourceAsStream, "PROJECT_ID", "TRANSACTION_ID", "IBM437");
+            fluxService.processStream(resourceAsStream, "PROJECT_ID", "TRANSACTION_ID", "IBM437", null);
         }
 
         JsonAssert.assertJsonEquals(

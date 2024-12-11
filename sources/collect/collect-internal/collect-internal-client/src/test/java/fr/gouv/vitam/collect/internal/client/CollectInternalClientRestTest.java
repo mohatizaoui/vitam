@@ -175,7 +175,15 @@ public class CollectInternalClientRestTest extends ResteasyTestApplication {
     public void uploadZipToTransaction() {
         Mockito.when(mock.post()).thenReturn(Response.ok(new RequestResponseOK<>().addResult("RESULT")).build());
         assertThatCode(
-            () -> client.uploadZipToTransaction("TX_ID", new NullInputStream(100), null)
+            () -> client.uploadZipToTransaction("TX_ID", new NullInputStream(100), null, null)
+        ).doesNotThrowAnyException();
+    }
+
+    @Test
+    public void uploadZipToTransactionWithAttachement() {
+        Mockito.when(mock.post()).thenReturn(Response.ok(new RequestResponseOK<>().addResult("RESULT")).build());
+        assertThatCode(
+            () -> client.uploadZipToTransaction("TX_ID", new NullInputStream(100), null, "ATTACHEMENT_ID")
         ).doesNotThrowAnyException();
     }
 

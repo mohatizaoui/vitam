@@ -332,13 +332,15 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
     public void uploadZipToTransaction(
         String transactionId,
         InputStream inputStreamUploaded,
-        @Nullable String encoding
+        @Nullable String encoding,
+        @Nullable String attachementId
     ) throws VitamClientException {
         try (
             Response response = make(
                 post()
                     .withPath(TRANSACTION_PATH + "/" + transactionId + "/upload")
                     .withOptionalHeader(GlobalDataRest.X_ENCODING, encoding)
+                    .withOptionalHeader(GlobalDataRest.X_ATTACHEMENT_ID, attachementId)
                     .withBody(inputStreamUploaded)
                     .withContentType(CommonMediaType.ZIP_TYPE)
             )

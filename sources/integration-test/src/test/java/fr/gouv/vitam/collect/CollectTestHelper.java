@@ -105,13 +105,14 @@ public class CollectTestHelper {
     public static void uploadZipTransaction(
         final VitamContext vitamContext,
         final String transactionId,
-        final String zipPath
+        final String zipPath,
+        final String attachementId
     ) {
         try (
             final CollectExternalClient client = CollectExternalClientFactory.getInstance().getClient();
             final InputStream is = PropertiesUtils.getResourceAsStream(zipPath)
         ) {
-            client.uploadZipToTransaction(vitamContext, transactionId, is);
+            client.uploadZipToTransaction(vitamContext, transactionId, is, null, attachementId);
         } catch (IOException | VitamClientException e) {
             throw new RuntimeException(e);
         }

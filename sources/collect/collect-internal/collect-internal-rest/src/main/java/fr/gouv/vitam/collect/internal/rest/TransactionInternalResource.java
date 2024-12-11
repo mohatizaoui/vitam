@@ -436,7 +436,8 @@ public class TransactionInternalResource {
     public Response uploadTransactionZip(
         @PathParam("transactionId") String transactionId,
         InputStream inputStreamObject,
-        @HeaderParam(GlobalDataRest.X_ENCODING) @Nullable String encoding
+        @HeaderParam(GlobalDataRest.X_ENCODING) @Nullable String encoding,
+        @HeaderParam(GlobalDataRest.X_ATTACHEMENT_ID) @Nullable String attachementId
     ) {
         try {
             ParametersChecker.checkParameter("You must supply a file!", inputStreamObject);
@@ -448,7 +449,12 @@ public class TransactionInternalResource {
                 LOGGER.error(TRANSACTION_NOT_FOUND_OR_INVALID_STATUS);
                 return CollectRequestResponse.toVitamError(NOT_FOUND, TRANSACTION_NOT_FOUND_OR_INVALID_STATUS);
             }
-            return transactionService.uploadTransactionZip(inputStreamObject, transactionModel.get(), encoding);
+            return transactionService.uploadTransactionZip(
+                inputStreamObject,
+                transactionModel.get(),
+                encoding,
+                attachementId
+            );
         } catch (IllegalArgumentException e) {
             LOGGER.error("An error occurs when try to upload the ZIP:", e);
             return CollectRequestResponse.toVitamError(BAD_REQUEST, e.getLocalizedMessage());

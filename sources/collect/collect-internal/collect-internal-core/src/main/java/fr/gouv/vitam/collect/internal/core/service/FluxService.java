@@ -119,7 +119,8 @@ public class FluxService {
         InputStream inputStreamObject,
         String projectId,
         String transactionId,
-        @Nullable String encoding
+        @Nullable String encoding,
+        @Nullable String attachementId
     ) throws CollectInternalException {
         Optional<ProjectModel> projectById = projectRepository.findProjectById(projectId);
         if (projectById.isEmpty()) {
@@ -135,10 +136,16 @@ public class FluxService {
         ) {
             ArchiveEntry entry;
             boolean isEmpty = true;
-            Map<String, String> attachmentUnitsBySystemId = metadataService.prepareAttachmentUnits(
-                projectModel,
-                transactionId
-            );
+            Map<String, String> attachmentUnitsBySystemId;
+            String staticAttachmentUnitId;
+            if (attachementId == null) {
+                attachmentUnitsBySystemId = metadataService.prepareAttachmentUnits(projectModel, transactionId);
+                staticAttachmentUnitId = attachmentUnitsBySystemId.get(projectModel.getUnitUp());
+            } else {
+                staticAttachmentUnitId = attachementId;
+                attachmentUnitsBySystemId = new HashMap<>();
+            }
+
             Map<String, String> unitIdsByUploadPath = new HashMap<>();
             File metadataFile = null;
             boolean isCsvMetadataFile = false;
@@ -170,7 +177,6 @@ public class FluxService {
                         metadataFile = tempWorkspace.writeToFile(path, entryInputStream);
                         isCsvMetadataFile = path.equals(METADATA_CSV_FILE);
                     } else {
-                        String staticAttachmentUnitId = attachmentUnitsBySystemId.get(projectModel.getUnitUp());
                         createMetadata(
                             tempWorkspace,
                             transactionId,
@@ -199,12 +205,17 @@ public class FluxService {
                 }
             }
 
-            Map<String, Set<String>> dynamicAttachmentUnitUpsByRootUnitsUploadPath =
-                computeDynamicAttachmentUnitUpsForRootUnits(
+            Map<String, Set<String>> dynamicAttachmentUnitUpsByRootUnitsUploadPath;
+
+            if (attachementId != null) {
+                dynamicAttachmentUnitUpsByRootUnitsUploadPath = new HashMap<>();
+            } else {
+                dynamicAttachmentUnitUpsByRootUnitsUploadPath = computeDynamicAttachmentUnitUpsForRootUnits(
                     validatedJsonlMetadataFile,
                     projectModel,
                     attachmentUnitsBySystemId
                 );
+            }
 
             bulkWriteUnits(tempWorkspace, dynamicAttachmentUnitUpsByRootUnitsUploadPath);
 

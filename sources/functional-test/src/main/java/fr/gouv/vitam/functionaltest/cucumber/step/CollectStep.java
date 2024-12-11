@@ -524,7 +524,13 @@ public class CollectStep extends CommonStep {
         try (InputStream inputStream = Files.newInputStream(Paths.get(world.getBaseDirectory(), arboFileName))) {
             RequestResponse<JsonNode> response = world
                 .getCollectExternalClient()
-                .uploadZipToTransaction(new VitamContext(world.getTenantId()), world.getTransactionId(), inputStream);
+                .uploadZipToTransaction(
+                    new VitamContext(world.getTenantId()),
+                    world.getTransactionId(),
+                    inputStream,
+                    null,
+                    null
+                );
             Assertions.assertThat(response.getStatus()).isEqualTo(200);
         }
     }
