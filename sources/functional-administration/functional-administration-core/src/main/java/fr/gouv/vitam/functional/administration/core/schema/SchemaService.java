@@ -169,7 +169,10 @@ public class SchemaService {
     private List<SchemaResponse> findUnitExternalSchema(TenantScope tenantScope)
         throws InvalidParseOperationException, ReferentialException, InvalidCreateOperationException {
         LOGGER.info("retrieving unit external schema ");
-        return decorateSchema(mapSchemaDbEntityToModel(loadCurrentExternalSchema(tenantScope)), COLLECTION_UNIT);
+        return decorateSchema(
+            mapExternalSchemaDbEntityToModel(loadCurrentExternalSchema(tenantScope)),
+            COLLECTION_UNIT
+        );
     }
 
     /**
@@ -308,7 +311,7 @@ public class SchemaService {
         }
     }
 
-    private List<SchemaResponse> mapSchemaDbEntityToModel(List<SchemaModel> currentExternalSchemaList) {
+    private List<SchemaResponse> mapExternalSchemaDbEntityToModel(List<SchemaModel> currentExternalSchemaList) {
         return currentExternalSchemaList
             .stream()
             .map(schemaElt -> {
@@ -319,7 +322,7 @@ public class SchemaService {
                 schemaResponse.setTenant(schemaElt.getTenant());
                 schemaResponse.setCollection(schemaElt.getCollection());
                 schemaResponse.setDescription(schemaElt.getDescription());
-                schemaResponse.setCategory(SchemaCategory.OTHER);
+                schemaResponse.setCategory(SchemaCategory.DESCRIPTION);
 
                 final String pathLeaf = SchemaCommonService.extractLeafFromPath(schemaElt.getPath());
                 schemaResponse.setFieldName(pathLeaf);
