@@ -35,7 +35,6 @@ import fr.gouv.vitam.collect.internal.core.exceptions.CollectInvalidCsvFormat;
 import fr.gouv.vitam.collect.internal.core.helpers.CsvMetadataMapper;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.json.JsonHandler;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.StringUtils;
@@ -298,15 +297,6 @@ public class CsvToJsonConverter {
                     throw new CollectInvalidCsvFormat("Multiple values for '" + sedaFieldName + "' header");
                 }
                 flatFieldValueMap.put(singleValueApiFieldName, value);
-            }
-        }
-
-        if (MapUtils.isNotEmpty(flatFieldValueMap)) {
-            if (!flatFieldValueMap.containsKey(singleValueApiFieldName)) {
-                flatFieldValueMap.put(singleValueApiFieldName, null);
-            }
-            if (flatFieldValueMap.keySet().stream().noneMatch(k -> k.startsWith(multiValueApiFieldName + SEPARATOR))) {
-                flatFieldValueMap.put(multiValueApiFieldName, null);
             }
         }
 

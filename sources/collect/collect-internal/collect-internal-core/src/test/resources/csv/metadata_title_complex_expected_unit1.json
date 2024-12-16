@@ -1,7 +1,5 @@
 {
   "Description": "File1 desc",
-  "Description_": null,
-  "Title": null,
   "Title_": {
     "fr": "Title1",
     "en": "Title2"

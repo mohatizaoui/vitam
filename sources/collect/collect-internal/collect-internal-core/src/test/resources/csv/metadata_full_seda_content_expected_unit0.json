@@ -364,7 +364,6 @@
   "Description": "MyDescription",
   "DescriptionLanguage": "MyDescriptionLanguage",
   "DescriptionLevel": "MyDescriptionLevel",
-  "Description_": null,
   "DocumentType": "MyDocumentType",
   "EndDate": "2000-01-01",
   "Event": [
@@ -1539,7 +1538,6 @@
     "MyTextContent1"
   ],
   "Title": "MyTitle",
-  "Title_": null,
   "TransactedDate": "2000-01-01",
   "TransferringAgencyArchiveUnitIdentifier": [
     "MyTransferringAgencyArchiveUnitIdentifier0",
