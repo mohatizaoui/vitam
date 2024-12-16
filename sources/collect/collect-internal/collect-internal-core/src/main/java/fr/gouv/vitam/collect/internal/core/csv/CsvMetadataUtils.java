@@ -27,7 +27,7 @@
 
 package fr.gouv.vitam.collect.internal.core.csv;
 
-import fr.gouv.vitam.collect.internal.core.exceptions.CollectInvalidCsvFormat;
+import fr.gouv.vitam.collect.internal.core.exceptions.CollectInvalidCsvFormatException;
 
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -115,11 +115,11 @@ public class CsvMetadataUtils {
         return str.equals(prefix) || str.startsWith(prefix + SEPARATOR);
     }
 
-    public static int parseIndexPattern(String headerName, String value) throws CollectInvalidCsvFormat {
+    public static int parseIndexPattern(String headerName, String value) throws CollectInvalidCsvFormatException {
         try {
             return Integer.parseInt(value);
         } catch (NumberFormatException e) {
-            throw new CollectInvalidCsvFormat(
+            throw new CollectInvalidCsvFormatException(
                 "Invalid header name '" + headerName + "'. Invalid array index '" + value + "'"
             );
         }

@@ -31,7 +31,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.gouv.vitam.collect.common.exception.CollectInternalException;
-import fr.gouv.vitam.collect.internal.core.exceptions.CollectInvalidCsvFormat;
+import fr.gouv.vitam.collect.internal.core.exceptions.CollectInvalidCsvFormatException;
 import fr.gouv.vitam.collect.internal.core.helpers.CsvHelper;
 import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
@@ -208,16 +208,18 @@ public class CsvToJsonConverterTest {
         assertJsonEquals(unit3, "csv/metadata_description_complex_expected_unit3.json");
         assertJsonEquals(unit4, "csv/metadata_description_complex_expected_unit4.json");
         assertThatCode(unit5Invocation)
-            .isInstanceOf(CollectInvalidCsvFormat.class)
+            .isInstanceOf(CollectInvalidCsvFormatException.class)
             .hasMessageContaining("Multiple values for 'Content.Description' header");
         assertThatCode(unit6Invocation)
-            .isInstanceOf(CollectInvalidCsvFormat.class)
+            .isInstanceOf(CollectInvalidCsvFormatException.class)
             .hasMessageContaining("Multiple values for 'Content.Description' header with same lang attribute 'fr'");
         assertThatCode(unit7Invocation)
-            .isInstanceOf(CollectInvalidCsvFormat.class)
-            .hasMessageContaining("Invalid header name 'Content.Description.*'. Reserved characters");
+            .isInstanceOf(CollectInvalidCsvFormatException.class)
+            .hasMessageContaining(
+                "Invalid header name 'Content.Description.*'. Field name cannot start with '_' or '-'"
+            );
         assertThatCode(unit8Invocation)
-            .isInstanceOf(CollectInvalidCsvFormat.class)
+            .isInstanceOf(CollectInvalidCsvFormatException.class)
             .hasMessageContaining("Invalid xml:lang attribute for header 'Content.Description.0.attr'");
     }
 
@@ -249,16 +251,16 @@ public class CsvToJsonConverterTest {
         assertJsonEquals(unit3, "csv/metadata_title_complex_expected_unit3.json");
         assertJsonEquals(unit4, "csv/metadata_title_complex_expected_unit4.json");
         assertThatCode(unit5Invocation)
-            .isInstanceOf(CollectInvalidCsvFormat.class)
+            .isInstanceOf(CollectInvalidCsvFormatException.class)
             .hasMessageContaining("Multiple values for 'Content.Title' header");
         assertThatCode(unit6Invocation)
-            .isInstanceOf(CollectInvalidCsvFormat.class)
+            .isInstanceOf(CollectInvalidCsvFormatException.class)
             .hasMessageContaining("Multiple values for 'Content.Title' header with same lang attribute 'fr'");
         assertThatCode(unit7Invocation)
-            .isInstanceOf(CollectInvalidCsvFormat.class)
-            .hasMessageContaining("Invalid header name 'Content.Title.*'. Reserved characters");
+            .isInstanceOf(CollectInvalidCsvFormatException.class)
+            .hasMessageContaining("Invalid header name 'Content.Title.*'. Field name cannot start with '_' or '-'");
         assertThatCode(unit8Invocation)
-            .isInstanceOf(CollectInvalidCsvFormat.class)
+            .isInstanceOf(CollectInvalidCsvFormatException.class)
             .hasMessageContaining("Invalid xml:lang attribute for header 'Content.Title.0.attr'");
     }
 

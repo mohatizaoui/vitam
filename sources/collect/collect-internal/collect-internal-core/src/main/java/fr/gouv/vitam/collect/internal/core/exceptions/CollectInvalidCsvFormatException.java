@@ -29,13 +29,13 @@ package fr.gouv.vitam.collect.internal.core.exceptions;
 
 import fr.gouv.vitam.collect.common.exception.CollectInternalInvalidRequestException;
 
-public class CollectInvalidCsvFormat extends CollectInternalInvalidRequestException {
+public class CollectInvalidCsvFormatException extends CollectInternalInvalidRequestException {
 
-    public CollectInvalidCsvFormat(String message) {
+    public CollectInvalidCsvFormatException(String message) {
         super(message);
     }
 
-    public CollectInvalidCsvFormat(String message, Throwable cause) {
+    public CollectInvalidCsvFormatException(String message, Throwable cause) {
         super(message, cause);
     }
 }

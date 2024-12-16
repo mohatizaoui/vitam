@@ -28,7 +28,7 @@
 package fr.gouv.vitam.collect.internal.core.csv;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import fr.gouv.vitam.collect.internal.core.exceptions.CollectInvalidCsvFormat;
+import fr.gouv.vitam.collect.internal.core.exceptions.CollectInvalidCsvFormatException;
 import fr.gouv.vitam.collect.internal.core.helpers.CsvHelper;
 import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
@@ -236,11 +236,21 @@ public class CsvMetadataValidatorTest {
     }
 
     @Test
-    public void testConvertInvalidHeader_IllegalFieldNames() {
+    public void testConvertInvalidHeader_IllegalFieldNamesPrefix() {
+        // Given
+        List<String> headerLines = List.of("File;Content._AZ", "File;Content.-AZ");
+
+        // When / Then
+        for (String headerLine : headerLines) {
+            List<String> headerNames = List.of(headerLine.split(";"));
+            assertThatHeaderNamesAreInvalid(headerNames, "'. Field name cannot start with '_' or '-'");
+        }
+    }
+
+    @Test
+    public void testConvertInvalidHeader_IllegalFieldNamesReservedCharacters() {
         // Given
         List<String> headerLines = List.of(
-            "File;Content._AZ",
-            "File;Content.-AZ",
             "File;Content.A\u0000Z",
             "File;Content.A\tZ",
             "File;Content.A\u001FZ",
@@ -569,7 +579,7 @@ public class CsvMetadataValidatorTest {
 
     private void assertThatHeaderNamesAreInvalid(List<String> headerNames, String errorMessage) {
         assertThatThrownBy(() -> csvMetadataValidator.validateHeaderNames(sedaSchemaInfoResolver, headerNames))
-            .isInstanceOf(CollectInvalidCsvFormat.class)
+            .isInstanceOf(CollectInvalidCsvFormatException.class)
             .hasMessageContaining("Invalid header name")
             .hasMessageContaining(errorMessage);
     }

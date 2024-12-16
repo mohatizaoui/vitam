@@ -31,7 +31,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.wnameless.json.unflattener.JsonUnflattener;
 import com.google.common.annotations.VisibleForTesting;
 import fr.gouv.vitam.collect.common.exception.CollectInternalException;
-import fr.gouv.vitam.collect.internal.core.exceptions.CollectInvalidCsvFormat;
+import fr.gouv.vitam.collect.internal.core.exceptions.CollectInvalidCsvFormatException;
 import fr.gouv.vitam.collect.internal.core.helpers.CsvMetadataMapper;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.json.JsonHandler;
@@ -151,13 +151,13 @@ public class CsvToJsonConverter {
         return normalizedHeaderName;
     }
 
-    public ObjectNode convertCsvRecordToJson(CSVRecord record) throws CollectInvalidCsvFormat {
+    public ObjectNode convertCsvRecordToJson(CSVRecord record) throws CollectInvalidCsvFormatException {
         ObjectNode managementMetadata = convertManagementFields(record);
         ObjectNode contentMetadata = convertContentFields(record);
         return merge(managementMetadata, contentMetadata);
     }
 
-    private ObjectNode convertContentFields(CSVRecord record) throws CollectInvalidCsvFormat {
+    private ObjectNode convertContentFields(CSVRecord record) throws CollectInvalidCsvFormatException {
         SortedMap<String, String> flatFieldValueMap = new TreeMap<>();
         List<String> mainContentHeaderNames = headerNames
             .stream()
@@ -193,7 +193,7 @@ public class CsvToJsonConverter {
         try {
             unitContent = (ObjectNode) JsonHandler.getFromString(jsonStr);
         } catch (InvalidParseOperationException e) {
-            throw new CollectInvalidCsvFormat("An error occurred during Content metadata mapping", e);
+            throw new CollectInvalidCsvFormatException("An error occurred during Content metadata mapping", e);
         }
         return unitContent;
     }
@@ -201,16 +201,17 @@ public class CsvToJsonConverter {
     private static String validateAndFixSignatureReferencedObjectSignedObjectDigestAlgorithm(
         String headerName,
         String fieldValue
-    ) throws CollectInvalidCsvFormat {
+    ) throws CollectInvalidCsvFormatException {
         Matcher matcher = ALGORITHM_ATTR_VALUE_PATTERN.matcher(fieldValue);
         if (!matcher.find()) {
-            throw new CollectInvalidCsvFormat("Invalid algorithm attribute for header '" + headerName + "'");
+            throw new CollectInvalidCsvFormatException("Invalid algorithm attribute for header '" + headerName + "'");
         }
         fieldValue = matcher.group(1);
         return fieldValue;
     }
 
-    private void checkSparseHeaders(SortedMap<String, String> flatFieldValueMap) throws CollectInvalidCsvFormat {
+    private void checkSparseHeaders(SortedMap<String, String> flatFieldValueMap)
+        throws CollectInvalidCsvFormatException {
         HashSetValuedHashMap<String, Integer> flatFieldArrayIndexes = new HashSetValuedHashMap<>();
         for (String flatFieldName : flatFieldValueMap.keySet()) {
             int arrayStartSeparatorIndex = -1;
@@ -227,7 +228,7 @@ public class CsvToJsonConverter {
             Set<Integer> arrayIndexes = flatFieldArrayIndexes.get(flatFieldName);
             for (int i = 0; i < arrayIndexes.size(); i++) {
                 if (!arrayIndexes.contains(i)) {
-                    throw new CollectInvalidCsvFormat(
+                    throw new CollectInvalidCsvFormatException(
                         "Missing value for " + flatFieldName.replaceAll("\\[", ".").replaceAll("]", "") + "." + i
                     );
                 }
@@ -240,7 +241,7 @@ public class CsvToJsonConverter {
         String sedaFieldName,
         String singleValueApiFieldName,
         String multiValueApiFieldName
-    ) throws CollectInvalidCsvFormat {
+    ) throws CollectInvalidCsvFormatException {
         List<String> fieldHeaderNames = headerNames
             .stream()
             .filter(headerName -> equalsOrStartsWith(headerName, sedaFieldName))
@@ -256,7 +257,7 @@ public class CsvToJsonConverter {
             if (fieldHeaderName.endsWith(ATTR_HEADER_NAME_SUFFIX)) {
                 Matcher matcher = LANG_ATTR_VALUE_PATTERN.matcher(value);
                 if (!matcher.find()) {
-                    throw new CollectInvalidCsvFormat(
+                    throw new CollectInvalidCsvFormatException(
                         "Invalid xml:lang attribute for header '" + fieldHeaderName + "'"
                     );
                 }
@@ -269,13 +270,17 @@ public class CsvToJsonConverter {
 
         for (int arrayIndex = 0; arrayIndex < valueByIndex.size(); arrayIndex++) {
             if (!valueByIndex.containsKey(arrayIndex)) {
-                throw new CollectInvalidCsvFormat("Missing value for '" + sedaFieldName + "." + arrayIndex + "'");
+                throw new CollectInvalidCsvFormatException(
+                    "Missing value for '" + sedaFieldName + "." + arrayIndex + "'"
+                );
             }
         }
 
         for (Integer arrayIndex : langAttrByIndex.keySet()) {
             if (!valueByIndex.containsKey(arrayIndex)) {
-                throw new CollectInvalidCsvFormat("Missing value for " + sedaFieldName + "." + arrayIndex + " header");
+                throw new CollectInvalidCsvFormatException(
+                    "Missing value for " + sedaFieldName + "." + arrayIndex + " header"
+                );
             }
         }
 
@@ -287,14 +292,14 @@ public class CsvToJsonConverter {
                 this.csvMetadataValidator.checkIllegalFieldName(lang, sedaFieldName + ".*");
                 String fieldName = multiValueApiFieldName + SEPARATOR + lang;
                 if (flatFieldValueMap.containsKey(fieldName)) {
-                    throw new CollectInvalidCsvFormat(
+                    throw new CollectInvalidCsvFormatException(
                         "Multiple values for '" + sedaFieldName + "' header with same lang attribute '" + lang + "'"
                     );
                 }
                 flatFieldValueMap.put(fieldName, value);
             } else {
                 if (flatFieldValueMap.containsKey(singleValueApiFieldName)) {
-                    throw new CollectInvalidCsvFormat("Multiple values for '" + sedaFieldName + "' header");
+                    throw new CollectInvalidCsvFormatException("Multiple values for '" + sedaFieldName + "' header");
                 }
                 flatFieldValueMap.put(singleValueApiFieldName, value);
             }
@@ -312,7 +317,7 @@ public class CsvToJsonConverter {
         return Integer.parseInt(arrayIndexStr);
     }
 
-    private ObjectNode convertManagementFields(CSVRecord record) throws CollectInvalidCsvFormat {
+    private ObjectNode convertManagementFields(CSVRecord record) throws CollectInvalidCsvFormatException {
         try {
             ObjectNode flatManagementMetadataJson = JsonHandler.createObjectNode();
             CsvMetadataMapper.mapManagement(flatManagementMetadataJson, headerNames, record);
@@ -322,7 +327,7 @@ public class CsvToJsonConverter {
             CsvMetadataMapper.fixSpecificManagementSedaFields(managementMetadataJson);
             return managementMetadataJson;
         } catch (InvalidParseOperationException e) {
-            throw new CollectInvalidCsvFormat("An error occurred during Management metadata mapping", e);
+            throw new CollectInvalidCsvFormatException("An error occurred during Management metadata mapping", e);
         }
     }
 
