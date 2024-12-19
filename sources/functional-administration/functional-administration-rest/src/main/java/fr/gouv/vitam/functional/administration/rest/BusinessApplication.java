@@ -160,6 +160,7 @@ public class BusinessApplication extends Application {
             );
             final OntologyServiceImpl ontologyService = new OntologyServiceImpl(mongoDbAccess, functionalBackupService);
             final SchemaService schemaService = new SchemaService(
+                configuration,
                 mongoDbAccess,
                 functionalBackupService,
                 ontologyService

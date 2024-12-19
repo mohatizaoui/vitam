@@ -99,6 +99,8 @@ public class SchemaResponse {
      */
     public static final String TAG_PATH_CARDINALITY = "Cardinality";
 
+    public static final String TAG_CUSTOM_SEARCH_TYPES = "CustomSearchTypes";
+
     /**
      * The fieldName
      */
@@ -168,6 +170,9 @@ public class SchemaResponse {
 
     @JsonProperty(TAG_TYPE_DETAIL)
     private SchemaTypeDetail typeDetail;
+
+    @JsonProperty(TAG_CUSTOM_SEARCH_TYPES)
+    private List<String> customSearchTypes;
 
     /**
      * Constructor without fields use for jackson
@@ -313,5 +318,14 @@ public class SchemaResponse {
 
     public void setSedaVersions(List<String> sedaVersions) {
         this.sedaVersions = sedaVersions;
+    }
+
+    public List<String> getCustomSearchTypes() {
+        return customSearchTypes;
+    }
+
+    public SchemaResponse setCustomSearchTypes(List<String> customSearchTypes) {
+        this.customSearchTypes = customSearchTypes;
+        return this;
     }
 }

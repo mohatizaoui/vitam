@@ -60,6 +60,9 @@ public class AdminManagementConfiguration extends DbConfigurationImpl {
     @JsonProperty("elasticsearchConfigurationFile")
     private String elasticsearchConfigurationFile;
 
+    @JsonProperty("exactSearchOnTitle")
+    private Boolean exactSearchOnTitle;
+
     // constructor
     AdminManagementConfiguration() {
         super();
@@ -246,6 +249,15 @@ public class AdminManagementConfiguration extends DbConfigurationImpl {
 
     public AdminManagementConfiguration setElasticsearchConfigurationFile(String elasticSearchConfigurationFile) {
         this.elasticsearchConfigurationFile = elasticSearchConfigurationFile;
+        return this;
+    }
+
+    public Boolean getExactSearchOnTitle() {
+        return exactSearchOnTitle;
+    }
+
+    public AdminManagementConfiguration setExactSearchOnTitle(Boolean exactSearchOnTitle) {
+        this.exactSearchOnTitle = exactSearchOnTitle;
         return this;
     }
 }
