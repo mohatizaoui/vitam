@@ -36,6 +36,29 @@
           "html_strip",
           "underscoreReplace"
         ]
+      },
+      "strict_text_analyzer": {
+        "type": "custom",
+        "tokenizer": "standard",
+        "char_filter": [
+          "html_strip"
+        ],
+        "filter": [
+          "lowercase",
+          "asciifolding"
+        ]
+      },
+      "light_text_analyzer": {
+        "type": "custom",
+        "tokenizer": "standard",
+        "char_filter": [
+          "html_strip"
+        ],
+        "filter": [
+          "lowercase",
+          "asciifolding",
+          "_stemmer_minimal"
+        ]
       }
     },
     "char_filter": {
@@ -88,6 +111,10 @@
       "_stemmer": {
         "type" : "stemmer",
         "name" : "french"
+      },
+      "_stemmer_minimal": {
+        "type" : "stemmer",
+        "name" : "minimal_french"
       }
     }
   }

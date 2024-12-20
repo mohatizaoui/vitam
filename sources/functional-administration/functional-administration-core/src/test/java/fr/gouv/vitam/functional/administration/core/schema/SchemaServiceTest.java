@@ -49,6 +49,7 @@ import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
+import fr.gouv.vitam.functional.administration.common.config.AdminManagementConfiguration;
 import fr.gouv.vitam.functional.administration.common.exception.ReferentialException;
 import fr.gouv.vitam.functional.administration.common.schema.Schema;
 import fr.gouv.vitam.functional.administration.common.server.FunctionalAdminCollections;
@@ -91,6 +92,7 @@ public class SchemaServiceTest {
 
     private static final Integer TENANT_ID = 2;
     private static final Integer ADMIN_TENANT = 1;
+    private static final AdminManagementConfiguration configuration = Mockito.mock(AdminManagementConfiguration.class);
     private static final FunctionalBackupService functionalBackupService = Mockito.mock(FunctionalBackupService.class);
     private static final MongoDbAccessAdminImpl mongoDbAccessAdminMocked = Mockito.mock(MongoDbAccessAdminImpl.class);
     private static final OntologyService ontologyService = Mockito.mock(OntologyServiceImpl.class);
@@ -108,7 +110,12 @@ public class SchemaServiceTest {
 
         LogbookOperationsClientFactory.changeMode(null);
 
-        schemaService = new SchemaService(mongoDbAccessAdminMocked, functionalBackupService, ontologyService);
+        schemaService = new SchemaService(
+            configuration,
+            mongoDbAccessAdminMocked,
+            functionalBackupService,
+            ontologyService
+        );
     }
 
     @AfterClass
@@ -143,19 +150,44 @@ public class SchemaServiceTest {
         assertThat(addressBirthPlaceAddressSchemaEltOpt).isPresent();
         final SchemaResponse addressBirthPlaceAddressSchemaElt = addressBirthPlaceAddressSchemaEltOpt.get();
 
-        assertEquals(addressBirthPlaceAddressSchemaElt.getType(), SchemaType.TEXT);
-        assertEquals(addressBirthPlaceAddressSchemaElt.getSedaField(), "Address");
-        assertEquals(addressBirthPlaceAddressSchemaElt.getCollection(), "Unit");
-        assertEquals(addressBirthPlaceAddressSchemaElt.getCardinality(), SchemaCardinality.ONE);
+        assertEquals(SchemaType.TEXT, addressBirthPlaceAddressSchemaElt.getType());
+        assertEquals("Address", addressBirthPlaceAddressSchemaElt.getSedaField());
+        assertEquals("Unit", addressBirthPlaceAddressSchemaElt.getCollection());
+        assertEquals(SchemaCardinality.ONE, addressBirthPlaceAddressSchemaElt.getCardinality());
         assertEquals(
-            addressBirthPlaceAddressSchemaElt.getDescription(),
-            "Mapping : unit-es-mapping.json. En plus des balises Tag et Keyword, il est possible d'indexer les objets avec des éléments pré-définis : Adresse. Références : ead.address"
+            "Mapping : unit-es-mapping.json. En plus des balises Tag et Keyword, il est possible d'indexer les objets avec des éléments pré-définis : Adresse. Références : ead.address",
+            addressBirthPlaceAddressSchemaElt.getDescription()
         );
         assertThat(addressBirthPlaceAddressSchemaElt.getSedaVersions()).contains("2.1");
         assertThat(addressBirthPlaceAddressSchemaElt.getSedaVersions()).contains("2.2");
         assertThat(addressBirthPlaceAddressSchemaElt.getSedaVersions()).contains("2.3");
         assertThat(addressBirthPlaceAddressSchemaElt.getTypeDetail()).isEqualTo(SchemaTypeDetail.STRING);
         assertThat(addressBirthPlaceAddressSchemaElt.getStringSize()).isEqualTo(SchemaStringSizeType.SHORT);
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void should_return_custom_search_types_according_to_exact_search_configuration()
+        throws IOException, InvalidParseOperationException, ReferentialException {
+        when(configuration.getExactSearchOnTitle()).thenReturn(false);
+
+        SchemaResponse titleSchemaElt = schemaService
+            .findUnitInternalSchema()
+            .stream()
+            .filter(schemaElt -> "Title".equals(schemaElt.getPath()))
+            .findAny()
+            .get();
+        assertThat(titleSchemaElt.getCustomSearchTypes()).isNull();
+
+        when(configuration.getExactSearchOnTitle()).thenReturn(true);
+
+        titleSchemaElt = schemaService
+            .findUnitInternalSchema()
+            .stream()
+            .filter(schemaElt -> "Title".equals(schemaElt.getPath()))
+            .findAny()
+            .get();
+        assertThat(titleSchemaElt.getCustomSearchTypes()).isEqualTo(List.of("Strict"));
     }
 
     @Test
@@ -175,12 +207,12 @@ public class SchemaServiceTest {
         assertThat(algorithSchemaEltOpt).isPresent();
 
         final SchemaResponse algorithSchemaElt = algorithSchemaEltOpt.get();
-        assertEquals(algorithSchemaElt.getType(), SchemaType.KEYWORD);
-        assertEquals(algorithSchemaElt.getSedaField(), "Algorithm");
-        assertEquals(algorithSchemaElt.getPath(), "_qualifiers.versions.Algorithm");
-        assertEquals(algorithSchemaElt.getApiPath(), "#qualifiers.versions.Algorithm");
-        assertEquals(algorithSchemaElt.getCollection(), "ObjectGroup");
-        assertEquals(algorithSchemaElt.getCardinality(), SchemaCardinality.ONE);
+        assertEquals(SchemaType.KEYWORD, algorithSchemaElt.getType());
+        assertEquals("Algorithm", algorithSchemaElt.getSedaField());
+        assertEquals("_qualifiers.versions.Algorithm", algorithSchemaElt.getPath());
+        assertEquals("#qualifiers.versions.Algorithm", algorithSchemaElt.getApiPath());
+        assertEquals("ObjectGroup", algorithSchemaElt.getCollection());
+        assertEquals(SchemaCardinality.ONE, algorithSchemaElt.getCardinality());
         assertThat(algorithSchemaElt.getSedaVersions()).contains("2.1");
         assertThat(algorithSchemaElt.getSedaVersions()).contains("2.2");
         assertThat(algorithSchemaElt.getSedaVersions()).contains("2.3");
@@ -196,10 +228,10 @@ public class SchemaServiceTest {
         assertThat(persistentIdentifierContentSchemaEltOpt).isPresent();
 
         final SchemaResponse persistentIdentifierContentElt = persistentIdentifierContentSchemaEltOpt.get();
-        assertEquals(persistentIdentifierContentElt.getType(), SchemaType.KEYWORD);
-        assertEquals(persistentIdentifierContentElt.getSedaField(), "PersistentIdentifierContent");
-        assertEquals(persistentIdentifierContentElt.getCollection(), "ObjectGroup");
-        assertEquals(persistentIdentifierContentElt.getCardinality(), SchemaCardinality.ONE);
+        assertEquals(SchemaType.KEYWORD, persistentIdentifierContentElt.getType());
+        assertEquals("PersistentIdentifierContent", persistentIdentifierContentElt.getSedaField());
+        assertEquals("ObjectGroup", persistentIdentifierContentElt.getCollection());
+        assertEquals(SchemaCardinality.ONE, persistentIdentifierContentElt.getCardinality());
         assertThat(persistentIdentifierContentElt.getSedaVersions()).contains("2.2");
         assertThat(persistentIdentifierContentElt.getSedaVersions()).contains("2.3");
         assertThat(persistentIdentifierContentElt.getSedaVersions()).doesNotContain("2.1");
@@ -238,14 +270,14 @@ public class SchemaServiceTest {
         assertThat(addressBirthPlaceAddressSchemaEltOpt).isPresent();
 
         final SchemaResponse addressBirthPlaceAddressSchemaElt = addressBirthPlaceAddressSchemaEltOpt.get();
-        assertEquals(addressBirthPlaceAddressSchemaElt.getType(), SchemaType.TEXT);
-        assertEquals(addressBirthPlaceAddressSchemaElt.getOrigin(), SchemaOrigin.INTERNAL);
-        assertEquals(addressBirthPlaceAddressSchemaElt.getSedaField(), "Address");
-        assertEquals(addressBirthPlaceAddressSchemaElt.getCollection(), "Unit");
-        assertEquals(addressBirthPlaceAddressSchemaElt.getCardinality(), SchemaCardinality.ONE);
+        assertEquals(SchemaType.TEXT, addressBirthPlaceAddressSchemaElt.getType());
+        assertEquals(SchemaOrigin.INTERNAL, addressBirthPlaceAddressSchemaElt.getOrigin());
+        assertEquals("Address", addressBirthPlaceAddressSchemaElt.getSedaField());
+        assertEquals("Unit", addressBirthPlaceAddressSchemaElt.getCollection());
+        assertEquals(SchemaCardinality.ONE, addressBirthPlaceAddressSchemaElt.getCardinality());
         assertEquals(
-            addressBirthPlaceAddressSchemaElt.getDescription(),
-            "Mapping : unit-es-mapping.json. En plus des balises Tag et Keyword, il est possible d'indexer les objets avec des éléments pré-définis : Adresse. Références : ead.address"
+            "Mapping : unit-es-mapping.json. En plus des balises Tag et Keyword, il est possible d'indexer les objets avec des éléments pré-définis : Adresse. Références : ead.address",
+            addressBirthPlaceAddressSchemaElt.getDescription()
         );
         assertThat(addressBirthPlaceAddressSchemaElt.getSedaVersions()).contains("2.1");
         assertThat(addressBirthPlaceAddressSchemaElt.getSedaVersions()).contains("2.2");
@@ -260,8 +292,8 @@ public class SchemaServiceTest {
         assertThat(birthDateSchemaEltOpt).isPresent();
 
         final SchemaResponse birthDateSchemaElt = birthDateSchemaEltOpt.get();
-        assertEquals(birthDateSchemaElt.getType(), SchemaType.DATE);
-        assertEquals(birthDateSchemaElt.getOrigin(), SchemaOrigin.EXTERNAL);
+        assertEquals(SchemaType.DATE, birthDateSchemaElt.getType());
+        assertEquals(SchemaOrigin.EXTERNAL, birthDateSchemaElt.getOrigin());
         assertThat(birthDateSchemaElt.getTypeDetail()).isEqualTo(SchemaTypeDetail.DATETIME);
         assertThat(birthDateSchemaElt.getStringSize()).isNull();
 
@@ -272,9 +304,9 @@ public class SchemaServiceTest {
         assertThat(invoiceSchemaEltOpt).isPresent();
 
         final SchemaResponse invoiceSchemaElt = invoiceSchemaEltOpt.get();
-        assertEquals(invoiceSchemaElt.getType(), SchemaType.OBJECT);
-        assertEquals(invoiceSchemaElt.getCardinality(), SchemaCardinality.MANY);
-        assertEquals(invoiceSchemaElt.getOrigin(), SchemaOrigin.EXTERNAL);
+        assertEquals(SchemaType.OBJECT, invoiceSchemaElt.getType());
+        assertEquals(SchemaCardinality.MANY, invoiceSchemaElt.getCardinality());
+        assertEquals(SchemaOrigin.EXTERNAL, invoiceSchemaElt.getOrigin());
     }
 
     @Test
@@ -322,7 +354,7 @@ public class SchemaServiceTest {
             schemaModelInputList
         );
         assertNotNull(importingResponse);
-        assertEquals(importingResponse.getStatus(), HttpStatus.SC_BAD_REQUEST);
+        assertEquals(HttpStatus.SC_BAD_REQUEST, importingResponse.getStatus());
     }
 
     @Test

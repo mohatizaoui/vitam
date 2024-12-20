@@ -64,6 +64,7 @@ import fr.gouv.vitam.common.model.administration.schema.SchemaStringSizeType;
 import fr.gouv.vitam.common.model.administration.schema.SchemaType;
 import fr.gouv.vitam.common.model.administration.schema.SchemaTypeDetail;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
+import fr.gouv.vitam.functional.administration.common.config.AdminManagementConfiguration;
 import fr.gouv.vitam.functional.administration.common.exception.ReferentialException;
 import fr.gouv.vitam.functional.administration.common.exception.schema.SchemaImportValidationException;
 import fr.gouv.vitam.functional.administration.common.schema.ErrorReportSchema;
@@ -76,6 +77,7 @@ import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClientFactory;
 import fr.gouv.vitam.storage.engine.common.exception.StorageException;
 import fr.gouv.vitam.storage.engine.common.model.DataCategory;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 
 import javax.ws.rs.core.Response;
 import java.io.IOException;
@@ -116,6 +118,7 @@ public class SchemaService {
 
     public static final String VITAM_UNIT_INTERNAL_SCHEMA_JSON = "vitam-unit-internal-schema.json";
     public static final String VITAM_OBJECT_GROUP_INTERNAL_SCHEMA_JSON = "vitam-object-group-internal-schema.json";
+    public static final String PATH_TITLE = "Title";
 
     private final MongoDbAccessAdminImpl mongoDbAccessReferential;
 
@@ -124,17 +127,20 @@ public class SchemaService {
     private final OntologyService ontologyService;
 
     private final SchemaValidationService schemaValidationService;
+    private final AdminManagementConfiguration configuration;
 
     /**
      * SchemaService Constructor
      */
 
     public SchemaService(
+        final AdminManagementConfiguration configuration,
         final MongoDbAccessAdminImpl mongoDbAccessReferential,
         final FunctionalBackupService functionalBackupService,
         final OntologyService ontologyService
     ) {
         this(
+            configuration,
             mongoDbAccessReferential,
             functionalBackupService,
             ontologyService,
@@ -144,11 +150,13 @@ public class SchemaService {
 
     @VisibleForTesting
     public SchemaService(
+        final AdminManagementConfiguration configuration,
         final MongoDbAccessAdminImpl mongoDbAccessReferential,
         final FunctionalBackupService functionalBackupService,
         final OntologyService ontologyService,
         final LogbookOperationsClientFactory logbookOperationsClientFactory
     ) {
+        this.configuration = configuration;
         this.ontologyService = ontologyService;
         this.mongoDbAccessReferential = mongoDbAccessReferential;
         this.functionalBackupService = functionalBackupService;
@@ -475,6 +483,12 @@ public class SchemaService {
                     schemaResponse.setDescription(ontologyElt.getDescription());
                     if (SchemaOrigin.EXTERNAL.equals(schemaResponse.getOrigin()) && schemaResponse.getType() == null) {
                         schemaResponse.setType(SchemaType.valueOf(ontologyElt.getType().getType()));
+                    }
+                    if (
+                        PATH_TITLE.equals(schemaResponse.getApiPath()) &&
+                        BooleanUtils.isTrue(configuration.getExactSearchOnTitle())
+                    ) {
+                        schemaResponse.setCustomSearchTypes(Collections.singletonList("Strict"));
                     }
                 }
             })
