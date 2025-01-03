@@ -266,6 +266,16 @@ X-Tenant-Id: {{tenant}}
 
 < /path_tozip/stream.zip
 
+@attachement-unit-id = some-id
+
+### upload a zip on transactions with a specific attachement
+POST {{url-collect}}/collect-external/v1/transactions/{{transaction-id}}/upload
+Accept: application/json
+Content-Type: application/zip
+X-Tenant-Id: {{tenant}}
+X-Attachement-Id: {{attachement-unit-id}}
+
+< /path_tozip/stream.zip
 
 
 
