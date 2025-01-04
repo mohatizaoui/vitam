@@ -27,11 +27,12 @@
 
 package fr.gouv.vitam.collect.internal.core.csv;
 
-public record SchemaInfo(
+public record SedaSchemaInfo(
     String sedaPath,
     String apiPath,
-    String apiField,
+    String apiSubPath,
     boolean isObject,
     boolean isArray,
-    boolean isExternal
+    boolean isExternal,
+    boolean isSedaExtensionPoint
 ) {}
