@@ -34,5 +34,9 @@ public record SedaSchemaInfo(
     boolean isObject,
     boolean isArray,
     boolean isExternal,
-    boolean isSedaExtensionPoint
+    boolean isSedaExtensionPoint,
+    // Rule properties have special array index notation (Management.AppraisalRule.StartDate.1 refers to Management.AppraisalRule.Rule.1)
+    boolean isSpecialRulePropertyArrayIndex,
+    // Few Seda fields are NOT supported in CSV metadata headers (Management.UpdateOperation & Management.LogBook)
+    boolean isForbiddenCsvHeader
 ) {}
