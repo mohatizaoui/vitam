@@ -521,7 +521,7 @@ X-Tenant-Id: {{tenant}}
   },
   "ruleActions": {
     "add": [
-      
+
     ],
     "update": [],
     "delete": [
@@ -549,7 +549,7 @@ X-Tenant-Id: {{tenant}}
   },
   "ruleActions": {
     "add": [
-      
+
     ],
     "update": [],
     "delete": [
@@ -559,5 +559,50 @@ X-Tenant-Id: {{tenant}}
     ],
     "addOrUpdateMetadata": {},
     "deleteMetadata": {}
+  }
+}
+
+
+### Ajout d'un PUA
+POST {{url-access}}/access-external/v1/units/rules
+Accept: application/json
+Content-Type: application/json
+X-Access-Contract-Id: {{access-contract}}
+X-Tenant-Id: {{tenant}}
+
+{
+  "dslRequest": {
+    "$query": [ { "$eq": { "#id": "{{unit-id}}" } } ]
+  },
+  "ruleActions": {
+    "add": [],
+    "update": [],
+    "delete": [],
+    "addOrUpdateMetadata": {
+      "ArchiveUnitProfile": "AUP-000001"
+    },
+    "deleteMetadata": {}
+  }
+}
+
+### Suppression d'un PUA
+POST {{url-access}}/access-external/v1/units/rules
+Accept: application/json
+Content-Type: application/json
+X-Access-Contract-Id: {{access-contract}}
+X-Tenant-Id: {{tenant}}
+
+{
+  "dslRequest": {
+    "$query": [ { "$eq": { "#id": "{{unit-id}}" } } ]
+  },
+  "ruleActions": {
+    "add": [],
+    "update": [],
+    "delete": [],
+    "addOrUpdateMetadata": {},
+    "deleteMetadata": {
+      "ArchiveUnitProfile": "NOT_EMPTY"
+    }
   }
 }
