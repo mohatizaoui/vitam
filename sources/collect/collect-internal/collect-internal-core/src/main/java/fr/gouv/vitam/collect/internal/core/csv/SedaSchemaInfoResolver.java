@@ -47,16 +47,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.ARCHIVE_UNIT_PROFILE;
 import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.CONTENT;
 import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.CONTENT_SEPARATOR;
 import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.END_DATE_FIELD;
+import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.FORBIDDEN_CONTENT_SEDA_PATHS;
 import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.HASH_PREFIX;
 import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.MANAGEMENT_FIELD;
 import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.SEPARATOR;
 import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.buildPath;
 
 /**
- * Allows resolving of "Content.*" & "Management.*" schema fields by their full "SedaPath".
+ * Allows resolving of "Content.*", "Management.*" & "ArchiveUnitProfile" schema fields by their full "SedaPath".
  * FIXME : To be refactored or deleted when story #14050 is implemented.
  */
 public class SedaSchemaInfoResolver {
@@ -199,7 +201,7 @@ public class SedaSchemaInfoResolver {
                     isExternal,
                     isSedaExtensionPoint,
                     false,
-                    false
+                    isForbiddenCsvHeader(sedaPath)
                 )
             );
         }
@@ -211,6 +213,10 @@ public class SedaSchemaInfoResolver {
         );
 
         return MapUtils.unmodifiableMap(sedaPathToSedaInfo);
+    }
+
+    private static boolean isForbiddenCsvHeader(String sedaPath) {
+        return FORBIDDEN_CONTENT_SEDA_PATHS.contains(sedaPath);
     }
 
     private static Map<String, SedaSchemaInfo> getManagementSchemaBySedaPath(List<SchemaResponse> allSchemaModels) {
@@ -285,6 +291,21 @@ public class SedaSchemaInfoResolver {
                 false,
                 false,
                 true
+            )
+        );
+
+        sedaPathToSedaInfo.put(
+            ARCHIVE_UNIT_PROFILE,
+            new SedaSchemaInfo(
+                ARCHIVE_UNIT_PROFILE,
+                ARCHIVE_UNIT_PROFILE,
+                ARCHIVE_UNIT_PROFILE,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
             )
         );
 

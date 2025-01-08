@@ -92,7 +92,8 @@ public class CsvMetadataValidatorTest {
             "File;File;Content.Title",
             "File;Content.Title;Content.Title",
             "File;Management.NeedAuthorization;Management.NeedAuthorization",
-            "File;Management.AppraisalRule.Rule.0;Management.AppraisalRule.Rule.0"
+            "File;Management.AppraisalRule.Rule.0;Management.AppraisalRule.Rule.0",
+            "File;ArchiveUnitProfile;ArchiveUnitProfile"
         );
 
         // When / Then
@@ -103,7 +104,10 @@ public class CsvMetadataValidatorTest {
 
     @Test
     public void testHeaderValidation_MissingFileHeader() {
-        assertThatHeaderNamesAreInvalid("Content.Title;Content.Description", "Missing required 'File' header name");
+        assertThatHeaderNamesAreInvalid(
+            "Content.Title;Content.Description;Management.AppraisalRule.PreventInheritance;ArchiveUnitProfile",
+            "Missing required 'File' header name"
+        );
     }
 
     @Test
@@ -136,7 +140,7 @@ public class CsvMetadataValidatorTest {
         for (String headerLine : headerLines) {
             assertThatHeaderNamesAreInvalid(
                 headerLine,
-                "Only accepted names are 'File', 'Content.*' or 'Management.*'"
+                "Only accepted names are 'File', 'Content.*', 'Management.*' or 'ArchiveUnitProfile'"
             );
         }
     }
@@ -274,6 +278,10 @@ public class CsvMetadataValidatorTest {
 
     @Test
     public void testHeaderValidation_ForbiddenFields() {
+        assertThatHeaderNamesAreInvalid(
+            "File;Content.ArchiveUnitProfile",
+            "Seda Field 'ArchiveUnitProfile' is forbidden."
+        );
         assertThatHeaderNamesAreInvalid(
             "File;Management.LogBook.Event.0.EventIdentifier",
             "Seda Field 'LogBook' is forbidden."
@@ -540,6 +548,11 @@ public class CsvMetadataValidatorTest {
             "File;Management.HoldRule.EndDate",
             "Invalid header name 'Management.HoldRule.EndDate'. Invalid seda extension point 'Management.HoldRule'"
         );
+
+        assertThatHeaderNamesAreInvalid(
+            "File;ArchiveUnitProfile.Extra",
+            "Field 'ArchiveUnitProfile' is not an object."
+        );
     }
 
     @Test
@@ -660,6 +673,8 @@ public class CsvMetadataValidatorTest {
             "File;Management.NeedAuthorization.0",
             "Field 'Management.NeedAuthorization' is not an array"
         );
+
+        assertThatHeaderNamesAreInvalid("File;ArchiveUnitProfile.0", "Field 'ArchiveUnitProfile' is not an array");
     }
 
     @Test
