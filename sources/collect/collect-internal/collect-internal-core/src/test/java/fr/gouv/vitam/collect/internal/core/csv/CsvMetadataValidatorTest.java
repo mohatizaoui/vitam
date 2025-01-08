@@ -111,8 +111,12 @@ public class CsvMetadataValidatorTest {
     @Test
     public void testHeaderValidation_HeaderSanityChecks_TooLong() {
         assertThatHeaderNamesAreInvalid(
-            List.of("File", "Content." + StringUtils.repeat('A', 300)),
-            "Invalid header name 'Content.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA...'. Too long"
+            List.of("File", "Content" + StringUtils.repeat(".A", 150)),
+            "Invalid header name 'Content.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A.A....': Header name is too long"
+        );
+        assertThatHeaderNamesAreInvalid(
+            List.of("File", "Content." + StringUtils.repeat('A', 120)),
+            "Content.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA': Field name too long"
         );
     }
 
@@ -215,7 +219,7 @@ public class CsvMetadataValidatorTest {
 
         // When / Then
         for (String headerLine : headerLines) {
-            assertThatHeaderNamesAreInvalid(headerLine, "Empty field name");
+            assertThatHeaderNamesAreInvalid(headerLine, "Empty or blank field name");
         }
     }
 
@@ -236,7 +240,7 @@ public class CsvMetadataValidatorTest {
 
         // When / Then
         for (String headerLine : headerLines) {
-            assertThatHeaderNamesAreInvalid(headerLine, "'. Field name cannot start with '_' or '-'");
+            assertThatHeaderNamesAreInvalid(headerLine, "Field name cannot start with '_' or '-'");
         }
     }
 
@@ -287,7 +291,7 @@ public class CsvMetadataValidatorTest {
 
         // When / Then
         for (String headerLine : headerLines) {
-            assertThatHeaderNamesAreInvalid(headerLine, "'. Reserved characters");
+            assertThatHeaderNamesAreInvalid(headerLine, "Reserved / illegal characters");
         }
     }
 
