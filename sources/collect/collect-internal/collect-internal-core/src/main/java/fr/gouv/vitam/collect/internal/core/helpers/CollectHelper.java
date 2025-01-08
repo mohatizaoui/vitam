@@ -53,6 +53,7 @@ import fr.gouv.vitam.common.model.objectgroup.DbVersionsModel;
 import fr.gouv.vitam.common.security.IllegalPathException;
 import fr.gouv.vitam.common.security.SafeFileChecker;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -175,9 +176,11 @@ public class CollectHelper {
             projectDto.setTransferringAgencyIdentifier(
                 projectModel.getManifestContext().getTransferringAgencyIdentifier()
             );
-            projectDto.setOriginatingAgencyIdentifier(
-                projectModel.getManifestContext().getOriginatingAgencyIdentifier()
-            );
+            if (StringUtils.isNotEmpty(projectModel.getManifestContext().getOriginatingAgencyIdentifier())) {
+                projectDto.setOriginatingAgencyIdentifier(
+                    projectModel.getManifestContext().getOriginatingAgencyIdentifier()
+                );
+            }
             projectDto.setSubmissionAgencyIdentifier(projectModel.getManifestContext().getSubmissionAgencyIdentifier());
             projectDto.setArchivalProfile(projectModel.getManifestContext().getArchivalProfile());
             projectDto.setComment(projectModel.getManifestContext().getComment());

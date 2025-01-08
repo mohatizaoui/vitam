@@ -2,7 +2,6 @@
   {
     "#id": "aeaqaaaaaacpbveraqxzuamdvda5j5yaaaaq",
     "#opi": "TRANSACTION_ID",
-    "#originating_agency": "Vitam",
     "#unitType": "INGEST",
     "#management": {},
     "Title": "ROOT",
@@ -12,7 +11,6 @@
   {
     "#id": "aeaqaaaaaacpbveraqxzuamdvda5l4qaaaaq",
     "#opi": "TRANSACTION_ID",
-    "#originating_agency": "Vitam",
     "#unitType": "INGEST",
     "#management": {},
     "Title": "Parent B",
@@ -25,7 +23,6 @@
   {
     "#id": "aeaqaaaaaacpbveraqxzuamdvda5lcqaaaaq",
     "#opi": "TRANSACTION_ID",
-    "#originating_agency": "Vitam",
     "#unitType": "INGEST",
     "#management": {},
     "Title": "Parent A",

@@ -29,6 +29,7 @@
     },
     "#nbobjects": 1,
     "#opi": "TRANSACTION_ID",
+    "#originating_agency": "Vitam",
     "#batchId": "aeeaaaaaaceaaaabaeq52amo6fvotdqaaaaq"
   },
   {
@@ -61,6 +62,7 @@
     },
     "#nbobjects": 1,
     "#opi": "TRANSACTION_ID",
+    "#originating_agency": "Vitam",
     "#batchId": "aeeaaaaaaceaaaabaeq52amo6fvotdqaaaaq"
   },
   {
@@ -93,6 +95,7 @@
     },
     "#nbobjects": 1,
     "#opi": "TRANSACTION_ID",
+    "#originating_agency": "Vitam",
     "#batchId": "aeeaaaaaaceaaaabaeq52amo6fvotdqaaaaq"
   },
   {
@@ -125,6 +128,7 @@
     },
     "#nbobjects": 1,
     "#opi": "TRANSACTION_ID",
+    "#originating_agency": "Vitam",
     "#batchId": "aeeaaaaaaceaaaabaeq52amo6fvotdqaaaaq"
   },
   {
@@ -157,6 +161,7 @@
     },
     "#nbobjects": 1,
     "#opi": "TRANSACTION_ID",
+    "#originating_agency": "Vitam",
     "#batchId": "aeeaaaaaaceaaaabaeq52amo6fvotdqaaaaq"
   }
 ]

@@ -2,6 +2,7 @@
   {
     "#id": "aeaqaaaaaacpbveraqxzuamdvda5j5yaaaaq",
     "#opi": "TRANSACTION_ID",
+    "#originating_agency": "Vitam",
     "#unitType": "INGEST",
     "#management": {},
     "Title": "ROOT",
@@ -11,6 +12,7 @@
   {
     "#id": "aeaqaaaaaacpbveraqxzuamdvda5l4qaaaaq",
     "#opi": "TRANSACTION_ID",
+    "#originating_agency": "Vitam",
     "#unitType": "INGEST",
     "#management": {},
     "Title": "Parent B",
@@ -23,6 +25,7 @@
   {
     "#id": "aeaqaaaaaacpbveraqxzuamdvda5l4qaaaba",
     "#opi": "TRANSACTION_ID",
+   "#originating_agency": "Vitam",
     "#unitType": "INGEST",
     "#management": {},
     "Title": "Child E",
@@ -36,6 +39,7 @@
   {
     "#id": "aeaqaaaaaacpbveraqxzuamdvda5lcyaaaaq",
     "#opi": "TRANSACTION_ID",
+    "#originating_agency": "Vitam",
     "#unitType": "INGEST",
     "#management": {},
     "Title": "Child D",
@@ -49,6 +53,7 @@
   {
     "#id": "aeaqaaaaaacpbveraqxzuamdvda5l5qaaaaq",
     "#opi": "TRANSACTION_ID",
+    "#originating_agency": "Vitam",
     "#unitType": "INGEST",
     "#management": {},
     "Title": "Child F",
@@ -62,6 +67,7 @@
   {
     "#id": "aeaqaaaaaacpbveraqxzuamdvda5lcqaaaaq",
     "#opi": "TRANSACTION_ID",
+    "#originating_agency": "Vitam",
     "#unitType": "INGEST",
     "#management": {},
     "Title": "Parent A",
@@ -74,6 +80,7 @@
   {
     "#id": "aeaqaaaaaacpbveraqxzuamdvda5l3qaaaaq",
     "#opi": "TRANSACTION_ID",
+    "#originating_agency": "Vitam",
     "#unitType": "INGEST",
     "#management": {},
     "Title": "Child C",

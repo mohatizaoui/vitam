@@ -11,7 +11,8 @@
       "aeaqaaaaaaeaaaabaeqheamo6fs4o3qaaaaq"
     ],
     "#batchId": "aeeaaaaaaceaaaabaeqheamo6fs4naiaaaaq",
-    "#uploadPath": "arborescence_with_accents_windows/Parent/alcôve ovoïde/âtre/capharnaüm.txt"
+    "#uploadPath": "arborescence_with_accents_windows/Parent/alcôve ovoïde/âtre/capharnaüm.txt",
+    "#originating_agency": "Vitam"
   },
   {
     "DescriptionLevel": "Item",
@@ -25,7 +26,8 @@
       "aeaqaaaaaaeaaaabaeqheamo6fs4peiaaaaq"
     ],
     "#batchId": "aeeaaaaaaceaaaabaeqheamo6fs4naiaaaaq",
-    "#uploadPath": "arborescence_with_accents_windows/Parent/île intérieure/ça-et-là.txt"
+    "#uploadPath": "arborescence_with_accents_windows/Parent/île intérieure/ça-et-là.txt",
+    "#originating_agency": "Vitam"
   },
   {
     "DescriptionLevel": "RecordGrp",
@@ -38,7 +40,8 @@
       "aeaqaaaaaaeaaaabaeqheamo6fs4n5aaaaaq"
     ],
     "#batchId": "aeeaaaaaaceaaaabaeqheamo6fs4naiaaaaq",
-    "#uploadPath": "arborescence_with_accents_windows/Parent"
+    "#uploadPath": "arborescence_with_accents_windows/Parent",
+    "#originating_agency": "Vitam"
   },
   {
     "DescriptionLevel": "Item",
@@ -52,7 +55,8 @@
       "aeaqaaaaaaeaaaabaeqheamo6fs4peiaaaaq"
     ],
     "#batchId": "aeeaaaaaaceaaaabaeqheamo6fs4naiaaaaq",
-    "#uploadPath": "arborescence_with_accents_windows/Parent/île intérieure/ça et là.txt"
+    "#uploadPath": "arborescence_with_accents_windows/Parent/île intérieure/ça et là.txt",
+    "#originating_agency": "Vitam"
   },
   {
     "DescriptionLevel": "Item",
@@ -66,7 +70,8 @@
       "aeaqaaaaaaeaaaabaeqheamo6fs4peiaaaaq"
     ],
     "#batchId": "aeeaaaaaaceaaaabaeqheamo6fs4naiaaaaq",
-    "#uploadPath": "arborescence_with_accents_windows/Parent/île intérieure/ca et la.txt"
+    "#uploadPath": "arborescence_with_accents_windows/Parent/île intérieure/ca et la.txt",
+    "#originating_agency": "Vitam"
   },
   {
     "DescriptionLevel": "RecordGrp",
@@ -79,7 +84,8 @@
       "aeaqaaaaaaeaaaabaeqheamo6fs4o3iaaaaq"
     ],
     "#batchId": "aeeaaaaaaceaaaabaeqheamo6fs4naiaaaaq",
-    "#uploadPath": "arborescence_with_accents_windows/Parent/alcôve ovoïde/l'être"
+    "#uploadPath": "arborescence_with_accents_windows/Parent/alcôve ovoïde/l'être",
+    "#originating_agency": "Vitam"
   },
   {
     "DescriptionLevel": "Item",
@@ -93,7 +99,8 @@
       "aeaqaaaaaaeaaaabaeqheamo6fs4pdaaaaaq"
     ],
     "#batchId": "aeeaaaaaaceaaaabaeqheamo6fs4naiaaaaq",
-    "#uploadPath": "arborescence_with_accents_windows/Parent/alcôve ovoïde/l'être/ambiguë.txt"
+    "#uploadPath": "arborescence_with_accents_windows/Parent/alcôve ovoïde/l'être/ambiguë.txt",
+    "#originating_agency": "Vitam"
   },
   {
     "DescriptionLevel": "RecordGrp",
@@ -106,7 +113,8 @@
       "aeaqaaaaaaeaaaabaeqheamo6fs4o2iaaaaq"
     ],
     "#batchId": "aeeaaaaaaceaaaabaeqheamo6fs4naiaaaaq",
-    "#uploadPath": "arborescence_with_accents_windows/Parent/à côté"
+    "#uploadPath": "arborescence_with_accents_windows/Parent/à côté",
+    "#originating_agency": "Vitam"
   },
   {
     "DescriptionLevel": "RecordGrp",
@@ -119,7 +127,8 @@
       "aeaqaaaaaaeaaaabaeqheamo6fs4o2iaaaaq"
     ],
     "#batchId": "aeeaaaaaaceaaaabaeqheamo6fs4naiaaaaq",
-    "#uploadPath": "arborescence_with_accents_windows/Parent/alcôve ovoïde"
+    "#uploadPath": "arborescence_with_accents_windows/Parent/alcôve ovoïde",
+    "#originating_agency": "Vitam"
   },
   {
     "DescriptionLevel": "RecordGrp",
@@ -132,7 +141,8 @@
       "aeaqaaaaaaeaaaabaeqheamo6fs4o3iaaaaq"
     ],
     "#batchId": "aeeaaaaaaceaaaabaeqheamo6fs4naiaaaaq",
-    "#uploadPath": "arborescence_with_accents_windows/Parent/alcôve ovoïde/âtre"
+    "#uploadPath": "arborescence_with_accents_windows/Parent/alcôve ovoïde/âtre",
+    "#originating_agency": "Vitam"
   },
   {
     "DescriptionLevel": "RecordGrp",
@@ -145,7 +155,8 @@
       "aeaqaaaaaaeaaaabaeqheamo6fs4o2iaaaaq"
     ],
     "#batchId": "aeeaaaaaaceaaaabaeqheamo6fs4naiaaaaq",
-    "#uploadPath": "arborescence_with_accents_windows/Parent/île intérieure"
+    "#uploadPath": "arborescence_with_accents_windows/Parent/île intérieure",
+    "#originating_agency": "Vitam"
   },
   {
     "DescriptionLevel": "RecordGrp",
@@ -155,7 +166,8 @@
     "#unitType": "INGEST",
     "#opi": "TRANSACTION_ID",
     "#batchId": "aeeaaaaaaceaaaabaeqheamo6fs4naiaaaaq",
-    "#uploadPath": "arborescence_with_accents_windows"
+    "#uploadPath": "arborescence_with_accents_windows",
+    "#originating_agency": "Vitam"
   },
   {
     "DescriptionLevel": "RecordGrp",
@@ -168,6 +180,7 @@
       "aeaqaaaaaaeaaaabaeqheamo6fs4o3iaaaaq"
     ],
     "#batchId": "aeeaaaaaaceaaaabaeqheamo6fs4naiaaaaq",
-    "#uploadPath": "arborescence_with_accents_windows/Parent/alcôve ovoïde/où les bûches"
+    "#uploadPath": "arborescence_with_accents_windows/Parent/alcôve ovoïde/où les bûches",
+    "#originating_agency": "Vitam"
   }
 ]

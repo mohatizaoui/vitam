@@ -52,6 +52,7 @@ import fr.gouv.vitam.common.model.unit.DescriptiveMetadataModel;
 import fr.gouv.vitam.common.model.unit.LevelType;
 import fr.gouv.vitam.common.parameter.ParameterHelper;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nonnull;
 import java.io.File;
@@ -84,7 +85,8 @@ public class MetadataHelper {
         LevelType descriptionLevel,
         String path,
         String title,
-        String unitParent
+        String unitParent,
+        String originatingAgency
     ) {
         String id = GUIDFactory.newUnitGUID(VitamThreadUtils.getVitamSession().getTenantId()).getId();
         CollectArchiveUnitModel unitInternalModel = new CollectArchiveUnitModel();
@@ -94,7 +96,9 @@ public class MetadataHelper {
         unitInternalModel.setUnitType(UnitType.INGEST);
         unitInternalModel.setUploadPath(path);
         unitInternalModel.setBatchId(VitamThreadUtils.getVitamSession().getRequestId());
-
+        if (StringUtils.isNotEmpty(originatingAgency)) {
+            unitInternalModel.setOriginatingAgency(originatingAgency);
+        }
         DescriptiveMetadataModel description = new DescriptiveMetadataModel();
         description.setTitle(title);
         description.setDescriptionLevel(descriptionLevel);
@@ -112,7 +116,9 @@ public class MetadataHelper {
         String newFilename,
         Optional<FormatIdentifierResponse> formatOpt,
         String digest,
-        Long size
+        Long size,
+        String originatingAgency,
+        String unitId
     ) {
         FileInfoModel fileInfoModel = new FileInfoModel();
         fileInfoModel.setFilename(fileName);
@@ -151,7 +157,10 @@ public class MetadataHelper {
         dbObjectGroupModel.setFileInfo(fileInfoModel);
         dbObjectGroupModel.setNbc(1);
         dbObjectGroupModel.setQualifiers(Collections.singletonList(qualifiersModel));
-
+        if (StringUtils.isNotEmpty(originatingAgency)) {
+            dbObjectGroupModel.setOriginatingAgency(originatingAgency);
+        }
+        dbObjectGroupModel.setUp(List.of(unitId));
         return dbObjectGroupModel;
     }
 

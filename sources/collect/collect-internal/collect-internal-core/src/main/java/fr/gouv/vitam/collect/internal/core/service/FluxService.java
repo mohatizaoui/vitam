@@ -189,7 +189,8 @@ public class FluxService {
                             entryInputStream,
                             entry.isDirectory(),
                             unitIdsByUploadPath,
-                            staticAttachmentUnitId
+                            staticAttachmentUnitId,
+                            projectModel
                         );
                     }
                     isEmpty = false;
@@ -317,7 +318,8 @@ public class FluxService {
         InputStream entryInputStream,
         boolean isDirectory,
         Map<String, String> unitIdsByUploadPath,
-        String staticAttachmentUnitId
+        String staticAttachmentUnitId,
+        ProjectModel projectModel
     ) throws IOException, CollectInternalException, InvalidParseOperationException {
         LevelType descriptionLevel = isDirectory ? LevelType.RECORD_GRP : LevelType.ITEM;
         String parentPath = FilenameUtils.getPathNoEndSeparator(path);
@@ -336,15 +338,29 @@ public class FluxService {
                     null,
                     true,
                     unitIdsByUploadPath,
-                    staticAttachmentUnitId
+                    staticAttachmentUnitId,
+                    projectModel
                 );
             }
 
             parentUnit = unitIdsByUploadPath.get(parentPath);
         }
         String fileName = FilenameUtils.getName(path);
-
-        ArchiveUnitModel unit = MetadataHelper.createUnit(transactionId, descriptionLevel, path, fileName, parentUnit);
+        String originationAgency = null;
+        if (
+            projectModel.getManifestContext() != null &&
+            StringUtils.isNotEmpty(projectModel.getManifestContext().getOriginatingAgencyIdentifier())
+        ) {
+            originationAgency = projectModel.getManifestContext().getOriginatingAgencyIdentifier();
+        }
+        ArchiveUnitModel unit = MetadataHelper.createUnit(
+            transactionId,
+            descriptionLevel,
+            path,
+            fileName,
+            parentUnit,
+            originationAgency
+        );
 
         unitIdsByUploadPath.put(path, unit.getId());
         if (!isDirectory) {
@@ -358,6 +374,13 @@ public class FluxService {
                     binaryFile
                 );
                 Entry<String, Long> binaryInformations = writeObjectToWorkspace(transactionId, binaryFile, newFilename);
+                String originatingAgency = null;
+                if (
+                    projectModel.getManifestContext() != null &&
+                    StringUtils.isNotEmpty(projectModel.getManifestContext().getOriginatingAgencyIdentifier())
+                ) {
+                    originatingAgency = projectModel.getManifestContext().getOriginatingAgencyIdentifier();
+                }
                 ObjectGroupResponse objectGroup = MetadataHelper.createObjectGroup(
                     transactionId,
                     fileName,
@@ -365,7 +388,9 @@ public class FluxService {
                     newFilename,
                     formatIdentifierResponseOpt,
                     binaryInformations.getKey(),
-                    binaryInformations.getValue()
+                    binaryInformations.getValue(),
+                    originatingAgency,
+                    unit.getId()
                 );
                 writeObjectGroupToTemporaryFile(tempWorkspace, objectGroup);
                 unit.setOg(objectGroup.getId());
