@@ -65,6 +65,7 @@ public class CsvHeaderFieldNameIterable implements Iterable<CsvHeaderFieldNameIt
 
                 String fieldName = fieldNames[index];
 
+                String parentSimpleSedaPath = simpleSedaPath;
                 simpleSedaPath = buildPath(simpleSedaPath, fieldName);
 
                 String parentFullSedaPath = fullSedaPath;
@@ -88,7 +89,8 @@ public class CsvHeaderFieldNameIterable implements Iterable<CsvHeaderFieldNameIt
                     simpleSedaPath,
                     fullSedaPath,
                     fullSedaPathWithoutLastArrayIndex,
-                    parentFullSedaPath
+                    parentFullSedaPath,
+                    parentSimpleSedaPath
                 );
             }
         };
@@ -106,8 +108,10 @@ public class CsvHeaderFieldNameIterable implements Iterable<CsvHeaderFieldNameIt
         String fullSedaPath,
         // Seda Path with declared array indexes (ex "Content.Writer.0.FullName.0" --> "Content.Writer.0.FullName")
         String fullSedaPathWithoutLastArrayIndex,
-        // Seda Path with declared array indexes (ex "Content.Writer.0.FullName.0" --> "Content.Writer.0")
-        String parentFullSedaPath
+        // Parent Seda Path with declared array indexes (ex "Content.Writer.0.FullName.0" --> "Content.Writer.0")
+        String parentFullSedaPath,
+        // Parent Seda Path without array indexes (ex "Content.Writer.0.FullName.0" --> "Content.Writer")
+        String parentSimpleSedaPath
     ) {
         public boolean isDeclaredAsArray() {
             return arrayIndex != null;
