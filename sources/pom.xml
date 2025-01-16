@@ -192,6 +192,7 @@
         <commons-lang3>3.14.0</commons-lang3>
         <commons-text>1.11.0</commons-text>
         <jackson.version>2.17.0</jackson.version>
+        <jslt.version>0.1.14</jslt.version>
         <apache-shiro.version>1.13.0</apache-shiro.version>
         <assertj.version>3.25.3</assertj.version>
         <rest-assured.version>5.4.0</rest-assured.version>
@@ -1141,6 +1142,13 @@
                 <artifactId>jackson-module-jaxb-annotations</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
+
+            <dependency>
+                <groupId>com.schibsted.spt.data</groupId>
+                <artifactId>jslt</artifactId>
+                <version>${jslt.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.glassfish.jaxb</groupId>
                 <artifactId>jaxb-runtime</artifactId>

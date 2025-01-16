@@ -31,6 +31,7 @@ import com.google.common.collect.Sets;
 import fr.gouv.vitam.collect.common.dto.ProjectDto;
 import fr.gouv.vitam.collect.external.client.CollectExternalClient;
 import fr.gouv.vitam.collect.external.client.CollectExternalClientFactory;
+import fr.gouv.vitam.collect.external.external.exception.CollectExternalClientInvalidRequestException;
 import fr.gouv.vitam.collect.external.external.rest.CollectExternalMain;
 import fr.gouv.vitam.collect.internal.CollectInternalMain;
 import fr.gouv.vitam.common.DataLoader;
@@ -59,9 +60,17 @@ import java.util.Collections;
 import static fr.gouv.vitam.collect.CollectTestHelper.initProjectData;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertTrue;
 
 public class ProjectIT extends VitamRuleRunner {
+
+    private static final String JSLT_TRANSFORMATION =
+        """
+        {
+          "*": ., // Copies all fields from the input JSON
+          "Status": "Verified" // Adds a new field
+        }""";
 
     @ClassRule
     public static VitamServerRunner runner = new VitamServerRunner(
@@ -96,32 +105,86 @@ public class ProjectIT extends VitamRuleRunner {
     }
 
     @Test
-    public void shoud_update_project() throws VitamClientException, InvalidParseOperationException, ParseException {
+    public void should_create_project() throws VitamClientException, InvalidParseOperationException {
         try (CollectExternalClient client = CollectExternalClientFactory.getInstance().getClient()) {
-            // GIVEN
+            // Given
             ProjectDto projectDto = initProjectData();
+
+            // When
             RequestResponse<JsonNode> createdProject = client.initProject(vitamContext, projectDto);
-            projectDto = JsonHandler.getFromJsonNode(
+            ProjectDto projectDtoResult = JsonHandler.getFromJsonNode(
                 ((RequestResponseOK<JsonNode>) createdProject).getFirstResult(),
                 ProjectDto.class
             );
 
-            ProjectDto projectDtoResult = getProjectDtoById(projectDto.getId());
+            // Then
+            checkProjectDto(projectDtoResult, projectDto);
+        }
+    }
+
+    @Test
+    public void should_create_project_with_jslt_transformation()
+        throws VitamClientException, InvalidParseOperationException {
+        try (CollectExternalClient client = CollectExternalClientFactory.getInstance().getClient()) {
+            // Given
+            ProjectDto projectDto = initProjectData();
+            projectDto.setTransformationRules(JSLT_TRANSFORMATION);
+
+            // When
+            RequestResponse<JsonNode> createdProject = client.initProject(vitamContext, projectDto);
+            ProjectDto projectDtoResult = JsonHandler.getFromJsonNode(
+                ((RequestResponseOK<JsonNode>) createdProject).getFirstResult(),
+                ProjectDto.class
+            );
+
+            // Then
+            checkProjectDto(projectDtoResult, projectDto);
+        }
+    }
+
+    @Test
+    public void should_not_create_project_with_invalid_jslt_transformation() {
+        try (CollectExternalClient client = CollectExternalClientFactory.getInstance().getClient()) {
+            // Given
+            ProjectDto projectDto = initProjectData();
+            projectDto.setTransformationRules("invalid");
+
+            // When / Then
+            assertThatThrownBy(() -> client.initProject(vitamContext, projectDto))
+                .isInstanceOf(CollectExternalClientInvalidRequestException.class)
+                .hasMessageContaining("Invalid JSLT template: Parse error");
+        }
+    }
+
+    @Test
+    public void should_update_project() throws VitamClientException, InvalidParseOperationException, ParseException {
+        try (CollectExternalClient client = CollectExternalClientFactory.getInstance().getClient()) {
+            // GIVEN
+            ProjectDto initialProjectDto = initProjectData();
+            RequestResponse<JsonNode> createdProject = client.initProject(vitamContext, initialProjectDto);
+            initialProjectDto = JsonHandler.getFromJsonNode(
+                ((RequestResponseOK<JsonNode>) createdProject).getFirstResult(),
+                ProjectDto.class
+            );
+
+            ProjectDto projectDtoResult = getProjectDtoById(initialProjectDto.getId());
             assertThat(projectDtoResult).isNotNull();
             assertThat(projectDtoResult.getCreationDate()).isNotNull();
-            assertThat(projectDtoResult.getId()).isEqualTo(projectDto.getId());
+            assertThat(projectDtoResult.getId()).isEqualTo(initialProjectDto.getId());
             assertThat(LocalDateUtil.getDate(projectDtoResult.getCreationDate())).isEqualTo(
                 LocalDateUtil.getDate(projectDtoResult.getLastUpdate())
             );
 
             // WHEN
             projectDtoResult.setComment("COMMENT AFTER UPDATE");
+            projectDtoResult.setTransformationRules(JSLT_TRANSFORMATION);
             client.updateProject(vitamContext, projectDtoResult);
             ProjectDto projectDtoResultAfterUpdate = getProjectDtoById(projectDtoResult.getId());
 
             // THEN
-            assertThat(projectDtoResultAfterUpdate.getComment()).isNotEqualTo(projectDto.getComment());
+            assertThat(projectDtoResultAfterUpdate.getComment()).isNotEqualTo(initialProjectDto.getComment());
             assertThat(projectDtoResultAfterUpdate.getComment()).isEqualTo("COMMENT AFTER UPDATE");
+            assertThat(projectDtoResultAfterUpdate.getTransformationRules()).isEqualTo(JSLT_TRANSFORMATION);
             assertThat(projectDtoResultAfterUpdate.getLastUpdate()).isNotNull();
             assertTrue(
                 LocalDateUtil.getDate(projectDtoResultAfterUpdate.getLastUpdate()).after(
@@ -132,7 +195,37 @@ public class ProjectIT extends VitamRuleRunner {
     }
 
     @Test
-    public void shoud_delete_project() throws VitamClientException, InvalidParseOperationException, ParseException {
+    public void should_not_update_project_with_invalid_jslt_transformation()
+        throws VitamClientException, InvalidParseOperationException, ParseException {
+        try (CollectExternalClient client = CollectExternalClientFactory.getInstance().getClient()) {
+            // GIVEN
+            ProjectDto initialProjectDto = initProjectData();
+            RequestResponse<JsonNode> createdProject = client.initProject(vitamContext, initialProjectDto);
+            ProjectDto projectDtoResult = JsonHandler.getFromJsonNode(
+                ((RequestResponseOK<JsonNode>) createdProject).getFirstResult(),
+                ProjectDto.class
+            );
+
+            // WHEN
+            projectDtoResult.setComment("COMMENT AFTER UPDATE");
+            projectDtoResult.setTransformationRules("Invalid");
+            assertThatThrownBy(() -> client.updateProject(vitamContext, projectDtoResult)).isInstanceOf(
+                CollectExternalClientInvalidRequestException.class
+            );
+
+            ProjectDto projectDtoResultAfterUpdate = getProjectDtoById(projectDtoResult.getId());
+
+            // THEN
+            assertThat(projectDtoResultAfterUpdate.getComment()).isEqualTo(initialProjectDto.getComment());
+            assertThat(projectDtoResultAfterUpdate.getTransformationRules()).isEqualTo(
+                initialProjectDto.getTransformationRules()
+            );
+            assertThat(projectDtoResult.getCreationDate()).isEqualTo(projectDtoResult.getLastUpdate());
+        }
+    }
+
+    @Test
+    public void should_delete_project() throws VitamClientException, InvalidParseOperationException, ParseException {
         try (CollectExternalClient client = CollectExternalClientFactory.getInstance().getClient()) {
             // GIVEN
             ProjectDto projectDto = initProjectData();
@@ -166,5 +259,29 @@ public class ProjectIT extends VitamRuleRunner {
             assertThat(response.isOk()).isTrue();
             return JsonHandler.getFromJsonNode(response.getFirstResult(), ProjectDto.class);
         }
+    }
+
+    private static void checkProjectDto(ProjectDto projectDtoResult, ProjectDto projectDto) {
+        assertThat(projectDtoResult.getId()).isNotNull();
+        assertThat(projectDtoResult.getTenant()).isEqualTo(TENANT_ID);
+        assertThat(projectDtoResult.getTransferringAgencyIdentifier()).isEqualTo(
+            projectDto.getTransferringAgencyIdentifier()
+        );
+        assertThat(projectDtoResult.getOriginatingAgencyIdentifier()).isEqualTo(
+            projectDto.getOriginatingAgencyIdentifier()
+        );
+        assertThat(projectDtoResult.getSubmissionAgencyIdentifier()).isEqualTo(
+            projectDto.getSubmissionAgencyIdentifier()
+        );
+        assertThat(projectDtoResult.getMessageIdentifier()).isEqualTo(projectDto.getMessageIdentifier());
+        assertThat(projectDtoResult.getArchivalAgencyIdentifier()).isEqualTo(projectDto.getArchivalAgencyIdentifier());
+        assertThat(projectDtoResult.getLegalStatus()).isEqualTo(projectDto.getLegalStatus());
+        assertThat(projectDtoResult.getComment()).isEqualTo(projectDto.getComment());
+        assertThat(projectDtoResult.getName()).isEqualTo(projectDto.getName());
+        assertThat(projectDtoResult.getArchivalAgreement()).isEqualTo(projectDto.getArchivalAgreement());
+        assertThat(projectDtoResult.getTransformationRules()).isEqualTo(projectDto.getTransformationRules());
+        assertThat(projectDtoResult.getCreationDate()).isNotNull();
+        assertThat(projectDtoResult.getLastUpdate()).isNotNull();
+        assertThat(projectDtoResult.getCreationDate()).isEqualTo(projectDtoResult.getLastUpdate());
     }
 }

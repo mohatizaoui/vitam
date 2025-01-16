@@ -57,6 +57,11 @@ types:
         type: string
       SubmissionAgencyIdentifier:
         type: string
+      TransformationRules:
+        type: string
+        description: |
+            Transformation rules (**beta**): JSTL transformation template to be applied over Archive Unit JSON documents on zip transaction upload for providing customized updates : add rule, unset field, set field...).
+            **Warning:** May be removed or updated in future releases.
       ArchiveProfile:
         type: string
       Comment:

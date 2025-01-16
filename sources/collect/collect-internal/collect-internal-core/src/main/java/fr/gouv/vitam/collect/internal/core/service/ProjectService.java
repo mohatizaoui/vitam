@@ -34,9 +34,9 @@ import fr.gouv.vitam.collect.internal.core.common.ProjectModel;
 import fr.gouv.vitam.collect.internal.core.common.ProjectStatus;
 import fr.gouv.vitam.collect.internal.core.helpers.CollectHelper;
 import fr.gouv.vitam.collect.internal.core.repository.ProjectRepository;
+import fr.gouv.vitam.collect.internal.core.transformers.JsltTransformer;
 import fr.gouv.vitam.common.LocalDateUtil;
-import fr.gouv.vitam.common.logging.VitamLogger;
-import fr.gouv.vitam.common.logging.VitamLoggerFactory;
+import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.parameter.ParameterHelper;
 
 import java.util.List;
@@ -45,7 +45,6 @@ import java.util.stream.Collectors;
 
 public class ProjectService {
 
-    private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(ProjectService.class);
     private final ProjectRepository projectRepository;
 
     public ProjectService(ProjectRepository projectRepository) {
@@ -55,12 +54,14 @@ public class ProjectService {
     /**
      * create a project model
      */
-    public void createProject(ProjectDto projectDto) throws CollectInternalException {
+    public ProjectDto createProject(ProjectDto projectDto) throws CollectInternalException {
         // Set project initials
         final String creationDate = LocalDateUtil.nowFormatted();
 
+        JsltTransformer.validate(projectDto.getTransformationRules());
+
         ProjectModel projectModel = new ProjectModel(
-            projectDto.getId(),
+            GUIDFactory.newGUID().getId(),
             projectDto.getName(),
             CollectHelper.mapProjectDtoToManifestContext(projectDto),
             ProjectStatus.OPEN,
@@ -68,11 +69,14 @@ public class ProjectService {
             creationDate,
             projectDto.getUnitUp(),
             projectDto.getUnitUps(),
-            projectDto.getTenant(),
-            projectDto.getAutomaticIngest()
+            ParameterHelper.getTenantParameter(),
+            projectDto.getAutomaticIngest(),
+            projectDto.getTransformationRules()
         );
 
         projectRepository.createProject(projectModel);
+
+        return CollectHelper.convertProjectModeltoProjectDto(projectModel);
     }
 
     /**
@@ -85,10 +89,12 @@ public class ProjectService {
         return projectRepository.findProjectById(id).map(CollectHelper::convertProjectModeltoProjectDto);
     }
 
-    public void updateProject(ProjectDto projectDto) throws CollectInternalException {
+    public ProjectDto updateProject(ProjectDto projectDto) throws CollectInternalException {
         // Update project initials
         projectDto.setStatus(projectDto.getStatus() != null ? projectDto.getStatus() : TransactionStatus.OPEN.name());
         final String lastUpdate = LocalDateUtil.nowFormatted();
+
+        JsltTransformer.validate(projectDto.getTransformationRules());
 
         ProjectModel projectModel = new ProjectModel(
             projectDto.getId(),
@@ -100,10 +106,13 @@ public class ProjectService {
             projectDto.getUnitUp(),
             projectDto.getUnitUps(),
             projectDto.getTenant(),
-            projectDto.getAutomaticIngest()
+            projectDto.getAutomaticIngest(),
+            projectDto.getTransformationRules()
         );
 
         projectRepository.updateProject(projectModel);
+
+        return CollectHelper.convertProjectModeltoProjectDto(projectModel);
     }
 
     public List<ProjectDto> searchProject(CriteriaProjectDto criteriaProjectDto) throws CollectInternalException {

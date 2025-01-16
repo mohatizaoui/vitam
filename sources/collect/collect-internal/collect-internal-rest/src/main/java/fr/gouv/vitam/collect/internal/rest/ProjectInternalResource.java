@@ -143,11 +143,8 @@ public class ProjectInternalResource {
         try {
             ParametersChecker.checkParameter(YOU_MUST_SUPPLY_PROJECTS_DATAS, projectDto);
             SanityChecker.checkJsonAll(JsonHandler.toJsonNode(projectDto));
-            Integer tenantId = ParameterHelper.getTenantParameter();
-            projectDto.setId(GUIDFactory.newGUID().getId());
-            projectDto.setTenant(tenantId);
-            projectService.createProject(projectDto);
-            return CollectRequestResponse.toResponseOK(projectDto);
+            ProjectDto createdProject = projectService.createProject(projectDto);
+            return CollectRequestResponse.toResponseOK(createdProject);
         } catch (CollectInternalException e) {
             return CollectRequestResponse.toVitamError(INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
         } catch (IllegalArgumentException | InvalidParseOperationException e) {
@@ -171,9 +168,9 @@ public class ProjectInternalResource {
             Integer tenantId = ParameterHelper.getTenantParameter();
             projectDto.setTenant(tenantId);
             projectDto.setCreationDate(projectOpt.get().getCreationDate());
-            projectService.updateProject(projectDto);
+            ProjectDto updatedProject = projectService.updateProject(projectDto);
 
-            return CollectRequestResponse.toResponseOK(projectDto);
+            return CollectRequestResponse.toResponseOK(updatedProject);
         } catch (InvalidParseOperationException | CollectInternalException | IllegalArgumentException e) {
             LOGGER.error("Error when trying to parse :", e);
             return CollectRequestResponse.toVitamError(BAD_REQUEST, e.getLocalizedMessage());

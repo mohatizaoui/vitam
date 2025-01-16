@@ -20,6 +20,7 @@
             "LegalStatus": "Archives privées",
             "Comment": "Versement du service producteur : Cabinet de Michel Mercier",
             "UnitUp": "aeaqaaaaaahgnz5dabg42amava5kfoqaaaba",
+            "TransformationRules": "{\n  \"*\": ., // Copies all fields from the input JSON \n  \"Status\": \"Verified\" // Adds a new field \n}",
             "#tenant": 0
         }
     ],

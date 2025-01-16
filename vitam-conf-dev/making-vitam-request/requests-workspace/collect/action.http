@@ -21,7 +21,9 @@ X-Tenant-Id: {{tenant}}
   "AcquisitionInformation": "Versement",
   "ArchivalAgreement": "IC-000001",
   "Comment": "Versement du service producteur : Cabinet de Michel Mercier",
-  "UnitUp": "aeaqaaaaaahgnz5dabg42amava5kfoqaaaba"
+  "UnitUp": "aeaqaaaaaahgnz5dabg42amava5kfoqaaaba",
+  // Beta JSLT transformation
+  "TransformationRules": "{\n  \"*\": ., /* Copies all fields from the input JSON */\n  \"Status\": \"Verified\" /* Adds a new field */\n}"
 }
 
 ### Mise à jour d'un projet
@@ -40,7 +42,9 @@ X-Tenant-Id: {{tenant}}
   "MessageIdentifier": "20220302-000006",
   "ArchivalAgreement":"IC-000001",
   "Comment": "Versement du service producteur : Cabinet de Michel Mercier",
-  "UnitUp": "aeaqaaaaaahgnz5dabg42amava5kfoqaaaba"
+  "UnitUp": "aeaqaaaaaahgnz5dabg42amava5kfoqaaaba",
+  // Beta JSLT transformation
+  "TransformationRules": "{\n  \"*\": ., /* Copies all fields from the input JSON */\n  \"Status\": \"Unverified\" /* Adds a new field */\n}"
 }
 
 ### Récuperation de tout les projets associé au tenant
