@@ -70,7 +70,7 @@ public class CsvErrorAccumulatorTest {
                 .isInstanceOf(CollectInvalidCsvFormatException.class)
                 .hasMessage(
                     """
-                    CSV validation failed. 2 error(s):
+                    CSV validation failed. 2 errors:
                     - msg1
                     - msg2"""
                 );
@@ -92,7 +92,7 @@ public class CsvErrorAccumulatorTest {
                 .isInstanceOf(CollectInvalidCsvFormatException.class)
                 .hasMessageStartingWith(
                     """
-                    CSV validation failed. At least 20 error(s):
+                    CSV validation failed. At least 20 errors:
                     - msg1
                     - msg2
                     - msg3"""

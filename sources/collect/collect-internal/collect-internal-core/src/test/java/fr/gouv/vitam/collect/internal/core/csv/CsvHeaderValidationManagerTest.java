@@ -77,7 +77,7 @@ public class CsvHeaderValidationManagerTest {
                 .isInstanceOf(CollectInvalidCsvFormatException.class)
                 .hasMessage(
                     """
-                    CSV validation failed. 2 error(s):
+                    CSV validation failed. 2 errors:
                     - Invalid header name 'header1': msg1
                     - Invalid header name 'header2': msg2"""
                 );
@@ -100,7 +100,7 @@ public class CsvHeaderValidationManagerTest {
                 .isInstanceOf(CollectInvalidCsvFormatException.class)
                 .hasMessageStartingWith(
                     """
-                    CSV validation failed. At least 20 error(s):
+                    CSV validation failed. At least 20 errors:
                     - Invalid header name 'header1': msg1
                     - Invalid header name 'header2': msg2
                     - Invalid header name 'header3': msg3"""
