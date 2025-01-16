@@ -347,7 +347,7 @@ public class FluxIT extends VitamRuleRunner {
                 )
                     .isExactlyInstanceOf(CollectExternalClientInvalidRequestException.class)
                     .hasMessage(
-                        "Metadata update failed. Nb OK: 0, Nb KO: 1. Error messages:[No unit was matches selection criteria]"
+                        "Metadata update failed. Nb OK: 0, Nb KO: 1. Error messages:[No unit matches selection criteria]"
                     );
             }
         }
@@ -978,7 +978,7 @@ public class FluxIT extends VitamRuleRunner {
         );
 
         assertThat(vitamClientException.getLocalizedMessage()).contains(
-            "Metadata update failed. Nb OK: 0, Nb KO: 1. Error messages:[No unit was matches selection criteria]"
+            "Metadata update failed. Nb OK: 0, Nb KO: 1. Error messages:[No unit matches selection criteria]"
         );
     }
 
@@ -1161,7 +1161,7 @@ public class FluxIT extends VitamRuleRunner {
                 )
                     .isExactlyInstanceOf(CollectExternalClientInvalidRequestException.class)
                     .hasMessageContaining(
-                        "Metadata update failed. Nb OK: 0, Nb KO: 1. Error messages:[No unit was matches selection criteria]"
+                        "Metadata update failed. Nb OK: 0, Nb KO: 1. Error messages:[No unit matches selection criteria]"
                     );
             }
         }
