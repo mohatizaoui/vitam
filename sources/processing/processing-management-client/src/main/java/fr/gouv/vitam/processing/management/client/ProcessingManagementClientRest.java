@@ -222,10 +222,13 @@ class ProcessingManagementClientRest extends DefaultClient implements Processing
     }
 
     @Override
-    public RequestResponse<ItemStatus> cancelOperationProcessExecution(String id)
+    public RequestResponse<ItemStatus> cancelOperationProcessExecution(String id, boolean force)
         throws InternalServerException, VitamClientException {
         ParametersChecker.checkParameter(BLANK_OPERATION_ID, id);
-        VitamRequestBuilder request = delete().withPath(OPERATION_URI + "/" + id).withJsonAccept();
+        VitamRequestBuilder request = delete()
+            .withPath(OPERATION_URI + "/" + id)
+            .withHeader(GlobalDataRest.X_FORCE, force)
+            .withJsonAccept();
         try (Response response = make((request))) {
             checkWithSpecificException(response);
             return RequestResponse.parseFromResponse(response, ItemStatus.class);

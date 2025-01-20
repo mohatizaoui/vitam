@@ -35,6 +35,8 @@
 			"stepByStep": true,
 			"globalState": "PAUSE",
 			"stepStatus": "OK",
+			"cancellable": true,
+			"forcedCancellation": false,
 			"processDate": "2017-06-27T14:56:29+0000"
 		},
 		{
@@ -45,6 +47,8 @@
 			"stepByStep": true,
 			"globalState": "PAUSE",
 			"stepStatus": "OK",
+			"cancellable": true,
+			"forcedCancellation": false,
 			"processDate": "2017-06-27T08:28:16+0000"
 		}
 	]

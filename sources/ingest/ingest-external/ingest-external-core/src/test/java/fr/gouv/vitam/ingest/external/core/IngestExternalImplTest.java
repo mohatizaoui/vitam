@@ -60,6 +60,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
@@ -103,7 +104,9 @@ public class IngestExternalImplTest {
         when(ingestInternalClient.getWorkflowDetails(anyString())).thenReturn(
             new IngestInternalClientMock().getWorkflowDetails("DEFAULT_WORKFLOW")
         );
-        when(ingestInternalClient.cancelOperationProcessExecution(anyString())).thenReturn(new RequestResponseOK<>());
+        when(ingestInternalClient.cancelOperationProcessExecution(anyString(), anyBoolean())).thenReturn(
+            new RequestResponseOK<>()
+        );
 
         final IngestExternalConfiguration config = new IngestExternalConfiguration();
         config.setPath(PATH);
@@ -183,7 +186,9 @@ public class IngestExternalImplTest {
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
         when(formatIdentifier.analysePath(any())).thenThrow(new FormatIdentifierBadRequestException(""));
 
-        when(ingestInternalClient.cancelOperationProcessExecution(anyString())).thenReturn(new RequestResponseOK<>());
+        when(ingestInternalClient.cancelOperationProcessExecution(anyString(), anyBoolean())).thenReturn(
+            new RequestResponseOK<>()
+        );
         stream = PropertiesUtils.getResourceAsStream("no-virus.txt");
         final GUID guid = GUIDFactory.newEventGUID(ParameterHelper.getTenantParameter());
         final AsyncResponseJunitTest responseAsync = new AsyncResponseJunitTest();

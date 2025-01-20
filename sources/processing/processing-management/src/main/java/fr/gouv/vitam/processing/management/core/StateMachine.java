@@ -24,6 +24,7 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
+
 package fr.gouv.vitam.processing.management.core;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -201,9 +202,12 @@ public class StateMachine implements IEventsState, IEventsProcessEngine {
     }
 
     @Override
-    public synchronized void cancel() throws StateNotAllowedException {
+    public synchronized void cancel(boolean force) throws StateNotAllowedException {
+        if (!force && !this.currentStep.isCancellable()) {
+            throw new StateNotAllowedException("Cannot cancel a non-cancellable step if force flag is not set");
+        }
         this.processWorkflow.getState().eval(ProcessState.COMPLETED);
-        doCancel();
+        doCancel(force);
     }
 
     @Override
@@ -299,12 +303,13 @@ public class StateMachine implements IEventsState, IEventsProcessEngine {
      * Change the state of the process to completed Can be called only from running or pause state If running state, the
      * next step will be completed
      */
-    protected void doCancel() {
+    protected void doCancel(boolean force) {
         var currentStatus = this.processWorkflow.getStatus();
         this.processWorkflow.setTargetState(ProcessState.COMPLETED);
         // Needed if retry after fatal in the final step
         this.processWorkflow.setTargetStatus(StatusCode.KO);
         this.processWorkflow.setStatus(StatusCode.KO);
+        this.processWorkflow.setForcedCancellation(force);
 
         tryPersistProcessWorkflow();
         //FIXME: We can't force cancel on final step as we have, for any case, execute the final step

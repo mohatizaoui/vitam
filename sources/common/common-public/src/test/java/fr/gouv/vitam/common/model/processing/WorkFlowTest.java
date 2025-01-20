@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 
 public class WorkFlowTest {
 
@@ -67,5 +68,30 @@ public class WorkFlowTest {
             .setName(TEST)
             .setTypeProc(TEST)
             .setComment(TEST);
+    }
+
+    @Test
+    public void testCancellableSteps() {
+        Step cancellableStep = new Step().setCancellable(true);
+        Step nonCancellableStep = new Step().setCancellable(false);
+        // Should not throw Exception
+        new WorkFlow().setSteps(List.of(cancellableStep, nonCancellableStep));
+        new WorkFlow().setSteps(List.of(cancellableStep, nonCancellableStep, nonCancellableStep));
+        new WorkFlow().setSteps(List.of(cancellableStep, cancellableStep, nonCancellableStep, nonCancellableStep));
+        // Should throw Exception
+        assertThrows(
+            IllegalStateException.class,
+            () -> new WorkFlow().setSteps(List.of(nonCancellableStep, cancellableStep))
+        );
+        assertThrows(
+            IllegalStateException.class,
+            () -> new WorkFlow().setSteps(List.of(cancellableStep, nonCancellableStep, cancellableStep))
+        );
+        assertThrows(
+            IllegalStateException.class,
+            () ->
+                new WorkFlow()
+                    .setSteps(List.of(cancellableStep, nonCancellableStep, cancellableStep, nonCancellableStep))
+        );
     }
 }

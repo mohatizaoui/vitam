@@ -65,6 +65,7 @@ import java.util.concurrent.CompletionException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -144,8 +145,8 @@ public class StateMachineTest {
             return null;
         })
             .when(stateMachine)
-            .cancel();
-        stateMachine.cancel();
+            .cancel(false);
+        stateMachine.cancel(false);
     }
 
     @Test
@@ -166,8 +167,8 @@ public class StateMachineTest {
             return null;
         })
             .when(stateMachine)
-            .cancel();
-        stateMachine.cancel();
+            .cancel(false);
+        stateMachine.cancel(false);
     }
 
     @Test(expected = StateNotAllowedException.class)
@@ -255,9 +256,9 @@ public class StateMachineTest {
             return null;
         })
             .when(stateMachine)
-            .cancel();
+            .cancel(false);
 
-        stateMachine.cancel();
+        stateMachine.cancel(false);
     }
 
     @Test
@@ -286,7 +287,7 @@ public class StateMachineTest {
             fail("Should throw excetpion");
         } catch (StateNotAllowedException e) {}
         try {
-            stateMachine.cancel();
+            stateMachine.cancel(false);
         } catch (StateNotAllowedException e) {
             fail("Should not throw excetpion");
         }
@@ -655,7 +656,7 @@ public class StateMachineTest {
             .create(processWorkflow, processEngine, dataManagement, workspaceClientFactory);
         processEngine.setStateMachineCallback(stateMachine);
 
-        stateMachine.cancel();
+        stateMachine.cancel(false);
 
         assertThat(processWorkflow.getSteps().iterator().next().getPauseOrCancelAction()).isEqualTo(
             PauseOrCancelAction.ACTION_CANCEL
@@ -733,6 +734,51 @@ public class StateMachineTest {
 
         assertThat(stateMachine.getCurrentStep()).isEqualTo(processStep1);
         assertThat(stateMachine.getStepIndex()).isEqualTo(0);
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void test_cancellable_property() throws StateNotAllowedException {
+        VitamThreadUtils.getVitamSession().setTenantId(1);
+
+        // When new process workflow
+        final ProcessWorkflow processWorkflow = mock(ProcessWorkflow.class);
+        when(processWorkflow.getState()).thenReturn(ProcessState.PAUSE);
+        when(processWorkflow.getStatus()).thenReturn(StatusCode.UNKNOWN);
+
+        final ProcessStep processStep1 = mock(ProcessStep.class);
+        when(processStep1.getBehavior()).thenReturn(ProcessBehavior.BLOCKING);
+        when(processStep1.getStepStatusCode()).thenReturn(StatusCode.UNKNOWN);
+        when(processStep1.getPauseOrCancelAction()).thenReturn(PauseOrCancelAction.ACTION_RUN);
+        when(processStep1.isCancellable()).thenReturn(false);
+
+        final ProcessStep processStep2 = mock(ProcessStep.class);
+        when(processStep2.getBehavior()).thenReturn(ProcessBehavior.BLOCKING);
+        when(processStep2.getStepStatusCode()).thenReturn(StatusCode.UNKNOWN);
+        when(processStep2.getPauseOrCancelAction()).thenReturn(PauseOrCancelAction.ACTION_RUN);
+        when(processStep2.isCancellable()).thenReturn(true);
+
+        when(processWorkflow.getSteps()).thenReturn(Lists.newArrayList(processStep1, processStep2));
+
+        // When init state machine
+        StateMachine stateMachine = StateMachineFactory.get()
+            .create(
+                processWorkflow,
+                mock(ProcessEngineImpl.class),
+                mock(ProcessDataManagement.class),
+                workspaceClientFactory
+            );
+
+        assertThat(stateMachine.getCurrentStep()).isEqualTo(processStep1);
+        assertThat(stateMachine.getStepIndex()).isEqualTo(0);
+
+        // Check that non-cancellable step cannot be cancelled without forcing it
+        Exception e = assertThrows(StateNotAllowedException.class, () -> stateMachine.cancel(false));
+        assertEquals("Cannot cancel a non-cancellable step if force flag is not set", e.getMessage());
+
+        // Check that non-cancellable step can be cancelled when forcing it
+        stateMachine.cancel(true);
+        verify(processWorkflow).setForcedCancellation(true);
     }
 
     @Test

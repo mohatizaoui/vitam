@@ -434,22 +434,22 @@ public class IngestInternalClientRestTest extends ResteasyTestApplication {
 
         // 500
         when(mock.delete()).thenReturn(Response.status(Status.INTERNAL_SERVER_ERROR).entity(vitamError).build());
-        throwingCallable = () -> client.cancelOperationProcessExecution(ID);
+        throwingCallable = () -> client.cancelOperationProcessExecution(ID, false);
         assertThatThrownBy(throwingCallable).isInstanceOf(VitamClientInternalException.class);
 
         // 409
         when(mock.delete()).thenReturn(Response.status(Status.CONFLICT).entity(vitamError).build());
-        throwingCallable = () -> client.cancelOperationProcessExecution(ID);
+        throwingCallable = () -> client.cancelOperationProcessExecution(ID, false);
         assertThatThrownBy(throwingCallable).isInstanceOf(VitamClientInternalException.class);
 
         // 412
         when(mock.delete()).thenReturn(Response.status(Status.PRECONDITION_FAILED).entity(vitamError).build());
-        throwingCallable = () -> client.cancelOperationProcessExecution(ID);
+        throwingCallable = () -> client.cancelOperationProcessExecution(ID, false);
         assertThatThrownBy(throwingCallable).isInstanceOf(VitamClientInternalException.class);
 
         // 404
         when(mock.delete()).thenReturn(Response.status(Status.NOT_FOUND).entity(vitamError).build());
-        throwingCallable = () -> client.cancelOperationProcessExecution(ID);
+        throwingCallable = () -> client.cancelOperationProcessExecution(ID, false);
         assertThatThrownBy(throwingCallable).isInstanceOf(VitamClientInternalException.class);
     }
 
@@ -464,7 +464,7 @@ public class IngestInternalClientRestTest extends ResteasyTestApplication {
         responseOK.setHttpCode(Status.ACCEPTED.getStatusCode());
 
         when(mock.delete()).thenReturn(Response.status(Status.ACCEPTED).entity(responseOK).build());
-        RequestResponse<ItemStatus> response = client.cancelOperationProcessExecution(ID);
+        RequestResponse<ItemStatus> response = client.cancelOperationProcessExecution(ID, false);
         assertEquals(response.isOk(), true);
         RequestResponseOK<ItemStatus> respOK = (RequestResponseOK<ItemStatus>) response;
         assertEquals(respOK.getResults().iterator().hasNext(), true);

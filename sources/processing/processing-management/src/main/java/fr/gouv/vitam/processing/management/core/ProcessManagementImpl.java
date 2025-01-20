@@ -296,7 +296,14 @@ public class ProcessManagementImpl implements ProcessManagement {
     @Override
     public ItemStatus next(WorkerParameters workerParameters, Integer tenantId)
         throws ProcessingException, StateNotAllowedException {
-        return execute(workerParameters.getContainerName(), tenantId, workerParameters, null, ProcessAction.NEXT);
+        return execute(
+            workerParameters.getContainerName(),
+            tenantId,
+            workerParameters,
+            null,
+            false,
+            ProcessAction.NEXT
+        );
     }
 
     @Override
@@ -307,6 +314,7 @@ public class ProcessManagementImpl implements ProcessManagement {
             tenantId,
             workerParameters,
             useForcedPause,
+            false,
             ProcessAction.RESUME
         );
     }
@@ -314,18 +322,25 @@ public class ProcessManagementImpl implements ProcessManagement {
     @Override
     public ItemStatus replay(WorkerParameters workerParameters, Integer tenantId)
         throws ProcessingException, StateNotAllowedException {
-        return execute(workerParameters.getContainerName(), tenantId, workerParameters, null, ProcessAction.REPLAY);
+        return execute(
+            workerParameters.getContainerName(),
+            tenantId,
+            workerParameters,
+            null,
+            false,
+            ProcessAction.REPLAY
+        );
     }
 
     @Override
     public ItemStatus pause(String operationId, Integer tenantId) throws ProcessingException, StateNotAllowedException {
-        return execute(operationId, tenantId, null, null, ProcessAction.PAUSE);
+        return execute(operationId, tenantId, null, null, false, ProcessAction.PAUSE);
     }
 
     @Override
-    public ItemStatus cancel(String operationId, Integer tenantId)
+    public ItemStatus cancel(String operationId, Integer tenantId, boolean force)
         throws WorkflowNotFoundException, ProcessingException, StateNotAllowedException {
-        return execute(operationId, tenantId, null, null, null);
+        return execute(operationId, tenantId, null, null, force, null);
     }
 
     public ItemStatus execute(
@@ -333,6 +348,7 @@ public class ProcessManagementImpl implements ProcessManagement {
         Integer tenantId,
         WorkerParameters workerParameters,
         Boolean useForcedPause,
+        boolean forceCancellation,
         ProcessAction action
     ) throws ProcessingException, StateNotAllowedException {
         final IEventsState stateMachine = PROCESS_MONITORS.get(operationId);
@@ -344,7 +360,7 @@ public class ProcessManagementImpl implements ProcessManagement {
         final ProcessWorkflow processWorkflow = findOneProcessWorkflow(operationId, tenantId);
 
         if (null == action) {
-            stateMachine.cancel();
+            stateMachine.cancel(forceCancellation);
 
             return new ItemStatus(operationId)
                 .increment(processWorkflow.getStatus())
@@ -639,6 +655,7 @@ public class ProcessManagementImpl implements ProcessManagement {
             workflow.setProcessType(processWorkflow.getLogbookTypeProcess().toString());
             workflow.setStepByStep(processWorkflow.isStepByStep());
             workflow.setGlobalState(processWorkflow.getState().name());
+            workflow.setForcedCancellation(processWorkflow.isForcedCancellation());
             workflow.setStepStatus(processWorkflow.getStatus().name());
             workflow.setProcessDate(processWorkflow.getProcessDate());
             results.add(workflow);
@@ -670,6 +687,7 @@ public class ProcessManagementImpl implements ProcessManagement {
         String nextStep = "";
         String temporaryPreviousTask = "";
         boolean currentStepFound = false;
+        boolean cancellable = true;
 
         Iterator<ProcessStep> pwIterator = processWorkflow.getSteps().iterator();
         while (pwIterator.hasNext() && !currentStepFound) {
@@ -683,11 +701,13 @@ public class ProcessManagementImpl implements ProcessManagement {
                         nextStep = pwIterator.hasNext() ? pwIterator.next().getStepName() : "";
                         workflow.setStepStatus("STARTED");
                         currentStepFound = true;
+                        cancellable = processStep.isCancellable();
                     } else {
                         if (processStep.getStepStatusCode() == StatusCode.UNKNOWN) {
                             previousStep = temporaryPreviousTask;
                             nextStep = processStep.getStepName();
                             currentStepFound = true;
+                            cancellable = false;
                         }
                     }
                     break;
@@ -699,6 +719,7 @@ public class ProcessManagementImpl implements ProcessManagement {
                         previousStep = processStep.getStepName();
                         workflow.setStepStatus(StatusCode.KO.toString());
                         currentStepFound = true;
+                        cancellable = false;
                     } else {
                         if (processStep.getStepStatusCode() == StatusCode.UNKNOWN) {
                             previousStep = temporaryPreviousTask;
@@ -714,6 +735,7 @@ public class ProcessManagementImpl implements ProcessManagement {
 
             workflow.setPreviousStep(previousStep);
             workflow.setNextStep(nextStep);
+            workflow.setStepCancellable(cancellable);
         }
     }
 

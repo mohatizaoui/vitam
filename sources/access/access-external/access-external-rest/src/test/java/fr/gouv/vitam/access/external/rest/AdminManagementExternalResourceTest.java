@@ -2323,7 +2323,7 @@ public class AdminManagementExternalResourceTest extends ResteasyTestApplication
         RequestResponseOK<ItemStatus> responseOK = new RequestResponseOK<ItemStatus>().addResult(result);
         responseOK.setHttpCode(Status.ACCEPTED.getStatusCode());
 
-        when(ingestInternalClient.cancelOperationProcessExecution(any())).thenReturn(responseOK);
+        when(ingestInternalClient.cancelOperationProcessExecution(any(), anyBoolean())).thenReturn(responseOK);
         given()
             .accept(MediaType.APPLICATION_JSON)
             .header(GlobalDataRest.X_TENANT_ID, TENANT_ID)

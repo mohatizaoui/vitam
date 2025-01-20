@@ -42,6 +42,7 @@ public class StepTest {
     public void testConstructor() {
         assertEquals("", new Step().getStepName());
         assertEquals(null, new Step().getBehavior());
+        assertEquals(true, new Step().isCancellable());
         assertEquals("DefaultWorker", new Step().getWorkerGroupId());
         assertEquals(true, new Step().getActions().isEmpty());
         assertEquals(DistributionKind.REF, new Step().getDistribution().getKind());
@@ -73,7 +74,16 @@ public class StepTest {
         );
         ArrayList<Action> actions = new ArrayList<>();
         actions.add(action);
-        Step step = new Step(null, "workerId", "stepName", ProcessBehavior.NOBLOCKING, distribution, actions, null);
+        Step step = new Step(
+            null,
+            "workerId",
+            "stepName",
+            ProcessBehavior.NOBLOCKING,
+            true,
+            distribution,
+            actions,
+            null
+        );
         step.defaultLifecycleLog(LifecycleState.TEMPORARY);
 
         // When

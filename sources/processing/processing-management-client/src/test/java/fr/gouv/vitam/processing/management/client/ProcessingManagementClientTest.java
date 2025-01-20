@@ -429,7 +429,7 @@ public class ProcessingManagementClientTest extends ResteasyTestApplication {
         try (
             ProcessingManagementClientRest client = (ProcessingManagementClientRest) vitamServerTestRunner.getClient()
         ) {
-            RequestResponse<ItemStatus> resp = client.cancelOperationProcessExecution("FakeOp");
+            RequestResponse<ItemStatus> resp = client.cancelOperationProcessExecution("FakeOp", false);
             Assertions.assertThat(resp.isOk()).isTrue();
             Assertions.assertThat(resp.getHttpCode()).isEqualTo(Status.OK.getStatusCode());
         }
@@ -444,7 +444,7 @@ public class ProcessingManagementClientTest extends ResteasyTestApplication {
         try (
             ProcessingManagementClientRest client = (ProcessingManagementClientRest) vitamServerTestRunner.getClient()
         ) {
-            assertThatThrownBy(() -> client.cancelOperationProcessExecution("FakeOp"))
+            assertThatThrownBy(() -> client.cancelOperationProcessExecution("FakeOp", false))
                 .isInstanceOf(VitamClientException.class)
                 .hasMessageContaining("Conflict");
         }
@@ -453,7 +453,7 @@ public class ProcessingManagementClientTest extends ResteasyTestApplication {
         try (
             ProcessingManagementClientRest client = (ProcessingManagementClientRest) vitamServerTestRunner.getClient()
         ) {
-            assertThatThrownBy(() -> client.cancelOperationProcessExecution("FakeOp")).isInstanceOf(
+            assertThatThrownBy(() -> client.cancelOperationProcessExecution("FakeOp", false)).isInstanceOf(
                 VitamClientException.class
             );
         }
@@ -462,7 +462,7 @@ public class ProcessingManagementClientTest extends ResteasyTestApplication {
         try (
             ProcessingManagementClientRest client = (ProcessingManagementClientRest) vitamServerTestRunner.getClient()
         ) {
-            assertThatThrownBy(() -> client.cancelOperationProcessExecution("FakeOp"))
+            assertThatThrownBy(() -> client.cancelOperationProcessExecution("FakeOp", false))
                 .isInstanceOf(InternalServerException.class)
                 .hasMessageContaining("Internal Server Error");
         }

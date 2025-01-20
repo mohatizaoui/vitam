@@ -88,6 +88,27 @@ public class WorkFlow {
             this.steps = new ArrayList<>();
         }
         this.steps.forEach(step -> step.defaultLifecycleLog(this.lifecycleLog));
+        checkCancellableSteps();
+    }
+
+    /**
+     * Check that is a step is cancellable, the all the following steps are cancellable too
+     */
+    private void checkCancellableSteps() {
+        int notCancelableIndex = -1;
+        for (int i = 0; i < this.steps.size() - 1; i++) {
+            if (!this.steps.get(i).isCancellable()) {
+                notCancelableIndex = i;
+                break;
+            }
+        }
+        if (notCancelableIndex != -1 && notCancelableIndex < this.steps.size() - 1) {
+            for (int i = notCancelableIndex + 1; i < this.steps.size(); i++) {
+                if (this.steps.get(i).isCancellable()) {
+                    throw new IllegalStateException("All steps after a non-cancellable step must be non-cancellable");
+                }
+            }
+        }
     }
 
     public static WorkFlow of(String id, String identifier, String evTypeProc) {
@@ -219,6 +240,7 @@ public class WorkFlow {
      */
     public WorkFlow setSteps(List<Step> steps) {
         this.steps = steps;
+        checkCancellableSteps();
         return this;
     }
 

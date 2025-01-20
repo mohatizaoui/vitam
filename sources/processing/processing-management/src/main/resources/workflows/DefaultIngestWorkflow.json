@@ -413,6 +413,7 @@
       "workerGroupId": "DefaultWorker",
       "stepName": "STP_OBJ_STORING",
       "behavior": "BLOCKING",
+      "cancellable": false,
       "distribution": {
         "kind": "LIST_IN_DIRECTORY",
         "element": "ObjectGroup",
@@ -450,6 +451,7 @@
       "workerGroupId": "DefaultWorker",
       "stepName": "STP_UNIT_METADATA",
       "behavior": "BLOCKING",
+      "cancellable": false,
       "distribution": {
         "kind": "LIST_ORDERING_IN_FILE",
         "type": "Units",
@@ -475,6 +477,7 @@
       "workerGroupId": "DefaultWorker",
       "stepName": "STP_OG_STORING",
       "behavior": "BLOCKING",
+      "cancellable": false,
       "distribution": {
         "kind": "LIST_IN_DIRECTORY",
         "element": "ObjectGroup",
@@ -501,6 +504,7 @@
       "workerGroupId": "DefaultWorker",
       "stepName": "STP_UNIT_STORING",
       "behavior": "BLOCKING",
+      "cancellable": false,
       "distribution": {
         "kind": "LIST_ORDERING_IN_FILE",
         "type": "Units",
@@ -527,6 +531,7 @@
       "workerGroupId": "DefaultWorker",
       "stepName": "STP_UPDATE_OBJECT_GROUP",
       "behavior": "BLOCKING",
+      "cancellable": false,
       "distribution": {
         "kind": "LIST_IN_FILE",
         "element": "UpdateObjectGroup/existing_object_group.json",
@@ -561,6 +566,7 @@
       "workerGroupId": "DefaultWorker",
       "stepName": "STP_ACCESSION_REGISTRATION",
       "behavior": "BLOCKING",
+      "cancellable": false,
       "distribution": {
         "kind": "REF",
         "element": "SIP/manifest.xml"
@@ -584,6 +590,7 @@
       "workerGroupId": "DefaultWorker",
       "stepName": "STP_INGEST_FINALISATION",
       "behavior": "FINALLY",
+      "cancellable": false,
       "distribution": {
         "kind": "REF",
         "element": "SIP/manifest.xml"

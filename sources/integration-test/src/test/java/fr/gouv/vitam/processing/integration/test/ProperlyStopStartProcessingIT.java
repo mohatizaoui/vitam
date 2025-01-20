@@ -39,7 +39,9 @@ import fr.gouv.vitam.common.VitamServerRunner;
 import fr.gouv.vitam.common.client.VitamClientFactory;
 import fr.gouv.vitam.common.elasticsearch.ElasticsearchRule;
 import fr.gouv.vitam.common.exception.BadRequestException;
+import fr.gouv.vitam.common.exception.ConflictClientException;
 import fr.gouv.vitam.common.exception.InternalServerException;
+import fr.gouv.vitam.common.exception.VitamClientException;
 import fr.gouv.vitam.common.guid.GUID;
 import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.json.JsonHandler;
@@ -48,10 +50,13 @@ import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.ProcessAction;
+import fr.gouv.vitam.common.model.ProcessQuery;
 import fr.gouv.vitam.common.model.ProcessState;
 import fr.gouv.vitam.common.model.RequestResponse;
+import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.processing.PauseOrCancelAction;
+import fr.gouv.vitam.common.model.processing.ProcessDetail;
 import fr.gouv.vitam.common.storage.compress.ArchiveEntryInputStream;
 import fr.gouv.vitam.common.storage.compress.VitamArchiveStreamFactory;
 import fr.gouv.vitam.common.stream.StreamUtils;
@@ -66,6 +71,7 @@ import fr.gouv.vitam.processing.common.model.WorkerBean;
 import fr.gouv.vitam.processing.common.model.WorkerRemoteConfiguration;
 import fr.gouv.vitam.processing.data.core.management.WorkspaceProcessDataManagement;
 import fr.gouv.vitam.processing.engine.core.monitoring.ProcessMonitoringImpl;
+import fr.gouv.vitam.processing.management.client.ProcessingManagementClient;
 import fr.gouv.vitam.processing.management.client.ProcessingManagementClientFactory;
 import fr.gouv.vitam.processing.management.rest.ProcessManagementMain;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageCompressedFileException;
@@ -105,6 +111,7 @@ import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options
 import static fr.gouv.vitam.common.VitamTestHelper.insertWaitForStepEssentialFiles;
 import static fr.gouv.vitam.common.VitamTestHelper.waitOperation;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 public class ProperlyStopStartProcessingIT extends VitamRuleRunner {
@@ -112,6 +119,7 @@ public class ProperlyStopStartProcessingIT extends VitamRuleRunner {
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(ProperlyStopStartProcessingIT.class);
 
     private static final int STEP_INDEX = 4;
+    private static final int STEP_INDEX_NON_CANCELLABLE = 6;
 
     @ClassRule
     public static VitamServerRunner runner = new VitamServerRunner(
@@ -388,7 +396,9 @@ public class ProperlyStopStartProcessingIT extends VitamRuleRunner {
         }
 
         // Cancel operation
-        resp = ProcessingManagementClientFactory.getInstance().getClient().cancelOperationProcessExecution(operationId);
+        resp = ProcessingManagementClientFactory.getInstance()
+            .getClient()
+            .cancelOperationProcessExecution(operationId, false);
         assertThat(resp).isNotNull();
         assertThat(resp.isOk()).isTrue();
         assertThat(resp.getStatus()).isEqualTo(Response.Status.ACCEPTED.getStatusCode());
@@ -402,7 +412,7 @@ public class ProperlyStopStartProcessingIT extends VitamRuleRunner {
         // If current step of running operations is KO, last step, the execution will ends (COMPLETED)
         // So at this point, the state of the ProcessWorkflow is randomly: COMPLETED or PAUSED
 
-        assertThat(processWorkflow.getTargetState()).isEqualTo(ProcessState.COMPLETED);
+        assertThat(processWorkflow.getTargetState()).isIn(ProcessState.COMPLETED, ProcessState.PAUSE);
         assertThat(processWorkflow.getTargetStatus()).isEqualTo(StatusCode.KO);
         assertThat(processWorkflow.getPauseRecover()).isEqualTo(PauseRecover.RECOVER_FROM_SERVER_PAUSE);
         assertThat(step.getPauseOrCancelAction()).isEqualTo(PauseOrCancelAction.ACTION_CANCEL);
@@ -425,6 +435,81 @@ public class ProperlyStopStartProcessingIT extends VitamRuleRunner {
         assertThat(processWorkflow.getSteps().get(processWorkflow.getSteps().size() - 1).getStepStatusCode()).isEqualTo(
             StatusCode.OK
         );
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void check_non_cancellable_step() throws Exception {
+        ProcessingIT.prepareVitamSession();
+        final GUID operationGuid = GUIDFactory.newOperationLogbookGUID(TENANT_ID);
+        VitamThreadUtils.getVitamSession().setRequestId(operationGuid);
+        final String operationId = operationGuid.toString();
+        simulateIngest(operationId);
+
+        ProcessWorkflow processWorkflow = ProcessMonitoringImpl.getInstance()
+            .findOneProcessWorkflow(operationId, TENANT_ID);
+
+        RequestResponse<ItemStatus> resp = ProcessingManagementClientFactory.getInstance()
+            .getClient()
+            .executeOperationProcess(operationId, Contexts.DEFAULT_WORKFLOW.name(), ProcessAction.RESUME.getValue());
+
+        assertThat(resp).isNotNull();
+        assertThat(resp.isOk()).isTrue();
+        assertThat(resp.getStatus()).isEqualTo(Response.Status.ACCEPTED.getStatusCode());
+
+        // Wait step STP_UNIT_CHECK_AND_PROCESS
+        ProcessStep step = processWorkflow.getSteps().get(STEP_INDEX_NON_CANCELLABLE);
+        waitStep(processWorkflow, STEP_INDEX_NON_CANCELLABLE);
+
+        // Wait until step STEP_INDEX have Response from workers
+        while (
+            step.getStepResponses() == null ||
+            (step.getStepResponses().getStatusMeter().get(StatusCode.OK.ordinal()) == 0 &&
+                step.getStepResponses().getStatusMeter().get(StatusCode.WARNING.ordinal()) == 0)
+        ) {
+            TimeUnit.MILLISECONDS.sleep(1);
+        }
+
+        // Cancel operation (not cancellable, not forced, should return Conflict)
+        Exception exception = assertThrows(VitamClientException.class, () -> {
+            ProcessingManagementClientFactory.getInstance()
+                .getClient()
+                .cancelOperationProcessExecution(operationId, false);
+        });
+        assertThat(exception).isNotNull();
+        assertThat(exception.getCause()).isNotNull();
+        assertThat(exception.getCause()).isInstanceOf(ConflictClientException.class);
+
+        // Check operation status
+        ProcessingManagementClient processingManagementClient = ProcessingManagementClientFactory.getInstance()
+            .getClient();
+        ProcessQuery processQuery = new ProcessQuery(operationId, null, null, null, null, null, null, null);
+        RequestResponse<ProcessDetail> operationsResp = processingManagementClient.listOperationsDetails(processQuery);
+        assertThat(operationsResp.isOk()).isTrue();
+        RequestResponseOK<ProcessDetail> operationsRespOK = (RequestResponseOK<ProcessDetail>) operationsResp;
+        assertThat(operationsRespOK.getResults().size()).isEqualTo(1);
+        ProcessDetail processDetail = operationsRespOK.getResults().get(0);
+        assertThat(processDetail.getGlobalState()).isEqualTo(ProcessState.RUNNING.name());
+        assertThat(processDetail.getStepStatus()).isEqualTo(StatusCode.WARNING.name());
+        assertThat(processDetail.isStepCancellable()).isFalse();
+        assertThat(processDetail.isForcedCancellation()).isFalse();
+
+        // Cancel operation (not cancellable, forced, should work)
+        resp = ProcessingManagementClientFactory.getInstance()
+            .getClient()
+            .cancelOperationProcessExecution(operationId, true);
+        assertThat(resp).isNotNull();
+        assertThat(resp.isOk()).isTrue();
+        assertThat(resp.getStatus()).isEqualTo(Response.Status.ACCEPTED.getStatusCode());
+        assertThat(processWorkflow.isForcedCancellation()).isTrue();
+
+        operationsResp = processingManagementClient.listOperationsDetails(processQuery);
+        assertThat(operationsResp.isOk()).isTrue();
+        operationsRespOK = (RequestResponseOK<ProcessDetail>) operationsResp;
+        assertThat(operationsRespOK.getResults().size()).isEqualTo(1);
+        processDetail = operationsRespOK.getResults().get(0);
+        assertThat(processDetail.getStepStatus()).isEqualTo(StatusCode.KO.name());
+        assertThat(processDetail.isForcedCancellation()).isTrue();
     }
 
     @Test

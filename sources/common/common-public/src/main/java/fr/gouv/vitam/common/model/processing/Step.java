@@ -55,6 +55,9 @@ public class Step {
     @JsonProperty("behavior")
     private ProcessBehavior behavior;
 
+    @JsonProperty("cancellable")
+    private boolean cancellable = true;
+
     @JsonProperty("distribution")
     private Distribution distribution;
 
@@ -77,6 +80,7 @@ public class Step {
         @JsonProperty("workerGroupId") String workerGroupId,
         @JsonProperty("stepName") String stepName,
         @JsonProperty("behavior") ProcessBehavior behavior,
+        @JsonProperty("cancellable") Boolean cancellable,
         @JsonProperty("distribution") Distribution distribution,
         @JsonProperty("actions") List<Action> actions,
         @JsonProperty("waitFor") String waitFor
@@ -85,6 +89,7 @@ public class Step {
         this.workerGroupId = workerGroupId;
         this.stepName = stepName;
         this.behavior = behavior;
+        this.cancellable = cancellable == null ? true : cancellable;
         this.distribution = distribution;
         this.actions = actions;
         this.waitFor = waitFor;
@@ -193,6 +198,24 @@ public class Step {
      */
     public Step setBehavior(ProcessBehavior behavior) {
         this.behavior = behavior;
+        return this;
+    }
+
+    /**
+     * @return the cancellable status
+     */
+    public boolean isCancellable() {
+        return cancellable;
+    }
+
+    /**
+     * setCancellable
+     *
+     * @param cancellable the cancellable status to set
+     * @return the updated step
+     */
+    public Step setCancellable(boolean cancellable) {
+        this.cancellable = cancellable;
         return this;
     }
 

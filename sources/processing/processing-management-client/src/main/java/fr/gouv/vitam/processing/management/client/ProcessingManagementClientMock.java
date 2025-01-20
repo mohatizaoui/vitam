@@ -104,7 +104,7 @@ public class ProcessingManagementClientMock extends AbstractMockClient implement
     }
 
     @Override
-    public RequestResponse<ItemStatus> cancelOperationProcessExecution(String id) {
+    public RequestResponse<ItemStatus> cancelOperationProcessExecution(String id, boolean force) {
         final List<Integer> status = new ArrayList<>();
         status.add(0);
         status.add(0);

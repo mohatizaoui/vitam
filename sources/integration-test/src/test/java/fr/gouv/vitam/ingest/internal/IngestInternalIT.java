@@ -1614,7 +1614,7 @@ public class IngestInternalIT extends VitamRuleRunner {
         assertNotNull(client2.getWorkflowDefinitions());
 
         // then finally we cancel the ingest
-        requestResponse = client2.cancelOperationProcessExecution(operationGuid.toString());
+        requestResponse = client2.cancelOperationProcessExecution(operationGuid.toString(), false);
         assertThat(requestResponse.isOk()).isTrue();
         assertThat(requestResponse.getHttpCode()).isEqualTo(Response.Status.ACCEPTED.getStatusCode());
         responseOK = (RequestResponseOK<ItemStatus>) requestResponse;

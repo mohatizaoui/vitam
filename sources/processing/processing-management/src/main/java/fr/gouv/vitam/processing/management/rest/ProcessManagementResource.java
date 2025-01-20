@@ -67,6 +67,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HEAD;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -489,12 +490,15 @@ public class ProcessManagementResource extends ApplicationStatusResource {
     @DELETE
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response cancelOperationProcessExecution(@PathParam("id") String id) {
+    public Response cancelOperationProcessExecution(
+        @PathParam("id") String id,
+        @HeaderParam(GlobalDataRest.X_FORCE) boolean force
+    ) {
         ParametersChecker.checkParameter(ERR_OPERATION_ID_IS_MANDATORY, id);
 
         Integer tenantId = VitamThreadUtils.getVitamSession().getTenantId();
         try {
-            final ItemStatus itemStatus = processManagement.cancel(id, tenantId);
+            final ItemStatus itemStatus = processManagement.cancel(id, tenantId, force);
             return this.buildResponse(itemStatus);
         } catch (StateNotAllowedException e) {
             LOGGER.error(e);

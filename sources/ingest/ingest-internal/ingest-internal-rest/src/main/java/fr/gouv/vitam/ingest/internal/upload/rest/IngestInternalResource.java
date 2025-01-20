@@ -429,16 +429,20 @@ public class IngestInternalResource extends ApplicationStatusResource {
      * Interrupt the process of an operation identified by Id.
      *
      * @param id operation identifier
+     * @param force set to true to force cancellation for non-cancellable steps
      * @return http response
      */
     @Path("/operations/{id}")
     @DELETE
     @Produces(MediaType.APPLICATION_JSON)
-    public Response cancelOperationProcessExecution(@PathParam("id") String id) {
+    public Response cancelOperationProcessExecution(
+        @PathParam("id") String id,
+        @HeaderParam(GlobalDataRest.X_FORCE) boolean force
+    ) {
         Status status;
         try (ProcessingManagementClient processManagementClient = processingManagementClientFactory.getClient()) {
             SanityChecker.checkParameter(id);
-            RequestResponse<ItemStatus> response = processManagementClient.cancelOperationProcessExecution(id);
+            RequestResponse<ItemStatus> response = processManagementClient.cancelOperationProcessExecution(id, force);
             return response.toResponse();
         } catch (Exception e) {
             LOGGER.error(e);
