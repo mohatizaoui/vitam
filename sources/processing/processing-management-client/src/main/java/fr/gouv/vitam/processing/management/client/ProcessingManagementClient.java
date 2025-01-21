@@ -135,7 +135,7 @@ public interface ProcessingManagementClient extends MockOrRestClient {
      * @throws VitamClientException
      * @throws InternalServerException
      */
-    RequestResponse<ItemStatus> cancelOperationProcessExecution(String id)
+    RequestResponse<ItemStatus> cancelOperationProcessExecution(String id, boolean force)
         throws InternalServerException, VitamClientException;
 
     /**

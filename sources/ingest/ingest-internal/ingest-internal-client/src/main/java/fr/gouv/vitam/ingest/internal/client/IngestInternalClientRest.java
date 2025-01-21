@@ -249,9 +249,14 @@ class IngestInternalClientRest extends DefaultClient implements IngestInternalCl
     }
 
     @Override
-    public RequestResponse<ItemStatus> cancelOperationProcessExecution(String id) throws VitamClientException {
+    public RequestResponse<ItemStatus> cancelOperationProcessExecution(String id, boolean force)
+        throws VitamClientException {
         ParametersChecker.checkParameter(BLANK_OPERATION_ID, id);
-        try (Response response = make(delete().withPath(OPERATION_URI + "/" + id).withJsonAccept())) {
+        try (
+            Response response = make(
+                delete().withPath(OPERATION_URI + "/" + id).withHeader(GlobalDataRest.X_FORCE, force).withJsonAccept()
+            )
+        ) {
             check(response);
             return RequestResponse.parseFromResponse(response, ItemStatus.class);
         } catch (

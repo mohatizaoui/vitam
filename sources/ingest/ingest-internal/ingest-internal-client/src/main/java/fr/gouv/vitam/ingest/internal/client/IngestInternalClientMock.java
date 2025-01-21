@@ -90,7 +90,7 @@ public class IngestInternalClientMock extends AbstractMockClient implements Inge
     }
 
     @Override
-    public RequestResponse<ItemStatus> cancelOperationProcessExecution(String id) {
+    public RequestResponse<ItemStatus> cancelOperationProcessExecution(String id, boolean force) {
         final List<Integer> status = new ArrayList<>();
         status.add(Status.OK.getStatusCode());
         final ItemStatus itemStatus = new ItemStatus(
@@ -105,6 +105,7 @@ public class IngestInternalClientMock extends AbstractMockClient implements Inge
         return new RequestResponseOK<ItemStatus>()
             .addResult(itemStatus)
             .addHeader(GlobalDataRest.X_GLOBAL_EXECUTION_STATE, FAKE_EXECUTION_STATUS)
+            .addHeader(GlobalDataRest.X_FORCE, String.valueOf(force))
             .setHttpCode(Status.ACCEPTED.getStatusCode());
     }
 

@@ -37,8 +37,8 @@ documentation:
 /formats:
   displayName: FileFormats
   description: |
-   API qui définit les requêtes pour accéder au référentiel des Formats.
-   La requête utilise le langage de requête (DSL) de Vitam en entrée et retourne une liste de formats selon le DSL Vitam en cas de succès.
+    API qui définit les requêtes pour accéder au référentiel des Formats.
+    La requête utilise le langage de requête (DSL) de Vitam en entrée et retourne une liste de formats selon le DSL Vitam en cas de succès.
   get:
     description: |
       Requête qui retourne des résultats contenant des Formats.
@@ -46,7 +46,7 @@ documentation:
 
       Permissions requises:
         - formats:read
-    is: [AdminTraits.AdminListingResponse]
+    is: [ AdminTraits.AdminListingResponse ]
     headers:
       X-Tenant-Id:
         required: true
@@ -59,8 +59,8 @@ documentation:
 
       Permissions requises:
         - formats:create
-    is: [AdminTraits.AdminListingResponse, StandardTraits.OverrideGet,
-       AdminTraits.AdminUploadFormat, StandardTraits.UploadFileOptionalHeader]
+    is: [ AdminTraits.AdminListingResponse, StandardTraits.OverrideGet,
+          AdminTraits.AdminUploadFormat, StandardTraits.UploadFileOptionalHeader ]
     headers:
       X-Http-Method-Override:
         required: false
@@ -71,20 +71,20 @@ documentation:
 
   /{idf}:
     uriParameters:
-        idf:
-          required: true
-          description: |
-            Identifiant du format
+      idf:
+        required: true
+        description: |
+          Identifiant du format
     displayName: FileFormat
     description: |
-     API qui définit les requêtes pour accéder à un format dans le référentiel des Formats.
+      API qui définit les requêtes pour accéder à un format dans le référentiel des Formats.
     get:
       description: |
         Retourne une liste de Formats contenant 1 seul résultat en cas de succès.
 
         Permissions requises:
           - formats:id:read
-      is: [AdminTraits.AdminItemResponse]
+      is: [ AdminTraits.AdminItemResponse ]
       headers:
         X-Tenant-Id:
           required: true
@@ -94,20 +94,20 @@ documentation:
 /formatsfilecheck:
   displayName: FileFormats check
   description: |
-   API qui permet de vérifier que le fichier est correct, et peut être importé.
+    API qui permet de vérifier que le fichier est correct, et peut être importé.
   post:
     description: |
       Vérifie si un fichier source PRONOM (see :term:`TNA`) peut être importé comme nouveau Référentiel.
 
       Permissions requises:
         - formatsfile:check
-    is: [AdminTraits.AdminUpload]
+    is: [ AdminTraits.AdminUpload ]
 
 /rules:
   displayName: Rules
   description: |
-   API qui définit les requêtes pour accéder au référentiel des Règles de gestion.
-   La requête utilise le langage de requête (DSL) de Vitam en entrée et retourne une liste de règles selon le DSL Vitam en cas de succès.
+    API qui définit les requêtes pour accéder au référentiel des Règles de gestion.
+    La requête utilise le langage de requête (DSL) de Vitam en entrée et retourne une liste de règles selon le DSL Vitam en cas de succès.
   get:
     description: |
       Requête qui retourne des résultats contenant des Règles de gestion.
@@ -115,7 +115,7 @@ documentation:
 
       Permissions requises:
         - rules:read
-    is: [AdminTraits.AdminListingResponse]
+    is: [ AdminTraits.AdminListingResponse ]
     headers:
       X-Tenant-Id:
         required: true
@@ -128,7 +128,7 @@ documentation:
 
       Permissions requises:
         - rules:create
-    is: [AdminTraits.AdminListingResponse, StandardTraits.OverrideGet, AdminTraits.AdminUploadRule, StandardTraits.UploadFileOptionalHeader]
+    is: [ AdminTraits.AdminListingResponse, StandardTraits.OverrideGet, AdminTraits.AdminUploadRule, StandardTraits.UploadFileOptionalHeader ]
     headers:
       X-Http-Method-Override:
         required: false
@@ -140,19 +140,19 @@ documentation:
   /{idr}:
     displayName: Rule
     uriParameters:
-        idr:
-          required: true
-          description: |
-            Identifiant de la règle de gestion
+      idr:
+        required: true
+        description: |
+          Identifiant de la règle de gestion
     description: |
-     API qui définit les requêtes pour accéder à une Règle dans le référentiel des Règles de gestion.
+      API qui définit les requêtes pour accéder à une Règle dans le référentiel des Règles de gestion.
     get:
       description: |
         Retourne une liste de Règles de gestion contenant 1 seul résultat en cas de succès.
 
         Permissions requises:
           - rules:id:read
-      is: [AdminTraits.AdminItemResponse]
+      is: [ AdminTraits.AdminItemResponse ]
       headers:
         X-Tenant-Id:
           required: true
@@ -162,27 +162,27 @@ documentation:
 /rulesfilecheck:
   displayName: FileRules check
   description: |
-   API qui permet de vérifier que le fichier est correct, et peut être importé.
+    API qui permet de vérifier que le fichier est correct, et peut être importé.
   post:
     description: |
       Vérifie si un fichier source CSV contenant les définitions des Règles de gestion peut être importé comme nouveau Référentiel.
 
       Permissions requises:
         - rulesfile:check
-    is: [AdminTraits.AdminUpload]
+    is: [ AdminTraits.AdminUpload ]
 
 /rulesreport/{idop}:
   displayName: Rules report
   uriParameters:
-        idop:
-          required: true
-          description: |
-            Identifiant de l'opération concernée
+    idop:
+      required: true
+      description: |
+        Identifiant de l'opération concernée
   description: |
-     Permet de télécharger un objet représentant le rapport d'import des règles en fonction de l'id de l'opération
+    Permet de télécharger un objet représentant le rapport d'import des règles en fonction de l'id de l'opération
   is: [ AdminTraits.AdminFileItemResponse ]
   get:
-     description:  |
+    description: |
       Permet de télécharger un objet représentant le rapport d'import des règles en fonction de l'id de l'opération
 
       Permissions requises:
@@ -191,8 +191,8 @@ documentation:
 /accessionregisters:
   displayName: AccessionRegisters
   description: |
-   API qui définit les requêtes pour accéder au Registre des Fonds.
-   La requête utilise le langage de requête (DSL) de Vitam en entrée et retourne une liste de registres selon le DSL Vitam en cas de succès.
+    API qui définit les requêtes pour accéder au Registre des Fonds.
+    La requête utilise le langage de requête (DSL) de Vitam en entrée et retourne une liste de registres selon le DSL Vitam en cas de succès.
   get:
     description: |
       Requête qui retourne des résultats contenant des Registres de Fonds.
@@ -200,7 +200,7 @@ documentation:
 
       Permissions requises:
         - accessionregisters:read
-    is: [AdminTraits.AdminListingResponse]
+    is: [ AdminTraits.AdminListingResponse ]
 
   /{idar}/accessionregisterdetails:
     displayName: AccessionRegisterDetail
@@ -218,7 +218,7 @@ documentation:
 
         Permissions requises:
           - accessionregisters:id:accessionregisterdetails:read
-      is: [AdminTraits.AdminListingResponse]
+      is: [ AdminTraits.AdminListingResponse ]
 
 /accessionregisterdetails:
   displayName: Détails de Registres des fonds
@@ -230,7 +230,7 @@ documentation:
 
       Permissions requises:
         - accessionregisterdetails:read
-    is: [AdminTraits.AdminListingResponse]
+    is: [ AdminTraits.AdminListingResponse ]
     headers:
       Accept:
         required: true
@@ -246,8 +246,8 @@ documentation:
 /accesscontracts:
   displayName: Access contracts
   description: |
-     API qui définit les requêtes pour accéder aux contracs d'accès
-     La requête utilise le langage de requête (DSL) de Vitam en entrée et retourne une liste de contrats d'accès selon le DSL Vitam en cas de succès.
+    API qui définit les requêtes pour accéder aux contracs d'accès
+    La requête utilise le langage de requête (DSL) de Vitam en entrée et retourne une liste de contrats d'accès selon le DSL Vitam en cas de succès.
   get:
     description: |
       Requête qui retourne des résultats contenant des Contrats d'accès.
@@ -255,7 +255,7 @@ documentation:
 
       Permissions requises:
         - accesscontracts:read
-    is: [AdminTraits.AdminListingResponse]
+    is: [ AdminTraits.AdminListingResponse ]
     headers:
       X-Tenant-Id:
         required: true
@@ -268,7 +268,7 @@ documentation:
 
       Permissions requises:
         - accesscontracts:create:json
-    is: [AdminTraits.AdminAccessContracts, AdminTraits.AdminListingResponse, StandardTraits.OverrideGet, AdminTraits.AdminUpload]
+    is: [ AdminTraits.AdminAccessContracts, AdminTraits.AdminListingResponse, StandardTraits.OverrideGet, AdminTraits.AdminUpload ]
     headers:
       X-Http-Method-Override:
         required: false
@@ -279,20 +279,20 @@ documentation:
 
   /{idac}:
     uriParameters:
-        idac:
-          required: true
-          description: |
-            Identifiant du contrat d'accès
+      idac:
+        required: true
+        description: |
+          Identifiant du contrat d'accès
     displayName: Access contract
     description: |
-     API qui permet de mettre à jour un contrat d'accès via une requête de mise à jour ou d'accéder à un contrat d'accès
+      API qui permet de mettre à jour un contrat d'accès via une requête de mise à jour ou d'accéder à un contrat d'accès
     get:
       description: |
-         Retourne une liste de Contrats d'accès contenant 1 seul résultat en cas de succès.
-
-         Permissions requises:
-          - accesscontracts:id:read
-      is: [AdminTraits.AdminListingResponse]
+        Retourne une liste de Contrats d'accès contenant 1 seul résultat en cas de succès.
+        
+        Permissions requises:
+         - accesscontracts:id:read
+      is: [ AdminTraits.AdminListingResponse ]
       headers:
         X-Tenant-Id:
           required: true
@@ -305,7 +305,7 @@ documentation:
 
         Permissions requises:
           - accesscontracts:id:update
-      is: [AdminTraits.AdminUpdate]
+      is: [ AdminTraits.AdminUpdate ]
       headers:
         X-Tenant-Id:
           required: true
@@ -315,8 +315,8 @@ documentation:
 /ingestcontracts:
   displayName: Ingest contracts
   description: |
-     API qui définit les requêtes pour accéder aux contrats d'entrée
-     La requête utilise le langage de requête (DSL) de Vitam en entrée et retourne une liste de contrats d'entrée selon le DSL Vitam en cas de succès.
+    API qui définit les requêtes pour accéder aux contrats d'entrée
+    La requête utilise le langage de requête (DSL) de Vitam en entrée et retourne une liste de contrats d'entrée selon le DSL Vitam en cas de succès.
   get:
     description: |
       Requête qui retourne des résultats contenant des Contrats d'entrée.
@@ -324,7 +324,7 @@ documentation:
 
       Permissions requises:
         - ingestcontracts:read
-    is: [AdminTraits.AdminListingResponse]
+    is: [ AdminTraits.AdminListingResponse ]
     headers:
       X-Tenant-Id:
         required: true
@@ -337,7 +337,7 @@ documentation:
 
       Permissions requises:
         - ingestcontracts:create:json
-    is: [AdminTraits.AdminListingResponse, StandardTraits.OverrideGet, AdminTraits.AdminUpload]
+    is: [ AdminTraits.AdminListingResponse, StandardTraits.OverrideGet, AdminTraits.AdminUpload ]
     headers:
       X-Http-Method-Override:
         required: false
@@ -348,10 +348,10 @@ documentation:
 
   /{idic}:
     uriParameters:
-        idic:
-          required: true
-          description: |
-            Identifiant du contrat d'entrée
+      idic:
+        required: true
+        description: |
+          Identifiant du contrat d'entrée
     displayName: Ingest Contract
     description: |
       API qui permet de mettre à jour un contrat d'entrée via une requête de mise à jour ou d'accéder à un contrat d'entrée
@@ -361,7 +361,7 @@ documentation:
 
         Permissions requises:
           - ingestcontracts:id:read
-      is: [AdminTraits.AdminListingResponse]
+      is: [ AdminTraits.AdminListingResponse ]
       headers:
         X-Tenant-Id:
           required: true
@@ -374,7 +374,7 @@ documentation:
 
         Permissions requises:
           - ingestcontracts:id:update
-      is: [AdminTraits.AdminUpdate]
+      is: [ AdminTraits.AdminUpdate ]
       headers:
         X-Tenant-Id:
           required: true
@@ -384,8 +384,8 @@ documentation:
 /managementcontracts:
   displayName: Management contracts
   description: |
-     API qui définit les requêtes pour accéder aux contrats de gestion
-     La requête utilise le langage de requête (DSL) de Vitam en entrée et retourne une liste de contrats de gestion selon le DSL Vitam en cas de succès.
+    API qui définit les requêtes pour accéder aux contrats de gestion
+    La requête utilise le langage de requête (DSL) de Vitam en entrée et retourne une liste de contrats de gestion selon le DSL Vitam en cas de succès.
   get:
     description: |
       Requête qui retourne des résultats contenant des Contrats de gestion.
@@ -393,7 +393,7 @@ documentation:
 
       Permissions requises:
         - managementcontracts:read
-    is: [AdminTraits.AdminListingResponse]
+    is: [ AdminTraits.AdminListingResponse ]
     headers:
       X-Tenant-Id:
         required: true
@@ -406,7 +406,7 @@ documentation:
 
       Permissions requises:
         - managementcontracts:create:json
-    is: [AdminTraits.AdminListingResponse, StandardTraits.OverrideGet, AdminTraits.AdminUpload]
+    is: [ AdminTraits.AdminListingResponse, StandardTraits.OverrideGet, AdminTraits.AdminUpload ]
     headers:
       X-Http-Method-Override:
         required: false
@@ -417,10 +417,10 @@ documentation:
 
   /{idic}:
     uriParameters:
-        idic:
-          required: true
-          description: |
-            Identifiant du contrat de gestion
+      idic:
+        required: true
+        description: |
+          Identifiant du contrat de gestion
     displayName: Management Contract
     description: |
       API qui permet de mettre à jour un contrat de gestion via une requête de mise à jour ou d'accéder à un contrat de gestion
@@ -430,31 +430,31 @@ documentation:
 
         Permissions requises:
           - managementcontracts:id:read
-      is: [AdminTraits.AdminListingResponse]
+      is: [ AdminTraits.AdminListingResponse ]
       headers:
         X-Tenant-Id:
           required: true
         X-Access-Contract-Id:
           required: false
     put:
-       description: |
+      description: |
         Requête qui modifie un Contrat de gestion.
         La requête utilise le langage de requête DSL de type **modification unitaire (UPDATE BY ID)** de Vitam en entrée et retourne le statut de la mise à jour en résultat selon le DSL Vitam en cas de succès.
 
         Permissions requises:
           - managementcontracts:id:update
-       is: [AdminTraits.AdminUpdate]
-       headers:
-          X-Tenant-Id:
-            required: true
-          X-Access-Contract-Id:
-            required: false
+      is: [ AdminTraits.AdminUpdate ]
+      headers:
+        X-Tenant-Id:
+          required: true
+        X-Access-Contract-Id:
+          required: false
 
 /contexts:
   displayName: Contexts
   description: |
-     API qui définit les requêtes pour accéder aux contextes d'applications externes
-     La requête utilise le langage de requête (DSL) de Vitam en entrée et retourne une liste de contextes selon le DSL Vitam en cas de succès.
+    API qui définit les requêtes pour accéder aux contextes d'applications externes
+    La requête utilise le langage de requête (DSL) de Vitam en entrée et retourne une liste de contextes selon le DSL Vitam en cas de succès.
   get:
     description: |
       Requête qui retourne des résultats contenant des Contextes.
@@ -462,7 +462,7 @@ documentation:
 
       Permissions requises:
         - contexts:read
-    is: [AdminTraits.AdminListingResponse]
+    is: [ AdminTraits.AdminListingResponse ]
     headers:
       X-Tenant-Id:
         required: true
@@ -475,7 +475,7 @@ documentation:
 
       Permissions requises:
         - contexts:create:json
-    is: [AdminTraits.AdminListingResponse, StandardTraits.OverrideGet, AdminTraits.AdminUpload]
+    is: [ AdminTraits.AdminListingResponse, StandardTraits.OverrideGet, AdminTraits.AdminUpload ]
     headers:
       X-Http-Method-Override:
         required: false
@@ -486,20 +486,20 @@ documentation:
 
   /{idc}:
     uriParameters:
-        idc:
-          required: true
-          description: |
-            Identifiant du contexte
+      idc:
+        required: true
+        description: |
+          Identifiant du contexte
     displayName: Context
     description: |
       API qui permet de mettre à jour un contexte via une requête de mise à jour ou d'accéder à un contexte
     get:
       description: |
-         Retourne une liste de Contexte contenant 1 seul résultat en cas de succès.
-
-         Permissions requises:
-          - contexts:id:read
-      is: [AdminTraits.AdminListingResponse]
+        Retourne une liste de Contexte contenant 1 seul résultat en cas de succès.
+        
+        Permissions requises:
+         - contexts:id:read
+      is: [ AdminTraits.AdminListingResponse ]
       headers:
         X-Tenant-Id:
           required: true
@@ -512,7 +512,7 @@ documentation:
 
         Permissions requises:
           - contexts:id:update
-      is: [AdminTraits.AdminUpload]
+      is: [ AdminTraits.AdminUpload ]
       headers:
         X-Tenant-Id:
           required: true
@@ -531,7 +531,7 @@ documentation:
 
       Permissions requises:
         - profiles:read
-    is: [AdminTraits.AdminListingResponse]
+    is: [ AdminTraits.AdminListingResponse ]
     headers:
       X-Tenant-Id:
         required: true
@@ -549,7 +549,7 @@ documentation:
 
         ou
         - profiles:create:json
-    is: [AdminTraits.AdminItemResponse, StandardTraits.OverrideGet, AdminTraits.AdminUpload]
+    is: [ AdminTraits.AdminItemResponse, StandardTraits.OverrideGet, AdminTraits.AdminUpload ]
     headers:
       X-Http-Method-Override:
         description: Requis pour effectuer un GET avec une requête json en body.
@@ -569,24 +569,24 @@ documentation:
 
   /{idp}:
     uriParameters:
-        idp:
-          required: true
-          description: |
-            Identifiant du profil
+      idp:
+        required: true
+        description: |
+          Identifiant du profil
     displayName: Profil
     description: |
       API qui permet de mettre à jour un profil via une requête de mise à jour ou d'accéder à un profil
     get:
       description: |
-         Permet de faire une requête par identifiant sur un profile si la requête attend application/json. L'identifiant du profile est la chaîne "idp" dans l'URL.
-         Si la requête attend application/octet-stream en réponse, VITAM renvoie alors le fichier XSD ou RNG lié au profile.
-
-         Permissions requises:
-          - profiles:id:read:binary
-
-          oui
-          - profiles:id:read:json
-      is: [AdminTraits.AdminListingResponse, AdminTraits.AdminFileItemResponse]
+        Permet de faire une requête par identifiant sur un profile si la requête attend application/json. L'identifiant du profile est la chaîne "idp" dans l'URL.
+        Si la requête attend application/octet-stream en réponse, VITAM renvoie alors le fichier XSD ou RNG lié au profile.
+        
+        Permissions requises:
+         - profiles:id:read:binary
+        
+         oui
+         - profiles:id:read:json
+      is: [ AdminTraits.AdminListingResponse, AdminTraits.AdminFileItemResponse ]
       headers:
         Accept:
           description: Spécifie la réponse attendue. 'json' pour les métadonénes du profile, 'octet-stream' pour le fichier XSD ou RNG lié.
@@ -597,7 +597,7 @@ documentation:
         X-Access-Contract-Id:
           required: false
     put:
-       description: |
+      description: |
         Requête qui modifie les métadonnées d'un profil si la requête envoie un json (Content-Type = application/json).
         Dans ce cas, la requête utilise le langage de requête DSL de type **modification unitaire (UPDATE BY ID)** de Vitam en entrée et retourne le statut de la mise à jour en résultat selon le DSL Vitam en cas de succès.
         Sinon, la requête doit spécifier le Content-Type comme application/octet-stream. Dans ce cas, elle permet de mettre à jour le fichier RNG ou XSD lié.
@@ -607,16 +607,16 @@ documentation:
 
           ou
           - profiles:id:update:json
-       is: [AdminTraits.AdminUpload, AdminTraits.AdminProfileUpload]
-       headers:
-          Content-Type:
-            description: Requis pour importer des profils.
-            required: false
-            enum: [ "application/json", "application/octet-stream" ]
-          X-Tenant-Id:
-            required: true
-          X-Access-Contract-Id:
-            required: false
+      is: [ AdminTraits.AdminUpload, AdminTraits.AdminProfileUpload ]
+      headers:
+        Content-Type:
+          description: Requis pour importer des profils.
+          required: false
+          enum: [ "application/json", "application/octet-stream" ]
+        X-Tenant-Id:
+          required: true
+        X-Access-Contract-Id:
+          required: false
 
 /griffin:
   displayName: griffons
@@ -627,7 +627,7 @@ documentation:
 
       Permissions requises:
         - griffins:read
-    is: [AdminTraits.AdminListingResponse]
+    is: [ AdminTraits.AdminListingResponse ]
     headers:
       X-Tenant-Id:
         required: true
@@ -639,7 +639,7 @@ documentation:
 
       Permissions requises:
         - griffins:create
-    is: [AdminTraits.AdminListingResponse, AdminTraits.AdminUpload]
+    is: [ AdminTraits.AdminListingResponse, AdminTraits.AdminUpload ]
     headers:
       X-Tenant-Id:
         required: true
@@ -660,7 +660,7 @@ documentation:
 
         Permissions requises:
           - griffin:read
-      is: [AdminTraits.AdminListingResponse]
+      is: [ AdminTraits.AdminListingResponse ]
       headers:
         X-Tenant-Id:
           required: true
@@ -676,7 +676,7 @@ documentation:
 
       Permissions requises:
         - preservationScenarios:read
-    is: [AdminTraits.AdminListingResponse]
+    is: [ AdminTraits.AdminListingResponse ]
     headers:
       X-Tenant-Id:
         required: true
@@ -688,7 +688,7 @@ documentation:
 
       Permissions requises:
         - preservationScenarios:create
-    is: [AdminTraits.AdminListingResponse, AdminTraits.AdminUpload]
+    is: [ AdminTraits.AdminListingResponse, AdminTraits.AdminUpload ]
     headers:
       X-Tenant-Id:
         required: true
@@ -710,7 +710,7 @@ documentation:
 
         Permissions requises:
           - preservationScenario:read
-      is: [AdminTraits.AdminListingResponse]
+      is: [ AdminTraits.AdminListingResponse ]
       headers:
         X-Tenant-Id:
           required: true
@@ -729,7 +729,7 @@ documentation:
 
       Permissions requises:
         - archiveunitprofiles:read
-    is: [AdminTraits.AdminListingResponse]
+    is: [ AdminTraits.AdminListingResponse ]
     headers:
       X-Tenant-Id:
         required: true
@@ -747,7 +747,7 @@ documentation:
 
         ou
         - archiveunitprofiles:create:json
-    is: [AdminTraits.AdminItemResponse, StandardTraits.OverrideGet, AdminTraits.AdminUpload]
+    is: [ AdminTraits.AdminItemResponse, StandardTraits.OverrideGet, AdminTraits.AdminUpload ]
     headers:
       X-Http-Method-Override:
         description: Requis pour effectuer un GET avec une requête json en body.
@@ -767,20 +767,20 @@ documentation:
 
   /{idp}:
     uriParameters:
-        idp:
-          required: true
-          description: |
-            Identifiant du document type
+      idp:
+        required: true
+        description: |
+          Identifiant du document type
     displayName: Archive Unit Profile
     description: |
       API qui permet de mettre à jour un document type via une requête de mise à jour ou d'accéder à un document type
     get:
       description: |
-         API qui définit les requêtes pour accéder à un document type via son ID
-
-         Permissions requises:
-          - archiveunitprofiles:id:read:json
-      is: [AdminTraits.AdminListingResponse, AdminTraits.AdminItemResponse]
+        API qui définit les requêtes pour accéder à un document type via son ID
+        
+        Permissions requises:
+         - archiveunitprofiles:id:read:json
+      is: [ AdminTraits.AdminListingResponse, AdminTraits.AdminItemResponse ]
       headers:
         X-Tenant-Id:
           required: true
@@ -793,7 +793,7 @@ documentation:
 
         Permissions requises:
           - archiveunitprofiles:id:update:json
-      is: [AdminTraits.AdminUpload]
+      is: [ AdminTraits.AdminUpload ]
       headers:
         X-Tenant-Id:
           required: true
@@ -826,8 +826,8 @@ documentation:
 /securityprofiles:
   displayName: Security Profiles
   description: |
-     API qui définit les requêtes pour accéder aux Profils de Sécurité.
-     La requête utilise le langage de requête (DSL) de Vitam en entrée et retourne une liste de profils de sécurité selon le DSL Vitam en cas de succès.
+    API qui définit les requêtes pour accéder aux Profils de Sécurité.
+    La requête utilise le langage de requête (DSL) de Vitam en entrée et retourne une liste de profils de sécurité selon le DSL Vitam en cas de succès.
   get:
     description: |
       Requête qui retourne des résultats contenant des Profils de sécurité.
@@ -835,7 +835,7 @@ documentation:
 
       Permissions requises:
         - securityprofiles:read
-    is: [AdminTraits.AdminListingResponse]
+    is: [ AdminTraits.AdminListingResponse ]
     headers:
       X-Tenant-Id:
         required: true
@@ -848,7 +848,7 @@ documentation:
 
       Permissions requises:
         - securityprofiles:create:json
-    is: [AdminTraits.AdminListingResponse, StandardTraits.OverrideGet, AdminTraits.AdminUpload]
+    is: [ AdminTraits.AdminListingResponse, StandardTraits.OverrideGet, AdminTraits.AdminUpload ]
     headers:
       X-Http-Method-Override:
         required: false
@@ -859,20 +859,20 @@ documentation:
 
   /{identifier}:
     uriParameters:
-        identifier:
-          required: true
-          description: |
-            Identifiant du profil de sécurité
+      identifier:
+        required: true
+        description: |
+          Identifiant du profil de sécurité
     displayName: Security Profiles
     description: |
-     API qui permet de mettre à jour un profil de sécurité via une requête de mise à jour ou d'accéder à un profil de sécurité
+      API qui permet de mettre à jour un profil de sécurité via une requête de mise à jour ou d'accéder à un profil de sécurité
     get:
       description: |
         Retourne une liste de Profils de sécurité contenant 1 seul résultat en cas de succès.
 
         Permissions requises:
           - securityprofiles:id:read
-      is: [AdminTraits.AdminItemResponse]
+      is: [ AdminTraits.AdminItemResponse ]
       headers:
         X-Tenant-Id:
           required: true
@@ -885,7 +885,7 @@ documentation:
 
         Permissions requises:
           - securityprofiles:id:update
-      is: [AdminTraits.AdminUpload]
+      is: [ AdminTraits.AdminUpload ]
       headers:
         X-Tenant-Id:
           required: true
@@ -895,8 +895,8 @@ documentation:
 /agencies:
   displayName: Agencies
   description: |
-   API qui définit les requêtes pour accéder au référentiel des Agencies.
-   La requête utilise le langage de requête (DSL) de Vitam en entrée et retourne une liste d'agencies selon le DSL Vitam en cas de succès.
+    API qui définit les requêtes pour accéder au référentiel des Agencies.
+    La requête utilise le langage de requête (DSL) de Vitam en entrée et retourne une liste d'agencies selon le DSL Vitam en cas de succès.
   get:
     description: |
       Requête qui retourne des résultats contenant des Agencies.
@@ -904,7 +904,7 @@ documentation:
 
       Permissions requises:
         - agencies:id:read
-    is: [AdminTraits.AdminListingResponse]
+    is: [ AdminTraits.AdminListingResponse ]
     headers:
       X-Tenant-Id:
         required: true
@@ -917,8 +917,8 @@ documentation:
 
       Permissions requises:
         - agencies:create
-    is: [AdminTraits.AdminListingResponse, StandardTraits.OverrideGet,
-       AdminTraits.AdminUpload, StandardTraits.UploadFileOptionalHeader]
+    is: [ AdminTraits.AdminListingResponse, StandardTraits.OverrideGet,
+          AdminTraits.AdminUpload, StandardTraits.UploadFileOptionalHeader ]
     headers:
       X-Http-Method-Override:
         required: false
@@ -929,17 +929,17 @@ documentation:
 
   /{ida}:
     uriParameters:
-        ida:
-          required: true
-          description: |
-            Identifiant de l'agency
+      ida:
+        required: true
+        description: |
+          Identifiant de l'agency
     displayName: Agency
     description: |
-     API qui définit les requêtes pour accéder à un Agency dans le référentiel des Agencies.
+      API qui définit les requêtes pour accéder à un Agency dans le référentiel des Agencies.
     get:
       description: |
         Retourne une liste d'Agencies contenant 1 seul résultat en cas de succès.
-      is: [AdminTraits.AdminItemResponse]
+      is: [ AdminTraits.AdminItemResponse ]
       headers:
         X-Tenant-Id:
           required: true
@@ -949,14 +949,14 @@ documentation:
 /agenciesfilecheck:
   displayName: FileAgencies check
   description: |
-   API qui permet de vérifier que le fichier est correct, et peut être importé.
+    API qui permet de vérifier que le fichier est correct, et peut être importé.
   post:
     description: |
       Vérifie si un fichier source Agencies peut être importé comme nouveau Référentiel.
 
       Permissions requises:
         - agenciesfile:check
-    is: [AdminTraits.AdminUpload]
+    is: [ AdminTraits.AdminUpload ]
 
 /operations:
   # root endpoint request
@@ -964,39 +964,39 @@ documentation:
   description: |
     Administration des Workflows Asynchrones (opérations). Certaines opérations devraient être limitées aux seuls administrateurs car elles impactent le back-office.
   is: [ StandardTraits.StandardOptionalHeader,
-  StandardTraits.StandardHeader401, StandardTraits.StandardHeader404,
-  StandardTraits.StandardHeader409, StandardTraits.StandardHeader412 ]
+        StandardTraits.StandardHeader401, StandardTraits.StandardHeader404,
+        StandardTraits.StandardHeader409, StandardTraits.StandardHeader412 ]
   get:
     description: |
       Requête qui retourne des résultats contenant des opérations.
 
       Permissions requises:
         - operations:read
-    is: [IngestTraits.IngestListingResponse ]
+    is: [ IngestTraits.IngestListingResponse ]
 
   /{idop}:
     uriParameters:
-        idop:
-          required: true
-          description: |
-            Identifiant de l'opération
+      idop:
+        required: true
+        description: |
+          Identifiant de l'opération
     displayName: Operation
     is: [ StandardTraits.StandardOptionalHeader,
-    StandardTraits.StandardHeader401, StandardTraits.StandardHeader404,
-    StandardTraits.StandardHeader409, StandardTraits.StandardHeader412 ]
+          StandardTraits.StandardHeader401, StandardTraits.StandardHeader404,
+          StandardTraits.StandardHeader409, StandardTraits.StandardHeader412 ]
     get:
-      description:  |
+      description: |
         Permet de récupérer le statut de l'opération dont l'identifiant est passée en paramètre
         Permissions requises:
           - operations:id:read
     put:
       description: |
-       Permet de mettre à jour une opération lancée en précisant l'action à exécuter dans le header X-Action-Id; PAUSE pour la mettre en pause,
-       NEXT pour exécuter l'étape suivante, RESUME pour continuer l'exécution de l'opération jusqu'au bout.
-       **Cette opération ne devrait être ouverte qu'aux administrateurs**
-
-       Permissions requises:
-        - operations:id:update
+        Permet de mettre à jour une opération lancée en précisant l'action à exécuter dans le header X-Action-Id; PAUSE pour la mettre en pause,
+        NEXT pour exécuter l'étape suivante, RESUME pour continuer l'exécution de l'opération jusqu'au bout.
+        **Cette opération ne devrait être ouverte qu'aux administrateurs**
+        
+        Permissions requises:
+         - operations:id:update
       headers:
         X-Action:
           required: true
@@ -1005,12 +1005,33 @@ documentation:
           enum: [ "RESUME", "NEXT", "PAUSE", "REPLAY" ]
 
     delete:
-     description: |
-       Permet d'annuler un workflow lancé.
-       **Cette opération ne devrait être ouverte qu'aux administrateurs**
+      description: |
+        Permet d'annuler un workflow lancé.
+        **Cette opération ne devrait être ouverte qu'aux administrateurs.**
+        Certains workflows contiennent des étapes ne pouvant pas être annulées sans que la cohérence des données ne soit affectée. Dans ce cas,
+        l'opération d'annulation sera refusée, sauf si le header X-Force est positionné à true.
+        **Une annulation de workflow en mode forcée est faite à vos risques et périls.**
+        
+        Permissions requises:
+         - operations:id:delete
+      headers:
+        X-Force:
+          required: false
+          default: false
+          description: |
+            Permet de forcer l'interruption y compris quand le workflow est en train d'exécuter une étape non-annulable.
+            Valeurs possibles : **true** et **false**.
+      responses:
+        200:
+          description: |
+            L'opération existe et était terminée.
+        202:
+          description: |
+            L'opération existe et a été annulée.
+        409:
+          description: |
+            L'opération d'annulation a échoué car la tâche est dans une étape non-annulable, et le mode forcé n'est pas activé.
 
-       Permissions requises:
-        - operations:id:delete
     head:
       description: |
         Permet d'obtenir le statut d'une opération
@@ -1018,15 +1039,15 @@ documentation:
         Permissions requises:
           - operations:id:read:status
       responses:
-       200:
-         description: |
-           L'opération existe et est terminé, le statut est retourné
-       202:
-         description: |
-           L'opération existe mais n'est pas terminée
-       404:
-         description: |
-           Opération introuvable
+        200:
+          description: |
+            L'opération existe et est terminé, le statut est retourné
+        202:
+          description: |
+            L'opération existe mais n'est pas terminée
+        404:
+          description: |
+            Opération introuvable
 
 /workflows:
   # root endpoint request
@@ -1035,15 +1056,15 @@ documentation:
     Gestion des définitions des Workflows disponibles.
 
   is: [ StandardTraits.StandardOptionalHeader,
-    StandardTraits.StandardHeader401, StandardTraits.StandardHeader404,
-    StandardTraits.StandardHeader409, StandardTraits.StandardHeader412 ]
+        StandardTraits.StandardHeader401, StandardTraits.StandardHeader404,
+        StandardTraits.StandardHeader409, StandardTraits.StandardHeader412 ]
   get:
     description: |
       Requête qui retourne des résultats contenant des définitions de workflow.
 
       Permissions requises:
         - workflows:read
-    is: [IngestTraits.IngestWorkflowsResponse ]
+    is: [ IngestTraits.IngestWorkflowsResponse ]
 
 /audits:
   # root endpoint request
@@ -1054,15 +1075,15 @@ documentation:
     Sa terminaison est liée à la production du rapport et sa récupération par le service ayant effectué l'opération.
 
   is: [ StandardTraits.StandardOptionalHeader,
-    StandardTraits.StandardHeader401, StandardTraits.StandardHeader404,
-    StandardTraits.StandardHeader409, StandardTraits.StandardHeader412 ]
+        StandardTraits.StandardHeader401, StandardTraits.StandardHeader404,
+        StandardTraits.StandardHeader409, StandardTraits.StandardHeader412 ]
   post:
     description: |
-        response : JSON asynchronous state / HTTP CODE 200 or  500 for KO
-
-        Permissions requises:
-          - audits:create
-    is: [AdminTraits.AuditCreationResponseAsync]
+      response : JSON asynchronous state / HTTP CODE 200 or  500 for KO
+      
+      Permissions requises:
+        - audits:create
+    is: [ AdminTraits.AuditCreationResponseAsync ]
 
   /referential:
     displayName: Audit des référentiels
@@ -1108,15 +1129,15 @@ documentation:
   /{idop}/datafiles:
     displayName: Téléchargement de la sécurisation des journaux
     uriParameters:
-          idop:
-            required: true
-            description: |
-              Identifiant de l'opération concernée
+      idop:
+        required: true
+        description: |
+          Identifiant de l'opération concernée
     description: |
-       Permet de télécharger un objet représentant la sécurisation des journaux d'opérations
+      Permet de télécharger un objet représentant la sécurisation des journaux d'opérations
     is: [ AdminTraits.AdminFileItemResponse ]
     get:
-       description:  |
+      description: |
         Permet de télécharger un objet représentant la sécurisation des journaux d'opérations en fonction de l'identificant de l'opération à l'origine.
 
         Permissions requises:
@@ -1133,7 +1154,7 @@ documentation:
 
       Permissions requises:
         - traceabilitychecks:create
-    is: [AdminTraits.TraceabilityCheckResponseAsync]
+    is: [ AdminTraits.TraceabilityCheckResponseAsync ]
 
 /traceability/linkedchecks:
   displayName: Audit de vérification de la sécurisation des journaux
@@ -1304,76 +1325,76 @@ documentation:
 /rulesreferential/{opId}:
   displayName: Référentiel des règles de gestion
   uriParameters:
-        opId:
-          required: true
-          description: |
-            Identifiant de l'opération
-  description: |
-   API qui permet de récupérer le fichier original des règles de gestion sous forme de csv
-  get:
-      headers:
-        Accept:
-          required: true
-          enum: [ "application/octet-stream" ]
+    opId:
+      required: true
       description: |
-        Récupère le fichier original des règles de gestion sous forme de csv à partir de l'id de l'opération
-
-        Permissions requises:
-          - rulesreferential:id:read
-      responses:
-        202:
-          description: Returns the csv file
-          body:
-            application/octet-stream:
-              description: Binary object as a csv file
-        404:
-          description: Not found, operation could not be found, or csv file attached does not exist
-          body:
-            application/json:
-        412:
-          description: Precondition Failed, some predicates are incorrect, therefore the operation is not possible
-          body:
-            application/json:
+        Identifiant de l'opération
+  description: |
+    API qui permet de récupérer le fichier original des règles de gestion sous forme de csv
+  get:
+    headers:
+      Accept:
+        required: true
+        enum: [ "application/octet-stream" ]
+    description: |
+      Récupère le fichier original des règles de gestion sous forme de csv à partir de l'id de l'opération
+      
+      Permissions requises:
+        - rulesreferential:id:read
+    responses:
+      202:
+        description: Returns the csv file
+        body:
+          application/octet-stream:
+            description: Binary object as a csv file
+      404:
+        description: Not found, operation could not be found, or csv file attached does not exist
+        body:
+          application/json:
+      412:
+        description: Precondition Failed, some predicates are incorrect, therefore the operation is not possible
+        body:
+          application/json:
 
 /agenciesreferential/{opId}:
   displayName: Référentiel des services agents
   uriParameters:
-        opId:
-          required: true
-          description: |
-            Identifiant de l'opération
-  description: |
-   API qui permet de récupérer le fichier original des services agents sous forme de csv
-  get:
-      headers:
-        Accept:
-          required: true
-          enum: [ "application/octet-stream" ]
+    opId:
+      required: true
       description: |
-        Récupère le fichier original des services agents sous forme de csv à partir de l'id de l'opération
-
-        Permissions requises:
-          - agenciesreferential:id:read
-      responses:
-        202:
-          description: Returns the csv file
-          body:
-            application/octet-stream:
-              description: Binary object as a csv file
-        404:
-          description: Not found, operation could not be found, or csv file attached does not exist
-          body:
-            application/json:
-        412:
-          description: Precondition Failed, some predicates are incorrect, therefore the operation is not possible
-          body:
-            application/json:
+        Identifiant de l'opération
+  description: |
+    API qui permet de récupérer le fichier original des services agents sous forme de csv
+  get:
+    headers:
+      Accept:
+        required: true
+        enum: [ "application/octet-stream" ]
+    description: |
+      Récupère le fichier original des services agents sous forme de csv à partir de l'id de l'opération
+      
+      Permissions requises:
+        - agenciesreferential:id:read
+    responses:
+      202:
+        description: Returns the csv file
+        body:
+          application/octet-stream:
+            description: Binary object as a csv file
+      404:
+        description: Not found, operation could not be found, or csv file attached does not exist
+        body:
+          application/json:
+      412:
+        description: Precondition Failed, some predicates are incorrect, therefore the operation is not possible
+        body:
+          application/json:
 
 /ontologies:
   displayName: Ontologies
   description: |
-   API qui définit les requêtes pour accéder au référentiel des Ontologies.
-   La requête utilise le langage de requête (DSL) de Vitam en entrée et retourne une liste d'ontologies selon le DSL Vitam en cas de succès.
+    API qui définit les requêtes pour accéder au référentiel des Ontologies.
+    La requête utilise le langage de requête (DSL) de Vitam en entrée et retourne une liste d'ontologies selon le DSL Vitam en cas de succès.
   get:
     description: |
       Requête qui retourne des résultats contenant des ontologies.
@@ -1381,7 +1402,7 @@ documentation:
 
         Permissions requises:
           - ontologies:read
-    is: [AdminTraits.AdminListingResponse]
+    is: [ AdminTraits.AdminListingResponse ]
     headers:
       X-Tenant-Id:
         required: true
@@ -1397,8 +1418,8 @@ documentation:
 
         ou
         - ontologies:create:json
-    is: [AdminTraits.AdminListingResponse, StandardTraits.OverrideGet,
-       AdminTraits.AdminUpload, StandardTraits.UploadFileOptionalHeader]
+    is: [ AdminTraits.AdminListingResponse, StandardTraits.OverrideGet,
+          AdminTraits.AdminUpload, StandardTraits.UploadFileOptionalHeader ]
     headers:
       X-Http-Method-Override:
         required: false
@@ -1407,27 +1428,27 @@ documentation:
       X-Access-Contract-Id:
         required: false
       Force-Update:
-        description:  |
+        description: |
           Permet de forcer l'import de l'ontologie en ignorant les contrôles de cohérence (changement de typage incompatibles avec l'ontologie actuelle, suppression de champs d'ontologie internes...).
           Valeurs possibles : **true** et **false**.
         required: false
 
   /{ido}:
     uriParameters:
-        ido:
-          required: true
-          description: |
-            Identifiant de l'ontologie
+      ido:
+        required: true
+        description: |
+          Identifiant de l'ontologie
     displayName: Ontologie
     description: |
-     API qui définit les requêtes pour accéder à une ontologie dans le référentiel des Ontologies.
+      API qui définit les requêtes pour accéder à une ontologie dans le référentiel des Ontologies.
     get:
       description: |
         Retourne une liste d'Ontologies contenant 1 seul résultat en cas de succès.
 
         Permissions requises:
           - ontologies:id:read:json
-      is: [AdminTraits.AdminItemResponse]
+      is: [ AdminTraits.AdminItemResponse ]
       headers:
         X-Tenant-Id:
           required: true
@@ -1522,12 +1543,12 @@ documentation:
     body:
       application/json:
         description: |
-            Requête qui insère une opération externe dans le journal des opérations. Endpoint en version Beta.
-
-            Spécificités :
-              - Le champ eventType du master doit respecter la regle "EXT_*"
-              - Le champ evTypeProc doit prendre comme valeur "EXTERNAL_LOGBOOK"
-              - Seules les valeurs "agIdExt" et "objectIdentifierIncome" seront conservées dans le master, les autres valeurs seront surchargées par Vitam.
+          Requête qui insère une opération externe dans le journal des opérations. Endpoint en version Beta.
+          
+          Spécificités :
+            - Le champ eventType du master doit respecter la regle "EXT_*"
+            - Le champ evTypeProc doit prendre comme valeur "EXTERNAL_LOGBOOK"
+            - Seules les valeurs "agIdExt" et "objectIdentifierIncome" seront conservées dans le master, les autres valeurs seront surchargées par Vitam.
         type: object
         example: !include libraries/examples/Logbook.json
         required: true
@@ -1543,12 +1564,12 @@ documentation:
 /:
   displayName: Endpoints
   description: |
-   API qui liste les endpoints de la ressource /admin-external/{version}.
+    API qui liste les endpoints de la ressource /admin-external/{version}.
   options:
     description: |
       Request that will return list of endpoints
     is: [ StandardTraits.StandardHeader200,
-      StandardTraits.StandardHeader404, StandardTraits.StandardHeader503 ]
+          StandardTraits.StandardHeader404, StandardTraits.StandardHeader503 ]
 
 /batchreport/{ido}:
   displayName:
@@ -1558,7 +1579,7 @@ documentation:
       description: |
         Identifiant de l'opération concernée
   description: |
-     Permet de télécharger le rapport pour un traitement de masse (Elimination, Preservation, Audit, Mise à jour, Suppression des versions des groupes d'objets)
+    Permet de télécharger le rapport pour un traitement de masse (Elimination, Preservation, Audit, Mise à jour, Suppression des versions des groupes d'objets)
   is: [ AdminTraits.AdminFileItemResponse ]
   get:
     description: |
@@ -1575,7 +1596,7 @@ documentation:
       description: |
         Identifiant de l'opération concernée
   description: |
-     Permet de télécharger le rapport pour une opération de mise à jour de masse distribuée
+    Permet de télécharger le rapport pour une opération de mise à jour de masse distribuée
   is: [ AdminTraits.AdminFileItemResponse ]
   get:
     description: |
@@ -1587,7 +1608,7 @@ documentation:
 /schema/unit:
   displayName:
   description: |
-     Permet de retourner le schéma d'ontologie de la collection 'UNIT'
+    Permet de retourner le schéma d'ontologie de la collection 'UNIT'
   get:
     description: |
       Permet de retourner le schéma d'ontologie de la collection 'UNIT'
@@ -1605,7 +1626,7 @@ documentation:
     body:
       application/json:
         description: |
-            Requête qui permet d'importer des schémas externes
+          Requête qui permet d'importer des schémas externes
         example: !include libraries/examples/import-schema-units.json
 
       Permissions requises:
@@ -1621,7 +1642,7 @@ documentation:
 /schema/objectgroup:
   displayName:
   description: |
-     Permet de retourner le schéma d'ontologie de la collection 'OBJECT_GROUP'
+    Permet de retourner le schéma d'ontologie de la collection 'OBJECT_GROUP'
   get:
     description: |
       Permet de retourner le schéma d'ontologie de la collection 'OBJECT_GROUP'
@@ -1638,7 +1659,7 @@ documentation:
 /configuration:
   displayName: Beta - Configuration
   description: |
-   API qui permet d'accéder à la configuration publique de Vitam.
+    API qui permet d'accéder à la configuration publique de Vitam.
   get:
     description: |
       Requête qui retourne la configuration publique de Vitam.

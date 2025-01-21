@@ -589,7 +589,7 @@ public class IngestAttachementIT extends VitamRuleRunner {
 
     private static void stopProcess(String operationId) throws VitamClientException, InternalServerException {
         try (ProcessingManagementClient processingManagementClient = processingManagementClientFactory.getClient()) {
-            processingManagementClient.cancelOperationProcessExecution(operationId);
+            processingManagementClient.cancelOperationProcessExecution(operationId, true); // We force cancellation because that's not the point here
         }
         waitOperation(operationId, COMPLETED);
         verifyOperation(operationId, KO);

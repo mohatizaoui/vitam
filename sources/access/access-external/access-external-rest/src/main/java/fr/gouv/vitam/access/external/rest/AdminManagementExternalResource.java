@@ -2635,20 +2635,27 @@ public class AdminManagementExternalResource extends ApplicationStatusResource {
      * Interrupt the process of an operation identified by Id.
      *
      * @param id operation identifier
+     * @param force set to true to force cancellation for non-cancellable steps
      * @return http response
      */
     @Path("operations/{id}")
     @DELETE
     @Produces(APPLICATION_JSON)
     @Secured(permission = OPERATIONS_ID_DELETE, description = "Annuler une opération donnée")
-    public Response interruptWorkFlowExecution(@PathParam("id") String id) {
+    public Response interruptWorkFlowExecution(
+        @PathParam("id") String id,
+        @HeaderParam(GlobalDataRest.X_FORCE) boolean force
+    ) {
         checkParameter("operationId must not be null", id);
         VitamError vitamError;
         try (IngestInternalClient ingestInternalClient = ingestInternalClientFactory.getClient()) {
             SanityChecker.checkParameter(id);
             VitamThreadUtils.getVitamSession().setRequestId(id);
 
-            final RequestResponse requestResponse = ingestInternalClient.cancelOperationProcessExecution(id);
+            final RequestResponse<ItemStatus> requestResponse = ingestInternalClient.cancelOperationProcessExecution(
+                id,
+                force
+            );
             return requestResponse.toResponse();
         } catch (final IllegalArgumentException | InvalidParseOperationException e) {
             LOGGER.error("Illegal argument: ", e);

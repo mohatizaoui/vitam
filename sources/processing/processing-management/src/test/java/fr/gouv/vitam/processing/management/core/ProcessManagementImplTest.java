@@ -374,6 +374,9 @@ public class ProcessManagementImplTest {
         pq.setStates(list);
         results = processManagementImpl.getFilteredProcess(pq, 0);
         Assert.assertEquals(5, results.size());
+
+        // Workflow cancellable status
+        Assert.assertTrue(results.get(0).isStepCancellable());
     }
 
     private List<ProcessWorkflow> getPausedWorkflowList(int nbProcess) {
@@ -390,7 +393,7 @@ public class ProcessManagementImplTest {
             for (int i = 0; i < 20; i++) {
                 processWorkflow
                     .getSteps()
-                    .add(getProcessStep("key-map-" + i, "name-" + i, "element-" + i, "groupID-" + i));
+                    .add(getProcessStep("key-map-" + i, "name-" + i, "element-" + i, "groupID-" + i, i % 2 == 0));
             }
             date = date.plusDays(j == 0 ? 0 : 1);
             processWorkflow.setProcessDate(LocalDateUtil.getFormattedDateTimeForMongo(date.atStartOfDay()));
@@ -425,11 +428,12 @@ public class ProcessManagementImplTest {
         return actionsList;
     }
 
-    private ProcessStep getProcessStep(String id, String name, String element, String groupId) {
+    private ProcessStep getProcessStep(String id, String name, String element, String groupId, boolean cancellable) {
         Step step = new Step();
         step.setId(id);
         step.setActions(getActions());
         step.setBehavior(ProcessBehavior.NOBLOCKING);
+        step.setCancellable(cancellable);
         Distribution distrib = new Distribution();
         distrib.setElement(element);
         distrib.setKind(DistributionKind.LIST_ORDERING_IN_FILE);

@@ -112,11 +112,13 @@ public interface ProcessManagement extends ProcessLifeCycle, VitamAutoCloseable 
      *
      * @param operationId the operation identifier
      * @param tenantId the tenant identifier
+     * @param force to force cancellation when the current step is not cancellable
      * @return the status
      * @throws ProcessingException if cancel could not be applied
      * @throws StateNotAllowedException if the process state is incorrect
      */
-    ItemStatus cancel(String operationId, Integer tenantId) throws ProcessingException, StateNotAllowedException;
+    ItemStatus cancel(String operationId, Integer tenantId, boolean force)
+        throws ProcessingException, StateNotAllowedException;
 
     /**
      * Retrieve All the workflow process for monitoring purpose The final business scope of this feature is likely to be

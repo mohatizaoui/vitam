@@ -73,6 +73,7 @@ public class ProcessWorkflow {
     private ProcessState state = ProcessState.PAUSE;
     private StatusCode targetStatus;
     private volatile ProcessState targetState;
+    private boolean forcedCancellation;
 
     private boolean stepByStep = false;
 
@@ -123,6 +124,26 @@ public class ProcessWorkflow {
 
     public ProcessWorkflow setTargetState(ProcessState targetState) {
         this.targetState = targetState;
+        return this;
+    }
+
+    /**
+     * Tell if the cancellation operation was forced.
+     *
+     * @return true if forced
+     */
+    public boolean isForcedCancellation() {
+        return forcedCancellation;
+    }
+
+    /**
+     * Set the forced status for the cancellation operation
+     *
+     * @param forcedCancellation
+     * @return
+     */
+    public ProcessWorkflow setForcedCancellation(boolean forcedCancellation) {
+        this.forcedCancellation = forcedCancellation;
         return this;
     }
 

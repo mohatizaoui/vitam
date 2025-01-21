@@ -69,6 +69,7 @@ public class ProcessStep extends Step {
         setDistribution(step.getDistribution());
         setStepName(step.getStepName());
         setBehavior(step.getBehavior());
+        setCancellable(step.isCancellable());
         setWorkerGroupId(step.getWorkerGroupId());
         setId(step.getId());
         this.elementProcessed = elementProcessed;
@@ -117,6 +118,7 @@ public class ProcessStep extends Step {
         setDistribution(step.getDistribution());
         setStepName(step.getStepName());
         setBehavior(step.getBehavior());
+        setCancellable(step.isCancellable());
         setWorkerGroupId(step.getWorkerGroupId());
         setWaitFor(step.getWaitFor());
         this.elementProcessed = elementProcessed;

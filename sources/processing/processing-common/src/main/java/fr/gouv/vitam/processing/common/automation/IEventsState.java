@@ -91,9 +91,11 @@ public interface IEventsState {
      * PauseOrCancelAction.ACTION_CANCEL Unlike pause, - The final step should be executed, -
      * PauseOrCancelAction.ACTION_CANCEL have no impact on the final step - The final step cannot be cancelled
      *
+     * @param force force cancellation if the current step is not cancellable. If false, and the current step is not
+     *              cancellable, the method will throw a StateNotAllowedException.
      * @throws StateNotAllowedException
      */
-    void cancel() throws StateNotAllowedException;
+    void cancel(boolean force) throws StateNotAllowedException;
 
     /**
      * @return true is processWorkflow is completed or Pause

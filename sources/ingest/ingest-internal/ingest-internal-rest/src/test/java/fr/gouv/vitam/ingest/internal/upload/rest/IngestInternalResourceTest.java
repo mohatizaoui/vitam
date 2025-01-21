@@ -78,6 +78,7 @@ import java.util.Set;
 import static io.restassured.RestAssured.get;
 import static io.restassured.RestAssured.given;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -449,7 +450,7 @@ public class IngestInternalResourceTest extends ResteasyTestApplication {
         RequestResponseOK<ItemStatus> responseOK = new RequestResponseOK<ItemStatus>().addResult(result);
         responseOK.setHttpCode(Status.ACCEPTED.getStatusCode());
 
-        when(processingClient.cancelOperationProcessExecution(anyString())).thenReturn(responseOK);
+        when(processingClient.cancelOperationProcessExecution(anyString(), anyBoolean())).thenReturn(responseOK);
         given()
             .headers(GlobalDataRest.X_REQUEST_ID, ingestGuid.getId())
             .when()

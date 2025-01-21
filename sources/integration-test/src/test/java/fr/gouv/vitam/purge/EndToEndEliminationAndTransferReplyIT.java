@@ -2659,7 +2659,7 @@ public class EndToEndEliminationAndTransferReplyIT extends VitamRuleRunner {
         try (
             ProcessingManagementClient processingClient = ProcessingManagementClientFactory.getInstance().getClient()
         ) {
-            processingClient.cancelOperationProcessExecution(operationGuid);
+            processingClient.cancelOperationProcessExecution(operationGuid, true); // We force cancellation because that's not the point here...
             awaitForWorkflowTerminationWithStatus(operationGuid, StatusCode.KO);
         }
     }

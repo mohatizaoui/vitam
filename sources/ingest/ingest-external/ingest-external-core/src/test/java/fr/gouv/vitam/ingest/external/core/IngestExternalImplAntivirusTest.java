@@ -49,6 +49,7 @@ import org.junit.Test;
 
 import java.io.InputStream;
 
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -82,7 +83,9 @@ public class IngestExternalImplAntivirusTest {
         when(ingestInternalClient.getWorkflowDetails(anyString())).thenReturn(
             new IngestInternalClientMock().getWorkflowDetails("DEFAULT_WORKFLOW")
         );
-        when(ingestInternalClient.cancelOperationProcessExecution(anyString())).thenReturn(new RequestResponseOK<>());
+        when(ingestInternalClient.cancelOperationProcessExecution(anyString(), anyBoolean())).thenReturn(
+            new RequestResponseOK<>()
+        );
     }
 
     @RunWithCustomExecutor

@@ -330,7 +330,7 @@ public class ProcessManagementResourceTest extends ResteasyTestApplication {
      */
     @Test
     public void shouldReturnPreconditionFaildIfcancelWorkflowById() throws Exception {
-        doThrow(new ProcessingException("")).when(processManagement).cancel(anyString(), anyInt());
+        doThrow(new ProcessingException("")).when(processManagement).cancel(anyString(), anyInt(), anyBoolean());
         given()
             .contentType(ContentType.JSON)
             .headers(

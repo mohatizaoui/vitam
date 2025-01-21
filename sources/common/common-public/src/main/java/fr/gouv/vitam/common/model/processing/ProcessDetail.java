@@ -53,8 +53,14 @@ public class ProcessDetail {
     @JsonProperty("stepByStep")
     private boolean stepByStep;
 
+    @JsonProperty("stepCancellable")
+    private boolean stepCancellable;
+
     @JsonProperty("globalState")
     private String globalState;
+
+    @JsonProperty("forcedCancellation")
+    private boolean forcedCancellation;
 
     @JsonProperty("processDate")
     private String processDate;
@@ -144,6 +150,20 @@ public class ProcessDetail {
     }
 
     /**
+     * @return stepCancellable
+     */
+    public boolean isStepCancellable() {
+        return stepCancellable;
+    }
+
+    /**
+     * @param stepCancellable
+     */
+    public void setStepCancellable(boolean stepCancellable) {
+        this.stepCancellable = stepCancellable;
+    }
+
+    /**
      * @return globalState
      */
     public String getGlobalState() {
@@ -155,6 +175,17 @@ public class ProcessDetail {
      */
     public void setGlobalState(String globalState) {
         this.globalState = globalState;
+    }
+
+    /**
+     * @return true if cancellation was forced
+     */
+    public boolean isForcedCancellation() {
+        return forcedCancellation;
+    }
+
+    public void setForcedCancellation(boolean forcedCancellation) {
+        this.forcedCancellation = forcedCancellation;
     }
 
     /**

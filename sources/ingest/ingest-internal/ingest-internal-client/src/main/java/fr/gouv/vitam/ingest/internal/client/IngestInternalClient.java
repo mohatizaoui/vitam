@@ -111,11 +111,12 @@ public interface IngestInternalClient extends MockOrRestClient {
     /**
      * cancelOperationProcessExecution : cancel processing operation
      *
-     * @param id : operation identifier
+     * @param id operation identifier
+     * @param force force operation if step is not cancellable
      * @return ItemStatus response containing message and status
      * @throws VitamClientException
      */
-    RequestResponse<ItemStatus> cancelOperationProcessExecution(String id) throws VitamClientException;
+    RequestResponse<ItemStatus> cancelOperationProcessExecution(String id, boolean force) throws VitamClientException;
 
     /**
      * updateOperationActionProcess : update operation processing status

@@ -254,6 +254,11 @@ public class GlobalDataRest {
     public static final String FORCE_UPDATE = "Force-Update";
 
     /**
+     * Force operation
+     */
+    public static final String X_FORCE = "X-Force";
+
+    /**
      * Force update Header
      */
     public static final String CHECK_ACCESS_CONTRACT = "Check-Access-Contract";
