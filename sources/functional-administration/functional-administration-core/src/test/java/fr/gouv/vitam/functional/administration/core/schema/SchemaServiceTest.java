@@ -213,9 +213,7 @@ public class SchemaServiceTest {
         assertEquals("#qualifiers.versions.Algorithm", algorithSchemaElt.getApiPath());
         assertEquals("ObjectGroup", algorithSchemaElt.getCollection());
         assertEquals(SchemaCardinality.ONE, algorithSchemaElt.getCardinality());
-        assertThat(algorithSchemaElt.getSedaVersions()).contains("2.1");
-        assertThat(algorithSchemaElt.getSedaVersions()).contains("2.2");
-        assertThat(algorithSchemaElt.getSedaVersions()).contains("2.3");
+        assertThat(algorithSchemaElt.getSedaVersions()).containsExactlyInAnyOrder("2.1", "2.2", "2.3");
         assertThat(algorithSchemaElt.getDescription()).isNotEmpty();
 
         final Optional<SchemaResponse> persistentIdentifierContentSchemaEltOpt = internalSchema
@@ -232,9 +230,7 @@ public class SchemaServiceTest {
         assertEquals("PersistentIdentifierContent", persistentIdentifierContentElt.getSedaField());
         assertEquals("ObjectGroup", persistentIdentifierContentElt.getCollection());
         assertEquals(SchemaCardinality.ONE, persistentIdentifierContentElt.getCardinality());
-        assertThat(persistentIdentifierContentElt.getSedaVersions()).contains("2.2");
-        assertThat(persistentIdentifierContentElt.getSedaVersions()).contains("2.3");
-        assertThat(persistentIdentifierContentElt.getSedaVersions()).doesNotContain("2.1");
+        assertThat(persistentIdentifierContentElt.getSedaVersions()).containsExactlyInAnyOrder("2.3");
     }
 
     @Test

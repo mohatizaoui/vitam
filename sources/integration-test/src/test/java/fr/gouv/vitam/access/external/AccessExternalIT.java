@@ -811,10 +811,7 @@ public class AccessExternalIT extends VitamRuleRunner {
         assertEquals("PersistentIdentifierContent", persistentIdentifierContentElt.getSedaField());
         assertEquals(MetadataType.UNIT.getName(), persistentIdentifierContentElt.getCollection());
         assertEquals(SchemaCardinality.ONE_REQUIRED, persistentIdentifierContentElt.getCardinality());
-        assertThat(persistentIdentifierContentElt.getSedaVersions()).containsExactlyInAnyOrder(
-            // "2.2", // FIXME: should also contain 2.2?
-            "2.3"
-        );
+        assertThat(persistentIdentifierContentElt.getSedaVersions()).containsExactlyInAnyOrder("2.1", "2.2", "2.3");
     }
 
     @RunWithCustomExecutor
@@ -933,7 +930,7 @@ public class AccessExternalIT extends VitamRuleRunner {
         assertEquals("PersistentIdentifierContent", persistentIdentifierContentElt.getSedaField());
         assertEquals(MetadataType.OBJECTGROUP.getName(), persistentIdentifierContentElt.getCollection());
         assertEquals(SchemaCardinality.ONE, persistentIdentifierContentElt.getCardinality());
-        assertThat(persistentIdentifierContentElt.getSedaVersions()).containsExactlyInAnyOrder("2.2", "2.3");
+        assertThat(persistentIdentifierContentElt.getSedaVersions()).containsExactlyInAnyOrder("2.3");
     }
 
     @Test
@@ -963,8 +960,8 @@ public class AccessExternalIT extends VitamRuleRunner {
             );
 
             JsonAssert.assertJsonEquals(
-                JsonHandler.toJsonNode(archiveUnitProfileSchema).get("$results"),
                 expectedArchiveUnitSchema,
+                JsonHandler.toJsonNode(archiveUnitProfileSchema).get("$results"),
                 JsonAssert.when(Option.IGNORING_ARRAY_ORDER)
             );
         } catch (VitamClientException e) {
