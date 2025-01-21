@@ -166,6 +166,7 @@ public class CollectHelper {
         projectDto.setUnitUps(projectModel.getUnitUps());
 
         projectDto.setAutomaticIngest(projectModel.getAutomaticIngest());
+        projectDto.setTransformationRules(projectModel.getTransformationRules());
 
         if (projectModel.getManifestContext() != null) {
             projectDto.setArchivalAgreement(projectModel.getManifestContext().getArchivalAgreement());

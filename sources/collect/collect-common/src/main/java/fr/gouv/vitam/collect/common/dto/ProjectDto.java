@@ -28,6 +28,7 @@ package fr.gouv.vitam.collect.common.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.annotations.Beta;
 
 import java.io.Serializable;
 import java.util.List;
@@ -90,6 +91,15 @@ public class ProjectDto implements Serializable {
     @JsonProperty(value = "Status")
     private String status;
 
+    /**
+     * Transformation rules (beta): JSTL transformation template to be applied over Archive Unit JSON documents on zip
+     * transaction upload for providing customized updates : add rule, unset field, set field...).
+     * @apiNote Beta support only. May be removed or updated in future releases
+     */
+    @Beta
+    @JsonProperty(value = "TransformationRules")
+    private String transformationRules;
+
     @JsonProperty("AutomaticIngest")
     private Boolean automaticIngest;
 
@@ -145,152 +155,192 @@ public class ProjectDto implements Serializable {
         return id;
     }
 
-    public void setId(String id) {
+    public ProjectDto setId(String id) {
         this.id = id;
-    }
-
-    public String getArchivalAgreement() {
-        return archivalAgreement;
-    }
-
-    public void setArchivalAgreement(String archivalAgreement) {
-        this.archivalAgreement = archivalAgreement;
-    }
-
-    public String getMessageIdentifier() {
-        return messageIdentifier;
-    }
-
-    public void setMessageIdentifier(String messageIdentifier) {
-        this.messageIdentifier = messageIdentifier;
-    }
-
-    public String getArchivalAgencyIdentifier() {
-        return archivalAgencyIdentifier;
-    }
-
-    public void setArchivalAgencyIdentifier(String archivalAgencyIdentifier) {
-        this.archivalAgencyIdentifier = archivalAgencyIdentifier;
-    }
-
-    public String getTransferringAgencyIdentifier() {
-        return transferringAgencyIdentifier;
-    }
-
-    public void setTransferringAgencyIdentifier(String transferringAgencyIdentifier) {
-        this.transferringAgencyIdentifier = transferringAgencyIdentifier;
-    }
-
-    public String getOriginatingAgencyIdentifier() {
-        return originatingAgencyIdentifier;
-    }
-
-    public void setOriginatingAgencyIdentifier(String originatingAgencyIdentifier) {
-        this.originatingAgencyIdentifier = originatingAgencyIdentifier;
-    }
-
-    public String getSubmissionAgencyIdentifier() {
-        return submissionAgencyIdentifier;
-    }
-
-    public void setSubmissionAgencyIdentifier(String submissionAgencyIdentifier) {
-        this.submissionAgencyIdentifier = submissionAgencyIdentifier;
-    }
-
-    public String getArchivalProfile() {
-        return archivalProfile;
-    }
-
-    public void setArchivalProfile(String archivalProfile) {
-        this.archivalProfile = archivalProfile;
-    }
-
-    public String getComment() {
-        return comment;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
-
-    public String getUnitUp() {
-        return unitUp;
-    }
-
-    public void setUnitUp(String unitUp) {
-        this.unitUp = unitUp;
-    }
-
-    public Integer getTenant() {
-        return tenant;
-    }
-
-    public void setTenant(Integer tenant) {
-        this.tenant = tenant;
+        return this;
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public ProjectDto setName(String name) {
         this.name = name;
+        return this;
+    }
+
+    public String getArchivalAgreement() {
+        return archivalAgreement;
+    }
+
+    public ProjectDto setArchivalAgreement(String archivalAgreement) {
+        this.archivalAgreement = archivalAgreement;
+        return this;
+    }
+
+    public String getMessageIdentifier() {
+        return messageIdentifier;
+    }
+
+    public ProjectDto setMessageIdentifier(String messageIdentifier) {
+        this.messageIdentifier = messageIdentifier;
+        return this;
+    }
+
+    public String getArchivalAgencyIdentifier() {
+        return archivalAgencyIdentifier;
+    }
+
+    public ProjectDto setArchivalAgencyIdentifier(String archivalAgencyIdentifier) {
+        this.archivalAgencyIdentifier = archivalAgencyIdentifier;
+        return this;
+    }
+
+    public String getTransferringAgencyIdentifier() {
+        return transferringAgencyIdentifier;
+    }
+
+    public ProjectDto setTransferringAgencyIdentifier(String transferringAgencyIdentifier) {
+        this.transferringAgencyIdentifier = transferringAgencyIdentifier;
+        return this;
+    }
+
+    public String getOriginatingAgencyIdentifier() {
+        return originatingAgencyIdentifier;
+    }
+
+    public ProjectDto setOriginatingAgencyIdentifier(String originatingAgencyIdentifier) {
+        this.originatingAgencyIdentifier = originatingAgencyIdentifier;
+        return this;
+    }
+
+    public String getSubmissionAgencyIdentifier() {
+        return submissionAgencyIdentifier;
+    }
+
+    public ProjectDto setSubmissionAgencyIdentifier(String submissionAgencyIdentifier) {
+        this.submissionAgencyIdentifier = submissionAgencyIdentifier;
+        return this;
+    }
+
+    public String getArchivalProfile() {
+        return archivalProfile;
+    }
+
+    public ProjectDto setArchivalProfile(String archivalProfile) {
+        this.archivalProfile = archivalProfile;
+        return this;
     }
 
     public String getAcquisitionInformation() {
         return acquisitionInformation;
     }
 
-    public void setAcquisitionInformation(String acquisitionInformation) {
+    public ProjectDto setAcquisitionInformation(String acquisitionInformation) {
         this.acquisitionInformation = acquisitionInformation;
+        return this;
     }
 
     public String getLegalStatus() {
         return legalStatus;
     }
 
-    public void setLegalStatus(String legalStatus) {
+    public ProjectDto setLegalStatus(String legalStatus) {
         this.legalStatus = legalStatus;
+        return this;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public ProjectDto setComment(String comment) {
+        this.comment = comment;
+        return this;
+    }
+
+    public String getUnitUp() {
+        return unitUp;
+    }
+
+    public ProjectDto setUnitUp(String unitUp) {
+        this.unitUp = unitUp;
+        return this;
+    }
+
+    public Integer getTenant() {
+        return tenant;
+    }
+
+    public ProjectDto setTenant(Integer tenant) {
+        this.tenant = tenant;
+        return this;
     }
 
     public String getCreationDate() {
         return creationDate;
     }
 
-    public void setCreationDate(String creationDate) {
+    public ProjectDto setCreationDate(String creationDate) {
         this.creationDate = creationDate;
+        return this;
     }
 
     public String getLastUpdate() {
         return lastUpdate;
     }
 
-    public void setLastUpdate(String lastUpdate) {
+    public ProjectDto setLastUpdate(String lastUpdate) {
         this.lastUpdate = lastUpdate;
+        return this;
     }
 
     public List<MetadataUnitUp> getUnitUps() {
         return unitUps;
     }
 
-    public void setUnitUps(List<MetadataUnitUp> unitUps) {
+    public ProjectDto setUnitUps(List<MetadataUnitUp> unitUps) {
         this.unitUps = unitUps;
+        return this;
     }
 
     public String getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public ProjectDto setStatus(String status) {
         this.status = status;
+        return this;
     }
 
     public Boolean getAutomaticIngest() {
         return automaticIngest;
     }
 
-    public void setAutomaticIngest(Boolean automaticIngest) {
+    public ProjectDto setAutomaticIngest(Boolean automaticIngest) {
         this.automaticIngest = automaticIngest;
+        return this;
+    }
+
+    /**
+     * Get transformation rules (beta): JSTL transformation template to be applied over Archive Unit JSON documents on zip
+     * transaction upload for providing customized updates : add rule, unset field, set field...).
+     * @apiNote Beta support only. May be removed or updated in future releases
+     */
+    @Beta
+    public String getTransformationRules() {
+        return transformationRules;
+    }
+
+    /**
+     * Set transformation rules (beta): JSTL transformation template to be applied over Archive Unit JSON documents on zip
+     * transaction upload for providing customized updates : add rule, unset field, set field...).
+     * @apiNote Beta support only. May be removed or updated in future releases
+     */
+    @Beta
+    public ProjectDto setTransformationRules(String transformationRules) {
+        this.transformationRules = transformationRules;
+        return this;
     }
 
     @Override

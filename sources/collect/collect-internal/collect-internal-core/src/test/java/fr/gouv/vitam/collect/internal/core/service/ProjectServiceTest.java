@@ -32,6 +32,7 @@ import fr.gouv.vitam.collect.common.dto.ProjectDto;
 import fr.gouv.vitam.collect.common.exception.CollectInternalException;
 import fr.gouv.vitam.collect.internal.core.common.ProjectModel;
 import fr.gouv.vitam.collect.internal.core.common.ProjectStatus;
+import fr.gouv.vitam.collect.internal.core.exceptions.CollectInvalidJsltTransformerException;
 import fr.gouv.vitam.collect.internal.core.repository.ProjectRepository;
 import fr.gouv.vitam.common.LocalDateUtil;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
@@ -39,7 +40,6 @@ import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.common.time.LogicalClockRule;
-import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -53,6 +53,8 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
@@ -95,31 +97,64 @@ public class ProjectServiceTest {
     @Before
     public void setUp() {
         projectService = new ProjectService(projectRepository);
+        VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
     }
 
     @Test
+    @RunWithCustomExecutor
     public void createProject() throws CollectInternalException {
         logicalClock.freezeTime();
         final String currentTime = LocalDateUtil.nowFormatted();
-        projectService.createProject(new ProjectDto(PROJECT_ID));
-
-        Mockito.verify(projectRepository).createProject(
-            argThat(
-                e ->
-                    PROJECT_ID.equals(e.getId()) &&
-                    currentTime.equals(e.getCreationDate()) &&
-                    currentTime.equals(e.getLastUpdate())
-            )
+        ProjectDto project = projectService.createProject(
+            new ProjectDto()
+                .setAcquisitionInformation("AcquisitionInformation")
+                .setComment("Comment")
+                .setArchivalProfile("ArchivalProfile")
+                .setName("My Project")
+                .setArchivalAgencyIdentifier("ArchivalAgencyIdentifier")
+                .setArchivalAgreement("ArchivalAgreement")
+                .setAutomaticIngest(Boolean.TRUE)
+                .setLegalStatus("LegalStatus")
+                .setMessageIdentifier("MessageIdentifier")
+                .setTransferringAgencyIdentifier("TransferringAgencyIdentifier")
+                .setTransformationRules("{}")
         );
+
+        assertThat(project.getId()).isNotNull();
+        assertThat(project.getTenant()).isEqualTo(TENANT_ID);
+        assertThat(project.getCreationDate()).isEqualTo(currentTime);
+        assertThat(project.getLastUpdate()).isEqualTo(currentTime);
+        assertThat(project.getAcquisitionInformation()).isEqualTo("AcquisitionInformation");
+        assertThat(project.getComment()).isEqualTo("Comment");
+        assertThat(project.getArchivalProfile()).isEqualTo("ArchivalProfile");
+        assertThat(project.getName()).isEqualTo("My Project");
+        assertThat(project.getArchivalAgencyIdentifier()).isEqualTo("ArchivalAgencyIdentifier");
+        assertThat(project.getArchivalAgreement()).isEqualTo("ArchivalAgreement");
+        assertThat(project.getAutomaticIngest()).isEqualTo(Boolean.TRUE);
+        assertThat(project.getLegalStatus()).isEqualTo("LegalStatus");
+        assertThat(project.getMessageIdentifier()).isEqualTo("MessageIdentifier");
+        assertThat(project.getTransferringAgencyIdentifier()).isEqualTo("TransferringAgencyIdentifier");
+        assertThat(project.getTransformationRules()).isEqualTo("{}");
     }
 
     @Test
+    @RunWithCustomExecutor
+    public void createProjectWithInvalidJsltTransformation() throws CollectInternalException {
+        logicalClock.freezeTime();
+        assertThatThrownBy(() -> projectService.createProject(new ProjectDto().setTransformationRules("invalid")))
+            .isInstanceOf(CollectInvalidJsltTransformerException.class)
+            .hasMessageStartingWith("Invalid JSLT template: Parse error");
+    }
+
+    @Test
+    @RunWithCustomExecutor
     public void findProject() throws CollectInternalException {
         projectService.findProject(PROJECT_ID);
         Mockito.verify(projectRepository).findProjectById(eq(PROJECT_ID));
     }
 
     @Test
+    @RunWithCustomExecutor
     public void updateProject_changes_lastUpdate() throws CollectInternalException {
         final ProjectDto projectDto = new ProjectDto(PROJECT_ID);
         final LocalDateTime creationDateTime = LocalDateUtil.now();
@@ -146,7 +181,7 @@ public class ProjectServiceTest {
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
         when(projectRepository.searchProject(isNull(), eq(TENANT_ID))).thenReturn(listOfProject);
         final List<ProjectDto> projectsByTenant = projectService.searchProject(null);
-        Assertions.assertThat(projectsByTenant).extracting(ProjectDto::getName).containsOnly(PROJECT_TITLE);
+        assertThat(projectsByTenant).extracting(ProjectDto::getName).containsOnly(PROJECT_TITLE);
     }
 
     @Test
@@ -157,10 +192,11 @@ public class ProjectServiceTest {
         criteriaProjectDto.setQuery(PROJECT_TITLE);
         when(projectRepository.searchProject(eq(criteriaProjectDto), eq(TENANT_ID))).thenReturn(listOfProject);
         final List<ProjectDto> projects = projectService.searchProject(criteriaProjectDto);
-        Assertions.assertThat(projects).extracting(ProjectDto::getName).containsOnly(PROJECT_TITLE);
+        assertThat(projects).extracting(ProjectDto::getName).containsOnly(PROJECT_TITLE);
     }
 
     @Test
+    @RunWithCustomExecutor
     public void deleteProjectById() {
         projectService.deleteProjectById(PROJECT_ID);
         verify(projectRepository).deleteProject(PROJECT_ID);

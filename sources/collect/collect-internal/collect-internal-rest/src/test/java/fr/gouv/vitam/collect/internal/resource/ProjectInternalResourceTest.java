@@ -52,7 +52,6 @@ import static org.mockito.ArgumentCaptor.forClass;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
@@ -77,7 +76,8 @@ public class ProjectInternalResourceTest extends CollectInternalResourceBaseTest
         "\"AcquisitionInformation\": \"Versement\"," +
         "\"ArchivalAgreement\":\"IC-00001\"," +
         "\"Comment\": \"Versement du service producteur : Cabinet de Michel Mercier\"," +
-        "\"UnitUp\": \"aeaqaaaaaahgnz5dabg42amava5kfoqaaaba\"}";
+        "\"UnitUp\": \"aeaqaaaaaahgnz5dabg42amava5kfoqaaaba\"," +
+        "\"TransformationRules\":\"{}\"}";
 
     public static final String QUERY_UA_BY_ID =
         "{ " +
@@ -183,7 +183,7 @@ public class ProjectInternalResourceTest extends CollectInternalResourceBaseTest
 
     @Test
     public void initProject_ok() throws Exception {
-        doNothing().when(projectService).createProject(any());
+        doReturn(new ProjectDto()).when(projectService).createProject(any());
         given()
             .contentType(ContentType.JSON)
             .accept(ContentType.JSON)
@@ -224,8 +224,9 @@ public class ProjectInternalResourceTest extends CollectInternalResourceBaseTest
 
     @Test
     public void updateProject() throws Exception {
-        ProjectDto projectDto = new ProjectDto();
-        doNothing().when(projectService).updateProject(any());
+        ProjectDto projectDto = new ProjectDto().setName("name");
+        ProjectDto updatedProjectDto = new ProjectDto().setName("updatedName");
+        doReturn(updatedProjectDto).when(projectService).updateProject(any());
         when(projectService.findProject(any())).thenReturn(Optional.of(projectDto));
         given()
             .contentType(ContentType.JSON)
@@ -235,14 +236,12 @@ public class ProjectInternalResourceTest extends CollectInternalResourceBaseTest
             .when()
             .put(PROJECTS)
             .then()
-            .statusCode(Response.Status.OK.getStatusCode());
+            .statusCode(Response.Status.OK.getStatusCode())
+            .body(Matchers.containsString("updatedName"));
     }
 
     @Test
     public void updateProject_ko() throws Exception {
-        ProjectDto projectDto = new ProjectDto();
-        doNothing().when(projectService).updateProject(any());
-        when(projectService.findProject(any())).thenReturn(Optional.of(projectDto));
         given()
             .contentType(ContentType.JSON)
             .accept(ContentType.JSON)
@@ -252,11 +251,12 @@ public class ProjectInternalResourceTest extends CollectInternalResourceBaseTest
             .put(PROJECTS)
             .then()
             .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+        verify(projectService, never()).findProject(any());
+        verify(projectService, never()).updateProject(any());
     }
 
     @Test
     public void updateProject_ko_project_not_found() throws Exception {
-        doNothing().when(projectService).updateProject(any());
         when(projectService.findProject(any())).thenReturn(Optional.empty());
         given()
             .contentType(ContentType.JSON)
@@ -267,6 +267,7 @@ public class ProjectInternalResourceTest extends CollectInternalResourceBaseTest
             .put(PROJECTS)
             .then()
             .statusCode(Response.Status.BAD_REQUEST.getStatusCode());
+        verify(projectService, never()).updateProject(any());
     }
 
     @Test

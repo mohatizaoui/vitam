@@ -27,6 +27,7 @@
 package fr.gouv.vitam.collect.internal.core.common;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.annotations.Beta;
 import fr.gouv.vitam.collect.common.dto.MetadataUnitUp;
 
 import java.util.List;
@@ -67,6 +68,13 @@ public class ProjectModel {
     @JsonProperty("AutomaticIngest")
     private Boolean automaticIngest;
 
+    /**
+     * JSLT transformation rules (beta)
+     */
+    @Beta
+    @JsonProperty(value = "TransformationRules")
+    private String transformationRules;
+
     public ProjectModel() {}
 
     public ProjectModel(
@@ -79,7 +87,8 @@ public class ProjectModel {
         String unitUp,
         List<MetadataUnitUp> unitUps,
         Integer tenant,
-        Boolean automaticIngest
+        Boolean automaticIngest,
+        String transformationRules
     ) {
         this.id = id;
         this.name = name;
@@ -91,6 +100,7 @@ public class ProjectModel {
         this.unitUp = unitUp;
         this.tenant = tenant;
         this.automaticIngest = automaticIngest;
+        this.transformationRules = transformationRules;
     }
 
     public String getId() {
@@ -171,6 +181,15 @@ public class ProjectModel {
 
     public void setAutomaticIngest(Boolean automaticIngest) {
         this.automaticIngest = automaticIngest;
+    }
+
+    public String getTransformationRules() {
+        return transformationRules;
+    }
+
+    public ProjectModel setTransformationRules(String transformationRules) {
+        this.transformationRules = transformationRules;
+        return this;
     }
 
     @Override
