@@ -688,10 +688,12 @@ public class ProcessManagementImpl implements ProcessManagement {
         String temporaryPreviousTask = "";
         boolean currentStepFound = false;
         boolean cancellable = true;
+        ProcessStep previousProcessStep, processStep = null;
 
         Iterator<ProcessStep> pwIterator = processWorkflow.getSteps().iterator();
         while (pwIterator.hasNext() && !currentStepFound) {
-            final ProcessStep processStep = pwIterator.next();
+            previousProcessStep = processStep;
+            processStep = pwIterator.next();
 
             switch (processWorkflow.getState()) {
                 case PAUSE:
@@ -707,7 +709,7 @@ public class ProcessManagementImpl implements ProcessManagement {
                             previousStep = temporaryPreviousTask;
                             nextStep = processStep.getStepName();
                             currentStepFound = true;
-                            cancellable = false;
+                            cancellable = previousProcessStep == null ? true : previousProcessStep.isCancellable();
                         }
                     }
                     break;
