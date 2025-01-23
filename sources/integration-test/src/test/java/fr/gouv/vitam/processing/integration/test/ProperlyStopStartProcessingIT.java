@@ -514,6 +514,69 @@ public class ProperlyStopStartProcessingIT extends VitamRuleRunner {
 
     @Test
     @RunWithCustomExecutor
+    public void check_non_cancellable_step_by_step() throws Exception {
+        ProcessingIT.prepareVitamSession();
+        final GUID operationGuid = GUIDFactory.newOperationLogbookGUID(TENANT_ID);
+        VitamThreadUtils.getVitamSession().setRequestId(operationGuid);
+        final String operationId = operationGuid.toString();
+        simulateIngest(operationId);
+
+        ProcessWorkflow processWorkflow = ProcessMonitoringImpl.getInstance()
+            .findOneProcessWorkflow(operationId, TENANT_ID);
+
+        ProcessingManagementClient processingManagementClient = ProcessingManagementClientFactory.getInstance()
+            .getClient();
+        ProcessQuery processQuery = new ProcessQuery(operationId, null, null, null, null, null, null, null);
+
+        // Start ingest workflow in step by step mode
+        RequestResponse<ItemStatus> resp = ProcessingManagementClientFactory.getInstance()
+            .getClient()
+            .executeOperationProcess(operationId, Contexts.DEFAULT_WORKFLOW.name(), ProcessAction.NEXT.getValue());
+        assertThat(processWorkflow.isStepByStep()).isTrue();
+
+        assertThat(resp).isNotNull();
+        assertThat(resp.isOk()).isTrue();
+        assertThat(resp.getStatus()).isEqualTo(Response.Status.ACCEPTED.getStatusCode());
+
+        // Advance until step STP_UNIT_METADATA, while ensuring that each step along the way is cancellable.
+        ProcessDetail processDetail = null;
+        do {
+            // Wait for pause
+            waitOperation(operationId, ProcessState.PAUSE);
+
+            // Get the step that is about to start and check that it is cancellable
+            RequestResponse<ProcessDetail> operationsResp = processingManagementClient.listOperationsDetails(
+                processQuery
+            );
+            assertThat(operationsResp.isOk()).isTrue();
+            RequestResponseOK<ProcessDetail> operationsRespOK = (RequestResponseOK<ProcessDetail>) operationsResp;
+            assertThat(operationsRespOK.getResults().size()).isEqualTo(1);
+            processDetail = operationsRespOK.getResults().get(0);
+            assertThat(processDetail.isStepCancellable()).isTrue();
+
+            // Launch next step
+            resp = ProcessingManagementClientFactory.getInstance()
+                .getClient()
+                .executeOperationProcess(operationId, Contexts.DEFAULT_WORKFLOW.name(), ProcessAction.NEXT.getValue());
+            assertThat(resp).isNotNull();
+            assertThat(resp.isOk()).isTrue();
+            assertThat(resp.getStatus()).isEqualTo(Response.Status.ACCEPTED.getStatusCode());
+        } while (!"STP_OBJ_STORING".equals(processDetail.getNextStep()));
+
+        // Wait for pause
+        waitOperation(operationId, ProcessState.PAUSE);
+
+        // Get the step that is about to start and check that it is NOT cancellable
+        RequestResponse<ProcessDetail> operationsResp = processingManagementClient.listOperationsDetails(processQuery);
+        assertThat(operationsResp.isOk()).isTrue();
+        RequestResponseOK<ProcessDetail> operationsRespOK = (RequestResponseOK<ProcessDetail>) operationsResp;
+        assertThat(operationsRespOK.getResults().size()).isEqualTo(1);
+        processDetail = operationsRespOK.getResults().get(0);
+        assertThat(processDetail.isStepCancellable()).isFalse();
+    }
+
+    @Test
+    @RunWithCustomExecutor
     public void simulate_crash_test_on_step_index_before_distributor_complete_distribution() throws Exception {
         // We simulate case where Processing crash in the middle of distribution
         runner.stopProcessManagementServer(false);
