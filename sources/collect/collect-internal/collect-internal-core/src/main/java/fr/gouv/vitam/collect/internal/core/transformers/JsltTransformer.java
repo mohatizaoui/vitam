@@ -30,14 +30,19 @@ package fr.gouv.vitam.collect.internal.core.transformers;
 import com.schibsted.spt.data.jslt.JsltException;
 import com.schibsted.spt.data.jslt.Parser;
 import fr.gouv.vitam.collect.internal.core.exceptions.CollectInvalidJsltTransformerException;
+import fr.gouv.vitam.common.logging.VitamLogger;
+import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 
 public class JsltTransformer {
 
-    public static void validate(String jsltTemplate) throws CollectInvalidJsltTransformerException {
+    private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(JsltTransformer.class);
+
+    private static void compile(String jsltTemplate) throws CollectInvalidJsltTransformerException {
         if (StringUtils.isBlank(jsltTemplate)) {
-            return;
+            throw new IllegalArgumentException("Jslt template cannot be empty");
         }
+        LOGGER.debug("Compiling JSLT transformation '{}'", jsltTemplate);
         try {
             // Attempt to parse the JSLT template
             Parser.compileString(jsltTemplate);
@@ -49,5 +54,12 @@ public class JsltTransformer {
                 e
             );
         }
+    }
+
+    public static void validate(String jsltTemplate) throws CollectInvalidJsltTransformerException {
+        if (StringUtils.isBlank(jsltTemplate)) {
+            return;
+        }
+        compile(jsltTemplate);
     }
 }
