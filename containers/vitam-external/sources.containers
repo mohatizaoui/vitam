@@ -5,7 +5,7 @@ kibana:8.17.1
 elastic/metricbeat:8.17.1
 elastic/packetbeat:8.17.1
 elastic/filebeat:8.17.1
-grafana/grafana:10.3.5
+grafana/grafana:11.5.0
 restic/restic:0.16.2
 hashicorp/consul:1.20.1-ubi
 lmenezes/cerebro:0.9.4
