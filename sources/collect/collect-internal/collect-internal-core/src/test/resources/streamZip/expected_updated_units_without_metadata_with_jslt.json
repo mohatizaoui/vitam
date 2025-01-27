@@ -1,0 +1,29 @@
+[
+  {
+    "File": "my_file1.txt",
+    "Selector": null,
+    "UnitContent": {
+      "Title": "my_file1.txt - TRANSFORMED",
+      "Key": "2",
+      "DescriptionLevel": "Item"
+    }
+  },
+  {
+    "File": "my_file2.txt",
+    "Selector": null,
+    "UnitContent": {
+      "Title": "my_file2.txt - TRANSFORMED",
+      "Key": "2",
+      "DescriptionLevel": "Item"
+    }
+  },
+  {
+    "File": "my_file3.txt",
+    "Selector": null,
+    "UnitContent": {
+      "Title": "my_file3.txt - TRANSFORMED",
+      "Key": "2",
+      "DescriptionLevel": "Item"
+    }
+  }
+]

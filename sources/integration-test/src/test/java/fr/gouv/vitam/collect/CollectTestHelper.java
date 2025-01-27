@@ -49,8 +49,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class CollectTestHelper {
 
     public static Optional<ProjectDto> createProject(VitamContext vitamContext) {
+        return createProject(vitamContext, initProjectData());
+    }
+
+    public static Optional<ProjectDto> createProject(VitamContext vitamContext, ProjectDto createProjectDto) {
         try (final CollectExternalClient client = CollectExternalClientFactory.getInstance().getClient()) {
-            final ProjectDto createProjectDto = initProjectData();
             final RequestResponse<JsonNode> response = client.initProject(vitamContext, createProjectDto);
 
             if (response.isOk()) {
@@ -65,7 +68,7 @@ public class CollectTestHelper {
         }
     }
 
-    static ProjectDto initProjectData() {
+    public static ProjectDto initProjectData() {
         final ProjectDto projectDto = new ProjectDto();
 
         projectDto.setTransferringAgencyIdentifier("Identifier5");
