@@ -35,6 +35,7 @@ import fr.gouv.vitam.collect.common.exception.CollectInternalInvalidRequestExcep
 import fr.gouv.vitam.collect.internal.core.common.ManifestContext;
 import fr.gouv.vitam.collect.internal.core.common.ProjectModel;
 import fr.gouv.vitam.collect.internal.core.common.TransactionModel;
+import fr.gouv.vitam.collect.internal.core.configuration.CollectInternalConfiguration;
 import fr.gouv.vitam.collect.internal.core.repository.MetadataRepository;
 import fr.gouv.vitam.collect.internal.core.repository.ProjectRepository;
 import fr.gouv.vitam.common.PropertiesUtils;
@@ -62,7 +63,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentMatchers;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
@@ -156,7 +156,8 @@ public class FluxServiceTest {
     @Mock
     private AdminManagementClientFactory adminManagementClientFactory;
 
-    @InjectMocks
+    private CollectInternalConfiguration config = new CollectInternalConfiguration();
+
     private FluxService fluxService;
 
     private TransactionModel transactionModel;
@@ -166,6 +167,16 @@ public class FluxServiceTest {
     public void setUp() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
         VitamThreadUtils.getVitamSession().setRequestId(GUIDFactory.newRequestIdGUID(TENANT_ID).getId());
+
+        config.setApplyJsltPostDynamicAttachement(false);
+        fluxService = new FluxService(
+            collectService,
+            metadataService,
+            projectRepository,
+            metadataRepository,
+            adminManagementClientFactory,
+            config
+        );
 
         doReturn(adminManagementClient).when(adminManagementClientFactory).getClient();
         doReturn(loadUnitSchema()).when(adminManagementClient).getUnitSchema();

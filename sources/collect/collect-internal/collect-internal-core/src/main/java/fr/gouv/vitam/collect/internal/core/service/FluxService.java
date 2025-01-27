@@ -30,6 +30,7 @@ package fr.gouv.vitam.collect.internal.core.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.annotations.Beta;
 import com.google.common.base.Strings;
 import com.google.common.collect.Iterators;
 import fr.gouv.vitam.collect.common.exception.CollectInternalException;
@@ -37,13 +38,17 @@ import fr.gouv.vitam.collect.common.exception.CollectInternalInvalidRequestExcep
 import fr.gouv.vitam.collect.common.exception.CollectInternalServerSideException;
 import fr.gouv.vitam.collect.internal.core.common.CollectJsonMetadataLine;
 import fr.gouv.vitam.collect.internal.core.common.ProjectModel;
+import fr.gouv.vitam.collect.internal.core.configuration.CollectInternalConfiguration;
 import fr.gouv.vitam.collect.internal.core.csv.CsvHelper;
 import fr.gouv.vitam.collect.internal.core.csv.SedaSchemaInfoResolver;
+import fr.gouv.vitam.collect.internal.core.exceptions.CollectInvalidJsltTransformerException;
+import fr.gouv.vitam.collect.internal.core.exceptions.CollectJsltTransformationFailedException;
 import fr.gouv.vitam.collect.internal.core.helpers.JsonlMetadataFileValidator;
 import fr.gouv.vitam.collect.internal.core.helpers.MetadataHelper;
 import fr.gouv.vitam.collect.internal.core.helpers.TempWorkspace;
 import fr.gouv.vitam.collect.internal.core.repository.MetadataRepository;
 import fr.gouv.vitam.collect.internal.core.repository.ProjectRepository;
+import fr.gouv.vitam.collect.internal.core.transformers.JsltTransformer;
 import fr.gouv.vitam.common.CommonMediaType;
 import fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper;
 import fr.gouv.vitam.common.format.identification.model.FormatIdentifierResponse;
@@ -100,25 +105,33 @@ public class FluxService {
     private static final int BULK_SIZE = 1000;
     static final String METADATA_CSV_FILE = "metadata.csv";
     static final String METADATA_JSONL_FILE = "metadata.jsonl";
+    public static final TypeReference<CollectJsonMetadataLine> COLLECT_JSON_METADATA_LINE_TYPE_REFERENCE =
+        new TypeReference<>() {};
+    public static final TypeReference<JsonLineModel> JSON_LINE_MODEL_TYPE_REFERENCE = new TypeReference<>() {};
+    private static final String TITLE_FIELD = "Title";
+    private static final String DESCRIPTION_LEVEL_FIELD = "DescriptionLevel";
 
     private final CollectService collectService;
     private final MetadataService metadataService;
     private final ProjectRepository projectRepository;
     private final MetadataRepository metadataRepository;
     private final AdminManagementClientFactory adminManagementClientFactory;
+    private final CollectInternalConfiguration configuration;
 
     public FluxService(
         CollectService collectService,
         MetadataService metadataService,
         ProjectRepository projectRepository,
         MetadataRepository metadataRepository,
-        AdminManagementClientFactory adminManagementClientFactory
+        AdminManagementClientFactory adminManagementClientFactory,
+        CollectInternalConfiguration configuration
     ) {
         this.adminManagementClientFactory = adminManagementClientFactory;
         this.collectService = collectService;
         this.metadataService = metadataService;
         this.projectRepository = projectRepository;
         this.metadataRepository = metadataRepository;
+        this.configuration = configuration;
     }
 
     public void processStream(
@@ -214,24 +227,38 @@ public class FluxService {
                 throw new CollectInternalInvalidRequestException("Invalid ZIP archive: " + e.getMessage(), e);
             }
 
-            File validatedJsonlMetadataFile = validateAndConvertMetadataToJsonl(metadataFile, tempWorkspace);
+            File jsonlMetadataFile = validateAndConvertMetadataToJsonl(metadataFile, tempWorkspace);
 
-            // Dynamic attachement (only when no explicit attachementId provided)
-            if (attachementId == null) {
-                unitsToWriteFile = updateUnitGraphWithDynamicAttachment(
-                    unitsToWriteFile,
-                    validatedJsonlMetadataFile,
-                    projectModel,
-                    attachmentUnitsBySystemId,
-                    tempWorkspace
-                );
-            }
+            // Pre-dynamic attachement JSLT transformation
+            jsonlMetadataFile = applyPreDynamicAttachementJsltTransformation(
+                jsonlMetadataFile,
+                unitsToWriteFile,
+                projectModel,
+                tempWorkspace
+            );
+
+            // Update units parents with dynamic attachement
+            unitsToWriteFile = updateUnitGraphWithDynamicAttachment(
+                unitsToWriteFile,
+                jsonlMetadataFile,
+                projectModel,
+                attachmentUnitsBySystemId,
+                tempWorkspace
+            );
+
+            // Post-dynamic attachement JSLT transformation
+            jsonlMetadataFile = applyPostDynamicAttachementJsltTransformation(
+                jsonlMetadataFile,
+                unitsToWriteFile,
+                projectModel,
+                tempWorkspace
+            );
 
             bulkWriteUnits(unitsToWriteFile, tempWorkspace);
 
             bulkWriteObjectGroups(objectGroupsToWriteFile);
 
-            bulkUpdateUnits(transactionId, validatedJsonlMetadataFile);
+            bulkUpdateUnits(transactionId, jsonlMetadataFile);
         } catch (CollectInternalException e) {
             throw e;
         } catch (Exception e) {
@@ -259,6 +286,194 @@ public class FluxService {
             return csvMetadataToConvertedJsonlMetadataFile(tempWorkspace, metadataFile);
         } else {
             return validateJsonlMetadataFile(metadataFile);
+        }
+    }
+
+    @Beta
+    private File applyPreDynamicAttachementJsltTransformation(
+        File jsonlMetadataFile,
+        File unitsToWriteFile,
+        ProjectModel projectModel,
+        TempWorkspace tempWorkspace
+    ) throws CollectInternalException, IOException {
+        if (
+            StringUtils.isBlank(projectModel.getTransformationRules()) ||
+            configuration.isApplyJsltPostDynamicAttachement()
+        ) {
+            return jsonlMetadataFile;
+        }
+
+        // Update jsonl with "default" unit metadata (Title, DescriptionLevel,...)
+        File fullJsonlMetadataFile = mergeDefaultMetadataIntoMetadataJsonl(
+            unitsToWriteFile,
+            jsonlMetadataFile,
+            tempWorkspace
+        );
+
+        return transformJsonMetadataFile(projectModel, tempWorkspace, fullJsonlMetadataFile);
+    }
+
+    @Beta
+    private File applyPostDynamicAttachementJsltTransformation(
+        File jsonlMetadataFile,
+        File unitsToWriteFile,
+        ProjectModel projectModel,
+        TempWorkspace tempWorkspace
+    ) throws CollectInternalException, IOException {
+        if (
+            StringUtils.isBlank(projectModel.getTransformationRules()) ||
+            !configuration.isApplyJsltPostDynamicAttachement()
+        ) {
+            return jsonlMetadataFile;
+        }
+
+        // Update jsonl with "default" unit metadata (Title, DescriptionLevel,...)
+        File fullJsonlMetadataFile = mergeDefaultMetadataIntoMetadataJsonl(
+            unitsToWriteFile,
+            jsonlMetadataFile,
+            tempWorkspace
+        );
+
+        return transformJsonMetadataFile(projectModel, tempWorkspace, fullJsonlMetadataFile);
+    }
+
+    private File mergeDefaultMetadataIntoMetadataJsonl(
+        File unitsToWriteFile,
+        File jsonlMetadataFile,
+        TempWorkspace tempWorkspace
+    ) throws IOException, CollectInternalException {
+        Map<String, TitleAndDescriptionLevel> defaultUnitMetadataByUploadPath = loadDefaultMetadataUnits(
+            unitsToWriteFile
+        );
+
+        File fullMetadataJsonlFile = tempWorkspace.tempFile();
+        try (
+            OutputStream outputStream = new FileOutputStream(fullMetadataJsonlFile);
+            JsonLineWriter writer = new JsonLineWriter(outputStream)
+        ) {
+            if (jsonlMetadataFile != null) {
+                try (
+                    JsonLineGenericIterator<CollectJsonMetadataLine> iterator = new JsonLineGenericIterator<>(
+                        new FileInputStream(jsonlMetadataFile),
+                        COLLECT_JSON_METADATA_LINE_TYPE_REFERENCE
+                    )
+                ) {
+                    while (iterator.hasNext()) {
+                        CollectJsonMetadataLine entry = iterator.next();
+
+                        String uploadPath = getUploadPath(entry);
+
+                        TitleAndDescriptionLevel unitMetadata = defaultUnitMetadataByUploadPath.get(uploadPath);
+
+                        if (unitMetadata == null) {
+                            throw new CollectInternalInvalidRequestException(
+                                "Invalid metadata file. No such File '" + uploadPath + "'"
+                            );
+                        }
+
+                        if (!entry.getUnitContent().has(TITLE_FIELD)) {
+                            entry.getUnitContent().put(TITLE_FIELD, unitMetadata.title());
+                        }
+                        if (!entry.getUnitContent().has(DESCRIPTION_LEVEL_FIELD)) {
+                            entry.getUnitContent().put(DESCRIPTION_LEVEL_FIELD, unitMetadata.descriptionLevel());
+                        }
+                        writer.addEntry(entry);
+
+                        // Remove unit to free-up memory
+                        defaultUnitMetadataByUploadPath.remove(uploadPath);
+                    }
+                }
+            }
+
+            // Append default metadata for units without explicit
+            for (String fileUploadPath : defaultUnitMetadataByUploadPath.keySet()) {
+                TitleAndDescriptionLevel unitMetadata = defaultUnitMetadataByUploadPath.get(fileUploadPath);
+                ObjectNode metadata = JsonHandler.createObjectNode();
+
+                metadata.put(TITLE_FIELD, unitMetadata.title());
+                metadata.put(DESCRIPTION_LEVEL_FIELD, unitMetadata.descriptionLevel());
+
+                writer.addEntry(
+                    new CollectJsonMetadataLine().setFile(fileUploadPath).setSelector(null).setUnitContent(metadata)
+                );
+            }
+        }
+        return fullMetadataJsonlFile;
+    }
+
+    private static Map<String, TitleAndDescriptionLevel> loadDefaultMetadataUnits(File unitsToWriteFile)
+        throws IOException {
+        Map<String, TitleAndDescriptionLevel> unitMetadataByPath = new HashMap<>();
+        try (
+            InputStream inputStream = new FileInputStream(unitsToWriteFile);
+            JsonLineGenericIterator<JsonLineModel> unitsToWriteIterator = new JsonLineGenericIterator<>(
+                inputStream,
+                JSON_LINE_MODEL_TYPE_REFERENCE
+            )
+        ) {
+            while (unitsToWriteIterator.hasNext()) {
+                JsonLineModel entry = unitsToWriteIterator.next();
+                unitMetadataByPath.put(
+                    entry.getParams().get(VitamFieldsHelper.uploadPath()).asText(),
+                    new TitleAndDescriptionLevel(
+                        entry.getParams().get(TITLE_FIELD).asText(),
+                        entry.getParams().get(DESCRIPTION_LEVEL_FIELD).asText()
+                    )
+                );
+            }
+        }
+        return unitMetadataByPath;
+    }
+
+    private static String getUploadPath(CollectJsonMetadataLine entry) {
+        if (entry.getFile() != null) {
+            return entry.getFile();
+        } else if (
+            // In insert mode, only a single "#uploadPath" selector is supported
+            entry.getSelector() != null &&
+            entry.getSelector().getEntries().size() == 1 &&
+            VitamFieldsHelper.uploadPath().equals(entry.getSelector().getEntries().keySet().iterator().next())
+        ) {
+            return entry.getSelector().getEntries().get(VitamFieldsHelper.uploadPath()).asText();
+        } else {
+            throw new IllegalStateException("Invalid selector for " + JsonHandler.unprettyPrint(entry));
+        }
+    }
+
+    @Beta
+    private static File transformJsonMetadataFile(
+        ProjectModel projectModel,
+        TempWorkspace tempWorkspace,
+        File validatedJsonlMetadataFile
+    ) throws CollectInternalException, IOException {
+        try {
+            JsltTransformer jsltTransformer = new JsltTransformer(projectModel.getTransformationRules());
+
+            File transformedJsonlMetadataFile = tempWorkspace.tempFile();
+            try (
+                JsonLineGenericIterator<CollectJsonMetadataLine> iterator = new JsonLineGenericIterator<>(
+                    new FileInputStream(validatedJsonlMetadataFile),
+                    COLLECT_JSON_METADATA_LINE_TYPE_REFERENCE
+                );
+                JsonLineWriter writer = new JsonLineWriter(new FileOutputStream(transformedJsonlMetadataFile))
+            ) {
+                while (iterator.hasNext()) {
+                    CollectJsonMetadataLine entry = iterator.next();
+                    ObjectNode initialUnitContent = entry.getUnitContent();
+                    ObjectNode transformedUnitContent = jsltTransformer.transform(initialUnitContent);
+
+                    CollectJsonMetadataLine transformedJsonMetadataLine = new CollectJsonMetadataLine()
+                        .setFile(entry.getFile())
+                        .setSelector(entry.getSelector())
+                        .setUnitContent(transformedUnitContent);
+                    writer.addEntry(transformedJsonMetadataLine);
+                }
+            }
+            return transformedJsonlMetadataFile;
+        } catch (CollectJsltTransformationFailedException e) {
+            throw new CollectInternalInvalidRequestException("Invalid JSLT transformation", e);
+        } catch (CollectInvalidJsltTransformerException e) {
+            throw new CollectInternalServerSideException("JSLT transformation failed: " + e.getMessage(), e);
         }
     }
 
@@ -295,17 +510,17 @@ public class FluxService {
 
     private File updateUnitGraphWithDynamicAttachment(
         File unitsToWriteFile,
-        File transformedJsonlMetadataFile,
+        File jsonlMetadataFile,
         ProjectModel projectModel,
         Map<String, String> attachmentUnitsBySystemId,
         TempWorkspace tempWorkspace
     ) throws IOException {
+        if (attachmentUnitsBySystemId.isEmpty()) {
+            return unitsToWriteFile;
+        }
+
         Map<String, Set<String>> dynamicAttachmentUnitUpsByRootUnitsUploadPath =
-            computeDynamicAttachmentUnitUpsForRootUnits(
-                transformedJsonlMetadataFile,
-                projectModel,
-                attachmentUnitsBySystemId
-            );
+            computeDynamicAttachmentUnitUpsForRootUnits(jsonlMetadataFile, projectModel, attachmentUnitsBySystemId);
 
         if (dynamicAttachmentUnitUpsByRootUnitsUploadPath.isEmpty()) {
             return unitsToWriteFile;
@@ -328,7 +543,7 @@ public class FluxService {
             InputStream inputStream = new FileInputStream(unitsToWriteFile);
             JsonLineGenericIterator<JsonLineModel> unitsToWriteIterator = new JsonLineGenericIterator<>(
                 inputStream,
-                new TypeReference<>() {}
+                JSON_LINE_MODEL_TYPE_REFERENCE
             );
             OutputStream outputStream = new FileOutputStream(unitsToWriteWithDynamicAttachementFile);
             JsonLineWriter writer = new JsonLineWriter(outputStream)
@@ -357,7 +572,7 @@ public class FluxService {
         try (
             JsonLineGenericIterator<CollectJsonMetadataLine> iterator = new JsonLineGenericIterator<>(
                 new FileInputStream(jsonlMetadataFile),
-                new TypeReference<>() {}
+                COLLECT_JSON_METADATA_LINE_TYPE_REFERENCE
             )
         ) {
             Map<String, Set<String>> unitUpsByUploadPath = new HashMap<>();
@@ -485,7 +700,7 @@ public class FluxService {
                 InputStream inputStream = new FileInputStream(file);
                 JsonLineGenericIterator<JsonLineModel> unitsToWrite = new JsonLineGenericIterator<>(
                     inputStream,
-                    new TypeReference<>() {}
+                    JSON_LINE_MODEL_TYPE_REFERENCE
                 )
             ) {
                 Iterator<ObjectNode> unitIterator = IteratorUtils.transformedIterator(
@@ -512,7 +727,7 @@ public class FluxService {
             InputStream inputStream = new FileInputStream(unitsToWriteFile);
             JsonLineGenericIterator<JsonLineModel> unitsToWrite = new JsonLineGenericIterator<>(
                 inputStream,
-                new TypeReference<>() {}
+                JSON_LINE_MODEL_TYPE_REFERENCE
             )
         ) {
             while (unitsToWrite.hasNext()) {
@@ -539,13 +754,12 @@ public class FluxService {
         return filePerLevel;
     }
 
-    private ObjectNode updateParent(ObjectNode unit, Map<String, Set<String>> unitUps) {
+    private void updateParent(ObjectNode unit, Map<String, Set<String>> unitUps) {
         String unitUploadPath = unit.get(VitamFieldsHelper.uploadPath()).asText();
         Set<String> dynamicAttachmentParentUnitIds = unitUps.get(unitUploadPath);
         if (CollectionUtils.isNotEmpty(dynamicAttachmentParentUnitIds)) {
             unit.set(VitamFieldsHelper.unitups(), JsonHandler.createStringArrayNode(dynamicAttachmentParentUnitIds));
         }
-        return unit;
     }
 
     private void bulkWriteObjectGroups(File ogFile) throws IOException {
@@ -605,4 +819,6 @@ public class FluxService {
             }
         }
     }
+
+    private record TitleAndDescriptionLevel(String title, String descriptionLevel) {}
 }

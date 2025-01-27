@@ -26,6 +26,7 @@
  */
 package fr.gouv.vitam.collect.internal.core.configuration;
 
+import com.google.common.annotations.Beta;
 import fr.gouv.vitam.common.ParametersChecker;
 import fr.gouv.vitam.common.server.application.configuration.DbConfigurationImpl;
 
@@ -44,6 +45,9 @@ public class CollectInternalConfiguration extends DbConfigurationImpl {
     private int purgeTransactionThreadPoolSize = 3;
 
     private int purgeTransactionThreadFrequency = 60;
+
+    @Beta
+    private boolean applyJsltPostDynamicAttachement;
 
     private final int bulkAtomicUpdateThreadPoolSize = 8;
     private final int bulkAtomicUpdateThreadPoolQueueSize = 16;
@@ -119,5 +123,16 @@ public class CollectInternalConfiguration extends DbConfigurationImpl {
 
     public int getBulkAtomicUpdateBatchSize() {
         return bulkAtomicUpdateBatchSize;
+    }
+
+    @Beta
+    public boolean isApplyJsltPostDynamicAttachement() {
+        return applyJsltPostDynamicAttachement;
+    }
+
+    @Beta
+    public CollectInternalConfiguration setApplyJsltPostDynamicAttachement(boolean applyJsltPostDynamicAttachement) {
+        this.applyJsltPostDynamicAttachement = applyJsltPostDynamicAttachement;
+        return this;
     }
 }
