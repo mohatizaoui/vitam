@@ -13,3 +13,6 @@ X-Tenant-Id: {{tenant}}
 ### Annulation d'une opération en mode forcé
 DELETE {{url-access}}/admin-external/v1/operations/{{operation-id}}
 X-Force: true
+Content-Type: application/json
+Accept: application/json
+X-Tenant-Id: {{tenant}}
