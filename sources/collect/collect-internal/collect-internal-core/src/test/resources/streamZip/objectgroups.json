@@ -8,6 +8,7 @@
     },
     "#nbobjects": 1,
     "#opi": "TRANSACTION_ID",
+    "#originating_agency": "Vitam",
     "#qualifiers": [
       {
         "qualifier": "BinaryMaster",
@@ -39,6 +40,7 @@
     },
     "#nbobjects": 1,
     "#opi": "TRANSACTION_ID",
+    "#originating_agency": "Vitam",
     "#qualifiers": [
       {
         "qualifier": "BinaryMaster",
@@ -70,6 +72,7 @@
     },
     "#nbobjects": 1,
     "#opi": "TRANSACTION_ID",
+    "#originating_agency": "Vitam",
     "#qualifiers": [
       {
         "qualifier": "BinaryMaster",
@@ -101,6 +104,7 @@
     },
     "#nbobjects": 1,
     "#opi": "TRANSACTION_ID",
+    "#originating_agency": "Vitam",
     "#qualifiers": [
       {
         "qualifier": "BinaryMaster",

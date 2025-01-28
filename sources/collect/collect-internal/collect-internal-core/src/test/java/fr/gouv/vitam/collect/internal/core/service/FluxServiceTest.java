@@ -104,6 +104,8 @@ public class FluxServiceTest {
 
     private static final String UNITS_PATH = "streamZip/units.json";
     private static final String UNITS_WITHOUT_BINARIES_PATH = "streamZip/units_without_binaries.json";
+    private static final String UNITS_WITHOUT_BINARIES_WITH_MISSED_PROJECT_CONTEXT_PATH =
+        "streamZip/units_without_binaries_project_context_missed.json";
 
     private static final String OBJECTGROUPS_PATH = "streamZip/objectgroups.json";
 
@@ -173,8 +175,10 @@ public class FluxServiceTest {
         transactionModel.setProjectId(PROJECT_ID);
         projectModel = new ProjectModel();
         projectModel.setId(PROJECT_ID);
-
-        projectModel.setManifestContext(new ManifestContext());
+        ManifestContext manifestContext = new ManifestContext();
+        manifestContext.setOriginatingAgencyIdentifier("Vitam");
+        manifestContext.setLegalStatus("Some status");
+        projectModel.setManifestContext(manifestContext);
         when(collectService.detectFileFormat(any(File.class))).thenReturn(
             Optional.of(new FormatIdentifierResponse("", "", "", ""))
         );
@@ -236,6 +240,7 @@ public class FluxServiceTest {
                 List.of(
                     "[*]." + VitamFieldsHelper.id(),
                     "[*]." + VitamFieldsHelper.batchId(),
+                    "[*]." + VitamFieldsHelper.unitups(),
                     "[*]." + VitamFieldsHelper.qualifiers() + "[*]." + TAG_VERSIONS + "[*]." + VitamFieldsHelper.id(),
                     "[*]." + TAG_FILE_INFO + "." + FileInfoModel.LAST_MODIFIED,
                     "[*]." +
@@ -279,6 +284,52 @@ public class FluxServiceTest {
 
         final JsonNode expectedUnits = JsonHandler.getFromFile(
             PropertiesUtils.getResourceFile(UNITS_WITHOUT_BINARIES_PATH)
+        );
+
+        JsonAssert.assertJsonEquals(
+            units.values(),
+            expectedUnits,
+            JsonAssert.when(Option.IGNORING_ARRAY_ORDER).whenIgnoringPaths(
+                List.of(
+                    "[*]." + VitamFieldsHelper.id(),
+                    "[*]." + VitamFieldsHelper.unitups(),
+                    "[*]." + VitamFieldsHelper.object(),
+                    "[*]." + VitamFieldsHelper.batchId()
+                )
+            )
+        );
+
+        verify(metadataRepository, never()).saveObjectGroups(anyList());
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void processStreamWithoutBinaryThenOKWithMissedContext() throws Exception {
+        projectModel.setManifestContext(null);
+        when(projectRepository.findProjectById(anyString())).thenReturn(Optional.of(projectModel));
+        Map<String, JsonNode> units = new HashMap<>();
+        when(metadataRepository.saveArchiveUnits(ArgumentMatchers.anyList())).thenAnswer(e -> {
+            final List<ObjectNode> unitsToSave = e.getArgument(0);
+            for (ObjectNode unit : unitsToSave) {
+                units.put(unit.get(VitamFieldsHelper.id()).asText(), unit);
+            }
+            return JsonHandler.toJsonNode(
+                new RequestResponseOK<>(JsonHandler.createObjectNode(), unitsToSave, unitsToSave.size())
+            );
+        });
+
+        when(metadataService.prepareAttachmentUnits(any(), anyString())).thenReturn(new HashMap<>());
+
+        try (
+            final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(
+                TRANSACTION_ZIP_WITHOUT_BINARY_PATH
+            )
+        ) {
+            fluxService.processStream(resourceAsStream, PROJECT_ID, TRANSACTION_ID, null, null);
+        }
+
+        final JsonNode expectedUnits = JsonHandler.getFromFile(
+            PropertiesUtils.getResourceFile(UNITS_WITHOUT_BINARIES_WITH_MISSED_PROJECT_CONTEXT_PATH)
         );
 
         JsonAssert.assertJsonEquals(
@@ -518,6 +569,7 @@ public class FluxServiceTest {
                 List.of(
                     "[*]." + VitamFieldsHelper.id(),
                     "[*]." + VitamFieldsHelper.batchId(),
+                    "[*]." + VitamFieldsHelper.unitups(),
                     "[*]." + VitamFieldsHelper.qualifiers() + "[*]." + TAG_VERSIONS + "[*]." + VitamFieldsHelper.id(),
                     "[*]." + TAG_FILE_INFO + "." + FileInfoModel.LAST_MODIFIED,
                     "[*]." +
@@ -629,6 +681,7 @@ public class FluxServiceTest {
             JsonAssert.when(Option.IGNORING_ARRAY_ORDER).whenIgnoringPaths(
                 List.of(
                     "[*]." + VitamFieldsHelper.id(),
+                    "[*]." + VitamFieldsHelper.unitups(),
                     "[*]." + VitamFieldsHelper.batchId(),
                     "[*]." + VitamFieldsHelper.qualifiers() + "[*]." + TAG_VERSIONS + "[*]." + VitamFieldsHelper.id(),
                     "[*]." + TAG_FILE_INFO + "." + FileInfoModel.LAST_MODIFIED,

@@ -59,7 +59,8 @@
     },
     "#unitType": "INGEST",
     "#opi": "aeeaaaaaaceaaaaba3gnkamd5sn2uwqaaaaq",
-    "#originating_agencies": [],
+    "#originating_agency":"Service_producteur",
+    "#originating_agencies":["Service_producteur"],
     "#version": 1,
     "#approximate_creation_date": "2022-10-18T19:39:28.724",
     "#approximate_update_date": "2022-10-18T19:39:29.933"
@@ -88,7 +89,8 @@
     "#management": {},
     "#unitType": "INGEST",
     "#opi": "aeeaaaaaaceaaaaba3gnkamd5sn2uwqaaaaq",
-    "#originating_agencies": [],
+    "#originating_agency":"Service_producteur",
+    "#originating_agencies":["Service_producteur"],
     "#version": 1,
     "#approximate_creation_date": "2022-10-18T19:39:29.507",
     "#approximate_update_date": "2022-10-18T19:39:29.969"
@@ -113,7 +115,8 @@
     "#management": {},
     "#unitType": "INGEST",
     "#opi": "aeeaaaaaaceaaaaba3gnkamd5sn2uwqaaaaq",
-    "#originating_agencies": [],
+    "#originating_agency":"Service_producteur",
+    "#originating_agencies":["Service_producteur"],
     "#version": 0,
     "#approximate_creation_date": "2022-10-18T19:39:29.181",
     "#approximate_update_date": "2022-10-18T19:39:29.228"
@@ -134,7 +137,8 @@
     },
     "#unitType": "INGEST",
     "#opi": "aeeaaaaaaceaaaaba3gnkamd5sn2uwqaaaaq",
-    "#originating_agencies": [],
+    "#originating_agency":"Service_producteur",
+    "#originating_agencies":["Service_producteur"],
     "#version": 0,
     "#approximate_creation_date": "2022-10-18T19:39:28.384",
     "#approximate_update_date": "2022-10-18T19:39:28.384"
@@ -200,7 +204,8 @@
     },
     "#unitType": "INGEST",
     "#opi": "aeeaaaaaaceaaaaba3gnkamd5sn2uwqaaaaq",
-    "#originating_agencies": [],
+    "#originating_agency":"Service_producteur",
+    "#originating_agencies":["Service_producteur"],
     "#version": 1,
     "#approximate_creation_date": "2022-10-18T19:39:29.482",
     "#approximate_update_date": "2022-10-18T19:39:29.994"
@@ -692,7 +697,8 @@
     "#management": {},
     "#unitType": "INGEST",
     "#opi": "aeeaaaaaaceaaaaba3gnkamd5sn2uwqaaaaq",
-    "#originating_agencies": [],
+    "#originating_agency":"Service_producteur",
+    "#originating_agencies":["Service_producteur"],
     "#version": 1,
     "#approximate_creation_date": "2022-10-18T19:39:28.527",
     "#approximate_update_date": "2022-10-18T19:39:30.118"
@@ -718,7 +724,8 @@
     "#management": {},
     "#unitType": "INGEST",
     "#opi": "aeeaaaaaaceaaaaba3gnkamd5sn2uwqaaaaq",
-    "#originating_agencies": [],
+    "#originating_agency":"Service_producteur",
+    "#originating_agencies":["Service_producteur"],
     "#version": 0,
     "#approximate_creation_date": "2022-10-18T19:39:28.816",
     "#approximate_update_date": "2022-10-18T19:39:29.032"
@@ -744,7 +751,8 @@
     "#management": {},
     "#unitType": "INGEST",
     "#opi": "aeeaaaaaaceaaaaba3gnkamd5sn2uwqaaaaq",
-    "#originating_agencies": [],
+    "#originating_agency":"Service_producteur",
+    "#originating_agencies":["Service_producteur"],
     "#version": 0,
     "#approximate_creation_date": "2022-10-18T19:39:29.694",
     "#approximate_update_date": "2022-10-18T19:39:29.739"
@@ -768,7 +776,8 @@
     "#management": {},
     "#unitType": "INGEST",
     "#opi": "aeeaaaaaaceaaaaba3gnkamd5sn2uwqaaaaq",
-    "#originating_agencies": [],
+    "#originating_agency":"Service_producteur",
+    "#originating_agencies":["Service_producteur"],
     "#version": 0,
     "#approximate_creation_date": "2022-10-18T19:39:29.3",
     "#approximate_update_date": "2022-10-18T19:39:29.348"
@@ -827,7 +836,8 @@
     },
     "#unitType": "INGEST",
     "#opi": "aeeaaaaaaceaaaaba3gnkamd5sn2uwqaaaaq",
-    "#originating_agencies": [],
+    "#originating_agency":"Service_producteur",
+    "#originating_agencies":["Service_producteur"],
     "#version": 1,
     "#approximate_creation_date": "2022-10-18T19:39:29.417",
     "#approximate_update_date": "2022-10-18T19:39:30.033"
@@ -875,7 +885,8 @@
     },
     "#unitType": "INGEST",
     "#opi": "aeeaaaaaaceaaaaba3gnkamd5sn2uwqaaaaq",
-    "#originating_agencies": [],
+    "#originating_agency":"Service_producteur",
+    "#originating_agencies":["Service_producteur"],
     "#version": 1,
     "#approximate_creation_date": "2022-10-18T19:39:29.439",
     "#approximate_update_date": "2022-10-18T19:39:30.063"
@@ -916,7 +927,8 @@
     },
     "#unitType": "INGEST",
     "#opi": "aeeaaaaaaceaaaaba3gnkamd5sn2uwqaaaaq",
-    "#originating_agencies": [],
+    "#originating_agency":"Service_producteur",
+    "#originating_agencies":["Service_producteur"],
     "#version": 2,
     "#approximate_creation_date": "2022-10-18T19:39:28.628",
     "#approximate_update_date": "2022-10-18T19:39:30.090"
@@ -964,7 +976,8 @@
     },
     "#unitType": "INGEST",
     "#opi": "aeeaaaaaaceaaaaba3gnkamd5sn2uwqaaaaq",
-    "#originating_agencies": [],
+    "#originating_agency":"Service_producteur",
+    "#originating_agencies":["Service_producteur"],
     "#version": 1,
     "#approximate_creation_date": "2022-10-18T19:39:29.459",
     "#approximate_update_date": "2022-10-18T19:39:30.313"

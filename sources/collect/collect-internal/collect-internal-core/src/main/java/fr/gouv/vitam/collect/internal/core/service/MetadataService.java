@@ -76,6 +76,7 @@ import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.functional.administration.client.AdminManagementClientFactory;
 import fr.gouv.vitam.worker.core.distribution.JsonLineGenericIterator;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -163,7 +164,13 @@ public class MetadataService {
                 }
             }
         }
-
+        if (
+            StringUtils.isEmpty(unitModel.getOriginatingAgency()) &&
+            projectModel.getManifestContext() != null &&
+            StringUtils.isNotEmpty(projectModel.getManifestContext().getOriginatingAgencyIdentifier())
+        ) {
+            unitModel.setOriginatingAgency(projectModel.getManifestContext().getOriginatingAgencyIdentifier());
+        }
         JsonNode jsonNode = getSerializationObjectMapper().convertValue(unitModel, JsonNode.class);
         insertSimpleUnit(jsonNode);
         updateSimpleUnit(transactionModel.getId(), jsonNode, unitId);
@@ -369,8 +376,20 @@ public class MetadataService {
         }
     }
 
-    private ArchiveUnitModel createAttachmentUnit(String transactionId, String title, String unitUp) {
-        ArchiveUnitModel unit = MetadataHelper.createUnit(transactionId, LevelType.SERIES, null, title, null);
+    private ArchiveUnitModel createAttachmentUnit(
+        String transactionId,
+        String title,
+        String unitUp,
+        String originatingAgency
+    ) {
+        ArchiveUnitModel unit = MetadataHelper.createUnit(
+            transactionId,
+            LevelType.SERIES,
+            null,
+            title,
+            null,
+            originatingAgency
+        );
         ManagementModel managementModel = new ManagementModel();
         UpdateOperationType updateOperationType = new UpdateOperationType();
         updateOperationType.setSystemId(unitUp);
@@ -416,7 +435,13 @@ public class MetadataService {
                 transactionId,
                 projectModel
             );
-
+            String originatingAgency = null;
+            if (
+                projectModel.getManifestContext() != null &&
+                StringUtils.isNotEmpty(projectModel.getManifestContext().getOriginatingAgencyIdentifier())
+            ) {
+                originatingAgency = projectModel.getManifestContext().getOriginatingAgencyIdentifier();
+            }
             // Create virtual attachment units in needed
             List<ArchiveUnitModel> unitsToCreate = new ArrayList<>();
             if (projectModel.getUnitUp() != null) {
@@ -424,7 +449,8 @@ public class MetadataService {
                     ArchiveUnitModel unit = createAttachmentUnit(
                         transactionId,
                         STATIC_ATTACHMENT,
-                        projectModel.getUnitUp()
+                        projectModel.getUnitUp(),
+                        originatingAgency
                     );
                     unitsToCreate.add(unit);
                     attachmentUnitsBySystemId.put(projectModel.getUnitUp(), unit.getId());
@@ -434,7 +460,12 @@ public class MetadataService {
                 for (MetadataUnitUp unitUp : projectModel.getUnitUps()) {
                     if (!attachmentUnitsBySystemId.containsKey(unitUp.getUnitUp())) {
                         String unitTitle = DYNAMIC_ATTACHEMENT + "_" + unitUp.getUnitUp();
-                        ArchiveUnitModel unit = createAttachmentUnit(transactionId, unitTitle, unitUp.getUnitUp());
+                        ArchiveUnitModel unit = createAttachmentUnit(
+                            transactionId,
+                            unitTitle,
+                            unitUp.getUnitUp(),
+                            originatingAgency
+                        );
                         unitsToCreate.add(unit);
                         attachmentUnitsBySystemId.put(unitUp.getUnitUp(), unit.getId());
                     }

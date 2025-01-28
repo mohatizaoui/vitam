@@ -844,6 +844,7 @@ public class FluxIT extends VitamRuleRunner {
                         "[*]." + VitamFieldsHelper.allunitups(),
                         "[*]." + VitamFieldsHelper.initialOperation(),
                         "[*]." + VitamFieldsHelper.approximateCreationDate(),
+                        "[*]." + VitamFieldsHelper.originatingAgencies(),
                         "[*]." + VitamFieldsHelper.batchId(),
                         "[*]." + VitamFieldsHelper.approximateUpdateDate()
                     )
