@@ -509,6 +509,7 @@ public class ProperlyStopStartProcessingIT extends VitamRuleRunner {
         assertThat(operationsRespOK.getResults().size()).isEqualTo(1);
         processDetail = operationsRespOK.getResults().get(0);
         assertThat(processDetail.getStepStatus()).isEqualTo(StatusCode.KO.name());
+        assertThat(processDetail.isStepCancellable()).isFalse();
         assertThat(processDetail.isForcedCancellation()).isTrue();
     }
 

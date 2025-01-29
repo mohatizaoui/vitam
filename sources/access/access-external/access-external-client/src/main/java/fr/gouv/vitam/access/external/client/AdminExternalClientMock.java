@@ -361,8 +361,11 @@ public class AdminExternalClientMock extends AbstractMockClient implements Admin
     }
 
     @Override
-    public RequestResponse<ItemStatus> cancelOperationProcessExecution(VitamContext vitamContext, String id)
-        throws VitamClientException {
+    public RequestResponse<ItemStatus> cancelOperationProcessExecution(
+        VitamContext vitamContext,
+        String id,
+        boolean force
+    ) throws VitamClientException {
         return new RequestResponseOK<ItemStatus>().addResult(new ItemStatus(ID)).setHttpCode(Status.OK.getStatusCode());
     }
 

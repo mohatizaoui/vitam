@@ -721,7 +721,6 @@ public class ProcessManagementImpl implements ProcessManagement {
                         previousStep = processStep.getStepName();
                         workflow.setStepStatus(StatusCode.KO.toString());
                         currentStepFound = true;
-                        cancellable = false;
                     } else {
                         if (processStep.getStepStatusCode() == StatusCode.UNKNOWN) {
                             previousStep = temporaryPreviousTask;
@@ -729,6 +728,7 @@ public class ProcessManagementImpl implements ProcessManagement {
                             currentStepFound = true;
                         }
                     }
+                    cancellable = false;
                     break;
                 default:
                     break;
