@@ -676,8 +676,26 @@ public interface AdminExternalClient extends BasicClient, OperationStatusClient 
      * @throws VitamClientException
      * @throws IllegalArgumentException
      */
-    RequestResponse<ItemStatus> cancelOperationProcessExecution(VitamContext vitamContext, String operationId)
-        throws VitamClientException, IllegalArgumentException;
+    default RequestResponse<ItemStatus> cancelOperationProcessExecution(VitamContext vitamContext, String operationId)
+        throws VitamClientException, IllegalArgumentException {
+        return cancelOperationProcessExecution(vitamContext, operationId, false);
+    }
+
+    /**
+     * Cancel the operation
+     *
+     * @param vitamContext the vitam context
+     * @param operationId
+     * @param force true to force the cancelation
+     * @return the status
+     * @throws VitamClientException
+     * @throws IllegalArgumentException
+     */
+    RequestResponse<ItemStatus> cancelOperationProcessExecution(
+        VitamContext vitamContext,
+        String operationId,
+        boolean force
+    ) throws VitamClientException, IllegalArgumentException;
 
     /**
      * @param vitamContext the vitam context@return the Workflow definitions

@@ -92,6 +92,7 @@ import static fr.gouv.vitam.access.external.api.AdminCollections.TRACEABILITY;
 import static fr.gouv.vitam.common.GlobalDataRest.X_ACTION;
 import static fr.gouv.vitam.common.GlobalDataRest.X_CONTEXT_ID;
 import static fr.gouv.vitam.common.GlobalDataRest.X_FILENAME;
+import static fr.gouv.vitam.common.GlobalDataRest.X_FORCE;
 import static fr.gouv.vitam.common.GlobalDataRest.X_GLOBAL_EXECUTION_STATE;
 import static fr.gouv.vitam.common.GlobalDataRest.X_GLOBAL_EXECUTION_STATUS;
 import static fr.gouv.vitam.common.GlobalDataRest.X_HTTP_METHOD_OVERRIDE;
@@ -749,13 +750,17 @@ public class AdminExternalClientRest extends DefaultClient implements AdminExter
     }
 
     @Override
-    public RequestResponse<ItemStatus> cancelOperationProcessExecution(VitamContext vitamContext, String id)
-        throws VitamClientException, IllegalArgumentException {
+    public RequestResponse<ItemStatus> cancelOperationProcessExecution(
+        VitamContext vitamContext,
+        String id,
+        boolean force
+    ) throws VitamClientException, IllegalArgumentException {
         ParametersChecker.checkParameter(BLANK_OPERATION_ID, id);
         ParametersChecker.checkParameter(BLANK_TENANT_ID, vitamContext.getTenantId());
         VitamRequestBuilder request = delete()
             .withPath(OPERATIONS_API + "/" + id)
             .withHeaders(vitamContext.getHeaders())
+            .withHeader(X_FORCE, force)
             .withJsonAccept();
         try (Response response = make(request)) {
             check(response);
