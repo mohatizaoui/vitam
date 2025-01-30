@@ -87,6 +87,7 @@ import fr.gouv.vitam.functional.administration.common.server.MongoDbAccessAdminI
 import fr.gouv.vitam.functional.administration.core.backup.FunctionalBackupService;
 import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClientFactory;
 import fr.gouv.vitam.storage.engine.common.model.DataCategory;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.collections4.MultiValuedMap;
@@ -703,6 +704,18 @@ public class OntologyServiceImpl implements OntologyService {
                             "The field " +
                             Ontology.STRING_SIZE +
                             " is mandatory for internal ontology with STRING TypeDetail",
+                            ontology
+                        ),
+                        errors
+                    );
+                }
+                if (CollectionUtils.isEmpty(ontology.getCollections())) {
+                    manager.addError(
+                        ontology.getIdentifier(),
+                        new ErrorReportOntologies(
+                            OntologyErrorCode.STP_IMPORT_ONTOLOGIES_MISSING_COLLECTION,
+                            Ontology.COLLECTIONS,
+                            "The field " + Ontology.COLLECTIONS + " is mandatory",
                             ontology
                         ),
                         errors

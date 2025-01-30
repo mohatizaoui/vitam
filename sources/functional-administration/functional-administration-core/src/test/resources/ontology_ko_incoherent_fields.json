@@ -5,6 +5,10 @@
     "Origin": "INTERNAL",
     "Type": "DATE",
     "TypeDetail": "LONG",
+    "Collections": [
+      "Unit",
+      "ObjectGroup"
+    ],
     "Description": "InternalDateNotCompatibleWithLong"
   },
   {
@@ -13,6 +17,10 @@
     "Origin": "EXTERNAL",
     "Type": "DATE",
     "TypeDetail": "LONG",
+    "Collections": [
+      "Unit",
+      "ObjectGroup"
+    ],
     "Description": "ExternalDateNotCompatibleWithLong"
   },
   {
@@ -22,6 +30,10 @@
     "Type": "DATE",
     "TypeDetail": "DATETIME",
     "StringSize": "MEDIUM",
+    "Collections": [
+      "Unit",
+      "ObjectGroup"
+    ],
     "Description": "InternalStringSizeForbiddenOnNonString"
   },
   {
@@ -31,6 +43,10 @@
     "Type": "DATE",
     "TypeDetail": "DATETIME",
     "StringSize": "MEDIUM",
+    "Collections": [
+      "Unit",
+      "ObjectGroup"
+    ],
     "Description": "ExternalStringSizeForbiddenOnNonString"
   }
 ]

@@ -1229,11 +1229,9 @@ public class OntologyServiceImplTest {
         assertThat(originalExternals).hasSize(3);
         originalExternals.forEach(originalExternal -> assertThat(originalExternal.getTypeDetail()).isNull());
         originalExternals.forEach(originalExternal -> assertThat(originalExternal.getStringSize()).isNull());
-
         // When
         ontologyService.importOntologies(true, ontologyModelList);
         final List<Ontology> actualExternals = getExternalOntologies();
-
         // Then
         assertThat(actualExternals).hasSize(3);
         actualExternals.forEach(actualExternal -> assertThat(actualExternal.getTypeDetail()).isNotNull());
@@ -1302,5 +1300,31 @@ public class OntologyServiceImplTest {
         final RequestResponse<?> updateResponse = ontologyService.importOntologies(false, ontologiesToUpdate);
         assertThat(updateResponse).isNotNull();
         assertThat(updateResponse.getStatus()).isEqualTo(201);
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void givenNoCollectionsThenKO() throws Exception {
+        VitamThreadUtils.getVitamSession().setTenantId(ADMIN_TENANT);
+        final File fileOntology = PropertiesUtils.getResourceFile("ontology_ko_no_collections.json");
+        final List<OntologyModel> ontologyModelList = JsonHandler.getFromFileAsTypeReference(
+            fileOntology,
+            listOfOntologyType
+        );
+        final RequestResponse<?> response = ontologyService.importOntologies(true, ontologyModelList);
+        assertThat(response.isOk()).isFalse();
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void givenEmptyCollectionsThenKO() throws Exception {
+        VitamThreadUtils.getVitamSession().setTenantId(ADMIN_TENANT);
+        final File fileOntology = PropertiesUtils.getResourceFile("ontology_ko_empty_collections.json");
+        final List<OntologyModel> ontologyModelList = JsonHandler.getFromFileAsTypeReference(
+            fileOntology,
+            listOfOntologyType
+        );
+        final RequestResponse<?> response = ontologyService.importOntologies(true, ontologyModelList);
+        assertThat(response.isOk()).isFalse();
     }
 }
