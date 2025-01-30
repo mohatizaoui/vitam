@@ -26,7 +26,7 @@
   "fiscalYearStartMonth": 0,
   "gnetId": 16490,
   "graphTooltip": 0,
-  "id": 1,
+  "id": 2,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -704,7 +704,7 @@
             "uid": "Prometheus"
           },
           "editorMode": "code",
-          "expr": "rate(mongodb_ss_opcounters{env=\"$env\", legacy_op_type=\"command\"}[$__interval])",
+          "expr": "rate(mongodb_ss_opcounters{legacy_op_type=\"command\"}[$interval])",
           "legendFormat": "{{instance}}",
           "range": true,
           "refId": "A"
@@ -798,7 +798,7 @@
             "uid": "Prometheus"
           },
           "editorMode": "code",
-          "expr": "rate(mongodb_ss_opcounters{env=\"$env\", legacy_op_type=\"update\"}[$__interval])",
+          "expr": "rate(mongodb_ss_opcounters{legacy_op_type=\"update\"}[$interval])",
           "legendFormat": "{{instance}}",
           "range": true,
           "refId": "A"
@@ -892,7 +892,7 @@
             "uid": "Prometheus"
           },
           "editorMode": "code",
-          "expr": "rate(mongodb_ss_opcounters{env=\"$env\", legacy_op_type=\"getmore\"}[$__interval])",
+          "expr": "rate(mongodb_ss_opcounters{legacy_op_type=\"getmore\"}[$interval])",
           "legendFormat": "{{instance}}",
           "range": true,
           "refId": "A"
@@ -986,7 +986,7 @@
             "uid": "Prometheus"
           },
           "editorMode": "code",
-          "expr": "rate(mongodb_ss_opcounters{env=\"$env\", legacy_op_type=\"insert\"}[$__interval])",
+          "expr": "rate(mongodb_ss_opcounters{legacy_op_type=\"insert\"}[$interval])",
           "legendFormat": "{{instance}}",
           "range": true,
           "refId": "A"
@@ -1080,7 +1080,7 @@
             "uid": "Prometheus"
           },
           "editorMode": "code",
-          "expr": "rate(mongodb_ss_opcounters{env=\"$env\", legacy_op_type=\"delete\"}[$__interval])",
+          "expr": "rate(mongodb_ss_opcounters{legacy_op_type=\"delete\"}[$interval])",
           "legendFormat": "{{instance}}",
           "range": true,
           "refId": "A"
@@ -1174,7 +1174,7 @@
             "uid": "Prometheus"
           },
           "editorMode": "code",
-          "expr": "rate(mongodb_ss_opcounters{env=\"$env\", legacy_op_type=\"query\"}[$__interval])",
+          "expr": "rate(mongodb_ss_opcounters{legacy_op_type=\"query\"}[$interval])",
           "legendFormat": "{{instance}}",
           "range": true,
           "refId": "A"
@@ -1271,7 +1271,7 @@
             "uid": "Prometheus"
           },
           "editorMode": "code",
-          "expr": "mongodb_dbstats_indexSize{env=\"$env\", instance=\"$instance\"}",
+          "expr": "mongodb_dbstats_indexSize{instance=\"$instance\"}",
           "legendFormat": "{{database}}",
           "range": true,
           "refId": "A"
@@ -1368,7 +1368,7 @@
             "uid": "Prometheus"
           },
           "editorMode": "code",
-          "expr": "mongodb_dbstats_storageSize{env=\"$env\", instance=\"$instance\"}",
+          "expr": "mongodb_dbstats_storageSize{instance=\"$instance\"}",
           "legendFormat": "{{database}} ",
           "range": true,
           "refId": "A"
@@ -1442,7 +1442,7 @@
             "uid": "Prometheus"
           },
           "editorMode": "code",
-          "expr": "mongodb_dbstats_collections{env=\"$env\", instance=\"$instance\"}",
+          "expr": "mongodb_dbstats_collections{instance=\"$instance\"}",
           "legendFormat": "{{database}}",
           "range": true,
           "refId": "A"
@@ -1516,7 +1516,7 @@
             "uid": "Prometheus"
           },
           "editorMode": "code",
-          "expr": "mongodb_dbstats_indexes{env=\"$env\", instance=\"$instance\"}",
+          "expr": "mongodb_dbstats_indexes{instance=\"$instance\"}",
           "legendFormat": "{{database}}",
           "range": true,
           "refId": "A"
@@ -1590,7 +1590,7 @@
             "uid": "Prometheus"
           },
           "editorMode": "code",
-          "expr": "mongodb_dbstats_views{env=\"$env\", instance=\"$instance\"}",
+          "expr": "mongodb_dbstats_views{instance=\"$instance\"}",
           "legendFormat": "{{database}}",
           "range": true,
           "refId": "A"
@@ -1735,23 +1735,7 @@
           "unit": "bytes",
           "unitScale": true
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "172.31.11.244:9216"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "semi-dark-orange",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
         "h": 8,
@@ -1985,7 +1969,7 @@
               "options": {
                 "mode": "exclude",
                 "names": [
-                  "{cl_id=\"62961a7e162f952813b8d646\", env=\"DEV\", instance=\"172.31.11.244:9216\", job=\"mongodb_exporter\", member_idx=\"172.31.11.244:27017\", member_state=\"SECONDARY\", rs_nm=\"repl\", rs_state=\"2\"}"
+                  "PRIMARY"
                 ],
                 "prefix": "All except:",
                 "readOnly": true
@@ -2144,7 +2128,7 @@
             "uid": "Prometheus"
           },
           "editorMode": "code",
-          "expr": "mongodb_ss_metrics_cursor_timedOut{env=\"$env\", rs_nm=\"$rs\"}",
+          "expr": "mongodb_ss_metrics_cursor_timedOut{rs_nm=\"$rs\"}",
           "legendFormat": "{{instance}} - {{rs_nm}}",
           "range": true,
           "refId": "A"
@@ -2240,7 +2224,7 @@
             "uid": "Prometheus"
           },
           "editorMode": "code",
-          "expr": "mongodb_ss_metrics_cursor_totalOpened{env=\"$env\", rs_nm=\"$rs\"}",
+          "expr": "mongodb_ss_metrics_cursor_totalOpened{rs_nm=\"$rs\"}",
           "legendFormat": "{{instance}} - {{rs_nm}}",
           "range": true,
           "refId": "A"
@@ -2354,7 +2338,7 @@
             "uid": "Prometheus"
           },
           "editorMode": "code",
-          "expr": "avg(rate(node_cpu_seconds_total{env=\"$env\", mode=\"system\"}[$interval])) by (hostname) *100",
+          "expr": "avg(rate(node_cpu_seconds_total{mode=\"system\"}[$interval])) by (hostname) *100",
           "hide": false,
           "legendFormat": "{{instance}}",
           "range": true,
@@ -2459,7 +2443,7 @@
             "uid": "Prometheus"
           },
           "editorMode": "code",
-          "expr": "node_memory_MemTotal_bytes{env=\"$env\", job=\"$nodeJob\"} - node_memory_MemFree_bytes{env=\"$env\", job=\"$nodeJob\"} - (node_memory_Cached_bytes{env=\"$env\", job=\"$nodeJob\"} + node_memory_Buffers_bytes{env=\"$env\", job=\"$nodeJob\"})",
+          "expr": "node_memory_MemTotal_bytes{job=\"$nodeJob\"} - node_memory_MemFree_bytes{job=\"$nodeJob\"} - (node_memory_Cached_bytes{job=\"$nodeJob\"} + node_memory_Buffers_bytes{job=\"$nodeJob\"})",
           "hide": false,
           "legendFormat": "{{instance}} - RAM Used",
           "range": true,
@@ -2471,7 +2455,7 @@
             "uid": "Prometheus"
           },
           "editorMode": "code",
-          "expr": "node_memory_Cached_bytes{env=\"$env\", job=\"$nodeJob\"} + node_memory_Buffers_bytes{env=\"$env\", job=\"$nodeJob\"} + node_memory_SReclaimable_bytes{env=\"$env\", job=\"$nodeJob\"}",
+          "expr": "node_memory_Cached_bytes{job=\"$nodeJob\"} + node_memory_Buffers_bytes{job=\"$nodeJob\"} + node_memory_SReclaimable_bytes{job=\"$nodeJob\"}",
           "hide": false,
           "legendFormat": "{{instance}} - Buffer Mem",
           "range": true,
@@ -2572,7 +2556,7 @@
             "uid": "Prometheus"
           },
           "editorMode": "code",
-          "expr": "irate(node_network_receive_bytes_total{env=\"$env\", job=\"$nodeJob\"}[5m])",
+          "expr": "irate(node_network_receive_bytes_total{job=\"$nodeJob\"}[5m])",
           "legendFormat": "{{instance}}-{{device}} - Receives",
           "range": true,
           "refId": "A"
@@ -2583,7 +2567,7 @@
             "uid": "Prometheus"
           },
           "editorMode": "code",
-          "expr": "irate(node_network_transmit_bytes_total{env=\"$env\", job=\"$nodeJob\"}[5m])",
+          "expr": "irate(node_network_transmit_bytes_total{job=\"$nodeJob\"}[5m])",
           "hide": false,
           "legendFormat": "{{instance}}-{{device}} - Transmit",
           "range": true,
@@ -2655,32 +2639,7 @@
           "unit": "binBps",
           "unitScale": true
         },
-        "overrides": [
-          {
-            "__systemRef": "hideSeriesFrom",
-            "matcher": {
-              "id": "byNames",
-              "options": {
-                "mode": "exclude",
-                "names": [
-                  "172.31.2.156:9101-dm-0 - Write"
-                ],
-                "prefix": "All except:",
-                "readOnly": true
-              }
-            },
-            "properties": [
-              {
-                "id": "custom.hideFrom",
-                "value": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": true
-                }
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "gridPos": {
         "h": 8,
@@ -2712,7 +2671,7 @@
             "uid": "Prometheus"
           },
           "editorMode": "code",
-          "expr": "rate(node_disk_read_bytes_total{env=\"$env\", job=\"$nodeJob\",device=~\"$device\"}[$interval])",
+          "expr": "rate(node_disk_read_bytes_total{job=\"$nodeJob\",device=~\"$device\"}[$interval])",
           "legendFormat": "{{instance}}-{{device}} - Reads",
           "range": true,
           "refId": "A"
@@ -2723,7 +2682,7 @@
             "uid": "Prometheus"
           },
           "editorMode": "code",
-          "expr": "rate(node_disk_written_bytes_total{env=\"$env\", job=\"$nodeJob\",device=~\"$device\"}[$interval])",
+          "expr": "rate(node_disk_written_bytes_total{job=\"$nodeJob\",device=~\"$device\"}[$interval])",
           "hide": false,
           "legendFormat": "{{instance}}-{{device}} - Write",
           "range": true,
@@ -2820,7 +2779,7 @@
             "uid": "Prometheus"
           },
           "editorMode": "code",
-          "expr": "100 - ((node_filesystem_avail_bytes{env=\"$env\", job=\"$nodeJob\",device!~'rootfs'} * 100) / node_filesystem_size_bytes{env=\"$env\", job=\"$nodeJob\",device!~'rootfs'})",
+          "expr": "100 - ((node_filesystem_avail_bytes{job=\"$nodeJob\",device!~'rootfs'} * 100) / node_filesystem_size_bytes{job=\"$nodeJob\",device!~'rootfs'})",
           "legendFormat": "{{instance}}",
           "range": true,
           "refId": "A"
@@ -2865,33 +2824,6 @@
           "type": "prometheus",
           "uid": "Prometheus"
         },
-        "definition": "label_values(mongodb_up, env)",
-        "hide": 0,
-        "includeAll": false,
-        "label": "env",
-        "multi": false,
-        "name": "env",
-        "options": [],
-        "query": {
-          "query": "label_values(mongodb_up, env)",
-          "refId": "StandardVariableQuery"
-        },
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "type": "query"
-      },
-      {
-        "current": {
-          "selected": false,
-          "text": "vitam-mongoc-data",
-          "value": "vitam-mongoc-data"
-        },
-        "datasource": {
-          "type": "prometheus",
-          "uid": "Prometheus"
-        },
         "definition": "label_values(mongodb_up{env=\"$env\"}, job)",
         "hide": 2,
         "includeAll": false,
@@ -2910,11 +2842,6 @@
         "type": "query"
       },
       {
-        "current": {
-          "selected": false,
-          "text": "vitam-env-toc-vm-1",
-          "value": "vitam-env-toc-vm-1"
-        },
         "datasource": {
           "type": "prometheus",
           "uid": "Prometheus"
@@ -2938,11 +2865,6 @@
         "type": "query"
       },
       {
-        "current": {
-          "selected": false,
-          "text": "172.28.222.230:9216",
-          "value": "172.28.222.230:9216"
-        },
         "datasource": {
           "type": "prometheus",
           "uid": "Prometheus"
@@ -3044,11 +2966,6 @@
         "type": "interval"
       },
       {
-        "current": {
-          "selected": false,
-          "text": "vitam-node-exporter",
-          "value": "vitam-node-exporter"
-        },
         "datasource": {
           "type": "prometheus",
           "uid": "Prometheus"
@@ -3133,7 +3050,7 @@
           "type": "prometheus",
           "uid": "Prometheus"
         },
-        "definition": "label_values(mongodb_rs_ok{env=\"$env\"}, rs_nm)",
+        "definition": "label_values(mongodb_rs_ok,rs_nm)",
         "hide": 0,
         "includeAll": false,
         "label": "ReplicaSet",
@@ -3141,10 +3058,39 @@
         "name": "rs",
         "options": [],
         "query": {
-          "query": "label_values(mongodb_rs_ok{env=\"$env\"}, rs_nm)",
-          "refId": "StandardVariableQuery"
+          "qryType": 1,
+          "query": "label_values(mongodb_rs_ok,rs_nm)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "vitam-mongoc-data",
+          "value": "vitam-mongoc-data"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "Prometheus"
+        },
+        "definition": "label_values(mongodb_up,service_name)",
+        "hide": 2,
+        "includeAll": false,
+        "label": "service_name",
+        "multi": true,
+        "name": "service_name",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(mongodb_up,service_name)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
         "sort": 0,
@@ -3156,6 +3102,7 @@
     "from": "now-6h",
     "to": "now"
   },
+  "timeRangeUpdatedDuringEditOrView": false,
   "timepicker": {},
   "timezone": "",
   "title": "Vitam MongoDB Global Overview",
