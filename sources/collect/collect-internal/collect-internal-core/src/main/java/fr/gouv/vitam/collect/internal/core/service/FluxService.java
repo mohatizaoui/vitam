@@ -179,13 +179,12 @@ public class FluxService {
                 while ((entry = archiveInputStream.getNextEntry()) != null) {
                     if (archiveInputStream.canReadEntryData(entry)) {
                         checkNonEmptyBinary(entry);
-
+                        if (Strings.isNullOrEmpty(entry.getName())) {
+                            continue;
+                        }
                         String path = FilenameUtils.normalize(entry.getName());
                         if (!FilenameUtils.equals(entry.getName(), path)) {
                             throw new IllegalStateException("path " + path + " is not canonical");
-                        }
-                        if (Strings.isNullOrEmpty(path)) {
-                            continue;
                         }
                         path = FilenameUtils.normalizeNoEndSeparator(path);
                         if (
@@ -401,8 +400,7 @@ public class FluxService {
         return fullMetadataJsonlFile;
     }
 
-    private static Map<String, TitleAndDescriptionLevel> loadDefaultMetadataUnits(File unitsToWriteFile)
-        throws IOException {
+    private Map<String, TitleAndDescriptionLevel> loadDefaultMetadataUnits(File unitsToWriteFile) throws IOException {
         Map<String, TitleAndDescriptionLevel> unitMetadataByPath = new HashMap<>();
         try (
             InputStream inputStream = new FileInputStream(unitsToWriteFile);
@@ -425,7 +423,7 @@ public class FluxService {
         return unitMetadataByPath;
     }
 
-    private static String getUploadPath(CollectJsonMetadataLine entry) {
+    private String getUploadPath(CollectJsonMetadataLine entry) {
         if (entry.getFile() != null) {
             return entry.getFile();
         } else if (
@@ -441,7 +439,7 @@ public class FluxService {
     }
 
     @Beta
-    private static File transformJsonMetadataFile(
+    private File transformJsonMetadataFile(
         ProjectModel projectModel,
         TempWorkspace tempWorkspace,
         File validatedJsonlMetadataFile

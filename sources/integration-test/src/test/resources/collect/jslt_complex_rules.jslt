@@ -19,8 +19,7 @@ let appraisalFinalAction = if        (contains(.DOSSIER[0].nomTypeDossier[0], ["
         "AppraisalRule": if ($hasAppraisal or $appraisalRuleToAdd != null) {
             // Add new rule to existing ones
             "Rules": if ($appraisalRuleToAdd != null)     [ { "Rule": $appraisalRuleToAdd, "StartDate": $appraisalRuleStartDate } ] + $existingAppraisalRules
-                else if ($existingAppraisalRules != null) $existingAppraisalRules
-                else                                      [],
+                else $existingAppraisalRules,
             // Final action is required, if no value found set "Keep"
             "FinalAction": if($appraisalFinalAction != null)               $appraisalFinalAction 
                            else if ($existingAppraisalFinalAction != null) $existingAppraisalFinalAction
