@@ -1,0 +1,203 @@
+[
+  {
+    "DescriptionLevel": "Series",
+    "Title": "STATIC_ATTACHEMENT",
+    "#tenant": 0,
+    "#management": {
+      "UpdateOperation": {
+        "SystemId": "aeeaaaaaaceevqftaammeamaqvje33aaaaaq"
+      }
+    },
+    "#unitType": "INGEST",
+    "#originating_agency": "Service_producteur",
+    "#originating_agencies": [
+      "Service_producteur"
+    ],
+    "#version": 0,
+    "#max": 1,
+    "#min": 1
+  },
+  {
+    "DescriptionLevel": "Item",
+    "Title": "Title 1",
+    "DOSSIER": [
+      {
+        "nomEtatsOuSousEtatsGenera": [
+          "Refus"
+        ],
+        "nomTypeDossier": [
+          "DP"
+        ]
+      }
+    ],
+    "terrains": [
+      {
+        "dtDecisionDossierCU": [
+          "2010-01-01"
+        ]
+      }
+    ],
+    "TYPE_DOSSIER": [
+      "DP"
+    ],
+    "decisionsUrba": [
+      {
+        "dtDecisionUrba": [
+          "2011-02-02"
+        ]
+      }
+    ],
+    "#tenant": 0,
+    "#management": {
+      "AppraisalRule": {
+        "Rules": [
+          {
+            "Rule": "XXX",
+            "StartDate": "2011-02-02"
+          },
+          {
+            "Rule": "ZZZ"
+          }
+        ],
+        "FinalAction": "Keep"
+      }
+    },
+    "#unitType": "INGEST",
+    "#originating_agency": "Service_producteur",
+    "#originating_agencies": [
+      "Service_producteur"
+    ],
+    "#version": 1,
+    "#uploadPath": "file1.txt",
+    "#max": 2,
+    "#min": 1
+  },
+  {
+    "DescriptionLevel": "Item",
+    "Title": "Title 2",
+    "DOSSIER": [
+      {
+        "nomEtatsOuSousEtatsGenera": [
+          "Rejet"
+        ],
+        "nomTypeDossier": [
+          "CUa"
+        ]
+      }
+    ],
+    "terrains": [
+      {
+        "dtDecisionDossierCU": [
+          "2000-01-01"
+        ]
+      }
+    ],
+    "TYPE_DOSSIER": [
+      "CUa"
+    ],
+    "decisionsUrba": [
+      {
+        "dtDecisionUrba": [
+          "2001-03-03"
+        ]
+      }
+    ],
+    "#tenant": 0,
+    "#management": {
+      "AppraisalRule": {
+        "Rules": [
+          {
+            "Rule": "YYY",
+            "StartDate": "2000-01-01"
+          }
+        ],
+        "FinalAction": "Destroy"
+      }
+    },
+    "#unitType": "INGEST",
+    "#originating_agency": "Service_producteur",
+    "#originating_agencies": [
+      "Service_producteur"
+    ],
+    "#version": 1,
+    "#uploadPath": "file2.txt",
+    "#max": 2,
+    "#min": 1
+  },
+  {
+    "DescriptionLevel": "Item",
+    "Title": "Title 3",
+    "DOSSIER": [
+      {
+        "nomEtatsOuSousEtatsGenera": [
+          "Accord"
+        ],
+        "nomTypeDossier": [
+          "CUa"
+        ]
+      }
+    ],
+    "terrains": [
+      {
+        "dtDecisionDossierCU": [
+          "2000-01-01"
+        ]
+      }
+    ],
+    "TYPE_DOSSIER": [
+      "CUa"
+    ],
+    "decisionsUrba": [
+      {
+        "dtDecisionUrba": [
+          "2001-03-03"
+        ]
+      }
+    ],
+    "#tenant": 0,
+    "#management": {
+      "AppraisalRule": {
+        "Rules": [
+          {
+            "Rule": "YYY",
+            "StartDate": "2000-01-01"
+          }
+        ],
+        "FinalAction": "Keep"
+      }
+    },
+    "#unitType": "INGEST",
+    "#originating_agency": "Service_producteur",
+    "#originating_agencies": [
+      "Service_producteur"
+    ],
+    "#version": 1,
+    "#uploadPath": "file3.txt",
+    "#max": 2,
+    "#min": 1
+  },
+  {
+    "DescriptionLevel": "Item",
+    "Title": "Title 4",
+    "#tenant": 0,
+    "#unitType": "INGEST",
+    "#originating_agency": "Service_producteur",
+    "#originating_agencies": [
+      "Service_producteur"
+    ],
+    "#version": 1,
+    "#uploadPath": "file4.txt",
+    "#max": 2,
+    "#min": 1,
+    "#management": {
+      "AppraisalRule": {
+        "Rules": [
+          {
+            "Rule": "ZZZ"
+          }
+        ],
+        "FinalAction": "Destroy"
+      }
+    }
+  }
+]
