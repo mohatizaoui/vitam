@@ -1,5 +1,5 @@
 Name:    vitam-prometheus
-Version: 2.51.2
+Version: 3.1.0
 Release: 1%{?dist}
 Summary: The Prometheus monitoring system and time series database.
 License: ASL 2.0
@@ -30,9 +30,6 @@ install promtool %{buildroot}%{binfolder}/promtool
 mkdir -p %{buildroot}%{appfolder}
 install LICENSE %{buildroot}%{appfolder}/LICENSE
 install NOTICE %{buildroot}%{appfolder}/NOTICE
-
-cp -vrp console_libraries %{buildroot}%{appfolder}
-cp -vrp consoles %{buildroot}%{appfolder}
 
 mkdir -p %{buildroot}%{conffolder}
 install prometheus.yml %{buildroot}%{conffolder}/prometheus.yml
