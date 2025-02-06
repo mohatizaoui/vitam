@@ -9,7 +9,7 @@ grafana/grafana:11.5.0
 restic/restic:0.17.2
 hashicorp/consul:1.20.2-ubi
 lmenezes/cerebro:0.9.4
-prom/prometheus:v3.0.1
+prom/prometheus:v3.1.0
 prom/alertmanager:v0.28.0
 prom/consul-exporter:v0.13.0
 prometheuscommunity/elasticsearch-exporter:v1.8.0

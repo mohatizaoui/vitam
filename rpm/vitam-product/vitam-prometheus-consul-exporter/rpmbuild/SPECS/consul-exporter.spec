@@ -1,5 +1,5 @@
 Name:    vitam-consul-exporter
-Version: 0.11.0
+Version: 0.13.0
 Release: 1%{?dist}
 Summary: Consul exporter for prometheus.
 License: Apache License 2.0

@@ -19,8 +19,6 @@ ExecStart=/usr/bin/docker run --rm --net=host --ulimit memlock=-1:-1 --name prom
         --config.file=/vitam/conf/prometheus/prometheus.yml \
         --storage.tsdb.path=/vitam/data/prometheus \
         --storage.tsdb.retention.time={{ prometheus.server.tsdb_retention_time | default("15d") }} \
-        --web.console.libraries=/vitam/app/prometheus/console_libraries \
-        --web.console.templates=/vitam/app/prometheus/consoles \
         --storage.tsdb.retention.size={{ prometheus.server.tsdb_retention_size | default("5GB") }}
 
 ExecStop=/usr/bin/docker stop -t 85 prometheus-server
