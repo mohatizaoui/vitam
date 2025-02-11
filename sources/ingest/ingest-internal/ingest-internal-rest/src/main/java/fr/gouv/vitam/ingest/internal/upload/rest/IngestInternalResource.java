@@ -35,6 +35,7 @@ import fr.gouv.vitam.common.accesslog.AccessLogUtils;
 import fr.gouv.vitam.common.error.ServiceName;
 import fr.gouv.vitam.common.error.VitamError;
 import fr.gouv.vitam.common.exception.BadRequestException;
+import fr.gouv.vitam.common.exception.ConflictClientException;
 import fr.gouv.vitam.common.exception.InternalServerException;
 import fr.gouv.vitam.common.exception.InvalidGuidOperationException;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
@@ -444,6 +445,18 @@ public class IngestInternalResource extends ApplicationStatusResource {
             SanityChecker.checkParameter(id);
             RequestResponse<ItemStatus> response = processManagementClient.cancelOperationProcessExecution(id, force);
             return response.toResponse();
+        } catch (VitamClientException e) {
+            LOGGER.error(e);
+            // Will be simplified with Java 21...
+            Throwable cause = e.getCause();
+            if (cause instanceof WorkflowNotFoundException) {
+                status = Status.NOT_FOUND;
+            } else if (cause instanceof ConflictClientException) {
+                status = Status.CONFLICT;
+            } else {
+                status = Status.INTERNAL_SERVER_ERROR;
+            }
+            return Response.status(status).entity(getErrorEntity(status, e.getMessage())).build();
         } catch (Exception e) {
             LOGGER.error(e);
             status = Status.INTERNAL_SERVER_ERROR;
