@@ -30,11 +30,15 @@ package fr.gouv.vitam.collect.internal.core.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import fr.gouv.vitam.collect.common.dto.MetadataUnitUp;
 import fr.gouv.vitam.collect.common.exception.CollectInternalException;
 import fr.gouv.vitam.collect.common.exception.CollectInternalInvalidRequestException;
+import fr.gouv.vitam.collect.internal.core.common.CollectJsonMetadataLine;
 import fr.gouv.vitam.collect.internal.core.common.ManifestContext;
 import fr.gouv.vitam.collect.internal.core.common.ProjectModel;
+import fr.gouv.vitam.collect.internal.core.common.ProjectStatus;
 import fr.gouv.vitam.collect.internal.core.common.TransactionModel;
+import fr.gouv.vitam.collect.internal.core.configuration.CollectInternalConfiguration;
 import fr.gouv.vitam.collect.internal.core.repository.MetadataRepository;
 import fr.gouv.vitam.collect.internal.core.repository.ProjectRepository;
 import fr.gouv.vitam.common.PropertiesUtils;
@@ -61,8 +65,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
@@ -70,10 +74,12 @@ import org.mockito.junit.MockitoRule;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -156,7 +162,8 @@ public class FluxServiceTest {
     @Mock
     private AdminManagementClientFactory adminManagementClientFactory;
 
-    @InjectMocks
+    private CollectInternalConfiguration config = new CollectInternalConfiguration();
+
     private FluxService fluxService;
 
     private TransactionModel transactionModel;
@@ -166,6 +173,16 @@ public class FluxServiceTest {
     public void setUp() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
         VitamThreadUtils.getVitamSession().setRequestId(GUIDFactory.newRequestIdGUID(TENANT_ID).getId());
+
+        config.setApplyJsltPostDynamicAttachement(false);
+        fluxService = new FluxService(
+            collectService,
+            metadataService,
+            projectRepository,
+            metadataRepository,
+            adminManagementClientFactory,
+            config
+        );
 
         doReturn(adminManagementClient).when(adminManagementClientFactory).getClient();
         doReturn(loadUnitSchema()).when(adminManagementClient).getUnitSchema();
@@ -696,6 +713,371 @@ public class FluxServiceTest {
                     "[*]." + VitamFieldsHelper.qualifiers() + "[*]." + TAG_VERSIONS + "[*]." + TAG_URI
                 )
             )
+        );
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void processStream_with_metadata_csv_and_jslt_transformation_before_attachment_ok() throws Exception {
+        // Given
+        ProjectModel project = createTestProjectWithJsltTransformation();
+
+        when(projectRepository.findProjectById(project.getId())).thenReturn(Optional.of(project));
+        doReturn(JsonHandler.createObjectNode()).when(metadataRepository).saveArchiveUnits(ArgumentMatchers.anyList());
+
+        when(metadataService.prepareAttachmentUnits(any(), anyString())).thenReturn(
+            Map.of("unit1", "guid_attachment1", "unit2", "guid_attachment2", "unit3", "guid_attachment3")
+        );
+
+        List<CollectJsonMetadataLine> unitUpdates = new ArrayList<>();
+        doAnswer(e -> {
+            try (
+                JsonLineGenericIterator<CollectJsonMetadataLine> metadata = new JsonLineGenericIterator<>(
+                    e.getArgument(1),
+                    CollectJsonMetadataLine.TYPE_REFERENCE
+                )
+            ) {
+                metadata.forEachRemaining(unitUpdates::add);
+            }
+            return null;
+        })
+            .when(metadataService)
+            .updateUnitsWithJsonlMetadataFile(eq("transactionId"), any());
+
+        // Apply JSLT "before" dynamic attachement
+        config.setApplyJsltPostDynamicAttachement(false);
+
+        // When
+        try (
+            final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(
+                "streamZip/simple_zip_with_metadata_csv.zip"
+            )
+        ) {
+            fluxService.processStream(resourceAsStream, project.getId(), "transactionId", null, null);
+        }
+
+        // Then
+        ArgumentCaptor<List<ObjectNode>> savedUnitsArgCaptor = ArgumentCaptor.forClass(List.class);
+        verify(metadataRepository).saveArchiveUnits(savedUnitsArgCaptor.capture());
+        checkInsertedUnits(
+            savedUnitsArgCaptor.getValue(),
+            "streamZip/expected_inserted_unit_with_jslt_before_attachement.json"
+        );
+
+        checkUpdatedUnits(unitUpdates, "streamZip/expected_updated_units_metadata_csv_and_jslt.json");
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void processStream_with_metadata_csv_and_jslt_transformation_after_attachment_ok() throws Exception {
+        // Given
+        ProjectModel project = createTestProjectWithJsltTransformation();
+
+        when(projectRepository.findProjectById(project.getId())).thenReturn(Optional.of(project));
+        doReturn(JsonHandler.createObjectNode()).when(metadataRepository).saveArchiveUnits(ArgumentMatchers.anyList());
+
+        when(metadataService.prepareAttachmentUnits(any(), anyString())).thenReturn(
+            Map.of("unit1", "guid_attachment1", "unit2", "guid_attachment2", "unit3", "guid_attachment3")
+        );
+
+        List<CollectJsonMetadataLine> unitUpdates = new ArrayList<>();
+        doAnswer(e -> {
+            try (
+                JsonLineGenericIterator<CollectJsonMetadataLine> metadata = new JsonLineGenericIterator<>(
+                    e.getArgument(1),
+                    CollectJsonMetadataLine.TYPE_REFERENCE
+                )
+            ) {
+                metadata.forEachRemaining(unitUpdates::add);
+            }
+            return null;
+        })
+            .when(metadataService)
+            .updateUnitsWithJsonlMetadataFile(eq("transactionId"), any());
+
+        // Apply JSLT "after" dynamic attachement
+        config.setApplyJsltPostDynamicAttachement(true);
+
+        // When
+        try (
+            final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(
+                "streamZip/simple_zip_with_metadata_csv.zip"
+            )
+        ) {
+            fluxService.processStream(resourceAsStream, project.getId(), "transactionId", null, null);
+        }
+
+        // Then
+        ArgumentCaptor<List<ObjectNode>> savedUnitsArgCaptor = ArgumentCaptor.forClass(List.class);
+        verify(metadataRepository).saveArchiveUnits(savedUnitsArgCaptor.capture());
+        checkInsertedUnits(
+            savedUnitsArgCaptor.getValue(),
+            "streamZip/expected_inserted_unit_with_jslt_after_attachement.json"
+        );
+
+        checkUpdatedUnits(unitUpdates, "streamZip/expected_updated_units_metadata_csv_and_jslt.json");
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void processStream_with_metadata_jsonl_and_jslt_transformation_before_attachment_ok() throws Exception {
+        // Given
+        ProjectModel project = createTestProjectWithJsltTransformation();
+
+        when(projectRepository.findProjectById(project.getId())).thenReturn(Optional.of(project));
+        doReturn(JsonHandler.createObjectNode()).when(metadataRepository).saveArchiveUnits(ArgumentMatchers.anyList());
+
+        when(metadataService.prepareAttachmentUnits(any(), anyString())).thenReturn(
+            Map.of("unit1", "guid_attachment1", "unit2", "guid_attachment2", "unit3", "guid_attachment3")
+        );
+
+        List<CollectJsonMetadataLine> unitUpdates = new ArrayList<>();
+        doAnswer(e -> {
+            try (
+                JsonLineGenericIterator<CollectJsonMetadataLine> metadata = new JsonLineGenericIterator<>(
+                    e.getArgument(1),
+                    CollectJsonMetadataLine.TYPE_REFERENCE
+                )
+            ) {
+                metadata.forEachRemaining(unitUpdates::add);
+            }
+            return null;
+        })
+            .when(metadataService)
+            .updateUnitsWithJsonlMetadataFile(eq("transactionId"), any());
+
+        // Apply JSLT "before" dynamic attachement
+        config.setApplyJsltPostDynamicAttachement(false);
+
+        // When
+        try (
+            final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(
+                "streamZip/simple_zip_with_metadata_jsonl.zip"
+            )
+        ) {
+            fluxService.processStream(resourceAsStream, project.getId(), "transactionId", null, null);
+        }
+
+        // Then
+        ArgumentCaptor<List<ObjectNode>> savedUnitsArgCaptor = ArgumentCaptor.forClass(List.class);
+        verify(metadataRepository).saveArchiveUnits(savedUnitsArgCaptor.capture());
+        checkInsertedUnits(
+            savedUnitsArgCaptor.getValue(),
+            "streamZip/expected_inserted_unit_with_jslt_before_attachement.json"
+        );
+
+        checkUpdatedUnits(unitUpdates, "streamZip/expected_updated_units_metadata_csv_and_jslt.json");
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void processStream_with_metadata_jsonl_and_jslt_transformation_after_attachment_ok() throws Exception {
+        // Given
+        ProjectModel project = createTestProjectWithJsltTransformation();
+
+        when(projectRepository.findProjectById(project.getId())).thenReturn(Optional.of(project));
+        doReturn(JsonHandler.createObjectNode()).when(metadataRepository).saveArchiveUnits(ArgumentMatchers.anyList());
+
+        when(metadataService.prepareAttachmentUnits(any(), anyString())).thenReturn(
+            Map.of("unit1", "guid_attachment1", "unit2", "guid_attachment2", "unit3", "guid_attachment3")
+        );
+
+        List<CollectJsonMetadataLine> unitUpdates = new ArrayList<>();
+        doAnswer(e -> {
+            try (
+                JsonLineGenericIterator<CollectJsonMetadataLine> metadata = new JsonLineGenericIterator<>(
+                    e.getArgument(1),
+                    CollectJsonMetadataLine.TYPE_REFERENCE
+                )
+            ) {
+                metadata.forEachRemaining(unitUpdates::add);
+            }
+            return null;
+        })
+            .when(metadataService)
+            .updateUnitsWithJsonlMetadataFile(eq("transactionId"), any());
+
+        // Apply JSLT "after" dynamic attachement
+        config.setApplyJsltPostDynamicAttachement(true);
+
+        // When
+        try (
+            final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(
+                "streamZip/simple_zip_with_metadata_jsonl.zip"
+            )
+        ) {
+            fluxService.processStream(resourceAsStream, project.getId(), "transactionId", null, null);
+        }
+
+        // Then
+        ArgumentCaptor<List<ObjectNode>> savedUnitsArgCaptor = ArgumentCaptor.forClass(List.class);
+        verify(metadataRepository).saveArchiveUnits(savedUnitsArgCaptor.capture());
+        checkInsertedUnits(
+            savedUnitsArgCaptor.getValue(),
+            "streamZip/expected_inserted_unit_with_jslt_after_attachement.json"
+        );
+
+        checkUpdatedUnits(unitUpdates, "streamZip/expected_updated_units_metadata_csv_and_jslt.json");
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void processStream_without_metadata_with_jslt_transformation_before_attachment_ok() throws Exception {
+        // Given
+        ProjectModel project = createTestProjectWithJsltTransformation();
+
+        when(projectRepository.findProjectById(project.getId())).thenReturn(Optional.of(project));
+        doReturn(JsonHandler.createObjectNode()).when(metadataRepository).saveArchiveUnits(ArgumentMatchers.anyList());
+
+        when(metadataService.prepareAttachmentUnits(any(), anyString())).thenReturn(
+            Map.of("unit1", "guid_attachment1", "unit2", "guid_attachment2", "unit3", "guid_attachment3")
+        );
+
+        List<CollectJsonMetadataLine> unitUpdates = new ArrayList<>();
+        doAnswer(e -> {
+            try (
+                JsonLineGenericIterator<CollectJsonMetadataLine> metadata = new JsonLineGenericIterator<>(
+                    e.getArgument(1),
+                    CollectJsonMetadataLine.TYPE_REFERENCE
+                )
+            ) {
+                metadata.forEachRemaining(unitUpdates::add);
+            }
+            return null;
+        })
+            .when(metadataService)
+            .updateUnitsWithJsonlMetadataFile(eq("transactionId"), any());
+
+        // Apply JSLT "before" dynamic attachement
+        config.setApplyJsltPostDynamicAttachement(false);
+
+        // When
+        try (
+            final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(
+                "streamZip/simple_zip_without_metadata.zip"
+            )
+        ) {
+            fluxService.processStream(resourceAsStream, project.getId(), "transactionId", null, null);
+        }
+
+        // Then
+        ArgumentCaptor<List<ObjectNode>> savedUnitsArgCaptor = ArgumentCaptor.forClass(List.class);
+        verify(metadataRepository).saveArchiveUnits(savedUnitsArgCaptor.capture());
+        checkInsertedUnits(
+            savedUnitsArgCaptor.getValue(),
+            "streamZip/expected_inserted_unit_with_jslt_before_attachement.json"
+        );
+
+        checkUpdatedUnits(unitUpdates, "streamZip/expected_updated_units_without_metadata_with_jslt.json");
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void processStream_without_metadata_with_jslt_transformation_after_attachment_ok() throws Exception {
+        // Given
+        ProjectModel project = createTestProjectWithJsltTransformation();
+
+        when(projectRepository.findProjectById(project.getId())).thenReturn(Optional.of(project));
+        doReturn(JsonHandler.createObjectNode()).when(metadataRepository).saveArchiveUnits(ArgumentMatchers.anyList());
+
+        when(metadataService.prepareAttachmentUnits(any(), anyString())).thenReturn(
+            Map.of("unit1", "guid_attachment1", "unit2", "guid_attachment2", "unit3", "guid_attachment3")
+        );
+
+        List<CollectJsonMetadataLine> unitUpdates = new ArrayList<>();
+        doAnswer(e -> {
+            try (
+                JsonLineGenericIterator<CollectJsonMetadataLine> metadata = new JsonLineGenericIterator<>(
+                    e.getArgument(1),
+                    CollectJsonMetadataLine.TYPE_REFERENCE
+                )
+            ) {
+                metadata.forEachRemaining(unitUpdates::add);
+            }
+            return null;
+        })
+            .when(metadataService)
+            .updateUnitsWithJsonlMetadataFile(eq("transactionId"), any());
+
+        // Apply JSLT "after" dynamic attachement
+        config.setApplyJsltPostDynamicAttachement(true);
+
+        // When
+        try (
+            final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(
+                "streamZip/simple_zip_without_metadata.zip"
+            )
+        ) {
+            fluxService.processStream(resourceAsStream, project.getId(), "transactionId", null, null);
+        }
+
+        // Then
+        ArgumentCaptor<List<ObjectNode>> savedUnitsArgCaptor = ArgumentCaptor.forClass(List.class);
+        verify(metadataRepository).saveArchiveUnits(savedUnitsArgCaptor.capture());
+        checkInsertedUnits(
+            savedUnitsArgCaptor.getValue(),
+            "streamZip/expected_inserted_unit_with_jslt_after_attachement_without_metadata.json"
+        );
+
+        checkUpdatedUnits(unitUpdates, "streamZip/expected_updated_units_without_metadata_with_jslt.json");
+    }
+
+    private static void checkInsertedUnits(List<ObjectNode> actual, String expectedResourceFile)
+        throws InvalidParseOperationException, FileNotFoundException {
+        JsonAssert.assertJsonEquals(
+            JsonHandler.getFromInputStream(PropertiesUtils.getResourceAsStream(expectedResourceFile)),
+            actual,
+            JsonAssert.when(Option.IGNORING_ARRAY_ORDER).whenIgnoringPaths(
+                List.of(
+                    "[*]." + VitamFieldsHelper.id(),
+                    "[*]." + VitamFieldsHelper.batchId(),
+                    "[*]." + VitamFieldsHelper.object()
+                )
+            )
+        );
+    }
+
+    private static void checkUpdatedUnits(
+        List<CollectJsonMetadataLine> unitUpdates,
+        String expectedUnitUpdateResourcesFile
+    ) throws InvalidParseOperationException, FileNotFoundException {
+        JsonAssert.assertJsonEquals(
+            JsonHandler.getFromInputStream(PropertiesUtils.getResourceAsStream(expectedUnitUpdateResourcesFile)),
+            unitUpdates,
+            JsonAssert.when(Option.IGNORING_ARRAY_ORDER)
+        );
+    }
+
+    private static ProjectModel createTestProjectWithJsltTransformation() {
+        return new ProjectModel(
+            GUIDFactory.newGUID().getId(),
+            "projectName",
+            new ManifestContext(
+                "acquisitionInformation",
+                "legalStatus",
+                "archivalAgreement",
+                "messageIdentifier",
+                "archivalAgencyIdentifier",
+                "transferringAgencyIdentifier",
+                "originatingAgencyIdentifier",
+                "submissionAgencyIdentifier",
+                "archivalProfil",
+                "comment"
+            ),
+            ProjectStatus.OPEN,
+            "creation date",
+            "last update",
+            "rootUnitUp",
+            List.of(new MetadataUnitUp("unit1", "Key", "1"), new MetadataUnitUp("unit2", "Key", "2")),
+            TENANT_ID,
+            false,
+            """
+            {
+              "Title": .Title + " - TRANSFORMED",
+              "Key": "2",
+              *: .
+            }
+            """
         );
     }
 

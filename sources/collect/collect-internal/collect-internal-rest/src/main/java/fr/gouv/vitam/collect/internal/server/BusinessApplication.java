@@ -134,7 +134,8 @@ public class BusinessApplication extends ConfigurationApplication {
                 metadataService,
                 projectRepository,
                 metadataRepository,
-                adminManagementClientFactory
+                adminManagementClientFactory,
+                configuration
             );
             TransactionService transactionService = new TransactionService(
                 transactionRepository,

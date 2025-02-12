@@ -27,20 +27,67 @@
 
 package fr.gouv.vitam.collect.internal.core.transformers;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.schibsted.spt.data.jslt.Expression;
 import com.schibsted.spt.data.jslt.JsltException;
 import com.schibsted.spt.data.jslt.Parser;
 import fr.gouv.vitam.collect.internal.core.exceptions.CollectInvalidJsltTransformerException;
+import fr.gouv.vitam.collect.internal.core.exceptions.CollectJsltTransformationFailedException;
+import fr.gouv.vitam.common.json.JsonHandler;
+import fr.gouv.vitam.common.logging.VitamLogger;
+import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
+
+import java.io.StringReader;
+import java.util.Collections;
 
 public class JsltTransformer {
 
-    public static void validate(String jsltTemplate) throws CollectInvalidJsltTransformerException {
-        if (StringUtils.isBlank(jsltTemplate)) {
-            return;
+    private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(JsltTransformer.class);
+
+    private final Expression compiledExpression;
+
+    public JsltTransformer(String jsltTemplate) throws CollectInvalidJsltTransformerException {
+        this.compiledExpression = compile(jsltTemplate);
+    }
+
+    public ObjectNode transform(JsonNode inputJson) throws CollectJsltTransformationFailedException {
+        try {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Transforming: '{}'", JsonHandler.unprettyPrint(inputJson));
+            }
+            JsonNode result = compiledExpression.apply(inputJson);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Transformation result: '{}'", JsonHandler.unprettyPrint(result));
+            }
+            if (!result.isObject()) {
+                throw new CollectJsltTransformationFailedException(
+                    "Invalid JSLT transformation. Expected JSON object result, got " + result.getNodeType()
+                );
+            }
+            return (ObjectNode) result;
+        } catch (JsltException e) {
+            throw new CollectJsltTransformationFailedException(
+                "An error occurred during JSLT transformation: " + e.getMessage(),
+                e
+            );
         }
+    }
+
+    private static Expression compile(String jsltTemplate) throws CollectInvalidJsltTransformerException {
+        if (StringUtils.isBlank(jsltTemplate)) {
+            throw new IllegalArgumentException("Jslt template cannot be empty");
+        }
+        LOGGER.debug("Compiling JSLT transformation '{}'", jsltTemplate);
+
         try {
             // Attempt to parse the JSLT template
-            Parser.compileString(jsltTemplate);
+            return new Parser(new StringReader(jsltTemplate))
+                .withSource("<inline>")
+                .withObjectFilter(JsltTransformer::emptyObjectFilter)
+                .withFunctions(Collections.emptyList())
+                .compile();
         } catch (JsltException e) {
             throw new CollectInvalidJsltTransformerException("Invalid JSLT template: " + e.getMessage(), e);
         } catch (Exception e) {
@@ -49,5 +96,18 @@ public class JsltTransformer {
                 e
             );
         }
+    }
+
+    public static void validate(String jsltTemplate) throws CollectInvalidJsltTransformerException {
+        if (StringUtils.isBlank(jsltTemplate)) {
+            return;
+        }
+        compile(jsltTemplate);
+    }
+
+    private static boolean emptyObjectFilter(JsonNode value) {
+        // Default JSLT parser ignores nulls (see NodeUtils.isValue())
+        // However, null values in JSON have a special meaning "remove"
+        return !(value.isObject() && value.isEmpty()) && !(value.isArray() && value.isEmpty());
     }
 }

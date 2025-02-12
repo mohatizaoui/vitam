@@ -1,0 +1,32 @@
+let hasAppraisal = ."#management".AppraisalRule != null
+let existingAppraisalRules = ."#management".AppraisalRule.Rules
+let existingAppraisalFinalAction = ."#management".AppraisalRule.FinalAction
+
+let appraisalRuleToAdd = if      (contains(.DOSSIER[0].nomTypeDossier[0], ["DP", "PC", "PA", "PD", "DT"])) "XXX"
+                         else if (contains(.DOSSIER[0].nomTypeDossier[0], [ "CUa", "CUb"]))                "YYY"
+                         else                                                                              null
+
+let appraisalRuleStartDate = if ( contains(.TYPE_DOSSIER[0], [ "CUa", "CUb"]) ) .terrains[0].dtDecisionDossierCU[0]
+                             else                                               .decisionsUrba[0].dtDecisionUrba[0]
+
+let appraisalFinalAction = if        (contains(.DOSSIER[0].nomTypeDossier[0], ["CUa", "CUb"]) and contains(.DOSSIER[0].nomEtatsOuSousEtatsGenera[0], [ "Rejet", "Refus"] ))    "Destroy"
+                           else if   (contains(.DOSSIER[0].nomTypeDossier[0], ["CUa", "CUb"]) and contains(.DOSSIER[0].nomEtatsOuSousEtatsGenera[0], [ "Accord ", "Sursis"] )) "Keep"
+                           else                                                                                                                                                 null
+        
+{
+    "#management": {
+        // Only set AppraisalRule if existing field (rule, properties and/or inheritance) OR new rule to set
+        "AppraisalRule": if ($hasAppraisal or $appraisalRuleToAdd != null) {
+            // Add new rule to existing ones
+            "Rules": if ($appraisalRuleToAdd != null)     [ { "Rule": $appraisalRuleToAdd, "StartDate": $appraisalRuleStartDate } ] + $existingAppraisalRules
+                else $existingAppraisalRules,
+            // Final action is required, if no value found set "Keep"
+            "FinalAction": if($appraisalFinalAction != null)               $appraisalFinalAction 
+                           else if ($existingAppraisalFinalAction != null) $existingAppraisalFinalAction
+                           else                                            "Keep",
+            * : .
+        } else {},
+        * : .
+    },
+    * : .
+}

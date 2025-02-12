@@ -67,6 +67,12 @@ public class TempWorkspace implements AutoCloseable {
         return tmpFile;
     }
 
+    public File tempFile() throws IOException {
+        File file = getFile(GUIDFactory.newGUID().getId());
+        Files.createFile(file.toPath());
+        return file;
+    }
+
     public File getFile(String filename) throws IOException {
         try {
             return SafeFileChecker.checkSafeFilePath(tmpFolder.getAbsolutePath(), filename);

@@ -155,9 +155,7 @@ public class CsvMetadataValidator {
             if (!isContentField(headerName) && !isManagementField(headerName) && !isFileField(headerName)) {
                 csvHeaderValidationManager.report(
                     headerName,
-                    "Invalid header name '" +
-                    headerName +
-                    "'. Only accepted names are 'File', 'Content.*', 'Management.*' or 'ArchiveUnitProfile'"
+                    "Only accepted names are 'File', 'Content.*', 'Management.*' or 'ArchiveUnitProfile'"
                 );
             }
         }
@@ -263,7 +261,7 @@ public class CsvMetadataValidator {
             if (matchesPattern(fieldEntry.sedaFieldName(), ARRAY_INDEX_PATTERN)) {
                 csvHeaderValidationManager.report(
                     headerName,
-                    "'Invalid array declaration at '" + fieldEntry.parentFullSedaPath() + "'"
+                    "Invalid array declaration at '" + fieldEntry.parentFullSedaPath() + "'"
                 );
                 // No more processing of other fields of this header
                 return;
