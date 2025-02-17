@@ -139,6 +139,7 @@ pipeline {
                     branch "develop*"
                     branch "master_*"
                     branch "master"
+                    branch "*_to_publish"
                     tag pattern: "^[1-9]+(\\.rc)?(\\.[0-9]+)?\\.[0-9]+(-.*)?", comparator: "REGEXP"
                 }
             }
@@ -185,6 +186,7 @@ pipeline {
                         branch "develop*"
                         branch "master_*"
                         branch "master"
+                        branch "*_to_publish"
                         tag pattern: "^[1-9]+(\\.rc)?(\\.[0-9]+)?\\.[0-9]+(-.*)?", comparator: "REGEXP"
                     }
                 }
@@ -242,6 +244,7 @@ pipeline {
                     branch "develop*"
                     branch "master_*"
                     branch "master"
+                    branch "*_to_publish"
                     tag pattern: "^[1-9]+(\\.rc)?(\\.[0-9]+)?\\.[0-9]+(-.*)?", comparator: "REGEXP"
                 }
             }
@@ -276,6 +279,7 @@ pipeline {
                     branch "develop*"
                     branch "master_*"
                     branch "master"
+                    branch "*_to_publish"
                     tag pattern: "^[1-9]+(\\.rc)?(\\.[0-9]+)?\\.[0-9]+(-.*)?", comparator: "REGEXP"
                 }
             }
@@ -298,6 +302,7 @@ pipeline {
                     branch "develop*"
                     branch "master_*"
                     branch "master"
+                    branch "*_to_publish"
                     tag pattern: "^[1-9]+(\\.rc)?(\\.[0-9]+)?\\.[0-9]+(-.*)?", comparator: "REGEXP"
                 }
             }
@@ -315,6 +320,7 @@ pipeline {
                     branch "develop*"
                     branch "master_*"
                     branch "master"
+                    branch "*_to_publish"
                     tag pattern: "^[1-9]+(\\.rc)?(\\.[0-9]+)?\\.[0-9]+(-.*)?", comparator: "REGEXP"
                 }
             }
@@ -349,6 +355,7 @@ pipeline {
                 anyOf {
                     branch "develop*"
                     branch "master_*"
+                    branch "*_to_publish"
                     branch "master"
                     tag pattern: "^[1-9]+(\\.rc)?(\\.[0-9]+)?\\.[0-9]+(-.*)?", comparator: "REGEXP"
                 }
@@ -400,6 +407,7 @@ pipeline {
                     branch "develop*"
                     branch "master_*"
                     branch "master"
+                    branch "*_to_publish"
                     tag pattern: "^[1-9]+(\\.rc)?(\\.[0-9]+)?\\.[0-9]+(-.*)?", comparator: "REGEXP"
                 }
             }
