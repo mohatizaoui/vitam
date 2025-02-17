@@ -157,7 +157,10 @@ public class AgenciesService {
     private static final String CSV = ".csv";
 
     private static final String INVALID_CSV_FILE = "Invalid CSV File";
-    private static final String USED_AGENCIES_WANT_TO_BE_DELETED_ERROR = "used Agencies want to be deleted";
+    private static final String USED_AGENCIES_IN_METADATA_TO_BE_DELETED_ERROR =
+        "Error deleting used agencies in metadata";
+    private static final String USED_AGENCIES_IN_ACCESS_CONTRACT_TO_BE_DELETED_ERROR =
+        "Error deleting used agencies in access contract";
 
     private static final String MESSAGE_ERROR = "Import agency error > ";
     private static final String UND_ID = "_id";
@@ -535,17 +538,25 @@ public class AgenciesService {
 
             agenciesImportResult.setDeletedAgencies(agenciesToDelete);
             try {
-                Set<AgenciesModel> usedAgenciesToCheck = findAgenciesUsedByAccessContracts(agenciesToDelete);
-                if (usedAgenciesToCheck.isEmpty()) {
+                Set<AgenciesModel> usedAgenciesInAccessContracts = findAgenciesUsedByAccessContracts(agenciesToDelete);
+                if (usedAgenciesInAccessContracts.isEmpty()) {
                     manager.logEventSuccess(eip, AGENCIES_IMPORT_CONTRACT_USAGE);
                 } else {
-                    throw new AgencyImportDeletionException(USED_AGENCIES_WANT_TO_BE_DELETED_ERROR);
+                    String errorMessage = buildErrorMessageWithAgenciesList(
+                        USED_AGENCIES_IN_ACCESS_CONTRACT_TO_BE_DELETED_ERROR,
+                        usedAgenciesInAccessContracts
+                    );
+                    throw new AgencyImportDeletionException(errorMessage);
                 }
-                usedAgenciesToCheck = findAgenciesUsedInMetadata(agenciesToDelete);
-                if (usedAgenciesToCheck.isEmpty()) {
+                Set<AgenciesModel> usedAgenciesInMetaData = findAgenciesUsedInMetadata(agenciesToDelete);
+                if (usedAgenciesInMetaData.isEmpty()) {
                     manager.logEventSuccess(eip, AGENCIES_IMPORT_AU_USAGE);
                 } else {
-                    throw new AgencyImportDeletionException(USED_AGENCIES_WANT_TO_BE_DELETED_ERROR);
+                    String errorMessage = buildErrorMessageWithAgenciesList(
+                        USED_AGENCIES_IN_METADATA_TO_BE_DELETED_ERROR,
+                        usedAgenciesInMetaData
+                    );
+                    throw new AgencyImportDeletionException(errorMessage);
                 }
 
                 Set<AgenciesModel> usedAgenciesByContractsToUpdate = findAgenciesUsedByAccessContracts(
@@ -633,16 +644,9 @@ public class AgenciesService {
                 );
                 errorStream.close();
 
-                ObjectNode errorMessage = JsonHandler.createObjectNode();
-                String listAgencies = agenciesToDelete
-                    .stream()
-                    .map(AgenciesModel::getIdentifier)
-                    .collect(Collectors.joining(","));
-                errorMessage.put("Agencies ", listAgencies);
-
                 return generateVitamBadRequestError(
                     eip,
-                    errorMessage.toString(),
+                    e.getMessage(),
                     AgenciesService.AGENCIES_IMPORT_DELETION_ERROR
                 );
             } catch (InvalidCreateOperationException | IOException e) {
@@ -671,6 +675,14 @@ public class AgenciesService {
         }
 
         return new RequestResponseOK<AgenciesModel>().setHttpCode(Response.Status.CREATED.getStatusCode());
+    }
+
+    private String buildErrorMessageWithAgenciesList(String mainErrorMessage, Set<AgenciesModel> agencies) {
+        ObjectNode errorMessageNode = JsonHandler.createObjectNode();
+        String listAgencies = agencies.stream().map(AgenciesModel::getIdentifier).collect(Collectors.joining(","));
+        errorMessageNode.put("Message ", mainErrorMessage);
+        errorMessageNode.put("Agencies ", listAgencies);
+        return errorMessageNode.toString();
     }
 
     private boolean isUsedByAccessContract(AgenciesModel agency)
