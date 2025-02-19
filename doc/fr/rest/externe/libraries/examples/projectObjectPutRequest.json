@@ -11,6 +11,6 @@
     "LegalStatus": "Archives privées",
     "Comment": "Versement du service producteur : Cabinet de Michel Mercier",
     "UnitUp": "aeaqaaaaaahgnz5dabg42amava5kfoqaaaba",
-    "TransformationRules": "{\n  \"*\": ., // Copies all fields from the input JSON \n  \"Status\": \"Verified\" // Adds a new field \n}",
+    "TransformationRules": "{ \n \"Title\": .Title + \" - TRANSFORMED\", // Add suffix to Title field \n \"MyStatus\": [\"Verified\"], // Adds a new field \n *: . // Copies all fields from the input JSON \n }",
     "#tenant": 0
 }

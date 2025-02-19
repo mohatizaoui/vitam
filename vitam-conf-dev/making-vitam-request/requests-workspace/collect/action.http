@@ -23,7 +23,7 @@ X-Tenant-Id: {{tenant}}
   "Comment": "Versement du service producteur : Cabinet de Michel Mercier",
   "UnitUp": "aeaqaaaaaahgnz5dabg42amava5kfoqaaaba",
   // Beta JSLT transformation
-  "TransformationRules": "{\n  \"*\": ., /* Copies all fields from the input JSON */\n  \"Status\": \"Verified\" /* Adds a new field */\n}"
+  "TransformationRules": "{ \n \"Title\": .Title + \" - TRANSFORMED\", // Add suffix to Title field \n \"MyStatus\": [\"Verified\"], // Adds a new field \n *: . // Copies all fields from the input JSON \n }"
 }
 
 ### Mise à jour d'un projet
@@ -44,10 +44,10 @@ X-Tenant-Id: {{tenant}}
   "Comment": "Versement du service producteur : Cabinet de Michel Mercier",
   "UnitUp": "aeaqaaaaaahgnz5dabg42amava5kfoqaaaba",
   // Beta JSLT transformation
-  "TransformationRules": "{\n  \"*\": ., /* Copies all fields from the input JSON */\n  \"Status\": \"Unverified\" /* Adds a new field */\n}"
+  "TransformationRules": "{ \n \"Title\": .Title + \" - TRANSFORMED\", // Add suffix to Title field \n \"MyStatus\": [\"Verified\"], // Adds a new field \n *: . // Copies all fields from the input JSON \n }"
 }
 
-### Récuperation de tout les projets associé au tenant
+### Récupération de tous les projets associés au tenant
 GET {{url-collect}}/collect-external/v1/projects
 accept: application/json
 X-Tenant-Id: {{tenant}}
@@ -65,7 +65,7 @@ Content-Length: 143
   "$query": "Versement"
 }
 
-### Récuperation d'un projet par id
+### Récupération d'un projet par id
 GET {{url-collect}}/collect-external/v1/projects/{{project-id}}
 accept: application/json
 content-type: application/json
@@ -95,7 +95,7 @@ X-Tenant-Id: {{tenant}}
 
 < ./SimpleTreeZipWithJSONL.zip
 
-### Récuperation d'une unité archivistique pas dsl query
+### Récupération d'une unité archivistique pas dsl query
 GET {{url-collect}}/collect-external/v1/transactions/{{transaction-id}}/units
 accept: application/json
 content-type: application/json
@@ -377,7 +377,7 @@ X-Tenant-Id: {{tenant}}
 {}
 
 
-### Récuperation d'une unit avec calcul des règles de gestion (sans persistence)
+### Récupération d'une unit avec calcul des règles de gestion (sans persistence)
 GET {{url-collect}}/collect-external/v1/transactions/{{transaction-id}}/unitsWithInheritedRules
 Accept: application/json
 Content-Type: application/json
