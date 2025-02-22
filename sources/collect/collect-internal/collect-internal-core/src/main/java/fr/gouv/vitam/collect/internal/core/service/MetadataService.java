@@ -205,7 +205,7 @@ public class MetadataService {
 
         SedaSchemaInfoResolver sedaSchemaInfoResolver = new SedaSchemaInfoResolver(adminManagementClientFactory);
         try {
-            CsvHelper.convertCsvToJsonlMetadataFile(sedaSchemaInfoResolver, is, file);
+            CsvHelper.convertCsvToJsonlMetadataFile(sedaSchemaInfoResolver, is, file, false);
             try (InputStream jsonlMetadataInputStream = new FileInputStream(file)) {
                 updateUnitsWithJsonlMetadataFile(transaction.getId(), jsonlMetadataInputStream);
             }

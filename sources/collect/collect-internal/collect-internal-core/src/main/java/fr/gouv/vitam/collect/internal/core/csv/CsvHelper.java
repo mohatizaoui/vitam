@@ -47,6 +47,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.FILE_HEADER;
+import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.OBJECT_FIlES_HEADER;
 
 public class CsvHelper {
 
@@ -57,7 +58,8 @@ public class CsvHelper {
     public static void convertCsvToJsonlMetadataFile(
         SedaSchemaInfoResolver sedaSchemaInfoResolver,
         InputStream is,
-        File metadataFile
+        File metadataFile,
+        boolean isFirstUpload
     ) throws IOException, CollectInvalidCsvFormatException {
         try (
             CSVParser parser = createParser(is);
@@ -89,6 +91,55 @@ public class CsvHelper {
                         );
                         continue;
                     }
+                    String normalizedUploadPath = FilenameUtils.normalize(uploadPath);
+                    if (!FilenameUtils.equals(uploadPath, normalizedUploadPath)) {
+                        csvErrorAccumulator.report(
+                            "Invalid CSV record at line " +
+                            csvRecordNumberIncludingHeader +
+                            ": Illegal '" +
+                            FILE_HEADER +
+                            "' value '" +
+                            sanitizeStringForLog(uploadPath, MAX_PATH_LENGTH) +
+                            "'"
+                        );
+                        continue;
+                    }
+
+                    String objectFilesPath = parser.getHeaderMap().containsKey(OBJECT_FIlES_HEADER) &&
+                        StringUtils.isNotEmpty(record.get(OBJECT_FIlES_HEADER))
+                        ? FilenameUtils.separatorsToUnix(record.get(OBJECT_FIlES_HEADER))
+                        : null;
+
+                    if (objectFilesPath != null) {
+                        if (!isFirstUpload) {
+                            csvErrorAccumulator.report(
+                                String.format(
+                                    "Invalid CSV record at line %d (File=\"%s\"): %s field not supported for update operations",
+                                    csvRecordNumberIncludingHeader,
+                                    sanitizeStringForLog(uploadPath, MAX_PATH_LENGTH),
+                                    OBJECT_FIlES_HEADER
+                                )
+                            );
+                            continue;
+                        }
+
+                        String normalizedObjectFilesPath = FilenameUtils.normalize(objectFilesPath);
+                        if (!FilenameUtils.equals(objectFilesPath, normalizedObjectFilesPath)) {
+                            csvErrorAccumulator.report(
+                                String.format(
+                                    "Invalid CSV record at line %d (File=\"%s\"): %s",
+                                    csvRecordNumberIncludingHeader,
+                                    sanitizeStringForLog(uploadPath, MAX_PATH_LENGTH),
+                                    "Invalid '" +
+                                    OBJECT_FIlES_HEADER +
+                                    "' value '" +
+                                    sanitizeStringForLog(objectFilesPath, MAX_PATH_LENGTH) +
+                                    "'"
+                                )
+                            );
+                            continue;
+                        }
+                    }
 
                     ObjectNode unitJson;
                     try {
@@ -105,7 +156,7 @@ public class CsvHelper {
                         continue;
                     }
 
-                    writer.addEntry(new CollectJsonMetadataLine().setFile(uploadPath).setUnitContent(unitJson));
+                    writer.addEntry(new CollectJsonMetadataLine(uploadPath, objectFilesPath, null, unitJson));
                 }
             }
         }

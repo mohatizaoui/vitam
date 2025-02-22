@@ -1,6 +1,7 @@
 [
   {
     "File": "my_file1.txt",
+    "ObjectFiles":null,
     "Selector": null,
     "UnitContent": {
       "Title": "Some Updated Title1 - TRANSFORMED",
@@ -10,6 +11,7 @@
   },
   {
     "File": "my_file2.txt",
+    "ObjectFiles":null,
     "Selector": null,
     "UnitContent": {
       "Title": "Some Updated Title2 - TRANSFORMED",
@@ -19,6 +21,7 @@
   },
   {
     "File": "my_file3.txt",
+    "ObjectFiles":null,
     "Selector": null,
     "UnitContent": {
       "Title": "my_file3.txt - TRANSFORMED",

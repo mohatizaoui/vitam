@@ -140,7 +140,7 @@ public class CsvMetadataValidatorTest {
         for (String headerLine : headerLines) {
             assertThatHeaderNamesAreInvalid(
                 headerLine,
-                "Only accepted names are 'File', 'Content.*', 'Management.*' or 'ArchiveUnitProfile'"
+                "Only accepted names are 'File', 'ObjectFiles', 'Content.*', 'Management.*' or 'ArchiveUnitProfile'"
             );
         }
     }
@@ -817,7 +817,7 @@ public class CsvMetadataValidatorTest {
             "File;Unknown;Content.Title_;Content.Description.0;Content.Description.2;Content.MyExtension;Content.MyExtension.SubField;Management.AppraisalRule;Management.StorageRule.Rule",
             """
             CSV validation failed. 5 errors:
-            - Invalid header name 'Unknown': Only accepted names are 'File', 'Content.*', 'Management.*' or 'ArchiveUnitProfile'
+            - Invalid header name 'Unknown': Only accepted names are 'File', 'ObjectFiles', 'Content.*', 'Management.*' or 'ArchiveUnitProfile'
             - Invalid header name 'Content.Title_': Header must be Seda path 'Content.Title' instead of Vitam field name 'Content.Title_'
             - Invalid header name 'Content.Description.2': Expected header name 'Content.Description.1' since header 'Content.Description.2' is declared
             - Invalid header name 'Content.MyExtension.SubField': Field 'Content.MyExtension' is not an object.

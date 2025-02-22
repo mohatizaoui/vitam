@@ -384,7 +384,7 @@ public class FluxService {
                 }
             }
 
-            // Append default metadata for units without explicit
+            // Append default metadata for units without explicit metadata
             for (String fileUploadPath : defaultUnitMetadataByUploadPath.keySet()) {
                 TitleAndDescriptionLevel unitMetadata = defaultUnitMetadataByUploadPath.get(fileUploadPath);
                 ObjectNode metadata = JsonHandler.createObjectNode();
@@ -392,9 +392,7 @@ public class FluxService {
                 metadata.put(TITLE_FIELD, unitMetadata.title());
                 metadata.put(DESCRIPTION_LEVEL_FIELD, unitMetadata.descriptionLevel());
 
-                writer.addEntry(
-                    new CollectJsonMetadataLine().setFile(fileUploadPath).setSelector(null).setUnitContent(metadata)
-                );
+                writer.addEntry(new CollectJsonMetadataLine(fileUploadPath, null, null, metadata));
             }
         }
         return fullMetadataJsonlFile;
@@ -460,10 +458,12 @@ public class FluxService {
                     ObjectNode initialUnitContent = entry.getUnitContent();
                     ObjectNode transformedUnitContent = jsltTransformer.transform(initialUnitContent);
 
-                    CollectJsonMetadataLine transformedJsonMetadataLine = new CollectJsonMetadataLine()
-                        .setFile(entry.getFile())
-                        .setSelector(entry.getSelector())
-                        .setUnitContent(transformedUnitContent);
+                    CollectJsonMetadataLine transformedJsonMetadataLine = new CollectJsonMetadataLine(
+                        entry.getFile(),
+                        entry.getObjectFiles(),
+                        entry.getSelector(),
+                        transformedUnitContent
+                    );
                     writer.addEntry(transformedJsonMetadataLine);
                 }
             }
@@ -483,7 +483,7 @@ public class FluxService {
             File tranformedMetadataFile = tempWorkspace.tempFile();
 
             try (InputStream is = new FileInputStream(metadataFile)) {
-                CsvHelper.convertCsvToJsonlMetadataFile(sedaSchemaInfoResolver, is, tranformedMetadataFile);
+                CsvHelper.convertCsvToJsonlMetadataFile(sedaSchemaInfoResolver, is, tranformedMetadataFile, true);
             }
             return tranformedMetadataFile;
         } catch (IOException e) {

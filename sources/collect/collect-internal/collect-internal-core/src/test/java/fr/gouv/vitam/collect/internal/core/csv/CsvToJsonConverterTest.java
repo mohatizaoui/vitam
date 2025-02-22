@@ -93,6 +93,7 @@ public class CsvToJsonConverterTest {
         // Given
         List<String> headerNames = List.of(
             "File",
+            "ObjectFiles",
             "Content.Title",
             "Content.Description.0",
             "Content.Description.0.attr",
@@ -177,9 +178,10 @@ public class CsvToJsonConverterTest {
         Map<String, String> normalizedHeaderNames = csvToJsonConverter.getNormalizedHeaderMap();
 
         // Then
-        assertThat(normalizedHeaderNames).hasSize(headerNames.size() - 4);
+        assertThat(normalizedHeaderNames).hasSize(headerNames.size() - 5);
         assertThat(normalizedHeaderNames).doesNotContainKeys(
             "File",
+            "ObjectFiles",
             "Content.Title",
             "Content.Description.0",
             "Content.Description.0.attr"
@@ -399,7 +401,7 @@ public class CsvToJsonConverterTest {
 
         // When
         ThrowingCallable invocation = () ->
-            CsvHelper.convertCsvToJsonlMetadataFile(sedaSchemaInfoResolver, csvInputStream, resultJsonl);
+            CsvHelper.convertCsvToJsonlMetadataFile(sedaSchemaInfoResolver, csvInputStream, resultJsonl, true);
 
         // Then
         assertThatThrownBy(invocation)
@@ -448,7 +450,7 @@ public class CsvToJsonConverterTest {
 
         // When
         ThrowingCallable invocation = () ->
-            CsvHelper.convertCsvToJsonlMetadataFile(sedaSchemaInfoResolver, csvInputStream, resultJsonl);
+            CsvHelper.convertCsvToJsonlMetadataFile(sedaSchemaInfoResolver, csvInputStream, resultJsonl, true);
 
         // Then
         assertThatThrownBy(invocation)
@@ -502,7 +504,7 @@ public class CsvToJsonConverterTest {
 
         // When
         ThrowingCallable invocation = () ->
-            CsvHelper.convertCsvToJsonlMetadataFile(sedaSchemaInfoResolver, csvInputStream, resultJsonl);
+            CsvHelper.convertCsvToJsonlMetadataFile(sedaSchemaInfoResolver, csvInputStream, resultJsonl, true);
 
         // Then
         assertThatCode(invocation).doesNotThrowAnyException();
@@ -517,7 +519,9 @@ public class CsvToJsonConverterTest {
             assertThat(metadata.hasNext()).isFalse();
 
             assertThat(unit0.getFile()).isEqualTo("Unit0");
+            assertThat(unit0.getObjectFiles()).isNull();
             assertThat(unit1.getFile()).isEqualTo("Unit1");
+            assertThat(unit1.getObjectFiles()).isEqualTo("path/of/binary/file.pdf");
 
             assertJsonEquals(unit0.getUnitContent(), "csv/metadata_full_seda_expected_unit0.json");
             assertJsonEquals(unit1.getUnitContent(), "csv/metadata_full_seda_expected_unit1.json");
@@ -534,7 +538,7 @@ public class CsvToJsonConverterTest {
 
         // When
         ThrowingCallable invocation = () ->
-            CsvHelper.convertCsvToJsonlMetadataFile(sedaSchemaInfoResolver, csvInputStream, resultJsonl);
+            CsvHelper.convertCsvToJsonlMetadataFile(sedaSchemaInfoResolver, csvInputStream, resultJsonl, true);
 
         // Then
         assertThatCode(invocation).doesNotThrowAnyException();
@@ -567,7 +571,7 @@ public class CsvToJsonConverterTest {
 
         // When
         ThrowingCallable invocation = () ->
-            CsvHelper.convertCsvToJsonlMetadataFile(sedaSchemaInfoResolver, csvInputStream, resultJsonl);
+            CsvHelper.convertCsvToJsonlMetadataFile(sedaSchemaInfoResolver, csvInputStream, resultJsonl, true);
 
         // Then
         assertThatCode(invocation).doesNotThrowAnyException();
@@ -586,6 +590,102 @@ public class CsvToJsonConverterTest {
 
             assertJsonEquals(unit0.getUnitContent(), "csv/metadata_full_seda_explicit_array_index_expected_unit0.json");
             assertJsonEquals(unit1.getUnitContent(), "csv/metadata_full_seda_explicit_array_index_expected_unit1.json");
+        }
+    }
+
+    @Test
+    public void testConvertCsvWithObjectFilesOKOnInitialUpload() throws Exception {
+        // Given
+        InputStream csvInputStream = PropertiesUtils.getResourceAsStream("csv/metadata_object_files.csv");
+        File resultJsonl = tempFolder.newFile();
+
+        // When
+        CsvHelper.convertCsvToJsonlMetadataFile(sedaSchemaInfoResolver, csvInputStream, resultJsonl, true);
+
+        // Then
+        try (
+            JsonLineGenericIterator<CollectJsonMetadataLine> metadata = new JsonLineGenericIterator<>(
+                new FileInputStream(resultJsonl),
+                CollectJsonMetadataLine.TYPE_REFERENCE
+            )
+        ) {
+            CollectJsonMetadataLine unit0 = metadata.next();
+            CollectJsonMetadataLine unit1 = metadata.next();
+            assertThat(metadata.hasNext()).isFalse();
+
+            assertThat(unit0.getFile()).isEqualTo("file0");
+            assertThat(unit0.getObjectFiles()).isEqualTo("object_file0");
+
+            assertThat(unit1.getFile()).isEqualTo("file1");
+            assertThat(unit1.getObjectFiles()).isNull();
+        }
+    }
+
+    @Test
+    public void testConvertCsvWithObjectFilesKOForUpdate() throws Exception {
+        // Given
+        InputStream csvInputStream = PropertiesUtils.getResourceAsStream("csv/metadata_object_files.csv");
+        File resultJsonl = tempFolder.newFile();
+
+        // When
+        ThrowingCallable invocation = () ->
+            CsvHelper.convertCsvToJsonlMetadataFile(sedaSchemaInfoResolver, csvInputStream, resultJsonl, false);
+
+        // Then
+
+        assertThatThrownBy(invocation)
+            .isInstanceOf(CollectInvalidCsvFormatException.class)
+            .hasMessage(
+                """
+                CSV validation failed. 1 error:
+                - Invalid CSV record at line 2 (File="file0"): ObjectFiles field not supported for update operations"""
+            );
+
+        try (
+            JsonLineGenericIterator<CollectJsonMetadataLine> metadata = new JsonLineGenericIterator<>(
+                new FileInputStream(resultJsonl),
+                CollectJsonMetadataLine.TYPE_REFERENCE
+            )
+        ) {
+            CollectJsonMetadataLine unit1 = metadata.next();
+            assertThat(metadata.hasNext()).isFalse();
+
+            assertThat(unit1.getFile()).isEqualTo("file1");
+            assertThat(unit1.getObjectFiles()).isNull();
+        }
+    }
+
+    @Test
+    public void testCsvToJsonConversionSanityChecks() throws Exception {
+        // Given
+        InputStream csvInputStream = PropertiesUtils.getResourceAsStream("csv/metadata_path_sanity_checks.csv");
+        File resultJsonl = tempFolder.newFile();
+
+        // When
+        ThrowingCallable invocation = () ->
+            CsvHelper.convertCsvToJsonlMetadataFile(sedaSchemaInfoResolver, csvInputStream, resultJsonl, true);
+
+        // Then
+        assertThatThrownBy(invocation)
+            .isInstanceOf(CollectInvalidCsvFormatException.class)
+            .hasMessage(
+                """
+                CSV validation failed. 2 errors:
+                - Invalid CSV record at line 3: Illegal 'File' value 'path/../to/object_file1'
+                - Invalid CSV record at line 4 (File="file2"): Invalid 'ObjectFiles' value 'very/very/very/very/very/very/very/very/very/very/very/very/very/very/very/very/very/very/very/very/very/very/very/very/very/very/very/very/very/very/very/very/very/very/very/very/very/very/very/very/very/very/very/very/very/very/very/very/very/very/ve...'"""
+            );
+
+        try (
+            JsonLineGenericIterator<CollectJsonMetadataLine> metadata = new JsonLineGenericIterator<>(
+                new FileInputStream(resultJsonl),
+                CollectJsonMetadataLine.TYPE_REFERENCE
+            )
+        ) {
+            CollectJsonMetadataLine unit0 = metadata.next();
+            assertThat(metadata.hasNext()).isFalse();
+
+            assertThat(unit0.getFile()).isEqualTo("file0");
+            assertThat(unit0.getObjectFiles()).isEqualTo("object_file0");
         }
     }
 

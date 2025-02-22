@@ -1171,6 +1171,31 @@ public class FluxIT extends VitamRuleRunner {
 
     @Test
     @RunWithCustomExecutor
+    public void shouldUpdateTransactionFailWhenCsvContainsObjectFiles() {
+        final String unitUpdateResourcePath = "collect/transaction/unit/update/metadata-update-with-objectfiles-ko.csv";
+        final String zipPath = "collect/transaction/unit/update/versement.zip";
+        final ProjectDto project = createProject(vitamContext).orElseThrow();
+        final TransactionDto transaction = createTransaction(vitamContext, project.getId()).orElseThrow();
+
+        assertThat(transaction).isNotNull();
+        assertThat(transaction.getId()).isNotBlank();
+
+        uploadZipTransaction(vitamContext, transaction.getId(), zipPath, null);
+
+        final VitamClientException vitamClientException = assertThrows(
+            VitamClientException.class,
+            () -> updateUnitWithMetadataCsv(vitamContext, transaction.getId(), unitUpdateResourcePath)
+        );
+
+        assertThat(vitamClientException.getLocalizedMessage()).contains(
+            """
+            CSV validation failed. 1 error:
+            - Invalid CSV record at line 2 (File="versement"): ObjectFiles field not supported for update operations"""
+        );
+    }
+
+    @Test
+    @RunWithCustomExecutor
     public void shouldUpdateTransactionFailWhenCsvContainsBadDateFormat() {
         final String unitUpdateResourcePath = "collect/transaction/unit/update/metadata-with-bad-date-format.csv";
         final String zipPath = "collect/transaction/unit/update/versement.zip";
@@ -1307,6 +1332,34 @@ public class FluxIT extends VitamRuleRunner {
                     )
                 )
             );
+        }
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void shouldUpdateTransactionFailWhenJsonlContainsObjectFiles() throws Exception {
+        try (CollectExternalClient client = CollectExternalClientFactory.getInstance().getClient()) {
+            final String unitUpdateResourcePath =
+                "collect/transaction/unit/update/metadata-update-with-objectfiles-ko.jsonl";
+            final String zipPath = "collect/transaction/unit/update/versement.zip";
+            final ProjectDto project = createProject(vitamContext).orElseThrow();
+            final TransactionDto transaction = createTransaction(vitamContext, project.getId()).orElseThrow();
+
+            assertThat(transaction).isNotNull();
+            assertThat(transaction.getId()).isNotBlank();
+
+            uploadZipTransaction(vitamContext, transaction.getId(), zipPath, null);
+
+            // When / Then
+            try (InputStream inputStream = PropertiesUtils.getResourceAsStream(unitUpdateResourcePath)) {
+                assertThatThrownBy(
+                    () -> client.updateUnitsWithJsonlMetadata(vitamContext, transaction.getId(), inputStream)
+                )
+                    .isExactlyInstanceOf(CollectExternalClientInvalidRequestException.class)
+                    .hasMessageContaining(
+                        "Invalid entry at index: 0. ObjectFiles field not allowed for update operations."
+                    );
+            }
         }
     }
 
