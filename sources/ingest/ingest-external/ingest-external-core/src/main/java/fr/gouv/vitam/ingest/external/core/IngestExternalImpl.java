@@ -475,7 +475,7 @@ public class IngestExternalImpl implements IngestExternal {
     ) throws IOException, ArchiveException, ManifestDigestValidationException {
         ManifestFileName manifestFileName = new ManifestFileName();
         try (
-            final ArchiveInputStream archiveInputStream = new VitamArchiveStreamFactory()
+            final ArchiveInputStream<? extends ArchiveEntry> archiveInputStream = new VitamArchiveStreamFactory()
                 .createArchiveInputStream(CommonMediaType.valueOf(mimeType), in)
         ) {
             ArchiveEntry entry;
