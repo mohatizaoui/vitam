@@ -1,0 +1,182 @@
+[
+  {
+    "#qualifiers": [
+      {
+        "qualifier": "BinaryMaster",
+        "#nbobjects": "1",
+        "versions": [
+          {
+            "#id": "aeaaaaaaaaeaaaabas47aamvju2j33qaaaaq",
+            "DataObjectVersion": "BinaryMaster_1",
+            "FormatIdentification": {},
+            "FileInfo": {
+              "Filename": "SomeFile.xml",
+              "LastModified": "2025-02-28T15:37:28.827"
+            },
+            "Size": 0,
+            "Uri": "Content/aeaaaaaaaaeaaaabas47aamvju2j33qaaaaq.xml",
+            "Algorithm": "SHA-512",
+            "#opi": "TRANSACTION_ID"
+          }
+        ]
+      }
+    ],
+    "#id": "aebaaaaaaaeaaaabas47aamvju2j37iaaaaq",
+    "#tenant": 0,
+    "FileInfo": {
+      "Filename": "SomeFile.xml",
+      "LastModified": "2025-02-28T15:37:28.827"
+    },
+    "#unitups": [
+      "aeaqaaaaaaeaaaabas47aamvju2j4qyaaaaq"
+    ],
+    "#nbobjects": 1,
+    "#opi": "TRANSACTION_ID",
+    "#batchId": "aeeaaaaaaceaaaabas47aamvju2j2hqaaaaq",
+    "#originating_agency": "Vitam"
+  },
+  {
+    "#qualifiers": [
+      {
+        "qualifier": "BinaryMaster",
+        "#nbobjects": "1",
+        "versions": [
+          {
+            "#id": "aeaaaaaaaaeaaaabas47aamvju2j4raaaaba",
+            "DataObjectVersion": "BinaryMaster_1",
+            "FormatIdentification": {},
+            "FileInfo": {
+              "Filename": "MyFile1.txt",
+              "LastModified": "2025-02-28T15:37:28.901"
+            },
+            "Size": 0,
+            "Uri": "Content/aeaaaaaaaaeaaaabas47aamvju2j4raaaaba.txt",
+            "Algorithm": "SHA-512",
+            "#opi": "TRANSACTION_ID"
+          }
+        ]
+      }
+    ],
+    "#id": "aebaaaaaaaeaaaabas47aamvju2j4riaaaaq",
+    "#tenant": 0,
+    "FileInfo": {
+      "Filename": "MyFile1.txt",
+      "LastModified": "2025-02-28T15:37:28.901"
+    },
+    "#unitups": [
+      "aeaqaaaaaaeaaaabas47aamvju2j4raaaaaq"
+    ],
+    "#nbobjects": 1,
+    "#opi": "TRANSACTION_ID",
+    "#batchId": "aeeaaaaaaceaaaabas47aamvju2j2hqaaaaq",
+    "#originating_agency": "Vitam"
+  },
+  {
+    "#qualifiers": [
+      {
+        "qualifier": "BinaryMaster",
+        "#nbobjects": "1",
+        "versions": [
+          {
+            "#id": "aeaaaaaaaaeaaaabas47aamvju2j4rqaaaba",
+            "DataObjectVersion": "BinaryMaster_1",
+            "FormatIdentification": {},
+            "FileInfo": {
+              "Filename": "MyFile2.txt",
+              "LastModified": "2025-02-28T15:37:28.903"
+            },
+            "Size": 0,
+            "Uri": "Content/aeaaaaaaaaeaaaabas47aamvju2j4rqaaaba.txt",
+            "Algorithm": "SHA-512",
+            "#opi": "TRANSACTION_ID"
+          }
+        ]
+      }
+    ],
+    "#id": "aebaaaaaaaeaaaabas47aamvju2j4ryaaaaq",
+    "#tenant": 0,
+    "FileInfo": {
+      "Filename": "MyFile2.txt",
+      "LastModified": "2025-02-28T15:37:28.903"
+    },
+    "#unitups": [
+      "aeaqaaaaaaeaaaabas47aamvju2j4rqaaaaq"
+    ],
+    "#nbobjects": 1,
+    "#opi": "TRANSACTION_ID",
+    "#batchId": "aeeaaaaaaceaaaabas47aamvju2j2hqaaaaq",
+    "#originating_agency": "Vitam"
+  },
+  {
+    "#qualifiers": [
+      {
+        "qualifier": "BinaryMaster",
+        "#nbobjects": "1",
+        "versions": [
+          {
+            "#id": "aeaaaaaaaaeaaaabas47aamvju2j4siaaaba",
+            "DataObjectVersion": "BinaryMaster_1",
+            "FormatIdentification": {},
+            "FileInfo": {
+              "Filename": "MyFile3.txt",
+              "LastModified": "2025-02-28T15:37:28.905"
+            },
+            "Size": 0,
+            "Uri": "Content/aeaaaaaaaaeaaaabas47aamvju2j4siaaaba.txt",
+            "Algorithm": "SHA-512",
+            "#opi": "TRANSACTION_ID"
+          }
+        ]
+      }
+    ],
+    "#id": "aebaaaaaaaeaaaabas47aamvju2j4siaaabq",
+    "#tenant": 0,
+    "FileInfo": {
+      "Filename": "MyFile3.txt",
+      "LastModified": "2025-02-28T15:37:28.905"
+    },
+    "#unitups": [
+      "aeaqaaaaaaeaaaabas47aamvju2j4saaaaaq"
+    ],
+    "#nbobjects": 1,
+    "#opi": "TRANSACTION_ID",
+    "#batchId": "aeeaaaaaaceaaaabas47aamvju2j2hqaaaaq",
+    "#originating_agency": "Vitam"
+  },
+  {
+    "#qualifiers": [
+      {
+        "qualifier": "BinaryMaster",
+        "#nbobjects": "1",
+        "versions": [
+          {
+            "#id": "aeaaaaaaaaeaaaabas47aamvju2j4taaaaba",
+            "DataObjectVersion": "BinaryMaster_1",
+            "FormatIdentification": {},
+            "FileInfo": {
+              "Filename": "MyFile4.txt",
+              "LastModified": "2025-02-28T15:37:28.909"
+            },
+            "Size": 0,
+            "Uri": "Content/aeaaaaaaaaeaaaabas47aamvju2j4taaaaba.txt",
+            "Algorithm": "SHA-512",
+            "#opi": "TRANSACTION_ID"
+          }
+        ]
+      }
+    ],
+    "#id": "aebaaaaaaaeaaaabas47aamvju2j4tiaaaaq",
+    "#tenant": 0,
+    "FileInfo": {
+      "Filename": "MyFile4.txt",
+      "LastModified": "2025-02-28T15:37:28.909"
+    },
+    "#unitups": [
+      "aeaqaaaaaaeaaaabas47aamvju2j4sqaaaaq"
+    ],
+    "#nbobjects": 1,
+    "#opi": "TRANSACTION_ID",
+    "#batchId": "aeeaaaaaaceaaaabas47aamvju2j2hqaaaaq",
+    "#originating_agency": "Vitam"
+  }
+]

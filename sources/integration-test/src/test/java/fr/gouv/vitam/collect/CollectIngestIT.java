@@ -57,6 +57,7 @@ import fr.gouv.vitam.common.client.VitamContext;
 import fr.gouv.vitam.common.database.builder.query.QueryHelper;
 import fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper;
 import fr.gouv.vitam.common.database.builder.request.multiple.SelectMultiQuery;
+import fr.gouv.vitam.common.database.builder.request.single.Select;
 import fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchIndexAlias;
 import fr.gouv.vitam.common.elasticsearch.ElasticsearchRule;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
@@ -70,6 +71,7 @@ import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.administration.AccessionRegisterDetailModel;
+import fr.gouv.vitam.common.model.administration.DataObjectVersionType;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -95,16 +97,20 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 
+import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.StreamSupport;
 
 import static fr.gouv.vitam.collect.CollectTestHelper.initProjectData;
 import static fr.gouv.vitam.collect.CollectTestHelper.initTransaction;
 import static fr.gouv.vitam.logbook.common.parameters.Contexts.DEFAULT_WORKFLOW;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -181,7 +187,7 @@ public class CollectIngestIT extends VitamRuleRunner {
             ProjectDto projectDto = initProjectData();
 
             final RequestResponse<JsonNode> projectResponse = collectClient.initProject(vitamContext, projectDto);
-            Assertions.assertThat(projectResponse.getStatus()).isEqualTo(200);
+            assertThat(projectResponse.getStatus()).isEqualTo(200);
 
             ProjectDto projectDtoResult = JsonHandler.getFromJsonNode(
                 ((RequestResponseOK<JsonNode>) projectResponse).getFirstResult(),
@@ -195,7 +201,7 @@ public class CollectIngestIT extends VitamRuleRunner {
                 transactiondto,
                 projectDtoResult.getId()
             );
-            Assertions.assertThat(transactionResponse.getStatus()).isEqualTo(200);
+            assertThat(transactionResponse.getStatus()).isEqualTo(200);
 
             RequestResponseOK<JsonNode> requestResponseOK = (RequestResponseOK<JsonNode>) transactionResponse;
             TransactionDto transactionDtoResult = JsonHandler.getFromJsonNode(
@@ -211,7 +217,7 @@ public class CollectIngestIT extends VitamRuleRunner {
                     null,
                     null
                 );
-                Assertions.assertThat(response.getStatus()).isEqualTo(200);
+                assertThat(response.getStatus()).isEqualTo(200);
             }
 
             final RequestResponseOK<JsonNode> unitsByTransaction = (RequestResponseOK<
@@ -230,14 +236,14 @@ public class CollectIngestIT extends VitamRuleRunner {
             VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
             inputStream = client.generateSip(idTransaction);
             RequestResponse<JsonNode> transactionResponse = client.getTransactionById(idTransaction);
-            Assertions.assertThat(transactionResponse.getStatus()).isEqualTo(200);
+            assertThat(transactionResponse.getStatus()).isEqualTo(200);
 
             RequestResponseOK<JsonNode> requestResponseOK = (RequestResponseOK<JsonNode>) transactionResponse;
             TransactionDto transactionDtoResult = JsonHandler.getFromJsonNode(
                 requestResponseOK.getFirstResult(),
                 TransactionDto.class
             );
-            Assertions.assertThat(transactionDtoResult.getStatus()).isEqualTo(TransactionStatus.SENDING.toString());
+            assertThat(transactionDtoResult.getStatus()).isEqualTo(TransactionStatus.SENDING.toString());
         }
 
         // turn off metadata-collect and run metadata
@@ -286,53 +292,77 @@ public class CollectIngestIT extends VitamRuleRunner {
             VitamTestHelper.verifyOperation(processId, StatusCode.OK);
         }
 
-        String opi;
         try (AccessExternalClient accessExternalClient = AccessExternalClientFactory.getInstance().getClient()) {
             SelectMultiQuery select = new SelectMultiQuery();
             select.addQueries(QueryHelper.eq(VitamFieldsHelper.initialOperation(), processId));
             vitamContext.setAccessContract(ACCESS_CONTRACT);
-            RequestResponse<JsonNode> results = accessExternalClient.selectUnits(vitamContext, select.getFinalSelect());
+            List<JsonNode> results =
+                ((RequestResponseOK<JsonNode>) accessExternalClient.selectUnits(
+                        vitamContext,
+                        select.getFinalSelect()
+                    )).getResults();
 
-            assertEquals(6, ((RequestResponseOK<JsonNode>) results).getResults().size());
+            assertEquals(6, results.size());
 
-            opi = ((RequestResponseOK<JsonNode>) results).getResults()
-                .get(0)
-                .get(VitamFieldsHelper.initialOperation())
-                .toString();
+            // Try download binary
+            JsonNode unitWithGot = getUnitByTitle(results, "BAD0431E2C5E80E5BD42D547zzzzzA3ED5966.odt");
+            Response binaryContent = accessExternalClient.getObjectStreamByUnitId(
+                vitamContext,
+                unitWithGot.get(VitamFieldsHelper.id()).asText(),
+                DataObjectVersionType.BINARY_MASTER.getName(),
+                1
+            );
+            assertThat(binaryContent.readEntity(InputStream.class)).hasDigest(
+                "SHA-512",
+                "942bb63cc16bf5ca3ba7fabf40ce9be19c3185a36cd87ad17c63d6fad1aa29d4312d73f2d6a1ba1266c3a71fc4119dd476d2d776cf2ad2acd7a9a3dfa1f80dc7"
+            );
+
+            // Check the folder "dossier1" which has an attached binary via "ObjectFiles" field
+            JsonNode dossier1 = getUnitByTitle(results, "dossier1");
+
+            assertThat(dossier1.hasNonNull(VitamFieldsHelper.object())).isTrue();
+            String dossier1UnitId = dossier1.get(VitamFieldsHelper.id()).asText();
+            String dossier1ObjectGroupId = dossier1.get(VitamFieldsHelper.object()).asText();
+
+            SelectMultiQuery selectGot = new SelectMultiQuery();
+            selectGot.setQuery(QueryHelper.eq(VitamFieldsHelper.id(), dossier1ObjectGroupId));
+            JsonNode dossier1ObjectGroup =
+                ((RequestResponseOK<JsonNode>) accessExternalClient.selectObjects(
+                        vitamContext,
+                        selectGot.getFinalSelect()
+                    )).getFirstResult();
+
+            assertThat(
+                StreamSupport.stream(dossier1ObjectGroup.get(VitamFieldsHelper.unitups()).spliterator(), false).map(
+                    JsonNode::textValue
+                )
+            ).containsExactly(dossier1UnitId);
+
+            Response dossier1Content = accessExternalClient.getObjectStreamByUnitId(
+                vitamContext,
+                dossier1UnitId,
+                DataObjectVersionType.BINARY_MASTER.getName(),
+                1
+            );
+            assertThat(dossier1Content.readEntity(InputStream.class)).hasContent("dossier1.txt");
         }
 
         try (AdminExternalClient adminExternalClient = AdminExternalClientFactory.getInstance().getClient()) {
-            final String query =
-                "{\n" +
-                "  \"$query\":\n" +
-                "    {\n" +
-                "      \"$eq\": {\n" +
-                "        \"Opi\": " +
-                opi +
-                "\n" +
-                "      }\n" +
-                "    },\n" +
-                "  \"$projection\": {},\n" +
-                "  \"$filter\":{}\n" +
-                "}";
-
+            Select select = new Select();
+            select.setQuery(QueryHelper.eq("Opi", processId));
             var acRegDetResponseAfterUpdate = adminExternalClient.findAccessionRegisterDetails(
                 vitamContext,
-                JsonHandler.getFromString(query)
+                select.getFinalSelect()
             );
 
             AccessionRegisterDetailModel accessionRegisterDetail =
                 ((RequestResponseOK<AccessionRegisterDetailModel>) acRegDetResponseAfterUpdate).getResults().get(0);
 
-            Assertions.assertThat(accessionRegisterDetail.getLegalStatus()).isEqualTo(
-                LegalStatusType.PRIVATE_ARCHIVE.value()
-            );
-            Assertions.assertThat(accessionRegisterDetail.getComment().get(0)).isEqualTo(
+            assertThat(accessionRegisterDetail.getLegalStatus()).isEqualTo(LegalStatusType.PRIVATE_ARCHIVE.value());
+            assertThat(accessionRegisterDetail.getComment().get(0)).isEqualTo(
                 "Versement du service producteur : Cabinet de Michel Mercier"
             );
-            Assertions.assertThat(accessionRegisterDetail.getAcquisitionInformation()).isEqualTo(
-                "AcquisitionInformation"
-            );
+            assertThat(accessionRegisterDetail.getAcquisitionInformation()).isEqualTo("AcquisitionInformation");
         }
 
         //// Cette requette permet de récupérer des unités par transaction avec l'opi de vitam core
@@ -367,7 +397,7 @@ public class CollectIngestIT extends VitamRuleRunner {
             projectDto.setAutomaticIngest(true);
 
             final RequestResponse<JsonNode> projectResponse = collectClient.initProject(vitamContext, projectDto);
-            Assertions.assertThat(projectResponse.getStatus()).isEqualTo(200);
+            assertThat(projectResponse.getStatus()).isEqualTo(200);
 
             ProjectDto projectDtoResult = JsonHandler.getFromJsonNode(
                 ((RequestResponseOK<JsonNode>) projectResponse).getFirstResult(),
@@ -381,7 +411,7 @@ public class CollectIngestIT extends VitamRuleRunner {
                 transactiondto,
                 projectDtoResult.getId()
             );
-            Assertions.assertThat(transactionResponse.getStatus()).isEqualTo(200);
+            assertThat(transactionResponse.getStatus()).isEqualTo(200);
 
             final String idTransaction = JsonHandler.getFromJsonNode(
                 ((RequestResponseOK<JsonNode>) transactionResponse).getFirstResult(),
@@ -395,7 +425,7 @@ public class CollectIngestIT extends VitamRuleRunner {
                     null,
                     null
                 );
-                Assertions.assertThat(response.getStatus()).isEqualTo(200);
+                assertThat(response.getStatus()).isEqualTo(200);
             }
             collectClient.closeTransaction(vitamContext, idTransaction);
             retryAndWaitOperation(idTransaction, TransactionStatus.SENT);
@@ -442,5 +472,9 @@ public class CollectIngestIT extends VitamRuleRunner {
             );
             return transactionDtoResult.getStatus();
         }
+    }
+
+    private static JsonNode getUnitByTitle(List<JsonNode> results, String title) {
+        return results.stream().filter(unit -> title.equals(unit.get("Title").asText())).findFirst().orElseThrow();
     }
 }

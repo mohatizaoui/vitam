@@ -85,15 +85,15 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import javax.ws.rs.core.Response;
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static fr.gouv.vitam.collect.CollectTestHelper.closeTransaction;
 import static fr.gouv.vitam.collect.CollectTestHelper.createProject;
@@ -129,6 +129,7 @@ public class FluxIT extends VitamRuleRunner {
     private static final String UNITS_UPDATED_BY_ZIP_PATH = "collect/units_with_description.json";
     private static final String UNITS_UPDATED_WITH_JSONL_BY_ZIP_PATH =
         "collect/units_updated_with_jsonl_with_description.json";
+    private static final String UNITS_UPLOADED_WITH_JSONL = "collect/units_uploaded_with_jsonl_metadata.json";
     private static final String UNITS_UPDATED_WITH_JSONL_WITH_COMPLEX = "collect/units_updated_with_jsonl_complex.json";
     private static final String UPDATED_UNITS_WITH_DYNAMIC_ATTACHMENT =
         "collect/updated_units_with_dynamic_attachment.json";
@@ -230,26 +231,29 @@ public class FluxIT extends VitamRuleRunner {
             );
 
             // test download got
-            String unitId = unitsByTransaction
-                .getResults()
-                .stream()
-                .filter(a -> a.get("Title").asText().equals("Saint-Lazare.link"))
-                .map(a -> a.get(VitamFieldsHelper.id()).asText())
-                .findFirst()
-                .get();
-            Response response = collectClient.getObjectStreamByUnitId(
-                vitamContext,
-                unitId,
-                DataObjectVersionType.BINARY_MASTER.getName(),
-                1
+            String saintLazareLinkUnitId = getUnitIdByTitle(unitsByTransaction, "Saint-Lazare.link");
+            assertUnitObjectGroupContent(
+                collectClient,
+                saintLazareLinkUnitId,
+                "Link to 2_Front-Populaire/Porte-de-la-Chapelle/Marx-Dormoy/Saint-Lazare"
             );
 
-            assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-            assertThat(response.readEntity(InputStream.class)).hasSameContentAs(
-                new ByteArrayInputStream(
-                    "Link to 2_Front-Populaire/Porte-de-la-Chapelle/Marx-Dormoy/Saint-Lazare".getBytes()
-                )
-            );
+            // Check folder with associated binary via ObjectFiles field
+            JsonNode saintLazareUnit = getUnitByTitle(unitsByTransaction, "Saint-Lazare");
+            String saintLazareUnitId = saintLazareUnit.get(VitamFieldsHelper.id()).asText();
+
+            assertThat(saintLazareUnit.hasNonNull(VitamFieldsHelper.object())).isTrue();
+            String saintLazareObjectGroupId = saintLazareUnit.get(VitamFieldsHelper.object()).asText();
+            JsonNode saintLazareObjectGroup = getObjectGroupById(collectClient, saintLazareObjectGroupId);
+            // FIXME: Should be "#unitups" instead of "_up"
+            List<String> objectGroupParents = StreamSupport.stream(
+                saintLazareObjectGroup.get("_up").spliterator(),
+                false
+            )
+                .map(JsonNode::textValue)
+                .toList();
+            assertThat(objectGroupParents).containsExactly(saintLazareUnitId);
+            assertUnitObjectGroupContent(collectClient, saintLazareUnitId, "Saint-Lazare.txt");
         }
     }
 
@@ -333,7 +337,7 @@ public class FluxIT extends VitamRuleRunner {
                 new SelectMultiQuery().getFinalSelect()
             );
             final JsonNode expectedUnits = JsonHandler.getFromFile(
-                PropertiesUtils.getResourceFile(UNITS_UPDATED_WITH_JSONL_BY_ZIP_PATH)
+                PropertiesUtils.getResourceFile(UNITS_UPLOADED_WITH_JSONL)
             );
 
             JsonAssert.assertJsonEquals(
@@ -352,6 +356,31 @@ public class FluxIT extends VitamRuleRunner {
                     )
                 )
             );
+
+            // test download got
+            String saintLazareLinkUnitId = getUnitIdByTitle(unitsByTransaction, "Saint-Lazare.link");
+            assertUnitObjectGroupContent(
+                collectClient,
+                saintLazareLinkUnitId,
+                "Link to 2_Front-Populaire/Porte-de-la-Chapelle/Marx-Dormoy/Saint-Lazare"
+            );
+
+            // Check folder with associated binary via ObjectFiles field
+            JsonNode saintLazareUnit = getUnitByTitle(unitsByTransaction, "Saint-Lazare");
+            String saintLazareUnitId = saintLazareUnit.get(VitamFieldsHelper.id()).asText();
+
+            assertThat(saintLazareUnit.hasNonNull(VitamFieldsHelper.object())).isTrue();
+            String saintLazareObjectGroupId = saintLazareUnit.get(VitamFieldsHelper.object()).asText();
+            JsonNode saintLazareObjectGroup = getObjectGroupById(collectClient, saintLazareObjectGroupId);
+            // FIXME: Should be "#unitups" instead of "_up"
+            List<String> objectGroupParents = StreamSupport.stream(
+                saintLazareObjectGroup.get("_up").spliterator(),
+                false
+            )
+                .map(JsonNode::textValue)
+                .toList();
+            assertThat(objectGroupParents).containsExactly(saintLazareUnitId);
+            assertUnitObjectGroupContent(collectClient, saintLazareUnitId, "Saint-Lazare.txt");
         }
     }
 
@@ -456,9 +485,7 @@ public class FluxIT extends VitamRuleRunner {
                         )
                 )
                     .isExactlyInstanceOf(CollectExternalClientInvalidRequestException.class)
-                    .hasMessage(
-                        "Metadata update failed. Nb OK: 0, Nb KO: 1. Error messages:[No unit matches selection criteria]"
-                    );
+                    .hasMessage("Invalid File or #uploadPath selector 'UnknownFile'. No such file or directory.");
             }
         }
     }
@@ -564,24 +591,8 @@ public class FluxIT extends VitamRuleRunner {
             );
 
             // test download got
-            String unitId = unitsByTransaction
-                .getResults()
-                .stream()
-                .filter(a -> a.get("Title").asText().equals("AU1"))
-                .map(a -> a.get(VitamFieldsHelper.id()).asText())
-                .findFirst()
-                .get();
-            Response response = collectClient.getObjectStreamByUnitId(
-                vitamContext,
-                unitId,
-                DataObjectVersionType.BINARY_MASTER.getName(),
-                1
-            );
-
-            assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-            assertThat(response.readEntity(InputStream.class)).hasSameContentAs(
-                new ByteArrayInputStream("sdfgdsfgdsfgdfs".getBytes(StandardCharsets.UTF_8))
-            );
+            String unitId = getUnitIdByTitle(unitsByTransaction, "AU1");
+            assertUnitObjectGroupContent(collectClient, unitId, "sdfgdsfgdsfgdfs");
         }
     }
 
@@ -771,26 +782,16 @@ public class FluxIT extends VitamRuleRunner {
             );
 
             // test download got
-            String unitId = unitsByTransaction
-                .getResults()
-                .stream()
-                .filter(a -> a.get("Title").asText().equals("Saint-Lazare.link"))
-                .map(a -> a.get(VitamFieldsHelper.id()).asText())
-                .findFirst()
-                .get();
-            Response response = collectClient.getObjectStreamByUnitId(
-                vitamContext,
-                unitId,
-                DataObjectVersionType.BINARY_MASTER.getName(),
-                1
+            String saintLazareLinkUnitId = getUnitIdByTitle(unitsByTransaction, "Saint-Lazare.link");
+            assertUnitObjectGroupContent(
+                collectClient,
+                saintLazareLinkUnitId,
+                "Link to 2_Front-Populaire/Porte-de-la-Chapelle/Marx-Dormoy/Saint-Lazare"
             );
 
-            assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-            assertThat(response.readEntity(InputStream.class)).hasSameContentAs(
-                new ByteArrayInputStream(
-                    "Link to 2_Front-Populaire/Porte-de-la-Chapelle/Marx-Dormoy/Saint-Lazare".getBytes()
-                )
-            );
+            // test download folder with associated binary via ObjectFiles field
+            String saintLazareUnitId = getUnitIdByTitle(unitsByTransaction, "Saint-Lazare");
+            assertUnitObjectGroupContent(collectClient, saintLazareUnitId, "Saint-Lazare.txt");
         }
     }
 
@@ -1533,14 +1534,10 @@ public class FluxIT extends VitamRuleRunner {
                 new SelectMultiQuery().getFinalSelect()
             );
 
-            // get a an ingested unit in first collect ingest
-            String attachementUnitId = unitsByTransaction
-                .getResults()
-                .stream()
-                .filter(a -> a.get("Title").asText().equals("Saint-Denis-Basilique"))
-                .map(a -> a.get(VitamFieldsHelper.id()).asText())
-                .findFirst()
-                .get();
+            assertThat(unitsByTransaction.getResults()).hasSize(13);
+
+            // Get the id of an ingested unit in first collect ingest
+            String attachementUnitId = getUnitIdByTitle(unitsByTransaction, "Saint-Denis-Basilique");
 
             final TransactionDto transactionAttachementDto = createTransaction(
                 vitamContext,
@@ -1569,12 +1566,31 @@ public class FluxIT extends VitamRuleRunner {
                 new SelectMultiQuery().getFinalSelect()
             );
 
+            assertThat(unitsByTransactionAttachement.getResults()).hasSize(6);
+
             //Check that all units contains attachement id
             for (JsonNode unitJsonNode : unitsByTransactionAttachement.getResults()) {
                 Assert.assertTrue(
                     unitJsonNode.get(VitamFieldsHelper.allunitups()).toString().contains(attachementUnitId)
                 );
             }
+            Optional<JsonNode> unitWithObjectFiles = unitsByTransactionAttachement
+                .getResults()
+                .stream()
+                .filter(unit -> unit.get("Title").asText().equals("Aubervillier"))
+                .findFirst();
+            assertThat(unitWithObjectFiles.isPresent()).isTrue();
+            assertThat(unitWithObjectFiles.get().hasNonNull(VitamFieldsHelper.object())).isTrue();
+            assertThat(unitWithObjectFiles.get().get("DescriptionLevel").asText()).isEqualTo("Item");
+            String unitId = unitWithObjectFiles.get().get(VitamFieldsHelper.id()).asText();
+            String objectGroupId = unitWithObjectFiles.get().get(VitamFieldsHelper.object()).asText();
+            JsonNode objectGroup = getObjectGroupById(collectClient, objectGroupId);
+            // FIXME: Should be "#unitups" instead of "_up"
+            List<String> objectGroupParents = StreamSupport.stream(objectGroup.get("_up").spliterator(), false)
+                .map(JsonNode::textValue)
+                .toList();
+            assertThat(objectGroupParents).containsExactly(unitId);
+            assertUnitObjectGroupContent(collectClient, unitId, "Aubervillier");
         }
     }
 
@@ -1587,5 +1603,42 @@ public class FluxIT extends VitamRuleRunner {
         final ProjectDto projectDto = initProjectData();
         projectDto.setUnitUp(ATTACHMENT_UNIT_ID);
         return projectDto;
+    }
+
+    private static String getUnitIdByTitle(RequestResponseOK<JsonNode> unitsByTransaction, String title) {
+        return getUnitByTitle(unitsByTransaction, title).get(VitamFieldsHelper.id()).asText();
+    }
+
+    private static JsonNode getUnitByTitle(RequestResponseOK<JsonNode> unitsByTransaction, String title) {
+        return unitsByTransaction
+            .getResults()
+            .stream()
+            .filter(unit -> unit.has("Title") && unit.get("Title").asText().equals(title))
+            .findFirst()
+            .orElseThrow();
+    }
+
+    private JsonNode getObjectGroupById(CollectExternalClient collectClient, String saintLazareObjectGroupId)
+        throws VitamClientException {
+        JsonNode objectGroup =
+            ((RequestResponseOK<JsonNode>) collectClient.getObjectById(
+                    vitamContext,
+                    saintLazareObjectGroupId
+                )).getFirstResult();
+        assertThat(objectGroup).isNotNull();
+        return objectGroup;
+    }
+
+    private void assertUnitObjectGroupContent(CollectExternalClient collectClient, String unitId, String textContent)
+        throws VitamClientException {
+        Response response = collectClient.getObjectStreamByUnitId(
+            vitamContext,
+            unitId,
+            DataObjectVersionType.BINARY_MASTER.getName(),
+            1
+        );
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(response.readEntity(InputStream.class)).hasContent(textContent);
     }
 }

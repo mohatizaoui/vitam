@@ -1,6 +1,9 @@
 [
   {
-    "Title": "Carrefour-Pleyel - TRANSFORMED",
+    "Title_": {
+      "fr": "Titre FR",
+      "en": "Title EN"
+    },
     "#uploadPath": "1_Saint-Denis/Saint-Denis-Basilique/Carrefour-Pleyel",
     "DescriptionLevel": "RecordGrp",
     "StartDate": "2017-04-04T08:07:00",
@@ -56,16 +59,14 @@
     },
     "#unitType": "INGEST",
     "#opi": "aeeaaaaaaceaaaaba3gnkamd5sn2uwqaaaaq",
-    "#originating_agency": "Service_producteur",
-    "#originating_agencies": [
-      "Service_producteur"
-    ],
+    "#originating_agency":"Service_producteur",
+    "#originating_agencies":["Service_producteur"],
     "#version": 1,
     "#approximate_creation_date": "2022-10-18T19:39:28.724",
     "#approximate_update_date": "2022-10-18T19:39:29.933"
   },
   {
-    "Title": "Montparnasse.txt - TRANSFORMED",
+    "Title": "Montparnasse.txt",
     "#uploadPath": "2_Front-Populaire/Porte-de-la-Chapelle/Marx-Dormoy/Saint-Lazare/MontparnasseEtSaintDenisBasilique.txt",
     "DescriptionLevel": "Item",
     "Description": "Cette ArchiveUnit ne d\u00E9clare aucune r\u00E8gle. Elle h\u00E9rite de Saint-Lazare un NeedAuthorization \u00E0 true, une StorageRule avec Copy comme FinalAction, une AppraisalRule avec APP-00002 comme Rule, 01/01/2002 comme StartDate et Destroy comme FinalAction (venant de MarxDormoy), une ReuseRule avec REU-00001 comme Rule et 01/01/2000 comme StartDate (venant de Carrefour Pleyel), une AccessRule avec ACC-00002 comme Rule et 01/01/2002 comme StartDate (venant de Marx Dormoy) et une ClassificationRule dont la Rule est CLASS-00001 avec pour StartDate 03/06/2015, Confidentiel D\u00E9fense pour ClassificationLevel, ClassificationOwner0 pour ClassificationOwner, ClassificationAudience0 pour ClassificationAudience, 03/06/2016 comme ClassificationReassasingDate et un NeedReassessingAuthorization \u00E0 true",
@@ -88,16 +89,14 @@
     "#management": {},
     "#unitType": "INGEST",
     "#opi": "aeeaaaaaaceaaaaba3gnkamd5sn2uwqaaaaq",
-    "#originating_agency": "Service_producteur",
-    "#originating_agencies": [
-      "Service_producteur"
-    ],
+    "#originating_agency":"Service_producteur",
+    "#originating_agencies":["Service_producteur"],
     "#version": 1,
     "#approximate_creation_date": "2022-10-18T19:39:29.507",
     "#approximate_update_date": "2022-10-18T19:39:29.969"
   },
   {
-    "Title": "MontparnasseEtSaintDenisBasilique.txt - TRANSFORMED",
+    "Title": "MontparnasseEtSaintDenisBasilique.txt",
     "#uploadPath": "1_Saint-Denis/Saint-Denis-Basilique/MontparnasseEtSaintDenisBasilique.txt",
     "DescriptionLevel": "Item",
     "#id": "aeaqaaaaaaeaaaaba3gnkamd5sn24fyaaaaq",
@@ -116,11 +115,9 @@
     "#management": {},
     "#unitType": "INGEST",
     "#opi": "aeeaaaaaaceaaaaba3gnkamd5sn2uwqaaaaq",
-    "#originating_agency": "Service_producteur",
-    "#originating_agencies": [
-      "Service_producteur"
-    ],
-    "#version": 1,
+    "#originating_agency":"Service_producteur",
+    "#originating_agencies":["Service_producteur"],
+    "#version": 0,
     "#approximate_creation_date": "2022-10-18T19:39:29.181",
     "#approximate_update_date": "2022-10-18T19:39:29.228"
   },
@@ -140,16 +137,14 @@
     },
     "#unitType": "INGEST",
     "#opi": "aeeaaaaaaceaaaaba3gnkamd5sn2uwqaaaaq",
-    "#originating_agency": "Service_producteur",
-    "#originating_agencies": [
-      "Service_producteur"
-    ],
+    "#originating_agency":"Service_producteur",
+    "#originating_agencies":["Service_producteur"],
     "#version": 0,
     "#approximate_creation_date": "2022-10-18T19:39:28.384",
     "#approximate_update_date": "2022-10-18T19:39:28.384"
   },
   {
-    "Title": "Saint-Lazare - TRANSFORMED",
+    "Title": "Saint-Lazare",
     "#uploadPath": "2_Front-Populaire/Porte-de-la-Chapelle/Marx-Dormoy/Saint-Lazare",
     "DescriptionLevel": "Item",
     "StartDate": "2017-04-04T08:07:06",
@@ -210,16 +205,14 @@
     },
     "#unitType": "INGEST",
     "#opi": "aeeaaaaaaceaaaaba3gnkamd5sn2uwqaaaaq",
-    "#originating_agency": "Service_producteur",
-    "#originating_agencies": [
-      "Service_producteur"
-    ],
+    "#originating_agency":"Service_producteur",
+    "#originating_agencies":["Service_producteur"],
     "#version": 1,
     "#approximate_creation_date": "2022-10-18T19:39:29.482",
     "#approximate_update_date": "2022-10-18T19:39:29.994"
   },
   {
-    "Title": "1_Saint-Denis - TRANSFORMED",
+    "Title": "1_Saint-Denis",
     "#uploadPath": "1_Saint-Denis",
     "DescriptionLevel": "RecordGrp",
     "Description": "Cette ArchiveUnit n'a aucune r\u00E8gle propre, mais r\u00E9cup\u00E8re du ManagementMetadata du SIP un NeedAuthorization \u00E0 true, une StorageRule avec un FinalAction \u00E0 Copy, une AppraisalRule avec un FinalAction \u00E0 Keep, une AccessRule avec la Rule ACC-00002 dont la StartDate est 01/01/2000 et une ClassificationRule dont la Rule est CLASS-00001 avec pour StartDate 03/06/2015, Confidentiel D\u00E9fense pour ClassificationLevel, ClassificationOwner0 pour ClassificationOwner, ClassificationAudience0 pour ClassificationAudience, 03/06/2016 comme ClassificationReassasingDate et un NeedReassessingAuthorization \u00E0 true",
@@ -591,20 +584,14 @@
     "SigningInformation": {
       "AdditionalProof": [
         {
-          "AdditionalProofInformation": [
-            "ExtraProofInfo",
-            "ExtraProofInfo2"
-          ]
+          "AdditionalProofInformation": ["ExtraProofInfo", "ExtraProofInfo2"]
         }
       ],
       "SignatureDescription": [
         {
           "Signer": {
             "BirthName": "Henry",
-            "Role": [
-              "Directeur des travaux",
-              "Expert"
-            ],
+            "Role": ["Directeur des travaux", "Expert"],
             "SigningTime": "2016-06-03T15:28:00"
           },
           "SigningType": "QualifiedSignature",
@@ -615,10 +602,7 @@
           }
         }
       ],
-      "SigningRole": [
-        "SignedDocument",
-        "Signature"
-      ],
+      "SigningRole": ["SignedDocument", "Signature"],
       "TimestampingInformation": [
         {
           "AdditionalTimestampingInformation": "ExtraInfo",
@@ -636,11 +620,11 @@
         "evTypeProc": "Ligne_ouverture",
         "evType": "Ouverture",
         "evDateTime": "1998-05-25T08:07:00",
-        "evTypeDetail": "Ouverture de la station \u00E0 l'exploitation",
+        "evDetData": "Ouverture de la station \u00E0 l'exploitation",
         "outcome": "OK",
         "outDetail": "Ligne_Ouverture_OK",
         "outMessg": "Ouverture de la station effectu\u00E9e avec succ\u00E8s",
-        "evDetData": "500 personnes pr\u00E9sentes"
+        "evTypeDetail": "500 personnes pr\u00E9sentes"
       }
     ],
     "Tag": [
@@ -714,16 +698,14 @@
     "#management": {},
     "#unitType": "INGEST",
     "#opi": "aeeaaaaaaceaaaaba3gnkamd5sn2uwqaaaaq",
-    "#originating_agency": "Service_producteur",
-    "#originating_agencies": [
-      "Service_producteur"
-    ],
+    "#originating_agency":"Service_producteur",
+    "#originating_agencies":["Service_producteur"],
     "#version": 1,
     "#approximate_creation_date": "2022-10-18T19:39:28.527",
     "#approximate_update_date": "2022-10-18T19:39:30.118"
   },
   {
-    "Title": "Saint-Lazare.link - TRANSFORMED",
+    "Title": "Saint-Lazare.link",
     "#uploadPath": "1_Saint-Denis/Saint-Denis-Basilique/Carrefour-Pleyel/Saint-Lazare.link",
     "DescriptionLevel": "Item",
     "#id": "aeaqaaaaaaeaaaaba3gnkamd5sn2zkyaaaaq",
@@ -743,16 +725,14 @@
     "#management": {},
     "#unitType": "INGEST",
     "#opi": "aeeaaaaaaceaaaaba3gnkamd5sn2uwqaaaaq",
-    "#originating_agency": "Service_producteur",
-    "#originating_agencies": [
-      "Service_producteur"
-    ],
-    "#version": 1,
+    "#originating_agency":"Service_producteur",
+    "#originating_agencies":["Service_producteur"],
+    "#version": 0,
     "#approximate_creation_date": "2022-10-18T19:39:28.816",
     "#approximate_update_date": "2022-10-18T19:39:29.032"
   },
   {
-    "Title": "Stalingrad.txt - TRANSFORMED",
+    "Title": "Stalingrad.txt",
     "#uploadPath": "2_Front-Populaire/Porte-de-la-Chapelle/Marx-Dormoy/Stalingrad.txt",
     "DescriptionLevel": "Item",
     "#id": "aeaqaaaaaaeaaaaba3gnkamd5sn3afyaaaaq",
@@ -772,17 +752,15 @@
     "#management": {},
     "#unitType": "INGEST",
     "#opi": "aeeaaaaaaceaaaaba3gnkamd5sn2uwqaaaaq",
-    "#originating_agency": "Service_producteur",
-    "#originating_agencies": [
-      "Service_producteur"
-    ],
-    "#version": 1,
+    "#originating_agency":"Service_producteur",
+    "#originating_agencies":["Service_producteur"],
+    "#version": 0,
     "#approximate_creation_date": "2022-10-18T19:39:29.694",
     "#approximate_update_date": "2022-10-18T19:39:29.739"
   },
   {
-    "Title": "SaintDenisUniversit\u00E9.txt - TRANSFORMED",
-    "#uploadPath": "1_Saint-Denis/SaintDenisUniversité.txt",
+    "Title": "SaintDenisUniversit\u00E9.txt",
+    "#uploadPath": "1_Saint-Denis/SaintDenisUniversit\u00e9.txt",
     "DescriptionLevel": "Item",
     "#id": "aeaqaaaaaaeaaaaba3gnkamd5sn25eaaaaaq",
     "#tenant": 0,
@@ -799,16 +777,14 @@
     "#management": {},
     "#unitType": "INGEST",
     "#opi": "aeeaaaaaaceaaaaba3gnkamd5sn2uwqaaaaq",
-    "#originating_agency": "Service_producteur",
-    "#originating_agencies": [
-      "Service_producteur"
-    ],
-    "#version": 1,
+    "#originating_agency":"Service_producteur",
+    "#originating_agencies":["Service_producteur"],
+    "#version": 0,
     "#approximate_creation_date": "2022-10-18T19:39:29.3",
     "#approximate_update_date": "2022-10-18T19:39:29.348"
   },
   {
-    "Title": "2_Front-Populaire - TRANSFORMED",
+    "Title": "2_Front-Populaire",
     "#uploadPath": "2_Front-Populaire",
     "DescriptionLevel": "RecordGrp",
     "StartDate": "2017-04-05T08:11:00",
@@ -861,16 +837,14 @@
     },
     "#unitType": "INGEST",
     "#opi": "aeeaaaaaaceaaaaba3gnkamd5sn2uwqaaaaq",
-    "#originating_agency": "Service_producteur",
-    "#originating_agencies": [
-      "Service_producteur"
-    ],
+    "#originating_agency":"Service_producteur",
+    "#originating_agencies":["Service_producteur"],
     "#version": 1,
     "#approximate_creation_date": "2022-10-18T19:39:29.417",
     "#approximate_update_date": "2022-10-18T19:39:30.033"
   },
   {
-    "Title": "Porte-de-la-Chapelle - TRANSFORMED",
+    "Title": "Porte-de-la-Chapelle",
     "#uploadPath": "2_Front-Populaire/Porte-de-la-Chapelle",
     "DescriptionLevel": "RecordGrp",
     "StartDate": "2017-04-05T08:11:00",
@@ -912,16 +886,14 @@
     },
     "#unitType": "INGEST",
     "#opi": "aeeaaaaaaceaaaaba3gnkamd5sn2uwqaaaaq",
-    "#originating_agency": "Service_producteur",
-    "#originating_agencies": [
-      "Service_producteur"
-    ],
+    "#originating_agency":"Service_producteur",
+    "#originating_agencies":["Service_producteur"],
     "#version": 1,
     "#approximate_creation_date": "2022-10-18T19:39:29.439",
     "#approximate_update_date": "2022-10-18T19:39:30.063"
   },
   {
-    "Title": "Saint-Denis-Basilique - TRANSFORMED",
+    "Title": "Saint-Denis-Basilique",
     "#uploadPath": "1_Saint-Denis/Saint-Denis-Basilique",
     "DescriptionLevel": "RecordGrp",
     "StartDate": "2017-04-04T08:07:00",
@@ -956,16 +928,14 @@
     },
     "#unitType": "INGEST",
     "#opi": "aeeaaaaaaceaaaaba3gnkamd5sn2uwqaaaaq",
-    "#originating_agency": "Service_producteur",
-    "#originating_agencies": [
-      "Service_producteur"
-    ],
+    "#originating_agency":"Service_producteur",
+    "#originating_agencies":["Service_producteur"],
     "#version": 1,
     "#approximate_creation_date": "2022-10-18T19:39:28.628",
     "#approximate_update_date": "2022-10-18T19:39:30.090"
   },
   {
-    "Title": "Marx-Dormoy - TRANSFORMED",
+    "Title": "Marx-Dormoy",
     "#uploadPath": "2_Front-Populaire/Porte-de-la-Chapelle/Marx-Dormoy",
     "DescriptionLevel": "RecordGrp",
     "StartDate": "2017-04-05T08:11:00",
@@ -1007,10 +977,8 @@
     },
     "#unitType": "INGEST",
     "#opi": "aeeaaaaaaceaaaaba3gnkamd5sn2uwqaaaaq",
-    "#originating_agency": "Service_producteur",
-    "#originating_agencies": [
-      "Service_producteur"
-    ],
+    "#originating_agency":"Service_producteur",
+    "#originating_agencies":["Service_producteur"],
     "#version": 1,
     "#approximate_creation_date": "2022-10-18T19:39:29.459",
     "#approximate_update_date": "2022-10-18T19:39:30.313"

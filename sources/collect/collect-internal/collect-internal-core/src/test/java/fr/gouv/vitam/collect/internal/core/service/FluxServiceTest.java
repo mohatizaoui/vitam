@@ -39,6 +39,7 @@ import fr.gouv.vitam.collect.internal.core.common.ProjectModel;
 import fr.gouv.vitam.collect.internal.core.common.ProjectStatus;
 import fr.gouv.vitam.collect.internal.core.common.TransactionModel;
 import fr.gouv.vitam.collect.internal.core.configuration.CollectInternalConfiguration;
+import fr.gouv.vitam.collect.internal.core.helpers.MetadataHelper;
 import fr.gouv.vitam.collect.internal.core.repository.MetadataRepository;
 import fr.gouv.vitam.collect.internal.core.repository.ProjectRepository;
 import fr.gouv.vitam.common.PropertiesUtils;
@@ -47,6 +48,8 @@ import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.format.identification.model.FormatIdentifierResponse;
 import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.json.JsonHandler;
+import fr.gouv.vitam.common.logging.VitamLogger;
+import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.administration.schema.SchemaResponse;
@@ -61,6 +64,8 @@ import fr.gouv.vitam.functional.administration.client.AdminManagementClientFacto
 import fr.gouv.vitam.worker.core.distribution.JsonLineGenericIterator;
 import net.javacrumbs.jsonunit.JsonAssert;
 import net.javacrumbs.jsonunit.core.Option;
+import org.apache.commons.collections4.IteratorUtils;
+import org.assertj.core.api.ThrowableAssert;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -80,6 +85,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -91,6 +97,7 @@ import static fr.gouv.vitam.common.PropertiesUtils.getResourceAsStream;
 import static fr.gouv.vitam.common.SedaConstants.TAG_FILE_INFO;
 import static fr.gouv.vitam.common.SedaConstants.TAG_URI;
 import static fr.gouv.vitam.common.SedaConstants.TAG_VERSIONS;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -103,6 +110,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class FluxServiceTest {
+
+    private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(FluxServiceTest.class);
 
     private static final int TENANT_ID = 0;
     private static final String TRANSACTION_ID = "TRANSACTION_ID";
@@ -1020,6 +1029,377 @@ public class FluxServiceTest {
         );
 
         checkUpdatedUnits(unitUpdates, "streamZip/expected_updated_units_without_metadata_with_jslt.json");
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void processStream_with_csv_and_ObjectFiles_ok() throws Exception {
+        when(projectRepository.findProjectById(anyString())).thenReturn(Optional.of(projectModel));
+        Map<String, JsonNode> units = new HashMap<>();
+        Map<String, JsonNode> objectGroups = new HashMap<>();
+        when(metadataRepository.saveArchiveUnits(ArgumentMatchers.anyList())).thenAnswer(e -> {
+            final List<ObjectNode> unitsToSave = e.getArgument(0);
+            for (ObjectNode unit : unitsToSave) {
+                units.put(unit.get(VitamFieldsHelper.id()).asText(), unit);
+            }
+            return JsonHandler.toJsonNode(
+                new RequestResponseOK<>(JsonHandler.createObjectNode(), unitsToSave, unitsToSave.size())
+            );
+        });
+
+        when(metadataRepository.saveObjectGroups(anyList())).thenAnswer(e -> {
+            final List<ObjectNode> ogToSave = e.getArgument(0);
+            for (ObjectNode og : ogToSave) {
+                objectGroups.put(og.get(VitamFieldsHelper.id()).asText(), og);
+            }
+            return JsonHandler.toJsonNode(
+                new RequestResponseOK<>(JsonHandler.createObjectNode(), ogToSave, ogToSave.size())
+            );
+        });
+
+        when(metadataService.prepareAttachmentUnits(any(), anyString())).thenReturn(new HashMap<>());
+
+        try (
+            final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(
+                "streamZip/simple_zip_with_csv_and_ObjectFiles.zip"
+            )
+        ) {
+            fluxService.processStream(resourceAsStream, PROJECT_ID, TRANSACTION_ID, null, null);
+        }
+
+        JsonNode expectedUnits = JsonHandler.getFromFile(
+            PropertiesUtils.getResourceFile("streamZip/expected_simple_zip_with_ObjectFiles_units.json")
+        );
+        JsonNode expectedObjectGroups = JsonHandler.getFromFile(
+            PropertiesUtils.getResourceFile("streamZip/expected_simple_zip_with_ObjectFiles_object_groups.json")
+        );
+
+        LOGGER.debug("Actual units: {}", units);
+        LOGGER.debug("Actual object groups: {}", objectGroups);
+
+        assertMetadataEquals(
+            expectedUnits,
+            expectedObjectGroups,
+            JsonHandler.toJsonNode(units.values()),
+            JsonHandler.toJsonNode(objectGroups.values())
+        );
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void processStream_with_jsonl_and_ObjectFiles_ok() throws Exception {
+        when(projectRepository.findProjectById(anyString())).thenReturn(Optional.of(projectModel));
+        Map<String, JsonNode> units = new HashMap<>();
+        Map<String, JsonNode> objectGroups = new HashMap<>();
+        when(metadataRepository.saveArchiveUnits(ArgumentMatchers.anyList())).thenAnswer(e -> {
+            final List<ObjectNode> unitsToSave = e.getArgument(0);
+            for (ObjectNode unit : unitsToSave) {
+                units.put(unit.get(VitamFieldsHelper.id()).asText(), unit);
+            }
+            return JsonHandler.toJsonNode(
+                new RequestResponseOK<>(JsonHandler.createObjectNode(), unitsToSave, unitsToSave.size())
+            );
+        });
+
+        when(metadataRepository.saveObjectGroups(anyList())).thenAnswer(e -> {
+            final List<ObjectNode> ogToSave = e.getArgument(0);
+            for (ObjectNode og : ogToSave) {
+                objectGroups.put(og.get(VitamFieldsHelper.id()).asText(), og);
+            }
+            return JsonHandler.toJsonNode(
+                new RequestResponseOK<>(JsonHandler.createObjectNode(), ogToSave, ogToSave.size())
+            );
+        });
+
+        when(metadataService.prepareAttachmentUnits(any(), anyString())).thenReturn(new HashMap<>());
+
+        try (
+            final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(
+                "streamZip/simple_zip_with_jsonl_and_ObjectFiles.zip"
+            )
+        ) {
+            fluxService.processStream(resourceAsStream, PROJECT_ID, TRANSACTION_ID, null, null);
+        }
+
+        JsonNode expectedUnits = JsonHandler.getFromFile(
+            PropertiesUtils.getResourceFile("streamZip/expected_simple_zip_with_ObjectFiles_units.json")
+        );
+        JsonNode expectedObjectGroups = JsonHandler.getFromFile(
+            PropertiesUtils.getResourceFile("streamZip/expected_simple_zip_with_ObjectFiles_object_groups.json")
+        );
+
+        LOGGER.debug("Actual units: {}", units);
+        LOGGER.debug("Actual object groups: {}", objectGroups);
+
+        assertMetadataEquals(
+            expectedUnits,
+            expectedObjectGroups,
+            JsonHandler.toJsonNode(units.values()),
+            JsonHandler.toJsonNode(objectGroups.values())
+        );
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void processStream_with_ObjectFiles_with_duplicate_File_and_ObjectFiles_ko() throws Exception {
+        when(projectRepository.findProjectById(anyString())).thenReturn(Optional.of(projectModel));
+
+        when(metadataService.prepareAttachmentUnits(any(), anyString())).thenReturn(new HashMap<>());
+
+        try (
+            final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(
+                "streamZip/simple_zip_with_csv_and_ObjectFiles_with_duplicate_File_and_ObjectFiles.zip"
+            )
+        ) {
+            // When
+            ThrowableAssert.ThrowingCallable invocation = () ->
+                fluxService.processStream(resourceAsStream, PROJECT_ID, TRANSACTION_ID, null, null);
+
+            // Then
+            assertThatThrownBy(invocation)
+                .isInstanceOf(CollectInternalInvalidRequestException.class)
+                .hasMessage("Duplicate File or #uploadPath selector declaration for 'SomeFile.xml'");
+        }
+
+        verify(metadataRepository, never()).saveArchiveUnits(anyList());
+        verify(metadataRepository, never()).saveObjectGroups(anyList());
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void processStream_with_ObjectFiles_with_duplicates_File_ko() throws Exception {
+        when(projectRepository.findProjectById(anyString())).thenReturn(Optional.of(projectModel));
+
+        when(metadataService.prepareAttachmentUnits(any(), anyString())).thenReturn(new HashMap<>());
+
+        try (
+            final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(
+                "streamZip/simple_zip_with_csv_and_ObjectFiles_with_duplicate_File.zip"
+            )
+        ) {
+            // When
+            ThrowableAssert.ThrowingCallable invocation = () ->
+                fluxService.processStream(resourceAsStream, PROJECT_ID, TRANSACTION_ID, null, null);
+
+            // Then
+            assertThatThrownBy(invocation)
+                .isInstanceOf(CollectInternalInvalidRequestException.class)
+                .hasMessage("Duplicate File or #uploadPath selector declaration for 'My Root Folder'");
+        }
+
+        verify(metadataRepository, never()).saveArchiveUnits(anyList());
+        verify(metadataRepository, never()).saveObjectGroups(anyList());
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void processStream_with_ObjectFiles_with_duplicates_ObjectFiles_than_KO() throws Exception {
+        when(projectRepository.findProjectById(anyString())).thenReturn(Optional.of(projectModel));
+
+        when(metadataService.prepareAttachmentUnits(any(), anyString())).thenReturn(new HashMap<>());
+
+        try (
+            final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(
+                "streamZip/simple_zip_with_csv_and_ObjectFiles_with_duplicate_ObjectFiles.zip"
+            )
+        ) {
+            // When
+            ThrowableAssert.ThrowingCallable invocation = () ->
+                fluxService.processStream(resourceAsStream, PROJECT_ID, TRANSACTION_ID, null, null);
+
+            // Then
+            assertThatThrownBy(invocation)
+                .isInstanceOf(CollectInternalInvalidRequestException.class)
+                .hasMessage("Duplicate ObjectFiles declaration for 'My Root Folder/MyFile2.txt'");
+        }
+
+        verify(metadataRepository, never()).saveArchiveUnits(anyList());
+        verify(metadataRepository, never()).saveObjectGroups(anyList());
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void processStream_with_ObjectFiles_with_ObjectFiles_set_to_object_KO() throws Exception {
+        when(projectRepository.findProjectById(anyString())).thenReturn(Optional.of(projectModel));
+
+        when(metadataService.prepareAttachmentUnits(any(), anyString())).thenReturn(new HashMap<>());
+
+        try (
+            final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(
+                "streamZip/simple_zip_with_csv_and_ObjectFiles_with_ObjectFiles_set_to_object_ko.zip"
+            )
+        ) {
+            // When
+            ThrowableAssert.ThrowingCallable invocation = () ->
+                fluxService.processStream(resourceAsStream, PROJECT_ID, TRANSACTION_ID, null, null);
+
+            // Then
+            assertThatThrownBy(invocation)
+                .isInstanceOf(CollectInternalInvalidRequestException.class)
+                .hasMessage(
+                    "ObjectFiles value 'SomeFile.xml' can only be set when File or #uploadPath selector 'My Root Folder/MyFile1.txt' is a directory."
+                );
+        }
+
+        verify(metadataRepository, never()).saveArchiveUnits(anyList());
+        verify(metadataRepository, never()).saveObjectGroups(anyList());
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void processStream_with_ObjectFiles_with_reference_to_folder_KO() throws Exception {
+        when(projectRepository.findProjectById(anyString())).thenReturn(Optional.of(projectModel));
+
+        when(metadataService.prepareAttachmentUnits(any(), anyString())).thenReturn(new HashMap<>());
+
+        try (
+            final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(
+                "streamZip/simple_zip_with_csv_and_ObjectFiles_with_reference_to_folder_ko.zip"
+            )
+        ) {
+            // When
+            ThrowableAssert.ThrowingCallable invocation = () ->
+                fluxService.processStream(resourceAsStream, PROJECT_ID, TRANSACTION_ID, null, null);
+
+            // Then
+            assertThatThrownBy(invocation)
+                .isInstanceOf(CollectInternalInvalidRequestException.class)
+                .hasMessage("Invalid ObjectFiles value 'My Root Folder'. Must be a file.");
+        }
+
+        verify(metadataRepository, never()).saveArchiveUnits(anyList());
+        verify(metadataRepository, never()).saveObjectGroups(anyList());
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void processStream_with_ObjectFiles_with_reference_to_non_existing_file_KO() throws Exception {
+        when(projectRepository.findProjectById(anyString())).thenReturn(Optional.of(projectModel));
+
+        when(metadataService.prepareAttachmentUnits(any(), anyString())).thenReturn(new HashMap<>());
+
+        try (
+            final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(
+                "streamZip/simple_zip_with_csv_and_ObjectFiles_with_reference_to_non_existing_file.zip"
+            )
+        ) {
+            // When
+            ThrowableAssert.ThrowingCallable invocation = () ->
+                fluxService.processStream(resourceAsStream, PROJECT_ID, TRANSACTION_ID, null, null);
+
+            // Then
+            assertThatThrownBy(invocation)
+                .isInstanceOf(CollectInternalInvalidRequestException.class)
+                .hasMessage("Invalid ObjectFiles value 'Unknown/file.Txt'. No such file.");
+        }
+
+        verify(metadataRepository, never()).saveArchiveUnits(anyList());
+        verify(metadataRepository, never()).saveObjectGroups(anyList());
+    }
+
+    private void assertMetadataEquals(
+        JsonNode expectedUnits,
+        JsonNode expectedObjectGroups,
+        JsonNode actualUnits,
+        JsonNode actualObjectGroups
+    ) throws InvalidParseOperationException {
+        Map<String, String> expectedIdsToPlaceHolderMap = replaceIds(expectedUnits);
+        JsonNode expectedNormalizedUnits = replaceIdsWithPlaceHolders(expectedUnits, expectedIdsToPlaceHolderMap);
+        JsonNode expectedNormalizedObjectGroups = replaceIdsWithPlaceHolders(
+            expectedObjectGroups,
+            expectedIdsToPlaceHolderMap
+        );
+
+        Map<String, String> actualIdsToPlaceHolderMap = replaceIds(actualUnits);
+        JsonNode actualNormalizedUnits = replaceIdsWithPlaceHolders(actualUnits, actualIdsToPlaceHolderMap);
+        JsonNode actualNormalizedObjectGroups = replaceIdsWithPlaceHolders(
+            actualObjectGroups,
+            actualIdsToPlaceHolderMap
+        );
+
+        try {
+            JsonAssert.assertJsonEquals(
+                expectedNormalizedUnits,
+                actualNormalizedUnits,
+                JsonAssert.when(Option.IGNORING_ARRAY_ORDER).whenIgnoringPaths(
+                    List.of("[*]." + VitamFieldsHelper.batchId())
+                )
+            );
+        } catch (AssertionError e) {
+            LOGGER.error("Expected Units: " + JsonHandler.prettyPrint(expectedNormalizedUnits));
+            LOGGER.error("Actual Units: " + JsonHandler.prettyPrint(actualNormalizedUnits));
+            throw e;
+        }
+
+        try {
+            JsonAssert.assertJsonEquals(
+                expectedNormalizedObjectGroups,
+                actualNormalizedObjectGroups,
+                JsonAssert.when(Option.IGNORING_ARRAY_ORDER).whenIgnoringPaths(
+                    List.of(
+                        "[*]." + VitamFieldsHelper.batchId(),
+                        "[*]." + TAG_FILE_INFO + "." + FileInfoModel.LAST_MODIFIED,
+                        "[*]." +
+                        VitamFieldsHelper.qualifiers() +
+                        "[*]." +
+                        TAG_VERSIONS +
+                        "[*]." +
+                        VitamFieldsHelper.id(),
+                        "[*]." +
+                        VitamFieldsHelper.qualifiers() +
+                        "[*]." +
+                        TAG_VERSIONS +
+                        "[*]." +
+                        TAG_FILE_INFO +
+                        "." +
+                        FileInfoModel.LAST_MODIFIED,
+                        "[*]." + VitamFieldsHelper.qualifiers() + "[*]." + TAG_VERSIONS + "[*]." + TAG_URI
+                    )
+                )
+            );
+        } catch (AssertionError e) {
+            LOGGER.error("Expected ObjectGroups: " + JsonHandler.prettyPrint(expectedNormalizedObjectGroups));
+            LOGGER.error("Actual ObjectGroups: " + JsonHandler.prettyPrint(actualNormalizedObjectGroups));
+            throw e;
+        }
+    }
+
+    private Map<String, String> replaceIds(JsonNode units) {
+        Map<String, String> replacements = new HashMap<>();
+        for (JsonNode unit : units) {
+            String id = unit.get(VitamFieldsHelper.id()).asText();
+
+            String title = unit.has("Title") ? unit.get("Title").asText() : null;
+
+            if (title != null && title.startsWith(MetadataHelper.STATIC_ATTACHMENT)) {
+                replacements.put(id, "#ID-UNIT-STATIC_ATTACHMENT");
+                assertThat(unit.has(VitamFieldsHelper.object())).isFalse();
+            } else if (title != null && title.startsWith(MetadataHelper.DYNAMIC_ATTACHEMENT)) {
+                replacements.put(id, "#ID-UNIT-" + unit.get("Title").asText());
+                assertThat(unit.has(VitamFieldsHelper.object())).isFalse();
+            } else {
+                assertThat(unit.has(VitamFieldsHelper.uploadPath())).isTrue();
+                String uploadPath = unit.get(VitamFieldsHelper.uploadPath()).asText();
+                replacements.put(id, "#ID-UNIT-" + uploadPath);
+
+                if (unit.has(VitamFieldsHelper.object())) {
+                    String objectGroupId = unit.get(VitamFieldsHelper.object()).asText();
+                    replacements.put(objectGroupId, "#ID-OG-" + uploadPath);
+                }
+            }
+        }
+        return replacements;
+    }
+
+    private static JsonNode replaceIdsWithPlaceHolders(JsonNode units, Map<String, String> replacements)
+        throws InvalidParseOperationException {
+        String jsonString = JsonHandler.unprettyPrint(units);
+        for (String id : replacements.keySet()) {
+            jsonString = jsonString.replaceAll(id, replacements.get(id));
+        }
+        List<JsonNode> entries = IteratorUtils.toList(JsonHandler.getFromString(jsonString).elements());
+        entries.sort(Comparator.comparing(e -> e.get(VitamFieldsHelper.id()).asText()));
+        return JsonHandler.toJsonNode(entries);
     }
 
     private static void checkInsertedUnits(List<ObjectNode> actual, String expectedResourceFile)
