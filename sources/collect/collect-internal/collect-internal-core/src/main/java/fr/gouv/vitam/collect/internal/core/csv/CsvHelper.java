@@ -45,6 +45,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Optional;
 
 import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.FILE_HEADER;
 import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.OBJECT_FIlES_HEADER;
@@ -70,95 +71,203 @@ public class CsvHelper {
 
             try (CsvErrorAccumulator csvErrorAccumulator = new CsvErrorAccumulator()) {
                 for (CSVRecord record : parser) {
-                    long csvRecordNumberIncludingHeader = record.getRecordNumber() + 1;
-                    if (!record.isConsistent()) {
-                        csvErrorAccumulator.report(
-                            "Invalid CSV record at line " +
-                            csvRecordNumberIncludingHeader +
-                            ": Nb columns (" +
-                            record.size() +
-                            ") must match nb headers (" +
-                            headerNames.size() +
-                            ")"
-                        );
-                        continue;
+                    Optional<CollectJsonMetadataLine> collectJsonMetadataLine = processRecord(
+                        record,
+                        headerNames,
+                        isFirstUpload,
+                        csvErrorAccumulator,
+                        parser,
+                        csvToJsonConverter
+                    );
+                    if (collectJsonMetadataLine.isPresent()) {
+                        writer.addEntry(collectJsonMetadataLine.get());
                     }
-
-                    String uploadPath = FilenameUtils.separatorsToUnix(record.get(FILE_HEADER));
-                    if (StringUtils.isBlank(uploadPath)) {
-                        csvErrorAccumulator.report(
-                            "Invalid CSV record at line " + csvRecordNumberIncludingHeader + ": Empty " + FILE_HEADER
-                        );
-                        continue;
-                    }
-                    String normalizedUploadPath = FilenameUtils.normalize(uploadPath);
-                    if (!FilenameUtils.equals(uploadPath, normalizedUploadPath)) {
-                        csvErrorAccumulator.report(
-                            "Invalid CSV record at line " +
-                            csvRecordNumberIncludingHeader +
-                            ": Illegal '" +
-                            FILE_HEADER +
-                            "' value '" +
-                            sanitizeStringForLog(uploadPath, MAX_PATH_LENGTH) +
-                            "'"
-                        );
-                        continue;
-                    }
-
-                    String objectFilesPath = parser.getHeaderMap().containsKey(OBJECT_FIlES_HEADER) &&
-                        StringUtils.isNotEmpty(record.get(OBJECT_FIlES_HEADER))
-                        ? FilenameUtils.separatorsToUnix(record.get(OBJECT_FIlES_HEADER))
-                        : null;
-
-                    if (objectFilesPath != null) {
-                        if (!isFirstUpload) {
-                            csvErrorAccumulator.report(
-                                String.format(
-                                    "Invalid CSV record at line %d (File=\"%s\"): %s field not supported for update operations",
-                                    csvRecordNumberIncludingHeader,
-                                    sanitizeStringForLog(uploadPath, MAX_PATH_LENGTH),
-                                    OBJECT_FIlES_HEADER
-                                )
-                            );
-                            continue;
-                        }
-
-                        String normalizedObjectFilesPath = FilenameUtils.normalize(objectFilesPath);
-                        if (!FilenameUtils.equals(objectFilesPath, normalizedObjectFilesPath)) {
-                            csvErrorAccumulator.report(
-                                String.format(
-                                    "Invalid CSV record at line %d (File=\"%s\"): %s",
-                                    csvRecordNumberIncludingHeader,
-                                    sanitizeStringForLog(uploadPath, MAX_PATH_LENGTH),
-                                    "Invalid '" +
-                                    OBJECT_FIlES_HEADER +
-                                    "' value '" +
-                                    sanitizeStringForLog(objectFilesPath, MAX_PATH_LENGTH) +
-                                    "'"
-                                )
-                            );
-                            continue;
-                        }
-                    }
-
-                    ObjectNode unitJson;
-                    try {
-                        unitJson = csvToJsonConverter.convertCsvRecordToJson(record);
-                    } catch (CollectInvalidCsvFormatException e) {
-                        csvErrorAccumulator.report(
-                            String.format(
-                                "Invalid CSV record at line %d (File=\"%s\"): %s",
-                                csvRecordNumberIncludingHeader,
-                                sanitizeStringForLog(uploadPath, MAX_PATH_LENGTH),
-                                e.getMessage()
-                            )
-                        );
-                        continue;
-                    }
-
-                    writer.addEntry(new CollectJsonMetadataLine(uploadPath, objectFilesPath, null, unitJson));
                 }
             }
+        }
+    }
+
+    private static Optional<CollectJsonMetadataLine> processRecord(
+        CSVRecord record,
+        List<String> headerNames,
+        boolean isFirstUpload,
+        CsvErrorAccumulator csvErrorAccumulator,
+        CSVParser parser,
+        CsvToJsonConverter csvToJsonConverter
+    ) throws CollectInvalidCsvFormatException {
+        long csvRecordNumberIncludingHeader = record.getRecordNumber() + 1;
+
+        // Validate record columns
+        if (hasInconsistentRecordColumns(record, headerNames, csvErrorAccumulator, csvRecordNumberIncludingHeader)) {
+            return Optional.empty();
+        }
+
+        String uploadPath = FilenameUtils.separatorsToUnix(record.get(FILE_HEADER));
+        if (
+            hasMissingUploadPath(csvErrorAccumulator, uploadPath, csvRecordNumberIncludingHeader) ||
+            hasIllegalUploadPath(csvErrorAccumulator, uploadPath, csvRecordNumberIncludingHeader)
+        ) {
+            return Optional.empty();
+        }
+
+        String objectFilesPath = parser.getHeaderMap().containsKey(OBJECT_FIlES_HEADER) &&
+            StringUtils.isNotEmpty(record.get(OBJECT_FIlES_HEADER))
+            ? FilenameUtils.separatorsToUnix(record.get(OBJECT_FIlES_HEADER))
+            : null;
+
+        if (objectFilesPath != null) {
+            if (
+                isForbiddenObjectFilesForUpdateMode(
+                    isFirstUpload,
+                    csvErrorAccumulator,
+                    csvRecordNumberIncludingHeader,
+                    uploadPath
+                )
+            ) {
+                return Optional.empty();
+            }
+
+            if (
+                hasIllegalObjectFilesField(
+                    csvErrorAccumulator,
+                    objectFilesPath,
+                    csvRecordNumberIncludingHeader,
+                    uploadPath
+                )
+            ) {
+                return Optional.empty();
+            }
+        }
+
+        return tryConvertCsvToJsonl(
+            record,
+            csvErrorAccumulator,
+            csvToJsonConverter,
+            uploadPath,
+            objectFilesPath,
+            csvRecordNumberIncludingHeader
+        );
+    }
+
+    private static boolean hasInconsistentRecordColumns(
+        CSVRecord record,
+        List<String> headerNames,
+        CsvErrorAccumulator csvErrorAccumulator,
+        long csvRecordNumberIncludingHeader
+    ) throws CollectInvalidCsvFormatException {
+        if (record.isConsistent()) {
+            return false;
+        }
+        csvErrorAccumulator.report(
+            "Invalid CSV record at line %d: Nb columns (%d) must match nb headers (%d)".formatted(
+                    csvRecordNumberIncludingHeader,
+                    record.size(),
+                    headerNames.size()
+                )
+        );
+        return true;
+    }
+
+    private static boolean hasMissingUploadPath(
+        CsvErrorAccumulator csvErrorAccumulator,
+        String uploadPath,
+        long csvRecordNumberIncludingHeader
+    ) throws CollectInvalidCsvFormatException {
+        if (StringUtils.isNotBlank(uploadPath)) {
+            return false;
+        }
+        csvErrorAccumulator.report(
+            "Invalid CSV record at line " + csvRecordNumberIncludingHeader + ": Empty " + FILE_HEADER
+        );
+        return true;
+    }
+
+    private static boolean hasIllegalUploadPath(
+        CsvErrorAccumulator csvErrorAccumulator,
+        String uploadPath,
+        long csvRecordNumberIncludingHeader
+    ) throws CollectInvalidCsvFormatException {
+        String normalizedUploadPath = FilenameUtils.normalize(uploadPath);
+        if (FilenameUtils.equals(uploadPath, normalizedUploadPath)) {
+            return false;
+        }
+        csvErrorAccumulator.report(
+            "Invalid CSV record at line %d: Illegal '%s' value '%s'".formatted(
+                    csvRecordNumberIncludingHeader,
+                    FILE_HEADER,
+                    sanitizeStringForLog(uploadPath, MAX_PATH_LENGTH)
+                )
+        );
+        return true;
+    }
+
+    private static boolean isForbiddenObjectFilesForUpdateMode(
+        boolean isFirstUpload,
+        CsvErrorAccumulator csvErrorAccumulator,
+        long csvRecordNumberIncludingHeader,
+        String uploadPath
+    ) throws CollectInvalidCsvFormatException {
+        if (isFirstUpload) {
+            return false;
+        }
+        csvErrorAccumulator.report(
+            String.format(
+                "Invalid CSV record at line %d (File=\"%s\"): %s field not supported for update operations",
+                csvRecordNumberIncludingHeader,
+                sanitizeStringForLog(uploadPath, MAX_PATH_LENGTH),
+                OBJECT_FIlES_HEADER
+            )
+        );
+        return true;
+    }
+
+    private static boolean hasIllegalObjectFilesField(
+        CsvErrorAccumulator csvErrorAccumulator,
+        String objectFilesPath,
+        long csvRecordNumberIncludingHeader,
+        String uploadPath
+    ) throws CollectInvalidCsvFormatException {
+        String normalizedObjectFilesPath = FilenameUtils.normalize(objectFilesPath);
+        if (FilenameUtils.equals(objectFilesPath, normalizedObjectFilesPath)) {
+            return false;
+        }
+
+        csvErrorAccumulator.report(
+            String.format(
+                "Invalid CSV record at line %d (File=\"%s\"): %s",
+                csvRecordNumberIncludingHeader,
+                sanitizeStringForLog(uploadPath, MAX_PATH_LENGTH),
+                "Invalid '" +
+                OBJECT_FIlES_HEADER +
+                "' value '" +
+                sanitizeStringForLog(objectFilesPath, MAX_PATH_LENGTH) +
+                "'"
+            )
+        );
+        return true;
+    }
+
+    private static Optional<CollectJsonMetadataLine> tryConvertCsvToJsonl(
+        CSVRecord record,
+        CsvErrorAccumulator csvErrorAccumulator,
+        CsvToJsonConverter csvToJsonConverter,
+        String uploadPath,
+        String objectFilesPath,
+        long csvRecordNumberIncludingHeader
+    ) throws CollectInvalidCsvFormatException {
+        try {
+            ObjectNode unitJson = csvToJsonConverter.convertCsvRecordToJson(record);
+            return Optional.of(new CollectJsonMetadataLine(uploadPath, objectFilesPath, null, unitJson));
+        } catch (CollectInvalidCsvFormatException e) {
+            csvErrorAccumulator.report(
+                String.format(
+                    "Invalid CSV record at line %d (File=\"%s\"): %s",
+                    csvRecordNumberIncludingHeader,
+                    sanitizeStringForLog(uploadPath, MAX_PATH_LENGTH),
+                    e.getMessage()
+                )
+            );
+            return Optional.empty();
         }
     }
 

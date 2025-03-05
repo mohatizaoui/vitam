@@ -695,7 +695,7 @@ public class FluxService {
         return updatedUnitsToWriteFile;
     }
 
-    private static File updateObjectGroupsParentUnits(
+    private File updateObjectGroupsParentUnits(
         TempWorkspace tempWorkspace,
         File objectsToWriteFile,
         BidiMap<String, String> unitIdToObjectGroupIdOverrideMap
