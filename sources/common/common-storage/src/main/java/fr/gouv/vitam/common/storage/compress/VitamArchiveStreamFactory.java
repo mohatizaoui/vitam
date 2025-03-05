@@ -28,6 +28,7 @@ package fr.gouv.vitam.common.storage.compress;
 
 import fr.gouv.vitam.common.CharsetUtils;
 import fr.gouv.vitam.common.CommonMediaType;
+import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.archivers.ArchiveInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
@@ -57,8 +58,10 @@ public class VitamArchiveStreamFactory {
      * @throws IOException
      * @throws IllegalArgumentException if the archiver name or stream is null
      */
-    public ArchiveInputStream createArchiveInputStream(final MediaType mediaType, final InputStream in)
-        throws IOException, ArchiveException {
+    public ArchiveInputStream<? extends ArchiveEntry> createArchiveInputStream(
+        final MediaType mediaType,
+        final InputStream in
+    ) throws IOException, ArchiveException {
         return createArchiveInputStream(mediaType, in, null);
     }
 
@@ -73,7 +76,7 @@ public class VitamArchiveStreamFactory {
      * @throws IOException
      * @throws IllegalArgumentException if the archiver name or stream is null
      */
-    public ArchiveInputStream createArchiveInputStream(
+    public ArchiveInputStream<? extends ArchiveEntry> createArchiveInputStream(
         final MediaType mediaType,
         final InputStream in,
         @Nullable String encoding

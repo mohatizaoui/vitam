@@ -49,7 +49,6 @@ import fr.gouv.vitam.collect.internal.core.helpers.TempWorkspace;
 import fr.gouv.vitam.collect.internal.core.repository.MetadataRepository;
 import fr.gouv.vitam.collect.internal.core.repository.ProjectRepository;
 import fr.gouv.vitam.collect.internal.core.transformers.JsltTransformer;
-import fr.gouv.vitam.common.CommonMediaType;
 import fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper;
 import fr.gouv.vitam.common.format.identification.model.FormatIdentifierResponse;
 import fr.gouv.vitam.common.guid.GUIDFactory;
@@ -60,17 +59,17 @@ import fr.gouv.vitam.common.model.objectgroup.ObjectGroupResponse;
 import fr.gouv.vitam.common.model.unit.ArchiveUnitModel;
 import fr.gouv.vitam.common.model.unit.LevelType;
 import fr.gouv.vitam.common.storage.compress.ArchiveEntryInputStream;
-import fr.gouv.vitam.common.storage.compress.VitamArchiveStreamFactory;
 import fr.gouv.vitam.common.stream.StreamUtils;
 import fr.gouv.vitam.functional.administration.client.AdminManagementClientFactory;
 import fr.gouv.vitam.worker.core.distribution.JsonLineGenericIterator;
 import fr.gouv.vitam.worker.core.distribution.JsonLineModel;
 import fr.gouv.vitam.worker.core.distribution.JsonLineWriter;
+import org.apache.commons.collections4.BidiMap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IteratorUtils;
+import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 import org.apache.commons.compress.archivers.ArchiveEntry;
-import org.apache.commons.compress.archivers.ArchiveException;
-import org.apache.commons.compress.archivers.ArchiveInputStream;
+import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.input.BoundedInputStream;
 import org.apache.commons.lang3.StringUtils;
@@ -83,13 +82,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
-import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.zip.ZipException;
@@ -154,79 +152,36 @@ public class FluxService {
         }
 
         try (final TempWorkspace tempWorkspace = new TempWorkspace()) {
-            File unitsToWriteFile = tempWorkspace.tempFile();
-            File objectGroupsToWriteFile = tempWorkspace.tempFile();
+            PreprocessingResult preprocessingResult = preprocessZipFile(
+                inputStreamObject,
+                transactionId,
+                encoding,
+                tempWorkspace,
+                projectModel,
+                staticAttachmentUnitId
+            );
 
-            File metadataFile = null;
-
-            try (
-                final InputStream inputStreamClosable = StreamUtils.getRemainingReadOnCloseInputStream(
-                    inputStreamObject
-                );
-                final ArchiveInputStream archiveInputStream = new VitamArchiveStreamFactory()
-                    .createArchiveInputStream(CommonMediaType.ZIP_TYPE, inputStreamClosable, encoding);
-                FileOutputStream unitsToWriteOutputStream = new FileOutputStream(unitsToWriteFile);
-                JsonLineWriter unitToWriteWriter = new JsonLineWriter(unitsToWriteOutputStream);
-                FileOutputStream objectGroupsToWriteOutputStream = new FileOutputStream(objectGroupsToWriteFile);
-                JsonLineWriter objectGroupsToWriteWriter = new JsonLineWriter(objectGroupsToWriteOutputStream)
-            ) {
-                ArchiveEntry entry;
-                boolean isEmpty = true;
-
-                Map<String, String> unitIdsByUploadPath = new HashMap<>();
-                // create entryInputStream to resolve the stream closed problem
-                final ArchiveEntryInputStream entryInputStream = new ArchiveEntryInputStream(archiveInputStream);
-                while ((entry = archiveInputStream.getNextEntry()) != null) {
-                    if (archiveInputStream.canReadEntryData(entry)) {
-                        checkNonEmptyBinary(entry);
-                        if (Strings.isNullOrEmpty(entry.getName())) {
-                            continue;
-                        }
-                        String path = FilenameUtils.normalize(entry.getName());
-                        if (!FilenameUtils.equals(entry.getName(), path)) {
-                            throw new IllegalStateException("path " + path + " is not canonical");
-                        }
-                        path = FilenameUtils.normalizeNoEndSeparator(path);
-                        if (
-                            !entry.isDirectory() && (path.equals(METADATA_JSONL_FILE) || path.equals(METADATA_CSV_FILE))
-                        ) {
-                            if (metadataFile != null) {
-                                throw new CollectInternalInvalidRequestException(
-                                    "Cannot process zip upload for " +
-                                    projectModel.getId() +
-                                    "/" +
-                                    transactionId +
-                                    ". Multiple metadata update files found."
-                                );
-                            }
-
-                            metadataFile = tempWorkspace.writeToFile(path, entryInputStream);
-                        } else {
-                            createMetadata(
-                                tempWorkspace,
-                                unitToWriteWriter,
-                                objectGroupsToWriteWriter,
-                                transactionId,
-                                path,
-                                entryInputStream,
-                                entry.isDirectory(),
-                                unitIdsByUploadPath,
-                                staticAttachmentUnitId,
-                                projectModel
-                            );
-                        }
-                        isEmpty = false;
-                    }
-                    entryInputStream.setClosed(false);
-                }
-                if (isEmpty) {
-                    throw new CollectInternalInvalidRequestException("Empty zip file.");
-                }
-            } catch (ZipException | ArchiveException e) {
-                throw new CollectInternalInvalidRequestException("Invalid ZIP archive: " + e.getMessage(), e);
-            }
+            File unitsToWriteFile = preprocessingResult.unitsToWriteFile();
+            File objectGroupsToWriteFile = preprocessingResult.objectGroupsToWriteFile();
+            File metadataFile = preprocessingResult.metadataFile();
 
             File jsonlMetadataFile = validateAndConvertMetadataToJsonl(metadataFile, tempWorkspace);
+
+            // Handle "ObjectFiles" path declaration & update units & object groups accordingly
+            BidiMap<String, String> unitIdToObjectGroupIdOverrideMap = parseObjectFilesPathDeclarations(
+                jsonlMetadataFile,
+                unitsToWriteFile
+            );
+            unitsToWriteFile = updateUnitObjectGroups(
+                tempWorkspace,
+                unitsToWriteFile,
+                unitIdToObjectGroupIdOverrideMap
+            );
+            objectGroupsToWriteFile = updateObjectGroupsParentUnits(
+                tempWorkspace,
+                objectGroupsToWriteFile,
+                unitIdToObjectGroupIdOverrideMap
+            );
 
             // Pre-dynamic attachement JSLT transformation
             jsonlMetadataFile = applyPreDynamicAttachementJsltTransformation(
@@ -268,6 +223,84 @@ public class FluxService {
         }
     }
 
+    private PreprocessingResult preprocessZipFile(
+        InputStream inputStreamObject,
+        String transactionId,
+        String encoding,
+        TempWorkspace tempWorkspace,
+        ProjectModel projectModel,
+        String staticAttachmentUnitId
+    ) throws IOException, CollectInternalException {
+        File unitsToWriteFile = tempWorkspace.tempFile();
+        File objectGroupsToWriteFile = tempWorkspace.tempFile();
+        File metadataFile = null;
+        boolean isEmpty = true;
+
+        try (
+            final InputStream inputStreamClosable = StreamUtils.getRemainingReadOnCloseInputStream(inputStreamObject);
+            final ZipArchiveInputStream archiveInputStream = new ZipArchiveInputStream(inputStreamClosable, encoding);
+            FileOutputStream unitsToWriteOutputStream = new FileOutputStream(unitsToWriteFile);
+            JsonLineWriter unitToWriteWriter = new JsonLineWriter(unitsToWriteOutputStream);
+            FileOutputStream objectGroupsToWriteOutputStream = new FileOutputStream(objectGroupsToWriteFile);
+            JsonLineWriter objectGroupsToWriteWriter = new JsonLineWriter(objectGroupsToWriteOutputStream)
+        ) {
+            ArchiveEntry entry;
+
+            Map<String, String> unitIdsByUploadPath = new HashMap<>();
+            // create entryInputStream to resolve the stream closed problem
+            final ArchiveEntryInputStream entryInputStream = new ArchiveEntryInputStream(archiveInputStream);
+            while ((entry = archiveInputStream.getNextEntry()) != null) {
+                if (archiveInputStream.canReadEntryData(entry)) {
+                    checkNonEmptyBinary(entry);
+                    if (Strings.isNullOrEmpty(entry.getName())) {
+                        continue;
+                    }
+                    String path = FilenameUtils.normalize(entry.getName());
+                    if (!FilenameUtils.equals(entry.getName(), path)) {
+                        throw new IllegalStateException("path " + path + " is not canonical");
+                    }
+                    path = FilenameUtils.normalizeNoEndSeparator(path);
+                    if (!entry.isDirectory() && (path.equals(METADATA_JSONL_FILE) || path.equals(METADATA_CSV_FILE))) {
+                        if (metadataFile != null) {
+                            throw new CollectInternalInvalidRequestException(
+                                "Cannot process zip upload for " +
+                                projectModel.getId() +
+                                "/" +
+                                transactionId +
+                                ". Multiple metadata update files found."
+                            );
+                        }
+
+                        metadataFile = tempWorkspace.writeToFile(path, entryInputStream);
+                    } else {
+                        createMetadata(
+                            tempWorkspace,
+                            unitToWriteWriter,
+                            objectGroupsToWriteWriter,
+                            transactionId,
+                            path,
+                            entryInputStream,
+                            entry.isDirectory(),
+                            unitIdsByUploadPath,
+                            staticAttachmentUnitId,
+                            projectModel
+                        );
+                    }
+                    isEmpty = false;
+                }
+                entryInputStream.setClosed(false);
+            }
+        } catch (ZipException e) {
+            throw new CollectInternalInvalidRequestException("Invalid ZIP archive: " + e.getMessage(), e);
+        }
+
+        if (isEmpty) {
+            throw new CollectInternalInvalidRequestException("Empty zip file.");
+        }
+
+        return new PreprocessingResult(unitsToWriteFile, objectGroupsToWriteFile, metadataFile);
+    }
+
     private ProjectModel getProjectModel(String projectId) throws CollectInternalException {
         Optional<ProjectModel> projectById = projectRepository.findProjectById(projectId);
         if (projectById.isEmpty()) {
@@ -302,7 +335,7 @@ public class FluxService {
             return jsonlMetadataFile;
         }
 
-        // Update jsonl with "default" unit metadata (Title, DescriptionLevel,...)
+        // Update jsonl with "default" unit metadata (Title & DescriptionLevel)
         File fullJsonlMetadataFile = mergeDefaultMetadataIntoMetadataJsonl(
             unitsToWriteFile,
             jsonlMetadataFile,
@@ -326,7 +359,7 @@ public class FluxService {
             return jsonlMetadataFile;
         }
 
-        // Update jsonl with "default" unit metadata (Title, DescriptionLevel,...)
+        // Update jsonl with "default" unit metadata (Title & DescriptionLevel)
         File fullJsonlMetadataFile = mergeDefaultMetadataIntoMetadataJsonl(
             unitsToWriteFile,
             jsonlMetadataFile,
@@ -384,7 +417,7 @@ public class FluxService {
                 }
             }
 
-            // Append default metadata for units without explicit
+            // Append default metadata for units without explicit metadata
             for (String fileUploadPath : defaultUnitMetadataByUploadPath.keySet()) {
                 TitleAndDescriptionLevel unitMetadata = defaultUnitMetadataByUploadPath.get(fileUploadPath);
                 ObjectNode metadata = JsonHandler.createObjectNode();
@@ -392,9 +425,7 @@ public class FluxService {
                 metadata.put(TITLE_FIELD, unitMetadata.title());
                 metadata.put(DESCRIPTION_LEVEL_FIELD, unitMetadata.descriptionLevel());
 
-                writer.addEntry(
-                    new CollectJsonMetadataLine().setFile(fileUploadPath).setSelector(null).setUnitContent(metadata)
-                );
+                writer.addEntry(new CollectJsonMetadataLine(fileUploadPath, null, null, metadata));
             }
         }
         return fullMetadataJsonlFile;
@@ -460,10 +491,12 @@ public class FluxService {
                     ObjectNode initialUnitContent = entry.getUnitContent();
                     ObjectNode transformedUnitContent = jsltTransformer.transform(initialUnitContent);
 
-                    CollectJsonMetadataLine transformedJsonMetadataLine = new CollectJsonMetadataLine()
-                        .setFile(entry.getFile())
-                        .setSelector(entry.getSelector())
-                        .setUnitContent(transformedUnitContent);
+                    CollectJsonMetadataLine transformedJsonMetadataLine = new CollectJsonMetadataLine(
+                        entry.getFile(),
+                        entry.getObjectFiles(),
+                        entry.getSelector(),
+                        transformedUnitContent
+                    );
                     writer.addEntry(transformedJsonMetadataLine);
                 }
             }
@@ -483,7 +516,7 @@ public class FluxService {
             File tranformedMetadataFile = tempWorkspace.tempFile();
 
             try (InputStream is = new FileInputStream(metadataFile)) {
-                CsvHelper.convertCsvToJsonlMetadataFile(sedaSchemaInfoResolver, is, tranformedMetadataFile);
+                CsvHelper.convertCsvToJsonlMetadataFile(sedaSchemaInfoResolver, is, tranformedMetadataFile, true);
             }
             return tranformedMetadataFile;
         } catch (IOException e) {
@@ -498,6 +531,199 @@ public class FluxService {
         JsonlMetadataFileValidator jsonlMetadataFileValidator = new JsonlMetadataFileValidator();
         jsonlMetadataFileValidator.validate(jsonlMetadataFile, true);
         return jsonlMetadataFile;
+    }
+
+    private BidiMap<String, String> parseObjectFilesPathDeclarations(File jsonlMetadataFile, File unitsToWriteFile)
+        throws IOException, CollectInternalInvalidRequestException {
+        if (jsonlMetadataFile == null) {
+            return new DualHashBidiMap<>();
+        }
+
+        // Load graph info (uploadPath -> Unit & ObjectGroup ids)
+        Map<String, String> initialUploadPathToUnitId = new HashMap<>();
+        Map<String, String> initialUploadPathToObjectGroupId = new HashMap<>();
+        try (
+            InputStream inputStream = new FileInputStream(unitsToWriteFile);
+            JsonLineGenericIterator<JsonLineModel> unitsToWrite = new JsonLineGenericIterator<>(
+                inputStream,
+                JSON_LINE_MODEL_TYPE_REFERENCE
+            )
+        ) {
+            while (unitsToWrite.hasNext()) {
+                JsonLineModel entry = unitsToWrite.next();
+                String uploadPath = entry.getParams().get(VitamFieldsHelper.uploadPath()).asText();
+
+                String unitId = entry.getParams().get(VitamFieldsHelper.id()).asText();
+                initialUploadPathToUnitId.put(uploadPath, unitId);
+
+                if (entry.getParams().has(VitamFieldsHelper.object())) {
+                    String objectGroupId = entry.getParams().get(VitamFieldsHelper.object()).asText();
+                    initialUploadPathToObjectGroupId.put(uploadPath, objectGroupId);
+                }
+            }
+        }
+
+        // Parse & validate "File" ("#uploadPath" selector) & "ObjectFiles"
+        Set<String> duplicatePaths = new HashSet<>();
+        BidiMap<String, String> unitPathToObjectFilePathMap = new DualHashBidiMap<>();
+        try (
+            JsonLineGenericIterator<CollectJsonMetadataLine> iterator = new JsonLineGenericIterator<>(
+                new FileInputStream(jsonlMetadataFile),
+                COLLECT_JSON_METADATA_LINE_TYPE_REFERENCE
+            )
+        ) {
+            while (iterator.hasNext()) {
+                CollectJsonMetadataLine entry = iterator.next();
+
+                // Validate upload path ("File" or "#uploadPath" selector)
+                String uploadPath = getUploadPath(entry);
+
+                if (duplicatePaths.contains(uploadPath)) {
+                    throw new CollectInternalInvalidRequestException(
+                        "Duplicate File or #uploadPath selector declaration for '" + uploadPath + "'"
+                    );
+                }
+                duplicatePaths.add(uploadPath);
+
+                if (!initialUploadPathToUnitId.containsKey(uploadPath)) {
+                    throw new CollectInternalInvalidRequestException(
+                        "Invalid File or #uploadPath selector '" + uploadPath + "'. No such file or directory."
+                    );
+                }
+
+                // Validate "ObjectFiles"
+                String objectFilesPath = entry.getObjectFiles();
+                if (objectFilesPath == null) {
+                    continue;
+                }
+
+                if (!initialUploadPathToObjectGroupId.containsKey(objectFilesPath)) {
+                    if (initialUploadPathToUnitId.containsKey(objectFilesPath)) {
+                        throw new CollectInternalInvalidRequestException(
+                            "Invalid ObjectFiles value '" + objectFilesPath + "'. Must be a file."
+                        );
+                    } else {
+                        throw new CollectInternalInvalidRequestException(
+                            "Invalid ObjectFiles value '" + objectFilesPath + "'. No such file."
+                        );
+                    }
+                }
+
+                // Skip edge case where ObjectFiles is the same as uploadPath (redundant info)
+                if (objectFilesPath.equals(uploadPath)) {
+                    continue;
+                }
+
+                if (duplicatePaths.contains(objectFilesPath)) {
+                    throw new CollectInternalInvalidRequestException(
+                        "Duplicate ObjectFiles declaration for '" + objectFilesPath + "'"
+                    );
+                }
+                duplicatePaths.add(objectFilesPath);
+
+                // ObjectFiles can only be set for directory uploadPaths.
+                if (initialUploadPathToObjectGroupId.containsKey(uploadPath)) {
+                    throw new CollectInternalInvalidRequestException(
+                        "ObjectFiles value '" +
+                        objectFilesPath +
+                        "' can only be set when File or #uploadPath selector '" +
+                        uploadPath +
+                        "' is a directory."
+                    );
+                }
+
+                unitPathToObjectFilePathMap.put(uploadPath, objectFilesPath);
+            }
+        }
+
+        if (unitPathToObjectFilePathMap.isEmpty()) {
+            return unitPathToObjectFilePathMap;
+        }
+
+        // Map uploadPaths to unitId & ObjectGroupId
+        BidiMap<String, String> unitIdToObjectGroupIdRemapping = new DualHashBidiMap<>();
+        for (String uploadPath : unitPathToObjectFilePathMap.keySet()) {
+            String newObjectPath = unitPathToObjectFilePathMap.get(uploadPath);
+            String unitId = initialUploadPathToUnitId.get(uploadPath);
+            String objectGroupId = initialUploadPathToObjectGroupId.get(newObjectPath);
+            unitIdToObjectGroupIdRemapping.put(unitId, objectGroupId);
+        }
+        return unitIdToObjectGroupIdRemapping;
+    }
+
+    private static File updateUnitObjectGroups(
+        TempWorkspace tempWorkspace,
+        File unitsToWriteFile,
+        BidiMap<String, String> unitIdToObjectGroupIdOverrideMap
+    ) throws IOException {
+        if (unitIdToObjectGroupIdOverrideMap.isEmpty()) {
+            return unitsToWriteFile;
+        }
+
+        File updatedUnitsToWriteFile = tempWorkspace.tempFile();
+        try (
+            InputStream inputStream = new FileInputStream(unitsToWriteFile);
+            JsonLineGenericIterator<JsonLineModel> unitsToWrite = new JsonLineGenericIterator<>(
+                inputStream,
+                JSON_LINE_MODEL_TYPE_REFERENCE
+            );
+            FileOutputStream unitsToWriteOutputStream = new FileOutputStream(updatedUnitsToWriteFile);
+            JsonLineWriter unitToWriteWriter = new JsonLineWriter(unitsToWriteOutputStream)
+        ) {
+            while (unitsToWrite.hasNext()) {
+                JsonLineModel entry = unitsToWrite.next();
+
+                ObjectNode unit = (ObjectNode) entry.getParams();
+                String unitId = unit.get(VitamFieldsHelper.id()).asText();
+                if (unit.has(VitamFieldsHelper.object())) {
+                    String objectGroupId = unit.get(VitamFieldsHelper.object()).asText();
+                    if (unitIdToObjectGroupIdOverrideMap.containsValue(objectGroupId)) {
+                        // Delete this unit (no more used since its ObjectGroup is being reattached to another unit)
+                        continue;
+                    }
+                }
+
+                if (unitIdToObjectGroupIdOverrideMap.containsKey(unitId)) {
+                    String newObjectGroupId = unitIdToObjectGroupIdOverrideMap.get(unitId);
+                    unit.put(VitamFieldsHelper.object(), newObjectGroupId);
+                    unit.put(DESCRIPTION_LEVEL_FIELD, LevelType.ITEM.value());
+                }
+
+                unitToWriteWriter.addEntry(entry);
+            }
+        }
+        return updatedUnitsToWriteFile;
+    }
+
+    private File updateObjectGroupsParentUnits(
+        TempWorkspace tempWorkspace,
+        File objectsToWriteFile,
+        BidiMap<String, String> unitIdToObjectGroupIdOverrideMap
+    ) throws IOException {
+        if (unitIdToObjectGroupIdOverrideMap.isEmpty()) {
+            return objectsToWriteFile;
+        }
+
+        File updatedObjectGroupsToWriteFile = tempWorkspace.tempFile();
+        try (
+            JsonLineGenericIterator<ObjectNode> ogIterator = new JsonLineGenericIterator<>(
+                new FileInputStream(objectsToWriteFile),
+                new TypeReference<>() {}
+            );
+            FileOutputStream objectGroupsToWriteOutputStream = new FileOutputStream(updatedObjectGroupsToWriteFile);
+            JsonLineWriter objectGroupsToWriteWriter = new JsonLineWriter(objectGroupsToWriteOutputStream)
+        ) {
+            while (ogIterator.hasNext()) {
+                ObjectNode objectGroup = ogIterator.next();
+                String objectGroupId = objectGroup.get(VitamFieldsHelper.id()).asText();
+                if (unitIdToObjectGroupIdOverrideMap.containsValue(objectGroupId)) {
+                    String newUnitId = unitIdToObjectGroupIdOverrideMap.getKey(objectGroupId);
+                    objectGroup.set(VitamFieldsHelper.unitups(), JsonHandler.createStringArrayNode(newUnitId));
+                }
+                objectGroupsToWriteWriter.addEntry(objectGroup);
+            }
+        }
+        return updatedObjectGroupsToWriteFile;
     }
 
     private void checkNonEmptyBinary(ArchiveEntry entry) throws CollectInternalInvalidRequestException {
@@ -661,7 +887,7 @@ public class FluxService {
                 Optional<FormatIdentifierResponse> formatIdentifierResponseOpt = collectService.detectFileFormat(
                     binaryFile
                 );
-                Entry<String, Long> binaryInformations = writeObjectToWorkspace(transactionId, binaryFile, newFilename);
+                DigestWithSize binaryInfo = writeObjectToWorkspace(transactionId, binaryFile, newFilename);
                 String originatingAgency = null;
                 if (
                     projectModel.getManifestContext() != null &&
@@ -675,8 +901,8 @@ public class FluxService {
                     objectId,
                     newFilename,
                     formatIdentifierResponseOpt,
-                    binaryInformations.getKey(),
-                    binaryInformations.getValue(),
+                    binaryInfo.digest(),
+                    binaryInfo.size(),
                     originatingAgency,
                     unit.getId()
                 );
@@ -766,17 +992,20 @@ public class FluxService {
             return;
         }
 
-        JsonLineGenericIterator<ObjectNode> ogIterator = new JsonLineGenericIterator<>(
-            new FileInputStream(ogFile),
-            new TypeReference<>() {}
-        );
-        Iterators.partition(ogIterator, BULK_SIZE).forEachRemaining(objectGroups -> {
-            try {
-                metadataRepository.saveObjectGroups(objectGroups);
-            } catch (CollectInternalException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        try (
+            JsonLineGenericIterator<ObjectNode> ogIterator = new JsonLineGenericIterator<>(
+                new FileInputStream(ogFile),
+                new TypeReference<>() {}
+            )
+        ) {
+            Iterators.partition(ogIterator, BULK_SIZE).forEachRemaining(objectGroups -> {
+                try {
+                    metadataRepository.saveObjectGroups(objectGroups);
+                } catch (CollectInternalException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        }
     }
 
     private static void writeObjectGroupToTemporaryFile(
@@ -792,7 +1021,7 @@ public class FluxService {
         unitToWriteWriter.addEntry(new JsonLineModel(unit.getId(), level, unitJson));
     }
 
-    private Entry<String, Long> writeObjectToWorkspace(String transactionId, File fileToWrite, String fileName)
+    private DigestWithSize writeObjectToWorkspace(String transactionId, File fileToWrite, String fileName)
         throws IOException, CollectInternalException {
         try (
             BoundedInputStream countingInputStream = BoundedInputStream.builder()
@@ -805,7 +1034,7 @@ public class FluxService {
                 CONTENT_FOLDER.concat(File.separator).concat(fileName)
             );
 
-            return new SimpleEntry<>(digest, countingInputStream.getCount());
+            return new DigestWithSize(digest, countingInputStream.getCount());
         }
     }
 
@@ -819,4 +1048,8 @@ public class FluxService {
     }
 
     private record TitleAndDescriptionLevel(String title, String descriptionLevel) {}
+
+    public record DigestWithSize(String digest, long size) {}
+
+    private record PreprocessingResult(File unitsToWriteFile, File objectGroupsToWriteFile, File metadataFile) {}
 }

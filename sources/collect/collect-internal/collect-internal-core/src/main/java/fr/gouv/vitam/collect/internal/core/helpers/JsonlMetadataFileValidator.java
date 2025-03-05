@@ -138,6 +138,10 @@ public class JsonlMetadataFileValidator {
             validateFileIdentifier(entry.getFile(), lineIndex);
         }
 
+        if (entry.getObjectFiles() != null) {
+            validateObjectFiles(entry.getObjectFiles(), lineIndex, isFirstUpload);
+        }
+
         if (entry.getSelector() != null) {
             validateSelector(entry.getSelector(), lineIndex, isFirstUpload);
         }
@@ -153,6 +157,30 @@ public class JsonlMetadataFileValidator {
         if (!FilenameUtils.equals(fileValue, path)) {
             throw new CollectInternalInvalidRequestException(
                 "Invalid entry at index: " + lineIndex + ". Illegal unit file path '" + fileValue + "'"
+            );
+        }
+    }
+
+    private void validateObjectFiles(String objectFilesPath, int lineIndex, boolean isFirstUpload)
+        throws CollectInternalInvalidRequestException {
+        if (!isFirstUpload) {
+            throw new CollectInternalInvalidRequestException(
+                "Invalid entry at index: " +
+                lineIndex +
+                ". " +
+                CollectJsonMetadataLine.OBJECT_FILES_FIELD +
+                " field not allowed for update operations."
+            );
+        }
+        if (StringUtils.isBlank(objectFilesPath)) {
+            throw new CollectInternalInvalidRequestException(
+                "Invalid entry at index: " + lineIndex + ". Empty ObjectFiles path."
+            );
+        }
+        String normalizedPath = FilenameUtils.normalize(objectFilesPath);
+        if (!FilenameUtils.equals(objectFilesPath, normalizedPath)) {
+            throw new CollectInternalInvalidRequestException(
+                "Invalid entry at index: " + lineIndex + ". Illegal ObjectFiles path '" + objectFilesPath + "'."
             );
         }
     }

@@ -35,11 +35,15 @@ public class CollectJsonMetadataLine {
     public static final TypeReference<CollectJsonMetadataLine> TYPE_REFERENCE = new TypeReference<>() {};
 
     public static final String FILE_FIELD = "File";
+    public static final String OBJECT_FILES_FIELD = "ObjectFiles";
     public static final String SELECTOR_FIELD = "Selector";
     public static final String UNIT_CONTENT_FIELD = "UnitContent";
 
     @JsonProperty(FILE_FIELD)
     private String file;
+
+    @JsonProperty(OBJECT_FILES_FIELD)
+    private String objectFiles;
 
     @JsonProperty(SELECTOR_FIELD)
     private CollectJsonMetadataSelector selector;
@@ -51,12 +55,33 @@ public class CollectJsonMetadataLine {
         // Empty constructor for serialization
     }
 
+    public CollectJsonMetadataLine(
+        String file,
+        String objectFiles,
+        CollectJsonMetadataSelector selector,
+        ObjectNode unitContent
+    ) {
+        this.file = file;
+        this.objectFiles = objectFiles;
+        this.selector = selector;
+        this.unitContent = unitContent;
+    }
+
     public String getFile() {
         return file;
     }
 
     public CollectJsonMetadataLine setFile(String file) {
         this.file = file;
+        return this;
+    }
+
+    public String getObjectFiles() {
+        return objectFiles;
+    }
+
+    public CollectJsonMetadataLine setObjectFiles(String objectFiles) {
+        this.objectFiles = objectFiles;
         return this;
     }
 

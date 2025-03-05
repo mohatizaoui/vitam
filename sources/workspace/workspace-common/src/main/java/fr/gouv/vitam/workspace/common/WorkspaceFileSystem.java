@@ -754,7 +754,7 @@ public class WorkspaceFileSystem implements WorkspaceContentAddressableStorage {
     ) throws ContentAddressableStorageException {
         try (
             final InputStream inputStreamClosable = StreamUtils.getRemainingReadOnCloseInputStream(inputStreamObject);
-            final ArchiveInputStream archiveInputStream = new VitamArchiveStreamFactory()
+            final ArchiveInputStream<? extends ArchiveEntry> archiveInputStream = new VitamArchiveStreamFactory()
                 .createArchiveInputStream(archiverType, inputStreamClosable)
         ) {
             ArchiveEntry entry;

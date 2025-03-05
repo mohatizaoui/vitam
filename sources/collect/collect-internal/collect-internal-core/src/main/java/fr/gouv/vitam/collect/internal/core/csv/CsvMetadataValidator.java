@@ -58,6 +58,7 @@ import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.CONTENT_T
 import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.CONTENT_TITLE_VALID_HEADER_NAME_PATTERN;
 import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.FILE_HEADER;
 import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.IMPLICIT_0_ARRAY_INDEX;
+import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.IsObjectFilesField;
 import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.MAX_HEADER_NAME_LENGTH;
 import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.RULE_FIELD_NAME;
 import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.SEPARATOR;
@@ -152,10 +153,15 @@ public class CsvMetadataValidator {
     private static void checkHeaderNameCategory(CsvHeaderValidationManager csvHeaderValidationManager)
         throws CollectInvalidCsvFormatException {
         for (String headerName : csvHeaderValidationManager.getRemainingHeaderNamesToValidate()) {
-            if (!isContentField(headerName) && !isManagementField(headerName) && !isFileField(headerName)) {
+            if (
+                !isContentField(headerName) &&
+                !isManagementField(headerName) &&
+                !isFileField(headerName) &&
+                !IsObjectFilesField(headerName)
+            ) {
                 csvHeaderValidationManager.report(
                     headerName,
-                    "Only accepted names are 'File', 'Content.*', 'Management.*' or 'ArchiveUnitProfile'"
+                    "Only accepted names are 'File', 'ObjectFiles', 'Content.*', 'Management.*' or 'ArchiveUnitProfile'"
                 );
             }
         }

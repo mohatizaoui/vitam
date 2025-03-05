@@ -1,0 +1,85 @@
+[
+  {
+    "DescriptionLevel": "Item",
+    "Title": "My Root Folder",
+    "#id": "aeaqaaaaaaeaaaabas47aamvju2j4qyaaaaq",
+    "#management": {},
+    "#unitType": "INGEST",
+    "#opi": "TRANSACTION_ID",
+    "#originating_agency": "Vitam",
+    "#batchId": "aeeaaaaaaceaaaabas47aamvju2j2hqaaaaq",
+    "#uploadPath": "My Root Folder",
+    "#object": "aebaaaaaaaeaaaabas47aamvju2j37iaaaaq"
+  },
+  {
+    "DescriptionLevel": "Item",
+    "Title": "MyFile1.txt",
+    "#id": "aeaqaaaaaaeaaaabas47aamvju2j4raaaaaq",
+    "#object": "aebaaaaaaaeaaaabas47aamvju2j4riaaaaq",
+    "#management": {},
+    "#unitType": "INGEST",
+    "#opi": "TRANSACTION_ID",
+    "#originating_agency": "Vitam",
+    "#unitups": [
+      "aeaqaaaaaaeaaaabas47aamvju2j4qyaaaaq"
+    ],
+    "#batchId": "aeeaaaaaaceaaaabas47aamvju2j2hqaaaaq",
+    "#uploadPath": "My Root Folder/MyFile1.txt"
+  },
+  {
+    "DescriptionLevel": "Item",
+    "Title": "MyFile2.txt",
+    "#id": "aeaqaaaaaaeaaaabas47aamvju2j4rqaaaaq",
+    "#object": "aebaaaaaaaeaaaabas47aamvju2j4ryaaaaq",
+    "#management": {},
+    "#unitType": "INGEST",
+    "#opi": "TRANSACTION_ID",
+    "#originating_agency": "Vitam",
+    "#unitups": [
+      "aeaqaaaaaaeaaaabas47aamvju2j4qyaaaaq"
+    ],
+    "#batchId": "aeeaaaaaaceaaaabas47aamvju2j2hqaaaaq",
+    "#uploadPath": "My Root Folder/MyFile2.txt"
+  },
+  {
+    "DescriptionLevel": "Item",
+    "Title": "SubFolder",
+    "#id": "aeaqaaaaaaeaaaabas47aamvju2j4saaaaaq",
+    "#management": {},
+    "#unitType": "INGEST",
+    "#opi": "TRANSACTION_ID",
+    "#originating_agency": "Vitam",
+    "#unitups": [
+      "aeaqaaaaaaeaaaabas47aamvju2j4qyaaaaq"
+    ],
+    "#batchId": "aeeaaaaaaceaaaabas47aamvju2j2hqaaaaq",
+    "#uploadPath": "My Root Folder/SubFolder",
+    "#object": "aebaaaaaaaeaaaabas47aamvju2j4siaaabq"
+  },
+  {
+    "DescriptionLevel": "Item",
+    "Title": "Yet Another Folder",
+    "#id": "aeaqaaaaaaeaaaabas47aamvju2j4sqaaaaq",
+    "#management": {},
+    "#unitType": "INGEST",
+    "#opi": "TRANSACTION_ID",
+    "#originating_agency": "Vitam",
+    "#batchId": "aeeaaaaaaceaaaabas47aamvju2j2hqaaaaq",
+    "#uploadPath": "Yet Another Folder",
+    "#object": "aebaaaaaaaeaaaabas47aamvju2j4tiaaaaq"
+  },
+  {
+    "DescriptionLevel": "RecordGrp",
+    "Title": "AnotherSubFolder",
+    "#id": "aeaqaaaaaaeaaaabas47aamvju2j4syaaaaq",
+    "#management": {},
+    "#unitType": "INGEST",
+    "#opi": "TRANSACTION_ID",
+    "#originating_agency": "Vitam",
+    "#unitups": [
+      "aeaqaaaaaaeaaaabas47aamvju2j4sqaaaaq"
+    ],
+    "#batchId": "aeeaaaaaaceaaaabas47aamvju2j2hqaaaaq",
+    "#uploadPath": "Yet Another Folder/AnotherSubFolder"
+  }
+]

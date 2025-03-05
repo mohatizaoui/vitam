@@ -121,6 +121,7 @@ public class CsvMetadataUtils {
     public static final String ATTR_HEADER_NAME = "attr";
     public static final String ATTR_HEADER_NAME_SUFFIX = SEPARATOR + ATTR_HEADER_NAME;
     public static final String FILE_HEADER = "File";
+    public static final String OBJECT_FIlES_HEADER = "ObjectFiles";
 
     public static final String API_FIELD_TITLE = "Title";
     public static final String API_FIELD_TITLE_ = "Title_";
@@ -151,6 +152,10 @@ public class CsvMetadataUtils {
 
     public static boolean isFileField(String headerName) {
         return headerName.equals(FILE_HEADER);
+    }
+
+    public static boolean IsObjectFilesField(String headerName) {
+        return headerName.equals(OBJECT_FIlES_HEADER);
     }
 
     public static boolean isContentField(String headerName) {

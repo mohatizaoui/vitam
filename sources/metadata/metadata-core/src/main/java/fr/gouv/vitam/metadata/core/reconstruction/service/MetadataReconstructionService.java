@@ -997,7 +997,7 @@ public class MetadataReconstructionService {
         LOGGER.info("[Reconstruction]: Back up of metadata bulk");
 
         try (
-            final ArchiveInputStream archiveInputStream = new VitamArchiveStreamFactory()
+            final ArchiveInputStream<? extends ArchiveEntry> archiveInputStream = new VitamArchiveStreamFactory()
                 .createArchiveInputStream(CommonMediaType.valueOf(CommonMediaType.ZIP), zipStream)
         ) {
             ArchiveEntry entry;

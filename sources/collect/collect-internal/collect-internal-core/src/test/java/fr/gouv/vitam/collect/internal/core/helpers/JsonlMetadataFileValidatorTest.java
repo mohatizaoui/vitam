@@ -44,7 +44,7 @@ public class JsonlMetadataFileValidatorTest {
 
     @Test
     public void testParseValidJsonlMetadataFile() throws Exception {
-        assertValid("update/metadata.jsonl", false);
+        assertValid("update/metadata.jsonl", true);
     }
 
     @Test
@@ -181,6 +181,34 @@ public class JsonlMetadataFileValidatorTest {
             "update/metadata_illegal_file.jsonl",
             false,
             "Invalid entry at index: 0. Illegal unit file path 'toto/../tata'"
+        );
+    }
+
+    @Test
+    public void testParseInvalidJsonlMetadataFile_ObjectFilesForbiddenForUpdateOperations() throws Exception {
+        assertInvalid(
+            "update/metadata.jsonl",
+            false,
+            "Invalid entry at index: 0. ObjectFiles field not allowed for update operations."
+        );
+    }
+
+    @Test
+    public void testParseInvalidJsonlMetadataFile_InvalidObjectFiles() throws Exception {
+        assertInvalid(
+            "update/metadata_illegal_object_files.jsonl",
+            true,
+            "Invalid entry at index: 0. Illegal ObjectFiles path 'path/../to/object_files.pdf'"
+        );
+        assertInvalid(
+            "update/metadata_empty_object_files.jsonl",
+            true,
+            "Invalid entry at index: 0. Empty ObjectFiles path."
+        );
+        assertInvalid(
+            "update/metadata_blank_object_files.jsonl",
+            true,
+            "Invalid entry at index: 0. Empty ObjectFiles path."
         );
     }
 
