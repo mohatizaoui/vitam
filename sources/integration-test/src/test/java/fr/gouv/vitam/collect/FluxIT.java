@@ -1539,10 +1539,6 @@ public class FluxIT extends VitamRuleRunner {
             // Get the id of an ingested unit in first collect ingest
             String attachementUnitId = getUnitIdByTitle(unitsByTransaction, "Saint-Denis-Basilique");
 
-            final TransactionDto transactionAttachementDto = createTransaction(
-                vitamContext,
-                projectDtoResult.getId()
-            ).orElseThrow();
             try (
                 InputStream inputStream = PropertiesUtils.getResourceAsStream(
                     ZIP_FILE_FOR_ATTACHEMENT_WITH_CSV_METADATA
@@ -1550,7 +1546,7 @@ public class FluxIT extends VitamRuleRunner {
             ) {
                 final RequestResponse<JsonNode> response = collectClient.uploadZipToTransaction(
                     vitamContext,
-                    transactionAttachementDto.getId(),
+                    transactionDto.getId(),
                     inputStream,
                     null,
                     attachementUnitId
@@ -1558,15 +1554,15 @@ public class FluxIT extends VitamRuleRunner {
                 Assertions.assertThat(response.getStatus()).isEqualTo(200);
             }
 
+            SelectMultiQuery query = new SelectMultiQuery();
+            query.addQueries(QueryHelper.eq(VitamFieldsHelper.allunitups(), attachementUnitId));
+
             final RequestResponseOK<JsonNode> unitsByTransactionAttachement = (RequestResponseOK<
                     JsonNode
-                >) collectClient.getUnitsByTransaction(
-                vitamContext,
-                transactionAttachementDto.getId(),
-                new SelectMultiQuery().getFinalSelect()
-            );
+                >) collectClient.getUnitsByTransaction(vitamContext, transactionDto.getId(), query.getFinalSelect());
 
-            assertThat(unitsByTransactionAttachement.getResults()).hasSize(6);
+            // Expect 3 child units from first upload + 6 from new upload
+            assertThat(unitsByTransactionAttachement.getResults()).hasSize(6 + 3);
 
             //Check that all units contains attachement id
             for (JsonNode unitJsonNode : unitsByTransactionAttachement.getResults()) {
@@ -1591,6 +1587,40 @@ public class FluxIT extends VitamRuleRunner {
                 .toList();
             assertThat(objectGroupParents).containsExactly(unitId);
             assertUnitObjectGroupContent(collectClient, unitId, "Aubervillier");
+        }
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void should_upload_zip_to_transaction_with_specific_attachement_fail_when_unit_not_exists()
+        throws Exception {
+        try (CollectExternalClient collectClient = CollectExternalClientFactory.getInstance().getClient()) {
+            final ProjectDto projectDtoResult = createProjectWithAttachement();
+            final TransactionDto transactionDto = createTransaction(
+                vitamContext,
+                projectDtoResult.getId()
+            ).orElseThrow();
+
+            String attachementUnitId = "unknown_attachement_unit_id";
+
+            try (
+                InputStream inputStream = PropertiesUtils.getResourceAsStream(
+                    ZIP_FILE_FOR_ATTACHEMENT_WITH_CSV_METADATA
+                )
+            ) {
+                assertThatThrownBy(
+                    () ->
+                        collectClient.uploadZipToTransaction(
+                            vitamContext,
+                            transactionDto.getId(),
+                            inputStream,
+                            null,
+                            attachementUnitId
+                        )
+                )
+                    .isInstanceOf(CollectExternalClientInvalidRequestException.class)
+                    .hasMessageContaining("No such unit with id 'unknown_attachement_unit_id' in the transaction");
+            }
         }
     }
 

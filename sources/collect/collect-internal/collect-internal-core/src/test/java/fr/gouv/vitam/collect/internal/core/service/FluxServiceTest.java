@@ -637,6 +637,10 @@ public class FluxServiceTest {
         });
         when(metadataService.prepareAttachmentUnits(any(), anyString())).thenReturn(new HashMap<>());
 
+        when(metadataService.selectUnitsByTransactionId(any(), anyString())).thenReturn(
+            new RequestResponseOK<JsonNode>().addResult(JsonHandler.createObjectNode())
+        );
+
         try (final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(TRANSACTION_ZIP_PATH)) {
             fluxService.processStream(
                 resourceAsStream,

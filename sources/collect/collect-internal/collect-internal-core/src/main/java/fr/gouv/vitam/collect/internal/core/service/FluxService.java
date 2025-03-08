@@ -49,12 +49,17 @@ import fr.gouv.vitam.collect.internal.core.helpers.TempWorkspace;
 import fr.gouv.vitam.collect.internal.core.repository.MetadataRepository;
 import fr.gouv.vitam.collect.internal.core.repository.ProjectRepository;
 import fr.gouv.vitam.collect.internal.core.transformers.JsltTransformer;
+import fr.gouv.vitam.common.database.builder.query.QueryHelper;
 import fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper;
+import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
+import fr.gouv.vitam.common.database.builder.request.multiple.SelectMultiQuery;
+import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.format.identification.model.FormatIdentifierResponse;
 import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
+import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.objectgroup.ObjectGroupResponse;
 import fr.gouv.vitam.common.model.unit.ArchiveUnitModel;
 import fr.gouv.vitam.common.model.unit.LevelType;
@@ -137,17 +142,19 @@ public class FluxService {
         String projectId,
         String transactionId,
         @Nullable String encoding,
-        @Nullable String attachementId
+        @Nullable String explicitAttachementId
     ) throws CollectInternalException {
         ProjectModel projectModel = getProjectModel(projectId);
 
+        validateExplicitAttachementId(transactionId, explicitAttachementId);
+
         Map<String, String> attachmentUnitsBySystemId;
         String staticAttachmentUnitId;
-        if (attachementId == null) {
+        if (explicitAttachementId == null) {
             attachmentUnitsBySystemId = metadataService.prepareAttachmentUnits(projectModel, transactionId);
             staticAttachmentUnitId = attachmentUnitsBySystemId.get(projectModel.getUnitUp());
         } else {
-            staticAttachmentUnitId = attachementId;
+            staticAttachmentUnitId = explicitAttachementId;
             attachmentUnitsBySystemId = new HashMap<>();
         }
 
@@ -307,6 +314,29 @@ public class FluxService {
             throw new CollectInternalException("Project not found");
         }
         return projectById.get();
+    }
+
+    private void validateExplicitAttachementId(String transactionId, String explicitAttachementId)
+        throws CollectInternalException {
+        if (explicitAttachementId == null) {
+            return;
+        }
+        try {
+            SelectMultiQuery query = new SelectMultiQuery();
+            query.addQueries(QueryHelper.eq(VitamFieldsHelper.id(), explicitAttachementId));
+            query.addUsedProjection(VitamFieldsHelper.id());
+            RequestResponseOK<JsonNode> units = metadataService.selectUnitsByTransactionId(
+                query.getFinalSelect(),
+                transactionId
+            );
+            if (units.getResults().isEmpty()) {
+                throw new CollectInternalInvalidRequestException(
+                    "No such unit with id '" + explicitAttachementId + "' in the transaction"
+                );
+            }
+        } catch (InvalidParseOperationException | InvalidCreateOperationException e) {
+            throw new CollectInternalServerSideException(e);
+        }
     }
 
     private File validateAndConvertMetadataToJsonl(File metadataFile, TempWorkspace tempWorkspace)
