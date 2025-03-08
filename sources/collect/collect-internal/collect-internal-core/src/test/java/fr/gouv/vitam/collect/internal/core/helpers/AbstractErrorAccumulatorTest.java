@@ -25,7 +25,7 @@
  * accept its terms.
  */
 
-package fr.gouv.vitam.collect.internal.core.csv;
+package fr.gouv.vitam.collect.internal.core.helpers;
 
 import fr.gouv.vitam.collect.internal.core.exceptions.CollectInvalidCsvFormatException;
 import org.junit.Test;
@@ -33,27 +33,27 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class CsvErrorAccumulatorTest {
+public class AbstractErrorAccumulatorTest {
 
     @Test
     public void testNoErrorReported() throws CollectInvalidCsvFormatException {
-        try (CsvErrorAccumulator csvErrorAccumulator = new CsvErrorAccumulator()) {
+        try (MyErrorAccumulator errorAccumulator = new MyErrorAccumulator()) {
             // close does not throw exception
-            assertThatCode(csvErrorAccumulator::close).doesNotThrowAnyException();
+            assertThatCode(errorAccumulator::close).doesNotThrowAnyException();
         }
     }
 
     @Test
     public void testOneErrorReported() throws CollectInvalidCsvFormatException {
-        try (CsvErrorAccumulator csvErrorAccumulator = new CsvErrorAccumulator()) {
-            csvErrorAccumulator.report("msg1");
+        try (MyErrorAccumulator errorAccumulator = new MyErrorAccumulator()) {
+            errorAccumulator.report("msg1");
 
             // Close triggers exception with 1 error
-            assertThatThrownBy(csvErrorAccumulator::close)
+            assertThatThrownBy(errorAccumulator::close)
                 .isInstanceOf(CollectInvalidCsvFormatException.class)
                 .hasMessage(
                     """
-                    CSV validation failed. 1 error:
+                    Test prefix. 1 error:
                     - msg1"""
                 );
         }
@@ -61,16 +61,16 @@ public class CsvErrorAccumulatorTest {
 
     @Test
     public void testMultipleErrorsReported() throws CollectInvalidCsvFormatException {
-        try (CsvErrorAccumulator csvErrorAccumulator = new CsvErrorAccumulator()) {
-            csvErrorAccumulator.report("msg1");
-            csvErrorAccumulator.report("msg2");
+        try (MyErrorAccumulator errorAccumulator = new MyErrorAccumulator()) {
+            errorAccumulator.report("msg1");
+            errorAccumulator.report("msg2");
 
             // Close triggers exception with 2 errors
-            assertThatThrownBy(csvErrorAccumulator::close)
+            assertThatThrownBy(errorAccumulator::close)
                 .isInstanceOf(CollectInvalidCsvFormatException.class)
                 .hasMessage(
                     """
-                    CSV validation failed. 2 errors:
+                    Test prefix. 2 errors:
                     - msg1
                     - msg2"""
                 );
@@ -79,20 +79,20 @@ public class CsvErrorAccumulatorTest {
 
     @Test
     public void testTooManyErrorsReported() throws CollectInvalidCsvFormatException {
-        try (CsvErrorAccumulator csvErrorAccumulator = new CsvErrorAccumulator()) {
+        try (MyErrorAccumulator errorAccumulator = new MyErrorAccumulator()) {
             // First 19 are buffered
             assertThatCode(() -> {
                 for (int i = 1; i <= 19; i++) {
-                    csvErrorAccumulator.report("msg" + i);
+                    errorAccumulator.report("msg" + i);
                 }
             }).doesNotThrowAnyException();
 
             // 20th call triggers exception
-            assertThatThrownBy(() -> csvErrorAccumulator.report("msg20"))
+            assertThatThrownBy(() -> errorAccumulator.report("msg20"))
                 .isInstanceOf(CollectInvalidCsvFormatException.class)
                 .hasMessageStartingWith(
                     """
-                    CSV validation failed. At least 20 errors:
+                    Test prefix. At least 20 errors:
                     - msg1
                     - msg2
                     - msg3"""
@@ -104,7 +104,19 @@ public class CsvErrorAccumulatorTest {
                 );
 
             // close does not throw exception
-            assertThatCode(csvErrorAccumulator::close).doesNotThrowAnyException();
+            assertThatCode(errorAccumulator::close).doesNotThrowAnyException();
+        }
+    }
+
+    private static class MyErrorAccumulator extends AbstractErrorAccumulator<CollectInvalidCsvFormatException> {
+
+        protected MyErrorAccumulator() {
+            super(20);
+        }
+
+        @Override
+        protected CollectInvalidCsvFormatException buildException(String errorMessage) {
+            return new CollectInvalidCsvFormatException("Test prefix. " + errorMessage);
         }
     }
 }

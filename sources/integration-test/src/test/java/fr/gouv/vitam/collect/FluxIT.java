@@ -541,7 +541,10 @@ public class FluxIT extends VitamRuleRunner {
                         )
                 )
                     .isExactlyInstanceOf(CollectExternalClientInvalidRequestException.class)
-                    .hasMessage("Invalid unit metadata at index: 0. Empty metadata content");
+                    .hasMessage(
+                        "JSONL validation failed. 1 error:\n" +
+                        "- Invalid unit metadata at index: 0. Empty metadata content"
+                    );
             }
         }
     }

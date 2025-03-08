@@ -24,7 +24,7 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.collect.internal.core.helpers;
+package fr.gouv.vitam.collect.internal.core.jsonl;
 
 import fr.gouv.vitam.collect.common.exception.CollectInternalInvalidRequestException;
 import fr.gouv.vitam.common.PropertiesUtils;
@@ -139,6 +139,18 @@ public class JsonlMetadataFileValidatorTest {
             "update/metadata_invalid_sanity_check_ko.jsonl",
             false,
             "Cannot validate json-lines request: Json is not valid from Sanitize check"
+        );
+    }
+
+    @Test
+    public void testParseInvalidJsonlMetadataFile_CumulativeErrorReporting() throws Exception {
+        assertInvalid(
+            "update/metadata_cumulative_error_reporting.jsonl",
+            true,
+            """
+                JSONL validation failed. 2 errors:
+                - Invalid entry at index: 0. Missing metadata identification information.
+                - Invalid entry at index: 2. Illegal unit file path 'toto/../tata'"""
         );
     }
 

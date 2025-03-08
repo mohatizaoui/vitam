@@ -24,7 +24,8 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.collect.internal.core.helpers;
+
+package fr.gouv.vitam.collect.internal.core.jsonl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -70,6 +71,7 @@ public class JsonlMetadataFileValidator {
         doSanityChecks(jsonlMetadataFile);
 
         try (
+            JsonlErrorAccumulator errorAccumulator = new JsonlErrorAccumulator();
             InputStream inputStream = new FileInputStream(jsonlMetadataFile);
             CloseableIterator<CollectJsonMetadataLine> iterator = new JsonLineGenericIterator<>(
                 inputStream,
@@ -78,10 +80,13 @@ public class JsonlMetadataFileValidator {
         ) {
             for (int lineIndex = 0; iterator.hasNext(); lineIndex++) {
                 CollectJsonMetadataLine entry = iterator.next();
-
-                // Validate line
-                validateMetadataIdentificationInformation(entry, lineIndex, isFirstUpload);
-                validateUnitContent(entry.getUnitContent(), lineIndex);
+                try {
+                    // Validate line
+                    validateMetadataIdentificationInformation(entry, lineIndex, isFirstUpload);
+                    validateUnitContent(entry.getUnitContent(), lineIndex);
+                } catch (CollectInternalInvalidRequestException e) {
+                    errorAccumulator.report(e.getMessage());
+                }
             }
         } catch (IOException e) {
             throw new CollectInternalServerSideException(
@@ -254,11 +259,21 @@ public class JsonlMetadataFileValidator {
                 break;
             case ARRAY:
                 throw new CollectInternalInvalidRequestException(
-                    "Invalid selector value for '" + key + "'." + ". Arrays are not supported"
+                    "Invalid unit metadata at index: " +
+                    lineIndex +
+                    ". Invalid selector value for '" +
+                    key +
+                    "'." +
+                    ". Arrays are not supported"
                 );
             case NULL:
                 throw new CollectInternalInvalidRequestException(
-                    "Invalid selector value for '" + key + "'." + ". Null value"
+                    "Invalid unit metadata at index: " +
+                    lineIndex +
+                    ". Invalid selector value for '" +
+                    key +
+                    "'." +
+                    ". Null value"
                 );
             case BINARY:
             case MISSING:

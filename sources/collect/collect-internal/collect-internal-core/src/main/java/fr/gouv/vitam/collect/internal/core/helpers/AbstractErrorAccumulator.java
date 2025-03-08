@@ -25,21 +25,54 @@
  * accept its terms.
  */
 
-package fr.gouv.vitam.collect.internal.core.csv;
+package fr.gouv.vitam.collect.internal.core.helpers;
 
-import fr.gouv.vitam.collect.internal.core.exceptions.CollectInvalidCsvFormatException;
-import fr.gouv.vitam.collect.internal.core.helpers.AbstractErrorAccumulator;
+import java.util.ArrayList;
+import java.util.List;
 
-public class CsvErrorAccumulator extends AbstractErrorAccumulator<CollectInvalidCsvFormatException> {
+public abstract class AbstractErrorAccumulator<E extends Exception> implements AutoCloseable {
 
-    private static final int MAX_ERROR_COUNT = 20;
+    private final List<String> errorMessages = new ArrayList<>();
+    private final int maxErrorCount;
 
-    public CsvErrorAccumulator() {
-        super(MAX_ERROR_COUNT);
+    protected AbstractErrorAccumulator(int maxErrorCount) {
+        this.maxErrorCount = maxErrorCount;
     }
 
+    public void report(String errorMessage) throws E {
+        errorMessages.add(errorMessage);
+        if (errorMessages.size() >= maxErrorCount) {
+            throwException();
+        }
+    }
+
+    private void throwException() throws E {
+        try {
+            StringBuilder stringBuilder = new StringBuilder();
+            if (errorMessages.size() == 1) {
+                stringBuilder.append("1 error:");
+            } else if (errorMessages.size() < maxErrorCount) {
+                stringBuilder.append(errorMessages.size()).append(" errors:");
+            } else {
+                stringBuilder.append("At least ").append(errorMessages.size()).append(" errors:");
+            }
+
+            for (String errorMessage : errorMessages) {
+                stringBuilder.append("\n- ").append(errorMessage);
+            }
+
+            throw buildException(stringBuilder.toString());
+        } finally {
+            errorMessages.clear();
+        }
+    }
+
+    protected abstract E buildException(String errorMessage);
+
     @Override
-    protected CollectInvalidCsvFormatException buildException(String errorMessage) {
-        return new CollectInvalidCsvFormatException("CSV validation failed. " + errorMessage);
+    public void close() throws E {
+        if (!errorMessages.isEmpty()) {
+            throwException();
+        }
     }
 }

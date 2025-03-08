@@ -103,11 +103,7 @@ public class CsvToJsonConverter {
             // Only retain "Content.*" fields
             .filter(CsvMetadataUtils::isContentField)
             // Exclude multi-lang field (Content.Title[.*] & Content.Description[.*])
-            .filter(
-                headerName ->
-                    !CsvMetadataUtils.isContentTitleField(headerName) &&
-                    !CsvMetadataUtils.isContentDescriptionField(headerName)
-            )
+            .filter(headerName -> !isContentTitleField(headerName) && !isContentDescriptionField(headerName))
             .collect(
                 Collectors.toMap(
                     headerName -> headerName,
@@ -211,18 +207,20 @@ public class CsvToJsonConverter {
 
     public ObjectNode convertCsvRecordToJson(CSVRecord record) throws CollectInvalidCsvFormatException {
         SortedMap<String, String> flatFieldValueMap = new TreeMap<>();
-        List<String> mainContentHeaderNames = headerNames
+        List<String> mainHeaderNames = headerNames
             .stream()
             // Skip "File" & "ObjectFiles" header
-            .filter(headerName -> !CsvMetadataUtils.isFileField(headerName))
-            .filter(headerName -> !CsvMetadataUtils.IsObjectFilesField(headerName))
+            .filter(
+                headerName ->
+                    CsvMetadataUtils.isManagementField(headerName) || CsvMetadataUtils.isContentField(headerName)
+            )
             // Skip special multi-lang headers (Content.Title[.*] & Content.Description[.*])
             .filter(headerName -> !isContentTitleField(headerName) && !isContentDescriptionField(headerName))
             // Skip missing values
             .filter(headerName -> StringUtils.isNotEmpty(record.get(headerName)))
             .toList();
 
-        for (String headerName : mainContentHeaderNames) {
+        for (String headerName : mainHeaderNames) {
             String flatFieldName = this.normalizedHeaderMap.get(headerName);
             String fieldValue = record.get(headerName);
 
