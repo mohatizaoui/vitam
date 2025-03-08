@@ -32,7 +32,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.ValueNode;
 import com.google.common.collect.Iterators;
-import fr.gouv.culture.archivesdefrance.seda.v2.UpdateOperationType;
 import fr.gouv.vitam.collect.common.dto.BulkAtomicUpdateResult;
 import fr.gouv.vitam.collect.common.dto.MetadataUnitUp;
 import fr.gouv.vitam.collect.common.exception.CollectInternalException;
@@ -72,6 +71,7 @@ import fr.gouv.vitam.common.model.VitamConstants;
 import fr.gouv.vitam.common.model.unit.ArchiveUnitModel;
 import fr.gouv.vitam.common.model.unit.LevelType;
 import fr.gouv.vitam.common.model.unit.ManagementModel;
+import fr.gouv.vitam.common.model.unit.UpdateOperationModel;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.functional.administration.client.AdminManagementClientFactory;
 import fr.gouv.vitam.worker.core.distribution.JsonLineGenericIterator;
@@ -205,7 +205,7 @@ public class MetadataService {
 
         SedaSchemaInfoResolver sedaSchemaInfoResolver = new SedaSchemaInfoResolver(adminManagementClientFactory);
         try {
-            CsvHelper.convertCsvToJsonlMetadataFile(sedaSchemaInfoResolver, is, file, false);
+            CsvHelper.convertCsvToJsonlMetadataFile(sedaSchemaInfoResolver, is, file, false, false);
             try (InputStream jsonlMetadataInputStream = new FileInputStream(file)) {
                 updateUnitsWithJsonlMetadataFile(transaction.getId(), jsonlMetadataInputStream);
             }
@@ -222,7 +222,7 @@ public class MetadataService {
             File jsonlMetadataFile = tempWorkspace.writeToFile("metadata.jsonl", metadataJsonlInputStream);
 
             JsonlMetadataFileValidator jsonlMetadataFileValidator = new JsonlMetadataFileValidator();
-            jsonlMetadataFileValidator.validate(jsonlMetadataFile, false);
+            jsonlMetadataFileValidator.validate(jsonlMetadataFile, false, false);
 
             try (InputStream sanityStream = new FileInputStream(jsonlMetadataFile)) {
                 updateUnitsWithJsonlMetadataFile(transaction.getId(), sanityStream);
@@ -391,9 +391,9 @@ public class MetadataService {
             originatingAgency
         );
         ManagementModel managementModel = new ManagementModel();
-        UpdateOperationType updateOperationType = new UpdateOperationType();
-        updateOperationType.setSystemId(unitUp);
-        managementModel.setUpdateOperationType(updateOperationType);
+        UpdateOperationModel updateOperation = new UpdateOperationModel();
+        updateOperation.setSystemId(unitUp);
+        managementModel.setUpdateOperation(updateOperation);
         unit.setManagement(managementModel);
         return unit;
     }

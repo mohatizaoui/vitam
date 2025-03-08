@@ -47,6 +47,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.ARCHIVE_UNIT_IDENTIFIER_KEY_API_FIELD;
 import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.ARCHIVE_UNIT_PROFILE;
 import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.CONTENT;
 import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.CONTENT_SEPARATOR;
@@ -54,7 +55,21 @@ import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.END_DATE_
 import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.FORBIDDEN_CONTENT_SEDA_PATHS;
 import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.HASH_PREFIX;
 import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.MANAGEMENT_FIELD;
+import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.MANAGEMENT_UPDATE_OPERATION;
+import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.MANAGEMENT_UPDATE_OPERATION_API_PATH;
+import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.MANAGEMENT_UPDATE_OPERATION_ARCHIVE_UNIT_IDENTIFIER_KEY;
+import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.MANAGEMENT_UPDATE_OPERATION_ARCHIVE_UNIT_IDENTIFIER_KEY_API_PATH;
+import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.MANAGEMENT_UPDATE_OPERATION_ARCHIVE_UNIT_IDENTIFIER_KEY_METADATA_NAME;
+import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.MANAGEMENT_UPDATE_OPERATION_ARCHIVE_UNIT_IDENTIFIER_KEY_METADATA_NAME_API_PATH;
+import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.MANAGEMENT_UPDATE_OPERATION_ARCHIVE_UNIT_IDENTIFIER_KEY_METADATA_VALUE;
+import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.MANAGEMENT_UPDATE_OPERATION_ARCHIVE_UNIT_IDENTIFIER_KEY_METADATA_VALUE_API_PATH;
+import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.MANAGEMENT_UPDATE_OPERATION_SYSTEM_ID;
+import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.MANAGEMENT_UPDATE_OPERATION_SYSTEM_ID_API_PATH;
+import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.METADATA_NAME_API_FIELD;
+import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.METADATA_VALUE_API_FIELD;
 import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.SEPARATOR;
+import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.SYSTEM_ID_API_FIELD;
+import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.UPDATE_OPERATION_API_FIELD;
 import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.buildPath;
 
 /**
@@ -271,26 +286,23 @@ public class SedaSchemaInfoResolver {
         }
 
         // Add exceptions
+        addSpecialManagementLogbookField(sedaPathToSedaInfo);
+
+        addSpecialArchiveUnitProfileField(sedaPathToSedaInfo);
+
+        addSpecialManagementUpdateOperationFields(sedaPathToSedaInfo);
+
+        return MapUtils.unmodifiableMap(sedaPathToSedaInfo);
+    }
+
+    private static void addSpecialManagementLogbookField(Map<String, SedaSchemaInfo> sedaPathToSedaInfo) {
         sedaPathToSedaInfo.put(
             "Management.LogBook",
             new SedaSchemaInfo("Management.LogBook", null, null, true, false, false, false, false, true)
         );
+    }
 
-        sedaPathToSedaInfo.put(
-            "Management.UpdateOperation",
-            new SedaSchemaInfo(
-                "Management.UpdateOperation",
-                "#management.UpdateOperation",
-                "UpdateOperation",
-                true,
-                false,
-                false,
-                false,
-                false,
-                true
-            )
-        );
-
+    private static void addSpecialArchiveUnitProfileField(Map<String, SedaSchemaInfo> sedaPathToSedaInfo) {
         sedaPathToSedaInfo.put(
             ARCHIVE_UNIT_PROFILE,
             new SedaSchemaInfo(
@@ -305,8 +317,80 @@ public class SedaSchemaInfoResolver {
                 false
             )
         );
+    }
 
-        return MapUtils.unmodifiableMap(sedaPathToSedaInfo);
+    private static void addSpecialManagementUpdateOperationFields(Map<String, SedaSchemaInfo> sedaPathToSedaInfo) {
+        // Management.UpdateOperation[.*]
+        sedaPathToSedaInfo.put(
+            MANAGEMENT_UPDATE_OPERATION,
+            new SedaSchemaInfo(
+                MANAGEMENT_UPDATE_OPERATION,
+                MANAGEMENT_UPDATE_OPERATION_API_PATH,
+                UPDATE_OPERATION_API_FIELD,
+                true,
+                false,
+                false,
+                false,
+                false,
+                false
+            )
+        );
+        sedaPathToSedaInfo.put(
+            MANAGEMENT_UPDATE_OPERATION_SYSTEM_ID,
+            new SedaSchemaInfo(
+                MANAGEMENT_UPDATE_OPERATION_SYSTEM_ID,
+                MANAGEMENT_UPDATE_OPERATION_SYSTEM_ID_API_PATH,
+                SYSTEM_ID_API_FIELD,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            )
+        );
+        sedaPathToSedaInfo.put(
+            MANAGEMENT_UPDATE_OPERATION_ARCHIVE_UNIT_IDENTIFIER_KEY,
+            new SedaSchemaInfo(
+                MANAGEMENT_UPDATE_OPERATION_ARCHIVE_UNIT_IDENTIFIER_KEY,
+                MANAGEMENT_UPDATE_OPERATION_ARCHIVE_UNIT_IDENTIFIER_KEY_API_PATH,
+                ARCHIVE_UNIT_IDENTIFIER_KEY_API_FIELD,
+                true,
+                false,
+                false,
+                false,
+                false,
+                false
+            )
+        );
+        sedaPathToSedaInfo.put(
+            MANAGEMENT_UPDATE_OPERATION_ARCHIVE_UNIT_IDENTIFIER_KEY_METADATA_NAME,
+            new SedaSchemaInfo(
+                MANAGEMENT_UPDATE_OPERATION_ARCHIVE_UNIT_IDENTIFIER_KEY_METADATA_NAME,
+                MANAGEMENT_UPDATE_OPERATION_ARCHIVE_UNIT_IDENTIFIER_KEY_METADATA_NAME_API_PATH,
+                METADATA_NAME_API_FIELD,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            )
+        );
+        sedaPathToSedaInfo.put(
+            MANAGEMENT_UPDATE_OPERATION_ARCHIVE_UNIT_IDENTIFIER_KEY_METADATA_VALUE,
+            new SedaSchemaInfo(
+                MANAGEMENT_UPDATE_OPERATION_ARCHIVE_UNIT_IDENTIFIER_KEY_METADATA_VALUE,
+                MANAGEMENT_UPDATE_OPERATION_ARCHIVE_UNIT_IDENTIFIER_KEY_METADATA_VALUE_API_PATH,
+                METADATA_VALUE_API_FIELD,
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            )
+        );
     }
 
     private static boolean isArrayManagementField(SchemaResponse schema, String sedaPath) {

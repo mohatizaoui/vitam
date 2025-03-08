@@ -298,10 +298,6 @@ public class CsvMetadataValidatorTest {
             "File;Management.LogBook.Event.0.EventIdentifier",
             "Seda Field 'Management.LogBook' is reserved / forbidden."
         );
-        assertThatHeaderNamesAreInvalid(
-            "File;Management.UpdateOperation.SystemId",
-            "Seda Field 'Management.UpdateOperation' is reserved / forbidden."
-        );
     }
 
     @Test
@@ -653,7 +649,17 @@ public class CsvMetadataValidatorTest {
 
         assertThatHeaderNamesAreInvalid(
             "File;Management.Unknown",
-            "Invalid seda extension point 'Management'. Invalid field 'Unknown'. Available fields: [AccessRule, AppraisalRule, ClassificationRule, DisseminationRule, HoldRule, NeedAuthorization, ReuseRule, StorageRule]"
+            "Invalid header name 'Management.Unknown': Invalid seda extension point 'Management'. Invalid field 'Unknown'. Available fields: [AccessRule, AppraisalRule, ClassificationRule, DisseminationRule, HoldRule, NeedAuthorization, ReuseRule, StorageRule, UpdateOperation]"
+        );
+
+        assertThatHeaderNamesAreInvalid(
+            "File;Management.UpdateOperation.FullUpdate",
+            "Invalid header name 'Management.UpdateOperation.FullUpdate': Invalid seda extension point 'Management.UpdateOperation'. Invalid field 'FullUpdate'. Available fields: [ArchiveUnitIdentifierKey, SystemId]"
+        );
+
+        assertThatHeaderNamesAreInvalid(
+            "File;Management.UpdateOperation.ArchiveUnitIdentifierKey.Unknown",
+            "Invalid header name 'Management.UpdateOperation.ArchiveUnitIdentifierKey.Unknown': Invalid seda extension point 'Management.UpdateOperation.ArchiveUnitIdentifierKey'. Invalid field 'Unknown'. Available fields: [MetadataName, MetadataValue]"
         );
 
         assertThatHeaderNamesAreInvalid(
@@ -812,6 +818,26 @@ public class CsvMetadataValidatorTest {
     }
 
     @Test
+    public void testHeaderValidation_ValidUpdateOperationHeadersInFirstUploadMode() {
+        assertThatHeaderNamesAreValid(
+            "File;Management.UpdateOperation.SystemId;Management.UpdateOperation.ArchiveUnitIdentifierKey.MetadataName;Management.UpdateOperation.ArchiveUnitIdentifierKey.MetadataValue"
+        );
+    }
+
+    @Test
+    public void testHeaderValidation_InvalidUpdateOperationHeadersInUpdateMode() {
+        assertThatHeaderNamesAreInvalid(
+            false,
+            "File;Management.UpdateOperation.SystemId;Management.UpdateOperation.ArchiveUnitIdentifierKey.MetadataName;Management.UpdateOperation.ArchiveUnitIdentifierKey.MetadataValue",
+            """
+            CSV validation failed. 3 errors:
+            - Invalid header name 'Management.UpdateOperation.SystemId': Declaring Management.UpdateOperation.* headers is not supported in update APIs.
+            - Invalid header name 'Management.UpdateOperation.ArchiveUnitIdentifierKey.MetadataName': Declaring Management.UpdateOperation.* headers is not supported in update APIs.
+            - Invalid header name 'Management.UpdateOperation.ArchiveUnitIdentifierKey.MetadataValue': Declaring Management.UpdateOperation.* headers is not supported in update APIs."""
+        );
+    }
+
+    @Test
     public void testMultipleValidationErrors() {
         assertThatHeaderNamesAreInvalid(
             "File;Unknown;Content.Title_;Content.Description.0;Content.Description.2;Content.MyExtension;Content.MyExtension.SubField;Management.AppraisalRule;Management.StorageRule.Rule",
@@ -826,11 +852,25 @@ public class CsvMetadataValidatorTest {
     }
 
     private void assertThatHeaderNamesAreInvalid(String headersLine, String... errorMessages) {
-        assertThatHeaderNamesAreInvalid(parseHeaders(headersLine), errorMessages);
+        assertThatHeaderNamesAreInvalid(true, headersLine, errorMessages);
+    }
+
+    private void assertThatHeaderNamesAreInvalid(boolean isFirstUpload, String headersLine, String... errorMessages) {
+        assertThatHeaderNamesAreInvalid(isFirstUpload, parseHeaders(headersLine), errorMessages);
     }
 
     private void assertThatHeaderNamesAreInvalid(List<String> headerNames, String... errorMessages) {
-        assertThatThrownBy(() -> csvMetadataValidator.validateHeaderNames(sedaSchemaInfoResolver, headerNames))
+        assertThatHeaderNamesAreInvalid(true, headerNames, errorMessages);
+    }
+
+    private void assertThatHeaderNamesAreInvalid(
+        boolean isFirstUpload,
+        List<String> headerNames,
+        String... errorMessages
+    ) {
+        assertThatThrownBy(
+            () -> csvMetadataValidator.validateHeaderNames(sedaSchemaInfoResolver, headerNames, isFirstUpload)
+        )
             .isInstanceOf(CollectInvalidCsvFormatException.class)
             .hasMessageContaining("Invalid header name")
             .hasMessageContainingAll(errorMessages);
@@ -842,7 +882,7 @@ public class CsvMetadataValidatorTest {
 
     private void assertThatHeaderNamesAreValid(List<String> headerNames) {
         assertThatCode(
-            () -> csvMetadataValidator.validateHeaderNames(sedaSchemaInfoResolver, headerNames)
+            () -> csvMetadataValidator.validateHeaderNames(sedaSchemaInfoResolver, headerNames, true)
         ).doesNotThrowAnyException();
     }
 

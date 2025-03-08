@@ -43,15 +43,18 @@ import fr.gouv.culture.archivesdefrance.seda.v2.ManagementHistoryType;
 import fr.gouv.culture.archivesdefrance.seda.v2.ManagementType;
 import fr.gouv.culture.archivesdefrance.seda.v2.ReuseRuleType;
 import fr.gouv.culture.archivesdefrance.seda.v2.StorageRuleType;
+import fr.gouv.culture.archivesdefrance.seda.v2.UpdateOperationType;
 import fr.gouv.vitam.common.model.UnitType;
 import fr.gouv.vitam.common.model.logbook.LogbookEvent;
 import fr.gouv.vitam.common.model.unit.ArchiveUnitHistoryModel;
+import fr.gouv.vitam.common.model.unit.ArchiveUnitIdentifierKeyModel;
 import fr.gouv.vitam.common.model.unit.ArchiveUnitInternalModel;
 import fr.gouv.vitam.common.model.unit.ArchiveUnitRoot;
 import fr.gouv.vitam.common.model.unit.DataObjectReference;
 import fr.gouv.vitam.common.model.unit.DescriptiveMetadataModel;
 import fr.gouv.vitam.common.model.unit.ManagementModel;
 import fr.gouv.vitam.common.model.unit.RuleCategoryModel;
+import fr.gouv.vitam.common.model.unit.UpdateOperationModel;
 import fr.gouv.vitam.processing.common.exception.ProcessingMalformedDataException;
 import fr.gouv.vitam.processing.common.exception.ProcessingObjectReferenceException;
 import org.w3c.dom.Element;
@@ -204,7 +207,7 @@ public class ArchiveUnitMapper {
     private void fillManagement(ManagementType managementType, ManagementModel managementModel)
         throws ProcessingMalformedDataException {
         if (managementType != null) {
-            managementModel.setUpdateOperationType(managementType.getUpdateOperation());
+            managementModel.setUpdateOperation(mapUpdateOperation(managementType.getUpdateOperation()));
             managementModel.setNeedAuthorization(managementType.isNeedAuthorization());
             fillAccessRule(managementType, managementModel);
             fillStorageRule(managementType, managementModel);
@@ -214,6 +217,22 @@ public class ArchiveUnitMapper {
             fillReuseRule(managementType, managementModel);
             fillHoldRule(managementType, managementModel);
         }
+    }
+
+    private UpdateOperationModel mapUpdateOperation(UpdateOperationType updateOperationType) {
+        if (updateOperationType == null) {
+            return null;
+        }
+        UpdateOperationModel updateOperationModel = new UpdateOperationModel();
+        updateOperationModel.setSystemId(updateOperationType.getSystemId());
+        if (updateOperationType.getArchiveUnitIdentifierKey() != null) {
+            updateOperationModel.setArchiveUnitIdentifierKey(
+                new ArchiveUnitIdentifierKeyModel()
+                    .setMetadataName(updateOperationType.getArchiveUnitIdentifierKey().getMetadataName())
+                    .setMetadataValue(updateOperationType.getArchiveUnitIdentifierKey().getMetadataValue())
+            );
+        }
+        return updateOperationModel;
     }
 
     private void fillAccessRule(ManagementType managementType, ManagementModel managementModel) {

@@ -28,12 +28,15 @@ package fr.gouv.vitam.common.mapping.dip;
 
 import fr.gouv.culture.archivesdefrance.seda.v2.AccessRuleType;
 import fr.gouv.culture.archivesdefrance.seda.v2.AppraisalRuleType;
+import fr.gouv.culture.archivesdefrance.seda.v2.ArchiveUnitIdentifierKeyType;
 import fr.gouv.culture.archivesdefrance.seda.v2.ClassificationRuleType;
 import fr.gouv.culture.archivesdefrance.seda.v2.DisseminationRuleType;
 import fr.gouv.culture.archivesdefrance.seda.v2.ManagementType;
 import fr.gouv.culture.archivesdefrance.seda.v2.ReuseRuleType;
 import fr.gouv.culture.archivesdefrance.seda.v2.StorageRuleType;
+import fr.gouv.culture.archivesdefrance.seda.v2.UpdateOperationType;
 import fr.gouv.vitam.common.model.unit.ManagementModel;
+import fr.gouv.vitam.common.model.unit.UpdateOperationModel;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 
@@ -62,8 +65,23 @@ public class ManagementMapper {
         managementType.setReuseRule(ruleMapper.fillCommonRule(managementModel.getReuse(), ReuseRuleType::new));
         managementType.setStorageRule(ruleMapper.fillCommonRule(managementModel.getStorage(), StorageRuleType::new));
         managementType.setHoldRule(ruleMapper.fillHoldRule(managementModel.getHold()));
-        managementType.setUpdateOperation(managementModel.getUpdateOperationType());
+        managementType.setUpdateOperation(mapUpdateOperation(managementModel.getUpdateOperation()));
 
         return managementType;
+    }
+
+    private UpdateOperationType mapUpdateOperation(UpdateOperationModel updateOperation) {
+        if (updateOperation == null) {
+            return null;
+        }
+        UpdateOperationType updateOperationType = new UpdateOperationType();
+        updateOperationType.setSystemId(updateOperation.getSystemId());
+        if (updateOperation.getArchiveUnitIdentifierKey() != null) {
+            ArchiveUnitIdentifierKeyType archiveUnitIdentifierKey = new ArchiveUnitIdentifierKeyType();
+            archiveUnitIdentifierKey.setMetadataName(updateOperation.getArchiveUnitIdentifierKey().getMetadataName());
+            archiveUnitIdentifierKey.setMetadataValue(updateOperation.getArchiveUnitIdentifierKey().getMetadataValue());
+            updateOperationType.setArchiveUnitIdentifierKey(archiveUnitIdentifierKey);
+        }
+        return updateOperationType;
     }
 }

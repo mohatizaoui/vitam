@@ -1,0 +1,73 @@
+[
+  {
+    "File": "my_file1.txt",
+    "ObjectFiles":null,
+    "Selector":null,
+    "UnitContent": {
+      "Key": [
+        "1"
+      ],
+      "Title": "Some Updated Title1"
+    }
+  },
+  {
+    "File": "my_file2.txt",
+    "ObjectFiles":null,
+    "Selector":null,
+    "UnitContent": {
+      "Key": [
+        "1",
+        "2"
+      ],
+      "Title": "Some Updated Title2"
+    }
+  },
+  {
+    "File": "my_file3.txt",
+    "ObjectFiles":null,
+    "Selector":null,
+    "UnitContent": {
+      "Key": [
+        "2"
+      ],
+      "Title": "Some Updated Title3"
+    }
+  },
+  {
+    "File": "my_file4.txt",
+    "ObjectFiles":null,
+    "Selector":null,
+    "UnitContent": {
+      "#management": {
+        "UpdateOperation": {
+          "SystemId": "MyGuid"
+        }
+      },
+      "Title": "Some Updated Title4"
+    }
+  },
+  {
+    "File": "my_file5.txt",
+    "ObjectFiles":null,
+    "Selector":null,
+    "UnitContent": {
+      "#management": {
+        "UpdateOperation": {
+          "ArchiveUnitIdentifierKey": {
+            "MetadataName": "UpdateOperationKey",
+            "MetadataValue": "UpdateOperationValue"
+          }
+        }
+      },
+      "Title": "Some Updated Title5"
+    }
+  },
+  {
+    "File": "my_file6.txt",
+    "ObjectFiles":null,
+    "Selector":null,
+    "UnitContent": {
+      "Title": "Some Updated Title6"
+    }
+  }
+]

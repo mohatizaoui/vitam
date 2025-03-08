@@ -1,0 +1,11 @@
+File;Content.Title;Content.Tag.0;Management.UpdateOperation.SystemId;Management.UpdateOperation.ArchiveUnitIdentifierKey.MetadataName;Management.UpdateOperation.ArchiveUnitIdentifierKey.MetadataValue
+"Folder0";"Title0";"MyTag0";;;
+"Folder1";"Title1";;MyGuid1;MyMetadataKey;
+"Folder2";"Title2";;MyGuid1;;MyMetadataValue
+"Folder3";"Title3";;MyGuid1;MyMetadataKey;MyMetadataValue
+"Folder4";"Title4";;;MyMetadataKey;MyMetadataValue
+"Folder5";"Title5";;;MyMetadataKey;
+"Folder6";"Title6";;;;MyMetadataValue
+"Folder7";"Title7";"MyRejectedTagField1";MyGuid1;;
+"Folder8";"Title8";"MyRejectedTagField2";;MyMetadataKey;MyMetadataValue
+"Folder9/File9";"Title9";;;MyMetadataKey;MyMetadataValue
