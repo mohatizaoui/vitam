@@ -9,7 +9,10 @@
     "#unitType": "INGEST",
     "#opi": "transactionId",
     "#batchId": "aeeaaaaaaceaaaabhnuekamuvhypaviaaaaq",
-    "#uploadPath": "my_file1.txt"
+    "#uploadPath": "my_file1.txt",
+    "#unitups": [
+      "static_attachment_guid"
+    ]
   },
   {
     "DescriptionLevel": "Item",
@@ -21,7 +24,10 @@
     "#unitType": "INGEST",
     "#opi": "transactionId",
     "#batchId": "aeeaaaaaaceaaaabhnuekamuvhypaviaaaaq",
-    "#uploadPath": "my_file2.txt"
+    "#uploadPath": "my_file2.txt",
+    "#unitups": [
+      "static_attachment_guid"
+    ]
   },
   {
     "DescriptionLevel": "Item",
@@ -33,6 +39,9 @@
     "#unitType": "INGEST",
     "#opi": "transactionId",
     "#batchId": "aeeaaaaaaceaaaabhnuekamuvhypaviaaaaq",
-    "#uploadPath": "my_file3.txt"
+    "#uploadPath": "my_file3.txt",
+    "#unitups": [
+      "static_attachment_guid"
+    ]
   }
 ]

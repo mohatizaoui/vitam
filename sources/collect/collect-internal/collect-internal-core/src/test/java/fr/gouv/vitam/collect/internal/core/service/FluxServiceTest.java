@@ -739,7 +739,7 @@ public class FluxServiceTest {
         doReturn(JsonHandler.createObjectNode()).when(metadataRepository).saveArchiveUnits(ArgumentMatchers.anyList());
 
         when(metadataService.prepareAttachmentUnits(any(), anyString())).thenReturn(
-            Map.of("unit1", "guid_attachment1", "unit2", "guid_attachment2", "unit3", "guid_attachment3")
+            Map.of("rootUnitUp", "static_attachment_guid", "unit1", "guid_attachment1", "unit2", "guid_attachment2")
         );
 
         List<CollectJsonMetadataLine> unitUpdates = new ArrayList<>();
@@ -790,7 +790,7 @@ public class FluxServiceTest {
         doReturn(JsonHandler.createObjectNode()).when(metadataRepository).saveArchiveUnits(ArgumentMatchers.anyList());
 
         when(metadataService.prepareAttachmentUnits(any(), anyString())).thenReturn(
-            Map.of("unit1", "guid_attachment1", "unit2", "guid_attachment2", "unit3", "guid_attachment3")
+            Map.of("rootUnitUp", "static_attachment_guid", "unit1", "guid_attachment1", "unit2", "guid_attachment2")
         );
 
         List<CollectJsonMetadataLine> unitUpdates = new ArrayList<>();
@@ -841,7 +841,7 @@ public class FluxServiceTest {
         doReturn(JsonHandler.createObjectNode()).when(metadataRepository).saveArchiveUnits(ArgumentMatchers.anyList());
 
         when(metadataService.prepareAttachmentUnits(any(), anyString())).thenReturn(
-            Map.of("unit1", "guid_attachment1", "unit2", "guid_attachment2", "unit3", "guid_attachment3")
+            Map.of("rootUnitUp", "static_attachment_guid", "unit1", "guid_attachment1", "unit2", "guid_attachment2")
         );
 
         List<CollectJsonMetadataLine> unitUpdates = new ArrayList<>();
@@ -892,7 +892,7 @@ public class FluxServiceTest {
         doReturn(JsonHandler.createObjectNode()).when(metadataRepository).saveArchiveUnits(ArgumentMatchers.anyList());
 
         when(metadataService.prepareAttachmentUnits(any(), anyString())).thenReturn(
-            Map.of("unit1", "guid_attachment1", "unit2", "guid_attachment2", "unit3", "guid_attachment3")
+            Map.of("rootUnitUp", "static_attachment_guid", "unit1", "guid_attachment1", "unit2", "guid_attachment2")
         );
 
         List<CollectJsonMetadataLine> unitUpdates = new ArrayList<>();
@@ -943,7 +943,7 @@ public class FluxServiceTest {
         doReturn(JsonHandler.createObjectNode()).when(metadataRepository).saveArchiveUnits(ArgumentMatchers.anyList());
 
         when(metadataService.prepareAttachmentUnits(any(), anyString())).thenReturn(
-            Map.of("unit1", "guid_attachment1", "unit2", "guid_attachment2", "unit3", "guid_attachment3")
+            Map.of("rootUnitUp", "static_attachment_guid", "unit1", "guid_attachment1", "unit2", "guid_attachment2")
         );
 
         List<CollectJsonMetadataLine> unitUpdates = new ArrayList<>();
@@ -994,7 +994,7 @@ public class FluxServiceTest {
         doReturn(JsonHandler.createObjectNode()).when(metadataRepository).saveArchiveUnits(ArgumentMatchers.anyList());
 
         when(metadataService.prepareAttachmentUnits(any(), anyString())).thenReturn(
-            Map.of("unit1", "guid_attachment1", "unit2", "guid_attachment2", "unit3", "guid_attachment3")
+            Map.of("rootUnitUp", "static_attachment_guid", "unit1", "guid_attachment1", "unit2", "guid_attachment2")
         );
 
         List<CollectJsonMetadataLine> unitUpdates = new ArrayList<>();
