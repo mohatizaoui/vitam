@@ -25,72 +25,75 @@
  * accept its terms.
  */
 
-package fr.gouv.vitam.common.model.config;
+package fr.gouv.vitam.functional.administration.common.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class CollectionConfiguration {
+public class DedicatedTenantCustomSearchConfiguration {
 
-    @JsonProperty("number_of_shards")
-    private Integer numberOfShards;
+    @JsonProperty("tenants")
+    private String tenants;
 
-    @JsonProperty("number_of_replicas")
-    private Integer numberOfReplicas;
+    @JsonProperty("unit")
+    private CollectionCustomSearchConfiguration unitFields;
 
-    @JsonProperty("mappingFile")
-    private String mappingFile;
+    @JsonProperty("objectgroup")
+    private CollectionCustomSearchConfiguration objectgroupFields;
 
-    public CollectionConfiguration() {
+    public DedicatedTenantCustomSearchConfiguration() {
         // Default constructor for deserialization
     }
 
-    public CollectionConfiguration(Integer numberOfShards, Integer numberOfReplicas) {
-        this.numberOfShards = numberOfShards;
-        this.numberOfReplicas = numberOfReplicas;
+    public DedicatedTenantCustomSearchConfiguration(
+        String tenants,
+        CollectionCustomSearchConfiguration unitFields,
+        CollectionCustomSearchConfiguration objectgroupFields
+    ) {
+        this.tenants = tenants;
+        this.unitFields = unitFields;
+        this.objectgroupFields = objectgroupFields;
     }
 
-    public CollectionConfiguration(Integer numberOfShards, Integer numberOfReplicas, String mappingFile) {
-        this(numberOfShards, numberOfReplicas);
-        this.mappingFile = mappingFile;
+    public String getTenants() {
+        return tenants;
     }
 
-    public Integer getNumberOfShards() {
-        return numberOfShards;
-    }
-
-    public CollectionConfiguration setNumberOfShards(Integer numberOfShards) {
-        this.numberOfShards = numberOfShards;
+    public DedicatedTenantCustomSearchConfiguration setTenants(String tenants) {
+        this.tenants = tenants;
         return this;
     }
 
-    public Integer getNumberOfReplicas() {
-        return numberOfReplicas;
+    public CollectionCustomSearchConfiguration getUnitFields() {
+        return unitFields;
     }
 
-    public CollectionConfiguration setNumberOfReplicas(Integer numberOfReplicas) {
-        this.numberOfReplicas = numberOfReplicas;
+    public DedicatedTenantCustomSearchConfiguration setUnitFields(CollectionCustomSearchConfiguration unitFields) {
+        this.unitFields = unitFields;
         return this;
     }
 
-    public String getMappingFile() {
-        return mappingFile;
+    public CollectionCustomSearchConfiguration getObjectgroupFields() {
+        return objectgroupFields;
     }
 
-    public CollectionConfiguration setMappingFile(String mappingFile) {
-        this.mappingFile = mappingFile;
+    public DedicatedTenantCustomSearchConfiguration setObjectgroupFields(
+        CollectionCustomSearchConfiguration objectgroupFields
+    ) {
+        this.objectgroupFields = objectgroupFields;
         return this;
     }
 
     @Override
     public String toString() {
         return (
-            "ConfigurationCollection{" +
-            "shards=" +
-            numberOfShards +
-            ", replicas=" +
-            numberOfReplicas +
-            ", mappingFile=" +
-            mappingFile +
+            "DedicatedTenantCustomSearchConfiguration{" +
+            "tenants='" +
+            tenants +
+            '\'' +
+            ", unitFields=" +
+            unitFields +
+            ", objectgroupFields=" +
+            objectgroupFields +
             '}'
         );
     }

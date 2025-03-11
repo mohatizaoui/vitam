@@ -41,22 +41,17 @@ elasticsearchNodes:
   httpPort: {{ elasticsearch.data.port_http }}
 {% endfor %}
 
-# ElasticSearch External Metadata Mapping
-elasticsearchExternalMetadataMappings:
-- collection: Unit
-  mappingFile: {{ vitam.metadata_collect.elasticsearch_mapping_dir }}/unit-es-mapping.json
-- collection: ObjectGroup
-  mappingFile: {{ vitam.metadata_collect.elasticsearch_mapping_dir }}/og-es-mapping.json
-
 # ElasticSearch tenant indexation
 elasticsearchTenantIndexation:
   default_config:
     unit:
       number_of_shards: {{ vitam_elasticsearch_tenant_indexation.default_config.collect_unit.number_of_shards | default('1') }}
       number_of_replicas: {{ vitam_elasticsearch_tenant_indexation.default_config.collect_unit.number_of_replicas | default('2') }}
+      mappingFile: {{ vitam.metadata_collect.elasticsearch_mapping_dir }}/{{ vitam_elasticsearch_tenant_indexation.default_config.collect_unit.mappingFile | default('unit-es-mapping.json') }}
     objectgroup:
       number_of_shards: {{ vitam_elasticsearch_tenant_indexation.default_config.collect_objectgroup.number_of_shards | default('1') }}
       number_of_replicas: {{ vitam_elasticsearch_tenant_indexation.default_config.collect_objectgroup.number_of_replicas | default('2') }}
+      mappingFile: {{ vitam.metadata_collect.elasticsearch_mapping_dir }}/{{ vitam_elasticsearch_tenant_indexation.default_config.collect_objectgroup.mappingFile | default('og-es-mapping.json') }}
 
 {% if vitam_elasticsearch_tenant_indexation.collect_dedicated_tenants is defined and vitam_elasticsearch_tenant_indexation.collect_dedicated_tenants is not none %}
   dedicated_tenants:
@@ -70,6 +65,9 @@ elasticsearchTenantIndexation:
       {% if entry.collect_unit.number_of_replicas is defined %}
       number_of_replicas: {{ entry.collect_unit.number_of_replicas }}
       {% endif %}
+      {% if entry.collect_unit.mappingFile is defined %}
+      mappingFile: {{ vitam.metadata_collect.elasticsearch_mapping_dir }}/{{ entry.collect_unit.mappingFile }}
+      {% endif %}
     {% endif %}
     {% if entry.objectgroup is defined %}
     objectgroup:
@@ -78,6 +76,9 @@ elasticsearchTenantIndexation:
       {% endif %}
       {% if entry.collect_objectgroup.number_of_replicas is defined %}
       number_of_replicas: {{ entry.collect_objectgroup.number_of_replicas }}
+      {% endif %}
+      {% if entry.collect_objectgroup.mappingFile is defined %}
+      mappingFile: {{ vitam.metadata_collect.elasticsearch_mapping_dir }}/{{ entry.collect_objectgroup.mappingFile }}
       {% endif %}
     {% endif %}
   {% endfor %}
@@ -96,6 +97,9 @@ elasticsearchTenantIndexation:
       {% if entry.collect_unit.number_of_replicas is defined %}
       number_of_replicas: {{ entry.collect_unit.number_of_replicas }}
       {% endif %}
+      {% if entry.collect_unit.mappingFile is defined %}
+      mappingFile: {{ vitam.metadata_collect.elasticsearch_mapping_dir }}/{{ entry.collect_unit.mappingFile }}
+      {% endif %}
     {% endif %}
     {% if entry.objectgroup is defined %}
     objectgroup:
@@ -104,6 +108,9 @@ elasticsearchTenantIndexation:
       {% endif %}
       {% if entry.collect_objectgroup.number_of_replicas is defined %}
       number_of_replicas: {{ entry.collect_objectgroup.number_of_replicas }}
+      {% endif %}
+      {% if entry.collect_objectgroup.mappingFile is defined %}
+      mappingFile: {{ vitam.metadata_collect.elasticsearch_mapping_dir }}/{{ entry.collect_objectgroup.mappingFile }}
       {% endif %}
     {% endif %}
   {% endfor %}

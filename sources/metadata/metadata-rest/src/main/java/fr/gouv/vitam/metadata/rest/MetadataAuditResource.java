@@ -38,7 +38,6 @@ import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClientFactory;
 import fr.gouv.vitam.metadata.audit.core.MetadataAuditService;
 import fr.gouv.vitam.metadata.core.config.ElasticsearchMetadataIndexManager;
 import fr.gouv.vitam.metadata.core.config.MetaDataConfiguration;
-import fr.gouv.vitam.metadata.core.mapping.MappingLoader;
 import fr.gouv.vitam.processing.management.client.ProcessingManagementClientFactory;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
 import fr.gouv.vitam.workspace.client.WorkspaceType;
@@ -66,11 +65,7 @@ public class MetadataAuditResource {
             ),
             LogbookOperationsClientFactory.getInstance(),
             VitamRepositoryFactory.get(),
-            new ElasticsearchMetadataIndexManager(
-                metaDataConfiguration,
-                VitamConfiguration.getTenants(),
-                new MappingLoader(metaDataConfiguration.getElasticsearchExternalMetadataMappings())
-            ),
+            new ElasticsearchMetadataIndexManager(metaDataConfiguration, VitamConfiguration.getTenants()),
             metaDataConfiguration.getIsDataConsistencyAuditRunnable(),
             metaDataConfiguration.isEnableDataConsistencyRectificationMode(),
             metaDataConfiguration.getDataConsistencyAuditOplogMaxSize(),

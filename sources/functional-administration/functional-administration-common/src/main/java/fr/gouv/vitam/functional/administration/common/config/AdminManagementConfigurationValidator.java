@@ -31,6 +31,8 @@ import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.model.config.CollectionConfiguration;
 import fr.gouv.vitam.common.model.config.CollectionConfigurationUtils;
 import fr.gouv.vitam.common.security.SanityChecker;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,6 +50,8 @@ public class AdminManagementConfigurationValidator {
         } catch (IOException | InvalidParseOperationException e) {
             throw new IllegalStateException("Invalid configuration.");
         }
+
+        validateCustomSearchOnFieldsConfiguration(adminManagementConfiguration.getCustomSearchOnFieldsConfiguration());
     }
 
     private static void validateElasticsearchSettings(String elasticsearchConfigurationFilePath)
@@ -80,6 +84,57 @@ public class AdminManagementConfigurationValidator {
             .getCollectionConfigurationMap()
             .values()) {
             CollectionConfigurationUtils.validate(collectionConfiguration, true);
+        }
+    }
+
+    private static void validateCustomSearchOnFieldsConfiguration(
+        CustomSearchOnFieldsConfiguration customSearchOnFieldsConfiguration
+    ) {
+        if (customSearchOnFieldsConfiguration == null) return;
+
+        //Default config validation
+        if (customSearchOnFieldsConfiguration.getDefaultCustomSearchCollectionConfiguration() != null) {
+            CollectionSearchConfigurationUtils.validate(
+                customSearchOnFieldsConfiguration.getDefaultCustomSearchCollectionConfiguration().getUnitFields(),
+                true
+            );
+
+            CollectionSearchConfigurationUtils.validate(
+                customSearchOnFieldsConfiguration
+                    .getDefaultCustomSearchCollectionConfiguration()
+                    .getObjectgroupFields(),
+                true
+            );
+        }
+
+        //Dedicated tenants conf validation
+
+        if (
+            CollectionUtils.isNotEmpty(customSearchOnFieldsConfiguration.getDedicatedTenantCustomSearchConfiguration())
+        ) {
+            customSearchOnFieldsConfiguration
+                .getDedicatedTenantCustomSearchConfiguration()
+                .stream()
+                .forEach(dedicatedConf -> {
+                    CollectionSearchConfigurationUtils.validate(dedicatedConf.getUnitFields(), true);
+                    CollectionSearchConfigurationUtils.validate(dedicatedConf.getObjectgroupFields(), true);
+                });
+        }
+
+        if (CollectionUtils.isNotEmpty(customSearchOnFieldsConfiguration.getGroupedTenantConfiguration())) {
+            customSearchOnFieldsConfiguration
+                .getGroupedTenantConfiguration()
+                .stream()
+                .forEach(groupsConf -> {
+                    if (StringUtils.isEmpty(groupsConf.getTenants())) {
+                        throw new IllegalStateException("Invalid configuration. tenants list is empty");
+                    }
+                    if (StringUtils.isEmpty(groupsConf.getName())) {
+                        throw new IllegalStateException("Invalid configuration. group name should not be empty");
+                    }
+                    CollectionSearchConfigurationUtils.validate(groupsConf.getUnitFields(), true);
+                    CollectionSearchConfigurationUtils.validate(groupsConf.getObjectgroupFields(), true);
+                });
         }
     }
 }

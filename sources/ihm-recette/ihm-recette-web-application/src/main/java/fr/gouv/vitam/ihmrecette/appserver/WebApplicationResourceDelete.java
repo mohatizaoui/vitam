@@ -171,7 +171,7 @@ public class WebApplicationResourceDelete {
                 webApplicationConfig.getMetadataDbName(), webApplicationConfig.getClusterName(), webApplicationConfig
                 .getElasticsearchNodes(),
                 true, webApplicationConfig.getDbUserName(), webApplicationConfig
-                .getDbPassword(), mappingLoader)
+                .getDbPassword())
                 .setIndexationConfiguration(metadataMetadataIndexationConfiguration);
 
         } else {
@@ -185,10 +185,9 @@ public class WebApplicationResourceDelete {
                     webApplicationConfig
                         .getElasticsearchNodes())
                     .setLogbookTenantIndexation(logbookLogbookIndexationConfiguration);
-            mappingLoader = new MappingLoader(webApplicationConfig.getElasticsearchExternalMetadataMappings());
             metaDataConfiguration = new MetaDataConfiguration(webApplicationConfig.getMongoDbNodes(),
                 webApplicationConfig.getMetadataDbName(), webApplicationConfig.getClusterName(), webApplicationConfig
-                .getElasticsearchNodes(), mappingLoader)
+                .getElasticsearchNodes())
                 .setIndexationConfiguration(metadataMetadataIndexationConfiguration);
         }
         adminConfiguration.setElasticsearchConfigurationFile(webApplicationConfig.getElasticsearchConfigurationFile());
@@ -202,8 +201,7 @@ public class WebApplicationResourceDelete {
         LogbookConfigurationValidator.validateConfiguration(logbookConfiguration);
 
         ElasticsearchMetadataIndexManager metadataIndexManager =
-            new ElasticsearchMetadataIndexManager(metaDataConfiguration, VitamConfiguration.getTenants(),
-                mappingLoader);
+            new ElasticsearchMetadataIndexManager(metaDataConfiguration, VitamConfiguration.getTenants());
         ElasticsearchLogbookIndexManager logbookIndexManager =
             new ElasticsearchLogbookIndexManager(logbookConfiguration, VitamConfiguration.getTenants());
         ElasticsearchFunctionalAdminIndexManager indexManager =

@@ -7,7 +7,7 @@ if ! command -v nvm &> /dev/null; then
 fi
 
 export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" 
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
 ##### Mise en place Node
 echo "Mise en place de node..."
@@ -24,7 +24,7 @@ fi
 if ! systemctl is-active --quiet docker
 then
     echo "Docker Docker est installé. Démarrage"
-    
+
 ##### Démarrage Docker
     if sudo systemctl start docker
     then
@@ -38,9 +38,9 @@ else
 fi
 
 
-##### Création arborescence 
+##### Création arborescence
 echo "création de l'arborescence..."
-if [ -d '/vitam/' ]; then 
+if [ -d '/vitam/' ]; then
   echo "Vitam existe déjà, veuillez le supprimer!"
   exit 7
 fi
@@ -54,20 +54,20 @@ sudo mkdir -p /vitam/tmp/
 ##### TODO: de-hard code
 sudo chown -R $USER:$USER /vitam
 
-touch /vitam/data/storage/fr.gouv.vitam.storage.offers.workspace.driver.DriverImpl 
+touch /vitam/data/storage/fr.gouv.vitam.storage.offers.workspace.driver.DriverImpl
 echo "offer-fs-1.service.consul" >> "/vitam/data/storage/fr.gouv.vitam.storage.offers.workspace.driver.DriverImpl"
 
-cp -r ../../vitam-conf-dev/conf/* /vitam/conf/ 
+cp -r ../../vitam-conf-dev/conf/* /vitam/conf/
 
 rm /vitam/conf/metadata/mapping/unit-es-mapping.json /vitam/conf/metadata/mapping/og-es-mapping.json
 
 
-ln -s  ../../deployment/ansible-vitam/roles/elasticsearch-mapping/files/og-es-mapping.json /vitam/conf/metadata/mapping/
-ln -s ../../deployment/ansible-vitam/roles/elasticsearch-mapping/files/unit-es-mapping.json /vitam/conf/metadata/mapping/ 
+ln -s  ../../deployment/environments/files/elasticsearch-mappings/og-es-mapping.json /vitam/conf/metadata/mapping/
+ln -s ../../deployment/environments/files/elasticsearch-mappings/unit-es-mapping.json /vitam/conf/metadata/mapping/
 
-rm /vitam/conf/worker/plugins.json 
+rm /vitam/conf/worker/plugins.json
 
-ln -s ../../deployment/ansible-vitam/roles/elasticsearch-mapping/files/plugins.json /vitam/conf/worker/plugins.json 
+ln -s ../../deployment/environments/files/elasticsearch-mappings/plugins.json /vitam/conf/worker/plugins.json
 
 
 ##### Compilation
@@ -76,6 +76,6 @@ echo "Compilation"
 
  mvn -f ../../sources/pom.xml clean install -DskipTests -P-vitam
 
-##### COTS 
+##### COTS
 
 docker compose -f ../../dev-deployment/docker-cots/docker-compose.yml up

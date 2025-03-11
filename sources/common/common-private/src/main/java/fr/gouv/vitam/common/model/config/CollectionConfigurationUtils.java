@@ -87,15 +87,19 @@ public final class CollectionConfigurationUtils {
     ) {
         if (
             customConfig == null ||
-            (customConfig.getNumberOfShards() == null && customConfig.getNumberOfReplicas() == null)
+            (customConfig.getNumberOfShards() == null &&
+                customConfig.getNumberOfReplicas() == null &&
+                customConfig.getMappingFile() == null)
         ) {
             return defaultConfig;
         }
-
-        if (customConfig.getNumberOfShards() != null && customConfig.getNumberOfReplicas() != null) {
+        if (
+            customConfig.getNumberOfShards() != null &&
+            customConfig.getNumberOfReplicas() != null &&
+            customConfig.getMappingFile() != null
+        ) {
             return customConfig;
         }
-
         return new CollectionConfiguration()
             .setNumberOfShards(
                 customConfig.getNumberOfShards() != null
@@ -106,6 +110,9 @@ public final class CollectionConfigurationUtils {
                 customConfig.getNumberOfReplicas() != null
                     ? customConfig.getNumberOfReplicas()
                     : defaultConfig.getNumberOfReplicas()
+            )
+            .setMappingFile(
+                customConfig.getMappingFile() != null ? customConfig.getMappingFile() : defaultConfig.getMappingFile()
             );
     }
 }

@@ -32,12 +32,14 @@ import fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchIndexAlia
 import fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchIndexSettings;
 import fr.gouv.vitam.metadata.core.database.collections.MetadataCollections;
 import fr.gouv.vitam.metadata.core.mapping.MappingLoader;
+import fr.gouv.vitam.metadata.core.utils.MappingLoaderTestUtils;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -57,11 +59,7 @@ public class ElasticsearchMetadataIndexManagerTest {
         MappingLoader mappingLoader = mock(MappingLoader.class);
         doAnswer(args -> new ByteArrayInputStream("{}".getBytes())).when(mappingLoader).loadMapping(any());
 
-        ElasticsearchMetadataIndexManager indexManager = new ElasticsearchMetadataIndexManager(
-            config,
-            tenants,
-            mappingLoader
-        );
+        ElasticsearchMetadataIndexManager indexManager = new ElasticsearchMetadataIndexManager(config, tenants);
 
         // When
         ElasticsearchIndexAliasResolver unitIndexAliasResolver = indexManager.getElasticsearchIndexAliasResolver(
@@ -91,11 +89,7 @@ public class ElasticsearchMetadataIndexManagerTest {
         MappingLoader mappingLoader = mock(MappingLoader.class);
         doAnswer(args -> new ByteArrayInputStream("{}".getBytes())).when(mappingLoader).loadMapping(any());
 
-        ElasticsearchMetadataIndexManager indexManager = new ElasticsearchMetadataIndexManager(
-            config,
-            tenants,
-            mappingLoader
-        );
+        ElasticsearchMetadataIndexManager indexManager = new ElasticsearchMetadataIndexManager(config, tenants);
 
         // When
         ElasticsearchIndexAliasResolver unitIndexAliasResolver = indexManager.getElasticsearchIndexAliasResolver(
@@ -125,11 +119,7 @@ public class ElasticsearchMetadataIndexManagerTest {
         MappingLoader mappingLoader = mock(MappingLoader.class);
         doAnswer(args -> new ByteArrayInputStream("{}".getBytes())).when(mappingLoader).loadMapping(any());
 
-        ElasticsearchMetadataIndexManager indexManager = new ElasticsearchMetadataIndexManager(
-            config,
-            tenants,
-            mappingLoader
-        );
+        ElasticsearchMetadataIndexManager indexManager = new ElasticsearchMetadataIndexManager(config, tenants);
 
         // When
         ElasticsearchIndexSettings unit0IndexSettings = indexManager.getElasticsearchIndexSettings(
@@ -177,21 +167,35 @@ public class ElasticsearchMetadataIndexManagerTest {
     public void testIndexSettingsWithCustomConfig() throws Exception {
         // Given
         MetaDataConfiguration config;
+        MappingLoader mappingLoader = MappingLoaderTestUtils.getTestMappingLoader();
+        Optional<ElasticsearchExternalMetadataMapping> unitMappingOpt = mappingLoader
+            .getElasticsearchExternalMappings()
+            .stream()
+            .filter(elt -> elt.getCollection().contains("Unit"))
+            .findFirst();
+        Optional<ElasticsearchExternalMetadataMapping> objectGroupMapping = mappingLoader
+            .getElasticsearchExternalMappings()
+            .stream()
+            .filter(elt -> elt.getCollection().contains("ObjectGroup"))
+            .findFirst();
         try (final InputStream yamlIS = PropertiesUtils.getConfigAsStream("./metadata_test_config.yml")) {
             config = PropertiesUtils.readYaml(yamlIS, MetaDataConfiguration.class);
         }
         List<Integer> tenants = Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 22);
-        MappingLoader mappingLoader = mock(MappingLoader.class);
-        doAnswer(args -> new ByteArrayInputStream("unit".getBytes())).when(mappingLoader).loadMapping("UNIT");
-        doAnswer(args -> new ByteArrayInputStream("og".getBytes())).when(mappingLoader).loadMapping("OBJECTGROUP");
-
-        ElasticsearchMetadataIndexManager indexManager = new ElasticsearchMetadataIndexManager(
-            config,
-            tenants,
-            mappingLoader
-        );
+        config
+            .getIndexationConfiguration()
+            .getDefaultCollectionConfiguration()
+            .getUnit()
+            .setMappingFile(unitMappingOpt.get().getMappingFile());
+        config
+            .getIndexationConfiguration()
+            .getDefaultCollectionConfiguration()
+            .getObjectgroup()
+            .setMappingFile(objectGroupMapping.get().getMappingFile());
+        ElasticsearchMetadataIndexManager indexManager = new ElasticsearchMetadataIndexManager(config, tenants);
 
         // When
+
         ElasticsearchIndexSettings unit0IndexSettings = indexManager.getElasticsearchIndexSettings(
             MetadataCollections.UNIT,
             0
@@ -232,7 +236,7 @@ public class ElasticsearchMetadataIndexManagerTest {
         assertThat(objectGroup22IndexSettings.getShards()).isEqualTo(6);
         assertThat(objectGroup22IndexSettings.getReplicas()).isEqualTo(15);
 
-        assertThat(unit10IndexSettings.loadMapping()).isEqualTo("unit");
-        assertThat(objectGroup22IndexSettings.loadMapping()).isEqualTo("og");
+        assertThat(unit10IndexSettings.loadMapping()).isNotNull();
+        assertThat(objectGroup22IndexSettings.loadMapping()).isNotNull();
     }
 }

@@ -39,6 +39,7 @@ import fr.gouv.vitam.functional.administration.client.AdminManagementOntologyLoa
 import fr.gouv.vitam.functional.administration.common.client.FunctionAdministrationOntologyLoader;
 import fr.gouv.vitam.functional.administration.common.config.AdminManagementConfiguration;
 import fr.gouv.vitam.functional.administration.common.config.AdminManagementConfigurationValidator;
+import fr.gouv.vitam.functional.administration.common.config.ElasticsearchCustomSearchManager;
 import fr.gouv.vitam.functional.administration.common.config.ElasticsearchFunctionalAdminIndexManager;
 import fr.gouv.vitam.functional.administration.common.counter.VitamCounterService;
 import fr.gouv.vitam.functional.administration.common.server.FunctionalAdminCollections;
@@ -153,6 +154,9 @@ public class BusinessApplication extends Application {
             securityProfileService.setContextService(contextService);
             contextService.setSecurityProfileService(securityProfileService);
 
+            final ElasticsearchCustomSearchManager elasticsearchCustomSearchManager =
+                new ElasticsearchCustomSearchManager(configuration, VitamConfiguration.getTenants());
+
             final AgenciesService agenciesService = new AgenciesService(
                 mongoDbAccess,
                 vitamCounterService,
@@ -163,7 +167,8 @@ public class BusinessApplication extends Application {
                 configuration,
                 mongoDbAccess,
                 functionalBackupService,
-                ontologyService
+                ontologyService,
+                elasticsearchCustomSearchManager
             );
             final ArchiveUnitProfileServiceImpl archiveUnitProfileService = new ArchiveUnitProfileServiceImpl(
                 mongoDbAccess,

@@ -37,7 +37,6 @@ import fr.gouv.vitam.metadata.core.config.ElasticsearchMetadataIndexManager;
 import fr.gouv.vitam.metadata.core.config.MetaDataConfiguration;
 import fr.gouv.vitam.metadata.core.config.MetaDataConfigurationValidator;
 import fr.gouv.vitam.metadata.core.database.collections.MongoDbAccessMetadataImpl;
-import fr.gouv.vitam.metadata.core.mapping.MappingLoader;
 import fr.gouv.vitam.metadata.core.migration.UnitsWithTransferRequestsMigrationService;
 import fr.gouv.vitam.security.internal.filter.AdminRequestIdFilter;
 import fr.gouv.vitam.security.internal.filter.BasicAuthenticationFilter;
@@ -80,15 +79,10 @@ public class AdminMetadataApplication extends Application {
             // Validate configuration
             MetaDataConfigurationValidator.validateConfiguration(metaDataConfiguration);
 
-            MappingLoader mappingLoader = new MappingLoader(
-                metaDataConfiguration.getElasticsearchExternalMetadataMappings()
-            );
-
             // Elasticsearch configuration
             ElasticsearchMetadataIndexManager indexManager = new ElasticsearchMetadataIndexManager(
                 metaDataConfiguration,
-                VitamConfiguration.getTenants(),
-                mappingLoader
+                VitamConfiguration.getTenants()
             );
 
             adminApplication = new AdminApplication();

@@ -40,7 +40,6 @@ import fr.gouv.vitam.metadata.core.config.MetaDataConfiguration;
 import fr.gouv.vitam.metadata.core.config.MetaDataConfigurationValidator;
 import fr.gouv.vitam.metadata.core.database.collections.MongoDbAccessMetadataImpl;
 import fr.gouv.vitam.metadata.core.database.collections.PersistentIdentifierRepositoryImpl;
-import fr.gouv.vitam.metadata.core.mapping.MappingLoader;
 import fr.gouv.vitam.metadata.core.reconstruction.domain.OffsetManager;
 import fr.gouv.vitam.metadata.core.reconstruction.domain.PersistentIdentifierReconstructionManager;
 import fr.gouv.vitam.metadata.core.reconstruction.repository.OperationReportRepository;
@@ -84,15 +83,10 @@ public class BusinessApplication extends Application {
             // Validate configuration
             MetaDataConfigurationValidator.validateConfiguration(metaDataConfiguration);
 
-            MappingLoader mappingLoader = new MappingLoader(
-                metaDataConfiguration.getElasticsearchExternalMetadataMappings()
-            );
-
             // Elasticsearch configuration
             ElasticsearchMetadataIndexManager indexManager = new ElasticsearchMetadataIndexManager(
                 metaDataConfiguration,
-                VitamConfiguration.getTenants(),
-                mappingLoader
+                VitamConfiguration.getTenants()
             );
 
             MongoDbAccessMetadataImpl mongoAccessMetadata = MongoDbAccessMetadataFactory.create(

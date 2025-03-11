@@ -33,13 +33,6 @@ elasticsearchNodes:
   - hostName: 172.17.0.2
     httpPort: 9200
 
-# ElasticSearch External Metadata Mapping
-elasticsearchExternalMetadataMappings:
-  - collection: Unit
-    mappingFile: /vitam/conf/metadata/mapping/unit-es-mapping.json
-  - collection: ObjectGroup
-    mappingFile: /vitam/conf/metadata/mapping/og-es-mapping.json
-
 # ElasticSearch tenant indexation
 elasticsearchTenantIndexation:
 
