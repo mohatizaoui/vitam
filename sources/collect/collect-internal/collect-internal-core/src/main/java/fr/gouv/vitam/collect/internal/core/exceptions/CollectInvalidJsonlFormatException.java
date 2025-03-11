@@ -25,21 +25,17 @@
  * accept its terms.
  */
 
-package fr.gouv.vitam.collect.internal.core.jsonl;
+package fr.gouv.vitam.collect.internal.core.exceptions;
 
-import fr.gouv.vitam.collect.internal.core.exceptions.CollectInvalidJsonlFormatException;
-import fr.gouv.vitam.collect.internal.core.helpers.AbstractErrorAccumulator;
+import fr.gouv.vitam.collect.common.exception.CollectInternalInvalidRequestException;
 
-public class JsonlErrorAccumulator extends AbstractErrorAccumulator<CollectInvalidJsonlFormatException> {
+public class CollectInvalidJsonlFormatException extends CollectInternalInvalidRequestException {
 
-    private static final int MAX_ERROR_COUNT = 20;
-
-    public JsonlErrorAccumulator() {
-        super(MAX_ERROR_COUNT);
+    public CollectInvalidJsonlFormatException(String message) {
+        super(message);
     }
 
-    @Override
-    protected CollectInvalidJsonlFormatException buildException(String errorMessage) {
-        return new CollectInvalidJsonlFormatException("JSONL validation failed. " + errorMessage);
+    public CollectInvalidJsonlFormatException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

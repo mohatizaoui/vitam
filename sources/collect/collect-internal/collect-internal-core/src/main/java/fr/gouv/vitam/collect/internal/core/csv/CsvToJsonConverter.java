@@ -75,7 +75,9 @@ import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.SIGNED_OB
 import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.buildPath;
 import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.equalsOrStartsWith;
 import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.isContentDescriptionField;
+import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.isContentField;
 import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.isContentTitleField;
+import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.isManagementField;
 import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.isManagementUpdateOperationField;
 import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.matchesPattern;
 import static fr.gouv.vitam.collect.internal.core.csv.FieldNameValidationUtils.MAX_FIELD_NAME_LENGTH;
@@ -229,10 +231,7 @@ public class CsvToJsonConverter {
         List<String> mainHeaderNames = headerNames
             .stream()
             // Skip "File" & "ObjectFiles" header
-            .filter(
-                headerName ->
-                    CsvMetadataUtils.isManagementField(headerName) || CsvMetadataUtils.isContentField(headerName)
-            )
+            .filter(headerName -> isManagementField(headerName) || isContentField(headerName))
             // Skip special multi-lang headers (Content.Title[.*] & Content.Description[.*])
             .filter(headerName -> !isContentTitleField(headerName) && !isContentDescriptionField(headerName))
             // Skip missing values
@@ -350,10 +349,7 @@ public class CsvToJsonConverter {
         Optional<String> anyOtherIncompatibleMetadataHeaderName = headerNames
             .stream()
             // Only retain content (Content.*) & management (Management.* & ArchiveUnitProfile) headers
-            .filter(
-                headerName ->
-                    CsvMetadataUtils.isManagementField(headerName) || CsvMetadataUtils.isContentField(headerName)
-            )
+            .filter(headerName -> isManagementField(headerName) || isContentField(headerName))
             // Skip Management.UpdateOperation.* fields
             .filter(headerName -> !isManagementUpdateOperationField(headerName))
             // Skip Content.Title[.*] & Content.DescriptionLevel (exceptionally ignored as they are required in Seda ArchiveUnit declaration)

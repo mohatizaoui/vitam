@@ -35,7 +35,7 @@ import fr.gouv.vitam.collect.common.exception.CollectInternalInvalidRequestExcep
 import fr.gouv.vitam.collect.common.exception.CollectInternalServerSideException;
 import fr.gouv.vitam.collect.internal.core.common.CollectJsonMetadataLine;
 import fr.gouv.vitam.collect.internal.core.common.CollectJsonMetadataSelector;
-import fr.gouv.vitam.collect.internal.core.exceptions.CollectInvalidCsvFormatException;
+import fr.gouv.vitam.collect.internal.core.exceptions.CollectInvalidJsonlFormatException;
 import fr.gouv.vitam.common.collection.CloseableIterator;
 import fr.gouv.vitam.common.collection.IteratorHelper;
 import fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper;
@@ -452,11 +452,11 @@ public class JsonlMetadataFileValidator {
     }
 
     private static void restrictUploadOperationToTopLevelUnits(CollectJsonMetadataLine entry, int lineIndex)
-        throws CollectInvalidCsvFormatException {
+        throws CollectInvalidJsonlFormatException {
         String uploadPath = getInitialUploadPath(entry);
         boolean isTopLevelFolder = !uploadPath.contains(File.separator);
         if (!isTopLevelFolder) {
-            throw new CollectInvalidCsvFormatException(
+            throw new CollectInvalidJsonlFormatException(
                 "Invalid unit metadata at index: " +
                 lineIndex +
                 ". Only top-level (root) units can have '" +
@@ -467,7 +467,7 @@ public class JsonlMetadataFileValidator {
     }
 
     private static void validateUpdateOperationFields(UpdateOperationModel updateOperation, int lineIndex)
-        throws CollectInvalidCsvFormatException {
+        throws CollectInvalidJsonlFormatException {
         String systemId = updateOperation.getSystemId();
 
         String metadataName = updateOperation.getArchiveUnitIdentifierKey() != null
@@ -478,17 +478,17 @@ public class JsonlMetadataFileValidator {
             : null;
 
         if (systemId == null && metadataName == null && metadataValue == null) {
-            throw new CollectInvalidCsvFormatException(
+            throw new CollectInvalidJsonlFormatException(
                 "Invalid unit metadata at index: " +
                 lineIndex +
                 ". Missing or empty '" +
-                MANAGEMENT_UPDATE_OPERATION_ARCHIVE_UNIT_IDENTIFIER_KEY_METADATA_NAME_API_PATH +
+                MANAGEMENT_UPDATE_OPERATION_API_PATH +
                 "' field."
             );
         }
 
         if (metadataName != null && metadataValue == null) {
-            throw new CollectInvalidCsvFormatException(
+            throw new CollectInvalidJsonlFormatException(
                 "Invalid unit metadata at index: " +
                 lineIndex +
                 ". Missing or empty '" +
@@ -498,7 +498,7 @@ public class JsonlMetadataFileValidator {
         }
 
         if (metadataName == null && metadataValue != null) {
-            throw new CollectInvalidCsvFormatException(
+            throw new CollectInvalidJsonlFormatException(
                 "Invalid unit metadata at index: " +
                 lineIndex +
                 ". Missing or empty '" +
@@ -508,7 +508,7 @@ public class JsonlMetadataFileValidator {
         }
 
         if (systemId != null && metadataName != null) {
-            throw new CollectInvalidCsvFormatException(
+            throw new CollectInvalidJsonlFormatException(
                 "Invalid unit metadata at index: " +
                 lineIndex +
                 ". Both '" +
@@ -521,7 +521,7 @@ public class JsonlMetadataFileValidator {
     }
 
     private static void checkIncompatibleFieldsWithUpdateOperationFields(ObjectNode unitContent, int lineIndex)
-        throws CollectInvalidCsvFormatException {
+        throws CollectInvalidJsonlFormatException {
         for (String fieldName : IteratorUtils.asIterable(unitContent.fieldNames())) {
             switch (fieldName) {
                 case API_FIELD_TITLE:
@@ -537,7 +537,7 @@ public class JsonlMetadataFileValidator {
                         .findFirst();
 
                     if (anyOtherManagementField.isPresent()) {
-                        throw new CollectInvalidCsvFormatException(
+                        throw new CollectInvalidJsonlFormatException(
                             "Invalid unit metadata at index: " +
                             lineIndex +
                             ". Cannot set other metadata field '" +
@@ -551,7 +551,7 @@ public class JsonlMetadataFileValidator {
                     }
                     break;
                 default:
-                    throw new CollectInvalidCsvFormatException(
+                    throw new CollectInvalidJsonlFormatException(
                         "Invalid unit metadata at index: " +
                         lineIndex +
                         ". Cannot set other metadata field '" +
