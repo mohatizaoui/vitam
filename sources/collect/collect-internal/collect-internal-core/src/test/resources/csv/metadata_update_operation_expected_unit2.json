@@ -1,0 +1,11 @@
+{
+  "Title": "Title2",
+  "#management": {
+    "UpdateOperation": {
+      "ArchiveUnitIdentifierKey": {
+        "MetadataName": "MyField2",
+        "MetadataValue": "MyValue2"
+      }
+    }
+  }
+}

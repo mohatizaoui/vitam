@@ -1,0 +1,2 @@
+{ "File": "MyFolder1", "UnitContent": { "DescriptionLevel": "Item", "Title":null, "Title_": { "fr" : "Titre", "en": "Title" }, "#management": { "UpdateOperation": { "SystemId": "MyGuid1" } } } }
+{ "File": "MyFolder2", "UnitContent": { "DescriptionLevel": "Item", "Title":null, "Title_": { "fr" : "Titre", "en": "Title" }, "#management": { "UpdateOperation": { "ArchiveUnitIdentifierKey": { "MetadataName":  "MyKey", "MetadataValue":  "MyValue"} } } } }

@@ -637,6 +637,10 @@ public class FluxServiceTest {
         });
         when(metadataService.prepareAttachmentUnits(any(), anyString())).thenReturn(new HashMap<>());
 
+        when(metadataService.selectUnitsByTransactionId(any(), anyString())).thenReturn(
+            new RequestResponseOK<JsonNode>().addResult(JsonHandler.createObjectNode())
+        );
+
         try (final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(TRANSACTION_ZIP_PATH)) {
             fluxService.processStream(
                 resourceAsStream,
@@ -735,7 +739,7 @@ public class FluxServiceTest {
         doReturn(JsonHandler.createObjectNode()).when(metadataRepository).saveArchiveUnits(ArgumentMatchers.anyList());
 
         when(metadataService.prepareAttachmentUnits(any(), anyString())).thenReturn(
-            Map.of("unit1", "guid_attachment1", "unit2", "guid_attachment2", "unit3", "guid_attachment3")
+            Map.of("rootUnitUp", "static_attachment_guid", "unit1", "guid_attachment1", "unit2", "guid_attachment2")
         );
 
         List<CollectJsonMetadataLine> unitUpdates = new ArrayList<>();
@@ -786,7 +790,7 @@ public class FluxServiceTest {
         doReturn(JsonHandler.createObjectNode()).when(metadataRepository).saveArchiveUnits(ArgumentMatchers.anyList());
 
         when(metadataService.prepareAttachmentUnits(any(), anyString())).thenReturn(
-            Map.of("unit1", "guid_attachment1", "unit2", "guid_attachment2", "unit3", "guid_attachment3")
+            Map.of("rootUnitUp", "static_attachment_guid", "unit1", "guid_attachment1", "unit2", "guid_attachment2")
         );
 
         List<CollectJsonMetadataLine> unitUpdates = new ArrayList<>();
@@ -837,7 +841,7 @@ public class FluxServiceTest {
         doReturn(JsonHandler.createObjectNode()).when(metadataRepository).saveArchiveUnits(ArgumentMatchers.anyList());
 
         when(metadataService.prepareAttachmentUnits(any(), anyString())).thenReturn(
-            Map.of("unit1", "guid_attachment1", "unit2", "guid_attachment2", "unit3", "guid_attachment3")
+            Map.of("rootUnitUp", "static_attachment_guid", "unit1", "guid_attachment1", "unit2", "guid_attachment2")
         );
 
         List<CollectJsonMetadataLine> unitUpdates = new ArrayList<>();
@@ -888,7 +892,7 @@ public class FluxServiceTest {
         doReturn(JsonHandler.createObjectNode()).when(metadataRepository).saveArchiveUnits(ArgumentMatchers.anyList());
 
         when(metadataService.prepareAttachmentUnits(any(), anyString())).thenReturn(
-            Map.of("unit1", "guid_attachment1", "unit2", "guid_attachment2", "unit3", "guid_attachment3")
+            Map.of("rootUnitUp", "static_attachment_guid", "unit1", "guid_attachment1", "unit2", "guid_attachment2")
         );
 
         List<CollectJsonMetadataLine> unitUpdates = new ArrayList<>();
@@ -939,7 +943,7 @@ public class FluxServiceTest {
         doReturn(JsonHandler.createObjectNode()).when(metadataRepository).saveArchiveUnits(ArgumentMatchers.anyList());
 
         when(metadataService.prepareAttachmentUnits(any(), anyString())).thenReturn(
-            Map.of("unit1", "guid_attachment1", "unit2", "guid_attachment2", "unit3", "guid_attachment3")
+            Map.of("rootUnitUp", "static_attachment_guid", "unit1", "guid_attachment1", "unit2", "guid_attachment2")
         );
 
         List<CollectJsonMetadataLine> unitUpdates = new ArrayList<>();
@@ -990,7 +994,7 @@ public class FluxServiceTest {
         doReturn(JsonHandler.createObjectNode()).when(metadataRepository).saveArchiveUnits(ArgumentMatchers.anyList());
 
         when(metadataService.prepareAttachmentUnits(any(), anyString())).thenReturn(
-            Map.of("unit1", "guid_attachment1", "unit2", "guid_attachment2", "unit3", "guid_attachment3")
+            Map.of("rootUnitUp", "static_attachment_guid", "unit1", "guid_attachment1", "unit2", "guid_attachment2")
         );
 
         List<CollectJsonMetadataLine> unitUpdates = new ArrayList<>();
@@ -1297,6 +1301,106 @@ public class FluxServiceTest {
         verify(metadataRepository, never()).saveObjectGroups(anyList());
     }
 
+    @Test
+    @RunWithCustomExecutor
+    public void processStream_with_csv_metadata_static_dynamic_attachement_and_UpdateOperation() throws Exception {
+        // Given
+        ProjectModel project = createProject();
+
+        when(projectRepository.findProjectById(project.getId())).thenReturn(Optional.of(project));
+        doReturn(JsonHandler.createObjectNode()).when(metadataRepository).saveArchiveUnits(ArgumentMatchers.anyList());
+
+        when(metadataService.prepareAttachmentUnits(any(), anyString())).thenReturn(
+            Map.of("rootUnitUp", "static_attachment_guid", "unit1", "guid_attachment1", "unit2", "guid_attachment2")
+        );
+
+        List<CollectJsonMetadataLine> unitUpdates = new ArrayList<>();
+        doAnswer(e -> {
+            try (
+                JsonLineGenericIterator<CollectJsonMetadataLine> metadata = new JsonLineGenericIterator<>(
+                    e.getArgument(1),
+                    CollectJsonMetadataLine.TYPE_REFERENCE
+                )
+            ) {
+                metadata.forEachRemaining(unitUpdates::add);
+            }
+            return null;
+        })
+            .when(metadataService)
+            .updateUnitsWithJsonlMetadataFile(eq("transactionId"), any());
+
+        // When
+        try (
+            final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(
+                "streamZip/simple_zip_with_metadata_csv_and_update_operation.zip"
+            )
+        ) {
+            fluxService.processStream(resourceAsStream, project.getId(), "transactionId", null, null);
+        }
+
+        // Then
+
+        ArgumentCaptor<List<ObjectNode>> savedUnitsArgCaptor = ArgumentCaptor.forClass(List.class);
+        verify(metadataRepository).saveArchiveUnits(savedUnitsArgCaptor.capture());
+
+        checkInsertedUnits(
+            savedUnitsArgCaptor.getValue(),
+            "streamZip/expected_inserted_unit_with_csv_and_update_operation.json"
+        );
+
+        checkUpdatedUnits(unitUpdates, "streamZip/expected_updated_unit_with_csv_and_update_operation.json");
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void processStream_with_jsonl_metadata_static_dynamic_attachement_and_UpdateOperation() throws Exception {
+        // Given
+        ProjectModel project = createProject();
+
+        when(projectRepository.findProjectById(project.getId())).thenReturn(Optional.of(project));
+        doReturn(JsonHandler.createObjectNode()).when(metadataRepository).saveArchiveUnits(ArgumentMatchers.anyList());
+
+        when(metadataService.prepareAttachmentUnits(any(), anyString())).thenReturn(
+            Map.of("rootUnitUp", "static_attachment_guid", "unit1", "guid_attachment1", "unit2", "guid_attachment2")
+        );
+
+        List<CollectJsonMetadataLine> unitUpdates = new ArrayList<>();
+        doAnswer(e -> {
+            try (
+                JsonLineGenericIterator<CollectJsonMetadataLine> metadata = new JsonLineGenericIterator<>(
+                    e.getArgument(1),
+                    CollectJsonMetadataLine.TYPE_REFERENCE
+                )
+            ) {
+                metadata.forEachRemaining(unitUpdates::add);
+            }
+            return null;
+        })
+            .when(metadataService)
+            .updateUnitsWithJsonlMetadataFile(eq("transactionId"), any());
+
+        // When
+        try (
+            final InputStream resourceAsStream = PropertiesUtils.getResourceAsStream(
+                "streamZip/simple_zip_with_metadata_jsonl_and_update_operation.zip"
+            )
+        ) {
+            fluxService.processStream(resourceAsStream, project.getId(), "transactionId", null, null);
+        }
+
+        // Then
+
+        ArgumentCaptor<List<ObjectNode>> savedUnitsArgCaptor = ArgumentCaptor.forClass(List.class);
+        verify(metadataRepository).saveArchiveUnits(savedUnitsArgCaptor.capture());
+
+        checkInsertedUnits(
+            savedUnitsArgCaptor.getValue(),
+            "streamZip/expected_inserted_unit_with_jsonl_and_update_operation.json"
+        );
+
+        checkUpdatedUnits(unitUpdates, "streamZip/expected_updated_unit_with_jsonl_and_update_operation.json");
+    }
+
     private void assertMetadataEquals(
         JsonNode expectedUnits,
         JsonNode expectedObjectGroups,
@@ -1429,6 +1533,20 @@ public class FluxServiceTest {
     }
 
     private static ProjectModel createTestProjectWithJsltTransformation() {
+        ProjectModel project = createProject();
+        project.setTransformationRules(
+            """
+            {
+              "Title": .Title + " - TRANSFORMED",
+              "Key": "2",
+              *: .
+            }
+            """
+        );
+        return project;
+    }
+
+    private static ProjectModel createProject() {
         return new ProjectModel(
             GUIDFactory.newGUID().getId(),
             "projectName",
@@ -1451,13 +1569,7 @@ public class FluxServiceTest {
             List.of(new MetadataUnitUp("unit1", "Key", "1"), new MetadataUnitUp("unit2", "Key", "2")),
             TENANT_ID,
             false,
-            """
-            {
-              "Title": .Title + " - TRANSFORMED",
-              "Key": "2",
-              *: .
-            }
-            """
+            null
         );
     }
 

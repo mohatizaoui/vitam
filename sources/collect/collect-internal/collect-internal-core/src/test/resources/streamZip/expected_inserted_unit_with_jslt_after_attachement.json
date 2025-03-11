@@ -39,6 +39,9 @@
     "#unitType": "INGEST",
     "#opi": "transactionId",
     "#batchId": "aeeaaaaaaceaaaabhnuekamuvhypaviaaaaq",
-    "#uploadPath": "my_file3.txt"
+    "#uploadPath": "my_file3.txt",
+    "#unitups": [
+      "static_attachment_guid"
+    ]
   }
 ]

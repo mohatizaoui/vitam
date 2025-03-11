@@ -43,6 +43,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -57,11 +58,16 @@ import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.API_FIELD
 import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.API_FIELD_TITLE_;
 import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.ATTR_HEADER_NAME_SUFFIX;
 import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.CONTENT_DESCRIPTION;
+import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.CONTENT_DESCRIPTION_LEVEL;
 import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.CONTENT_SIGNATURE_REFERENCED_OBJECT_SIGNED_OBJECT_DIGEST;
 import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.CONTENT_SIGNATURE_REFERENCED_OBJECT_SIGNED_OBJECT_DIGEST_ATTR;
 import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.CONTENT_SIGNATURE_REFERENCED_OBJECT_SIGNED_OBJECT_DIGEST_ATTR_PATTERN;
 import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.CONTENT_TITLE;
 import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.LANG_ATTR_VALUE_PATTERN;
+import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.MANAGEMENT_UPDATE_OPERATION;
+import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.MANAGEMENT_UPDATE_OPERATION_ARCHIVE_UNIT_IDENTIFIER_KEY_METADATA_NAME;
+import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.MANAGEMENT_UPDATE_OPERATION_ARCHIVE_UNIT_IDENTIFIER_KEY_METADATA_VALUE;
+import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.MANAGEMENT_UPDATE_OPERATION_SYSTEM_ID;
 import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.RULES_PREFIX;
 import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.RULES_SEPARATOR_PREFIX;
 import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.SEPARATOR;
@@ -69,22 +75,29 @@ import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.SIGNED_OB
 import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.buildPath;
 import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.equalsOrStartsWith;
 import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.isContentDescriptionField;
+import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.isContentField;
 import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.isContentTitleField;
+import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.isManagementField;
+import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.isManagementUpdateOperationField;
 import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.matchesPattern;
 import static fr.gouv.vitam.collect.internal.core.csv.FieldNameValidationUtils.MAX_FIELD_NAME_LENGTH;
 import static fr.gouv.vitam.collect.internal.core.csv.FieldNameValidationUtils.validateRegularVitamFieldName;
+import static fr.gouv.vitam.common.GlobalDataRest.X_ATTACHEMENT_ID;
 
 public class CsvToJsonConverter {
 
     private final List<String> headerNames;
     private final Map<String, String> normalizedHeaderMap;
 
-    public CsvToJsonConverter(SedaSchemaInfoResolver sedaSchemaInfoResolver, List<String> headerNames)
-        throws CollectInvalidCsvFormatException {
+    public CsvToJsonConverter(
+        SedaSchemaInfoResolver sedaSchemaInfoResolver,
+        List<String> headerNames,
+        boolean isFirstUpload
+    ) throws CollectInvalidCsvFormatException {
         this.headerNames = headerNames;
 
         CsvMetadataValidator csvMetadataValidator = new CsvMetadataValidator();
-        csvMetadataValidator.validateHeaderNames(sedaSchemaInfoResolver, headerNames);
+        csvMetadataValidator.validateHeaderNames(sedaSchemaInfoResolver, headerNames, isFirstUpload);
 
         Map<String, String> normalizedContentHeaderMap = initializeContentHeaders(headerNames, sedaSchemaInfoResolver);
         Map<String, String> normalizedManagementHeaderMap = initializeManagementHeaders(
@@ -103,11 +116,7 @@ public class CsvToJsonConverter {
             // Only retain "Content.*" fields
             .filter(CsvMetadataUtils::isContentField)
             // Exclude multi-lang field (Content.Title[.*] & Content.Description[.*])
-            .filter(
-                headerName ->
-                    !CsvMetadataUtils.isContentTitleField(headerName) &&
-                    !CsvMetadataUtils.isContentDescriptionField(headerName)
-            )
+            .filter(headerName -> !isContentTitleField(headerName) && !isContentDescriptionField(headerName))
             .collect(
                 Collectors.toMap(
                     headerName -> headerName,
@@ -209,20 +218,27 @@ public class CsvToJsonConverter {
         return ImmutableMap.<String, String>builder().putAll(map1).putAll(map2).build();
     }
 
-    public ObjectNode convertCsvRecordToJson(CSVRecord record) throws CollectInvalidCsvFormatException {
+    public ObjectNode convertCsvRecordToJson(
+        CSVRecord record,
+        boolean isTopLevelFolder,
+        boolean explicitAttachementMode
+    ) throws CollectInvalidCsvFormatException {
+        // Check update operation fields
+        validateUpdateOperationFields(record, isTopLevelFolder, explicitAttachementMode);
+
+        // Process
         SortedMap<String, String> flatFieldValueMap = new TreeMap<>();
-        List<String> mainContentHeaderNames = headerNames
+        List<String> mainHeaderNames = headerNames
             .stream()
             // Skip "File" & "ObjectFiles" header
-            .filter(headerName -> !CsvMetadataUtils.isFileField(headerName))
-            .filter(headerName -> !CsvMetadataUtils.IsObjectFilesField(headerName))
+            .filter(headerName -> isManagementField(headerName) || isContentField(headerName))
             // Skip special multi-lang headers (Content.Title[.*] & Content.Description[.*])
             .filter(headerName -> !isContentTitleField(headerName) && !isContentDescriptionField(headerName))
             // Skip missing values
             .filter(headerName -> StringUtils.isNotEmpty(record.get(headerName)))
             .toList();
 
-        for (String headerName : mainContentHeaderNames) {
+        for (String headerName : mainHeaderNames) {
             String flatFieldName = this.normalizedHeaderMap.get(headerName);
             String fieldValue = record.get(headerName);
 
@@ -251,6 +267,106 @@ public class CsvToJsonConverter {
             throw new IllegalStateException("An error occurred during Csv metadata mapping", e);
         }
         return unitContent;
+    }
+
+    public void validateUpdateOperationFields(
+        CSVRecord record,
+        boolean isTopLevelFolder,
+        boolean explicitAttachementMode
+    ) throws CollectInvalidCsvFormatException {
+        List<String> updateOperationHeaders = headerNames
+            .stream()
+            .filter(CsvMetadataUtils::isManagementUpdateOperationField)
+            // Skip missing values
+            .filter(headerName -> StringUtils.isNotEmpty(record.get(headerName)))
+            .toList();
+
+        if (updateOperationHeaders.isEmpty()) {
+            return;
+        }
+
+        if (explicitAttachementMode) {
+            throw new CollectInvalidCsvFormatException(
+                "Cannot set '" +
+                MANAGEMENT_UPDATE_OPERATION +
+                ".*' CSV headers when explicit HTTP header '" +
+                X_ATTACHEMENT_ID +
+                "' is set"
+            );
+        }
+
+        if (!isTopLevelFolder) {
+            throw new CollectInvalidCsvFormatException(
+                "Only top-level (root) units can have '" + MANAGEMENT_UPDATE_OPERATION + ".*' headers."
+            );
+        }
+
+        validateUpdateOperationFields(updateOperationHeaders);
+
+        checkIncompatibleFieldsWithUpdateOperationFields(record);
+    }
+
+    private void validateUpdateOperationFields(List<String> updateOperationHeaders)
+        throws CollectInvalidCsvFormatException {
+        boolean hasSystemId = updateOperationHeaders.contains(MANAGEMENT_UPDATE_OPERATION_SYSTEM_ID);
+        boolean hasMetadataName = updateOperationHeaders.contains(
+            MANAGEMENT_UPDATE_OPERATION_ARCHIVE_UNIT_IDENTIFIER_KEY_METADATA_NAME
+        );
+        boolean hasMetadataValue = updateOperationHeaders.contains(
+            MANAGEMENT_UPDATE_OPERATION_ARCHIVE_UNIT_IDENTIFIER_KEY_METADATA_VALUE
+        );
+
+        if (hasSystemId && hasMetadataName) {
+            throw new CollectInvalidCsvFormatException(
+                "Both '%s' and '%s' headers are set".formatted(
+                        MANAGEMENT_UPDATE_OPERATION_SYSTEM_ID,
+                        MANAGEMENT_UPDATE_OPERATION_ARCHIVE_UNIT_IDENTIFIER_KEY_METADATA_NAME
+                    )
+            );
+        }
+
+        if (hasSystemId && hasMetadataValue) {
+            throw new CollectInvalidCsvFormatException(
+                "Both '%s' and '%s' headers are set".formatted(
+                        MANAGEMENT_UPDATE_OPERATION_SYSTEM_ID,
+                        MANAGEMENT_UPDATE_OPERATION_ARCHIVE_UNIT_IDENTIFIER_KEY_METADATA_VALUE
+                    )
+            );
+        }
+
+        if ((hasMetadataName && !hasMetadataValue) || (!hasMetadataName && hasMetadataValue)) {
+            throw new CollectInvalidCsvFormatException(
+                "Headers '%s' and '%s' must be set together".formatted(
+                        MANAGEMENT_UPDATE_OPERATION_ARCHIVE_UNIT_IDENTIFIER_KEY_METADATA_NAME,
+                        MANAGEMENT_UPDATE_OPERATION_ARCHIVE_UNIT_IDENTIFIER_KEY_METADATA_VALUE
+                    )
+            );
+        }
+    }
+
+    private void checkIncompatibleFieldsWithUpdateOperationFields(CSVRecord record)
+        throws CollectInvalidCsvFormatException {
+        Optional<String> anyOtherIncompatibleMetadataHeaderName = headerNames
+            .stream()
+            // Only retain content (Content.*) & management (Management.* & ArchiveUnitProfile) headers
+            .filter(headerName -> isManagementField(headerName) || isContentField(headerName))
+            // Skip Management.UpdateOperation.* fields
+            .filter(headerName -> !isManagementUpdateOperationField(headerName))
+            // Skip Content.Title[.*] & Content.DescriptionLevel (exceptionally ignored as they are required in Seda ArchiveUnit declaration)
+            .filter(headerName -> !isContentTitleField(headerName) && !CONTENT_DESCRIPTION_LEVEL.equals(headerName))
+            // Skip missing values
+            .filter(headerName -> StringUtils.isNotEmpty(record.get(headerName)))
+            .findFirst();
+
+        if (anyOtherIncompatibleMetadataHeaderName.isPresent()) {
+            throw new CollectInvalidCsvFormatException(
+                "Cannot set other metadata header '" +
+                anyOtherIncompatibleMetadataHeaderName.get() +
+                "' when a '" +
+                MANAGEMENT_UPDATE_OPERATION +
+                ".*' header is defined."
+            );
+        }
     }
 
     private static String validateAndFixSignatureReferencedObjectSignedObjectDigestAlgorithm(

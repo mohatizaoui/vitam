@@ -1,0 +1,15 @@
+{
+  "#management": {
+    "UpdateOperation": {
+      "ArchiveUnitIdentifierKey": {
+        "MetadataName": "AttachmentKeyName",
+        "MetadataValue": "AttachmentKeyValue"
+      }
+    }
+  },
+  "DescriptionLevel": "MyDescriptionLevel",
+  "Title_": {
+    "fr": "MyTitle",
+    "en": "MyOtherTitle"
+  }
+}

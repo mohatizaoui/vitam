@@ -79,8 +79,11 @@ public class CsvMetadataValidator {
     // Array index must be between 0 and 9999
     private static final int MAX_ARRAY_INDEX_LENGTH = 4;
 
-    public void validateHeaderNames(SedaSchemaInfoResolver sedaSchemaInfoResolver, List<String> headerNames)
-        throws CollectInvalidCsvFormatException {
+    public void validateHeaderNames(
+        SedaSchemaInfoResolver sedaSchemaInfoResolver,
+        List<String> headerNames,
+        boolean isFirstUpload
+    ) throws CollectInvalidCsvFormatException {
         // Blocker errors
         checkTooManyHeaderNames(headerNames);
         checkDuplicateHeaderNames(headerNames);
@@ -92,7 +95,7 @@ public class CsvMetadataValidator {
 
             validateContentHeaderNames(sedaSchemaInfoResolver, csvHeaderValidationManager);
 
-            validateManagementHeaderNames(sedaSchemaInfoResolver, csvHeaderValidationManager);
+            validateManagementHeaderNames(sedaSchemaInfoResolver, csvHeaderValidationManager, isFirstUpload);
         }
     }
 
@@ -571,11 +574,14 @@ public class CsvMetadataValidator {
 
     private void validateManagementHeaderNames(
         SedaSchemaInfoResolver sedaSchemaInfoResolver,
-        CsvHeaderValidationManager csvHeaderValidationManager
+        CsvHeaderValidationManager csvHeaderValidationManager,
+        boolean isFirstUpload
     ) throws CollectInvalidCsvFormatException {
         validateManagementHeaderNamesAgainstSedaModel(csvHeaderValidationManager, sedaSchemaInfoResolver);
 
         checkManagementHeaderArrayIndexes(csvHeaderValidationManager, sedaSchemaInfoResolver);
+
+        preventUpdateOperationHeadersUsageOnUpdateMode(csvHeaderValidationManager, isFirstUpload);
     }
 
     private static void validateManagementHeaderNamesAgainstSedaModel(
@@ -587,6 +593,25 @@ public class CsvMetadataValidator {
                 csvHeaderValidationManager,
                 sedaSchemaInfoResolver,
                 headerName
+            );
+        }
+    }
+
+    private void preventUpdateOperationHeadersUsageOnUpdateMode(
+        CsvHeaderValidationManager csvHeaderValidationManager,
+        boolean isFirstUpload
+    ) throws CollectInvalidCsvFormatException {
+        if (isFirstUpload) {
+            return;
+        }
+
+        Iterable<String> updateOperationHeaderNames = csvHeaderValidationManager.getRemainingHeaderNamesToValidate(
+            CsvMetadataUtils::isManagementUpdateOperationField
+        );
+        for (String headerName : updateOperationHeaderNames) {
+            csvHeaderValidationManager.report(
+                headerName,
+                "Declaring Management.UpdateOperation.* headers is not supported in update APIs."
             );
         }
     }

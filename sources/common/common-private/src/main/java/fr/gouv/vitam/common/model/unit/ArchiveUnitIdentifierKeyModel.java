@@ -25,21 +25,37 @@
  * accept its terms.
  */
 
-package fr.gouv.vitam.collect.internal.core.csv;
+package fr.gouv.vitam.common.model.unit;
 
-import fr.gouv.vitam.collect.internal.core.exceptions.CollectInvalidCsvFormatException;
-import fr.gouv.vitam.collect.internal.core.helpers.AbstractErrorAccumulator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class CsvErrorAccumulator extends AbstractErrorAccumulator<CollectInvalidCsvFormatException> {
+public class ArchiveUnitIdentifierKeyModel {
 
-    private static final int MAX_ERROR_COUNT = 20;
+    @JsonProperty("MetadataName")
+    private String metadataName;
 
-    public CsvErrorAccumulator() {
-        super(MAX_ERROR_COUNT);
+    @JsonProperty("MetadataValue")
+    private String metadataValue;
+
+    public ArchiveUnitIdentifierKeyModel() {
+        // Empty constructor for deserialization
     }
 
-    @Override
-    protected CollectInvalidCsvFormatException buildException(String errorMessage) {
-        return new CollectInvalidCsvFormatException("CSV validation failed. " + errorMessage);
+    public String getMetadataName() {
+        return metadataName;
+    }
+
+    public ArchiveUnitIdentifierKeyModel setMetadataName(String metadataName) {
+        this.metadataName = metadataName;
+        return this;
+    }
+
+    public String getMetadataValue() {
+        return metadataValue;
+    }
+
+    public ArchiveUnitIdentifierKeyModel setMetadataValue(String metadataValue) {
+        this.metadataValue = metadataValue;
+        return this;
     }
 }

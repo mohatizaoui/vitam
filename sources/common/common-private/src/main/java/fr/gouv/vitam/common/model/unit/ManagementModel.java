@@ -29,7 +29,6 @@ package fr.gouv.vitam.common.model.unit;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import fr.gouv.culture.archivesdefrance.seda.v2.UpdateOperationType;
 import fr.gouv.vitam.common.SedaConstants;
 
 /**
@@ -63,7 +62,7 @@ public class ManagementModel {
     private Boolean needAuthorization;
 
     @JsonProperty("UpdateOperation")
-    private UpdateOperationType updateOperationType;
+    private UpdateOperationModel updateOperation;
 
     /**
      * @param storage
@@ -172,18 +171,12 @@ public class ManagementModel {
         this.needAuthorization = needAuthorization;
     }
 
-    /**
-     * @return updateOperationType
-     */
-    public UpdateOperationType getUpdateOperationType() {
-        return updateOperationType;
+    public UpdateOperationModel getUpdateOperation() {
+        return updateOperation;
     }
 
-    /**
-     * @param updateOperationType
-     */
-    public void setUpdateOperationType(UpdateOperationType updateOperationType) {
-        this.updateOperationType = updateOperationType;
+    public void setUpdateOperation(UpdateOperationModel updateOperation) {
+        this.updateOperation = updateOperation;
     }
 
     /**
@@ -259,7 +252,7 @@ public class ManagementModel {
             getDissemination() == null &&
             getReuse() == null &&
             getClassification() == null &&
-            getUpdateOperationType() == null
+            getUpdateOperation() == null
         );
     }
 }

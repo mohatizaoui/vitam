@@ -24,7 +24,8 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.collect.internal.core.helpers;
+
+package fr.gouv.vitam.collect.internal.core.jsonl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -34,16 +35,20 @@ import fr.gouv.vitam.collect.common.exception.CollectInternalInvalidRequestExcep
 import fr.gouv.vitam.collect.common.exception.CollectInternalServerSideException;
 import fr.gouv.vitam.collect.internal.core.common.CollectJsonMetadataLine;
 import fr.gouv.vitam.collect.internal.core.common.CollectJsonMetadataSelector;
+import fr.gouv.vitam.collect.internal.core.exceptions.CollectInvalidJsonlFormatException;
 import fr.gouv.vitam.common.collection.CloseableIterator;
+import fr.gouv.vitam.common.collection.IteratorHelper;
 import fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.unit.ArchiveUnitModel;
 import fr.gouv.vitam.common.model.unit.RuleCategoryModel;
 import fr.gouv.vitam.common.model.unit.RuleModel;
+import fr.gouv.vitam.common.model.unit.UpdateOperationModel;
 import fr.gouv.vitam.common.security.SanityChecker;
 import fr.gouv.vitam.worker.core.distribution.JsonLineGenericIterator;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -53,8 +58,22 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
+import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.API_FIELD_TITLE;
+import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.API_FIELD_TITLE_;
+import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.DESCRIPTION_LEVEL_API_FIELD;
+import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.MANAGEMENT_FIELD;
+import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.MANAGEMENT_UPDATE_OPERATION;
+import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.MANAGEMENT_UPDATE_OPERATION_API_PATH;
+import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.MANAGEMENT_UPDATE_OPERATION_ARCHIVE_UNIT_IDENTIFIER_KEY_METADATA_NAME_API_PATH;
+import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.MANAGEMENT_UPDATE_OPERATION_ARCHIVE_UNIT_IDENTIFIER_KEY_METADATA_VALUE_API_PATH;
+import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.MANAGEMENT_UPDATE_OPERATION_SYSTEM_ID_API_PATH;
+import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.SEPARATOR;
+import static fr.gouv.vitam.collect.internal.core.csv.CsvMetadataUtils.UPDATE_OPERATION_API_FIELD;
+import static fr.gouv.vitam.collect.internal.core.jsonl.JsonlHelper.getInitialUploadPath;
+import static fr.gouv.vitam.common.GlobalDataRest.X_ATTACHEMENT_ID;
 import static fr.gouv.vitam.common.model.unit.RuleModel.END_DATE;
 
 public class JsonlMetadataFileValidator {
@@ -66,10 +85,12 @@ public class JsonlMetadataFileValidator {
 
     private static final TypeReference<ArchiveUnitModel> ARCHIVE_UNIT_MODEL_TYPE_REFERENCE = new TypeReference<>() {};
 
-    public void validate(File jsonlMetadataFile, boolean isFirstUpload) throws CollectInternalException {
+    public void validate(File jsonlMetadataFile, boolean isFirstUpload, boolean explicitAttachementMode)
+        throws CollectInternalException {
         doSanityChecks(jsonlMetadataFile);
 
         try (
+            JsonlErrorAccumulator errorAccumulator = new JsonlErrorAccumulator();
             InputStream inputStream = new FileInputStream(jsonlMetadataFile);
             CloseableIterator<CollectJsonMetadataLine> iterator = new JsonLineGenericIterator<>(
                 inputStream,
@@ -78,10 +99,13 @@ public class JsonlMetadataFileValidator {
         ) {
             for (int lineIndex = 0; iterator.hasNext(); lineIndex++) {
                 CollectJsonMetadataLine entry = iterator.next();
-
-                // Validate line
-                validateMetadataIdentificationInformation(entry, lineIndex, isFirstUpload);
-                validateUnitContent(entry.getUnitContent(), lineIndex);
+                try {
+                    // Validate line
+                    validateMetadataIdentificationInformation(entry, lineIndex, isFirstUpload);
+                    validateUnitContent(entry, lineIndex, isFirstUpload, explicitAttachementMode);
+                } catch (CollectInternalInvalidRequestException e) {
+                    errorAccumulator.report(e.getMessage());
+                }
             }
         } catch (IOException e) {
             throw new CollectInternalServerSideException(
@@ -254,11 +278,21 @@ public class JsonlMetadataFileValidator {
                 break;
             case ARRAY:
                 throw new CollectInternalInvalidRequestException(
-                    "Invalid selector value for '" + key + "'." + ". Arrays are not supported"
+                    "Invalid unit metadata at index: " +
+                    lineIndex +
+                    ". Invalid selector value for '" +
+                    key +
+                    "'." +
+                    ". Arrays are not supported"
                 );
             case NULL:
                 throw new CollectInternalInvalidRequestException(
-                    "Invalid selector value for '" + key + "'." + ". Null value"
+                    "Invalid unit metadata at index: " +
+                    lineIndex +
+                    ". Invalid selector value for '" +
+                    key +
+                    "'." +
+                    ". Null value"
                 );
             case BINARY:
             case MISSING:
@@ -269,11 +303,15 @@ public class JsonlMetadataFileValidator {
         }
     }
 
-    private void validateUnitContent(ObjectNode unitContent, int lineIndex)
-        throws CollectInternalInvalidRequestException {
-        checkNonEmptyUnit(unitContent, lineIndex);
-        validateReservedUnitFieldNames(unitContent, lineIndex);
-        validateUnitFormat(unitContent, lineIndex);
+    private void validateUnitContent(
+        CollectJsonMetadataLine entry,
+        int lineIndex,
+        boolean isFirstUpload,
+        boolean explicitAttachementMode
+    ) throws CollectInternalInvalidRequestException {
+        checkNonEmptyUnit(entry.getUnitContent(), lineIndex);
+        validateReservedUnitFieldNames(entry.getUnitContent(), lineIndex);
+        validateUnitFormat(entry, lineIndex, isFirstUpload, explicitAttachementMode);
     }
 
     private void checkNonEmptyUnit(ObjectNode unitContent, int lineIndex)
@@ -312,12 +350,19 @@ public class JsonlMetadataFileValidator {
         }
     }
 
-    private static void validateUnitFormat(ObjectNode unitContent, int lineIndex)
-        throws CollectInternalInvalidRequestException {
+    private static void validateUnitFormat(
+        CollectJsonMetadataLine entry,
+        int lineIndex,
+        boolean isFirstUpload,
+        boolean explicitAttachementMode
+    ) throws CollectInternalInvalidRequestException {
         ArchiveUnitModel archiveUnitModel;
         try {
             // Use strict deserializer to validate unit content structure & format
-            archiveUnitModel = JsonHandler.getFromStrictJsonNode(unitContent, ARCHIVE_UNIT_MODEL_TYPE_REFERENCE);
+            archiveUnitModel = JsonHandler.getFromStrictJsonNode(
+                entry.getUnitContent(),
+                ARCHIVE_UNIT_MODEL_TYPE_REFERENCE
+            );
         } catch (InvalidParseOperationException e) {
             throw new CollectInternalInvalidRequestException(
                 "Invalid unit metadata at index: " +
@@ -329,6 +374,8 @@ public class JsonlMetadataFileValidator {
         }
 
         validateUnitRulesEndDates(archiveUnitModel, lineIndex);
+
+        validateUpdateOperation(entry, archiveUnitModel, lineIndex, isFirstUpload, explicitAttachementMode);
     }
 
     private static void validateUnitRulesEndDates(ArchiveUnitModel archiveUnitModel, int lineIndex)
@@ -360,6 +407,159 @@ public class JsonlMetadataFileValidator {
                     END_DATE +
                     "' field."
                 );
+            }
+        }
+    }
+
+    private static void validateUpdateOperation(
+        CollectJsonMetadataLine entry,
+        ArchiveUnitModel archiveUnitModel,
+        int lineIndex,
+        boolean isFirstUpload,
+        boolean explicitAttachementMode
+    ) throws CollectInternalInvalidRequestException {
+        if (archiveUnitModel.getManagement() == null || archiveUnitModel.getManagement().getUpdateOperation() == null) {
+            return;
+        }
+
+        if (explicitAttachementMode) {
+            throw new CollectInternalInvalidRequestException(
+                "Cannot set '" +
+                MANAGEMENT_UPDATE_OPERATION_API_PATH +
+                ".*' fields when explicit HTTP header '" +
+                X_ATTACHEMENT_ID +
+                "' is set"
+            );
+        }
+
+        if (!isFirstUpload) {
+            throw new CollectInternalInvalidRequestException(
+                String.format(
+                    "Invalid unit metadata at index: %d: '%s.*' fields not supported in update APIs.",
+                    lineIndex,
+                    MANAGEMENT_UPDATE_OPERATION
+                )
+            );
+        }
+
+        restrictUploadOperationToTopLevelUnits(entry, lineIndex);
+
+        UpdateOperationModel updateOperation = archiveUnitModel.getManagement().getUpdateOperation();
+
+        validateUpdateOperationFields(updateOperation, lineIndex);
+
+        checkIncompatibleFieldsWithUpdateOperationFields(entry.getUnitContent(), lineIndex);
+    }
+
+    private static void restrictUploadOperationToTopLevelUnits(CollectJsonMetadataLine entry, int lineIndex)
+        throws CollectInvalidJsonlFormatException {
+        String uploadPath = getInitialUploadPath(entry);
+        boolean isTopLevelFolder = !uploadPath.contains(File.separator);
+        if (!isTopLevelFolder) {
+            throw new CollectInvalidJsonlFormatException(
+                "Invalid unit metadata at index: " +
+                lineIndex +
+                ". Only top-level (root) units can have '" +
+                MANAGEMENT_UPDATE_OPERATION_API_PATH +
+                ".*' fields."
+            );
+        }
+    }
+
+    private static void validateUpdateOperationFields(UpdateOperationModel updateOperation, int lineIndex)
+        throws CollectInvalidJsonlFormatException {
+        String systemId = updateOperation.getSystemId();
+
+        String metadataName = updateOperation.getArchiveUnitIdentifierKey() != null
+            ? updateOperation.getArchiveUnitIdentifierKey().getMetadataName()
+            : null;
+        String metadataValue = updateOperation.getArchiveUnitIdentifierKey() != null
+            ? updateOperation.getArchiveUnitIdentifierKey().getMetadataValue()
+            : null;
+
+        if (systemId == null && metadataName == null && metadataValue == null) {
+            throw new CollectInvalidJsonlFormatException(
+                "Invalid unit metadata at index: " +
+                lineIndex +
+                ". Missing or empty '" +
+                MANAGEMENT_UPDATE_OPERATION_API_PATH +
+                "' field."
+            );
+        }
+
+        if (metadataName != null && metadataValue == null) {
+            throw new CollectInvalidJsonlFormatException(
+                "Invalid unit metadata at index: " +
+                lineIndex +
+                ". Missing or empty '" +
+                MANAGEMENT_UPDATE_OPERATION_ARCHIVE_UNIT_IDENTIFIER_KEY_METADATA_VALUE_API_PATH +
+                "' field."
+            );
+        }
+
+        if (metadataName == null && metadataValue != null) {
+            throw new CollectInvalidJsonlFormatException(
+                "Invalid unit metadata at index: " +
+                lineIndex +
+                ". Missing or empty '" +
+                MANAGEMENT_UPDATE_OPERATION_ARCHIVE_UNIT_IDENTIFIER_KEY_METADATA_NAME_API_PATH +
+                "' field."
+            );
+        }
+
+        if (systemId != null && metadataName != null) {
+            throw new CollectInvalidJsonlFormatException(
+                "Invalid unit metadata at index: " +
+                lineIndex +
+                ". Both '" +
+                MANAGEMENT_UPDATE_OPERATION_SYSTEM_ID_API_PATH +
+                "' and '" +
+                MANAGEMENT_UPDATE_OPERATION_ARCHIVE_UNIT_IDENTIFIER_KEY_METADATA_NAME_API_PATH +
+                "' headers are set."
+            );
+        }
+    }
+
+    private static void checkIncompatibleFieldsWithUpdateOperationFields(ObjectNode unitContent, int lineIndex)
+        throws CollectInvalidJsonlFormatException {
+        for (String fieldName : IteratorUtils.asIterable(unitContent.fieldNames())) {
+            switch (fieldName) {
+                case API_FIELD_TITLE:
+                case API_FIELD_TITLE_:
+                case DESCRIPTION_LEVEL_API_FIELD:
+                    // Skip Content.Title[.*] & Content.DescriptionLevel (exceptionally accepted as they are required in Seda ArchiveUnit declaration)
+                    break;
+                case MANAGEMENT_FIELD:
+                    // When #management.UpdateOperation is set, no other #management.* field is allowed
+                    ObjectNode managementNode = (ObjectNode) unitContent.get(MANAGEMENT_FIELD);
+                    Optional<String> anyOtherManagementField = IteratorHelper.toStream(managementNode.fieldNames())
+                        .filter(mgtFieldName -> !mgtFieldName.equals(UPDATE_OPERATION_API_FIELD))
+                        .findFirst();
+
+                    if (anyOtherManagementField.isPresent()) {
+                        throw new CollectInvalidJsonlFormatException(
+                            "Invalid unit metadata at index: " +
+                            lineIndex +
+                            ". Cannot set other metadata field '" +
+                            MANAGEMENT_FIELD +
+                            SEPARATOR +
+                            anyOtherManagementField.get() +
+                            "' when '" +
+                            MANAGEMENT_UPDATE_OPERATION_API_PATH +
+                            "' header is defined."
+                        );
+                    }
+                    break;
+                default:
+                    throw new CollectInvalidJsonlFormatException(
+                        "Invalid unit metadata at index: " +
+                        lineIndex +
+                        ". Cannot set other metadata field '" +
+                        fieldName +
+                        "' when '" +
+                        MANAGEMENT_UPDATE_OPERATION_API_PATH +
+                        "' header is defined."
+                    );
             }
         }
     }

@@ -25,21 +25,35 @@
  * accept its terms.
  */
 
-package fr.gouv.vitam.collect.internal.core.csv;
+package fr.gouv.vitam.common.model.unit;
 
-import fr.gouv.vitam.collect.internal.core.exceptions.CollectInvalidCsvFormatException;
-import fr.gouv.vitam.collect.internal.core.helpers.AbstractErrorAccumulator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class CsvErrorAccumulator extends AbstractErrorAccumulator<CollectInvalidCsvFormatException> {
+public class UpdateOperationModel {
 
-    private static final int MAX_ERROR_COUNT = 20;
+    @JsonProperty("SystemId")
+    private String systemId;
 
-    public CsvErrorAccumulator() {
-        super(MAX_ERROR_COUNT);
+    @JsonProperty("ArchiveUnitIdentifierKey")
+    private ArchiveUnitIdentifierKeyModel archiveUnitIdentifierKey;
+
+    public UpdateOperationModel() {}
+
+    public String getSystemId() {
+        return systemId;
     }
 
-    @Override
-    protected CollectInvalidCsvFormatException buildException(String errorMessage) {
-        return new CollectInvalidCsvFormatException("CSV validation failed. " + errorMessage);
+    public UpdateOperationModel setSystemId(String systemId) {
+        this.systemId = systemId;
+        return this;
+    }
+
+    public ArchiveUnitIdentifierKeyModel getArchiveUnitIdentifierKey() {
+        return archiveUnitIdentifierKey;
+    }
+
+    public UpdateOperationModel setArchiveUnitIdentifierKey(ArchiveUnitIdentifierKeyModel archiveUnitIdentifierKey) {
+        this.archiveUnitIdentifierKey = archiveUnitIdentifierKey;
+        return this;
     }
 }

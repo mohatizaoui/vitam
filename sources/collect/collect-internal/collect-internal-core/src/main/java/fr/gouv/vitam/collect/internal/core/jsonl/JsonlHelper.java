@@ -25,21 +25,28 @@
  * accept its terms.
  */
 
-package fr.gouv.vitam.collect.internal.core.csv;
+package fr.gouv.vitam.collect.internal.core.jsonl;
 
-import fr.gouv.vitam.collect.internal.core.exceptions.CollectInvalidCsvFormatException;
-import fr.gouv.vitam.collect.internal.core.helpers.AbstractErrorAccumulator;
+import fr.gouv.vitam.collect.internal.core.common.CollectJsonMetadataLine;
+import fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper;
+import fr.gouv.vitam.common.json.JsonHandler;
 
-public class CsvErrorAccumulator extends AbstractErrorAccumulator<CollectInvalidCsvFormatException> {
+public final class JsonlHelper {
 
-    private static final int MAX_ERROR_COUNT = 20;
+    private JsonlHelper() {}
 
-    public CsvErrorAccumulator() {
-        super(MAX_ERROR_COUNT);
-    }
-
-    @Override
-    protected CollectInvalidCsvFormatException buildException(String errorMessage) {
-        return new CollectInvalidCsvFormatException("CSV validation failed. " + errorMessage);
+    public static String getInitialUploadPath(CollectJsonMetadataLine entry) {
+        if (entry.getFile() != null) {
+            return entry.getFile();
+        } else if (
+            // In insert mode, only a single "#uploadPath" selector is supported
+            entry.getSelector() != null &&
+            entry.getSelector().getEntries().size() == 1 &&
+            VitamFieldsHelper.uploadPath().equals(entry.getSelector().getEntries().keySet().iterator().next())
+        ) {
+            return entry.getSelector().getEntries().get(VitamFieldsHelper.uploadPath()).asText();
+        } else {
+            throw new IllegalStateException("Invalid selector for " + JsonHandler.unprettyPrint(entry));
+        }
     }
 }

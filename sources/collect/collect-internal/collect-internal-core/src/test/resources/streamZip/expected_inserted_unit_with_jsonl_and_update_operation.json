@@ -1,0 +1,102 @@
+[
+  {
+    "DescriptionLevel": "Item",
+    "Title": "my_file1.txt",
+    "#id": "aeaqaaaaaaeaaaabblen6amvqjiys2iaaaaq",
+    "#object": "aebaaaaaaaeaaaabblen6amvqjiys4aaaaaq",
+    "#management": {},
+    "#unitType": "INGEST",
+    "#opi": "transactionId",
+    "#originating_agency": "originatingAgencyIdentifier",
+    "#batchId": "aeeaaaaaaceaaaabblen6amvqjiyr5aaaaaq",
+    "#uploadPath": "my_file1.txt",
+    "#unitups": [
+      "guid_attachment1"
+    ]
+  },
+  {
+    "DescriptionLevel": "Item",
+    "Title": "my_file2.txt",
+    "#id": "aeaqaaaaaaeaaaabblen6amvqjiyteiaaaaq",
+    "#object": "aebaaaaaaaeaaaabblen6amvqjiyteiaaabq",
+    "#management": {},
+    "#unitType": "INGEST",
+    "#opi": "transactionId",
+    "#originating_agency": "originatingAgencyIdentifier",
+    "#batchId": "aeeaaaaaaceaaaabblen6amvqjiyr5aaaaaq",
+    "#uploadPath": "my_file2.txt",
+    "#unitups": [
+      "guid_attachment1",
+      "guid_attachment2"
+    ]
+  },
+  {
+    "DescriptionLevel": "Item",
+    "Title": "my_file3.txt",
+    "#id": "aeaqaaaaaaeaaaabblen6amvqjiyteqaaaaq",
+    "#object": "aebaaaaaaaeaaaabblen6amvqjiyteyaaaaq",
+    "#management": {},
+    "#unitType": "INGEST",
+    "#opi": "transactionId",
+    "#originating_agency": "originatingAgencyIdentifier",
+    "#batchId": "aeeaaaaaaceaaaabblen6amvqjiyr5aaaaaq",
+    "#uploadPath": "my_file3.txt",
+    "#unitups": [
+      "guid_attachment2"
+    ]
+  },
+  {
+    "DescriptionLevel": "Item",
+    "Title": "my_file4.txt",
+    "#id": "aeaqaaaaaaeaaaabblen6amvqjiyteyaaaba",
+    "#object": "aebaaaaaaaeaaaabblen6amvqjiytfaaaaaq",
+    "#management": {},
+    "#unitType": "INGEST",
+    "#opi": "transactionId",
+    "#originating_agency": "originatingAgencyIdentifier",
+    "#batchId": "aeeaaaaaaceaaaabblen6amvqjiyr5aaaaaq",
+    "#uploadPath": "my_file4.txt"
+  },
+  {
+    "DescriptionLevel": "Item",
+    "Title": "my_file5.txt",
+    "#id": "aeaqaaaaaaeaaaabblen6amvqjiytfaaaaba",
+    "#object": "aebaaaaaaaeaaaabblen6amvqjiytfaaaaca",
+    "#management": {},
+    "#unitType": "INGEST",
+    "#opi": "transactionId",
+    "#originating_agency": "originatingAgencyIdentifier",
+    "#batchId": "aeeaaaaaaceaaaabblen6amvqjiyr5aaaaaq",
+    "#uploadPath": "my_file5.txt"
+  },
+  {
+    "DescriptionLevel": "Item",
+    "Title": "my_file6.txt",
+    "#id": "aeaqaaaaaaeaaaabblen6amvqjiytfiaaaaq",
+    "#object": "aebaaaaaaaeaaaabblen6amvqjiytfiaaabq",
+    "#management": {},
+    "#unitType": "INGEST",
+    "#opi": "transactionId",
+    "#originating_agency": "originatingAgencyIdentifier",
+    "#batchId": "aeeaaaaaaceaaaabblen6amvqjiyr5aaaaaq",
+    "#uploadPath": "my_file6.txt",
+    "#unitups": [
+      "static_attachment_guid"
+    ]
+  },
+  {
+    "DescriptionLevel": "Item",
+    "Title": "my_file7.txt",
+    "#id": "aeaqaaaaaaeaaaabblen6amvqjiytfqaaaaq",
+    "#object": "aebaaaaaaaeaaaabblen6amvqjiytfqaaabq",
+    "#management": {},
+    "#unitType": "INGEST",
+    "#opi": "transactionId",
+    "#originating_agency": "originatingAgencyIdentifier",
+    "#batchId": "aeeaaaaaaceaaaabblen6amvqjiyr5aaaaaq",
+    "#uploadPath": "my_file7.txt",
+    "#unitups": [
+      "static_attachment_guid"
+    ]
+  }
+]

@@ -1,0 +1,4 @@
+File;Content.Title;Content.Tag.0;Management.UpdateOperation.SystemId;Management.UpdateOperation.ArchiveUnitIdentifierKey.MetadataName;Management.UpdateOperation.ArchiveUnitIdentifierKey.MetadataValue
+"Folder0";"Title0";"MyTag0";;;
+"Folder1";"Title1";;MyGuid1;;
+"Folder2";"Title2";;;MyField2;MyValue2

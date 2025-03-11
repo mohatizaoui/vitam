@@ -60,14 +60,19 @@ public class CsvHelper {
         SedaSchemaInfoResolver sedaSchemaInfoResolver,
         InputStream is,
         File metadataFile,
-        boolean isFirstUpload
+        boolean isFirstUpload,
+        boolean explicitAttachementMode
     ) throws IOException, CollectInvalidCsvFormatException {
         try (
             CSVParser parser = createParser(is);
             JsonLineWriter writer = new JsonLineWriter(new FileOutputStream(metadataFile, true), true)
         ) {
             final List<String> headerNames = parser.getHeaderNames();
-            CsvToJsonConverter csvToJsonConverter = new CsvToJsonConverter(sedaSchemaInfoResolver, headerNames);
+            CsvToJsonConverter csvToJsonConverter = new CsvToJsonConverter(
+                sedaSchemaInfoResolver,
+                headerNames,
+                isFirstUpload
+            );
 
             try (CsvErrorAccumulator csvErrorAccumulator = new CsvErrorAccumulator()) {
                 for (CSVRecord record : parser) {
@@ -75,6 +80,7 @@ public class CsvHelper {
                         record,
                         headerNames,
                         isFirstUpload,
+                        explicitAttachementMode,
                         csvErrorAccumulator,
                         parser,
                         csvToJsonConverter
@@ -91,6 +97,7 @@ public class CsvHelper {
         CSVRecord record,
         List<String> headerNames,
         boolean isFirstUpload,
+        boolean explicitAttachementMode,
         CsvErrorAccumulator csvErrorAccumulator,
         CSVParser parser,
         CsvToJsonConverter csvToJsonConverter
@@ -145,6 +152,7 @@ public class CsvHelper {
             csvToJsonConverter,
             uploadPath,
             objectFilesPath,
+            explicitAttachementMode,
             csvRecordNumberIncludingHeader
         );
     }
@@ -253,10 +261,16 @@ public class CsvHelper {
         CsvToJsonConverter csvToJsonConverter,
         String uploadPath,
         String objectFilesPath,
+        boolean explicitAttachementMode,
         long csvRecordNumberIncludingHeader
     ) throws CollectInvalidCsvFormatException {
         try {
-            ObjectNode unitJson = csvToJsonConverter.convertCsvRecordToJson(record);
+            boolean isTopLevelFolder = !uploadPath.contains(File.separator);
+            ObjectNode unitJson = csvToJsonConverter.convertCsvRecordToJson(
+                record,
+                isTopLevelFolder,
+                explicitAttachementMode
+            );
             return Optional.of(new CollectJsonMetadataLine(uploadPath, objectFilesPath, null, unitJson));
         } catch (CollectInvalidCsvFormatException e) {
             csvErrorAccumulator.report(

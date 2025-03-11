@@ -25,21 +25,21 @@
  * accept its terms.
  */
 
-package fr.gouv.vitam.collect.internal.core.csv;
+package fr.gouv.vitam.collect.internal.core.jsonl;
 
-import fr.gouv.vitam.collect.internal.core.exceptions.CollectInvalidCsvFormatException;
+import fr.gouv.vitam.collect.internal.core.exceptions.CollectInvalidJsonlFormatException;
 import fr.gouv.vitam.collect.internal.core.helpers.AbstractErrorAccumulator;
 
-public class CsvErrorAccumulator extends AbstractErrorAccumulator<CollectInvalidCsvFormatException> {
+public class JsonlErrorAccumulator extends AbstractErrorAccumulator<CollectInvalidJsonlFormatException> {
 
     private static final int MAX_ERROR_COUNT = 20;
 
-    public CsvErrorAccumulator() {
+    public JsonlErrorAccumulator() {
         super(MAX_ERROR_COUNT);
     }
 
     @Override
-    protected CollectInvalidCsvFormatException buildException(String errorMessage) {
-        return new CollectInvalidCsvFormatException("CSV validation failed. " + errorMessage);
+    protected CollectInvalidJsonlFormatException buildException(String errorMessage) {
+        return new CollectInvalidJsonlFormatException("JSONL validation failed. " + errorMessage);
     }
 }

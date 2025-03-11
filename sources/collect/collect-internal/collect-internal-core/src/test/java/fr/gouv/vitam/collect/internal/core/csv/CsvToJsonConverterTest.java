@@ -170,11 +170,14 @@ public class CsvToJsonConverterTest {
             "Management.StorageRule.RefNonRuleId.1",
             "Management.StorageRule.Rule.0",
             "Management.StorageRule.StartDate.0",
-            "Management.NeedAuthorization"
+            "Management.NeedAuthorization",
+            "Management.UpdateOperation.SystemId",
+            "Management.UpdateOperation.ArchiveUnitIdentifierKey.MetadataName",
+            "Management.UpdateOperation.ArchiveUnitIdentifierKey.MetadataValue"
         );
 
         // When
-        CsvToJsonConverter csvToJsonConverter = new CsvToJsonConverter(sedaSchemaInfoResolver, headerNames);
+        CsvToJsonConverter csvToJsonConverter = new CsvToJsonConverter(sedaSchemaInfoResolver, headerNames, true);
         Map<String, String> normalizedHeaderNames = csvToJsonConverter.getNormalizedHeaderMap();
 
         // Then
@@ -391,6 +394,16 @@ public class CsvToJsonConverterTest {
         assertThat(normalizedHeaderNames.get("Management.NeedAuthorization")).isEqualTo(
             "#management.NeedAuthorization"
         );
+
+        assertThat(normalizedHeaderNames.get("Management.UpdateOperation.SystemId")).isEqualTo(
+            "#management.UpdateOperation.SystemId"
+        );
+        assertThat(
+            normalizedHeaderNames.get("Management.UpdateOperation.ArchiveUnitIdentifierKey.MetadataName")
+        ).isEqualTo("#management.UpdateOperation.ArchiveUnitIdentifierKey.MetadataName");
+        assertThat(
+            normalizedHeaderNames.get("Management.UpdateOperation.ArchiveUnitIdentifierKey.MetadataValue")
+        ).isEqualTo("#management.UpdateOperation.ArchiveUnitIdentifierKey.MetadataValue");
     }
 
     @Test
@@ -401,7 +414,7 @@ public class CsvToJsonConverterTest {
 
         // When
         ThrowingCallable invocation = () ->
-            CsvHelper.convertCsvToJsonlMetadataFile(sedaSchemaInfoResolver, csvInputStream, resultJsonl, true);
+            CsvHelper.convertCsvToJsonlMetadataFile(sedaSchemaInfoResolver, csvInputStream, resultJsonl, true, false);
 
         // Then
         assertThatThrownBy(invocation)
@@ -450,7 +463,7 @@ public class CsvToJsonConverterTest {
 
         // When
         ThrowingCallable invocation = () ->
-            CsvHelper.convertCsvToJsonlMetadataFile(sedaSchemaInfoResolver, csvInputStream, resultJsonl, true);
+            CsvHelper.convertCsvToJsonlMetadataFile(sedaSchemaInfoResolver, csvInputStream, resultJsonl, true, false);
 
         // Then
         assertThatThrownBy(invocation)
@@ -504,7 +517,7 @@ public class CsvToJsonConverterTest {
 
         // When
         ThrowingCallable invocation = () ->
-            CsvHelper.convertCsvToJsonlMetadataFile(sedaSchemaInfoResolver, csvInputStream, resultJsonl, true);
+            CsvHelper.convertCsvToJsonlMetadataFile(sedaSchemaInfoResolver, csvInputStream, resultJsonl, true, false);
 
         // Then
         assertThatCode(invocation).doesNotThrowAnyException();
@@ -516,15 +529,21 @@ public class CsvToJsonConverterTest {
         ) {
             CollectJsonMetadataLine unit0 = metadata.next();
             CollectJsonMetadataLine unit1 = metadata.next();
+            CollectJsonMetadataLine unit2 = metadata.next();
+            CollectJsonMetadataLine unit3 = metadata.next();
             assertThat(metadata.hasNext()).isFalse();
 
             assertThat(unit0.getFile()).isEqualTo("Unit0");
             assertThat(unit0.getObjectFiles()).isNull();
             assertThat(unit1.getFile()).isEqualTo("Unit1");
             assertThat(unit1.getObjectFiles()).isEqualTo("path/of/binary/file.pdf");
+            assertThat(unit2.getFile()).isEqualTo("RootUnit2");
+            assertThat(unit3.getFile()).isEqualTo("RootUnit3");
 
             assertJsonEquals(unit0.getUnitContent(), "csv/metadata_full_seda_expected_unit0.json");
             assertJsonEquals(unit1.getUnitContent(), "csv/metadata_full_seda_expected_unit1.json");
+            assertJsonEquals(unit2.getUnitContent(), "csv/metadata_full_seda_expected_unit2.json");
+            assertJsonEquals(unit3.getUnitContent(), "csv/metadata_full_seda_expected_unit3.json");
         }
     }
 
@@ -538,7 +557,7 @@ public class CsvToJsonConverterTest {
 
         // When
         ThrowingCallable invocation = () ->
-            CsvHelper.convertCsvToJsonlMetadataFile(sedaSchemaInfoResolver, csvInputStream, resultJsonl, true);
+            CsvHelper.convertCsvToJsonlMetadataFile(sedaSchemaInfoResolver, csvInputStream, resultJsonl, true, false);
 
         // Then
         assertThatCode(invocation).doesNotThrowAnyException();
@@ -571,7 +590,7 @@ public class CsvToJsonConverterTest {
 
         // When
         ThrowingCallable invocation = () ->
-            CsvHelper.convertCsvToJsonlMetadataFile(sedaSchemaInfoResolver, csvInputStream, resultJsonl, true);
+            CsvHelper.convertCsvToJsonlMetadataFile(sedaSchemaInfoResolver, csvInputStream, resultJsonl, true, false);
 
         // Then
         assertThatCode(invocation).doesNotThrowAnyException();
@@ -600,7 +619,7 @@ public class CsvToJsonConverterTest {
         File resultJsonl = tempFolder.newFile();
 
         // When
-        CsvHelper.convertCsvToJsonlMetadataFile(sedaSchemaInfoResolver, csvInputStream, resultJsonl, true);
+        CsvHelper.convertCsvToJsonlMetadataFile(sedaSchemaInfoResolver, csvInputStream, resultJsonl, true, false);
 
         // Then
         try (
@@ -629,7 +648,7 @@ public class CsvToJsonConverterTest {
 
         // When
         ThrowingCallable invocation = () ->
-            CsvHelper.convertCsvToJsonlMetadataFile(sedaSchemaInfoResolver, csvInputStream, resultJsonl, false);
+            CsvHelper.convertCsvToJsonlMetadataFile(sedaSchemaInfoResolver, csvInputStream, resultJsonl, false, false);
 
         // Then
 
@@ -656,6 +675,105 @@ public class CsvToJsonConverterTest {
     }
 
     @Test
+    public void testConvertCsvWithUpdateOperationsOKOnInitialUpload() throws Exception {
+        // Given
+        InputStream csvInputStream = PropertiesUtils.getResourceAsStream("csv/metadata_update_operation.csv");
+        File resultJsonl = tempFolder.newFile();
+
+        // When
+        CsvHelper.convertCsvToJsonlMetadataFile(sedaSchemaInfoResolver, csvInputStream, resultJsonl, true, false);
+
+        // Then
+        try (
+            JsonLineGenericIterator<CollectJsonMetadataLine> metadata = new JsonLineGenericIterator<>(
+                new FileInputStream(resultJsonl),
+                CollectJsonMetadataLine.TYPE_REFERENCE
+            )
+        ) {
+            CollectJsonMetadataLine unit0 = metadata.next();
+            CollectJsonMetadataLine unit1 = metadata.next();
+            CollectJsonMetadataLine unit2 = metadata.next();
+            assertThat(metadata.hasNext()).isFalse();
+
+            assertJsonEquals(unit0.getUnitContent(), "csv/metadata_update_operation_expected_unit0.json");
+            assertJsonEquals(unit1.getUnitContent(), "csv/metadata_update_operation_expected_unit1.json");
+            assertJsonEquals(unit2.getUnitContent(), "csv/metadata_update_operation_expected_unit2.json");
+        }
+    }
+
+    @Test
+    public void testConvertCsvWithUpdateOperationsKOOnUpdateAPI() throws Exception {
+        // Given
+        InputStream csvInputStream = PropertiesUtils.getResourceAsStream("csv/metadata_update_operation.csv");
+        File resultJsonl = tempFolder.newFile();
+
+        // When
+        ThrowingCallable invocation = () ->
+            CsvHelper.convertCsvToJsonlMetadataFile(sedaSchemaInfoResolver, csvInputStream, resultJsonl, false, false);
+
+        // Then
+        assertThatThrownBy(invocation)
+            .isInstanceOf(CollectInvalidCsvFormatException.class)
+            .hasMessage(
+                """
+                CSV validation failed. 3 errors:
+                - Invalid header name 'Management.UpdateOperation.SystemId': Declaring Management.UpdateOperation.* headers is not supported in update APIs.
+                - Invalid header name 'Management.UpdateOperation.ArchiveUnitIdentifierKey.MetadataName': Declaring Management.UpdateOperation.* headers is not supported in update APIs.
+                - Invalid header name 'Management.UpdateOperation.ArchiveUnitIdentifierKey.MetadataValue': Declaring Management.UpdateOperation.* headers is not supported in update APIs."""
+            );
+    }
+
+    @Test
+    public void testConvertCsvWithUpdateOperationsKOWhenExplicitAttachementIdSet() throws Exception {
+        // Given
+        InputStream csvInputStream = PropertiesUtils.getResourceAsStream("csv/metadata_update_operation.csv");
+        File resultJsonl = tempFolder.newFile();
+
+        // When
+        ThrowingCallable invocation = () ->
+            CsvHelper.convertCsvToJsonlMetadataFile(sedaSchemaInfoResolver, csvInputStream, resultJsonl, true, true);
+
+        // Then
+        assertThatThrownBy(invocation)
+            .isInstanceOf(CollectInvalidCsvFormatException.class)
+            .hasMessage(
+                """
+                CSV validation failed. 2 errors:
+                - Invalid CSV record at line 3 (File="Folder1"): Cannot set 'Management.UpdateOperation.*' CSV headers when explicit HTTP header 'X-Attachement-Id' is set
+                - Invalid CSV record at line 4 (File="Folder2"): Cannot set 'Management.UpdateOperation.*' CSV headers when explicit HTTP header 'X-Attachement-Id' is set"""
+            );
+    }
+
+    @Test
+    public void testConvertCsvWithUpdateOperationsValidation() throws Exception {
+        // Given
+        InputStream csvInputStream = PropertiesUtils.getResourceAsStream(
+            "csv/metadata_update_operation_validation.csv"
+        );
+        File resultJsonl = tempFolder.newFile();
+
+        // When
+        ThrowingCallable invocation = () ->
+            CsvHelper.convertCsvToJsonlMetadataFile(sedaSchemaInfoResolver, csvInputStream, resultJsonl, true, false);
+
+        // Then
+        assertThatThrownBy(invocation)
+            .isInstanceOf(CollectInvalidCsvFormatException.class)
+            .hasMessage(
+                """
+                CSV validation failed. 8 errors:
+                - Invalid CSV record at line 3 (File="Folder1"): Both 'Management.UpdateOperation.SystemId' and 'Management.UpdateOperation.ArchiveUnitIdentifierKey.MetadataName' headers are set
+                - Invalid CSV record at line 4 (File="Folder2"): Both 'Management.UpdateOperation.SystemId' and 'Management.UpdateOperation.ArchiveUnitIdentifierKey.MetadataValue' headers are set
+                - Invalid CSV record at line 5 (File="Folder3"): Both 'Management.UpdateOperation.SystemId' and 'Management.UpdateOperation.ArchiveUnitIdentifierKey.MetadataName' headers are set
+                - Invalid CSV record at line 7 (File="Folder5"): Headers 'Management.UpdateOperation.ArchiveUnitIdentifierKey.MetadataName' and 'Management.UpdateOperation.ArchiveUnitIdentifierKey.MetadataValue' must be set together
+                - Invalid CSV record at line 8 (File="Folder6"): Headers 'Management.UpdateOperation.ArchiveUnitIdentifierKey.MetadataName' and 'Management.UpdateOperation.ArchiveUnitIdentifierKey.MetadataValue' must be set together
+                - Invalid CSV record at line 9 (File="Folder7"): Cannot set other metadata header 'Content.Tag.0' when a 'Management.UpdateOperation.*' header is defined.
+                - Invalid CSV record at line 10 (File="Folder8"): Cannot set other metadata header 'Content.Tag.0' when a 'Management.UpdateOperation.*' header is defined.
+                - Invalid CSV record at line 11 (File="Folder9/File9"): Only top-level (root) units can have 'Management.UpdateOperation.*' headers."""
+            );
+    }
+
+    @Test
     public void testCsvToJsonConversionSanityChecks() throws Exception {
         // Given
         InputStream csvInputStream = PropertiesUtils.getResourceAsStream("csv/metadata_path_sanity_checks.csv");
@@ -663,7 +781,7 @@ public class CsvToJsonConverterTest {
 
         // When
         ThrowingCallable invocation = () ->
-            CsvHelper.convertCsvToJsonlMetadataFile(sedaSchemaInfoResolver, csvInputStream, resultJsonl, true);
+            CsvHelper.convertCsvToJsonlMetadataFile(sedaSchemaInfoResolver, csvInputStream, resultJsonl, true, false);
 
         // Then
         assertThatThrownBy(invocation)

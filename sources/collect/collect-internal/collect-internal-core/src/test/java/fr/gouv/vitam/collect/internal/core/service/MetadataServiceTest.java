@@ -30,7 +30,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import fr.gouv.culture.archivesdefrance.seda.v2.UpdateOperationType;
 import fr.gouv.vitam.collect.common.dto.BulkAtomicUpdateResult;
 import fr.gouv.vitam.collect.common.dto.BulkAtomicUpdateStatus;
 import fr.gouv.vitam.collect.common.dto.MetadataUnitUp;
@@ -51,6 +50,7 @@ import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.administration.schema.SchemaResponse;
 import fr.gouv.vitam.common.model.unit.ArchiveUnitModel;
 import fr.gouv.vitam.common.model.unit.ManagementModel;
+import fr.gouv.vitam.common.model.unit.UpdateOperationModel;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -81,6 +81,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -367,6 +368,45 @@ public class MetadataServiceTest {
 
     @Test
     @RunWithCustomExecutor
+    public void testUpdateUnitsWithCsvMetadataKoWhenUpdateOperationHeaderSet() throws Exception {
+        VitamThreadUtils.getVitamSession().setRequestId(GUIDFactory.newRequestIdGUID(0).getId());
+
+        try (
+            InputStream is = PropertiesUtils.getResourceAsStream(
+                "update/metadata_update_operation_rejected_in_update_mode.csv"
+            )
+        ) {
+            assertThatThrownBy(() -> metadataService.updateUnitsWithMetadataCsv(transactionModel, is)).hasMessage(
+                """
+                CSV validation failed. 3 errors:
+                - Invalid header name 'Management.UpdateOperation.SystemId': Declaring Management.UpdateOperation.* headers is not supported in update APIs.
+                - Invalid header name 'Management.UpdateOperation.ArchiveUnitIdentifierKey.MetadataName': Declaring Management.UpdateOperation.* headers is not supported in update APIs.
+                - Invalid header name 'Management.UpdateOperation.ArchiveUnitIdentifierKey.MetadataValue': Declaring Management.UpdateOperation.* headers is not supported in update APIs."""
+            );
+        }
+    }
+
+    @Test
+    @RunWithCustomExecutor
+    public void testUpdateUnitsWithJsonlMetadataKoWhenUpdateOperationHeaderSet() throws Exception {
+        VitamThreadUtils.getVitamSession().setRequestId(GUIDFactory.newRequestIdGUID(0).getId());
+
+        try (
+            InputStream is = PropertiesUtils.getResourceAsStream(
+                "update/metadata_update_operation_rejected_in_update_mode.jsonl"
+            )
+        ) {
+            assertThatThrownBy(() -> metadataService.updateUnitsWithJsonlMetadata(transactionModel, is)).hasMessage(
+                """
+                JSONL validation failed. 2 errors:
+                - Invalid unit metadata at index: 0: 'Management.UpdateOperation.*' fields not supported in update APIs.
+                - Invalid unit metadata at index: 1: 'Management.UpdateOperation.*' fields not supported in update APIs."""
+            );
+        }
+    }
+
+    @Test
+    @RunWithCustomExecutor
     public void should_create_unit_when_prepareAttachmentUnits_with_unitups_only() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
         MetadataUnitUp up1 = new MetadataUnitUp();
@@ -423,11 +463,8 @@ public class MetadataServiceTest {
         ArchiveUnitModel unit = new ArchiveUnitModel();
         unit.setId(id);
         ManagementModel managementModel = new ManagementModel();
-        UpdateOperationType updateOperationType = new UpdateOperationType();
-        updateOperationType.setSystemId(systemId);
-        managementModel.setUpdateOperationType(updateOperationType);
+        managementModel.setUpdateOperation(new UpdateOperationModel().setSystemId(systemId));
         unit.setManagement(managementModel);
-
         return JsonHandler.toJsonNode(unit);
     }
 

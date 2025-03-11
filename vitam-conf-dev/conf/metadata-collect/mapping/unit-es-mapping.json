@@ -1,1 +1,1 @@
-../../../../deployment/ansible-vitam/roles/elasticsearch-mapping/files/unit-es-mapping.json
+../../../../deployment/environments/files/elasticsearch-mappings/unit-es-mapping.json

@@ -24,7 +24,7 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.collect.internal.core.helpers;
+package fr.gouv.vitam.collect.internal.core.jsonl;
 
 import fr.gouv.vitam.collect.common.exception.CollectInternalInvalidRequestException;
 import fr.gouv.vitam.common.PropertiesUtils;
@@ -143,6 +143,18 @@ public class JsonlMetadataFileValidatorTest {
     }
 
     @Test
+    public void testParseInvalidJsonlMetadataFile_CumulativeErrorReporting() throws Exception {
+        assertInvalid(
+            "update/metadata_cumulative_error_reporting.jsonl",
+            true,
+            """
+            JSONL validation failed. 2 errors:
+            - Invalid entry at index: 0. Missing metadata identification information.
+            - Invalid entry at index: 2. Illegal unit file path 'toto/../tata'"""
+        );
+    }
+
+    @Test
     public void testParseInvalidJsonlMetadataFile_UnitFormatKo() throws Exception {
         assertInvalid(
             "update/metadata_invalid_unit_format.jsonl",
@@ -236,16 +248,77 @@ public class JsonlMetadataFileValidatorTest {
         assertValid("update/metadata_unit_selector_for_insert_or_update.jsonl", true);
     }
 
+    @Test
+    public void testParseInvalidJsonlMetadataFile_ValidUnitWithUpdateOperationForFirstUploadMode() throws Exception {
+        assertValid("update/metadata_update_operation_ok.jsonl", true);
+    }
+
+    @Test
+    public void testParseInvalidJsonlMetadataFile_InvalidUnitWithUpdateOperationForUpdateMode() throws Exception {
+        assertInvalid(
+            "update/metadata_update_operation_ok.jsonl",
+            false,
+            """
+            JSONL validation failed. 3 errors:
+            - Invalid unit metadata at index: 0: 'Management.UpdateOperation.*' fields not supported in update APIs.
+            - Invalid unit metadata at index: 1: 'Management.UpdateOperation.*' fields not supported in update APIs.
+            - Invalid unit metadata at index: 2: 'Management.UpdateOperation.*' fields not supported in update APIs."""
+        );
+    }
+
+    @Test
+    public void testParseInvalidJsonlMetadataFile_InvalidUnitWithUpdateOperation() throws Exception {
+        assertInvalid(
+            "update/metadata_update_operation_ko.jsonl",
+            true,
+            """
+            JSONL validation failed. 9 errors:
+            - Invalid unit metadata at index: 0. Missing or empty '#management.UpdateOperation.ArchiveUnitIdentifierKey.MetadataValue' field.
+            - Invalid unit metadata at index: 1. Missing or empty '#management.UpdateOperation.ArchiveUnitIdentifierKey.MetadataName' field.
+            - Invalid unit metadata at index: 2. Both '#management.UpdateOperation.SystemId' and '#management.UpdateOperation.ArchiveUnitIdentifierKey.MetadataName' headers are set.
+            - Invalid unit metadata at index: 3. Missing or empty '#management.UpdateOperation.ArchiveUnitIdentifierKey.MetadataValue' field.
+            - Invalid unit metadata at index: 4. Missing or empty '#management.UpdateOperation.ArchiveUnitIdentifierKey.MetadataName' field.
+            - Invalid unit metadata at index: 5. Cannot set other metadata field 'Tag' when '#management.UpdateOperation' header is defined.
+            - Invalid unit metadata at index: 6. Cannot set other metadata field 'Tag' when '#management.UpdateOperation' header is defined.
+            - Invalid unit metadata at index: 7. Only top-level (root) units can have '#management.UpdateOperation.*' fields.
+            - Invalid unit metadata at index: 8. Only top-level (root) units can have '#management.UpdateOperation.*' fields."""
+        );
+    }
+
+    @Test
+    public void testParseInvalidJsonlMetadataFile_InvalidUnitWithUpdateOperationWhenXAttachementIdHeaderIsSet()
+        throws Exception {
+        assertInvalid(
+            "update/metadata_update_operation_ok.jsonl",
+            true,
+            true,
+            """
+            JSONL validation failed. 3 errors:
+            - Cannot set '#management.UpdateOperation.*' fields when explicit HTTP header 'X-Attachement-Id' is set
+            - Cannot set '#management.UpdateOperation.*' fields when explicit HTTP header 'X-Attachement-Id' is set
+            - Cannot set '#management.UpdateOperation.*' fields when explicit HTTP header 'X-Attachement-Id' is set"""
+        );
+    }
+
     private static void assertValid(String resourcesFile, boolean isFirstUpload) throws Exception {
         JsonlMetadataFileValidator validator = new JsonlMetadataFileValidator();
         File jsonlMetadataFile = PropertiesUtils.getResourceFile(resourcesFile);
-        assertThatCode(() -> validator.validate(jsonlMetadataFile, isFirstUpload)).doesNotThrowAnyException();
+        assertThatCode(() -> validator.validate(jsonlMetadataFile, isFirstUpload, false)).doesNotThrowAnyException();
     }
 
     private void assertInvalid(String resourcesFile, boolean isFirstUpload, String expectedMessage) throws Exception {
+        assertInvalid(resourcesFile, isFirstUpload, false, expectedMessage);
+    }
+
+    private void assertInvalid(
+        String resourcesFile,
+        boolean isFirstUpload,
+        boolean explicitAttachementMode,
+        String expectedMessage
+    ) throws Exception {
         JsonlMetadataFileValidator validator = new JsonlMetadataFileValidator();
         File jsonlMetadataFile = PropertiesUtils.getResourceFile(resourcesFile);
-        assertThatThrownBy(() -> validator.validate(jsonlMetadataFile, isFirstUpload))
+        assertThatThrownBy(() -> validator.validate(jsonlMetadataFile, isFirstUpload, explicitAttachementMode))
             .isInstanceOf(CollectInternalInvalidRequestException.class)
             .hasMessageContaining(expectedMessage);
     }

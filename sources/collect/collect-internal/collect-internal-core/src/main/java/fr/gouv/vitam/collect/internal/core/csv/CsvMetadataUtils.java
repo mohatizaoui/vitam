@@ -54,6 +54,9 @@ public class CsvMetadataUtils {
         "^Content\\.Description(\\.(0|[1-9][0-9]*))?(\\.attr)?$"
     );
 
+    public static final String CONTENT_DESCRIPTION_LEVEL = "Content.DescriptionLevel";
+    public static final String DESCRIPTION_LEVEL_API_FIELD = "DescriptionLevel";
+
     public static final Set<String> SEDA_EXTENSION_POINTS = Set.of(
         "Content",
         "Content.SigningInformation.Extended",
@@ -115,6 +118,29 @@ public class CsvMetadataUtils {
         "Management.StorageRule.StartDate"
     );
 
+    public static final String MANAGEMENT_UPDATE_OPERATION = "Management.UpdateOperation";
+    public static final String MANAGEMENT_UPDATE_OPERATION_API_PATH = "#management.UpdateOperation";
+    public static final String MANAGEMENT_UPDATE_OPERATION_SYSTEM_ID = "Management.UpdateOperation.SystemId";
+    public static final String MANAGEMENT_UPDATE_OPERATION_SYSTEM_ID_API_PATH = "#management.UpdateOperation.SystemId";
+    public static final String MANAGEMENT_UPDATE_OPERATION_ARCHIVE_UNIT_IDENTIFIER_KEY =
+        "Management.UpdateOperation.ArchiveUnitIdentifierKey";
+    public static final String MANAGEMENT_UPDATE_OPERATION_ARCHIVE_UNIT_IDENTIFIER_KEY_API_PATH =
+        "#management.UpdateOperation.ArchiveUnitIdentifierKey";
+    public static final String MANAGEMENT_UPDATE_OPERATION_ARCHIVE_UNIT_IDENTIFIER_KEY_METADATA_NAME =
+        "Management.UpdateOperation.ArchiveUnitIdentifierKey.MetadataName";
+    public static final String MANAGEMENT_UPDATE_OPERATION_ARCHIVE_UNIT_IDENTIFIER_KEY_METADATA_NAME_API_PATH =
+        "#management.UpdateOperation.ArchiveUnitIdentifierKey.MetadataName";
+    public static final String MANAGEMENT_UPDATE_OPERATION_ARCHIVE_UNIT_IDENTIFIER_KEY_METADATA_VALUE =
+        "Management.UpdateOperation.ArchiveUnitIdentifierKey.MetadataValue";
+    public static final String MANAGEMENT_UPDATE_OPERATION_ARCHIVE_UNIT_IDENTIFIER_KEY_METADATA_VALUE_API_PATH =
+        "#management.UpdateOperation.ArchiveUnitIdentifierKey.MetadataValue";
+
+    public static final String UPDATE_OPERATION_API_FIELD = "UpdateOperation";
+    public static final String SYSTEM_ID_API_FIELD = "SystemId";
+    public static final String ARCHIVE_UNIT_IDENTIFIER_KEY_API_FIELD = "ArchiveUnitIdentifierKey";
+    public static final String METADATA_NAME_API_FIELD = "MetadataName";
+    public static final String METADATA_VALUE_API_FIELD = "MetadataValue";
+
     public static final Pattern LANG_ATTR_VALUE_PATTERN = Pattern.compile("^xml:lang=\"(.+)\"$");
     public static final Pattern ALGORITHM_ATTR_VALUE_PATTERN = Pattern.compile("^algorithm=\"(.+)\"$");
 
@@ -167,6 +193,10 @@ public class CsvMetadataUtils {
             (headerName.startsWith(MANAGEMENT_SEPARATOR) && headerName.length() > MANAGEMENT_SEPARATOR.length()) ||
             equalsOrStartsWith(headerName, ARCHIVE_UNIT_PROFILE)
         );
+    }
+
+    public static boolean isManagementUpdateOperationField(String headerName) {
+        return equalsOrStartsWith(headerName, MANAGEMENT_UPDATE_OPERATION);
     }
 
     public static boolean isContentTitleField(String headerName) {

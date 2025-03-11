@@ -348,7 +348,35 @@ public class SedaSchemaInfoResolverTest {
                 false,
                 false,
                 false,
-                true
+                false
+            )
+        );
+        assertThat(instance.getManagementModelBySedaPath("Management.UpdateOperation.SystemId")).isEqualTo(
+            new SedaSchemaInfo(
+                "Management.UpdateOperation.SystemId",
+                "#management.UpdateOperation.SystemId",
+                "SystemId",
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+            )
+        );
+        assertThat(
+            instance.getManagementModelBySedaPath("Management.UpdateOperation.ArchiveUnitIdentifierKey.MetadataName")
+        ).isEqualTo(
+            new SedaSchemaInfo(
+                "Management.UpdateOperation.ArchiveUnitIdentifierKey.MetadataName",
+                "#management.UpdateOperation.ArchiveUnitIdentifierKey.MetadataName",
+                "MetadataName",
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
             )
         );
 
