@@ -39,7 +39,6 @@ import fr.gouv.vitam.common.server.application.configuration.MongoDbNode;
 import fr.gouv.vitam.metadata.core.config.MetaDataConfiguration;
 import fr.gouv.vitam.metadata.core.database.collections.ObjectGroup;
 import fr.gouv.vitam.metadata.core.database.collections.Unit;
-import fr.gouv.vitam.metadata.core.mapping.MappingLoader;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -48,7 +47,6 @@ import org.junit.rules.TemporaryFolder;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.fail;
@@ -86,13 +84,7 @@ public class MetaDataApplicationTest {
 
         final List<MongoDbNode> mongo_nodes = new ArrayList<>();
         mongo_nodes.add(new MongoDbNode("localhost", MongoRule.getDataBasePort()));
-        config = new MetaDataConfiguration(
-            mongo_nodes,
-            MongoRule.VITAM_DB,
-            ElasticsearchRule.VITAM_CLUSTER,
-            esNodes,
-            new MappingLoader(Collections.emptyList())
-        );
+        config = new MetaDataConfiguration(mongo_nodes, MongoRule.VITAM_DB, ElasticsearchRule.VITAM_CLUSTER, esNodes);
         VitamConfiguration.setTenants(tenantList);
         config.setJettyConfig(JETTY_CONFIG);
         config.setUrlProcessing("http://processing.service.consul:8203/");

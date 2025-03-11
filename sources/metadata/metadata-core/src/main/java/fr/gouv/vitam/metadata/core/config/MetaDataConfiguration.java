@@ -33,7 +33,6 @@ import fr.gouv.vitam.common.database.server.elasticsearch.ElasticsearchNode;
 import fr.gouv.vitam.common.server.application.configuration.DbConfigurationImpl;
 import fr.gouv.vitam.common.server.application.configuration.MongoDbNode;
 import fr.gouv.vitam.common.server.application.configuration.MongoDbShardConf;
-import fr.gouv.vitam.metadata.core.mapping.MappingLoader;
 
 import java.util.List;
 
@@ -59,8 +58,6 @@ public class MetaDataConfiguration extends DbConfigurationImpl {
     private int criticalDipTimeToLiveInMinutes = 60 * 24;
     private int transfersSIPTimeToLiveInMinutes = 60 * 24 * 7;
     private int reconstructionMetricsCacheDurationInMinutes = 15;
-
-    private List<ElasticsearchExternalMetadataMapping> elasticsearchExternalMetadataMappings;
 
     @JsonProperty("unitsStreamThreshold")
     private long unitsStreamThreshold = 1_000_000;
@@ -116,15 +113,13 @@ public class MetaDataConfiguration extends DbConfigurationImpl {
         List<MongoDbNode> mongoDbNodes,
         String dbName,
         String clusterName,
-        List<ElasticsearchNode> elasticsearchNodes,
-        MappingLoader mappingLoader
+        List<ElasticsearchNode> elasticsearchNodes
     ) {
         super(mongoDbNodes, dbName);
         ParametersChecker.checkParameter("elasticsearch cluster name is a mandatory parameter", clusterName);
         ParametersChecker.checkParameter("elasticsearch nodes are a mandatory parameter", elasticsearchNodes);
         this.clusterName = clusterName;
         this.elasticsearchNodes = elasticsearchNodes;
-        this.elasticsearchExternalMetadataMappings = mappingLoader.getElasticsearchExternalMappings();
     }
 
     /**
@@ -145,15 +140,13 @@ public class MetaDataConfiguration extends DbConfigurationImpl {
         List<ElasticsearchNode> elasticsearchNodes,
         boolean dbAuthentication,
         String dbUserName,
-        String dbPassword,
-        MappingLoader mappingLoader
+        String dbPassword
     ) {
         super(mongoDbNodes, dbName, dbAuthentication, dbUserName, dbPassword);
         ParametersChecker.checkParameter("elasticsearch cluster name is a mandatory parameter", clusterName);
         ParametersChecker.checkParameter("elasticsearch nodes are a mandatory parameter", elasticsearchNodes);
         this.clusterName = clusterName;
         this.elasticsearchNodes = elasticsearchNodes;
-        this.elasticsearchExternalMetadataMappings = mappingLoader.getElasticsearchExternalMappings();
     }
 
     /**
@@ -294,16 +287,6 @@ public class MetaDataConfiguration extends DbConfigurationImpl {
 
     public void setCriticalDipTimeToLiveInMinutes(int criticalDipTimeToLiveInMinutes) {
         this.criticalDipTimeToLiveInMinutes = criticalDipTimeToLiveInMinutes;
-    }
-
-    public List<ElasticsearchExternalMetadataMapping> getElasticsearchExternalMetadataMappings() {
-        return elasticsearchExternalMetadataMappings;
-    }
-
-    public void setElasticsearchExternalMetadataMappings(
-        List<ElasticsearchExternalMetadataMapping> elasticsearchExternalMetadataMappings
-    ) {
-        this.elasticsearchExternalMetadataMappings = elasticsearchExternalMetadataMappings;
     }
 
     public long getUnitsStreamThreshold() {

@@ -19,7 +19,7 @@ Vitam : A French program
 
 The three ministries responsible for public digital archiving in France (Culture, Defense, and Foreign Affairs) decided to develop specialised software, called Vitam, to preserve their valuable digital information. This software is installed in these three ministries to collect all the data produced by their services, store it, manage it long-term, and enable the search and retrieval of items within this vast and valuable source of information.
 
-The Vitam project has three main objectives : 
+The Vitam project has three main objectives :
 * The mutualised conception, development and maintenance of a generic digital preservation software solution;
 * The installation and update of archival platforms using the Vitam software in each of the ministries responsible for the project;
 * The reuse of the software by the largest possible number of public actors, in the widest possible contexts.
@@ -27,10 +27,10 @@ The Vitam project has three main objectives :
 This software is also used by other entities in France and elsewhere, as their digital archival system.
 
 
-Vitam : A digital preservation software 
+Vitam : A digital preservation software
 =======================================
 
-The digital preservation software developed by the Vitam program will allow to collect, preserve, search and securely access a very large amount of digital content. In compliance with the `OAIS <http://www.oais.info/>`_ reference model and `ISO-14641-1 <https://www.iso.org/obp/ui/#iso:std:iso:14641:-1:ed-1:v1:en>`_, it will maintain the legal value of the data in throughout information lifecycle. It will be used for all kinds of archives, including restricted materials. 
+The digital preservation software developed by the Vitam program will allow to collect, preserve, search and securely access a very large amount of digital content. In compliance with the `OAIS <http://www.oais.info/>`_ reference model and `ISO-14641-1 <https://www.iso.org/obp/ui/#iso:std:iso:14641:-1:ed-1:v1:en>`_, it will maintain the legal value of the data in throughout information lifecycle. It will be used for all kinds of archives, including restricted materials.
 
 This software is free and open source: the Vitam core code is published on Github under the `CeCILL V2.1 open-source license <http://www.cecill.info/licences/Licence_CeCILL_V2.1-en.html>`_ and the documentation is published under the `Etalab Open Licence 2.0 <https://www.etalab.gouv.fr/wp-content/uploads/2018/11/open-licence.pdf>`_ which is compatible with the `CC-by-SA 2.0 license <https://creativecommons.org/licenses/by-sa/2.0/>`_.
 
@@ -59,16 +59,16 @@ Requirements
 
 Operating system : Linux (x86) or macOS (including Apple Silicon)
 
-Software: 
-- IntelliJ IDEA 24 (Ultimate recommended) 
-  - multiRun plugin 
+Software:
+- IntelliJ IDEA 24 (Ultimate recommended)
+  - multiRun plugin
   - Code Style: `VitamStyle_Spotless.xml <https://assistance.programmevitam.fr/plugins/document/projetvitam/folder/50>`_
 - Maven 3.9.X and `nvm <https://github.com/nvm-sh/nvm?tab=readme-ov-file>`__
 - Java 17 JDK
 - Docker (Use Rancher Desktop on macOS)
 
 Hardware:
-- RAM: 16 GiB 
+- RAM: 16 GiB
 - Storage: 20 GiB
 
 Initialisation of the work environment
@@ -80,17 +80,17 @@ Clone the data from https://github.com/programmevitam/vitam-itests as well, to g
 
 Make sure that the environment variables JAVA_HOME and M2_HOME are set in the ``.bashrc`` or in your current shell. (JAVA_HOME points to your Java 17 install and M2_HOME can be obtained by running ``mvn -version``. )
 
-Install node 18 with the command ``nvm install 18 && nvm use 18``. 
+Install node 18 with the command ``nvm install 18 && nvm use 18``.
 
-In the  IntelliJ settings: Editor > Code Style > Scheme > Import Scheme > IntelliJ IDEA code style XML > select the Code Style downloaded earlier. 
+In the  IntelliJ settings: Editor > Code Style > Scheme > Import Scheme > IntelliJ IDEA code style XML > select the Code Style downloaded earlier.
 
 Restart IntelliJ IDEA.
 
-In the ``/etc/hosts/`` file add the following entries: 
+In the ``/etc/hosts/`` file add the following entries:
 
 ::
-  
-  # Vitam 
+
+  # Vitam
 
   127.0.0.1 access-external.service
   127.0.0.1 access-internal.service
@@ -111,7 +111,7 @@ In the ``/etc/hosts/`` file add the following entries:
   127.0.0.1 collect-external.service
   127.0.0.1 metadata-collect.service
   127.0.0.1 workspace-collect.serviceccess-internal.service
-  127.0.0.1 worker.service  
+  127.0.0.1 worker.service
   127.0.0.1 workspace.service
   127.0.0.1 workspace-collect.service
 
@@ -122,7 +122,7 @@ Creating the Vitam arborescence
 To operate properly, Vitam Core needs to access folder in the root directory of your computer. Here is the needed arborescence:
 
 ::
-  
+
   /vitam/
   ├── conf
   ├── data
@@ -141,22 +141,23 @@ In ``/vitam/data/storage`` create a file named ``fr.gouv.vitam.storage.offers.wo
 Create a symlink from ``/vitam/data/ihm-recette/test-data/data`` pointing to ``vitam-itests/data``
 
 Make a symlink from ``vitam_repo/vitam-conf-dev/conf`` toward ``/vitam/conf``.
-Make sure that inside of ``/vitam/conf/metadata/mapping/`` the symlinks to ``vitam_repo/deployment/ansible-vitam/roles/elasticsearch-mapping/files`` point ``unit-es-mapping.json`` and ``og-es-mapping.json`` 
+
+Make sure that inside of ``/vitam/conf/metadata/mapping/`` the symlinks to ``vitam_repo/deployment/environments/fileselasticsearch-mappings/`` point ``unit-es-mapping.json`` and ``og-es-mapping.json``
 
 Likewise, check that in ``/vitam/conf/worker/``, ``plugins.json`` is indeed a link to ``vitam_repo/deployment/ansible-vitam/roles/vitam/files/worker/plugins.json``
 
 Lastly, create a symlink in ``/vitam/data/ihm-recette/test-data/data`` pointing to ``vitam-itests/data`` (vitam-itests being the second repository cloned earlier.)
 
-Compilation 
+Compilation
 -----------
 
-From the ``vitam_repo/sources`` directory run the command 
+From the ``vitam_repo/sources`` directory run the command
 
 ``mvn clean install -D-skipTests -P-vitam``
 
 The build process takes between 10 to 20 minutes.
 
-Building the COTS 
+Building the COTS
 -----------------
 
 COTS are external dependencies necessaroy to run the project locally.
@@ -170,16 +171,16 @@ Requirements
 
 Linux (x86) ou MacOS (including Apple Silicon)
 
-Software: 
-- IntelliJ IDEA 24 (Ultimate recommended) 
-  - Multirun plugin 
+Software:
+- IntelliJ IDEA 24 (Ultimate recommended)
+  - Multirun plugin
   - Code Style: `VitamStyle_Spotless.xml <https://assistance.programmevitam.fr/plugins/document/projetvitam/folder/50>`_
 - Maven 3.9.X and `nvm <https://github.com/nvm-sh/nvm?tab=readme-ov-file>`__
 - Java 17 JDK
 - Docker (Use Rancher Desktop on MacOS)
 
 Hardware:
-- RAM: 16 GiB 
+- RAM: 16 GiB
 - Storage: 20 GiB
 
 Initialisation of the work environment
@@ -190,17 +191,17 @@ Clone the data from https://github.com/programmevitam/vitam-itests as well, to g
 
 Make sure that the environment variables JAVA_HOME and M2_HOME are set in the ``.bashrc`` or in your current shell. (JAVA_HOME points to your Java 17 install and M2_HOME can be obtained by running ``mvn -version``. )
 
-Install node 18 with the command ``nvm install 18 && nvm use 18``. 
+Install node 18 with the command ``nvm install 18 && nvm use 18``.
 
-In the  IntelliJ settings: Editor > Code Style > Scheme > Import Scheme > IntelliJ IDEA code style XML > select the Code Style downloaded earlier. 
+In the  IntelliJ settings: Editor > Code Style > Scheme > Import Scheme > IntelliJ IDEA code style XML > select the Code Style downloaded earlier.
 
 Restart IntelliJ IDEA.
 
-In the ``/etc/hosts/`` file add the following entries: 
+In the ``/etc/hosts/`` file add the following entries:
 
 ::
-  
-  # Vitam 
+
+  # Vitam
 
   127.0.0.1 access-external.service
   127.0.0.1 access-internal.service
@@ -221,7 +222,7 @@ In the ``/etc/hosts/`` file add the following entries:
   127.0.0.1 collect-external.service
   127.0.0.1 metadata-collect.service
   127.0.0.1 workspace-collect.serviceccess-internal.service
-  127.0.0.1 worker.service  
+  127.0.0.1 worker.service
   127.0.0.1 workspace.service
   127.0.0.1 workspace-collect.service
 
@@ -244,7 +245,7 @@ Launch the multirun config Cucumber Init, which should also run its course with 
 Test request
 ============
 
-When Vitam is done starting you can then run test requests, which are found in ``vitam-conf-dev/making-vitam-requests``. 
+When Vitam is done starting you can then run test requests, which are found in ``vitam-conf-dev/making-vitam-requests``.
 To check that everything is running properly, try the request ``referential/access-contracts.http``.
 This request should return a code 200 (OK).
-Some requests cannot be ran as they require Vitam External services that are not started up. For instance the ones in the "Collect" directory require you to launch the CollectExternal, Metadata and Metadata Collect services. 
+Some requests cannot be ran as they require Vitam External services that are not started up. For instance the ones in the "Collect" directory require you to launch the CollectExternal, Metadata and Metadata Collect services.

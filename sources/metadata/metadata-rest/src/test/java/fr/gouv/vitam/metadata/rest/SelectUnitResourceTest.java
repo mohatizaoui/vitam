@@ -259,8 +259,7 @@ public class SelectUnitResourceTest {
             mongo_nodes,
             MongoRule.VITAM_DB,
             ElasticsearchRule.VITAM_CLUSTER,
-            esNodes,
-            mappingLoader
+            esNodes
         );
         VitamConfiguration.setTenants(tenantList);
         configuration.setJettyConfig(JETTY_CONFIG);

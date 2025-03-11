@@ -74,6 +74,7 @@ import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClientFactory;
 import fr.gouv.vitam.logbook.rest.LogbookMain;
 import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.metadata.client.MetadataType;
+import fr.gouv.vitam.metadata.core.config.ElasticsearchExternalMetadataMapping;
 import fr.gouv.vitam.metadata.core.config.MetaDataConfiguration;
 import fr.gouv.vitam.metadata.core.config.MetadataIndexationConfiguration;
 import fr.gouv.vitam.metadata.core.database.collections.MetadataCollections;
@@ -111,6 +112,7 @@ import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -1078,7 +1080,18 @@ public class VitamServerRunner extends ExternalResource {
         realMetadataConfig.setClusterName(cluster);
         realMetadataConfig.setCollectModule(false);
         MappingLoader mappingLoader = MappingLoaderTestUtils.getTestMappingLoader();
-        realMetadataConfig.setElasticsearchExternalMetadataMappings(mappingLoader.getElasticsearchExternalMappings());
+
+        Optional<ElasticsearchExternalMetadataMapping> unitMappingOpt = mappingLoader
+            .getElasticsearchExternalMappings()
+            .stream()
+            .filter(elt -> elt.getCollection().contains("Unit"))
+            .findFirst();
+        Optional<ElasticsearchExternalMetadataMapping> objectGroupMapping = mappingLoader
+            .getElasticsearchExternalMappings()
+            .stream()
+            .filter(elt -> elt.getCollection().contains("ObjectGroup"))
+            .findFirst();
+
         realMetadataConfig.setElasticsearchConfigurationFile(ElasticsearchTestHelper.loadElasticSearchSettings());
         if (this.customMetadataIndexationConfiguration != null) {
             realMetadataConfig.setIndexationConfiguration(this.customMetadataIndexationConfiguration);
@@ -1087,8 +1100,10 @@ public class VitamServerRunner extends ExternalResource {
                 new MetadataIndexationConfiguration()
                     .setDefaultCollectionConfiguration(
                         new fr.gouv.vitam.metadata.core.config.DefaultCollectionConfiguration()
-                            .setUnit(new CollectionConfiguration(1, 0))
-                            .setObjectgroup(new CollectionConfiguration(1, 0))
+                            .setUnit(new CollectionConfiguration(1, 0, unitMappingOpt.get().getMappingFile()))
+                            .setObjectgroup(
+                                new CollectionConfiguration(1, 0, objectGroupMapping.get().getMappingFile())
+                            )
                     )
             );
         }
@@ -1381,7 +1396,18 @@ public class VitamServerRunner extends ExternalResource {
         realMetadataConfig.setClusterName(cluster);
         realMetadataConfig.setCollectModule(true);
         MappingLoader mappingLoader = MappingLoaderTestUtils.getTestMappingLoader();
-        realMetadataConfig.setElasticsearchExternalMetadataMappings(mappingLoader.getElasticsearchExternalMappings());
+
+        Optional<ElasticsearchExternalMetadataMapping> unitMappingOpt = mappingLoader
+            .getElasticsearchExternalMappings()
+            .stream()
+            .filter(elt -> elt.getCollection().contains("Unit"))
+            .findFirst();
+        Optional<ElasticsearchExternalMetadataMapping> objectGroupMapping = mappingLoader
+            .getElasticsearchExternalMappings()
+            .stream()
+            .filter(elt -> elt.getCollection().contains("ObjectGroup"))
+            .findFirst();
+
         realMetadataConfig.setElasticsearchConfigurationFile(ElasticsearchTestHelper.loadElasticSearchSettings());
         if (this.customMetadataIndexationConfiguration != null) {
             realMetadataConfig.setIndexationConfiguration(this.customMetadataIndexationConfiguration);
@@ -1390,8 +1416,10 @@ public class VitamServerRunner extends ExternalResource {
                 new MetadataIndexationConfiguration()
                     .setDefaultCollectionConfiguration(
                         new fr.gouv.vitam.metadata.core.config.DefaultCollectionConfiguration()
-                            .setUnit(new CollectionConfiguration(1, 0))
-                            .setObjectgroup(new CollectionConfiguration(1, 0))
+                            .setUnit(new CollectionConfiguration(1, 0, unitMappingOpt.get().getMappingFile()))
+                            .setObjectgroup(
+                                new CollectionConfiguration(1, 0, objectGroupMapping.get().getMappingFile())
+                            )
                     )
             );
         }

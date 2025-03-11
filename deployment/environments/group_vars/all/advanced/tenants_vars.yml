@@ -10,7 +10,7 @@ vitam_tenant_admin: 1
 #
 # Elastic search index configuration settings :
 # - 'number_of_shards' : number of shards per index. Every ES shard is stored as a lucene index.
-# - 'number_of_replicas': number of additional copies of primary shards
+# - 'number_of_replicas' : number of additional copies of primary shards
 # The total number of shards : number_of_shards * (1 primary + M number_of_replicas)
 #
 # CAUTION : The total number of shards should be lower than or equal to the number of elasticsearch-data instances in the cluster
@@ -47,10 +47,26 @@ vitam_tenant_admin: 1
 #  - A single ES node should not handle > 200 shards (be it a primary or a replica)
 #  - It is recommended to start small and add more shards when needed (re-sharding requires a re-indexation operation)
 #
+# Custom mappingFile & customSearch
+# ---------------------------------
+#
+# metadata & metadata_collect collections (for unit & objectgroup)
+# - 'mappingFile' : (Optional) The name of the associated mapping. Must be placed under `environments/files/elasticsearch-mappings/`
+# - 'customSearch' : (Optional) Mandatory if you modify the default mappingFile or provided a dedicated one.
+#
+#  Example:
+#    mappingFile: dedicated-unit-es-mapping.json
+#    customSearch:
+#      - fieldPath: Title
+#        types:
+#          - Strict
+#          - Minimal
+#
+#
 # /!\ IMPORTANT :
 # Changing the configuration of an existing tenant requires re-indexation of the tenants and/or tenant groups
 #
-# Please refer to documentation for more details.
+# Please refer to the documentation for more details.
 #
 ###
 vitam_elasticsearch_tenant_indexation:
@@ -82,7 +98,6 @@ vitam_elasticsearch_tenant_indexation:
   #    number_of_replicas: 2
   #  ...
 
-
   ###
   # Custom index settings for regular tenants.
   ###
@@ -98,9 +113,6 @@ vitam_elasticsearch_tenant_indexation:
   #      number_of_shards: 3
   #      number_of_replicas: 0
   #  ...
-
-
-
 
   ###
   # Custom index settings for grouped tenants.

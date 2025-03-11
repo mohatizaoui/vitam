@@ -533,7 +533,7 @@ vitam:
     criticalDipTimeToLiveInMinutes: 1440 # 1 day
     transfersSIPTimeToLiveInMinutes: 10080 # 7 days
     workspaceFreespaceThreshold: 25 # when below use critical time to live when above use normal time to live
-    elasticsearch_mapping_dir: "{{ vitam_defaults.folder.root_path }}/conf/metadata-collect/mapping" # Directory of elasticsearch metadata mapping
+    elasticsearch_mapping_dir: "{{ vitam_defaults.folder.root_path }}/conf/metadata-collect/mapping" # Directory of elasticsearch metadata-collect mapping
     refreshElasticIndexPostIndexingMode: true
     context_path: "/metadata-collect"
   workspace_collect:

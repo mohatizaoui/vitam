@@ -65,6 +65,7 @@ import fr.gouv.vitam.common.model.administration.schema.SchemaType;
 import fr.gouv.vitam.common.model.administration.schema.SchemaTypeDetail;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.functional.administration.common.config.AdminManagementConfiguration;
+import fr.gouv.vitam.functional.administration.common.config.ElasticsearchCustomSearchManager;
 import fr.gouv.vitam.functional.administration.common.exception.ReferentialException;
 import fr.gouv.vitam.functional.administration.common.exception.schema.SchemaImportValidationException;
 import fr.gouv.vitam.functional.administration.common.schema.ErrorReportSchema;
@@ -77,7 +78,6 @@ import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClientFactory;
 import fr.gouv.vitam.storage.engine.common.exception.StorageException;
 import fr.gouv.vitam.storage.engine.common.model.DataCategory;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.BooleanUtils;
 
 import javax.ws.rs.core.Response;
 import java.io.IOException;
@@ -127,7 +127,7 @@ public class SchemaService {
     private final OntologyService ontologyService;
 
     private final SchemaValidationService schemaValidationService;
-    private final AdminManagementConfiguration configuration;
+    private final ElasticsearchCustomSearchManager elasticsearchCustomSearchManager;
 
     /**
      * SchemaService Constructor
@@ -137,14 +137,16 @@ public class SchemaService {
         final AdminManagementConfiguration configuration,
         final MongoDbAccessAdminImpl mongoDbAccessReferential,
         final FunctionalBackupService functionalBackupService,
-        final OntologyService ontologyService
+        final OntologyService ontologyService,
+        final ElasticsearchCustomSearchManager elasticsearchCustomSearchManager
     ) {
         this(
             configuration,
             mongoDbAccessReferential,
             functionalBackupService,
             ontologyService,
-            LogbookOperationsClientFactory.getInstance()
+            LogbookOperationsClientFactory.getInstance(),
+            elasticsearchCustomSearchManager
         );
     }
 
@@ -154,12 +156,13 @@ public class SchemaService {
         final MongoDbAccessAdminImpl mongoDbAccessReferential,
         final FunctionalBackupService functionalBackupService,
         final OntologyService ontologyService,
-        final LogbookOperationsClientFactory logbookOperationsClientFactory
+        final LogbookOperationsClientFactory logbookOperationsClientFactory,
+        ElasticsearchCustomSearchManager elasticsearchCustomSearchManager
     ) {
-        this.configuration = configuration;
         this.ontologyService = ontologyService;
         this.mongoDbAccessReferential = mongoDbAccessReferential;
         this.functionalBackupService = functionalBackupService;
+        this.elasticsearchCustomSearchManager = elasticsearchCustomSearchManager;
         this.schemaValidationService = new SchemaValidationService(
             mongoDbAccessReferential,
             logbookOperationsClientFactory
@@ -456,7 +459,6 @@ public class SchemaService {
             .getResults()
             .stream()
             .collect(Collectors.toMap(OntologyModel::getIdentifier, ontologyModel -> ontologyModel));
-
         return schemaResponses
             .stream()
             .peek(schemaResponse -> {
@@ -484,15 +486,22 @@ public class SchemaService {
                     if (SchemaOrigin.EXTERNAL.equals(schemaResponse.getOrigin()) && schemaResponse.getType() == null) {
                         schemaResponse.setType(SchemaType.valueOf(ontologyElt.getType().getType()));
                     }
-                    if (
-                        PATH_TITLE.equals(schemaResponse.getApiPath()) &&
-                        BooleanUtils.isTrue(configuration.getExactSearchOnTitle())
-                    ) {
-                        schemaResponse.setCustomSearchTypes(Collections.singletonList("Strict"));
-                    }
+                    fillCustomSearchTypesToSchema(schemaResponse, collection);
                 }
             })
-            .collect(Collectors.toList());
+            .toList();
+    }
+
+    private void fillCustomSearchTypesToSchema(SchemaResponse schemaResponse, String collection) {
+        if (schemaResponse == null) return;
+        List<String> customSearchTypes = elasticsearchCustomSearchManager.getCustomSearchTypes(
+            collection,
+            VitamThreadUtils.getVitamSession().getTenantId(),
+            schemaResponse.getApiPath()
+        );
+        if (CollectionUtils.isNotEmpty(customSearchTypes)) {
+            schemaResponse.setCustomSearchTypes(customSearchTypes);
+        }
     }
 
     private InputStream loadObjectGroupInternalSchema() throws IOException {

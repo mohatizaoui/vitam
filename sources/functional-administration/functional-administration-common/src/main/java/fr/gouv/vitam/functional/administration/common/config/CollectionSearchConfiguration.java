@@ -24,39 +24,50 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.common.elasticsearch;
 
-import org.apache.commons.lang3.StringUtils;
+package fr.gouv.vitam.functional.administration.common.config;
 
-import java.nio.file.Paths;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class ElasticsearchTestHelper {
+import java.util.List;
 
-    // The relative path to unit and objectgroup elasticsearch mapping
-    public static final String UNIT_MAPPING_ES_FROM_ANSIBLE =
-        "deployment/environments/files/elasticsearch-mappings/unit-es-mapping.json";
+public class CollectionSearchConfiguration {
 
-    public static final String OG_MAPPING_ES_FROM_ANSIBLE =
-        "deployment/environments/files/elasticsearch-mappings/og-es-mapping.json";
+    @JsonProperty("fieldPath")
+    private String fieldPath;
 
-    public static final String ES_SETTINGS_FROM_ANSIBLE =
-        "/deployment/ansible-vitam/roles/vitam/files/elasticsearch-settings/elasticsearch-configuration.json";
+    @JsonProperty("types")
+    private List<String> types;
 
-    public static String loadUnitMapping() {
-        return loadMapping(UNIT_MAPPING_ES_FROM_ANSIBLE);
+    public CollectionSearchConfiguration() {
+        // Default constructor for deserialization
     }
 
-    public static String loadObjectGroupMapping() {
-        return loadMapping(OG_MAPPING_ES_FROM_ANSIBLE);
+    public CollectionSearchConfiguration(String fieldPath, List<String> types) {
+        this.fieldPath = fieldPath;
+        this.types = types;
     }
 
-    public static String loadElasticSearchSettings() {
-        return loadMapping(ES_SETTINGS_FROM_ANSIBLE);
+    public CollectionSearchConfiguration setFieldPath(String fieldPath) {
+        this.fieldPath = fieldPath;
+        return this;
     }
 
-    private static String loadMapping(String path) {
-        String dir = Paths.get("").toAbsolutePath().toString();
-        String userDir = StringUtils.substringBeforeLast(dir, "sources/");
-        return Paths.get(userDir, path).toString();
+    public String getFieldPath() {
+        return fieldPath;
+    }
+
+    public CollectionSearchConfiguration setTypes(List<String> types) {
+        this.types = types;
+        return this;
+    }
+
+    public List<String> getTypes() {
+        return types;
+    }
+
+    @Override
+    public String toString() {
+        return ("CollectionSearchConfiguration{" + "fieldPath=" + fieldPath + ", types=" + types + '}');
     }
 }

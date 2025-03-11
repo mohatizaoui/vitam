@@ -50,6 +50,7 @@ import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.functional.administration.common.config.AdminManagementConfiguration;
+import fr.gouv.vitam.functional.administration.common.config.ElasticsearchCustomSearchManager;
 import fr.gouv.vitam.functional.administration.common.exception.ReferentialException;
 import fr.gouv.vitam.functional.administration.common.schema.Schema;
 import fr.gouv.vitam.functional.administration.common.server.FunctionalAdminCollections;
@@ -96,6 +97,9 @@ public class SchemaServiceTest {
     private static final FunctionalBackupService functionalBackupService = Mockito.mock(FunctionalBackupService.class);
     private static final MongoDbAccessAdminImpl mongoDbAccessAdminMocked = Mockito.mock(MongoDbAccessAdminImpl.class);
     private static final OntologyService ontologyService = Mockito.mock(OntologyServiceImpl.class);
+    private static final ElasticsearchCustomSearchManager elasticsearchCustomSearchManager = Mockito.mock(
+        ElasticsearchCustomSearchManager.class
+    );
     private static SchemaService schemaService;
 
     @Rule
@@ -114,7 +118,8 @@ public class SchemaServiceTest {
             configuration,
             mongoDbAccessAdminMocked,
             functionalBackupService,
-            ontologyService
+            ontologyService,
+            elasticsearchCustomSearchManager
         );
     }
 
@@ -169,8 +174,9 @@ public class SchemaServiceTest {
     @RunWithCustomExecutor
     public void should_return_custom_search_types_according_to_exact_search_configuration()
         throws IOException, InvalidParseOperationException, ReferentialException {
-        when(configuration.getExactSearchOnTitle()).thenReturn(false);
+        when(elasticsearchCustomSearchManager.getCustomSearchTypes(any(), any(Integer.class), any())).thenReturn(null);
 
+        VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
         SchemaResponse titleSchemaElt = schemaService
             .findUnitInternalSchema()
             .stream()
@@ -179,7 +185,9 @@ public class SchemaServiceTest {
             .get();
         assertThat(titleSchemaElt.getCustomSearchTypes()).isNull();
 
-        when(configuration.getExactSearchOnTitle()).thenReturn(true);
+        when(
+            elasticsearchCustomSearchManager.getCustomSearchTypes(eq("Unit"), any(Integer.class), eq("Title"))
+        ).thenReturn(List.of("Strict"));
 
         titleSchemaElt = schemaService
             .findUnitInternalSchema()
@@ -188,6 +196,14 @@ public class SchemaServiceTest {
             .findAny()
             .get();
         assertThat(titleSchemaElt.getCustomSearchTypes()).isEqualTo(List.of("Strict"));
+
+        SchemaResponse descriptionSchemaElt = schemaService
+            .findUnitInternalSchema()
+            .stream()
+            .filter(schemaElt -> "Description".equals(schemaElt.getPath()))
+            .findAny()
+            .get();
+        assertThat(descriptionSchemaElt.getCustomSearchTypes()).isNull();
     }
 
     @Test

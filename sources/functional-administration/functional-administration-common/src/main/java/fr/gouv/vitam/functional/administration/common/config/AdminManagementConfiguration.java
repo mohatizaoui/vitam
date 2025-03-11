@@ -55,13 +55,13 @@ public class AdminManagementConfiguration extends DbConfigurationImpl {
     @JsonProperty("ruleAuditThreadPoolSize")
     private Integer ruleAuditThreadPoolSize;
 
+    @JsonProperty("customSearchOnFields")
+    private CustomSearchOnFieldsConfiguration customSearchOnFieldsConfiguration;
+
     private int reconstructionMetricsCacheDurationInMinutes = 15;
 
     @JsonProperty("elasticsearchConfigurationFile")
     private String elasticsearchConfigurationFile;
-
-    @JsonProperty("exactSearchOnTitle")
-    private Boolean exactSearchOnTitle;
 
     // constructor
     AdminManagementConfiguration() {
@@ -252,12 +252,14 @@ public class AdminManagementConfiguration extends DbConfigurationImpl {
         return this;
     }
 
-    public Boolean getExactSearchOnTitle() {
-        return exactSearchOnTitle;
+    public CustomSearchOnFieldsConfiguration getCustomSearchOnFieldsConfiguration() {
+        return customSearchOnFieldsConfiguration;
     }
 
-    public AdminManagementConfiguration setExactSearchOnTitle(Boolean exactSearchOnTitle) {
-        this.exactSearchOnTitle = exactSearchOnTitle;
+    public AdminManagementConfiguration setCustomSearchOnFieldsConfiguration(
+        CustomSearchOnFieldsConfiguration customSearchOnFieldsConfiguration
+    ) {
+        this.customSearchOnFieldsConfiguration = customSearchOnFieldsConfiguration;
         return this;
     }
 }

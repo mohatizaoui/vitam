@@ -48,6 +48,7 @@ import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
 import fr.gouv.vitam.metadata.core.config.DefaultCollectionConfiguration;
+import fr.gouv.vitam.metadata.core.config.ElasticsearchExternalMetadataMapping;
 import fr.gouv.vitam.metadata.core.config.MetaDataConfiguration;
 import fr.gouv.vitam.metadata.core.config.MetadataIndexationConfiguration;
 import fr.gouv.vitam.metadata.core.database.collections.ObjectGroup;
@@ -120,13 +121,28 @@ public class MetadataRawResourceTest {
         mongo_nodes.add(new MongoDbNode(HOST_NAME, MongoRule.getDataBasePort()));
 
         MappingLoader mappingLoader = MappingLoaderTestUtils.getTestMappingLoader();
+        ElasticsearchExternalMetadataMapping unitMapping = mappingLoader
+            .getElasticsearchExternalMappings()
+            .stream()
+            .filter(elt -> elt.getCollection().contains("Unit"))
+            .findFirst()
+            .orElseThrow(() -> {
+                return new IllegalArgumentException("Empty Unit mapping file settings");
+            });
+        ElasticsearchExternalMetadataMapping objectGroupMapping = mappingLoader
+            .getElasticsearchExternalMappings()
+            .stream()
+            .filter(elt -> elt.getCollection().contains("ObjectGroup"))
+            .findFirst()
+            .orElseThrow(() -> {
+                throw new IllegalArgumentException("Empty OG mapping file settings");
+            });
 
         final MetaDataConfiguration configuration = new MetaDataConfiguration(
             mongo_nodes,
             MongoRule.VITAM_DB,
             ElasticsearchRule.VITAM_CLUSTER,
-            esNodes,
-            mappingLoader
+            esNodes
         );
         configuration.setJettyConfig(JETTY_CONFIG);
         configuration.setUrlProcessing("http://processing.service.consul:8203/");
@@ -135,8 +151,8 @@ public class MetadataRawResourceTest {
             new MetadataIndexationConfiguration()
                 .setDefaultCollectionConfiguration(
                     new DefaultCollectionConfiguration()
-                        .setUnit(new CollectionConfiguration(1, 0))
-                        .setObjectgroup(new CollectionConfiguration(1, 0))
+                        .setUnit(new CollectionConfiguration(1, 0, unitMapping.getMappingFile()))
+                        .setObjectgroup(new CollectionConfiguration(1, 0, objectGroupMapping.getMappingFile()))
                 )
         );
 

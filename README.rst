@@ -68,11 +68,11 @@ Prérequis
 
 Linux (x86) ou MacOS (y compris Apple Silicon)
 
-Logiciels: 
-- IntelliJ IDEA 24 (Ultimate recommandé) 
+Logiciels:
+- IntelliJ IDEA 24 (Ultimate recommandé)
   - Plugin multirun
   - Code Style: `VitamStyle_Spotless.xml <https://assistance.programmevitam.fr/plugins/document/projetvitam/folder/50>`__
-- Maven 3.9.X et `nvm <https://github.com/nvm-sh/nvm?tab=readme-ov-file>`__ 
+- Maven 3.9.X et `nvm <https://github.com/nvm-sh/nvm?tab=readme-ov-file>`__
 - Java 17 JDK
 - Docker (utiliser Rancher Desktop pour Mac)
 
@@ -100,7 +100,7 @@ Editer le fichier ``/etc/hosts`` (ou équivalent) et y ajouter les enregistremen
 
 ::
 
-   # Vitam 
+   # Vitam
 
   127.0.0.1 access-external.service
   127.0.0.1 access-internal.service
@@ -121,7 +121,7 @@ Editer le fichier ``/etc/hosts`` (ou équivalent) et y ajouter les enregistremen
   127.0.0.1 collect-external.service
   127.0.0.1 metadata-collect.service
   127.0.0.1 workspace-collect.serviceccess-internal.service
-  127.0.0.1 worker.service  
+  127.0.0.1 worker.service
   127.0.0.1 workspace.service
   127.0.0.1 workspace-collect.service
 
@@ -151,8 +151,9 @@ Créer dans ``/vitam/data/storage`` un fichier nommé ``fr.gouv.vitam.storage.of
 
 Créer un lien symbolique de ``/vitam/data/ihm-recette/test-data/data`` vers ``vitam-itests/data`` (vitam-itests étant le deuxième dépôt cloné au départ.)
 
-Faire un lien symbolique de ``vitam_repo/vitam-conf-dev/conf`` vers ``/vitam/conf``. 
-Aller dans ``/vitam/conf/metadata/mapping`` et vérifier que les fichiers ``unit-es-mapping.json`` et ``og-es-mapping.json`` sont des liens symboliques vers les fichiers dans ``vitam_repo/deployment/ansible-vitam/roles/elasticsearch-mapping/files/``.
+Faire un lien symbolique de ``vitam_repo/vitam-conf-dev/conf`` vers ``/vitam/conf``.
+
+Aller dans ``/vitam/conf/metadata/mapping`` et vérifier que les fichiers ``unit-es-mapping.json`` et ``og-es-mapping.json`` sont des liens symboliques vers les fichiers dans ``vitam_repo/deployment/environments/files/elasticsearch-mappings/``.
 
 Aller dans ``/vitam/conf/worker`` et s’assurer que ``plugins.json`` est bien un lien vers ``vitam_repo/deployment/ansible-vitam/roles/vitam/files/worker/plugins.json``
 
@@ -183,11 +184,11 @@ Prérequis
 
 Linux (x86) ou MacOS (y compris Apple Silicon)
 
-Logiciels: 
-* IntelliJ IDEA 24 (Ultimate recommandé) 
-* Plugin multirun 
+Logiciels:
+* IntelliJ IDEA 24 (Ultimate recommandé)
+* Plugin multirun
 * Code style: `VitamStyle_Spotless.xml <https://assistance.programmevitam.fr/plugins/document/projetvitam/folder/50>`__
-* Maven 3.9.X et `nvm <https://github.com/nvm-sh/nvm?tab=readme-ov-file>`__ 
+* Maven 3.9.X et `nvm <https://github.com/nvm-sh/nvm?tab=readme-ov-file>`__
 * Java 17 JDK
 * Docker (utiliser Rancher Desktop pour Mac)
 
@@ -208,7 +209,7 @@ Dans le fichier /etc/hosts ajouter ces enregistrements:
 
 ::
 
-   # Vitam 
+   # Vitam
 
   127.0.0.1 access-external.service
   127.0.0.1 access-internal.service
@@ -229,7 +230,7 @@ Dans le fichier /etc/hosts ajouter ces enregistrements:
   127.0.0.1 collect-external.service
   127.0.0.1 metadata-collect.service
   127.0.0.1 workspace-collect.serviceccess-internal.service
-  127.0.0.1 worker.service  
+  127.0.0.1 worker.service
   127.0.0.1 workspace.service
   127.0.0.1 workspace-collect.service
 
@@ -248,12 +249,12 @@ Initialisation des données
 
 Lancer le script ``init_data_vitam.sh`` depuis ``vitam-conf-dev/scripts``. Celui-ci doit s’exécuter sans erreurs.
 
-Lancer la configuration multirun Cucumber Init, qui doit également se dérouler sans erreurs. 
+Lancer la configuration multirun Cucumber Init, qui doit également se dérouler sans erreurs.
 
-Test de requêtes 
+Test de requêtes
 ================
 
-Lorsque Vitam est démarré vous pouvez ensuite effectuer des requêtes. La liste de ces requêtes se trouve dans ``vitam-conf-dev/making-vitam-requests`` 
+Lorsque Vitam est démarré vous pouvez ensuite effectuer des requêtes. La liste de ces requêtes se trouve dans ``vitam-conf-dev/making-vitam-requests``
 Pour vérifier que tout est en place, lancer la requête ``referential/access-contracts.http``.
-Cette requête doit se terminer par un code 200 (OK). 
+Cette requête doit se terminer par un code 200 (OK).
 Certaines requêtes ne sont pas possibles car des services Vitam external ne sont pas lancés. Les requêtes dans "Collect" requièrent le lancement des services CollectExternal, Metadata, Metadata Collect.

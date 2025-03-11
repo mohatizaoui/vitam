@@ -85,7 +85,7 @@ Should be useful: Add 'export VITAMDEV_GIT_REPO=/path/to/git/vitam/repo' in .bas
           mappingFile: `path/to/vitam/vitam-conf-dev/conf/metadata/mapping/og-es-mapping.json`
           les fichiers unit-es-mapping.json et og-es-mapping.json seront de préférence (pas obligatoire) des liens
           symboliques vers les fichier se trouvant
-          dans `path/to/vitam/deployment/ansible-vitam/roles/elasticsearch-mapping/files`.
+          dans `path/to/vitam/deployment/environments/files/elasticsearch-mappings`.
 
 9. One vitam-build-repo AND vitam-deploy-cots are done without error, launch your configured multirun task in order to
    launch all vitam modules.
@@ -154,4 +154,4 @@ Add in elasticsearch conf to connect everywhere with:
        index.blocks.read_only_allow_delete": null}'
 * After running Cucumber Tests ( TNR), you can find the Cucumber report
   in : `vitam-conf-dev/conf/ihm-recette/ report.json`
-* Other documentation and Testing scripts are available in gitlab repository : `vitam-internal-toolbox`   
+* Other documentation and Testing scripts are available in gitlab repository : `vitam-internal-toolbox`

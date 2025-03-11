@@ -188,8 +188,7 @@ public class MetadataResourceTest {
             mongo_nodes,
             mongoRule.getMongoDatabase().getName(),
             ElasticsearchRule.getClusterName(),
-            esNodes,
-            mappingLoader
+            esNodes
         );
 
         elasticsearchAccessMetadata = new ElasticsearchAccessMetadata(

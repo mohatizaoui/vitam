@@ -159,8 +159,7 @@ public class SelectObjectGroupResourceTest {
             mongo_nodes,
             MongoRule.VITAM_DB,
             ElasticsearchRule.VITAM_CLUSTER,
-            esNodes,
-            mappingLoader
+            esNodes
         );
         configuration.setJettyConfig(JETTY_CONFIG);
         configuration.setUrlProcessing("http://processing.service.consul:8203/");

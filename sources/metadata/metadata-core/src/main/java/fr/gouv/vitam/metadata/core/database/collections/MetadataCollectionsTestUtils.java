@@ -34,6 +34,7 @@ import fr.gouv.vitam.common.ParametersChecker;
 import fr.gouv.vitam.common.exception.DatabaseException;
 import fr.gouv.vitam.common.model.config.CollectionConfiguration;
 import fr.gouv.vitam.metadata.core.config.DefaultCollectionConfiguration;
+import fr.gouv.vitam.metadata.core.config.ElasticsearchExternalMetadataMapping;
 import fr.gouv.vitam.metadata.core.config.ElasticsearchMetadataIndexManager;
 import fr.gouv.vitam.metadata.core.config.GroupedTenantConfiguration;
 import fr.gouv.vitam.metadata.core.config.MetaDataConfiguration;
@@ -44,6 +45,7 @@ import org.bson.Document;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @VisibleForTesting
@@ -60,6 +62,22 @@ public final class MetadataCollectionsTestUtils {
         MappingLoader mappingLoader,
         String elasticsearchConfigurationFilePath
     ) {
+        Optional<ElasticsearchExternalMetadataMapping> unitMappingOpt = mappingLoader
+            .getElasticsearchExternalMappings()
+            .stream()
+            .filter(elt -> elt.getCollection().contains("Unit"))
+            .findFirst();
+        Optional<ElasticsearchExternalMetadataMapping> objectGroupMapping = mappingLoader
+            .getElasticsearchExternalMappings()
+            .stream()
+            .filter(elt -> elt.getCollection().contains("ObjectGroup"))
+            .findFirst();
+        if (unitMappingOpt.isEmpty()) {
+            throw new IllegalArgumentException("Empty unit mapping file settings");
+        }
+        if (objectGroupMapping.isEmpty()) {
+            throw new IllegalArgumentException("Empty OG mapping file settings");
+        }
         List<Integer> allTenants = Streams.concat(
             dedicatedTenants.stream(),
             tenantGroups.values().stream().flatMap(Collection::stream)
@@ -74,21 +92,23 @@ public final class MetadataCollectionsTestUtils {
                         .setName(entry.getKey())
                         .setTenants(entry.getValue().stream().map(Object::toString).collect(Collectors.joining(",")))
             )
-            .collect(Collectors.toList());
+            .toList();
 
         MetaDataConfiguration metadataConfiguration = new MetaDataConfiguration()
             .setIndexationConfiguration(
                 new MetadataIndexationConfiguration()
                     .setDefaultCollectionConfiguration(
                         new DefaultCollectionConfiguration()
-                            .setUnit(new CollectionConfiguration(1, 0))
-                            .setObjectgroup(new CollectionConfiguration(1, 0))
+                            .setUnit(new CollectionConfiguration(1, 0, unitMappingOpt.get().getMappingFile()))
+                            .setObjectgroup(
+                                new CollectionConfiguration(1, 0, objectGroupMapping.get().getMappingFile())
+                            )
                     )
                     .setGroupedTenantConfiguration(tenantGroupConfiguration)
             );
 
         metadataConfiguration.setElasticsearchConfigurationFile(elasticsearchConfigurationFilePath);
-        return new ElasticsearchMetadataIndexManager(metadataConfiguration, allTenants, mappingLoader);
+        return new ElasticsearchMetadataIndexManager(metadataConfiguration, allTenants);
     }
 
     @VisibleForTesting

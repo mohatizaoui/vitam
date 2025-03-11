@@ -37,15 +37,19 @@ import fr.gouv.vitam.common.model.config.CollectionConfigurationUtils;
 import fr.gouv.vitam.common.model.config.TenantRange;
 import fr.gouv.vitam.common.model.config.TenantRangeParser;
 import fr.gouv.vitam.metadata.core.database.collections.MetadataCollections;
-import fr.gouv.vitam.metadata.core.mapping.MappingLoader;
 import org.apache.commons.collections4.ListValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -60,11 +64,7 @@ public class ElasticsearchMetadataIndexManager {
     private final Map<Integer, ElasticsearchIndexSettings> objectGroupIndexSettingsMap = new HashMap<>();
     private final String elasticSearchConfigurationFile;
 
-    public ElasticsearchMetadataIndexManager(
-        MetaDataConfiguration configuration,
-        List<Integer> tenantIds,
-        MappingLoader mappingLoader
-    ) {
+    public ElasticsearchMetadataIndexManager(MetaDataConfiguration configuration, List<Integer> tenantIds) {
         this.tenantIds = tenantIds;
 
         Map<Integer, CollectionConfiguration> customTenantUnitConfiguration = new HashMap<>();
@@ -145,9 +145,6 @@ public class ElasticsearchMetadataIndexManager {
             }
         }
 
-        Supplier<String> unitMappingLoader = getEsMappingLoader(mappingLoader, MetadataCollections.UNIT);
-        Supplier<String> objectGroupMappingLoader = getEsMappingLoader(mappingLoader, MetadataCollections.OBJECTGROUP);
-
         tenantIds
             .stream()
             .filter(not(tenantToTenantGroupMap::containsKey))
@@ -156,10 +153,11 @@ public class ElasticsearchMetadataIndexManager {
                     tenantId,
                     defaultUnitConfiguration
                 );
+                Optional<String> unitMappingFileOpt = Optional.ofNullable(unitConfiguration.getMappingFile());
                 ElasticsearchIndexSettings unitElasticsearchIndexSettings = new ElasticsearchIndexSettings(
                     unitConfiguration.getNumberOfShards(),
                     unitConfiguration.getNumberOfReplicas(),
-                    unitMappingLoader
+                    getEsMappingLoader(unitMappingFileOpt.orElse(defaultUnitConfiguration.getMappingFile()))
                 );
                 this.unitIndexSettingsMap.put(tenantId, unitElasticsearchIndexSettings);
 
@@ -167,10 +165,15 @@ public class ElasticsearchMetadataIndexManager {
                     tenantId,
                     defaultObjectGroupConfiguration
                 );
+                Optional<String> objectGroupMappingFileOpt = Optional.ofNullable(
+                    objectGroupConfiguration.getMappingFile()
+                );
                 ElasticsearchIndexSettings objectGroupElasticsearchIndexSettings = new ElasticsearchIndexSettings(
                     objectGroupConfiguration.getNumberOfShards(),
                     objectGroupConfiguration.getNumberOfReplicas(),
-                    objectGroupMappingLoader
+                    getEsMappingLoader(
+                        objectGroupMappingFileOpt.orElse(defaultObjectGroupConfiguration.getMappingFile())
+                    )
                 );
                 this.objectGroupIndexSettingsMap.put(tenantId, objectGroupElasticsearchIndexSettings);
             });
@@ -179,19 +182,25 @@ public class ElasticsearchMetadataIndexManager {
             .keySet()
             .forEach(tenantGroupName -> {
                 CollectionConfiguration unitConfiguration = groupedTenantUnitConfiguration.get(tenantGroupName);
+                Optional<String> unitMappingFileOpt = Optional.ofNullable(unitConfiguration.getMappingFile());
                 ElasticsearchIndexSettings unitElasticsearchIndexSettings = new ElasticsearchIndexSettings(
                     unitConfiguration.getNumberOfShards(),
                     unitConfiguration.getNumberOfReplicas(),
-                    unitMappingLoader
+                    getEsMappingLoader(unitMappingFileOpt.orElse(defaultUnitConfiguration.getMappingFile()))
                 );
 
                 CollectionConfiguration objectGroupConfiguration = groupedTenantObjectGroupConfiguration.get(
                     tenantGroupName
                 );
+                Optional<String> objectGroupMappingFileOpt = Optional.ofNullable(
+                    objectGroupConfiguration.getMappingFile()
+                );
                 ElasticsearchIndexSettings objectGroupElasticsearchIndexSettings = new ElasticsearchIndexSettings(
                     objectGroupConfiguration.getNumberOfShards(),
                     objectGroupConfiguration.getNumberOfReplicas(),
-                    objectGroupMappingLoader
+                    getEsMappingLoader(
+                        objectGroupMappingFileOpt.orElse(defaultObjectGroupConfiguration.getMappingFile())
+                    )
                 );
 
                 for (Integer tenantId : tenantGroupToTenantMap.get(tenantGroupName)) {
@@ -202,17 +211,22 @@ public class ElasticsearchMetadataIndexManager {
         this.elasticSearchConfigurationFile = configuration.getElasticsearchConfigurationFile();
     }
 
-    private Supplier<String> getEsMappingLoader(MappingLoader mappingLoader, MetadataCollections collection) {
+    private Supplier<String> getEsMappingLoader(String mappingFile) {
         return () -> {
             try {
-                return ElasticsearchUtil.transferJsonToMapping(mappingLoader.loadMapping(collection.name()));
+                return ElasticsearchUtil.transferJsonToMapping(getMappingAsInputStream(mappingFile));
             } catch (IOException e) {
-                throw new VitamFatalRuntimeException(
-                    "Could not load mapping for collection " + MetadataCollections.UNIT.getName(),
-                    e
-                );
+                throw new VitamFatalRuntimeException("Could not load mapping ", e);
             }
         };
+    }
+
+    private InputStream getMappingAsInputStream(String mappingFile) throws FileNotFoundException {
+        try {
+            return Files.newInputStream(Paths.get(mappingFile));
+        } catch (IOException e) {
+            throw new FileNotFoundException(e.getMessage());
+        }
     }
 
     public ElasticsearchIndexAliasResolver getElasticsearchIndexAliasResolver(MetadataCollections collection) {

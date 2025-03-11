@@ -24,39 +24,60 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.common.elasticsearch;
 
-import org.apache.commons.lang3.StringUtils;
+package fr.gouv.vitam.functional.administration.common.config;
 
-import java.nio.file.Paths;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class ElasticsearchTestHelper {
+public class DefaultCustomSearchCollectionConfiguration {
 
-    // The relative path to unit and objectgroup elasticsearch mapping
-    public static final String UNIT_MAPPING_ES_FROM_ANSIBLE =
-        "deployment/environments/files/elasticsearch-mappings/unit-es-mapping.json";
+    @JsonProperty("unit")
+    private CollectionCustomSearchConfiguration unitFields;
 
-    public static final String OG_MAPPING_ES_FROM_ANSIBLE =
-        "deployment/environments/files/elasticsearch-mappings/og-es-mapping.json";
+    @JsonProperty("objectgroup")
+    private CollectionCustomSearchConfiguration objectgroupFields;
 
-    public static final String ES_SETTINGS_FROM_ANSIBLE =
-        "/deployment/ansible-vitam/roles/vitam/files/elasticsearch-settings/elasticsearch-configuration.json";
-
-    public static String loadUnitMapping() {
-        return loadMapping(UNIT_MAPPING_ES_FROM_ANSIBLE);
+    public DefaultCustomSearchCollectionConfiguration() {
+        // Default constructor for deserialization
     }
 
-    public static String loadObjectGroupMapping() {
-        return loadMapping(OG_MAPPING_ES_FROM_ANSIBLE);
+    public DefaultCustomSearchCollectionConfiguration(
+        CollectionCustomSearchConfiguration unitFields,
+        CollectionCustomSearchConfiguration objectgroupFields
+    ) {
+        this.unitFields = unitFields;
+        this.objectgroupFields = objectgroupFields;
     }
 
-    public static String loadElasticSearchSettings() {
-        return loadMapping(ES_SETTINGS_FROM_ANSIBLE);
+    public CollectionCustomSearchConfiguration getUnitFields() {
+        return unitFields;
     }
 
-    private static String loadMapping(String path) {
-        String dir = Paths.get("").toAbsolutePath().toString();
-        String userDir = StringUtils.substringBeforeLast(dir, "sources/");
-        return Paths.get(userDir, path).toString();
+    public DefaultCustomSearchCollectionConfiguration setUnitFields(CollectionCustomSearchConfiguration unitFields) {
+        this.unitFields = unitFields;
+        return this;
+    }
+
+    public CollectionCustomSearchConfiguration getObjectgroupFields() {
+        return objectgroupFields;
+    }
+
+    public DefaultCustomSearchCollectionConfiguration setObjectgroupFields(
+        CollectionCustomSearchConfiguration objectgroupFields
+    ) {
+        this.objectgroupFields = objectgroupFields;
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return (
+            "DefaultCustomSearchCollectionConfiguration{" +
+            "unitFields=" +
+            unitFields +
+            ", objectgroupFields=" +
+            objectgroupFields +
+            '}'
+        );
     }
 }

@@ -67,19 +67,12 @@ public class MetaDataConfigurationTest {
         assertEquals(1, config1.setElasticsearchNodes(es_nodes).getElasticsearchNodes().size());
 
         MappingLoader mappingLoader = MappingLoaderTestUtils.getTestMappingLoader();
-        final MetaDataConfiguration config2 = new MetaDataConfiguration(
-            mongo_nodes,
-            DB_NAME,
-            CLUSTER_NAME,
-            es_nodes,
-            mappingLoader
-        );
+        final MetaDataConfiguration config2 = new MetaDataConfiguration(mongo_nodes, DB_NAME, CLUSTER_NAME, es_nodes);
         assertEquals(config2.getMongoDbNodes().get(0).getDbHost(), HOST);
         assertEquals(config2.getMongoDbNodes().get(0).getDbPort(), PORT);
         assertEquals(config2.getDbName(), DB_NAME);
         assertEquals(config2.getClusterName(), CLUSTER_NAME);
         assertEquals(config2.getElasticsearchNodes().size(), 1);
-        assertEquals(config2.getElasticsearchExternalMetadataMappings().size(), 2);
     }
 
     @Test
