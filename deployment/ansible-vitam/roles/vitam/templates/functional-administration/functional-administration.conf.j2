@@ -80,6 +80,15 @@ reconstructionMetricsCacheDurationInMinutes: {{ vitam.functional_administration.
 {% endif %}
 
 {% if vitam_elasticsearch_tenant_indexation is defined and vitam_elasticsearch_tenant_indexation is not none %}
+
+{% set unit_custom_search = vitam_elasticsearch_tenant_indexation.default_config.unit.customSearch | default([]) %}
+{% set objectgroup_custom_search = vitam_elasticsearch_tenant_indexation.default_config.objectgroup.customSearch | default([]) %}
+{% set dedicated_unit_custom_search = vitam_elasticsearch_tenant_indexation.dedicated_tenants | default([]) | map(attribute='unit.customSearch') | select('defined') | list | sum(start=[]) %}
+{% set dedicated_objectgroup_custom_search = vitam_elasticsearch_tenant_indexation.dedicated_tenants | default([]) | map(attribute='objectgroup.customSearch') | select('defined') | list | sum(start=[]) %}
+{% set grouped_unit_custom_search = vitam_elasticsearch_tenant_indexation.grouped_tenants | default([]) | map(attribute='unit.customSearch') | select('defined') | list | sum(start=[]) %}
+{% set grouped_objectgroup_custom_search = vitam_elasticsearch_tenant_indexation.grouped_tenants | default([]) | map(attribute='objectgroup.customSearch') | select('defined') | list | sum(start=[]) %}
+
+{% if unit_custom_search or objectgroup_custom_search or dedicated_unit_custom_search or dedicated_objectgroup_custom_search or grouped_unit_custom_search or grouped_objectgroup_custom_search %}
 # Custom Search On Fields applied on schema
 customSearchOnFields:
   {% if vitam_elasticsearch_tenant_indexation.default_config is defined and vitam_elasticsearch_tenant_indexation.default_config is not none %}
@@ -116,7 +125,7 @@ customSearchOnFields:
       {% endif %}
     {% endfor %}
   {% endif %}
-{% endif %}
+
 {% if vitam_elasticsearch_tenant_indexation.dedicated_tenants is defined and vitam_elasticsearch_tenant_indexation.dedicated_tenants is not none %}
 
   dedicated_tenants:
@@ -191,4 +200,6 @@ customSearchOnFields:
       {% endfor %}
     {% endif %}
   {% endfor %}
+{% endif %}
+{% endif %}
 {% endif %}
