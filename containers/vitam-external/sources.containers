@@ -1,10 +1,10 @@
 mongodb/mongodb-community-server:8.0.5-ubuntu2204
-elasticsearch:8.17.1
-logstash:8.17.1
-kibana:8.17.1
-elastic/metricbeat:8.17.1
-elastic/packetbeat:8.17.1
-elastic/filebeat:8.17.1
+elasticsearch:8.17.3
+logstash:8.17.3
+kibana:8.17.3
+elastic/metricbeat:8.17.3
+elastic/packetbeat:8.17.3
+elastic/filebeat:8.17.3
 grafana/grafana:11.5.0
 restic/restic:0.17.2
 hashicorp/consul:1.20.2-ubi
