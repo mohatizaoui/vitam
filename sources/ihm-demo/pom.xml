@@ -176,7 +176,7 @@
     <javax.el-api.version>3.0.1-b06</javax.el-api.version>
     <retrofit2.version>2.11.0</retrofit2.version>
     <org.xmlunit.version>2.9.1</org.xmlunit.version>
-    <com.github.tomakehurst.version>3.0.1</com.github.tomakehurst.version>
+    <org.wiremock.version>3.0.4</org.wiremock.version>
     <io.reactivex.rxjava2.version>2.2.21</io.reactivex.rxjava2.version>
     <cucumber.version>7.16.1</cucumber.version>
     <batik-css.version>1.17</batik-css.version>
@@ -1532,9 +1532,9 @@
         <scope>test</scope>
       </dependency>
       <dependency>
-        <groupId>com.github.tomakehurst</groupId>
+        <groupId>org.wiremock</groupId>
         <artifactId>wiremock-standalone</artifactId>
-        <version>${com.github.tomakehurst.version}</version>
+        <version>${org.wiremock.version}</version>
         <scope>test</scope>
         <exclusions>
           <exclusion>

@@ -24,7 +24,7 @@
 			<groupId>fr.gouv.vitam</groupId>
 			<artifactId>common-plugin</artifactId>
 			<version>${project.version}</version>
-		</dependency>	
+		</dependency>
 		<dependency>
  			<groupId>junit</groupId>
  			<artifactId>junit</artifactId>
@@ -47,7 +47,7 @@
 			<scope>test</scope>
 		</dependency>
         <dependency>
-            <groupId>com.github.tomakehurst</groupId>
+            <groupId>org.wiremock</groupId>
             <artifactId>wiremock-standalone</artifactId>
             <scope>test</scope>
         </dependency>
