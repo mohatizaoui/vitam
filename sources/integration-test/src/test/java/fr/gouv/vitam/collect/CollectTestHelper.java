@@ -111,12 +111,27 @@ public class CollectTestHelper {
         final String zipPath,
         final String attachementId
     ) {
-        try (
-            final CollectExternalClient client = CollectExternalClientFactory.getInstance().getClient();
-            final InputStream is = PropertiesUtils.getResourceAsStream(zipPath)
-        ) {
-            client.uploadZipToTransaction(vitamContext, transactionId, is, null, attachementId);
-        } catch (IOException | VitamClientException e) {
+        try {
+            uploadZipTransaction(
+                vitamContext,
+                transactionId,
+                PropertiesUtils.getResourceAsStream(zipPath),
+                attachementId
+            );
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void uploadZipTransaction(
+        final VitamContext vitamContext,
+        final String transactionId,
+        final InputStream zipInputStream,
+        final String attachementId
+    ) {
+        try (final CollectExternalClient client = CollectExternalClientFactory.getInstance().getClient();) {
+            client.uploadZipToTransaction(vitamContext, transactionId, zipInputStream, null, attachementId);
+        } catch (VitamClientException e) {
             throw new RuntimeException(e);
         }
     }

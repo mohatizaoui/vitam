@@ -1,0 +1,290 @@
+[
+  {
+    "DescriptionLevel": "RecordGrp",
+    "Title": "Folder3 - 2 dynamic",
+    "Tag": [
+      "Tag1",
+      "Tag2"
+    ],
+    "#id": "ID - Folder3 - 2 dynamic",
+    "#tenant": 0,
+    "#unitups": [
+      "ID - Holding scheme - Dynamic Attachement 1",
+      "ID - Holding scheme - Dynamic Attachement 2"
+    ],
+    "#min": 1,
+    "#max": 2,
+    "#allunitups": [
+      "ID - Holding scheme - Dynamic Attachement 1",
+      "ID - Holding scheme - Dynamic Attachement 2"
+    ],
+    "#management": {},
+    "#unitType": "INGEST",
+    "#operations": [
+      "ID - <OPI_COLLECT>"
+    ],
+    "#opi": "ID - <OPI_COLLECT>",
+    "#originating_agency": "Service_producteur",
+    "#originating_agencies": [
+      "Service_producteur"
+    ],
+    "#storage": {
+      "strategyId": "default"
+    },
+    "#version": 0,
+    "#sedaVersion": "2.2"
+  },
+  {
+    "DescriptionLevel": "RecordGrp",
+    "Title": "Folder1 - static",
+    "#id": "ID - Folder1 - static",
+    "#tenant": 0,
+    "#unitups": [
+      "ID - Holding scheme - Static Attachement"
+    ],
+    "#min": 1,
+    "#max": 2,
+    "#allunitups": [
+      "ID - Holding scheme - Static Attachement"
+    ],
+    "#management": {},
+    "#unitType": "INGEST",
+    "#operations": [
+      "ID - <OPI_COLLECT>"
+    ],
+    "#opi": "ID - <OPI_COLLECT>",
+    "#originating_agency": "Service_producteur",
+    "#originating_agencies": [
+      "Service_producteur"
+    ],
+    "#storage": {
+      "strategyId": "default"
+    },
+    "#version": 0,
+    "#sedaVersion": "2.2"
+  },
+  {
+    "DescriptionLevel": "RecordGrp",
+    "Title": "Folder2 - 1 dynamic",
+    "Tag": [
+      "Tag1"
+    ],
+    "#id": "ID - Folder2 - 1 dynamic",
+    "#tenant": 0,
+    "#unitups": [
+      "ID - Holding scheme - Dynamic Attachement 1"
+    ],
+    "#min": 1,
+    "#max": 2,
+    "#allunitups": [
+      "ID - Holding scheme - Dynamic Attachement 1"
+    ],
+    "#management": {},
+    "#unitType": "INGEST",
+    "#operations": [
+      "ID - <OPI_COLLECT>"
+    ],
+    "#opi": "ID - <OPI_COLLECT>",
+    "#originating_agency": "Service_producteur",
+    "#originating_agencies": [
+      "Service_producteur"
+    ],
+    "#storage": {
+      "strategyId": "default"
+    },
+    "#version": 0,
+    "#sedaVersion": "2.2"
+  },
+  {
+    "DescriptionLevel": "Item",
+    "Title": "file5.txt",
+    "#id": "ID - file5.txt",
+    "#tenant": 0,
+    "#object": "OG ID -file5.txt",
+    "#unitups": [
+      "ID - Holding scheme - UpdateOperation by Metadata Name / Value"
+    ],
+    "#min": 1,
+    "#max": 2,
+    "#allunitups": [
+      "ID - Holding scheme - UpdateOperation by Metadata Name / Value"
+    ],
+    "#management": {},
+    "#unitType": "INGEST",
+    "#operations": [
+      "ID - <OPI_COLLECT>"
+    ],
+    "#opi": "ID - <OPI_COLLECT>",
+    "#originating_agency": "Service_producteur",
+    "#originating_agencies": [
+      "Service_producteur"
+    ],
+    "#storage": {
+      "strategyId": "default"
+    },
+    "#version": 0,
+    "#sedaVersion": "2.2"
+  },
+  {
+    "DescriptionLevel": "Item",
+    "Title": "SomeFile.txt",
+    "#id": "ID - SomeFile.txt",
+    "#tenant": 0,
+    "#object": "OG ID -SomeFile.txt",
+    "#unitups": [
+      "ID - Holding scheme - Static Attachement"
+    ],
+    "#min": 1,
+    "#max": 2,
+    "#allunitups": [
+      "ID - Holding scheme - Static Attachement"
+    ],
+    "#management": {},
+    "#unitType": "INGEST",
+    "#operations": [
+      "ID - <OPI_COLLECT>"
+    ],
+    "#opi": "ID - <OPI_COLLECT>",
+    "#originating_agency": "Service_producteur",
+    "#originating_agencies": [
+      "Service_producteur"
+    ],
+    "#storage": {
+      "strategyId": "default"
+    },
+    "#version": 0,
+    "#sedaVersion": "2.2"
+  },
+  {
+    "DescriptionLevel": "Item",
+    "Title": "file4.txt",
+    "#id": "ID - file4.txt",
+    "#tenant": 0,
+    "#object": "OG ID -file4.txt",
+    "#unitups": [
+      "ID - Holding scheme - UpdateOperation by GUID"
+    ],
+    "#min": 1,
+    "#max": 2,
+    "#allunitups": [
+      "ID - Holding scheme - UpdateOperation by GUID"
+    ],
+    "#management": {},
+    "#unitType": "INGEST",
+    "#operations": [
+      "ID - <OPI_COLLECT>"
+    ],
+    "#opi": "ID - <OPI_COLLECT>",
+    "#originating_agency": "Service_producteur",
+    "#originating_agencies": [
+      "Service_producteur"
+    ],
+    "#storage": {
+      "strategyId": "default"
+    },
+    "#version": 0,
+    "#sedaVersion": "2.2"
+  },
+  {
+    "DescriptionLevel": "Item",
+    "Title": "UnitA",
+    "Tag": [
+      "Tag1"
+    ],
+    "#id": "ID - UnitA",
+    "#tenant": 0,
+    "#object": "OG ID -UnitA",
+    "#unitups": [
+      "ID - Folder1 - static"
+    ],
+    "#min": 1,
+    "#max": 3,
+    "#allunitups": [
+      "ID - Holding scheme - Static Attachement",
+      "ID - Folder1 - static"
+    ],
+    "#management": {},
+    "#unitType": "INGEST",
+    "#operations": [
+      "ID - <OPI_COLLECT>"
+    ],
+    "#opi": "ID - <OPI_COLLECT>",
+    "#originating_agency": "Service_producteur",
+    "#originating_agencies": [
+      "Service_producteur"
+    ],
+    "#storage": {
+      "strategyId": "default"
+    },
+    "#version": 0,
+    "#sedaVersion": "2.2"
+  },
+  {
+    "DescriptionLevel": "RecordGrp",
+    "Title": "UnitB",
+    "Tag": [
+      "Tag1",
+      "Tag2"
+    ],
+    "#id": "ID - UnitB",
+    "#tenant": 0,
+    "#unitups": [
+      "ID - UnitA"
+    ],
+    "#min": 1,
+    "#max": 4,
+    "#allunitups": [
+      "ID - UnitA",
+      "ID - Holding scheme - Static Attachement",
+      "ID - Folder1 - static"
+    ],
+    "#management": {},
+    "#unitType": "INGEST",
+    "#operations": [
+      "ID - <OPI_COLLECT>"
+    ],
+    "#opi": "ID - <OPI_COLLECT>",
+    "#originating_agency": "Service_producteur",
+    "#originating_agencies": [
+      "Service_producteur"
+    ],
+    "#storage": {
+      "strategyId": "default"
+    },
+    "#version": 0,
+    "#sedaVersion": "2.2"
+  },
+  {
+    "DescriptionLevel": "Item",
+    "Title": "UnitC",
+    "#id": "ID - UnitC",
+    "#tenant": 0,
+    "#object": "OG ID -UnitC",
+    "#unitups": [
+      "ID - UnitB"
+    ],
+    "#min": 1,
+    "#max": 5,
+    "#allunitups": [
+      "ID - UnitA",
+      "ID - UnitB",
+      "ID - Holding scheme - Static Attachement",
+      "ID - Folder1 - static"
+    ],
+    "#management": {},
+    "#unitType": "INGEST",
+    "#operations": [
+      "ID - <OPI_COLLECT>"
+    ],
+    "#opi": "ID - <OPI_COLLECT>",
+    "#originating_agency": "Service_producteur",
+    "#originating_agencies": [
+      "Service_producteur"
+    ],
+    "#storage": {
+      "strategyId": "default"
+    },
+    "#version": 0,
+    "#sedaVersion": "2.2"
+  }
+]
