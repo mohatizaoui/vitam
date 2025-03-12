@@ -113,7 +113,7 @@
 
     <!-- object storing-->
     <jclouds.version>2.5.0</jclouds.version>
-    <openstack4j.version>3.11</openstack4j.version>
+    <openstack4j.version>3.12</openstack4j.version>
     <awssdk.v1.version>1.12.690</awssdk.v1.version>
 
     <!-- jetty -->
