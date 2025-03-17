@@ -30,15 +30,17 @@ import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.exception.VitamRuntimeException;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.security.IllegalPathException;
 import fr.gouv.vitam.common.serverv2.application.CommonBusinessApplication;
 import fr.gouv.vitam.functional.administration.client.AdminManagementClientFactory;
+import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.processing.common.exception.PluginException;
 import fr.gouv.vitam.worker.core.api.Worker;
 import fr.gouv.vitam.worker.core.plugin.PluginLoader;
 import fr.gouv.vitam.worker.core.validation.MetadataValidationProvider;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
+import fr.gouv.vitam.workspace.client.WorkspaceCollectClientFactory;
 
 import javax.servlet.ServletConfig;
 import javax.ws.rs.core.Application;
@@ -93,7 +95,16 @@ public class BusinessApplication extends Application {
             if (mock != null) {
                 singletons.add(new WorkerResource(pluginLoader, mock));
             } else {
-                WorkspaceClientFactory.changeMode(configuration.getUrlWorkspace(), WorkspaceType.VITAM);
+                MetaDataClientFactory.changeMode(configuration.getUrlMetadata(), WorkFlowExecutionContext.VITAM);
+                MetaDataClientFactory.changeMode(
+                    configuration.getUrlMetadataCollect(),
+                    WorkFlowExecutionContext.COLLECT
+                );
+                WorkspaceClientFactory.changeMode(configuration.getUrlWorkspace(), WorkFlowExecutionContext.VITAM);
+                WorkspaceCollectClientFactory.changeMode(
+                    configuration.getUrlWorkspaceCollect(),
+                    WorkFlowExecutionContext.COLLECT
+                );
                 singletons.add(new WorkerResource(pluginLoader));
             }
         } catch (PluginException | IOException | InvalidParseOperationException | IllegalPathException e) {

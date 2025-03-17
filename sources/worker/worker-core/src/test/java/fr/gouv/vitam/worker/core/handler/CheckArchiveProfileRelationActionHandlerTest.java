@@ -37,12 +37,12 @@ import fr.gouv.vitam.common.model.administration.ActivationStatus;
 import fr.gouv.vitam.common.model.administration.IngestContractModel;
 import fr.gouv.vitam.common.model.administration.ProfileStatus;
 import fr.gouv.vitam.common.model.administration.profile.ProfileModel;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.functional.administration.client.AdminManagementClient;
-import fr.gouv.vitam.functional.administration.client.AdminManagementClientFactory;
 import fr.gouv.vitam.functional.administration.common.exception.AdminManagementClientServerException;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
@@ -59,6 +59,7 @@ import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -67,7 +68,6 @@ public class CheckArchiveProfileRelationActionHandlerTest {
     CheckArchiveProfileRelationActionHandler handler;
     private static final String HANDLER_ID = "CHECK_IC_AP_RELATION";
     private AdminManagementClient adminClient;
-    private AdminManagementClientFactory adminManagementClientFactory;
     private GUID guid;
     private static final Integer TENANT_ID = 0;
     private static final String FAKE_URL = "http://localhost:8083";
@@ -84,9 +84,8 @@ public class CheckArchiveProfileRelationActionHandlerTest {
     @Before
     public void setUp() throws ProcessingException, FileNotFoundException {
         adminClient = mock(AdminManagementClient.class);
+        doReturn(adminClient).when(handlerIO).getAdminManagementClient();
         guid = GUIDFactory.newGUID();
-        adminManagementClientFactory = mock(AdminManagementClientFactory.class);
-        when(adminManagementClientFactory.getClient()).thenReturn(adminClient);
     }
 
     @Test
@@ -100,14 +99,14 @@ public class CheckArchiveProfileRelationActionHandlerTest {
         when(adminClient.findIngestContracts(any())).thenReturn(createIngestContract(ActivationStatus.ACTIVE));
         when(adminClient.findProfiles(any())).thenReturn(createProfile(ProfileStatus.ACTIVE));
 
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace(FAKE_URL)
             .setUrlMetadata(FAKE_URL)
             .setObjectNameList(Lists.newArrayList("objectName.json"))
             .setObjectName("objectName.json")
             .setCurrentStep("currentStep")
             .setContainerName(guid.getId());
-        handler = new CheckArchiveProfileRelationActionHandler(adminManagementClientFactory);
+        handler = new CheckArchiveProfileRelationActionHandler();
         assertEquals(CheckArchiveProfileRelationActionHandler.getId(), HANDLER_ID);
 
         ItemStatus response = handler.execute(params, handlerIO);
@@ -130,14 +129,14 @@ public class CheckArchiveProfileRelationActionHandlerTest {
 
         when(adminClient.findIngestContracts(any())).thenReturn(createIngestContract(ActivationStatus.ACTIVE));
         when(adminClient.findProfiles(any())).thenReturn(createProfile(ProfileStatus.INACTIVE));
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace(FAKE_URL)
             .setUrlMetadata(FAKE_URL)
             .setObjectNameList(Lists.newArrayList("objectName.json"))
             .setObjectName("objectName.json")
             .setCurrentStep("currentStep")
             .setContainerName(guid.getId());
-        handler = new CheckArchiveProfileRelationActionHandler(adminManagementClientFactory);
+        handler = new CheckArchiveProfileRelationActionHandler();
         assertEquals(CheckArchiveProfileRelationActionHandler.getId(), HANDLER_ID);
 
         ItemStatus response = handler.execute(params, handlerIO);
@@ -154,14 +153,14 @@ public class CheckArchiveProfileRelationActionHandlerTest {
         when(handlerIO.getInput(1)).thenReturn(CONTRACT_NAME);
 
         when(adminClient.findProfiles(any())).thenReturn(ClientMockResultHelper.createEmptyReponse());
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace(FAKE_URL)
             .setUrlMetadata(FAKE_URL)
             .setObjectNameList(Lists.newArrayList("objectName.json"))
             .setObjectName("objectName.json")
             .setCurrentStep("currentStep")
             .setContainerName(guid.getId());
-        handler = new CheckArchiveProfileRelationActionHandler(adminManagementClientFactory);
+        handler = new CheckArchiveProfileRelationActionHandler();
         assertEquals(CheckArchiveProfileRelationActionHandler.getId(), HANDLER_ID);
 
         ItemStatus response = handler.execute(params, handlerIO);
@@ -178,14 +177,14 @@ public class CheckArchiveProfileRelationActionHandlerTest {
         when(handlerIO.getInput(1)).thenReturn(CONTRACT_NAME);
 
         when(adminClient.findProfiles(any())).thenReturn(ClientMockResultHelper.createVitamError());
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace(FAKE_URL)
             .setUrlMetadata(FAKE_URL)
             .setObjectNameList(Lists.newArrayList("objectName.json"))
             .setObjectName("objectName.json")
             .setCurrentStep("currentStep")
             .setContainerName(guid.getId());
-        handler = new CheckArchiveProfileRelationActionHandler(adminManagementClientFactory);
+        handler = new CheckArchiveProfileRelationActionHandler();
         assertEquals(CheckArchiveProfileRelationActionHandler.getId(), HANDLER_ID);
 
         ItemStatus response = handler.execute(params, handlerIO);
@@ -203,14 +202,14 @@ public class CheckArchiveProfileRelationActionHandlerTest {
 
         when(adminClient.findIngestContracts(any())).thenReturn(ClientMockResultHelper.createEmptyReponse());
         when(adminClient.findProfiles(any())).thenReturn(createProfile(ProfileStatus.ACTIVE));
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace(FAKE_URL)
             .setUrlMetadata(FAKE_URL)
             .setObjectNameList(Lists.newArrayList("objectName.json"))
             .setObjectName("objectName.json")
             .setCurrentStep("currentStep")
             .setContainerName(guid.getId());
-        handler = new CheckArchiveProfileRelationActionHandler(adminManagementClientFactory);
+        handler = new CheckArchiveProfileRelationActionHandler();
         assertEquals(CheckArchiveProfileRelationActionHandler.getId(), HANDLER_ID);
 
         ItemStatus response = handler.execute(params, handlerIO);
@@ -229,14 +228,14 @@ public class CheckArchiveProfileRelationActionHandlerTest {
 
         when(adminClient.findIngestContracts(any())).thenReturn(ClientMockResultHelper.createVitamError());
         when(adminClient.findProfiles(any())).thenReturn(createProfile(ProfileStatus.ACTIVE));
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace(FAKE_URL)
             .setUrlMetadata(FAKE_URL)
             .setObjectNameList(Lists.newArrayList("objectName.json"))
             .setObjectName("objectName.json")
             .setCurrentStep("currentStep")
             .setContainerName(guid.getId());
-        handler = new CheckArchiveProfileRelationActionHandler(adminManagementClientFactory);
+        handler = new CheckArchiveProfileRelationActionHandler();
         assertEquals(CheckArchiveProfileRelationActionHandler.getId(), HANDLER_ID);
 
         ItemStatus response = handler.execute(params, handlerIO);
@@ -254,14 +253,14 @@ public class CheckArchiveProfileRelationActionHandlerTest {
 
         when(adminClient.findIngestContracts(any())).thenReturn(createIngestContract(ActivationStatus.ACTIVE, null));
         when(adminClient.findProfiles(any())).thenReturn(createProfile(ProfileStatus.ACTIVE));
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace(FAKE_URL)
             .setUrlMetadata(FAKE_URL)
             .setObjectNameList(Lists.newArrayList("objectName.json"))
             .setObjectName("objectName.json")
             .setCurrentStep("currentStep")
             .setContainerName(guid.getId());
-        handler = new CheckArchiveProfileRelationActionHandler(adminManagementClientFactory);
+        handler = new CheckArchiveProfileRelationActionHandler();
         assertEquals(CheckArchiveProfileRelationActionHandler.getId(), HANDLER_ID);
 
         ItemStatus response = handler.execute(params, handlerIO);

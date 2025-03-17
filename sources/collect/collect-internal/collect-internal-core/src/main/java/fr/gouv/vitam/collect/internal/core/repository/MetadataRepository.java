@@ -57,6 +57,7 @@ import fr.gouv.vitam.metadata.api.model.BulkUnitInsertEntry;
 import fr.gouv.vitam.metadata.api.model.BulkUnitInsertRequest;
 import fr.gouv.vitam.metadata.client.MetaDataClient;
 import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
+import fr.gouv.vitam.metadata.common.utils.TransactionRestrictionHelper;
 
 import javax.annotation.Nonnull;
 import javax.ws.rs.ProcessingException;
@@ -65,8 +66,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static fr.gouv.vitam.collect.internal.core.helpers.MetadataHelper.applyTransactionToQuery;
 
 public class MetadataRepository {
 
@@ -85,7 +84,7 @@ public class MetadataRepository {
         try (MetaDataClient metaDataClient = metaDataCollectClientFactory.getClient()) {
             SelectParserMultiple parser = new SelectParserMultiple();
             parser.parse(queryDsl);
-            applyTransactionToQuery(transactionId, parser.getRequest());
+            TransactionRestrictionHelper.applyTransactionToQuery(transactionId, parser.getRequest());
             JsonNode jsonNode = metaDataClient.selectUnits(parser.getRequest().getFinalSelect());
             return JsonHandler.getFromJsonNode(jsonNode, RequestResponseOK.class, JsonNode.class);
         } catch (
@@ -158,7 +157,7 @@ public class MetadataRepository {
         try (MetaDataClient metaDataClient = metaDataCollectClientFactory.getClient()) {
             SelectParserMultiple parser = new SelectParserMultiple();
             parser.parse(queryDsl);
-            applyTransactionToQuery(transactionId, parser.getRequest());
+            TransactionRestrictionHelper.applyTransactionToQuery(transactionId, parser.getRequest());
             return metaDataClient.selectObjectGroups(parser.getRequest().getFinalSelect());
         } catch (
             MetaDataExecutionException
@@ -239,7 +238,7 @@ public class MetadataRepository {
     public void updateUnitById(UpdateMultiQuery updateQuery, String transactionId, String unitId)
         throws CollectInternalException {
         try (MetaDataClient client = metaDataCollectClientFactory.getClient()) {
-            applyTransactionToQuery(transactionId, updateQuery);
+            TransactionRestrictionHelper.applyTransactionToQuery(transactionId, updateQuery);
             client.updateUnitById(updateQuery.getFinalUpdateById(), unitId);
         } catch (final MetaDataException | InvalidParseOperationException | InvalidCreateOperationException e) {
             LOGGER.error("Error while update updating in metadata:", e);
@@ -281,7 +280,7 @@ public class MetadataRepository {
     public void updateObjectGroupById(UpdateMultiQuery updateQuery, String objectGroupId, String transactionId)
         throws CollectInternalException {
         try (MetaDataClient client = metaDataCollectClientFactory.getClient()) {
-            applyTransactionToQuery(transactionId, updateQuery);
+            TransactionRestrictionHelper.applyTransactionToQuery(transactionId, updateQuery);
             client.updateObjectGroupById(updateQuery.getFinalUpdate(), objectGroupId);
         } catch (final MetaDataException | InvalidParseOperationException | InvalidCreateOperationException e) {
             LOGGER.error("Error while updating objectGroup in metadata:", e);
@@ -319,7 +318,7 @@ public class MetadataRepository {
         }
 
         try (MetaDataClient metaDataClient = metaDataCollectClientFactory.getClient()) {
-            applyTransactionToQuery(transactionId, parser.getRequest());
+            TransactionRestrictionHelper.applyTransactionToQuery(transactionId, parser.getRequest());
             return metaDataClient.selectUnitsWithInheritedRules(jsonQuery);
         } catch (
             MetaDataDocumentSizeException

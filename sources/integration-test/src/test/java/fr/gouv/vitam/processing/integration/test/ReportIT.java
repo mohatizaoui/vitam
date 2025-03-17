@@ -51,6 +51,7 @@ import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.ProcessAction;
 import fr.gouv.vitam.common.model.ProcessState;
 import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.functional.administration.client.AdminManagementClient;
@@ -83,7 +84,6 @@ import fr.gouv.vitam.worker.server.rest.WorkerConfiguration;
 import fr.gouv.vitam.worker.server.rest.WorkerMain;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 import fr.gouv.vitam.workspace.rest.WorkspaceMain;
 import org.bson.Document;
 import org.junit.After;
@@ -227,7 +227,7 @@ public class ReportIT extends VitamRuleRunner {
         final String containerName = operationGuid.getId();
         VitamThreadUtils.getVitamSession().setRequestId(operationGuid);
         createLogbookOperation(operationGuid, operationGuid, null, LogbookTypeProcess.MASS_UPDATE);
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(containerName);
 
         // insert 2 units and LFC
@@ -298,7 +298,7 @@ public class ReportIT extends VitamRuleRunner {
         final String containerName = operationGuid.getId();
         VitamThreadUtils.getVitamSession().setRequestId(operationGuid);
         createLogbookOperation(operationGuid, operationGuid, null, LogbookTypeProcess.MASS_UPDATE);
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(containerName);
 
         // insert units and LFC
@@ -376,7 +376,7 @@ public class ReportIT extends VitamRuleRunner {
             final String containerName = operationGuid.getId();
             VitamThreadUtils.getVitamSession().setRequestId(operationGuid);
             createLogbookOperation(operationGuid, operationGuid, null, LogbookTypeProcess.MASS_UPDATE);
-            workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+            workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
             workspaceClient.createContainer(containerName);
 
             // insert 2 units and LFC
@@ -466,7 +466,7 @@ public class ReportIT extends VitamRuleRunner {
             VitamThreadUtils.getVitamSession().setRequestId(operationGuid);
             createLogbookOperation(operationGuid, operationGuid, null, LogbookTypeProcess.MASS_UPDATE);
 
-            workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+            workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
             workspaceClient.createContainer(containerName);
 
             // insert units and LFC

@@ -30,6 +30,7 @@ import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.client.VitamClientFactory;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 
 import java.io.IOException;
 
@@ -54,6 +55,36 @@ public class IngestInternalClientFactory extends VitamClientFactory<IngestIntern
     }
 
     /**
+     * Get the IngestInternalClientFactory instance
+     *
+     * @return the instance
+     */
+    public static final IngestInternalClientFactory getInstance() {
+        return getInstance(WorkFlowExecutionContext.VITAM);
+    }
+
+    /**
+     * Get the IngestInternalClientFactory instance for the given workflow execution context
+     *
+     * @param executionContext the workflow execution context
+     * @return the instance
+     */
+    public static IngestInternalClientFactory getInstance(WorkFlowExecutionContext executionContext) {
+        return switch (executionContext) {
+            case VITAM -> INGEST_INTERNAL_CLIENT_FACTORY;
+            case COLLECT -> throw new IllegalStateException("call not allowed from Collect to Ingest internal ");
+        };
+    }
+
+    @Override
+    public IngestInternalClient getClient() {
+        return switch (getVitamClientType()) {
+            case MOCK -> new IngestInternalClientMock();
+            case PRODUCTION -> new IngestInternalClientRest(this);
+        };
+    }
+
+    /**
      * Change client configuration from a Yaml files
      *
      * @param configurationPath the path to the configuration file
@@ -72,31 +103,6 @@ public class IngestInternalClientFactory extends VitamClientFactory<IngestIntern
             LOGGER.error("Error when retrieving configuration file {}, using mock", CONFIGURATION_FILENAME);
         }
         return configuration;
-    }
-
-    /**
-     * Get the IngestInternalClientFactory instance
-     *
-     * @return the instance
-     */
-    public static final IngestInternalClientFactory getInstance() {
-        return INGEST_INTERNAL_CLIENT_FACTORY;
-    }
-
-    @Override
-    public IngestInternalClient getClient() {
-        IngestInternalClient client = null;
-        switch (getVitamClientType()) {
-            case MOCK:
-                client = new IngestInternalClientMock();
-                break;
-            case PRODUCTION:
-                client = new IngestInternalClientRest(this);
-                break;
-            default:
-                throw new IllegalArgumentException("Ingest Internal client type unknown");
-        }
-        return client;
     }
 
     /**

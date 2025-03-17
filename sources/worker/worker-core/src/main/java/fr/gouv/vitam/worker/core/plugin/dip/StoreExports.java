@@ -104,7 +104,7 @@ public class StoreExports extends ActionHandler {
                 storeReportToOffers(params.getContainerName());
             }
 
-            try (WorkspaceClient workspaceClient = handler.getWorkspaceClientFactory().getClient()) {
+            try (WorkspaceClient workspaceClient = handler.getWorkspaceClient()) {
                 if (workspaceClient.isExistingObject(handler.getContainerName(), SEDA_FILE)) {
                     zipWorkspace(workspaceClient, handler.getContainerName(), tenantFolder, zipFileName, container);
                     ObjectNode eventDetailDataNode = JsonHandler.createObjectNode();
@@ -173,7 +173,7 @@ public class StoreExports extends ActionHandler {
     private String computeObjectDigest(HandlerIO handler, String container, String tenantFolder, String fileName)
         throws ContentAddressableStorageException {
         LOGGER.debug("Compute object digest from workspace...");
-        try (WorkspaceClient workspaceClient = handler.getWorkspaceClientFactory().getClient()) {
+        try (WorkspaceClient workspaceClient = handler.getWorkspaceClient()) {
             return workspaceClient.computeObjectDigest(
                 container,
                 tenantFolder + "/" + fileName,

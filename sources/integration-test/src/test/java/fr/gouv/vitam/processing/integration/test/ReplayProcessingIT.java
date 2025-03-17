@@ -57,6 +57,7 @@ import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.administration.AccessionRegisterDetailModel;
 import fr.gouv.vitam.common.model.processing.ProcessDetail;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.functional.administration.client.AdminManagementClient;
@@ -87,7 +88,6 @@ import fr.gouv.vitam.worker.server.rest.WorkerMain;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageNotFoundException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 import fr.gouv.vitam.workspace.rest.WorkspaceMain;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.AfterClass;
@@ -165,7 +165,11 @@ public class ReplayProcessingIT extends VitamRuleRunner {
 
         runAfter();
 
-        try (WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient()) {
+        try (
+            WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance(
+                WorkFlowExecutionContext.VITAM
+            ).getClient()
+        ) {
             workspaceClient.deleteContainer("process", true);
         } catch (ContentAddressableStorageNotFoundException e) {
             LOGGER.error(e);
@@ -385,7 +389,9 @@ public class ReplayProcessingIT extends VitamRuleRunner {
             zipInputStreamSipObject = PropertiesUtils.getResourceAsStream(SIP_OK_REPLAY_1);
         }
 
-        WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance(
+            WorkFlowExecutionContext.VITAM
+        ).getClient();
         workspaceClient.createContainer(containerName);
         workspaceClient.uncompressObject(containerName, SIP_FOLDER, CommonMediaType.ZIP, zipInputStreamSipObject);
         // Insert sanityCheck file & StpUpload

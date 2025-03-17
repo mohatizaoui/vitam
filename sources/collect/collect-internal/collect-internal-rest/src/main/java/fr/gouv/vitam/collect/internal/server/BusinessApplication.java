@@ -41,7 +41,7 @@ import fr.gouv.vitam.collect.internal.core.service.MetadataService;
 import fr.gouv.vitam.collect.internal.core.service.ProjectService;
 import fr.gouv.vitam.collect.internal.core.service.SipService;
 import fr.gouv.vitam.collect.internal.core.service.TransactionService;
-import fr.gouv.vitam.collect.internal.rest.CollectMetadataInternalResource;
+import fr.gouv.vitam.collect.internal.rest.CollectInternalResource;
 import fr.gouv.vitam.collect.internal.rest.ProjectInternalResource;
 import fr.gouv.vitam.collect.internal.rest.TransactionInternalResource;
 import fr.gouv.vitam.collect.internal.thread.ManageStatusThread;
@@ -52,14 +52,16 @@ import fr.gouv.vitam.common.database.server.mongodb.SimpleMongoDBAccess;
 import fr.gouv.vitam.common.format.identification.FormatIdentifierFactory;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.serverv2.ConfigurationApplication;
 import fr.gouv.vitam.common.serverv2.application.CommonBusinessApplication;
 import fr.gouv.vitam.functional.administration.client.AdminManagementClientFactory;
 import fr.gouv.vitam.ingest.internal.client.IngestInternalClientFactory;
+import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClientFactory;
 import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
-import fr.gouv.vitam.metadata.client.MetadataType;
+import fr.gouv.vitam.processing.management.client.ProcessingManagementClientFactory;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
+import fr.gouv.vitam.workspace.client.WorkspaceCollectClientFactory;
 
 import javax.servlet.ServletConfig;
 import javax.ws.rs.core.Context;
@@ -95,16 +97,26 @@ public class BusinessApplication extends ConfigurationApplication {
             SimpleMongoDBAccess mongoDbAccess = new SimpleMongoDBAccess(mongoClient, configuration.getDbName());
 
             // Vitam Clients
-            WorkspaceClientFactory.changeMode(configuration.getWorkspaceUrl(), WorkspaceType.COLLECT);
-            MetaDataClientFactory metadataCollectClientFactory = MetaDataClientFactory.getInstance(
-                MetadataType.COLLECT
+            WorkspaceCollectClientFactory.changeMode(
+                configuration.getWorkspaceCollectUrl(),
+                WorkFlowExecutionContext.COLLECT
             );
-            WorkspaceClientFactory workspaceCollectClientFactory = WorkspaceClientFactory.getInstance(
-                WorkspaceType.COLLECT
+            WorkspaceClientFactory.changeMode(configuration.getWorkspaceUrl(), WorkFlowExecutionContext.VITAM);
+            MetaDataClientFactory metadataCollectClientFactory = MetaDataClientFactory.getInstance(
+                WorkFlowExecutionContext.COLLECT
+            );
+            WorkspaceCollectClientFactory workspaceCollectClientFactory = WorkspaceCollectClientFactory.getInstance();
+            WorkspaceClientFactory workspaceClientFactory = WorkspaceClientFactory.getInstance(
+                WorkFlowExecutionContext.VITAM
             );
             IngestInternalClientFactory ingestInternalClientFactory = IngestInternalClientFactory.getInstance();
             AccessInternalClientFactory accessInternalClientFactory = AccessInternalClientFactory.getInstance();
             AdminManagementClientFactory adminManagementClientFactory = AdminManagementClientFactory.getInstance();
+            ProcessingManagementClientFactory processingManagementClientFactory =
+                ProcessingManagementClientFactory.getInstance(WorkFlowExecutionContext.COLLECT);
+            LogbookOperationsClientFactory logbookOperationsClientFactory = LogbookOperationsClientFactory.getInstance(
+                WorkFlowExecutionContext.COLLECT
+            );
 
             // Repositories
             TransactionRepository transactionRepository = new TransactionRepository(mongoDbAccess);
@@ -127,7 +139,10 @@ public class BusinessApplication extends ConfigurationApplication {
             CollectService collectService = new CollectService(
                 metadataRepository,
                 workspaceCollectClientFactory,
-                FormatIdentifierFactory.getInstance()
+                workspaceClientFactory,
+                FormatIdentifierFactory.getInstance(),
+                processingManagementClientFactory,
+                logbookOperationsClientFactory
             );
             FluxService fluxService = new FluxService(
                 collectService,
@@ -143,8 +158,11 @@ public class BusinessApplication extends ConfigurationApplication {
                 metadataRepository,
                 fluxService,
                 workspaceCollectClientFactory,
+                workspaceClientFactory,
                 accessInternalClientFactory,
-                ingestInternalClientFactory
+                ingestInternalClientFactory,
+                processingManagementClientFactory,
+                logbookOperationsClientFactory
             );
             SipService sipService = new SipService(workspaceCollectClientFactory, metadataRepository);
 
@@ -162,7 +180,7 @@ public class BusinessApplication extends ConfigurationApplication {
                 transactionService,
                 metadataService
             );
-            final CollectMetadataInternalResource collectMetadataInternalResource = new CollectMetadataInternalResource(
+            final CollectInternalResource collectInternalResource = new CollectInternalResource(
                 metadataService,
                 collectService,
                 transactionService
@@ -177,7 +195,7 @@ public class BusinessApplication extends ConfigurationApplication {
             singletons.add(new JsonParseExceptionMapper());
             singletons.add(transactionInternalResource);
             singletons.add(projectInternalResource);
-            singletons.add(collectMetadataInternalResource);
+            singletons.add(collectInternalResource);
         } catch (IOException e) {
             LOGGER.debug("Error when starting BusinessApplication :", e);
             throw new CollectInternalException(e);

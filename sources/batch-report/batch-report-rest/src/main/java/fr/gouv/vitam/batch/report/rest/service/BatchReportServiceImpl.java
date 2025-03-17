@@ -27,6 +27,7 @@
 package fr.gouv.vitam.batch.report.rest.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.annotations.VisibleForTesting;
 import com.mongodb.client.MongoCursor;
 import fr.gouv.vitam.batch.report.exception.BatchReportException;
 import fr.gouv.vitam.batch.report.model.AuditObjectGroupModel;
@@ -82,6 +83,7 @@ import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.common.model.ExtractedMetadata;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.security.IllegalPathException;
 import fr.gouv.vitam.common.security.SafeFileChecker;
 import fr.gouv.vitam.worker.core.distribution.JsonLineModel;
@@ -120,8 +122,6 @@ public class BatchReportServiceImpl {
     private static final String JSONL_EXTENSION = ".jsonl";
     private static final String REPORT_JSONL = "report.jsonl";
 
-    private final WorkspaceClientFactory workspaceClientFactory;
-
     private final EliminationActionUnitRepository eliminationActionUnitRepository;
     private final PurgeUnitRepository purgeUnitRepository;
     private final PurgeObjectGroupRepository purgeObjectGroupRepository;
@@ -135,6 +135,7 @@ public class BatchReportServiceImpl {
     private final TraceabilityReportRepository traceabilityReportRepository;
     private final ExtractedMetadataRepository extractedMetadataRepository;
     private final DeleteGotVersionsReportRepository deleteGotVersionsReportRepository;
+    private final WorkspaceClientFactory workspaceClientFactory;
 
     public BatchReportServiceImpl(
         WorkspaceClientFactory workspaceClientFactory,
@@ -152,13 +153,47 @@ public class BatchReportServiceImpl {
         ExtractedMetadataRepository extractedMetadataRepository,
         DeleteGotVersionsReportRepository deleteGotVersionsReportRepository
     ) {
+        this(
+            eliminationActionUnitRepository,
+            purgeUnitRepository,
+            purgeObjectGroupRepository,
+            transferReplyUnitRepository,
+            updateUnitReportRepository,
+            bulkUpdateUnitMetadataReportRepository,
+            preservationReportRepository,
+            auditReportRepository,
+            unitComputedInheritedRulesInvalidationRepository,
+            evidenceAuditReportRepository,
+            traceabilityReportRepository,
+            extractedMetadataRepository,
+            deleteGotVersionsReportRepository,
+            workspaceClientFactory
+        );
+    }
+
+    @VisibleForTesting
+    public BatchReportServiceImpl(
+        EliminationActionUnitRepository eliminationActionUnitRepository,
+        PurgeUnitRepository purgeUnitRepository,
+        PurgeObjectGroupRepository purgeObjectGroupRepository,
+        TransferReplyUnitRepository transferReplyUnitRepository,
+        UpdateUnitReportRepository updateUnitReportRepository,
+        BulkUpdateUnitMetadataReportRepository bulkUpdateUnitMetadataReportRepository,
+        PreservationReportRepository preservationReportRepository,
+        AuditReportRepository auditReportRepository,
+        UnitComputedInheritedRulesInvalidationRepository unitComputedInheritedRulesInvalidationRepository,
+        EvidenceAuditReportRepository evidenceAuditReportRepository,
+        TraceabilityReportRepository traceabilityReportRepository,
+        ExtractedMetadataRepository extractedMetadataRepository,
+        DeleteGotVersionsReportRepository deleteGotVersionsReportRepository,
+        WorkspaceClientFactory workspaceClientFactory
+    ) {
         this.eliminationActionUnitRepository = eliminationActionUnitRepository;
         this.purgeUnitRepository = purgeUnitRepository;
         this.purgeObjectGroupRepository = purgeObjectGroupRepository;
         this.transferReplyUnitRepository = transferReplyUnitRepository;
         this.updateUnitReportRepository = updateUnitReportRepository;
         this.bulkUpdateUnitMetadataReportRepository = bulkUpdateUnitMetadataReportRepository;
-        this.workspaceClientFactory = workspaceClientFactory;
         this.preservationReportRepository = preservationReportRepository;
         this.auditReportRepository = auditReportRepository;
         this.unitComputedInheritedRulesInvalidationRepository = unitComputedInheritedRulesInvalidationRepository;
@@ -166,6 +201,7 @@ public class BatchReportServiceImpl {
         this.traceabilityReportRepository = traceabilityReportRepository;
         this.extractedMetadataRepository = extractedMetadataRepository;
         this.deleteGotVersionsReportRepository = deleteGotVersionsReportRepository;
+        this.workspaceClientFactory = workspaceClientFactory;
     }
 
     public void appendEliminationActionUnitReport(
@@ -265,8 +301,12 @@ public class BatchReportServiceImpl {
         unitComputedInheritedRulesInvalidationRepository.deleteReportByIdAndTenant(processId, tenantId);
     }
 
-    public void exportUnitsToInvalidate(String processId, int tenantId, ReportExportRequest reportExportRequest)
-        throws IOException, ContentAddressableStorageServerException, IllegalPathException {
+    public void exportUnitsToInvalidate(
+        String processId,
+        int tenantId,
+        ReportExportRequest reportExportRequest,
+        WorkFlowExecutionContext executionContext
+    ) throws IOException, ContentAddressableStorageServerException, IllegalPathException {
         File file = createTemporaryFile(processId, reportExportRequest.getFilename());
 
         try {
@@ -769,8 +809,11 @@ public class BatchReportServiceImpl {
         extractedMetadataRepository.addExtractedMetadataForAu(extractedMetadatas);
     }
 
-    public void createExtractedMetadataDistributionFileForAu(String processId, int tenant)
-        throws IOException, ContentAddressableStorageServerException, IllegalPathException {
+    public void createExtractedMetadataDistributionFileForAu(
+        String processId,
+        int tenant,
+        WorkFlowExecutionContext executionContext
+    ) throws IOException, ContentAddressableStorageServerException, IllegalPathException {
         File tempFile = createTemporaryFile(processId, processId);
         try (
             MongoCursor<ExtractedMetadata> extractedMetadatas =

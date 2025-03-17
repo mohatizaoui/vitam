@@ -1,0 +1,169 @@
+{
+  "id": "COLLECT_RECLASSIFICATION",
+  "name": "Reclassification in Collect",
+  "identifier": "COLLECT_RECLASSIFICATION",
+  "typeProc": "COLLECT_RECLASSIFICATION",
+  "comment": "Default reclassification workflow for Collect",
+  "executionContext": "COLLECT",
+  "steps": [
+    {
+      "workerGroupId": "DefaultWorker",
+      "stepName": "STP_RECLASSIFICATION_PREPARATION",
+      "behavior": "BLOCKING",
+      "distribution": {
+        "kind": "REF"
+      },
+      "actions": [
+        {
+          "action": {
+            "actionKey": "CHECK_CONCURRENT_WORKFLOW_LOCK",
+            "behavior": "BLOCKING",
+            "lifecycleLog": "DISABLED",
+            "in": [
+              {
+                "name": "workflowIds",
+                "uri": "VALUE:COLLECT_RECLASSIFICATION,COLLECT_ELIMINATION_ACTION,COLLECT_DELETION_ACTION"
+              }
+            ]
+          }
+        },
+        {
+          "action": {
+            "actionKey": "RECLASSIFICATION_PREPARATION_LOAD_REQUEST",
+            "behavior": "BLOCKING",
+            "lifecycleLog": "DISABLED",
+            "out": [
+              {
+                "name": "reclassification_orders.json",
+                "uri": "MEMORY:MapsMemory/reclassification_orders.json"
+              }
+            ]
+          }
+        },
+        {
+          "action": {
+            "actionKey": "RECLASSIFICATION_PREPARATION_CHECK_GRAPH",
+            "behavior": "BLOCKING",
+            "lifecycleLog": "DISABLED",
+            "in": [
+              {
+                "name": "reclassification_orders.json",
+                "uri": "MEMORY:MapsMemory/reclassification_orders.json"
+              }
+            ]
+          }
+        },
+        {
+          "action": {
+            "actionKey": "RECLASSIFICATION_PREPARATION_UPDATE_DISTRIBUTION",
+            "behavior": "BLOCKING",
+            "lifecycleLog": "DISABLED",
+            "in": [
+              {
+                "name": "reclassification_orders.json",
+                "uri": "MEMORY:MapsMemory/reclassification_orders.json"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "workerGroupId": "DefaultWorker",
+      "stepName": "STP_UNIT_DETACHMENT",
+      "behavior": "BLOCKING",
+      "distribution": {
+        "kind": "LIST_IN_DIRECTORY",
+        "type": "Units",
+        "element": "UnitsToDetach",
+        "statusOnEmptyDistribution": "OK"
+      },
+      "actions": [
+        {
+          "action": {
+            "behavior": "BLOCKING",
+            "actionKey": "UNIT_DETACHMENT",
+            "lifecycleLog": "DISABLED"
+          }
+        }
+      ]
+    },
+    {
+      "workerGroupId": "DefaultWorker",
+      "stepName": "STP_UNIT_ATTACHMENT",
+      "behavior": "BLOCKING",
+      "distribution": {
+        "kind": "LIST_IN_DIRECTORY",
+        "type": "Units",
+        "element": "UnitsToAttach",
+        "statusOnEmptyDistribution": "OK"
+      },
+      "actions": [
+        {
+          "action": {
+            "behavior": "BLOCKING",
+            "actionKey": "UNIT_ATTACHMENT",
+            "lifecycleLog": "DISABLED"
+          }
+        }
+      ]
+    },
+    {
+      "workerGroupId": "DefaultWorker",
+      "stepName": "STP_UNIT_GRAPH_COMPUTE",
+      "behavior": "BLOCKING",
+      "distribution": {
+        "kind": "LIST_IN_JSONL_FILE",
+        "type": "Units",
+        "element": "UnitsToUpdate.jsonl",
+        "statusOnEmptyDistribution": "KO"
+      },
+      "actions": [
+        {
+          "action": {
+            "behavior": "BLOCKING",
+            "actionKey": "UNIT_GRAPH_COMPUTE",
+            "lifecycleLog": "DISABLED"
+          }
+        }
+      ]
+    },
+    {
+      "workerGroupId": "DefaultWorker",
+      "stepName": "STP_OBJECT_GROUP_GRAPH_COMPUTE",
+      "behavior": "BLOCKING",
+      "distribution": {
+        "kind": "LIST_IN_JSONL_FILE",
+        "type": "ObjectGroup",
+        "element": "ObjectGroupsToUpdate.jsonl",
+        "statusOnEmptyDistribution": "OK"
+      },
+      "actions": [
+        {
+          "action": {
+            "behavior": "BLOCKING",
+            "actionKey": "OBJECT_GROUP_GRAPH_COMPUTE",
+            "lifecycleLog": "DISABLED"
+          }
+        }
+      ]
+    },
+    {
+      "workerGroupId": "DefaultWorker",
+      "stepName": "STP_RECLASSIFICATION_FINALIZATION",
+      "behavior": "BLOCKING",
+      "distribution": {
+        "kind": "REF"
+      },
+      "actions": [
+        {
+          "action": {
+            "actionKey": "RECLASSIFICATION_FINALIZATION",
+            "behavior": "BLOCKING",
+            "lifecycleLog": "DISABLED"
+          }
+        }
+      ]
+    }
+  ]
+}

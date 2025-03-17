@@ -24,6 +24,7 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
+
 package fr.gouv.vitam.functional.administration.client;
 
 import fr.gouv.vitam.common.PropertiesUtils;
@@ -32,6 +33,7 @@ import fr.gouv.vitam.common.client.configuration.ClientConfiguration;
 import fr.gouv.vitam.common.client.configuration.ClientConfigurationImpl;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 
 import java.io.IOException;
 
@@ -51,12 +53,24 @@ public class AdminManagementClientFactory extends VitamClientFactory<AdminManage
     }
 
     /**
-     * Get the WorkerClientFactory instance
+     * Get the AdminManagementClientFactory instance
      *
-     * @return the instance of WorkerClientFactory
+     * @return the instance
      */
-    public static final AdminManagementClientFactory getInstance() {
-        return ADMIN_MANAGEMENT_CLIENT_FACTORY;
+    public static AdminManagementClientFactory getInstance() {
+        return getInstance(WorkFlowExecutionContext.VITAM);
+    }
+
+    /**
+     * Get the AdminManagementClientFactory instance for the given workflow execution context
+     *
+     * @param executionContext the workflow execution context
+     * @return the instance
+     */
+    public static AdminManagementClientFactory getInstance(WorkFlowExecutionContext executionContext) {
+        return switch (executionContext) {
+            case VITAM, COLLECT -> ADMIN_MANAGEMENT_CLIENT_FACTORY;
+        };
     }
 
     /**
@@ -66,18 +80,10 @@ public class AdminManagementClientFactory extends VitamClientFactory<AdminManage
      */
     @Override
     public AdminManagementClient getClient() {
-        AdminManagementClient client;
-        switch (getVitamClientType()) {
-            case MOCK:
-                client = new AdminManagementClientMock();
-                break;
-            case PRODUCTION:
-                client = new AdminManagementClientRest(this);
-                break;
-            default:
-                throw new IllegalArgumentException("Admin management client type unknown");
-        }
-        return client;
+        return switch (getVitamClientType()) {
+            case MOCK -> new AdminManagementClientMock();
+            case PRODUCTION -> new AdminManagementClientRest(this);
+        };
     }
 
     /**

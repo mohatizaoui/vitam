@@ -43,6 +43,7 @@ import fr.gouv.vitam.common.model.logbook.LogbookOperation;
 import fr.gouv.vitam.common.model.processing.IOParameter;
 import fr.gouv.vitam.common.model.processing.ProcessingUri;
 import fr.gouv.vitam.common.model.processing.UriPrefix;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -205,6 +206,7 @@ public class PrepareUnitLfcTraceabilityActionPluginTest {
 
         String objectId = "objectId";
         handlerIO = new HandlerIOImpl(
+            WorkFlowExecutionContext.VITAM,
             workspaceClientFactory,
             logbookLifeCyclesClientFactory,
             "PrepareUnitLfcTraceabilityActionPluginTest",
@@ -765,7 +767,7 @@ public class PrepareUnitLfcTraceabilityActionPluginTest {
     }
 
     private WorkerParameters createExecParams(int temporizationDelayInSeconds, int maxEntries) {
-        return WorkerParametersFactory.newWorkerParameters()
+        return WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace("http://localhost:8083")
             .setUrlMetadata("http://localhost:8083")
             .setObjectName("objectName.json")

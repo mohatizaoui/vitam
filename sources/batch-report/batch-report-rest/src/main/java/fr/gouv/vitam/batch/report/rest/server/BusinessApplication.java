@@ -46,11 +46,11 @@ import fr.gouv.vitam.batch.report.rest.service.BatchReportServiceImpl;
 import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.database.server.mongodb.MongoDbAccess;
 import fr.gouv.vitam.common.database.server.mongodb.SimpleMongoDBAccess;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.server.HeaderIdContainerFilter;
 import fr.gouv.vitam.common.serverv2.ConfigurationApplication;
 import fr.gouv.vitam.common.serverv2.application.CommonBusinessApplication;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 
 import javax.servlet.ServletConfig;
 import javax.ws.rs.core.Context;
@@ -92,8 +92,10 @@ public class BusinessApplication extends ConfigurationApplication {
             AuditReportRepository auditReportRepository = new AuditReportRepository(mongoDbAccess);
             UnitComputedInheritedRulesInvalidationRepository unitComputedInheritedRulesInvalidationRepository =
                 new UnitComputedInheritedRulesInvalidationRepository(mongoDbAccess);
-            WorkspaceClientFactory.changeMode(configuration.getWorkspaceUrl(), WorkspaceType.VITAM);
-            WorkspaceClientFactory workspaceClientFactory = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM);
+            WorkspaceClientFactory.changeMode(configuration.getWorkspaceUrl(), WorkFlowExecutionContext.VITAM);
+            WorkspaceClientFactory workspaceClientFactory = WorkspaceClientFactory.getInstance(
+                WorkFlowExecutionContext.VITAM
+            );
             UpdateUnitReportRepository updateUnitReportRepository = new UpdateUnitReportRepository(mongoDbAccess);
             BulkUpdateUnitMetadataReportRepository bulkUpdateUnitMetadataReportRepository =
                 new BulkUpdateUnitMetadataReportRepository(mongoDbAccess);

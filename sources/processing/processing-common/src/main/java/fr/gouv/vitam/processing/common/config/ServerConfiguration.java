@@ -36,7 +36,9 @@ import fr.gouv.vitam.common.server.application.configuration.DefaultVitamApplica
 public class ServerConfiguration extends DefaultVitamApplicationConfiguration {
 
     private String urlMetadata;
+    private String urlMetadataCollect;
     private String urlWorkspace;
+    private String urlWorkspaceCollect;
 
     private static Integer DEFAULTSCHEDULER_PERIOD = 1; // one hour
     private Integer workflowRefreshPeriod = DEFAULTSCHEDULER_PERIOD;
@@ -69,6 +71,15 @@ public class ServerConfiguration extends DefaultVitamApplicationConfiguration {
         return this;
     }
 
+    public String getUrlMetadataCollect() {
+        return urlMetadataCollect;
+    }
+
+    public ServerConfiguration setUrlMetadataCollect(String urlMetadataCollect) {
+        this.urlMetadataCollect = urlMetadataCollect;
+        return this;
+    }
+
     /**
      * @return the urlWorkspace
      */
@@ -86,6 +97,15 @@ public class ServerConfiguration extends DefaultVitamApplicationConfiguration {
     public ServerConfiguration setUrlWorkspace(String urlWorkspace) {
         ParametersChecker.checkParameter("urlWorkspace is a mandatory parameter", urlWorkspace);
         this.urlWorkspace = urlWorkspace;
+        return this;
+    }
+
+    public String getUrlWorkspaceCollect() {
+        return urlWorkspaceCollect;
+    }
+
+    public ServerConfiguration setUrlWorkspaceCollect(String urlWorkspaceCollect) {
+        this.urlWorkspaceCollect = urlWorkspaceCollect;
         return this;
     }
 

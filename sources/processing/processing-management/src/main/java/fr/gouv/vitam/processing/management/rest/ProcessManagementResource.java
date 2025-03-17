@@ -45,6 +45,7 @@ import fr.gouv.vitam.common.model.ProcessState;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.processing.ProcessDetail;
 import fr.gouv.vitam.common.model.processing.WorkFlow;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.server.application.resources.ApplicationStatusResource;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.processing.common.ProcessingEntry;
@@ -231,7 +232,7 @@ public class ProcessManagementResource extends ApplicationStatusResource {
         ParametersChecker.checkParameter(ERR_PROCESS_INPUT_ISMANDATORY, process);
         final String reqId = VitamThreadUtils.getVitamSession().getRequestId();
 
-        final WorkerParameters workParams = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters workParams = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setContainerName(process.getContainer())
             .setRequestId(reqId)
             .setProcessId(process.getContainer())
@@ -407,7 +408,7 @@ public class ProcessManagementResource extends ApplicationStatusResource {
         Integer tenantId = VitamThreadUtils.getVitamSession().getTenantId();
         final String reqId = VitamThreadUtils.getVitamSession().getRequestId();
 
-        final WorkerParameters workParams = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters workParams = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setContainerName(id)
             .setRequestId(reqId)
             .setProcessId(id)

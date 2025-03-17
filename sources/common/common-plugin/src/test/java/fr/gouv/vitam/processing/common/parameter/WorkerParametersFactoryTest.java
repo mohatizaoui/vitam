@@ -27,6 +27,7 @@
 package fr.gouv.vitam.processing.common.parameter;
 
 import com.google.common.collect.Lists;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import org.junit.Test;
 
 import java.util.Set;
@@ -43,10 +44,10 @@ public class WorkerParametersFactoryTest {
     public void mandatorySetTest() {
         final Set mandatoryToAdd = new TreeSet();
         mandatoryToAdd.add(WorkerParameterName.currentStep);
-        WorkerParameters workerParameters = WorkerParametersFactory.newWorkerParameters();
+        WorkerParameters workerParameters = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM);
         assertFalse(workerParameters.getMandatoriesParameters().contains(WorkerParameterName.metadataRequest));
 
-        workerParameters = WorkerParametersFactory.newWorkerParameters(mandatoryToAdd);
+        workerParameters = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM, mandatoryToAdd);
         assertTrue(workerParameters.getMandatoriesParameters().contains(WorkerParameterName.currentStep));
 
         assertEquals(5, WorkerParametersFactory.getDefaultMandatory().size());
@@ -54,12 +55,13 @@ public class WorkerParametersFactoryTest {
 
     @Test
     public void constructorTest() {
-        final WorkerParameters parameters = WorkerParametersFactory.newWorkerParameters();
+        final WorkerParameters parameters = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM);
         assertNotNull(parameters);
         assertEquals(5, parameters.getMandatoriesParameters().size());
         assertEquals(0, parameters.getMapParameters().size());
 
         final WorkerParameters parameters2 = WorkerParametersFactory.newWorkerParameters(
+            WorkFlowExecutionContext.VITAM,
             "processId",
             "stepUniqId",
             "containerName",

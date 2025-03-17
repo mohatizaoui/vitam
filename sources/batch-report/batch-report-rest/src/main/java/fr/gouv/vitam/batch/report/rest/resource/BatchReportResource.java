@@ -24,6 +24,7 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
+
 package fr.gouv.vitam.batch.report.rest.resource;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -32,6 +33,7 @@ import fr.gouv.vitam.batch.report.exception.BatchReportException;
 import fr.gouv.vitam.batch.report.model.Report;
 import fr.gouv.vitam.batch.report.model.ReportBody;
 import fr.gouv.vitam.batch.report.model.ReportExportRequest;
+import fr.gouv.vitam.batch.report.model.ReportRequestWrapper;
 import fr.gouv.vitam.batch.report.model.ReportType;
 import fr.gouv.vitam.batch.report.model.entry.AuditObjectGroupReportEntry;
 import fr.gouv.vitam.batch.report.model.entry.BulkUpdateUnitMetadataReportEntry;
@@ -55,6 +57,7 @@ import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.common.model.ExtractedMetadata;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.security.IllegalPathException;
 import fr.gouv.vitam.common.server.application.resources.ApplicationStatusResource;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
@@ -70,6 +73,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
@@ -114,7 +118,7 @@ public class BatchReportResource extends ApplicationStatusResource {
     private static final TypeReference<ReportBody<DeleteGotVersionsReportEntry>> reportDeleteGotVersionsType =
         new TypeReference<>() {};
 
-    private BatchReportServiceImpl batchReportServiceImpl;
+    private final BatchReportServiceImpl batchReportServiceImpl;
 
     public BatchReportResource(BatchReportServiceImpl batchReportServiceImpl) {
         this.batchReportServiceImpl = batchReportServiceImpl;
@@ -261,9 +265,9 @@ public class BatchReportResource extends ApplicationStatusResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response storeReportToWorkspace(Report reportInfo) {
+    public Response storeReportToWorkspace(ReportRequestWrapper<Report> reportRequestWrapper) {
         int tenantId = VitamThreadUtils.getVitamSession().getTenantId();
-
+        Report reportInfo = reportRequestWrapper.getRequest();
         ParametersChecker.checkParameter(EMPTY_PROCESSID_ERROR_MESSAGE, reportInfo.getOperationSummary().getEvId());
         ParametersChecker.checkParameter("tenantId should be filed", reportInfo.getOperationSummary().getTenant());
         if (tenantId != reportInfo.getOperationSummary().getTenant()) {
@@ -292,12 +296,13 @@ public class BatchReportResource extends ApplicationStatusResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response exportDistinctObjectGroup(
         @PathParam("processId") String processId,
-        ReportExportRequest reportExportRequest
+        ReportRequestWrapper<ReportExportRequest> reportRequestWrapper
     ) throws ContentAddressableStorageServerException, IOException {
         try {
             ParametersChecker.checkParameter(EMPTY_PROCESSID_ERROR_MESSAGE, processId);
 
             int tenantId = VitamThreadUtils.getVitamSession().getTenantId();
+            ReportExportRequest reportExportRequest = reportRequestWrapper.getRequest();
 
             batchReportServiceImpl.exportPurgeDistinctObjectGroupOfDeletedUnits(
                 processId,
@@ -316,11 +321,16 @@ public class BatchReportResource extends ApplicationStatusResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response exportUnitsToInvalidate(
         @PathParam("processId") String processId,
-        ReportExportRequest reportExportRequest
+        ReportRequestWrapper<ReportExportRequest> reportRequestWrapper
     ) throws Exception {
         int tenantId = VitamThreadUtils.getVitamSession().getTenantId();
 
-        batchReportServiceImpl.exportUnitsToInvalidate(processId, tenantId, reportExportRequest);
+        batchReportServiceImpl.exportUnitsToInvalidate(
+            processId,
+            tenantId,
+            reportRequestWrapper.getRequest(),
+            reportRequestWrapper.getExecutionContext()
+        );
         return Response.status(Response.Status.CREATED).build();
     }
 
@@ -330,14 +340,18 @@ public class BatchReportResource extends ApplicationStatusResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public Response exportPurgeAccessionRegister(
         @PathParam("processId") String processId,
-        ReportExportRequest reportExportRequest
+        ReportRequestWrapper<ReportExportRequest> reportRequestWrapper
     ) throws ContentAddressableStorageServerException, IOException {
         try {
             ParametersChecker.checkParameter(EMPTY_PROCESSID_ERROR_MESSAGE, processId);
 
             int tenantId = VitamThreadUtils.getVitamSession().getTenantId();
 
-            batchReportServiceImpl.exportPurgeAccessionRegister(processId, reportExportRequest.getFilename(), tenantId);
+            batchReportServiceImpl.exportPurgeAccessionRegister(
+                processId,
+                reportRequestWrapper.getRequest().getFilename(),
+                tenantId
+            );
 
             return Response.status(OK).build();
         } catch (InvalidParseOperationException | IllegalArgumentException | IllegalPathException e) {
@@ -420,11 +434,15 @@ public class BatchReportResource extends ApplicationStatusResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response createExtractedMetadataDistributionFileForAu(@PathParam("processId") String processId) {
+    public Response createExtractedMetadataDistributionFileForAu(
+        @PathParam("processId") String processId,
+        @QueryParam("executionContext") WorkFlowExecutionContext executionContext
+    ) {
         try {
             batchReportServiceImpl.createExtractedMetadataDistributionFileForAu(
                 processId,
-                VitamThreadUtils.getVitamSession().getTenantId()
+                VitamThreadUtils.getVitamSession().getTenantId(),
+                executionContext
             );
             return Response.ok().build();
         } catch (IOException | ContentAddressableStorageServerException | IllegalPathException e) {

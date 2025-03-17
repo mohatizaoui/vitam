@@ -33,6 +33,7 @@ import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.exception.VitamApplicationServerException;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.server.VitamServer;
 import fr.gouv.vitam.common.server.application.resources.VitamServiceRegistry;
 import fr.gouv.vitam.common.serverv2.VitamStarter;
@@ -41,7 +42,7 @@ import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClientFactory;
 import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.worker.server.registration.WorkerRegistrationListener;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
+import fr.gouv.vitam.workspace.client.WorkspaceCollectClientFactory;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import javax.servlet.ServletContextListener;
@@ -110,7 +111,13 @@ public class WorkerMain {
             VitamServiceRegistry serviceRegistry = new VitamServiceRegistry();
             try (final InputStream yamlIS = PropertiesUtils.getConfigAsStream(args[0])) {
                 final WorkerConfiguration configuration = PropertiesUtils.readYaml(yamlIS, WorkerConfiguration.class);
-                WorkspaceClientFactory.changeMode(configuration.getUrlWorkspace(), WorkspaceType.VITAM);
+                MetaDataClientFactory.changeMode(configuration.getUrlMetadata(), WorkFlowExecutionContext.VITAM);
+                MetaDataClientFactory.changeMode(configuration.getUrlMetadata(), WorkFlowExecutionContext.COLLECT);
+                WorkspaceClientFactory.changeMode(configuration.getUrlWorkspace(), WorkFlowExecutionContext.VITAM);
+                WorkspaceCollectClientFactory.changeMode(
+                    configuration.getUrlWorkspaceCollect(),
+                    WorkFlowExecutionContext.COLLECT
+                );
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -118,7 +125,7 @@ public class WorkerMain {
             serviceRegistry
                 .register(LogbookLifeCyclesClientFactory.getInstance())
                 // Workspace dependency
-                .register(WorkspaceClientFactory.getInstance(WorkspaceType.VITAM))
+                .register(WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM))
                 // Metadata dependency
                 .register(MetaDataClientFactory.getInstance());
             // Database dependency

@@ -36,6 +36,8 @@ import fr.gouv.vitam.common.client.MockOrRestClient;
 import fr.gouv.vitam.common.exception.VitamClientException;
 import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
+import fr.gouv.vitam.common.model.elimination.DeletionRequestBody;
+import fr.gouv.vitam.common.model.elimination.EliminationRequestBody;
 
 import javax.annotation.Nullable;
 import javax.ws.rs.core.Response;
@@ -348,5 +350,37 @@ public interface CollectInternalClient extends MockOrRestClient {
     RequestResponse<JsonNode> getTransactionsToAutomaticallyIngest() throws VitamClientException;
 
     RequestResponseOK<BulkAtomicUpdateResult> bulkAtomicUpdateUnits(String transactionId, JsonNode updateQueriesJson)
+        throws VitamClientException;
+
+    /**
+     * Start a reclassification workflow on collect
+     *
+     * @param transactionId transaction Id
+     * @param reclassificationRequest List of attachment and detachment operations in unit graph.
+     * @return Response
+     */
+    RequestResponse<JsonNode> reclassification(String transactionId, JsonNode reclassificationRequest)
+        throws VitamClientException;
+
+    /**
+     * Performs an elimination action workflow on collect.
+     *
+     * @param transactionId transaction Id
+     * @param eliminationRequestBody Dsl request for elimination.
+     * @return Response given response
+     */
+    RequestResponse<JsonNode> startEliminationAction(
+        String transactionId,
+        EliminationRequestBody eliminationRequestBody
+    ) throws VitamClientException;
+
+    /**
+     * Performs a deletion action workflow on collect.
+     *
+     * @param transactionId transaction Id
+     * @param deletionRequestBody Dsl request for deletion.
+     * @return Response given response
+     */
+    RequestResponse<JsonNode> startDeletion(String transactionId, DeletionRequestBody deletionRequestBody)
         throws VitamClientException;
 }

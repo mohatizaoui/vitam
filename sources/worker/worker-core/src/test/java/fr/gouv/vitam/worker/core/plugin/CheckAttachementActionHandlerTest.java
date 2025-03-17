@@ -75,8 +75,11 @@ public class CheckAttachementActionHandlerTest {
 
     private CheckAttachementActionHandler checkAttachementActionHandler;
 
+    private HandlerIO handlerIO;
+
     @Before
     public void setUp() {
+        handlerIO = mock(HandlerIO.class);
         metaDataClient = mock(MetaDataClient.class);
         MetaDataClientFactory metaDataClientFactory = mock(MetaDataClientFactory.class);
         when(metaDataClientFactory.getClient()).thenReturn(metaDataClient);
@@ -91,17 +94,14 @@ public class CheckAttachementActionHandlerTest {
         LogbookOperationsClientFactory logbookOperationsClientFactory = mock(LogbookOperationsClientFactory.class);
         when(logbookOperationsClientFactory.getClient()).thenReturn(logbookOperationsClient);
 
-        checkAttachementActionHandler = new CheckAttachementActionHandler(
-            metaDataClientFactory,
-            processingManagementClientFactory,
-            logbookOperationsClientFactory
-        );
+        checkAttachementActionHandler = new CheckAttachementActionHandler(processingManagementClientFactory);
+        when(handlerIO.getMetaDataClient()).thenReturn(metaDataClient);
+        when(handlerIO.getLogbookOperationsClient()).thenReturn(logbookOperationsClient);
     }
 
     @Test
     public void given_MD_when_attach_with_unexisting_MD_then_OK() throws Exception {
         WorkerParameters param = mock(WorkerParameters.class);
-        HandlerIO handlerIO = mock(HandlerIO.class);
 
         when(handlerIO.getJsonFromWorkspace(anyString())).thenReturn(JsonHandler.getFromString(EMPTY_JSON_ARRAY));
 
@@ -114,7 +114,6 @@ public class CheckAttachementActionHandlerTest {
     public void given_MD_when_attach_with_existing_GOT_with_status_KO_Then_KO() throws Exception {
         //given
         WorkerParameters param = mock(WorkerParameters.class);
-        HandlerIO handlerIO = mock(HandlerIO.class);
         when(handlerIO.getJsonFromWorkspace(anyString())).thenReturn(JsonHandler.getFromString(EMPTY_JSON_ARRAY));
         when(
             handlerIO.getJsonFromWorkspace(CheckAttachementActionHandler.MAPS_EXISTING_GOTS_GUID_FOR_ATTACHMENT_FILE)
@@ -153,7 +152,6 @@ public class CheckAttachementActionHandlerTest {
     public void given_MD_when_attach_with_existing_Unit_with_status_KO_Then_KO() throws Exception {
         //given
         WorkerParameters param = mock(WorkerParameters.class);
-        HandlerIO handlerIO = mock(HandlerIO.class);
         when(handlerIO.getJsonFromWorkspace(anyString())).thenReturn(JsonHandler.getFromString(EMPTY_JSON_ARRAY));
         when(
             handlerIO.getJsonFromWorkspace(CheckAttachementActionHandler.MAPS_EXISITING_UNITS_FOR_ATTACHMENT_FILE)
@@ -192,7 +190,6 @@ public class CheckAttachementActionHandlerTest {
     public void given_MD_when_attach_with_existing_GOT_with_status_OK_Then_OK() throws Exception {
         //given
         WorkerParameters param = mock(WorkerParameters.class);
-        HandlerIO handlerIO = mock(HandlerIO.class);
         when(handlerIO.getJsonFromWorkspace(anyString())).thenReturn(JsonHandler.getFromString(EMPTY_JSON_ARRAY));
         when(
             handlerIO.getJsonFromWorkspace(CheckAttachementActionHandler.MAPS_EXISTING_GOTS_GUID_FOR_ATTACHMENT_FILE)
@@ -231,7 +228,6 @@ public class CheckAttachementActionHandlerTest {
     public void given_MD_when_attach_with_existing_Unit_with_status_OK_Then_OK() throws Exception {
         //given
         WorkerParameters param = mock(WorkerParameters.class);
-        HandlerIO handlerIO = mock(HandlerIO.class);
         when(handlerIO.getJsonFromWorkspace(anyString())).thenReturn(JsonHandler.getFromString(EMPTY_JSON_ARRAY));
         when(
             handlerIO.getJsonFromWorkspace(CheckAttachementActionHandler.MAPS_EXISITING_UNITS_FOR_ATTACHMENT_FILE)

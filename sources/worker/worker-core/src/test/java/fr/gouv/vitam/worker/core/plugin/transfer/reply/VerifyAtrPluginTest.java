@@ -111,7 +111,7 @@ public class VerifyAtrPluginTest {
 
     @Before
     public void setup() throws Exception {
-        given(logbookOperationsClientFactory.getClient()).willReturn(logbookOperationsClient);
+        given(handlerIO.getLogbookOperationsClient()).willReturn(logbookOperationsClient);
     }
 
     @Test

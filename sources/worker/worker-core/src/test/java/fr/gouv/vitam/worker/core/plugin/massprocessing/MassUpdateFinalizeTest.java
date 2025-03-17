@@ -28,7 +28,6 @@ package fr.gouv.vitam.worker.core.plugin.massprocessing;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.gouv.vitam.batch.report.client.BatchReportClient;
-import fr.gouv.vitam.batch.report.client.BatchReportClientFactory;
 import fr.gouv.vitam.batch.report.model.Report;
 import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.VitamConfiguration;
@@ -43,10 +42,8 @@ import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
 import fr.gouv.vitam.logbook.common.exception.LogbookClientException;
 import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClient;
-import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClientFactory;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.storage.engine.client.StorageClient;
-import fr.gouv.vitam.storage.engine.client.StorageClientFactory;
 import fr.gouv.vitam.storage.engine.common.model.DataCategory;
 import fr.gouv.vitam.storage.engine.common.model.request.ObjectDescription;
 import fr.gouv.vitam.worker.core.plugin.preservation.TestHandlerIO;
@@ -78,7 +75,6 @@ import static fr.gouv.vitam.worker.core.plugin.preservation.TestWorkerParameter.
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -101,19 +97,10 @@ public class MassUpdateFinalizeTest {
     );
 
     @Mock
-    private LogbookOperationsClientFactory logbookOperationsClientFactory;
-
-    @Mock
     private LogbookOperationsClient logbookOperationsClient;
 
     @Mock
-    private BatchReportClientFactory batchReportClientFactory;
-
-    @Mock
     private BatchReportClient batchReportClient;
-
-    @Mock
-    private StorageClientFactory storageClientFactory;
 
     @Mock
     private StorageClient storageClient;
@@ -121,11 +108,30 @@ public class MassUpdateFinalizeTest {
     @InjectMocks
     private MassUpdateFinalize massUpdateFinalize;
 
+    @InjectMocks
+    private TestHandlerIO handlerIO;
+
     @Before
-    public void setup() {
-        given(batchReportClientFactory.getClient()).willReturn(batchReportClient);
-        given(logbookOperationsClientFactory.getClient()).willReturn(logbookOperationsClient);
-        given(storageClientFactory.getClient()).willReturn(storageClient);
+    public void setUp() throws Exception {
+        handlerIO = new TestHandlerIO(
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            batchReportClient,
+            null,
+            logbookOperationsClient,
+            storageClient,
+            null
+        );
+    }
+
+    private TestHandlerIO getTestHandlerIO() {
+        return handlerIO;
     }
 
     @Test
@@ -135,7 +141,7 @@ public class MassUpdateFinalizeTest {
         String operationId = "MY_OPERATION_ID";
 
         WorkerParameters workerParameter = workerParameterBuilder().withContainerName(operationId).build();
-        TestHandlerIO handlerIO = new TestHandlerIO();
+        TestHandlerIO handlerIO = getTestHandlerIO();
         handlerIO.setJsonFromWorkspace("query.json", JsonHandler.createObjectNode().put("Context", "request"));
 
         when(logbookOperationsClient.selectOperationById(operationId)).thenReturn(
@@ -159,7 +165,7 @@ public class MassUpdateFinalizeTest {
             .withContainerName(operationId)
             .withWorkflowStatusKo(OK.name())
             .build();
-        TestHandlerIO handlerIO = new TestHandlerIO();
+        TestHandlerIO handlerIO = getTestHandlerIO();
         handlerIO.setJsonFromWorkspace("query.json", JsonHandler.createObjectNode().put("Context", "request"));
 
         when(logbookOperationsClient.selectOperationById(operationId)).thenReturn(
@@ -183,7 +189,7 @@ public class MassUpdateFinalizeTest {
             .withContainerName(operationId)
             .withWorkflowStatusKo(OK.name())
             .build();
-        TestHandlerIO handlerIO = new TestHandlerIO();
+        TestHandlerIO handlerIO = getTestHandlerIO();
         handlerIO.setJsonFromWorkspace("query.json", JsonHandler.createObjectNode().put("Context", "request"));
 
         int numberOfOK = 54;
@@ -194,7 +200,7 @@ public class MassUpdateFinalizeTest {
         when(logbookOperationsClient.selectOperationById(operationId)).thenReturn(
             getLogbookOperationRequestResponseOK(numberOfOK, numberOfKO)
         );
-        doNothing().when(batchReportClient).storeReportToWorkspace(reportCaptor.capture());
+        doNothing().when(batchReportClient).storeReportToWorkspace(reportCaptor.capture(), any());
 
         // When
         massUpdateFinalize.execute(workerParameter, handlerIO);
@@ -221,7 +227,7 @@ public class MassUpdateFinalizeTest {
         String operationId = "MY_OPERATION_ID";
 
         WorkerParameters workerParameter = workerParameterBuilder().withContainerName(operationId).build();
-        TestHandlerIO handlerIO = new TestHandlerIO();
+        TestHandlerIO handlerIO = getTestHandlerIO();
 
         File existingReport = tempFolder.newFile();
         InputStream report = PropertiesUtils.getResourceAsStream("massUpdateFinalize/report.jsonl");
@@ -234,7 +240,7 @@ public class MassUpdateFinalizeTest {
         massUpdateFinalize.execute(workerParameter, handlerIO);
 
         // Then
-        verify(batchReportClient, never()).storeReportToWorkspace(any());
+        verify(batchReportClient, never()).storeReportToWorkspace(any(), any());
         verifyNoInteractions(logbookOperationsClient);
 
         ArgumentCaptor<ObjectDescription> descriptionArgumentCaptor = ArgumentCaptor.forClass(ObjectDescription.class);
@@ -255,7 +261,7 @@ public class MassUpdateFinalizeTest {
         String operationId = "MY_OPERATION_ID";
 
         WorkerParameters workerParameter = workerParameterBuilder().withContainerName(operationId).build();
-        TestHandlerIO handlerIO = new TestHandlerIO();
+        TestHandlerIO handlerIO = getTestHandlerIO();
         handlerIO.setJsonFromWorkspace("query.json", JsonHandler.createObjectNode().put("Context", "request"));
 
         when(logbookOperationsClient.selectOperationById(operationId)).thenReturn(
@@ -266,7 +272,7 @@ public class MassUpdateFinalizeTest {
         massUpdateFinalize.execute(workerParameter, handlerIO);
 
         // Then
-        verify(batchReportClient).storeReportToWorkspace(any());
+        verify(batchReportClient).storeReportToWorkspace(any(), any());
     }
 
     @Test
@@ -276,7 +282,7 @@ public class MassUpdateFinalizeTest {
         String operationId = "MY_OPERATION_ID";
 
         WorkerParameters workerParameter = workerParameterBuilder().withContainerName(operationId).build();
-        TestHandlerIO handlerIO = new TestHandlerIO();
+        TestHandlerIO handlerIO = getTestHandlerIO();
         handlerIO.setJsonFromWorkspace("query.json", JsonHandler.createObjectNode().put("Context", "request"));
 
         when(logbookOperationsClient.selectOperationById(operationId)).thenThrow(
@@ -297,7 +303,7 @@ public class MassUpdateFinalizeTest {
         String operationId = "MY_OPERATION_ID";
 
         WorkerParameters workerParameter = workerParameterBuilder().withContainerName(operationId).build();
-        TestHandlerIO handlerIO = new TestHandlerIO();
+        TestHandlerIO handlerIO = getTestHandlerIO();
         handlerIO.setJsonFromWorkspace("query.json", JsonHandler.createObjectNode().put("Context", "request"));
 
         when(logbookOperationsClient.selectOperationById(operationId)).thenThrow(
@@ -318,7 +324,7 @@ public class MassUpdateFinalizeTest {
         String operationId = "MY_OPERATION_ID";
 
         WorkerParameters workerParameter = workerParameterBuilder().withContainerName(operationId).build();
-        TestHandlerIO handlerIO = new TestHandlerIO();
+        TestHandlerIO handlerIO = getTestHandlerIO();
         handlerIO.setJsonFromWorkspace("query.json", JsonHandler.createObjectNode().put("Context", "request"));
 
         when(logbookOperationsClient.selectOperationById(operationId)).thenReturn(

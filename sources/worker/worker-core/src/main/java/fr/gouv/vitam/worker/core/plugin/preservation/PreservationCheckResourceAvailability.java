@@ -26,7 +26,6 @@
  */
 package fr.gouv.vitam.worker.core.plugin.preservation;
 
-import com.google.common.annotations.VisibleForTesting;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.common.model.ItemStatus;
@@ -35,7 +34,6 @@ import fr.gouv.vitam.processing.common.async.AccessRequestContext;
 import fr.gouv.vitam.processing.common.async.ProcessingRetryAsyncException;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
-import fr.gouv.vitam.storage.engine.client.StorageClientFactory;
 import fr.gouv.vitam.storage.engine.common.model.DataCategory;
 import fr.gouv.vitam.worker.common.HandlerIO;
 import fr.gouv.vitam.worker.core.plugin.common.CheckResourceAvailability;
@@ -60,12 +58,7 @@ public class PreservationCheckResourceAvailability extends CheckResourceAvailabi
     private static final String PLUGIN_NAME = "PRESERVATION_CHECK_RESOURCE_AVAILABILITY";
 
     public PreservationCheckResourceAvailability() {
-        this(StorageClientFactory.getInstance());
-    }
-
-    @VisibleForTesting
-    public PreservationCheckResourceAvailability(StorageClientFactory storage) {
-        super(storage);
+        super();
     }
 
     @Override
@@ -80,7 +73,7 @@ public class PreservationCheckResourceAvailability extends CheckResourceAvailabi
                     pair -> entries.computeIfAbsent(pair.getLeft(), (x -> new ArrayList<>())).add(pair.getRight())
                 );
 
-            checkResourcesAvailability(entries, DataCategory.OBJECT);
+            checkResourcesAvailability(handler, entries, DataCategory.OBJECT);
 
             return IntStream.range(0, workerParameters.getObjectNameList().size())
                 .mapToObj(

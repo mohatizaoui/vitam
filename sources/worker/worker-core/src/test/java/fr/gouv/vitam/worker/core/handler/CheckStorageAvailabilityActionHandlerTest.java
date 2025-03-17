@@ -34,6 +34,7 @@ import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -92,10 +93,7 @@ public class CheckStorageAvailabilityActionHandlerTest {
     private static final SedaUtilsFactory sedaUtilsFactory = mock(SedaUtilsFactory.class);
     private static final SedaUtils sedaUtils = mock(SedaUtils.class);
 
-    private CheckStorageAvailabilityActionHandler handler = new CheckStorageAvailabilityActionHandler(
-        storageClientFactory,
-        sedaUtilsFactory
-    );
+    private CheckStorageAvailabilityActionHandler handler = new CheckStorageAvailabilityActionHandler(sedaUtilsFactory);
 
     @Before
     public void setUp() throws FileNotFoundException {
@@ -105,6 +103,9 @@ public class CheckStorageAvailabilityActionHandlerTest {
         reset(sedaUtils);
         reset(handlerIO);
 
+        when(handlerIO.getStorageClient()).thenReturn(storageClient);
+        when(handlerIO.getWorkspaceClient()).thenReturn(workspaceClient);
+        when(handlerIO.getLifeCyclesClient()).thenReturn(logbookLifeCyclesClient);
         when(workspaceClientFactory.getClient()).thenReturn(workspaceClient);
         when(logbookLifeCyclesClientFactory.getClient()).thenReturn(logbookLifeCyclesClient);
         when(storageClientFactory.getClient()).thenReturn(storageClient);
@@ -118,7 +119,7 @@ public class CheckStorageAvailabilityActionHandlerTest {
         when(sedaUtils.computeTotalSizeOfObjectsInManifest(any())).thenThrow(new ProcessingException(""));
 
         assertEquals(CheckStorageAvailabilityActionHandler.getId(), HANDLER_ID);
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace("http://localhost:8083")
             .setUrlMetadata("http://localhost:8083")
             .setObjectNameList(Lists.newArrayList("objectName.json"))
@@ -136,10 +137,10 @@ public class CheckStorageAvailabilityActionHandlerTest {
             "CheckStorageAvailabilityActionHandler/ingestContractWithDetail_no_MC.json"
         );
         when(handlerIO.getInput(eq(0))).thenReturn(input);
-        when(sedaUtils.computeTotalSizeOfObjectsInManifest(any())).thenReturn(new Long(838860800));
+        when(sedaUtils.computeTotalSizeOfObjectsInManifest(any())).thenReturn(838860800L);
 
         assertEquals(CheckStorageAvailabilityActionHandler.getId(), HANDLER_ID);
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace("http://localhost:8083")
             .setUrlMetadata("http://localhost:8083")
             .setObjectNameList(Lists.newArrayList("objectName.json"))
@@ -173,13 +174,13 @@ public class CheckStorageAvailabilityActionHandlerTest {
             "CheckStorageAvailabilityActionHandler/ingestContractWithDetail_no_MC.json"
         );
         when(handlerIO.getInput(eq(0))).thenReturn(input);
-        when(sedaUtils.computeTotalSizeOfObjectsInManifest(any())).thenReturn(new Long(1024));
+        when(sedaUtils.computeTotalSizeOfObjectsInManifest(any())).thenReturn(1024L);
 
         when(storageClient.getStorageInformation(eq(VitamConfiguration.getDefaultStrategy()))).thenReturn(
             new StorageClientMock().getStorageInformation("str")
         );
         assertEquals(CheckStorageAvailabilityActionHandler.getId(), HANDLER_ID);
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace("http://localhost:8083")
             .setUrlMetadata("http://localhost:8083")
             .setObjectNameList(Lists.newArrayList("objectName.json"))
@@ -208,10 +209,10 @@ public class CheckStorageAvailabilityActionHandlerTest {
             "CheckStorageAvailabilityActionHandler/ingestContractWithDetail_no_MC.json"
         );
         when(handlerIO.getInput(eq(0))).thenReturn(input);
-        when(sedaUtils.computeTotalSizeOfObjectsInManifest(any())).thenReturn(new Long(1024));
+        when(sedaUtils.computeTotalSizeOfObjectsInManifest(any())).thenReturn(1024L);
 
         assertEquals(CheckStorageAvailabilityActionHandler.getId(), HANDLER_ID);
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace("http://localhost:8083")
             .setUrlMetadata("http://localhost:8083")
             .setObjectNameList(Lists.newArrayList("objectName.json"))
@@ -233,10 +234,10 @@ public class CheckStorageAvailabilityActionHandlerTest {
             "CheckStorageAvailabilityActionHandler/ingestContractWithDetail_no_MC.json"
         );
         when(handlerIO.getInput(eq(0))).thenReturn(input);
-        when(sedaUtils.computeTotalSizeOfObjectsInManifest(any())).thenReturn(new Long(1024));
+        when(sedaUtils.computeTotalSizeOfObjectsInManifest(any())).thenReturn(1024L);
 
         assertEquals(CheckStorageAvailabilityActionHandler.getId(), HANDLER_ID);
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace("http://localhost:8083")
             .setUrlMetadata("http://localhost:8083")
             .setObjectNameList(Lists.newArrayList("objectName.json"))
@@ -253,13 +254,13 @@ public class CheckStorageAvailabilityActionHandlerTest {
             "CheckStorageAvailabilityActionHandler/ingestContractWithDetail_MC_noObjectStorage.json"
         );
         when(handlerIO.getInput(eq(0))).thenReturn(input);
-        when(sedaUtils.computeTotalSizeOfObjectsInManifest(any())).thenReturn(new Long(1024));
+        when(sedaUtils.computeTotalSizeOfObjectsInManifest(any())).thenReturn(1024L);
 
         when(storageClient.getStorageInformation(eq(VitamConfiguration.getDefaultStrategy()))).thenReturn(
             new StorageClientMock().getStorageInformation(VitamConfiguration.getDefaultStrategy())
         );
         assertEquals(CheckStorageAvailabilityActionHandler.getId(), HANDLER_ID);
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace("http://localhost:8083")
             .setUrlMetadata("http://localhost:8083")
             .setObjectNameList(Lists.newArrayList("objectName.json"))
@@ -280,13 +281,13 @@ public class CheckStorageAvailabilityActionHandlerTest {
             "CheckStorageAvailabilityActionHandler/ingestContractWithDetail_MC_ObjectStorage.json"
         );
         when(handlerIO.getInput(eq(0))).thenReturn(input);
-        when(sedaUtils.computeTotalSizeOfObjectsInManifest(any())).thenReturn(new Long(1024));
+        when(sedaUtils.computeTotalSizeOfObjectsInManifest(any())).thenReturn(1024L);
 
         when(storageClient.getStorageInformation(eq("test"))).thenReturn(
             new StorageClientMock().getStorageInformation(VitamConfiguration.getDefaultStrategy())
         );
         assertEquals(CheckStorageAvailabilityActionHandler.getId(), HANDLER_ID);
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace("http://localhost:8083")
             .setUrlMetadata("http://localhost:8083")
             .setObjectNameList(Lists.newArrayList("objectName.json"))

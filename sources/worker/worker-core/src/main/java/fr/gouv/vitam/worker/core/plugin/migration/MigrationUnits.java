@@ -28,7 +28,6 @@ package fr.gouv.vitam.worker.core.plugin.migration;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.annotations.VisibleForTesting;
 import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper;
 import fr.gouv.vitam.common.database.builder.query.action.UpdateActionHelper;
@@ -59,13 +58,10 @@ import fr.gouv.vitam.logbook.common.parameters.LogbookLifeCycleParameters;
 import fr.gouv.vitam.logbook.common.parameters.LogbookParameterHelper;
 import fr.gouv.vitam.logbook.common.parameters.LogbookParameterName;
 import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClient;
-import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClientFactory;
 import fr.gouv.vitam.metadata.client.MetaDataClient;
-import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.storage.engine.client.StorageClient;
-import fr.gouv.vitam.storage.engine.client.StorageClientFactory;
 import fr.gouv.vitam.storage.engine.common.model.request.ObjectDescription;
 import fr.gouv.vitam.worker.common.HandlerIO;
 import fr.gouv.vitam.worker.core.plugin.StoreMetadataObjectActionHandler;
@@ -96,29 +92,6 @@ public class MigrationUnits extends StoreMetadataObjectActionHandler {
 
     private static final String MIGRATION_UNITS = "MIGRATION_UNITS";
     public static final String LFC_UPDATE_MIGRATION_UNITS = "LFC.UPDATE_MIGRATION_UNITS";
-    private final MetaDataClientFactory metaDataClientFactory;
-    private final LogbookLifeCyclesClientFactory logbookLifeCyclesClientFactory;
-    private final StorageClientFactory storageClientFactory;
-
-    @VisibleForTesting
-    public MigrationUnits(
-        MetaDataClientFactory metaDataClientFactory,
-        LogbookLifeCyclesClientFactory logbookLifeCyclesClientFactory,
-        StorageClientFactory storageClientFactory
-    ) {
-        super(storageClientFactory);
-        this.metaDataClientFactory = metaDataClientFactory;
-        this.logbookLifeCyclesClientFactory = logbookLifeCyclesClientFactory;
-        this.storageClientFactory = storageClientFactory;
-    }
-
-    public MigrationUnits() {
-        this(
-            MetaDataClientFactory.getInstance(),
-            LogbookLifeCyclesClientFactory.getInstance(),
-            StorageClientFactory.getInstance()
-        );
-    }
 
     @Override
     public ItemStatus execute(WorkerParameters param, HandlerIO handler) throws ProcessingException {
@@ -129,9 +102,9 @@ public class MigrationUnits extends StoreMetadataObjectActionHandler {
     public List<ItemStatus> executeList(WorkerParameters workerParameters, HandlerIO handler)
         throws ProcessingException {
         try (
-            MetaDataClient metaDataClient = metaDataClientFactory.getClient();
-            LogbookLifeCyclesClient logbookLifeCyclesClientFactoryClient = logbookLifeCyclesClientFactory.getClient();
-            StorageClient storageClient = storageClientFactory.getClient()
+            MetaDataClient metaDataClient = handler.getMetaDataClient();
+            LogbookLifeCyclesClient logbookLifeCyclesClientFactoryClient = handler.getLifeCyclesClient();
+            StorageClient storageClient = handler.getStorageClient()
         ) {
             // Add operationID to #operations
             UpdateMultiQuery multiQuery = new UpdateMultiQuery();

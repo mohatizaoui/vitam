@@ -53,6 +53,7 @@ import fr.gouv.vitam.common.logging.SysErrLogger;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.common.model.config.CollectionConfiguration;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.mongo.MongoRule;
 import fr.gouv.vitam.common.server.application.configuration.MongoDbNode;
 import fr.gouv.vitam.common.storage.cas.container.api.ContentAddressableStorageAbstract;
@@ -73,7 +74,6 @@ import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClientFactory;
 import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClientFactory;
 import fr.gouv.vitam.logbook.rest.LogbookMain;
 import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
-import fr.gouv.vitam.metadata.client.MetadataType;
 import fr.gouv.vitam.metadata.core.config.ElasticsearchExternalMetadataMapping;
 import fr.gouv.vitam.metadata.core.config.MetaDataConfiguration;
 import fr.gouv.vitam.metadata.core.config.MetadataIndexationConfiguration;
@@ -97,7 +97,6 @@ import fr.gouv.vitam.worker.client.WorkerClientConfiguration;
 import fr.gouv.vitam.worker.client.WorkerClientFactory;
 import fr.gouv.vitam.worker.server.rest.WorkerMain;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 import fr.gouv.vitam.workspace.rest.WorkspaceMain;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.rules.ExternalResource;
@@ -913,7 +912,7 @@ public class VitamServerRunner extends ExternalResource {
 
     public void startWorkspaceServer() throws IOException, VitamApplicationServerException {
         if (null != workspaceMain) {
-            WorkspaceClientFactory.changeMode(WORKSPACE_URL, WorkspaceType.VITAM);
+            WorkspaceClientFactory.changeMode(WORKSPACE_URL, WorkFlowExecutionContext.VITAM);
             return;
         }
         SystemPropertyUtil.set(WorkspaceMain.PARAMETER_JETTY_SERVER_PORT, Integer.toString(PORT_SERVICE_WORKSPACE));
@@ -929,13 +928,13 @@ public class VitamServerRunner extends ExternalResource {
         writeYaml(workspaceConfigFile, workspaceConfiguration);
 
         LOGGER.warn("=== VitamServerRunner start  WorkspaceMain");
-        WorkspaceClientFactory.changeMode(WORKSPACE_URL, WorkspaceType.VITAM);
+        WorkspaceClientFactory.changeMode(WORKSPACE_URL, WorkFlowExecutionContext.VITAM);
         workspaceMain = new WorkspaceMain(workspaceConfigFile.getAbsolutePath());
         workspaceMain.start();
         SystemPropertyUtil.clear(WorkspaceMain.PARAMETER_JETTY_SERVER_PORT);
     }
 
-    private void stopWorkspaceServer() throws VitamApplicationServerException {
+    public void stopWorkspaceServer() throws VitamApplicationServerException {
         if (null == workspaceMain) {
             return;
         }
@@ -1211,7 +1210,7 @@ public class VitamServerRunner extends ExternalResource {
 
     void waitServerStart() {
         if (null != workspaceMain) {
-            waitServerStart(WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient());
+            waitServerStart(WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient());
         }
         if (null != metadataMain) {
             waitServerStart(MetaDataClientFactory.getInstance().getClient());
@@ -1426,11 +1425,13 @@ public class VitamServerRunner extends ExternalResource {
         writeYaml(metadataConfig, realMetadataConfig);
 
         LOGGER.warn("=== VitamServerRunner start  MetadataMain Collect");
-        MetaDataClientFactory.getInstance(MetadataType.COLLECT).changeServerPort(PORT_SERVICE_METADATA_COLLECT);
+        MetaDataClientFactory.getInstance(WorkFlowExecutionContext.COLLECT).changeServerPort(
+            PORT_SERVICE_METADATA_COLLECT
+        );
         metadataCollectMain = new MetadataMain(metadataConfig.getAbsolutePath());
         metadataCollectMain.start();
         SystemPropertyUtil.clear(MetadataMain.PARAMETER_JETTY_SERVER_PORT);
-        waitServerStart(MetaDataClientFactory.getInstance(MetadataType.COLLECT).getClient());
+        waitServerStart(MetaDataClientFactory.getInstance(WorkFlowExecutionContext.COLLECT).getClient());
     }
 
     public void stopMetadataCollectServer(boolean mockWhenStop) throws VitamApplicationServerException {
@@ -1452,7 +1453,7 @@ public class VitamServerRunner extends ExternalResource {
 
     public void startWorkspaceCollectServer() throws IOException, VitamApplicationServerException {
         if (null != workspaceCollectMain) {
-            WorkspaceClientFactory.changeMode(WORKSPACE_COLLECT_URL, WorkspaceType.COLLECT);
+            WorkspaceClientFactory.changeMode(WORKSPACE_COLLECT_URL, WorkFlowExecutionContext.COLLECT);
             return;
         }
         SystemPropertyUtil.set(
@@ -1471,7 +1472,7 @@ public class VitamServerRunner extends ExternalResource {
         writeYaml(workspaceConfigFile, workspaceConfiguration);
 
         LOGGER.warn("=== VitamServerRunner start  WorkspaceMain Collect");
-        WorkspaceClientFactory.changeMode(WORKSPACE_COLLECT_URL, WorkspaceType.COLLECT);
+        WorkspaceClientFactory.changeMode(WORKSPACE_COLLECT_URL, WorkFlowExecutionContext.COLLECT);
         workspaceCollectMain = new WorkspaceMain(workspaceConfigFile.getAbsolutePath());
         workspaceCollectMain.start();
         SystemPropertyUtil.clear(WorkspaceMain.PARAMETER_JETTY_SERVER_PORT);

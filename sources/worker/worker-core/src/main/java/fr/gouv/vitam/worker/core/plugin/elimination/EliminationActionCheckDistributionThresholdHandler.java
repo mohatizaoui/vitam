@@ -28,7 +28,6 @@ package fr.gouv.vitam.worker.core.plugin.elimination;
 
 import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.model.ItemStatus;
-import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.worker.common.HandlerIO;
@@ -39,11 +38,7 @@ public class EliminationActionCheckDistributionThresholdHandler extends Eliminat
         "ELIMINATION_ACTION_CHECK_DISTRIBUTION_THRESHOLD";
 
     public EliminationActionCheckDistributionThresholdHandler() {
-        super(MetaDataClientFactory.getInstance());
-    }
-
-    public EliminationActionCheckDistributionThresholdHandler(MetaDataClientFactory metaDataClientFactory) {
-        super(metaDataClientFactory);
+        super();
     }
 
     @Override

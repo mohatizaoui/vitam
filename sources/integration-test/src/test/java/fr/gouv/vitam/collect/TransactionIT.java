@@ -97,9 +97,10 @@ public class TransactionIT extends VitamRuleRunner {
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
         runner.startMetadataCollectServer();
+        runner.startWorkspaceCollectServer();
+        runner.startWorkspaceServer();
         handleBeforeClass(Arrays.asList(0, 1), Collections.emptyMap());
         new DataLoader("integration-ingest-internal").prepareData();
-        runner.startWorkspaceCollectServer();
     }
 
     @AfterClass

@@ -93,7 +93,8 @@ public class EvidenceAuditPrepareTest {
     @Before
     public void setUp() throws Exception {
         when(metaDataClientFactory.getClient()).thenReturn(metaDataClient);
-        evidenceAuditPrepare = new EvidenceAuditPrepare(metaDataClientFactory, null);
+        when(handlerIO.getMetaDataClient()).thenReturn(metaDataClient);
+        evidenceAuditPrepare = new EvidenceAuditPrepare();
     }
 
     @Test

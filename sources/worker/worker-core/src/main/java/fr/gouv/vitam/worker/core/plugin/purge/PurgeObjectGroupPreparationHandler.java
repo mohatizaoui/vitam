@@ -46,7 +46,6 @@ import fr.gouv.vitam.metadata.api.exception.MetaDataClientServerException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataDocumentSizeException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataExecutionException;
 import fr.gouv.vitam.metadata.client.MetaDataClient;
-import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.worker.common.HandlerIO;
@@ -92,7 +91,6 @@ public class PurgeObjectGroupPreparationHandler extends ActionHandler {
     public static final String ARCHIVAL_AGENCY_IDENTIFIER = "archivalAgencyIdentifier";
 
     private final String actionId;
-    private final MetaDataClientFactory metaDataClientFactory;
     private final PurgeReportService purgeReportService;
     private final int objectGroupBulkSize;
 
@@ -102,7 +100,7 @@ public class PurgeObjectGroupPreparationHandler extends ActionHandler {
      * @param actionId
      */
     public PurgeObjectGroupPreparationHandler(String actionId) {
-        this(actionId, MetaDataClientFactory.getInstance(), new PurgeReportService(), DEFAULT_OBJECT_GROUP_BULK_SIZE);
+        this(actionId, new PurgeReportService(), DEFAULT_OBJECT_GROUP_BULK_SIZE);
     }
 
     /***
@@ -111,12 +109,10 @@ public class PurgeObjectGroupPreparationHandler extends ActionHandler {
     @VisibleForTesting
     protected PurgeObjectGroupPreparationHandler(
         String actionId,
-        MetaDataClientFactory metaDataClientFactory,
         PurgeReportService purgeReportService,
         int objectGroupBulkSize
     ) {
         this.actionId = actionId;
-        this.metaDataClientFactory = metaDataClientFactory;
         this.purgeReportService = purgeReportService;
         this.objectGroupBulkSize = objectGroupBulkSize;
     }
@@ -140,6 +136,7 @@ public class PurgeObjectGroupPreparationHandler extends ActionHandler {
                 JsonLineWriter objectGroupsToDetachWriter = new JsonLineWriter(objectGroupsToDetachStream);
                 CloseableIterator<String> iterator = purgeReportService.exportDistinctObjectGroups(
                     handler,
+                    param.getExecutionContext(),
                     param.getContainerName()
                 )
             ) {
@@ -152,7 +149,8 @@ public class PurgeObjectGroupPreparationHandler extends ActionHandler {
                         archivalAgencyIdentifier,
                         objectGroupsToDeleteWriter,
                         objectGroupsToDetachWriter,
-                        param.getContainerName()
+                        param.getContainerName(),
+                        handler
                     );
                 }
             } catch (IOException | InvalidParseOperationException e) {
@@ -182,9 +180,10 @@ public class PurgeObjectGroupPreparationHandler extends ActionHandler {
         String archivalAgencyIdentifier,
         JsonLineWriter objectGroupsToDeleteWriter,
         JsonLineWriter objectGroupsToDetachWriter,
-        String processId
+        String processId,
+        HandlerIO handler
     ) throws ProcessingStatusException, IOException, InvalidParseOperationException {
-        Map<String, ObjectGroupResponse> objectGroups = loadObjectGroups(objectGroupIds);
+        Map<String, ObjectGroupResponse> objectGroups = loadObjectGroups(objectGroupIds, handler);
 
         Set<String> foundObjectGroupIds = objectGroups.keySet();
 
@@ -199,7 +198,7 @@ public class PurgeObjectGroupPreparationHandler extends ActionHandler {
             parentUnitIds.addAll(objectGroup.getUp());
         }
 
-        Set<String> existingParentUnits = getExistingParentUnits(parentUnitIds);
+        Set<String> existingParentUnits = getExistingParentUnits(parentUnitIds, handler);
 
         List<PurgeObjectGroupReportEntry> purgeObjectGroupReportEntries = new ArrayList<>();
 
@@ -289,9 +288,9 @@ public class PurgeObjectGroupPreparationHandler extends ActionHandler {
             .collect(Collectors.toList());
     }
 
-    private Map<String, ObjectGroupResponse> loadObjectGroups(Set<String> objectGroupIds)
+    private Map<String, ObjectGroupResponse> loadObjectGroups(Set<String> objectGroupIds, HandlerIO handler)
         throws ProcessingStatusException {
-        try (MetaDataClient client = metaDataClientFactory.getClient()) {
+        try (MetaDataClient client = handler.getMetaDataClient()) {
             Map<String, ObjectGroupResponse> objectGroups = new HashMap<>();
 
             for (List<String> ids : ListUtils.partition(
@@ -324,8 +323,9 @@ public class PurgeObjectGroupPreparationHandler extends ActionHandler {
         }
     }
 
-    private Set<String> getExistingParentUnits(Set<String> parentUnitIds) throws ProcessingStatusException {
-        try (MetaDataClient client = metaDataClientFactory.getClient()) {
+    private Set<String> getExistingParentUnits(Set<String> parentUnitIds, HandlerIO handler)
+        throws ProcessingStatusException {
+        try (MetaDataClient client = handler.getMetaDataClient()) {
             Set<String> foundUnitIds = new HashSet<>();
 
             for (List<String> ids : ListUtils.partition(

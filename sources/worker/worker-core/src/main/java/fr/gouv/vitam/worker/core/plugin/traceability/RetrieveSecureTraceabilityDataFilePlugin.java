@@ -28,7 +28,6 @@
 package fr.gouv.vitam.worker.core.plugin.traceability;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Iterables;
 import fr.gouv.vitam.batch.report.model.TraceabilityError;
 import fr.gouv.vitam.batch.report.model.entry.TraceabilityReportEntry;
@@ -44,7 +43,6 @@ import fr.gouv.vitam.logbook.common.model.TraceabilityEvent;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.storage.engine.client.StorageClient;
-import fr.gouv.vitam.storage.engine.client.StorageClientFactory;
 import fr.gouv.vitam.storage.engine.client.exception.StorageNotFoundClientException;
 import fr.gouv.vitam.storage.engine.client.exception.StorageServerClientException;
 import fr.gouv.vitam.storage.engine.common.model.DataCategory;
@@ -79,20 +77,11 @@ public class RetrieveSecureTraceabilityDataFilePlugin extends ActionHandler {
     private static final int DIGEST_OUT_RANK = 1;
     private static final String DIGEST = "digest";
 
-    private final StorageClientFactory storageClientFactory;
-
-    public RetrieveSecureTraceabilityDataFilePlugin() {
-        this(StorageClientFactory.getInstance());
-    }
-
-    @VisibleForTesting
-    RetrieveSecureTraceabilityDataFilePlugin(StorageClientFactory storageClientFactory) {
-        this.storageClientFactory = storageClientFactory;
-    }
+    public RetrieveSecureTraceabilityDataFilePlugin() {}
 
     @Override
     public ItemStatus execute(WorkerParameters param, HandlerIO handler) throws ProcessingException {
-        try (StorageClient storageClient = storageClientFactory.getClient()) {
+        try (StorageClient storageClient = handler.getStorageClient()) {
             JsonNode eventDetail = param.getObjectMetadata();
             TraceabilityEvent traceabilityEvent = JsonHandler.getFromJsonNode(eventDetail, TraceabilityEvent.class);
             DataCategory dataCategory = getDataCategory(traceabilityEvent);

@@ -44,6 +44,8 @@ import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.exception.VitamClientException;
 import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
+import fr.gouv.vitam.common.model.elimination.DeletionRequestBody;
+import fr.gouv.vitam.common.model.elimination.EliminationRequestBody;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
@@ -75,6 +77,9 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
     private static final String BINARY_PATH = "/binary";
 
     private static final String UNITS_WITH_INHERITED_RULES = "/unitsWithInheritedRules";
+    private static final String RECLASSIFICATION = "/reclassification";
+    private static final String ELIMINATION_ACTION = "/elimination/action";
+    private static final String DELETION_ACTION = "/deletion/action";
 
     private static final String BLANK_DSL = "select DSL is blank";
     public static final String UNITS_BULK = "/units/bulk";
@@ -587,6 +592,47 @@ public class CollectInternalClientRest extends DefaultClient implements CollectI
                 response,
                 BulkAtomicUpdateResult.class
             );
+        }
+    }
+
+    @Override
+    public RequestResponse<JsonNode> reclassification(String transactionId, JsonNode reclassificationRequest)
+        throws VitamClientException {
+        VitamRequestBuilder request = post()
+            .withPath(TRANSACTION_PATH + "/" + transactionId + RECLASSIFICATION)
+            .withBody(reclassificationRequest, BLANK_DSL)
+            .withJson();
+        try (Response response = make(request)) {
+            check(response);
+            return RequestResponse.parseFromResponse(response, JsonNode.class);
+        }
+    }
+
+    @Override
+    public RequestResponse<JsonNode> startEliminationAction(
+        String transactionId,
+        EliminationRequestBody eliminationRequestBody
+    ) throws VitamClientException {
+        VitamRequestBuilder request = post()
+            .withPath(TRANSACTION_PATH + "/" + transactionId + ELIMINATION_ACTION)
+            .withBody(eliminationRequestBody)
+            .withJson();
+        try (Response response = make(request)) {
+            check(response);
+            return RequestResponse.parseFromResponse(response, JsonNode.class);
+        }
+    }
+
+    @Override
+    public RequestResponse<JsonNode> startDeletion(String transactionId, DeletionRequestBody deletionRequestBody)
+        throws VitamClientException {
+        VitamRequestBuilder request = post()
+            .withPath(TRANSACTION_PATH + "/" + transactionId + DELETION_ACTION)
+            .withBody(deletionRequestBody)
+            .withJson();
+        try (Response response = make(request)) {
+            check(response);
+            return RequestResponse.parseFromResponse(response, JsonNode.class);
         }
     }
 }

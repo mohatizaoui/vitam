@@ -24,11 +24,13 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
+
 package fr.gouv.vitam.processing.common.parameter;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.parameter.VitamParameter;
 import fr.gouv.vitam.logbook.common.parameters.LogbookTypeProcess;
 
@@ -41,6 +43,20 @@ import java.util.Map;
 @JsonSerialize(using = WorkerParametersSerializer.class)
 @JsonDeserialize(using = WorkerParametersDeserializer.class)
 public interface WorkerParameters extends VitamParameter<WorkerParameterName> {
+    /**
+     * Get workflow execution context (VITAM or COLLECT)
+     *
+     * @return the current workflow execution context
+     */
+    WorkFlowExecutionContext getExecutionContext();
+
+    /**
+     * Set the workflow execution context (VITAM or COLLECT)
+     *
+     * @param executionContext the workflow execution context
+     */
+    WorkerParameters setExecutionContext(WorkFlowExecutionContext executionContext);
+
     /**
      * Put parameterValue on mapParameters with parameterName key <br />
      * <br />

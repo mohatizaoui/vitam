@@ -46,6 +46,7 @@ import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.administration.FileFormatModel;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.functional.administration.client.AdminManagementClient;
 import fr.gouv.vitam.functional.administration.client.AdminManagementClientFactory;
 import fr.gouv.vitam.functional.administration.common.exception.ReferentialException;
@@ -138,6 +139,7 @@ public class FormatIdentificationActionPluginTest {
 
         guid = GUIDFactory.newGUID();
         handlerIO = new HandlerIOImpl(
+            WorkFlowExecutionContext.VITAM,
             workspaceClientFactory,
             mock(LogbookLifeCyclesClientFactory.class),
             guid.getId(),
@@ -503,6 +505,7 @@ public class FormatIdentificationActionPluginTest {
 
     private DefaultWorkerParameters getDefaultWorkerParameters() {
         return WorkerParametersFactory.newWorkerParameters(
+            WorkFlowExecutionContext.VITAM,
             "pId",
             "stepId",
             guid.getId(),

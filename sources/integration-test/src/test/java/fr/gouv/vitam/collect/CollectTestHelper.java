@@ -28,12 +28,19 @@ package fr.gouv.vitam.collect;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.gouv.culture.archivesdefrance.seda.v2.LegalStatusType;
+import fr.gouv.vitam.access.internal.common.exception.AccessInternalClientNotFoundException;
+import fr.gouv.vitam.access.internal.common.exception.AccessInternalClientServerException;
 import fr.gouv.vitam.collect.common.dto.ProjectDto;
 import fr.gouv.vitam.collect.common.dto.TransactionDto;
 import fr.gouv.vitam.collect.external.client.CollectExternalClient;
 import fr.gouv.vitam.collect.external.client.CollectExternalClientFactory;
 import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.client.VitamContext;
+import fr.gouv.vitam.common.database.builder.query.QueryHelper;
+import fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper;
+import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
+import fr.gouv.vitam.common.database.builder.request.multiple.SelectMultiQuery;
+import fr.gouv.vitam.common.exception.BadRequestException;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.exception.VitamClientException;
 import fr.gouv.vitam.common.json.JsonHandler;
@@ -204,5 +211,21 @@ public class CollectTestHelper {
                 throw new RuntimeException("Something wrong with archive upload");
             }
         }
+    }
+
+    public static RequestResponseOK<JsonNode> selectUnitsByTransactionId(
+        VitamContext vitamContext,
+        String transactionId,
+        CollectExternalClient collectInternalClient
+    )
+        throws InvalidCreateOperationException, InvalidParseOperationException, AccessInternalClientServerException, AccessInternalClientNotFoundException, VitamClientException, BadRequestException {
+        SelectMultiQuery checkEliminationDslRequest = new SelectMultiQuery();
+        checkEliminationDslRequest.addQueries(QueryHelper.eq(VitamFieldsHelper.initialOperation(), transactionId));
+
+        return (RequestResponseOK<JsonNode>) collectInternalClient.getUnitsByTransaction(
+            vitamContext,
+            transactionId,
+            checkEliminationDslRequest.getFinalSelect()
+        );
     }
 }

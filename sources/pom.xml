@@ -237,6 +237,7 @@
         <quartz.version>2.3.2</quartz.version>
         <quartz-mongodb.version>2.2.0-rc2</quartz-mongodb.version>
         <jta.version>1.1</jta.version>
+        <lombok.version>1.18.34</lombok.version>
         <jib.skip>true</jib.skip>
     </properties>
 
@@ -390,6 +391,13 @@
                         <target>${private.java.version}</target>
                         <release>${private.java.version}</release>
                         <encoding>${project.build.sourceEncoding}</encoding>
+                        <annotationProcessorPaths>
+                            <path>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                                <version>${lombok.version}</version>
+                            </path>
+                        </annotationProcessorPaths>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -1722,6 +1730,12 @@
                         <artifactId>assertj-core</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+                <scope>provided</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

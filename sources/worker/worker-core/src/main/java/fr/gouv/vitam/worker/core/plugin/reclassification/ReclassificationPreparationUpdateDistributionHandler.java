@@ -26,7 +26,6 @@
  */
 package fr.gouv.vitam.worker.core.plugin.reclassification;
 
-import com.google.common.annotations.VisibleForTesting;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.exception.VitamClientException;
 import fr.gouv.vitam.common.json.JsonHandler;
@@ -36,7 +35,6 @@ import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.metadata.api.exception.MetaDataExecutionException;
 import fr.gouv.vitam.metadata.client.MetaDataClient;
-import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.worker.common.HandlerIO;
@@ -71,23 +69,6 @@ public class ReclassificationPreparationUpdateDistributionHandler extends Action
     private static final String COULD_NOT_EXPORT_THE_LIST_OF_UNITS_AND_OBJECT_GROUPS_TO_UPDATE =
         "Could not export the list of units and object groups to update";
 
-    private final MetaDataClientFactory metaDataClientFactory;
-
-    /**
-     * Default constructor
-     */
-    public ReclassificationPreparationUpdateDistributionHandler() {
-        this(MetaDataClientFactory.getInstance());
-    }
-
-    /***
-     * Test only constructor
-     */
-    @VisibleForTesting
-    ReclassificationPreparationUpdateDistributionHandler(MetaDataClientFactory metaDataClientFactory) {
-        this.metaDataClientFactory = metaDataClientFactory;
-    }
-
     @Override
     public ItemStatus execute(WorkerParameters param, HandlerIO handler) throws ProcessingException {
         try {
@@ -120,7 +101,7 @@ public class ReclassificationPreparationUpdateDistributionHandler extends Action
 
         prepareAttachments(reclassificationUpdates, handler);
 
-        prepareUnitAndObjectGroupGraphUpdates(reclassificationUpdates);
+        prepareUnitAndObjectGroupGraphUpdates(handler, reclassificationUpdates);
     }
 
     private void prepareDetachments(ReclassificationOrders reclassificationOrders, HandlerIO handler)
@@ -145,9 +126,11 @@ public class ReclassificationPreparationUpdateDistributionHandler extends Action
         }
     }
 
-    private void prepareUnitAndObjectGroupGraphUpdates(ReclassificationOrders reclassificationOrders)
-        throws ProcessingStatusException {
-        try (MetaDataClient metaDataClient = metaDataClientFactory.getClient()) {
+    private void prepareUnitAndObjectGroupGraphUpdates(
+        HandlerIO handler,
+        ReclassificationOrders reclassificationOrders
+    ) throws ProcessingStatusException {
+        try (MetaDataClient metaDataClient = handler.getMetaDataClient()) {
             Set<String> unitIds = SetUtils.union(
                 reclassificationOrders.getChildToParentAttachments().keySet(),
                 reclassificationOrders.getChildToParentDetachments().keySet()

@@ -27,6 +27,7 @@
 package fr.gouv.vitam.worker.core.plugin.purge;
 
 import fr.gouv.vitam.common.guid.GUIDFactory;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -77,7 +78,7 @@ public class PurgeAccessionRegisterPreparationHandlerTest {
 
         doAnswer(args -> tempFolder.newFile(args.getArgument(0))).when(handler).getNewLocalFile(any());
 
-        params = WorkerParametersFactory.newWorkerParameters()
+        params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setWorkerGUID(GUIDFactory.newGUID().getId())
             .setContainerName(VitamThreadUtils.getVitamSession().getRequestId())
             .setRequestId(VitamThreadUtils.getVitamSession().getRequestId())
@@ -97,6 +98,10 @@ public class PurgeAccessionRegisterPreparationHandlerTest {
         instance.execute(params, handler);
 
         // Then
-        verify(purgeReportService).exportAccessionRegisters(VitamThreadUtils.getVitamSession().getRequestId());
+        verify(purgeReportService).exportAccessionRegisters(
+            handler,
+            VitamThreadUtils.getVitamSession().getRequestId(),
+            WorkFlowExecutionContext.VITAM
+        );
     }
 }

@@ -35,6 +35,7 @@ import fr.gouv.vitam.batch.report.model.ReportType;
 import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.exception.VitamClientInternalException;
 import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.storage.engine.client.StorageClient;
 import fr.gouv.vitam.storage.engine.client.StorageClientFactory;
 import fr.gouv.vitam.storage.engine.client.exception.StorageAlreadyExistsClientException;
@@ -47,7 +48,6 @@ import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageNotFoundEx
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 
 import java.util.List;
 
@@ -65,7 +65,7 @@ public abstract class CommonReportService<T> {
         this(
             reportType,
             BatchReportClientFactory.getInstance(),
-            WorkspaceClientFactory.getInstance(WorkspaceType.VITAM),
+            WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM),
             StorageClientFactory.getInstance()
         );
     }
@@ -110,9 +110,10 @@ public abstract class CommonReportService<T> {
         }
     }
 
-    public void storeReportToWorkspace(Report reportInfo) throws ProcessingStatusException {
+    public void storeReportToWorkspace(Report reportInfo, WorkFlowExecutionContext executionContext)
+        throws ProcessingStatusException {
         try (BatchReportClient batchReportClient = batchReportClientFactory.getClient()) {
-            batchReportClient.storeReportToWorkspace(reportInfo);
+            batchReportClient.storeReportToWorkspace(reportInfo, executionContext);
         } catch (VitamClientInternalException e) {
             throw new ProcessingStatusException(StatusCode.FATAL, "Could not store report", e);
         }

@@ -29,6 +29,7 @@ package fr.gouv.vitam.worker.core.plugin.dip;
 import fr.gouv.vitam.common.accesslog.AccessLogUtils;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -114,7 +115,7 @@ public class PutBinaryOnWorkspaceTest {
                 eq(AccessLogUtils.getNoLogAccessLog())
             )
         ).willReturn(new ServerResponse(entity, 200, new Headers<>()));
-        DefaultWorkerParameters param = WorkerParametersFactory.newWorkerParameters();
+        DefaultWorkerParameters param = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM);
         param.setObjectName(guid);
 
         // When
@@ -151,7 +152,7 @@ public class PutBinaryOnWorkspaceTest {
         )
             .willThrow(new StorageServerClientException("transfer failed"))
             .willReturn(new ServerResponse(entity, 200, new Headers<>()));
-        DefaultWorkerParameters param = WorkerParametersFactory.newWorkerParameters();
+        DefaultWorkerParameters param = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM);
         param.setObjectName(guid);
 
         // When
@@ -186,7 +187,7 @@ public class PutBinaryOnWorkspaceTest {
                 eq(AccessLogUtils.getNoLogAccessLog())
             )
         ).willThrow(new StorageServerClientException("transfer failed"));
-        DefaultWorkerParameters param = WorkerParametersFactory.newWorkerParameters();
+        DefaultWorkerParameters param = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM);
         param.setObjectName(guid);
 
         // When
@@ -239,7 +240,7 @@ public class PutBinaryOnWorkspaceTest {
                 eq(false)
             );
 
-        DefaultWorkerParameters param = WorkerParametersFactory.newWorkerParameters();
+        DefaultWorkerParameters param = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM);
         param.setObjectName(guid);
 
         // When

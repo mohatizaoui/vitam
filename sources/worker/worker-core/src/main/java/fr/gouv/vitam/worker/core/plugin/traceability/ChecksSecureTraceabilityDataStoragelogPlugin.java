@@ -28,7 +28,6 @@
 package fr.gouv.vitam.worker.core.plugin.traceability;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Iterables;
 import fr.gouv.vitam.batch.report.model.TraceabilityError;
 import fr.gouv.vitam.batch.report.model.entry.TraceabilityReportEntry;
@@ -48,7 +47,6 @@ import fr.gouv.vitam.logbook.common.model.TraceabilityType;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.storage.engine.client.StorageClient;
-import fr.gouv.vitam.storage.engine.client.StorageClientFactory;
 import fr.gouv.vitam.storage.engine.client.exception.StorageNotFoundClientException;
 import fr.gouv.vitam.storage.engine.client.exception.StorageServerClientException;
 import fr.gouv.vitam.storage.engine.client.exception.StorageUnavailableDataFromAsyncOfferClientException;
@@ -93,23 +91,14 @@ public class ChecksSecureTraceabilityDataStoragelogPlugin extends ActionHandler 
 
     private static final String DIGEST = "digest";
 
-    private final StorageClientFactory storageClientFactory;
-
-    public ChecksSecureTraceabilityDataStoragelogPlugin() {
-        this(StorageClientFactory.getInstance());
-    }
-
-    @VisibleForTesting
-    ChecksSecureTraceabilityDataStoragelogPlugin(StorageClientFactory storageClientFactory) {
-        this.storageClientFactory = storageClientFactory;
-    }
+    public ChecksSecureTraceabilityDataStoragelogPlugin() {}
 
     @Override
     public ItemStatus execute(WorkerParameters param, HandlerIO handler) throws ProcessingException {
         if (handler.isExistingFileInWorkspace(param.getObjectName() + File.separator + ERROR_FLAG)) {
             return buildItemStatus(PLUGIN_NAME, KO);
         }
-        try (StorageClient storageClient = storageClientFactory.getClient()) {
+        try (StorageClient storageClient = handler.getStorageClient()) {
             File traceabilityEventJsonFile = (File) handler.getInput(EVENT_DETAIL_DATA_IN_RANK);
             TraceabilityEvent traceabilityEvent = JsonHandler.getFromFile(
                 traceabilityEventJsonFile,

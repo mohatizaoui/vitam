@@ -29,6 +29,7 @@ package fr.gouv.vitam.worker.core.plugin.transfer.reply;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.collect.ImmutableMap;
 import fr.gouv.vitam.batch.report.model.entry.PurgeObjectGroupReportEntry;
 import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.collection.CloseableIteratorUtils;
@@ -37,6 +38,7 @@ import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -67,6 +69,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static java.util.Arrays.asList;
@@ -119,8 +122,9 @@ public class TransferReplyObjectGroupPreparationHandlerTest {
         doAnswer(args -> tempFolder.newFile(args.getArgument(0))).when(handler).getNewLocalFile(any());
 
         doReturn(metaDataClient).when(metaDataClientFactory).getClient();
+        doReturn(metaDataClient).when(handler).getMetaDataClient();
 
-        params = WorkerParametersFactory.newWorkerParameters()
+        params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setWorkerGUID(GUIDFactory.newGUID().getId())
             .setContainerName(VitamThreadUtils.getVitamSession().getRequestId())
             .setRequestId(VitamThreadUtils.getVitamSession().getRequestId())
@@ -139,13 +143,15 @@ public class TransferReplyObjectGroupPreparationHandlerTest {
     @Test
     @RunWithCustomExecutor
     public void testExecute_OK() throws Exception {
+        when(handler.getMetaDataClient()).thenReturn(metaDataClient);
+        when(metaDataClientFactory.getClient()).thenReturn(metaDataClient);
         doReturn(
             CloseableIteratorUtils.toCloseableIterator(
                 asList("id_got_1", "id_got_2", "id_got_3", "id_got_4", "id_got_5").iterator()
             )
         )
             .when(purgeReportService)
-            .exportDistinctObjectGroups(any(), any());
+            .exportDistinctObjectGroups(any(), any(), any());
 
         JsonNode objectGroups = JsonHandler.getFromInputStream(
             PropertiesUtils.getResourceAsStream(
@@ -162,7 +168,6 @@ public class TransferReplyObjectGroupPreparationHandlerTest {
         doReturn(existingUnits).when(metaDataClient).selectUnits(any());
 
         TransferReplyObjectGroupPreparationHandler instance = new TransferReplyObjectGroupPreparationHandler(
-            metaDataClientFactory,
             purgeReportService,
             10
         );
@@ -243,9 +248,23 @@ public class TransferReplyObjectGroupPreparationHandlerTest {
             .collect(toList());
 
         assertThat(objectGroupsToDelete).hasSize(2);
-
-        checkObjectGroupToDelete(objectGroupsToDelete, "id_got_1", "id_got_1_object_1", "id_got_1_object_2");
-        checkObjectGroupToDelete(objectGroupsToDelete, "id_got_3", "id_got_3_object_1");
+        Map<String, String> urisByObjIds = ImmutableMap.of(
+            "id_got_1_object_1",
+            "Content/ID3343.txt",
+            "id_got_1_object_2",
+            "Content/ID3343.txt",
+            "id_got_3_object_1",
+            "Content/ID3587.txt"
+        );
+        checkObjectGroupToDelete(
+            objectGroupsToDelete,
+            "opi1",
+            urisByObjIds,
+            "id_got_1",
+            "id_got_1_object_1",
+            "id_got_1_object_2"
+        );
+        checkObjectGroupToDelete(objectGroupsToDelete, "opi3", urisByObjIds, "id_got_3", "id_got_3_object_1");
 
         List<JsonLineModel> objectGroupsToDetach = FileUtils.readLines(
             objectGroupsToDetachFileArgCaptor.getValue(),
@@ -285,7 +304,13 @@ public class TransferReplyObjectGroupPreparationHandlerTest {
         );
     }
 
-    private void checkObjectGroupToDelete(List<JsonLineModel> objectGroupsToDelete, String id, String... objectIds) {
+    private void checkObjectGroupToDelete(
+        List<JsonLineModel> objectGroupsToDelete,
+        String opi,
+        Map<String, String> urisByObjIds,
+        String id,
+        String... objectIds
+    ) {
         JsonLineModel objectGroupToDelete = objectGroupsToDelete
             .stream()
             .filter(o -> o.getId().equals(id))
@@ -296,7 +321,13 @@ public class TransferReplyObjectGroupPreparationHandlerTest {
         ObjectNode expectedResponse = JsonHandler.createObjectNode();
         ArrayNode objects = JsonHandler.createArrayNode();
         for (String objectId : objectIds) {
-            objects.add(JsonHandler.createObjectNode().put("id", objectId).put("strategyId", "default"));
+            objects.add(
+                JsonHandler.createObjectNode()
+                    .put("id", objectId)
+                    .put("strategyId", "default")
+                    .put("opi", opi)
+                    .put("uri", urisByObjIds.get(objectId))
+            );
         }
         expectedResponse.set("objects", objects);
         expectedResponse.put("strategyId", "default");
@@ -304,7 +335,11 @@ public class TransferReplyObjectGroupPreparationHandlerTest {
         assertThat(objectGroupToDelete.getParams().get("objects").isArray()).isTrue();
         for (String objectId : objectIds) {
             assertThat(((ArrayNode) objectGroupToDelete.getParams().get("objects"))).contains(
-                JsonHandler.createObjectNode().put("id", objectId).put("strategyId", "default")
+                JsonHandler.createObjectNode()
+                    .put("id", objectId)
+                    .put("strategyId", "default")
+                    .put("opi", opi)
+                    .put("uri", urisByObjIds.get(objectId))
             );
         }
     }

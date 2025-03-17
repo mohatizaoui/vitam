@@ -27,6 +27,8 @@
 package fr.gouv.vitam.worker.core.plugin.elimination;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import fr.gouv.vitam.batch.report.client.BatchReportClient;
+import fr.gouv.vitam.batch.report.client.BatchReportClientFactory;
 import fr.gouv.vitam.batch.report.model.entry.EliminationActionUnitReportEntry;
 import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.database.utils.MetadataDocumentHelper;
@@ -34,6 +36,7 @@ import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -50,6 +53,7 @@ import fr.gouv.vitam.worker.core.plugin.elimination.model.EliminationAnalysisRes
 import fr.gouv.vitam.worker.core.plugin.elimination.model.EliminationEventDetails;
 import fr.gouv.vitam.worker.core.plugin.elimination.model.EliminationGlobalStatus;
 import fr.gouv.vitam.worker.core.plugin.elimination.report.EliminationActionReportService;
+import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
 import org.apache.commons.collections4.IteratorUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -59,11 +63,13 @@ import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -100,7 +106,16 @@ public class EliminationActionUnitPreparationHandlerTest {
     private MetaDataClientFactory metaDataClientFactory;
 
     @Mock
+    private WorkspaceClientFactory workspaceClientFactory;
+
+    @Mock
     private MetaDataClient metaDataClient;
+
+    @Mock
+    private BatchReportClientFactory batchReportClientFactory;
+
+    @Mock
+    private BatchReportClient batchReportClient;
 
     @Mock
     private EliminationAnalysisService eliminationAnalysisService;
@@ -122,12 +137,12 @@ public class EliminationActionUnitPreparationHandlerTest {
     public void setUp() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(0);
         VitamThreadUtils.getVitamSession().setRequestId("opId");
-
-        doReturn(metaDataClient).when(metaDataClientFactory).getClient();
+        doReturn(metaDataClient).when(handler).getMetaDataClient();
+        when(metaDataClientFactory.getClient()).thenReturn(metaDataClient);
 
         doAnswer(args -> tempFolder.newFile(args.getArgument(0))).when(handler).getNewLocalFile(any());
 
-        params = WorkerParametersFactory.newWorkerParameters()
+        params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setWorkerGUID(GUIDFactory.newGUID().getId())
             .setContainerName(VitamThreadUtils.getVitamSession().getRequestId())
             .setRequestId(VitamThreadUtils.getVitamSession().getRequestId())
@@ -135,10 +150,22 @@ public class EliminationActionUnitPreparationHandlerTest {
             .setObjectName("REF")
             .setCurrentStep("StepName");
 
+        Field reportServiceField =
+            EliminationActionUnitPreparationHandlerBase.class.getDeclaredField("eliminationActionReportService");
+        reportServiceField.setAccessible(true);
+        reportServiceField.set(instance, eliminationActionReportService);
+
+        Field analysusServiceField =
+            EliminationActionUnitPreparationHandlerBase.class.getDeclaredField("eliminationAnalysisService");
+        analysusServiceField.setAccessible(true);
+        analysusServiceField.set(instance, eliminationAnalysisService);
+
         reportEntries = new ArrayList<>();
         doAnswer(args -> reportEntries.addAll(args.getArgument(1)))
             .when(eliminationActionReportService)
             .appendEntries(any(), any());
+
+        Mockito.verifyNoMoreInteractions(eliminationActionReportService);
     }
 
     private EliminationAnalysisResult createAnalysisResponse(EliminationGlobalStatus destroy) {

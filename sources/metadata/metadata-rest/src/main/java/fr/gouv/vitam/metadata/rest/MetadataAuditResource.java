@@ -30,6 +30,7 @@ import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.database.api.VitamRepositoryFactory;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.logbook.common.exception.LogbookClientBadRequestException;
 import fr.gouv.vitam.logbook.common.exception.LogbookClientNotFoundException;
@@ -40,7 +41,6 @@ import fr.gouv.vitam.metadata.core.config.ElasticsearchMetadataIndexManager;
 import fr.gouv.vitam.metadata.core.config.MetaDataConfiguration;
 import fr.gouv.vitam.processing.management.client.ProcessingManagementClientFactory;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import javax.ws.rs.Consumes;
@@ -60,9 +60,7 @@ public class MetadataAuditResource {
 
     public MetadataAuditResource(MetaDataConfiguration metaDataConfiguration) {
         this.metadataAuditService = new MetadataAuditService(
-            WorkspaceClientFactory.getInstance(
-                metaDataConfiguration.getCollectModule() ? WorkspaceType.COLLECT : WorkspaceType.VITAM
-            ),
+            WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM),
             LogbookOperationsClientFactory.getInstance(),
             VitamRepositoryFactory.get(),
             new ElasticsearchMetadataIndexManager(metaDataConfiguration, VitamConfiguration.getTenants()),

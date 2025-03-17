@@ -28,7 +28,6 @@ package fr.gouv.vitam.worker.core.plugin.bulkatomicupdate;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.gouv.vitam.batch.report.client.BatchReportClient;
-import fr.gouv.vitam.batch.report.client.BatchReportClientFactory;
 import fr.gouv.vitam.batch.report.model.ReportBody;
 import fr.gouv.vitam.batch.report.model.entry.BulkUpdateUnitMetadataReportEntry;
 import fr.gouv.vitam.common.LocalDateUtil;
@@ -46,12 +45,12 @@ import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.logbook.LogbookEvent;
 import fr.gouv.vitam.common.model.logbook.LogbookLifecycle;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.functional.administration.client.AdminManagementClient;
-import fr.gouv.vitam.functional.administration.client.AdminManagementClientFactory;
 import fr.gouv.vitam.logbook.common.parameters.LogbookTypeProcess;
 import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClient;
 import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClientFactory;
@@ -59,16 +58,13 @@ import fr.gouv.vitam.metadata.api.exception.MetaDataDocumentSizeException;
 import fr.gouv.vitam.metadata.api.model.UpdateUnit;
 import fr.gouv.vitam.metadata.api.model.UpdateUnitKey;
 import fr.gouv.vitam.metadata.client.MetaDataClient;
-import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.storage.engine.client.StorageClient;
-import fr.gouv.vitam.storage.engine.client.StorageClientFactory;
 import fr.gouv.vitam.storage.engine.common.model.DataCategory;
 import fr.gouv.vitam.storage.engine.common.model.response.StoredInfoResult;
 import fr.gouv.vitam.worker.common.HandlerIO;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
-import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
 import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Rule;
@@ -96,8 +92,8 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -129,32 +125,25 @@ public class BulkAtomicUpdateProcessTest {
     @Mock
     private HandlerIO handlerIO;
 
-    @Mock
-    private MetaDataClientFactory metaDataClientFactory;
-
-    @Mock
-    private LogbookLifeCyclesClientFactory lfcClientFactory;
-
-    @Mock
-    private StorageClientFactory storageClientFactory;
-
-    @Mock
-    private WorkspaceClientFactory workspaceClientFactory;
-
-    @Mock
-    private AdminManagementClientFactory adminManagementClientFactory;
-
-    @Mock
-    private BatchReportClientFactory batchReportClientFactory;
-
     @InjectMocks
     private BulkAtomicUpdateProcess bulkAtomicUpdateProcess;
 
+    @Mock
     private MetaDataClient metadataClient;
+
+    @Mock
     private LogbookLifeCyclesClient lfcClient;
+
+    @Mock
     private StorageClient storageClient;
+
+    @Mock
     private WorkspaceClient workspaceClient;
+
+    @Mock
     private AdminManagementClient adminManagementClient;
+
+    @Mock
     private BatchReportClient batchReportClient;
 
     private InputStream unit;
@@ -165,18 +154,12 @@ public class BulkAtomicUpdateProcessTest {
     public void setUp() throws Exception {
         LogbookLifeCyclesClientFactory.changeMode(null);
 
-        batchReportClient = mock(BatchReportClient.class);
-        given(batchReportClientFactory.getClient()).willReturn(batchReportClient);
-        workspaceClient = mock(WorkspaceClient.class);
-        given(workspaceClientFactory.getClient()).willReturn(workspaceClient);
-        metadataClient = mock(MetaDataClient.class);
-        given(metaDataClientFactory.getClient()).willReturn(metadataClient);
-        storageClient = mock(StorageClient.class);
-        given(storageClientFactory.getClient()).willReturn(storageClient);
-        lfcClient = mock(LogbookLifeCyclesClient.class);
-        given(lfcClientFactory.getClient()).willReturn(lfcClient);
-        adminManagementClient = mock(AdminManagementClient.class);
-        given(adminManagementClientFactory.getClient()).willReturn(adminManagementClient);
+        doReturn(batchReportClient).when(handlerIO).getBatchReportClient();
+        doReturn(workspaceClient).when(handlerIO).getWorkspaceClient();
+        doReturn(metadataClient).when(handlerIO).getMetaDataClient();
+        doReturn(storageClient).when(handlerIO).getStorageClient();
+        doReturn(lfcClient).when(handlerIO).getLifeCyclesClient();
+        doReturn(adminManagementClient).when(handlerIO).getAdminManagementClient();
         unit = PropertiesUtils.getResourceAsStream(UNIT);
         File mdFile = PropertiesUtils.getResourceFile(METADATA_UNIT_RESPONSE_JSON);
         unitResponse = JsonHandler.getFromFile(mdFile, RequestResponseOK.class);
@@ -195,7 +178,7 @@ public class BulkAtomicUpdateProcessTest {
         JsonNode originalQuery2 = JsonHandler.getFromInputStream(
             PropertiesUtils.getResourceAsStream(ORIGINAL_QUERY_FILE2)
         );
-        final WorkerParameters params = newWorkerParameters()
+        final WorkerParameters params = newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setWorkerGUID(GUIDFactory.newGUID().getId())
             .setContainerName(CONTAINER_NAME)
             .setUrlMetadata("http://localhost:8083")
@@ -264,7 +247,7 @@ public class BulkAtomicUpdateProcessTest {
         JsonNode originalQuery2 = JsonHandler.getFromInputStream(
             PropertiesUtils.getResourceAsStream(ORIGINAL_QUERY_FILE2)
         );
-        final WorkerParameters params = newWorkerParameters()
+        final WorkerParameters params = newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setWorkerGUID(GUIDFactory.newGUID().getId())
             .setContainerName(CONTAINER_NAME)
             .setUrlMetadata("http://localhost:8083")
@@ -331,7 +314,7 @@ public class BulkAtomicUpdateProcessTest {
         JsonNode originalQuery2 = JsonHandler.getFromInputStream(
             PropertiesUtils.getResourceAsStream(ORIGINAL_QUERY_FILE2)
         );
-        final WorkerParameters params = newWorkerParameters()
+        final WorkerParameters params = newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setWorkerGUID(GUIDFactory.newGUID().getId())
             .setContainerName(CONTAINER_NAME)
             .setUrlMetadata("http://localhost:8083")
@@ -382,7 +365,7 @@ public class BulkAtomicUpdateProcessTest {
         JsonNode originalQuery2 = JsonHandler.getFromInputStream(
             PropertiesUtils.getResourceAsStream(ORIGINAL_QUERY_FILE2)
         );
-        final WorkerParameters params = newWorkerParameters()
+        final WorkerParameters params = newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setWorkerGUID(GUIDFactory.newGUID().getId())
             .setContainerName(CONTAINER_NAME)
             .setUrlMetadata("http://localhost:8083")
@@ -431,7 +414,7 @@ public class BulkAtomicUpdateProcessTest {
         JsonNode originalQuery2 = JsonHandler.getFromInputStream(
             PropertiesUtils.getResourceAsStream(ORIGINAL_QUERY_FILE2)
         );
-        final WorkerParameters params = newWorkerParameters()
+        final WorkerParameters params = newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setWorkerGUID(GUIDFactory.newGUID().getId())
             .setContainerName(CONTAINER_NAME)
             .setUrlMetadata("http://localhost:8083")
@@ -480,7 +463,7 @@ public class BulkAtomicUpdateProcessTest {
         JsonNode originalQuery2 = JsonHandler.getFromInputStream(
             PropertiesUtils.getResourceAsStream(ORIGINAL_QUERY_FILE2)
         );
-        final WorkerParameters params = newWorkerParameters()
+        final WorkerParameters params = newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setWorkerGUID(GUIDFactory.newGUID().getId())
             .setContainerName(CONTAINER_NAME)
             .setUrlMetadata("http://localhost:8083")
@@ -550,7 +533,7 @@ public class BulkAtomicUpdateProcessTest {
         JsonNode originalQuery = JsonHandler.getFromInputStream(
             PropertiesUtils.getResourceAsStream(ORIGINAL_QUERY_FILE1)
         );
-        WorkerParameters params = newWorkerParameters()
+        WorkerParameters params = newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setWorkerGUID(GUIDFactory.newGUID().getId())
             .setContainerName(processId)
             .setUrlMetadata("http://localhost:8083")
@@ -627,7 +610,7 @@ public class BulkAtomicUpdateProcessTest {
         JsonNode originalQuery = JsonHandler.getFromInputStream(
             PropertiesUtils.getResourceAsStream(ORIGINAL_QUERY_FILE1)
         );
-        WorkerParameters params = newWorkerParameters()
+        WorkerParameters params = newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setWorkerGUID(GUIDFactory.newGUID().getId())
             .setContainerName(processId)
             .setUrlMetadata("http://localhost:8083")

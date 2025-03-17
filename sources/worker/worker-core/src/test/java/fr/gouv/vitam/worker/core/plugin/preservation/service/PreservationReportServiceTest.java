@@ -40,6 +40,7 @@ import fr.gouv.vitam.batch.report.model.entry.AuditObjectGroupReportEntry;
 import fr.gouv.vitam.batch.report.model.entry.PreservationReportEntry;
 import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.json.JsonHandler;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.storage.engine.client.StorageClient;
 import fr.gouv.vitam.storage.engine.client.StorageClientFactory;
 import fr.gouv.vitam.storage.engine.common.model.DataCategory;
@@ -177,11 +178,12 @@ public class PreservationReportServiceTest {
         Report reportInfo = new Report(operationSummary, reportSummary, context);
 
         // Given / When
-        ThrowingCallable exportReport = () -> preservationReportService.storeReportToWorkspace(reportInfo);
+        ThrowingCallable exportReport = () ->
+            preservationReportService.storeReportToWorkspace(reportInfo, WorkFlowExecutionContext.VITAM);
 
         // Then
         assertThatCode(exportReport).doesNotThrowAnyException();
-        verify(batchReportClient).storeReportToWorkspace(reportInfo);
+        verify(batchReportClient).storeReportToWorkspace(reportInfo, WorkFlowExecutionContext.VITAM);
     }
 
     @Test

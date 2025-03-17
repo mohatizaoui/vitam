@@ -24,6 +24,7 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
+
 package fr.gouv.vitam.storage.engine.client;
 
 import fr.gouv.vitam.common.ParametersChecker;
@@ -31,10 +32,9 @@ import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.client.VitamClientFactory;
 import fr.gouv.vitam.common.client.configuration.ClientConfiguration;
 import fr.gouv.vitam.common.client.configuration.ClientConfigurationImpl;
-import fr.gouv.vitam.common.error.VitamCode;
-import fr.gouv.vitam.common.error.VitamCodeHelper;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 
 import java.io.IOException;
 import java.net.URI;
@@ -85,28 +85,27 @@ public class StorageClientFactory extends VitamClientFactory<StorageClient> {
      * @return the instance
      */
     public static StorageClientFactory getInstance() {
-        return STORAGE_CLIENT_FACTORY;
+        return getInstance(WorkFlowExecutionContext.VITAM);
     }
 
     /**
-     * Get the default storage client
+     * Get the StorageClientFactory instance for the given workflow execution context
      *
-     * @return the default storage client
+     * @param executionContext the workflow execution context
+     * @return the instance
      */
+    public static StorageClientFactory getInstance(WorkFlowExecutionContext executionContext) {
+        return switch (executionContext) {
+            case VITAM, COLLECT -> STORAGE_CLIENT_FACTORY;
+        };
+    }
+
     @Override
     public StorageClient getClient() {
-        StorageClient client;
-        switch (getVitamClientType()) {
-            case MOCK:
-                client = new StorageClientMock();
-                break;
-            case PRODUCTION:
-                client = new StorageClientRest(this);
-                break;
-            default:
-                throw new IllegalArgumentException(VitamCodeHelper.getLogMessage(VitamCode.STORAGE_CLIENT_UNKNOWN));
-        }
-        return client;
+        return switch (getVitamClientType()) {
+            case MOCK -> new StorageClientMock();
+            case PRODUCTION -> new StorageClientRest(this);
+        };
     }
 
     /**

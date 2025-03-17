@@ -39,6 +39,7 @@ import fr.gouv.vitam.common.model.administration.RuleMeasurementEnum;
 import fr.gouv.vitam.common.model.processing.IOParameter;
 import fr.gouv.vitam.common.model.processing.ProcessingUri;
 import fr.gouv.vitam.common.model.processing.UriPrefix;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -141,6 +142,7 @@ public class UnitsRulesComputePluginTest {
         when(logbookLifeCyclesClientFactory.getClient()).thenReturn(logbookLifeCyclesClient);
         plugin = new UnitsRulesComputePlugin(adminManagementClientFactory);
         action = new HandlerIOImpl(
+            WorkFlowExecutionContext.VITAM,
             workspaceClientFactory,
             logbookLifeCyclesClientFactory,
             GUIDFactory.newGUID().toString(),
@@ -180,7 +182,7 @@ public class UnitsRulesComputePluginTest {
 
         when(adminManagementClient.getRules(any())).thenReturn(getRulesInReferential());
 
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace(FAKE_URL)
             .setUrlMetadata("http://localhost:8083")
             .setObjectNameList(Lists.newArrayList("objectName"))
@@ -205,7 +207,7 @@ public class UnitsRulesComputePluginTest {
 
         when(adminManagementClient.getRules(any())).thenReturn(getRulesInReferentialPartial());
 
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace(FAKE_URL)
             .setUrlMetadata("http://localhost:8083")
             .setObjectNameList(Lists.newArrayList("objectName"))
@@ -227,7 +229,7 @@ public class UnitsRulesComputePluginTest {
 
         when(adminManagementClient.getRules(any())).thenReturn(getRulesInReferential());
 
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace(FAKE_URL)
             .setUrlMetadata("http://localhost:8083")
             .setObjectNameList(Lists.newArrayList("objectName"))
@@ -259,7 +261,7 @@ public class UnitsRulesComputePluginTest {
         when(adminManagementClient.getRuleByID("ID102")).thenReturn(getRulesInReferential("ID102", "AccessRule"));
 
         when(adminManagementClient.getRules(any())).thenReturn(getRulesInReferential());
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace(FAKE_URL)
             .setUrlMetadata(FAKE_URL)
             .setObjectNameList(Lists.newArrayList("objectName"))
@@ -290,7 +292,7 @@ public class UnitsRulesComputePluginTest {
         action.getInput().add(archiveUnit_ARBO_MD_RG_COMPLEXE);
         when(adminManagementClient.getRules(any())).thenReturn(getRulesInReferentialForArboMdRgComplexe());
 
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace(FAKE_URL)
             .setUrlMetadata("http://localhost:8083")
             .setObjectNameList(Lists.newArrayList("objectName"))
@@ -325,7 +327,7 @@ public class UnitsRulesComputePluginTest {
 
         when(adminManagementClient.getRules(any())).thenReturn(getRulesInReferentialForNonExistingRule());
 
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace(FAKE_URL)
             .setUrlMetadata("http://localhost:8083")
             .setObjectNameList(Lists.newArrayList("objectName"))
@@ -360,7 +362,7 @@ public class UnitsRulesComputePluginTest {
 
         when(adminManagementClient.getRules(any())).thenReturn(getRulesInReferential());
 
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace(FAKE_URL)
             .setUrlMetadata("http://localhost:8083")
             .setObjectNameList(Lists.newArrayList("objectName"))
@@ -400,7 +402,7 @@ public class UnitsRulesComputePluginTest {
 
         when(adminManagementClient.getRules(any())).thenReturn(getRulesInReferentialForAuMgtMdOk());
 
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace(FAKE_URL)
             .setUrlMetadata("http://localhost:8083")
             .setObjectNameList(Lists.newArrayList("objectName"))

@@ -28,9 +28,7 @@ package fr.gouv.vitam.worker.core.plugin.massprocessing.management;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.annotations.VisibleForTesting;
 import fr.gouv.vitam.batch.report.client.BatchReportClient;
-import fr.gouv.vitam.batch.report.client.BatchReportClientFactory;
 import fr.gouv.vitam.batch.report.model.ReportBody;
 import fr.gouv.vitam.batch.report.model.ReportType;
 import fr.gouv.vitam.batch.report.model.entry.UpdateUnitMetadataReportEntry;
@@ -62,7 +60,6 @@ import fr.gouv.vitam.common.model.massupdate.RuleActions;
 import fr.gouv.vitam.common.model.massupdate.RuleCategoryAction;
 import fr.gouv.vitam.common.parameter.ParameterHelper;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
-import fr.gouv.vitam.functional.administration.client.AdminManagementClientFactory;
 import fr.gouv.vitam.functional.administration.common.FileRules;
 import fr.gouv.vitam.functional.administration.common.exception.AdminManagementClientServerException;
 import fr.gouv.vitam.functional.administration.common.exception.FileRulesException;
@@ -73,13 +70,10 @@ import fr.gouv.vitam.logbook.common.parameters.LogbookLifeCycleParameters;
 import fr.gouv.vitam.logbook.common.parameters.LogbookParameterHelper;
 import fr.gouv.vitam.logbook.common.parameters.LogbookParameterName;
 import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClient;
-import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClientFactory;
 import fr.gouv.vitam.metadata.client.MetaDataClient;
-import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.storage.engine.client.StorageClient;
-import fr.gouv.vitam.storage.engine.client.StorageClientFactory;
 import fr.gouv.vitam.storage.engine.common.model.DataCategory;
 import fr.gouv.vitam.storage.engine.common.model.request.ObjectDescription;
 import fr.gouv.vitam.worker.common.HandlerIO;
@@ -119,38 +113,6 @@ public class MassUpdateUnitsRulesProcess extends StoreMetadataObjectActionHandle
     private static final String JSON = ".json";
     private static final String ID = "#id";
 
-    private final MetaDataClientFactory metaDataClientFactory;
-    private final LogbookLifeCyclesClientFactory lfcClientFactory;
-    private final StorageClientFactory storageClientFactory;
-    private final AdminManagementClientFactory adminManagementClientFactory;
-    private final BatchReportClientFactory batchReportClientFactory;
-
-    public MassUpdateUnitsRulesProcess() {
-        this(
-            MetaDataClientFactory.getInstance(),
-            LogbookLifeCyclesClientFactory.getInstance(),
-            StorageClientFactory.getInstance(),
-            AdminManagementClientFactory.getInstance(),
-            BatchReportClientFactory.getInstance()
-        );
-    }
-
-    @VisibleForTesting
-    public MassUpdateUnitsRulesProcess(
-        MetaDataClientFactory metaDataClientFactory,
-        LogbookLifeCyclesClientFactory lfcClientFactory,
-        StorageClientFactory storageClientFactory,
-        AdminManagementClientFactory adminManagementClientFactory,
-        BatchReportClientFactory batchReportClientFactory
-    ) {
-        super(storageClientFactory);
-        this.metaDataClientFactory = metaDataClientFactory;
-        this.lfcClientFactory = lfcClientFactory;
-        this.storageClientFactory = storageClientFactory;
-        this.adminManagementClientFactory = adminManagementClientFactory;
-        this.batchReportClientFactory = batchReportClientFactory;
-    }
-
     /**
      * Execute an action
      *
@@ -178,10 +140,10 @@ public class MassUpdateUnitsRulesProcess extends StoreMetadataObjectActionHandle
         throws ProcessingException {
         // Bulk update units && local reports generation
         try (
-            MetaDataClient mdClient = metaDataClientFactory.getClient();
-            LogbookLifeCyclesClient lfcClient = lfcClientFactory.getClient();
-            StorageClient storageClient = storageClientFactory.getClient();
-            BatchReportClient batchReportClient = batchReportClientFactory.getClient()
+            MetaDataClient mdClient = handler.getMetaDataClient();
+            LogbookLifeCyclesClient lfcClient = handler.getLifeCyclesClient();
+            StorageClient storageClient = handler.getStorageClient();
+            BatchReportClient batchReportClient = handler.getBatchReportClient()
         ) {
             RuleActions ruleActions = JsonHandler.getFromJsonNode(
                 handler.getJsonFromWorkspace("actions.json"),
@@ -190,7 +152,7 @@ public class MassUpdateUnitsRulesProcess extends StoreMetadataObjectActionHandle
 
             List<String> units = workerParameters.getObjectNameList();
 
-            Map<String, DurationData> bindRulesToDuration = checkAndComputeRuleDurationData(ruleActions);
+            Map<String, DurationData> bindRulesToDuration = checkAndComputeRuleDurationData(handler, ruleActions);
 
             // call update BULK service
             RequestResponse<JsonNode> requestResponse = mdClient.updateUnitsRulesBulk(
@@ -313,7 +275,7 @@ public class MassUpdateUnitsRulesProcess extends StoreMetadataObjectActionHandle
         return buildItemStatus(MASS_UPDATE_UNITS_RULES, OK, EventDetails.of("Mass unit rule update OK"));
     }
 
-    private Map<String, DurationData> checkAndComputeRuleDurationData(RuleActions ruleActions)
+    private Map<String, DurationData> checkAndComputeRuleDurationData(HandlerIO handler, RuleActions ruleActions)
         throws IllegalStateException {
         Map<String, DurationData> bindRulesToDuration = new HashMap<>();
 
@@ -322,7 +284,7 @@ public class MassUpdateUnitsRulesProcess extends StoreMetadataObjectActionHandle
             ruleAddition
                 .stream()
                 .flatMap(x -> x.entrySet().stream())
-                .forEach(x -> computeRuleDurationData(x.getKey(), x.getValue(), bindRulesToDuration, false));
+                .forEach(x -> computeRuleDurationData(handler, x.getKey(), x.getValue(), bindRulesToDuration, false));
         }
 
         List<Map<String, RuleCategoryAction>> ruleUpdates = ruleActions.getUpdate();
@@ -330,13 +292,14 @@ public class MassUpdateUnitsRulesProcess extends StoreMetadataObjectActionHandle
             ruleUpdates
                 .stream()
                 .flatMap(x -> x.entrySet().stream())
-                .forEach(x -> computeRuleDurationData(x.getKey(), x.getValue(), bindRulesToDuration, true));
+                .forEach(x -> computeRuleDurationData(handler, x.getKey(), x.getValue(), bindRulesToDuration, true));
         }
 
         return bindRulesToDuration;
     }
 
     private void computeRuleDurationData(
+        HandlerIO handler,
         String ruleType,
         RuleCategoryAction category,
         Map<String, DurationData> bindRuleDuration,
@@ -355,7 +318,7 @@ public class MassUpdateUnitsRulesProcess extends StoreMetadataObjectActionHandle
 
             JsonNode ruleResponseInReferential;
             try {
-                ruleResponseInReferential = adminManagementClientFactory.getClient().getRuleByID(ruleId);
+                ruleResponseInReferential = handler.getAdminManagementClient().getRuleByID(ruleId);
             } catch (InvalidParseOperationException | AdminManagementClientServerException | FileRulesException e) {
                 throw new IllegalStateException("Can't get the Rule " + rule.getRule() + " in Rules Referential");
             }

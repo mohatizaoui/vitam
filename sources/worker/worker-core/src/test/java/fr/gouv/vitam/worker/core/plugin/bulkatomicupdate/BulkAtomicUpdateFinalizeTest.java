@@ -24,11 +24,11 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
+
 package fr.gouv.vitam.worker.core.plugin.bulkatomicupdate;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.gouv.vitam.batch.report.client.BatchReportClient;
-import fr.gouv.vitam.batch.report.client.BatchReportClientFactory;
 import fr.gouv.vitam.batch.report.model.Report;
 import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.VitamConfiguration;
@@ -44,16 +44,13 @@ import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
 import fr.gouv.vitam.logbook.common.exception.LogbookClientException;
 import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClient;
-import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClientFactory;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.storage.engine.client.StorageClient;
-import fr.gouv.vitam.storage.engine.client.StorageClientFactory;
 import fr.gouv.vitam.storage.engine.client.exception.StorageServerClientException;
 import fr.gouv.vitam.storage.engine.common.model.DataCategory;
 import fr.gouv.vitam.storage.engine.common.model.request.ObjectDescription;
 import fr.gouv.vitam.worker.core.plugin.preservation.TestHandlerIO;
 import org.apache.commons.io.FileUtils;
-import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -81,10 +78,11 @@ import static fr.gouv.vitam.worker.core.plugin.preservation.TestWorkerParameter.
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -105,32 +103,16 @@ public class BulkAtomicUpdateFinalizeTest {
     );
 
     @Mock
-    private LogbookOperationsClientFactory logbookOperationsClientFactory;
-
-    @Mock
     private LogbookOperationsClient logbookOperationsClient;
 
     @Mock
-    private BatchReportClientFactory batchReportClientFactory;
-
-    @Mock
     private BatchReportClient batchReportClient;
-
-    @Mock
-    private StorageClientFactory storageClientFactory;
 
     @Mock
     private StorageClient storageClient;
 
     @InjectMocks
     private BulkAtomicUpdateFinalize bulkAtomicUpdateFinalize;
-
-    @Before
-    public void setup() {
-        given(batchReportClientFactory.getClient()).willReturn(batchReportClient);
-        given(logbookOperationsClientFactory.getClient()).willReturn(logbookOperationsClient);
-        given(storageClientFactory.getClient()).willReturn(storageClient);
-    }
 
     @Test
     @RunWithCustomExecutor
@@ -139,7 +121,7 @@ public class BulkAtomicUpdateFinalizeTest {
         String operationId = "MY_OPERATION_ID";
 
         WorkerParameters workerParameter = workerParameterBuilder().withContainerName(operationId).build();
-        TestHandlerIO handlerIO = new TestHandlerIO();
+        TestHandlerIO handlerIO = getHandlerIO();
 
         JsonNode logbookOperationOK = JsonHandler.getFromFile(
             PropertiesUtils.findFile("BulkAtomicUpdateFinalize/logbook_ok.json")
@@ -153,6 +135,14 @@ public class BulkAtomicUpdateFinalizeTest {
         assertThat(itemStatus.getGlobalStatus()).isEqualTo(OK);
     }
 
+    private TestHandlerIO getHandlerIO() {
+        TestHandlerIO result = spy(new TestHandlerIO());
+        doReturn(batchReportClient).when(result).getBatchReportClient();
+        doReturn(storageClient).when(result).getStorageClient();
+        doReturn(logbookOperationsClient).when(result).getLogbookOperationsClient();
+        return result;
+    }
+
     @Test
     @RunWithCustomExecutor
     public void should_generate_report_WARNING_when_Prepare_WARNING() throws Exception {
@@ -163,7 +153,7 @@ public class BulkAtomicUpdateFinalizeTest {
             .withContainerName(operationId)
             .withWorkflowStatusKo(WARNING.name())
             .build();
-        TestHandlerIO handlerIO = new TestHandlerIO();
+        TestHandlerIO handlerIO = getHandlerIO();
 
         JsonNode logbookOperationWARNING = JsonHandler.getFromFile(
             PropertiesUtils.findFile("BulkAtomicUpdateFinalize/logbook_warning_1.json")
@@ -187,7 +177,7 @@ public class BulkAtomicUpdateFinalizeTest {
             .withContainerName(operationId)
             .withWorkflowStatusKo(WARNING.name())
             .build();
-        TestHandlerIO handlerIO = new TestHandlerIO();
+        TestHandlerIO handlerIO = getHandlerIO();
 
         JsonNode logbookOperationWARNING = JsonHandler.getFromFile(
             PropertiesUtils.findFile("BulkAtomicUpdateFinalize/logbook_warning_2.json")
@@ -211,7 +201,7 @@ public class BulkAtomicUpdateFinalizeTest {
             .withContainerName(operationId)
             .withWorkflowStatusKo(WARNING.name())
             .build();
-        TestHandlerIO handlerIO = new TestHandlerIO();
+        TestHandlerIO handlerIO = getHandlerIO();
 
         JsonNode logbookOperationWARNING = JsonHandler.getFromFile(
             PropertiesUtils.findFile("BulkAtomicUpdateFinalize/logbook_warning_empty.json")
@@ -235,7 +225,7 @@ public class BulkAtomicUpdateFinalizeTest {
             .withContainerName(operationId)
             .withWorkflowStatusKo(KO.name())
             .build();
-        TestHandlerIO handlerIO = new TestHandlerIO();
+        TestHandlerIO handlerIO = getHandlerIO();
 
         JsonNode logbookOperationKO = JsonHandler.getFromFile(
             PropertiesUtils.findFile("BulkAtomicUpdateFinalize/logbook_ko.json")
@@ -259,7 +249,7 @@ public class BulkAtomicUpdateFinalizeTest {
             .withContainerName(operationId)
             .withWorkflowStatusKo(KO.name())
             .build();
-        TestHandlerIO handlerIO = new TestHandlerIO();
+        TestHandlerIO handlerIO = getHandlerIO();
 
         JsonNode logbookOperationKO = JsonHandler.getFromFile(
             PropertiesUtils.findFile("BulkAtomicUpdateFinalize/logbook_ko_threshold.json")
@@ -283,7 +273,7 @@ public class BulkAtomicUpdateFinalizeTest {
             .withContainerName(operationId)
             .withWorkflowStatusKo(OK.name())
             .build();
-        TestHandlerIO handlerIO = new TestHandlerIO();
+        TestHandlerIO handlerIO = getHandlerIO();
         handlerIO.setJsonFromWorkspace("query.json", JsonHandler.createObjectNode().put("Context", "request"));
 
         int numberOfOKUpdate = 54;
@@ -294,7 +284,7 @@ public class BulkAtomicUpdateFinalizeTest {
         when(logbookOperationsClient.selectOperationById(operationId)).thenReturn(
             getLogbookOperationRequestResponseOK(0, 0, 0, numberOfOKUpdate, 0, numberOfKOUpdate)
         );
-        doNothing().when(batchReportClient).storeReportToWorkspace(reportCaptor.capture());
+        doNothing().when(batchReportClient).storeReportToWorkspace(reportCaptor.capture(), any());
 
         // When
         bulkAtomicUpdateFinalize.execute(workerParameter, handlerIO);
@@ -321,7 +311,7 @@ public class BulkAtomicUpdateFinalizeTest {
         String operationId = "MY_OPERATION_ID";
 
         WorkerParameters workerParameter = workerParameterBuilder().withContainerName(operationId).build();
-        TestHandlerIO handlerIO = new TestHandlerIO();
+        TestHandlerIO handlerIO = getHandlerIO();
 
         File existingReport = tempFolder.newFile();
         InputStream report = PropertiesUtils.getResourceAsStream("BulkAtomicUpdateFinalize/report.jsonl");
@@ -334,7 +324,7 @@ public class BulkAtomicUpdateFinalizeTest {
         bulkAtomicUpdateFinalize.execute(workerParameter, handlerIO);
 
         // Then
-        verify(batchReportClient, never()).storeReportToWorkspace(any());
+        verify(batchReportClient, never()).storeReportToWorkspace(any(), any());
         verifyNoInteractions(logbookOperationsClient);
 
         ArgumentCaptor<ObjectDescription> descriptionArgumentCaptor = ArgumentCaptor.forClass(ObjectDescription.class);
@@ -355,7 +345,7 @@ public class BulkAtomicUpdateFinalizeTest {
         String operationId = "MY_OPERATION_ID";
 
         WorkerParameters workerParameter = workerParameterBuilder().withContainerName(operationId).build();
-        TestHandlerIO handlerIO = new TestHandlerIO();
+        TestHandlerIO handlerIO = getHandlerIO();
         handlerIO.setJsonFromWorkspace("query.json", JsonHandler.createObjectNode().put("Context", "request"));
 
         when(logbookOperationsClient.selectOperationById(operationId)).thenReturn(
@@ -366,7 +356,7 @@ public class BulkAtomicUpdateFinalizeTest {
         bulkAtomicUpdateFinalize.execute(workerParameter, handlerIO);
 
         // Then
-        verify(batchReportClient).storeReportToWorkspace(any());
+        verify(batchReportClient).storeReportToWorkspace(any(), any());
     }
 
     @Test
@@ -376,7 +366,7 @@ public class BulkAtomicUpdateFinalizeTest {
         String operationId = "MY_OPERATION_ID";
 
         WorkerParameters workerParameter = workerParameterBuilder().withContainerName(operationId).build();
-        TestHandlerIO handlerIO = new TestHandlerIO();
+        TestHandlerIO handlerIO = getHandlerIO();
         handlerIO.setJsonFromWorkspace("query.json", JsonHandler.createObjectNode().put("Context", "request"));
 
         when(logbookOperationsClient.selectOperationById(operationId)).thenThrow(
@@ -397,7 +387,7 @@ public class BulkAtomicUpdateFinalizeTest {
         String operationId = "MY_OPERATION_ID";
 
         WorkerParameters workerParameter = workerParameterBuilder().withContainerName(operationId).build();
-        TestHandlerIO handlerIO = new TestHandlerIO();
+        TestHandlerIO handlerIO = getHandlerIO();
         handlerIO.setJsonFromWorkspace("query.json", JsonHandler.createObjectNode().put("Context", "request"));
 
         when(logbookOperationsClient.selectOperationById(operationId)).thenThrow(
@@ -418,7 +408,7 @@ public class BulkAtomicUpdateFinalizeTest {
         String operationId = "MY_OPERATION_ID";
 
         WorkerParameters workerParameter = workerParameterBuilder().withContainerName(operationId).build();
-        TestHandlerIO handlerIO = new TestHandlerIO();
+        TestHandlerIO handlerIO = getHandlerIO();
         handlerIO.setJsonFromWorkspace("query.json", JsonHandler.createObjectNode().put("Context", "request"));
         when(logbookOperationsClient.selectOperationById(operationId)).thenReturn(
             getLogbookOperationRequestResponseOK()
@@ -426,7 +416,7 @@ public class BulkAtomicUpdateFinalizeTest {
 
         doThrow(new VitamClientInternalException("Any error cause KO."))
             .when(batchReportClient)
-            .storeReportToWorkspace(any());
+            .storeReportToWorkspace(any(), any());
 
         // When
         ItemStatus itemStatus = bulkAtomicUpdateFinalize.execute(workerParameter, handlerIO);
@@ -442,7 +432,7 @@ public class BulkAtomicUpdateFinalizeTest {
         String operationId = "MY_OPERATION_ID";
 
         WorkerParameters workerParameter = workerParameterBuilder().withContainerName(operationId).build();
-        TestHandlerIO handlerIO = new TestHandlerIO();
+        TestHandlerIO handlerIO = getHandlerIO();
         handlerIO.setJsonFromWorkspace("query.json", JsonHandler.createObjectNode().put("Context", "request"));
         when(logbookOperationsClient.selectOperationById(operationId)).thenReturn(
             getLogbookOperationRequestResponseOK()
@@ -471,7 +461,7 @@ public class BulkAtomicUpdateFinalizeTest {
         String operationId = "MY_OPERATION_ID";
 
         WorkerParameters workerParameter = workerParameterBuilder().withContainerName(operationId).build();
-        TestHandlerIO handlerIO = new TestHandlerIO();
+        TestHandlerIO handlerIO = getHandlerIO();
         handlerIO.setJsonFromWorkspace("query.json", JsonHandler.createObjectNode().put("Context", "request"));
 
         when(logbookOperationsClient.selectOperationById(operationId)).thenReturn(

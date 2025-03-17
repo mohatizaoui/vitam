@@ -28,7 +28,6 @@ package fr.gouv.vitam.worker.core.handler;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.annotations.VisibleForTesting;
 import fr.gouv.vitam.common.ParametersChecker;
 import fr.gouv.vitam.common.SedaConstants;
 import fr.gouv.vitam.common.database.builder.query.QueryHelper;
@@ -46,7 +45,6 @@ import fr.gouv.vitam.common.model.administration.IngestContractModel;
 import fr.gouv.vitam.common.model.administration.ProfileStatus;
 import fr.gouv.vitam.common.model.administration.profile.ProfileModel;
 import fr.gouv.vitam.functional.administration.client.AdminManagementClient;
-import fr.gouv.vitam.functional.administration.client.AdminManagementClientFactory;
 import fr.gouv.vitam.functional.administration.common.IngestContract;
 import fr.gouv.vitam.functional.administration.common.Profile;
 import fr.gouv.vitam.functional.administration.common.exception.AdminManagementClientServerException;
@@ -74,20 +72,6 @@ public class CheckArchiveProfileRelationActionHandler extends ActionHandler {
     private static final int PROFILE_IDENTIFIER_RANK = 0;
     private static final int CONTRACT_IDENTIFIER_RANK = 1;
 
-    private final AdminManagementClientFactory adminManagementClientFactory;
-
-    /**
-     * Constructor with parameter SedaUtilsFactory
-     */
-    public CheckArchiveProfileRelationActionHandler() {
-        this(AdminManagementClientFactory.getInstance());
-    }
-
-    @VisibleForTesting
-    public CheckArchiveProfileRelationActionHandler(AdminManagementClientFactory adminManagementClientFactory) {
-        this.adminManagementClientFactory = adminManagementClientFactory;
-    }
-
     /**
      * @return HANDLER_ID
      */
@@ -105,7 +89,7 @@ public class CheckArchiveProfileRelationActionHandler extends ActionHandler {
         ObjectNode infoNode = JsonHandler.createObjectNode();
         String dataKey = null;
         String dataValue = null;
-        try (AdminManagementClient adminClient = adminManagementClientFactory.getClient()) {
+        try (AdminManagementClient adminClient = handlerIO.getAdminManagementClient()) {
             if (ParametersChecker.isNotEmpty(profileIdentifier)) {
                 // Check that profile exists and not inactive
                 Select select = new Select();

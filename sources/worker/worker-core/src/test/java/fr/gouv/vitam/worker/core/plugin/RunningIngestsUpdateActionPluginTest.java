@@ -37,6 +37,7 @@ import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.ProcessState;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.UpdateWorkflowConstants;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -107,14 +108,13 @@ public class RunningIngestsUpdateActionPluginTest {
 
     RunningIngestsUpdateActionPlugin plugin = new RunningIngestsUpdateActionPlugin(
         processingManagementClientFactory,
-        metaDataClientFactory,
         storeMetaDataUnitActionPlugin
     );
 
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
 
-    private final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+    private final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
         .setUrlWorkspace("http://localhost:8083")
         .setUrlMetadata("http://localhost:8083")
         .setObjectName("archiveUnit.json")
@@ -139,7 +139,7 @@ public class RunningIngestsUpdateActionPluginTest {
         reset(processManagementClient);
         reset(workspaceClient);
 
-        when(metaDataClientFactory.getClient()).thenReturn(metaDataClient);
+        when(handlerIO.getMetaDataClient()).thenReturn(metaDataClient);
         when(storageClientFactory.getClient()).thenReturn(storageClient);
         when(processingManagementClientFactory.getClient()).thenReturn(processManagementClient);
         when(workspaceClientFactory.getClient()).thenReturn(workspaceClient);
@@ -167,7 +167,7 @@ public class RunningIngestsUpdateActionPluginTest {
             )
         ).then(o -> PropertiesUtils.getResourceAsStream(UPDATED_RULES_JSON));
         when(handlerIO.getInput(0)).thenReturn(runningIngests);
-        when(handlerIO.getLifecyclesClient()).thenReturn(mock(LogbookLifeCyclesClient.class));
+        when(handlerIO.getLifeCyclesClient()).thenReturn(mock(LogbookLifeCyclesClient.class));
         when(processManagementClient.getOperationProcessStatus(any())).thenReturn(
             new ItemStatus().setGlobalState(ProcessState.COMPLETED)
         );

@@ -71,6 +71,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.refEq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 
@@ -96,15 +97,17 @@ public class PreservationCheckResourceAvailabilityTest {
     @Mock
     private StorageClient storageClient;
 
-    private final HandlerIO handler = new TestHandlerIO();
+    private HandlerIO handler;
 
     @Before
     public void setup() throws Exception {
+        handler = mock(HandlerIO.class);
         reset(storageClientFactory);
         reset(storageClient);
         given(storageClientFactory.getClient()).willReturn(storageClient);
+        given(handler.getStorageClient()).willReturn(storageClient);
 
-        plugin = new PreservationCheckResourceAvailability(storageClientFactory);
+        plugin = new PreservationCheckResourceAvailability();
 
         VitamThreadUtils.getVitamSession().setTenantId(0);
     }

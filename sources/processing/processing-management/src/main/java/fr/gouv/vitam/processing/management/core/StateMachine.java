@@ -43,6 +43,7 @@ import fr.gouv.vitam.common.model.ProcessState;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.processing.PauseOrCancelAction;
 import fr.gouv.vitam.common.model.processing.ProcessBehavior;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.logbook.common.parameters.LogbookTypeProcess;
 import fr.gouv.vitam.processing.common.automation.IEventsProcessEngine;
 import fr.gouv.vitam.processing.common.automation.IEventsState;
@@ -57,7 +58,6 @@ import fr.gouv.vitam.processing.data.core.management.WorkspaceProcessDataManagem
 import fr.gouv.vitam.processing.engine.api.ProcessEngine;
 import fr.gouv.vitam.processing.engine.core.operation.OperationContextMonitor;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.Map;
@@ -97,7 +97,7 @@ public class StateMachine implements IEventsState, IEventsProcessEngine {
             processWorkflow,
             processEngine,
             WorkspaceProcessDataManagement.getInstance(),
-            WorkspaceClientFactory.getInstance(WorkspaceType.VITAM)
+            WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM)
         );
     }
 
@@ -329,8 +329,9 @@ public class StateMachine implements IEventsState, IEventsProcessEngine {
             } else {
                 // Execute the final step
                 this.processWorkflow.setState(ProcessState.RUNNING);
-                final WorkerParameters workerParameters = WorkerParametersFactory.newWorkerParameters()
-                    .setMap(processWorkflow.getParameters());
+                final WorkerParameters workerParameters = WorkerParametersFactory.newWorkerParameters(
+                    WorkFlowExecutionContext.VITAM
+                ).setMap(processWorkflow.getParameters());
                 this.executeFinalStep(workerParameters);
             }
         }

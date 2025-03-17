@@ -27,8 +27,6 @@
 
 package fr.gouv.vitam.worker.core.plugin.bulkatomicupdate;
 
-import com.google.common.annotations.VisibleForTesting;
-import fr.gouv.vitam.batch.report.client.BatchReportClientFactory;
 import fr.gouv.vitam.batch.report.model.ReportResults;
 import fr.gouv.vitam.batch.report.model.ReportSummary;
 import fr.gouv.vitam.batch.report.model.ReportType;
@@ -36,8 +34,6 @@ import fr.gouv.vitam.common.LocalDateUtil;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.logbook.LogbookEventOperation;
 import fr.gouv.vitam.common.model.logbook.LogbookOperation;
-import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClientFactory;
-import fr.gouv.vitam.storage.engine.client.StorageClientFactory;
 import fr.gouv.vitam.worker.core.plugin.UpdateUnitFinalize;
 
 import java.util.Map;
@@ -53,23 +49,6 @@ import static fr.gouv.vitam.worker.core.plugin.bulkatomicupdate.PrepareBulkAtomi
 public class BulkAtomicUpdateFinalize extends UpdateUnitFinalize {
 
     private static final String BULK_ATOMIC_UPDATE_FINALIZE_PLUGIN_NAME = "BULK_ATOMIC_UPDATE_FINALIZE";
-
-    public BulkAtomicUpdateFinalize() {
-        this(
-            BatchReportClientFactory.getInstance(),
-            LogbookOperationsClientFactory.getInstance(),
-            StorageClientFactory.getInstance()
-        );
-    }
-
-    @VisibleForTesting
-    private BulkAtomicUpdateFinalize(
-        BatchReportClientFactory batchReportClientFactory,
-        LogbookOperationsClientFactory logbookOperationsClientFactory,
-        StorageClientFactory storageClientFactory
-    ) {
-        super(batchReportClientFactory, logbookOperationsClientFactory, storageClientFactory);
-    }
 
     @Override
     protected ReportSummary getReport(LogbookOperation logbook) {

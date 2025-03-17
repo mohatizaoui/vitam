@@ -40,6 +40,7 @@ import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.administration.profile.CreateProfileModel;
 import fr.gouv.vitam.common.model.administration.profile.ProfileModel;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.security.SanityChecker;
 import fr.gouv.vitam.common.stream.StreamUtils;
 import fr.gouv.vitam.functional.administration.common.config.AdminManagementConfiguration;
@@ -50,7 +51,6 @@ import fr.gouv.vitam.functional.administration.core.backup.FunctionalBackupServi
 import fr.gouv.vitam.functional.administration.core.profile.ProfileService;
 import fr.gouv.vitam.functional.administration.core.profile.ProfileServiceImpl;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import javax.validation.Valid;
@@ -103,9 +103,9 @@ public class ProfileResource {
     ) {
         this.mongoAccess = mongoAccess;
         this.vitamCounterService = vitamCounterService;
-        this.workspaceClientFactory = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM);
+        this.workspaceClientFactory = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM);
         this.functionalBackupService = functionalBackupService;
-        WorkspaceClientFactory.changeMode(configuration.getWorkspaceUrl(), WorkspaceType.VITAM);
+        WorkspaceClientFactory.changeMode(configuration.getWorkspaceUrl(), WorkFlowExecutionContext.VITAM);
         LOGGER.debug("init Admin Management Resource server");
     }
 

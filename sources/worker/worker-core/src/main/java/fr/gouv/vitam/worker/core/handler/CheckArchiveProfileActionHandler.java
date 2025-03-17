@@ -27,7 +27,6 @@
 package fr.gouv.vitam.worker.core.handler;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.annotations.VisibleForTesting;
 import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.SedaConstants;
 import fr.gouv.vitam.common.database.builder.query.QueryHelper;
@@ -48,7 +47,6 @@ import fr.gouv.vitam.common.stream.StreamUtils;
 import fr.gouv.vitam.common.xml.RngValidator;
 import fr.gouv.vitam.common.xml.XsdValidator;
 import fr.gouv.vitam.functional.administration.client.AdminManagementClient;
-import fr.gouv.vitam.functional.administration.client.AdminManagementClientFactory;
 import fr.gouv.vitam.functional.administration.common.Profile;
 import fr.gouv.vitam.functional.administration.common.exception.ProfileNotFoundException;
 import fr.gouv.vitam.functional.administration.common.exception.ProfilePathFileNotFoundException;
@@ -88,20 +86,6 @@ public class CheckArchiveProfileActionHandler extends ActionHandler {
     private static final String HANDLER_ID = "CHECK_ARCHIVEPROFILE";
     private static final int PROFILE_IDENTIFIER_RANK = 0;
 
-    private final AdminManagementClientFactory adminManagementClientFactory;
-
-    /**
-     * Constructor with parameter SedaUtilsFactory
-     */
-    public CheckArchiveProfileActionHandler() {
-        this(AdminManagementClientFactory.getInstance());
-    }
-
-    @VisibleForTesting
-    public CheckArchiveProfileActionHandler(AdminManagementClientFactory adminManagementClientFactory) {
-        this.adminManagementClientFactory = adminManagementClientFactory;
-    }
-
     /**
      * @return HANDLER_ID
      */
@@ -117,7 +101,7 @@ public class CheckArchiveProfileActionHandler extends ActionHandler {
         ObjectNode infoNode = JsonHandler.createObjectNode();
 
         Boolean isValid = true;
-        try (AdminManagementClient adminClient = adminManagementClientFactory.getClient()) {
+        try (AdminManagementClient adminClient = handlerIO.getAdminManagementClient()) {
             Select select = new Select();
             select.setQuery(QueryHelper.eq(Profile.IDENTIFIER, profileIdentifier));
             RequestResponse<ProfileModel> response = adminClient.findProfiles(select.getFinalSelect());

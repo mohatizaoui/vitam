@@ -32,6 +32,7 @@ import fr.gouv.vitam.common.client.configuration.ClientConfiguration;
 import fr.gouv.vitam.common.client.configuration.ClientConfigurationImpl;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 
 import java.io.IOException;
 
@@ -58,8 +59,20 @@ public class AccessInternalClientFactory extends VitamClientFactory<AccessIntern
      *
      * @return the instance
      */
-    public static final AccessInternalClientFactory getInstance() {
-        return ACCESS_CLIENT_FACTORY;
+    public static AccessInternalClientFactory getInstance() {
+        return getInstance(WorkFlowExecutionContext.VITAM);
+    }
+
+    /**
+     * Get the AccessInternalClientFactory instance for the given workflow execution context
+     *
+     * @param executionContext the workflow execution context
+     * @return the instance
+     */
+    public static AccessInternalClientFactory getInstance(WorkFlowExecutionContext executionContext) {
+        return switch (executionContext) {
+            case VITAM, COLLECT -> ACCESS_CLIENT_FACTORY;
+        };
     }
 
     /**
@@ -69,18 +82,10 @@ public class AccessInternalClientFactory extends VitamClientFactory<AccessIntern
      */
     @Override
     public AccessInternalClient getClient() {
-        AccessInternalClient client;
-        switch (getVitamClientType()) {
-            case MOCK:
-                client = new AccessInternalClientMock();
-                break;
-            case PRODUCTION:
-                client = new AccessInternalClientRest(this);
-                break;
-            default:
-                throw new IllegalArgumentException("Log type unknown");
-        }
-        return client;
+        return switch (getVitamClientType()) {
+            case MOCK -> new AccessInternalClientMock();
+            case PRODUCTION -> new AccessInternalClientRest(this);
+        };
     }
 
     /**

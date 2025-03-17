@@ -115,6 +115,10 @@ public enum LogbookTypeProcess {
      */
     RECLASSIFICATION,
     /**
+     * Reclassification process in collect (attachment/detachment)
+     */
+    COLLECT_RECLASSIFICATION,
+    /**
      * Mass update of archive units.
      */
     MASS_UPDATE,
@@ -126,6 +130,14 @@ public enum LogbookTypeProcess {
      * Elimination process
      */
     ELIMINATION,
+    /**
+     * Elimination process for collect
+     */
+    COLLECT_ELIMINATION_ACTION,
+    /**
+     * Deletion process for collect
+     */
+    COLLECT_DELETION_ACTION,
     /**
      * Evidence probativevalue export.
      */

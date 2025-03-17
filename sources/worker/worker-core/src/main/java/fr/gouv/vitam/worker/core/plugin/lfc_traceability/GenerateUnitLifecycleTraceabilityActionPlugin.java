@@ -33,6 +33,7 @@ import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.logbook.common.exception.TraceabilityException;
 import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClient;
 import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClientFactory;
@@ -41,7 +42,6 @@ import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.worker.common.HandlerIO;
 import fr.gouv.vitam.worker.core.distribution.JsonLineGenericIterator;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -68,7 +68,10 @@ public class GenerateUnitLifecycleTraceabilityActionPlugin extends GenerateLifec
      * Empty constructor
      */
     public GenerateUnitLifecycleTraceabilityActionPlugin() {
-        this(LogbookOperationsClientFactory.getInstance(), WorkspaceClientFactory.getInstance(WorkspaceType.VITAM));
+        this(
+            LogbookOperationsClientFactory.getInstance(),
+            WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM)
+        );
     }
 
     /**

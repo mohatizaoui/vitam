@@ -52,12 +52,10 @@ import fr.gouv.vitam.logbook.common.exception.LogbookClientException;
 import fr.gouv.vitam.logbook.common.parameters.Contexts;
 import fr.gouv.vitam.logbook.common.server.exception.LogbookNotFoundException;
 import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClient;
-import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClientFactory;
 import fr.gouv.vitam.metadata.api.exception.MetaDataClientServerException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataDocumentSizeException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataExecutionException;
 import fr.gouv.vitam.metadata.client.MetaDataClient;
-import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.processing.management.client.ProcessingManagementClient;
@@ -88,29 +86,16 @@ public class CheckAttachementActionHandler extends ActionHandler {
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(CheckAttachementActionHandler.class);
     private static final String HANDLER_ID = "CHECK_ATTACHEMENT";
     private static final String OPI = "#opi";
-    private static final String ARRAY_PROJECTION_FORMAT = "%s.%s";
 
-    private final MetaDataClientFactory metaDataClientFactory;
-    private final LogbookOperationsClientFactory logbookOperationsClientFactory;
     private final ProcessingManagementClientFactory processingManagementClientFactory;
 
     @SuppressWarnings("unused")
     CheckAttachementActionHandler() {
-        this(
-            MetaDataClientFactory.getInstance(),
-            ProcessingManagementClientFactory.getInstance(),
-            LogbookOperationsClientFactory.getInstance()
-        );
+        this(ProcessingManagementClientFactory.getInstance());
     }
 
     @VisibleForTesting
-    CheckAttachementActionHandler(
-        MetaDataClientFactory metaDataClientFactory,
-        ProcessingManagementClientFactory processingManagementClientFactory,
-        LogbookOperationsClientFactory logbookOperationsClientFactory
-    ) {
-        this.metaDataClientFactory = metaDataClientFactory;
-        this.logbookOperationsClientFactory = logbookOperationsClientFactory;
+    CheckAttachementActionHandler(ProcessingManagementClientFactory processingManagementClientFactory) {
         this.processingManagementClientFactory = processingManagementClientFactory;
     }
 
@@ -118,7 +103,7 @@ public class CheckAttachementActionHandler extends ActionHandler {
     public ItemStatus execute(WorkerParameters param, HandlerIO handlerIO) throws ProcessingException {
         final ItemStatus itemStatus = new ItemStatus(HANDLER_ID).increment(StatusCode.OK);
 
-        try (MetaDataClient metaDataClient = metaDataClientFactory.getClient()) {
+        try (MetaDataClient metaDataClient = handlerIO.getMetaDataClient()) {
             // Check existing Gots
             JsonNode existingGotsJsonNode = handlerIO.getJsonFromWorkspace(MAPS_EXISTING_GOTS_GUID_FOR_ATTACHMENT_FILE);
             Set<String> existingGotsMap = JsonHandler.getFromJsonNode(existingGotsJsonNode, Set.class);
@@ -131,10 +116,9 @@ public class CheckAttachementActionHandler extends ActionHandler {
                     final JsonNode queryDsl = getInitialOperationQuery(bulksExistingGotsIds.next());
                     final JsonNode gotsOpi = metaDataClient.selectObjectGroups(queryDsl);
 
-                    if (isFailedOrIncompletedOperation(gotsOpi)) return new ItemStatus(HANDLER_ID).setItemsStatus(
-                        HANDLER_ID,
-                        new ItemStatus(HANDLER_ID).increment(StatusCode.KO)
-                    );
+                    if (isFailedOrIncompletedOperation(handlerIO, gotsOpi)) return new ItemStatus(
+                        HANDLER_ID
+                    ).setItemsStatus(HANDLER_ID, new ItemStatus(HANDLER_ID).increment(StatusCode.KO));
                 }
             }
 
@@ -150,10 +134,9 @@ public class CheckAttachementActionHandler extends ActionHandler {
                     final JsonNode queryDsl = getInitialOperationQuery(bulksExistingUnitsIds.next());
                     final JsonNode unitsOpi = metaDataClient.selectUnits(queryDsl);
 
-                    if (isFailedOrIncompletedOperation(unitsOpi)) return new ItemStatus(HANDLER_ID).setItemsStatus(
-                        HANDLER_ID,
-                        new ItemStatus(HANDLER_ID).increment(StatusCode.KO)
-                    );
+                    if (isFailedOrIncompletedOperation(handlerIO, unitsOpi)) return new ItemStatus(
+                        HANDLER_ID
+                    ).setItemsStatus(HANDLER_ID, new ItemStatus(HANDLER_ID).increment(StatusCode.KO));
                 }
             }
         } catch (InvalidParseOperationException e) {
@@ -205,7 +188,8 @@ public class CheckAttachementActionHandler extends ActionHandler {
         return select.getFinalSelect();
     }
 
-    private boolean isFailedOrIncompletedOperation(JsonNode metadataJsonNode) throws ProcessingException {
+    private boolean isFailedOrIncompletedOperation(HandlerIO handlerIO, JsonNode metadataJsonNode)
+        throws ProcessingException {
         try {
             Set<Map<String, String>> metadataResponse = JsonHandler.getFromJsonNode(
                 metadataJsonNode.get(TAG_RESULTS),
@@ -239,7 +223,7 @@ public class CheckAttachementActionHandler extends ActionHandler {
             }
 
             if (!operationsIdToCheckWithLogbook.isEmpty()) {
-                List<LogbookOperation> logbookOperations = checkLogbook(operationsIdToCheckWithLogbook);
+                List<LogbookOperation> logbookOperations = checkLogbook(handlerIO, operationsIdToCheckWithLogbook);
                 logbookOperations
                     .stream()
                     .map(LogbookOperation::getEvents)
@@ -268,8 +252,9 @@ public class CheckAttachementActionHandler extends ActionHandler {
         );
     }
 
-    private List<LogbookOperation> checkLogbook(Set<String> operationsId) throws ProcessingException {
-        try (LogbookOperationsClient logbookOperationsClient = logbookOperationsClientFactory.getClient()) {
+    private List<LogbookOperation> checkLogbook(HandlerIO handlerIO, Set<String> operationsId)
+        throws ProcessingException {
+        try (LogbookOperationsClient logbookOperationsClient = handlerIO.getLogbookOperationsClient()) {
             JsonNode logbookOperationsQuery = getLastEventsQuery(operationsId);
             JsonNode logbookOperationsResult = logbookOperationsClient
                 .selectOperation(logbookOperationsQuery)

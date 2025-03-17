@@ -32,6 +32,7 @@ import fr.gouv.vitam.batch.report.exception.BatchReportException;
 import fr.gouv.vitam.batch.report.model.Report;
 import fr.gouv.vitam.batch.report.model.ReportBody;
 import fr.gouv.vitam.batch.report.model.ReportExportRequest;
+import fr.gouv.vitam.batch.report.model.ReportRequestWrapper;
 import fr.gouv.vitam.batch.report.model.ReportType;
 import fr.gouv.vitam.common.GlobalDataRest;
 import fr.gouv.vitam.common.ParametersChecker;
@@ -42,6 +43,7 @@ import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.exception.VitamClientInternalException;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.ExtractedMetadata;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 
 import javax.ws.rs.core.MediaType;
@@ -71,13 +73,16 @@ public class BatchReportClientRest extends DefaultClient implements BatchReportC
     }
 
     @Override
-    public void generatePurgeDistinctObjectGroupInUnitReport(String processId, ReportExportRequest reportExportRequest)
-        throws VitamClientInternalException {
+    public void generatePurgeDistinctObjectGroupInUnitReport(
+        String processId,
+        ReportExportRequest reportExportRequest,
+        WorkFlowExecutionContext executionContext
+    ) throws VitamClientInternalException {
         ParametersChecker.checkParameter("processId should be filled", processId);
 
         VitamRequestBuilder request = post()
             .withPath(EXPORT_PURGE_UNIT_DISTINCT_OBJECTGROUPS + processId)
-            .withBody(reportExportRequest)
+            .withBody(new ReportRequestWrapper<>(reportExportRequest, executionContext))
             .withHeader(GlobalDataRest.X_TENANT_ID, VitamThreadUtils.getVitamSession().getTenantId())
             .withJson();
         try (Response response = make(request)) {
@@ -98,10 +103,11 @@ public class BatchReportClientRest extends DefaultClient implements BatchReportC
     }
 
     @Override
-    public void storeReportToWorkspace(Report reportInfo) throws VitamClientInternalException {
+    public void storeReportToWorkspace(Report reportInfo, WorkFlowExecutionContext executionContext)
+        throws VitamClientInternalException {
         VitamRequestBuilder request = post()
             .withPath(STORE_TO_WORKSPACE)
-            .withBody(reportInfo)
+            .withBody(new ReportRequestWrapper<>(reportInfo, executionContext))
             .withHeader(GlobalDataRest.X_TENANT_ID, VitamThreadUtils.getVitamSession().getTenantId())
             .withJson();
         try (Response response = make(request)) {
@@ -110,13 +116,16 @@ public class BatchReportClientRest extends DefaultClient implements BatchReportC
     }
 
     @Override
-    public void exportUnitsToInvalidate(String processId, ReportExportRequest reportExportRequest)
-        throws VitamClientInternalException {
+    public void exportUnitsToInvalidate(
+        String processId,
+        ReportExportRequest reportExportRequest,
+        WorkFlowExecutionContext executionContext
+    ) throws VitamClientInternalException {
         ParametersChecker.checkParameter("processId parameter should be filled", processId);
 
         VitamRequestBuilder request = post()
             .withPath(UNITS_AND_PROGENY_INVALIDATION + processId)
-            .withBody(reportExportRequest)
+            .withBody(new ReportRequestWrapper<>(reportExportRequest, executionContext))
             .withHeader(GlobalDataRest.X_TENANT_ID, VitamThreadUtils.getVitamSession().getTenantId())
             .withJson();
         try (Response response = make(request)) {
@@ -125,13 +134,16 @@ public class BatchReportClientRest extends DefaultClient implements BatchReportC
     }
 
     @Override
-    public void generatePurgeAccessionRegisterReport(String processId, ReportExportRequest reportExportRequest)
-        throws VitamClientInternalException {
+    public void generatePurgeAccessionRegisterReport(
+        String processId,
+        ReportExportRequest reportExportRequest,
+        WorkFlowExecutionContext executionContext
+    ) throws VitamClientInternalException {
         ParametersChecker.checkParameter("processId should be filled", processId);
 
         VitamRequestBuilder request = post()
             .withPath(EXPORT_PURGE_ACCESSION_REGISTER + processId)
-            .withBody(reportExportRequest)
+            .withBody(new ReportRequestWrapper<>(reportExportRequest, executionContext))
             .withHeader(GlobalDataRest.X_TENANT_ID, VitamThreadUtils.getVitamSession().getTenantId())
             .withJson();
         try (Response response = make(request)) {
@@ -166,9 +178,13 @@ public class BatchReportClientRest extends DefaultClient implements BatchReportC
     }
 
     @Override
-    public void createExtractedMetadataDistributionFileForAu(String processId) throws Exception {
+    public void createExtractedMetadataDistributionFileForAu(
+        String processId,
+        WorkFlowExecutionContext executionContext
+    ) throws Exception {
         VitamRequestBuilder request = get()
             .withPath(CREATE_DISTRIBUTION_FILE_FOR_AU + processId)
+            .withQueryParam("executionContext", executionContext.name())
             .withHeader(GlobalDataRest.X_TENANT_ID, VitamThreadUtils.getVitamSession().getTenantId())
             .withJson();
         try (Response response = make(request)) {

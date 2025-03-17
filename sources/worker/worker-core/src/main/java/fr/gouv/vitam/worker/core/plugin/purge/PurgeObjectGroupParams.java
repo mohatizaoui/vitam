@@ -41,6 +41,9 @@ public class PurgeObjectGroupParams {
     @JsonProperty("strategyId")
     private String strategyId;
 
+    @JsonProperty("opi")
+    private String opi;
+
     @JsonProperty("objects")
     private List<PurgeObjectParams> objects;
 
@@ -71,20 +74,37 @@ public class PurgeObjectGroupParams {
         return this;
     }
 
+    public String getOpi() {
+        return opi;
+    }
+
+    public PurgeObjectGroupParams setOpi(String opi) {
+        this.opi = opi;
+        return this;
+    }
+
     public static PurgeObjectGroupParams fromObjectGroup(ObjectGroupResponse objectGroup) {
         List<PurgeObjectParams> objectParams = ListUtils.emptyIfNull(objectGroup.getQualifiers())
             .stream()
             .flatMap(qualifier -> ListUtils.emptyIfNull(qualifier.getVersions()).stream())
             .filter(version -> version.getPhysicalId() == null)
-            .map(
-                version ->
-                    new PurgeObjectParams().setId(version.getId()).setStrategyId(version.getStorage().getStrategyId())
-            )
+            .map(version -> {
+                PurgeObjectParams purgeObjectParams = new PurgeObjectParams();
+                purgeObjectParams.setId(version.getId()).setOpi(version.getOpi()).setUri(version.getUri());
+                if (version.getStorage() != null) {
+                    purgeObjectParams.setStrategyId(version.getStorage().getStrategyId());
+                }
+                return purgeObjectParams;
+            })
             .collect(Collectors.toList());
 
-        return new PurgeObjectGroupParams()
+        PurgeObjectGroupParams purgeObjectGroupParams = new PurgeObjectGroupParams()
             .setId(objectGroup.getId())
-            .setStrategyId(objectGroup.getStorage().getStrategyId())
-            .setObjects(objectParams);
+            .setObjects(objectParams)
+            .setOpi(objectGroup.getOpi());
+        if (objectGroup.getStorage() != null) {
+            purgeObjectGroupParams.setStrategyId(objectGroup.getStorage().getStrategyId());
+        }
+        return purgeObjectGroupParams;
     }
 }

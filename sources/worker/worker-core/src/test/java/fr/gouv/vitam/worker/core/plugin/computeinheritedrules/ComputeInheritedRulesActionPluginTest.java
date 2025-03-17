@@ -33,6 +33,7 @@ import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -91,7 +92,7 @@ public class ComputeInheritedRulesActionPluginTest {
     public void setUp() throws Exception {
         when(metaDataClientFactory.getClient()).thenReturn(metaDataClient);
         ComputeInheritedRulesActionPlugin = new ComputeInheritedRulesActionPlugin(metaDataClientFactory);
-        workerParameters = WorkerParametersFactory.newWorkerParameters();
+        workerParameters = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM);
         workerParameters.setObjectNameList(Lists.newArrayList("a", "b", "c", "d"));
         List<String> tenant = Arrays.asList("0", "2");
         VitamConfiguration.setIndexInheritedRulesWithRulesIdByTenant(tenant);

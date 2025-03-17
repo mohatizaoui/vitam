@@ -38,7 +38,9 @@ public final class WorkerConfiguration extends DefaultVitamApplicationConfigurat
 
     private String processingUrl;
     private String urlMetadata;
+    private String urlMetadataCollect;
     private String urlWorkspace;
+    private String urlWorkspaceCollect;
     private String registerServerHost;
     private int registerServerPort;
     private long registerDelay = 60; //in seconds
@@ -101,6 +103,15 @@ public final class WorkerConfiguration extends DefaultVitamApplicationConfigurat
         return this;
     }
 
+    public String getUrlMetadataCollect() {
+        return urlMetadataCollect;
+    }
+
+    public WorkerConfiguration setUrlMetadataCollect(String urlMetadataCollect) {
+        this.urlMetadataCollect = urlMetadataCollect;
+        return this;
+    }
+
     /**
      * Get the urlWorkspace
      *
@@ -118,6 +129,15 @@ public final class WorkerConfiguration extends DefaultVitamApplicationConfigurat
      */
     public WorkerConfiguration setUrlWorkspace(String urlWorkspace) {
         this.urlWorkspace = urlWorkspace;
+        return this;
+    }
+
+    public String getUrlWorkspaceCollect() {
+        return urlWorkspaceCollect;
+    }
+
+    public WorkerConfiguration setUrlWorkspaceCollect(String urlWorkspaceCollect) {
+        this.urlWorkspaceCollect = urlWorkspaceCollect;
         return this;
     }
 

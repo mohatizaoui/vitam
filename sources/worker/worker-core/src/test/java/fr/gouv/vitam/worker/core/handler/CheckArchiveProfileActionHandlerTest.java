@@ -37,13 +37,13 @@ import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.administration.ProfileFormat;
 import fr.gouv.vitam.common.model.administration.profile.ProfileModel;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.common.tmp.TempFolderRule;
 import fr.gouv.vitam.functional.administration.client.AdminManagementClient;
-import fr.gouv.vitam.functional.administration.client.AdminManagementClientFactory;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.processing.common.parameter.WorkerParametersFactory;
@@ -61,6 +61,7 @@ import java.io.FileNotFoundException;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
@@ -69,9 +70,6 @@ public class CheckArchiveProfileActionHandlerTest {
 
     private static final AdminManagementClient adminClient = mock(AdminManagementClient.class);
 
-    private static final AdminManagementClientFactory adminManagementClientFactory = mock(
-        AdminManagementClientFactory.class
-    );
     private GUID guid;
     private static final Integer TENANT_ID = 0;
     private static final String FAKE_URL = "http://localhost:8083";
@@ -81,9 +79,7 @@ public class CheckArchiveProfileActionHandlerTest {
     private static final String MANIFEST_OK = "checkProfil/manifest_ok.xml";
     private static final String MANIFEST_KO = "checkProfil/manifest_ko.xml";
 
-    private static final CheckArchiveProfileActionHandler handler = new CheckArchiveProfileActionHandler(
-        adminManagementClientFactory
-    );
+    private static final CheckArchiveProfileActionHandler handler = new CheckArchiveProfileActionHandler();
 
     @Rule
     public TempFolderRule tempFolderRule = new TempFolderRule();
@@ -100,7 +96,7 @@ public class CheckArchiveProfileActionHandlerTest {
         guid = GUIDFactory.newGUID();
         reset(adminClient);
         reset(handlerIO);
-        when(adminManagementClientFactory.getClient()).thenReturn(adminClient);
+        doReturn(adminClient).when(handlerIO).getAdminManagementClient();
     }
 
     @Test
@@ -108,7 +104,7 @@ public class CheckArchiveProfileActionHandlerTest {
     public void givenProfileOKThenReturnResponseOK() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
 
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace(FAKE_URL)
             .setUrlMetadata(FAKE_URL)
             .setObjectNameList(Lists.newArrayList("objectName.json"))
@@ -144,7 +140,7 @@ public class CheckArchiveProfileActionHandlerTest {
     public void givenProfileKOThenReturnResponseKO() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
 
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace(FAKE_URL)
             .setUrlMetadata(FAKE_URL)
             .setObjectNameList(Lists.newArrayList("objectName.json"))
@@ -181,7 +177,7 @@ public class CheckArchiveProfileActionHandlerTest {
     public void givenProfileWithoutPathThenReturnResponseKO() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
 
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace(FAKE_URL)
             .setUrlMetadata(FAKE_URL)
             .setObjectNameList(Lists.newArrayList("objectName.json"))

@@ -102,7 +102,8 @@ public class ExportCheckResourceAvailabilityTest {
         reset(storageClientFactory);
         reset(storageClient);
         given(storageClientFactory.getClient()).willReturn(storageClient);
-        plugin = new ExportCheckResourceAvailability(storageClientFactory);
+        given(handler.getStorageClient()).willReturn(storageClient);
+        plugin = new ExportCheckResourceAvailability();
     }
 
     @Test

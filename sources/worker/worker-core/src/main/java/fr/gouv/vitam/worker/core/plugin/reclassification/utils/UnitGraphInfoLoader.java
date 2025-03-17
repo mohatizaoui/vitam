@@ -46,6 +46,7 @@ import fr.gouv.vitam.metadata.api.exception.MetaDataClientServerException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataDocumentSizeException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataExecutionException;
 import fr.gouv.vitam.metadata.client.MetaDataClient;
+import fr.gouv.vitam.metadata.common.utils.TransactionRestrictionHelper;
 import fr.gouv.vitam.metadata.core.rules.MetadataRuleService;
 import fr.gouv.vitam.worker.core.plugin.reclassification.model.UnitGraphInfo;
 import org.apache.commons.collections4.ListUtils;
@@ -126,6 +127,57 @@ public class UnitGraphInfoLoader {
             select.setQuery(QueryHelper.in(VitamFieldsHelper.id(), ids.toArray(new String[0])));
 
             foundUnitIds.addAll(selectUnitsByQueryDslAndAccessContract(metaDataClient, select, accessContractModel));
+        }
+        return foundUnitIds;
+    }
+
+    /**
+     * Find unit ids by dsl accessible in a collect transaction
+     *
+     * @param metaDataClient the metadata client
+     * @param select the selection dsl
+     * @param transactionId the collect transaction id
+     */
+    public Set<String> selectUnitsByQueryDslAndTransaction(
+        MetaDataClient metaDataClient,
+        SelectMultiQuery select,
+        String transactionId
+    )
+        throws InvalidParseOperationException, VitamDBException, MetaDataDocumentSizeException, MetaDataExecutionException, MetaDataClientServerException, InvalidCreateOperationException {
+        // Only return document id
+        select.addUsedProjection(VitamFieldsHelper.id());
+        TransactionRestrictionHelper.applyTransactionToQuery(transactionId, select);
+
+        JsonNode resultJson = metaDataClient.selectUnits(select.getFinalSelect());
+
+        Set<String> foundUnitIds = new HashSet<>();
+        for (JsonNode node : resultJson.get(RESULTS)) {
+            String id = node.get(VitamFieldsHelper.id()).asText();
+            foundUnitIds.add(id);
+        }
+
+        return foundUnitIds;
+    }
+
+    /**
+     * Find unit ids accessible in a collect transaction
+     *
+     * @param metaDataClient the metadata client
+     * @param unitIds the unit ids to check
+     * @param transactionId the collect transaction id
+     */
+    public Set<String> selectUnitsByIdsAndTransaction(
+        MetaDataClient metaDataClient,
+        Set<String> unitIds,
+        String transactionId
+    )
+        throws InvalidParseOperationException, InvalidCreateOperationException, VitamDBException, MetaDataDocumentSizeException, MetaDataExecutionException, MetaDataClientServerException {
+        Set<String> foundUnitIds = new HashSet<>();
+
+        for (List<String> ids : ListUtils.partition(new ArrayList<>(unitIds), MAX_ELASTIC_SEARCH_IN_REQUEST_SIZE)) {
+            SelectMultiQuery select = new SelectMultiQuery();
+            select.setQuery(QueryHelper.in(VitamFieldsHelper.id(), ids.toArray(new String[0])));
+            foundUnitIds.addAll(selectUnitsByQueryDslAndTransaction(metaDataClient, select, transactionId));
         }
         return foundUnitIds;
     }

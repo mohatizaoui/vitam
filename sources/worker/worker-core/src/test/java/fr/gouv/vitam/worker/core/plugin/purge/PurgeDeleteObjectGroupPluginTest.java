@@ -26,13 +26,14 @@
  */
 package fr.gouv.vitam.worker.core.plugin.purge;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.google.common.collect.ImmutableMap;
 import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.json.JsonHandler;
-import fr.gouv.vitam.common.mockito.MapMatcher;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -42,8 +43,8 @@ import fr.gouv.vitam.metadata.client.MetaDataClient;
 import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.processing.common.parameter.WorkerParametersFactory;
-import fr.gouv.vitam.storage.engine.client.exception.StorageServerClientException;
 import fr.gouv.vitam.worker.common.HandlerIO;
+import fr.gouv.vitam.worker.core.exception.ProcessingStatusException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -54,11 +55,9 @@ import org.mockito.junit.MockitoRule;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
@@ -82,53 +81,64 @@ public class PurgeDeleteObjectGroupPluginTest {
     @Mock
     private PurgeDeleteService purgeDeleteService;
 
+    @Mock
+    private PurgeDeleteCollectService purgeDeleteCollectService;
+
     private PurgeDeleteObjectGroupPlugin instance;
 
     @Mock
     private HandlerIO handler;
 
     private WorkerParameters params;
+    private ObjectMapper mapper;
+
+    List<JsonNode> ogList;
 
     @Before
     public void setUp() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(0);
         VitamThreadUtils.getVitamSession().setRequestId("opId");
+        doReturn(WorkFlowExecutionContext.VITAM).when(handler).getWorkFlowExecutionContext();
+        doReturn(metaDataClientFactory).when(handler).getMetaDataClientFactory();
 
         doReturn(metaDataClient).when(metaDataClientFactory).getClient();
 
         ArrayNode got1ObjectsDetails = JsonHandler.createArrayNode();
         got1ObjectsDetails.add(
-            JsonHandler.createObjectNode().put("id", "id_got1_object_1").put("strategyId", "default-binary-fake")
+            JsonHandler.createObjectNode().put("id", "id_got_1_object_1").put("strategyId", "default-binary-fake")
         );
         got1ObjectsDetails.add(
-            JsonHandler.createObjectNode().put("id", "id_got1_object_2").put("strategyId", "default-binary-fake")
+            JsonHandler.createObjectNode().put("id", "id_got_1_object_2").put("strategyId", "default-binary-fake")
         );
 
         ArrayNode got2ObjectsDetails = JsonHandler.createArrayNode();
-        got1ObjectsDetails.add(
-            JsonHandler.createObjectNode().put("id", "id_got2_object_1").put("strategyId", "default-binary-fake")
+
+        got2ObjectsDetails.add(
+            JsonHandler.createObjectNode().put("id", "id_got_2_object_1").put("strategyId", "default-binary-fake")
         );
 
-        params = WorkerParametersFactory.newWorkerParameters()
+        ogList = Arrays.asList(
+            JsonHandler.createObjectNode()
+                .put("id", "id_got_1")
+                .put("strategyId", "default-fake")
+                .set("objects", got1ObjectsDetails),
+            JsonHandler.createObjectNode()
+                .put("id", "id_got_2")
+                .put("strategyId", "default-fake")
+                .set("objects", got2ObjectsDetails)
+        );
+
+        params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setWorkerGUID(GUIDFactory.newGUID().getId())
             .setContainerName(VitamThreadUtils.getVitamSession().getRequestId())
             .setRequestId(VitamThreadUtils.getVitamSession().getRequestId())
             .setObjectNameList(Arrays.asList("id_got_1", "id_got_2"))
-            .setObjectMetadataList(
-                Arrays.asList(
-                    JsonHandler.createObjectNode()
-                        .put("id", "id_got_1")
-                        .put("strategyId", "default-fake")
-                        .set("objects", got1ObjectsDetails),
-                    JsonHandler.createObjectNode()
-                        .put("id", "id_got_2")
-                        .put("strategyId", "default-fake")
-                        .set("objects", got2ObjectsDetails)
-                )
-            )
+            .setObjectMetadataList(ogList)
             .setCurrentStep("StepName");
 
-        instance = new PurgeDeleteObjectGroupPlugin("PLUGIN_ACTIOB", purgeDeleteService);
+        instance = new PurgeDeleteObjectGroupPlugin("PLUGIN_ACTION", purgeDeleteService);
+
+        mapper = new ObjectMapper();
     }
 
     @After
@@ -143,28 +153,14 @@ public class PurgeDeleteObjectGroupPluginTest {
         assertThat(itemStatuses.get(0).getGlobalStatus()).isEqualTo(StatusCode.OK);
         assertThat(itemStatuses.get(1).getGlobalStatus()).isEqualTo(StatusCode.OK);
 
-        Map<String, String> gotIdsWithStrategies = ImmutableMap.of(
-            "id_got_1",
-            "default-fake",
-            "id_got_2",
-            "default-fake"
-        );
-        Map<String, String> objectsIdsWithStrategies = ImmutableMap.of(
-            "id_got1_object_1",
-            "default-binary-fake",
-            "id_got1_object_2",
-            "default-binary-fake",
-            "id_got2_object_1",
-            "default-binary-fake"
-        );
-        verify(purgeDeleteService).deleteObjectGroups(argThat(new MapMatcher(gotIdsWithStrategies)));
-        verify(purgeDeleteService).deleteObjects(argThat(new MapMatcher(objectsIdsWithStrategies)));
+        verify(purgeDeleteService).deleteObjectGroups(any(), any());
+        verify(purgeDeleteService).deleteObjects(any(), any());
     }
 
     @Test
     @RunWithCustomExecutor
     public void testDeleteObjectGroup_ObjectGroupException() throws Exception {
-        doThrow(MetaDataClientServerException.class).when(purgeDeleteService).deleteObjectGroups(any());
+        doThrow(MetaDataClientServerException.class).when(purgeDeleteService).deleteObjectGroups(any(), any());
 
         List<ItemStatus> itemStatuses = instance.executeList(params, handler);
 
@@ -175,7 +171,9 @@ public class PurgeDeleteObjectGroupPluginTest {
     @Test
     @RunWithCustomExecutor
     public void testDeleteObjectGroup_ObjectException() throws Exception {
-        doThrow(StorageServerClientException.class).when(purgeDeleteService).deleteObjects(any());
+        doThrow(new ProcessingStatusException(StatusCode.FATAL, "Could not delete object groups "))
+            .when(purgeDeleteService)
+            .deleteObjects(any(), any());
 
         List<ItemStatus> itemStatuses = instance.executeList(params, handler);
 

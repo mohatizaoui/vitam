@@ -31,13 +31,13 @@ import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.model.rules.InheritedRuleCategoryResponseModel;
 import fr.gouv.vitam.common.model.rules.InheritedRuleResponseModel;
 import fr.gouv.vitam.common.model.unit.RuleModel;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
 import fr.gouv.vitam.metadata.client.MetaDataClient;
-import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.processing.common.parameter.WorkerParametersFactory;
 import fr.gouv.vitam.worker.common.HandlerIO;
@@ -79,9 +79,6 @@ public class ReclassificationPreparationCheckHoldRulesHandlerTest {
     public MockitoRule rule = MockitoJUnit.rule();
 
     @Mock
-    private MetaDataClientFactory metaDataClientFactory;
-
-    @Mock
     private MetaDataClient metaDataClient;
 
     @Mock
@@ -96,24 +93,23 @@ public class ReclassificationPreparationCheckHoldRulesHandlerTest {
 
     @Before
     public void init() throws Exception {
-        doReturn(metaDataClient).when(metaDataClientFactory).getClient();
-
         int tenant = 0;
         String operationId = GUIDFactory.newRequestIdGUID(tenant).toString();
         String objectId = GUIDFactory.newGUID().toString();
-        parameters = WorkerParametersFactory.newWorkerParameters()
+        parameters = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setWorkerGUID(GUIDFactory.newGUID().getId())
             .setContainerName(operationId)
             .setObjectNameList(Lists.newArrayList(objectId))
             .setObjectName(objectId)
             .setCurrentStep("StepName");
 
-        instance = new ReclassificationPreparationCheckHoldRulesHandler(metaDataClientFactory, unitGraphInfoLoader, 10);
+        instance = new ReclassificationPreparationCheckHoldRulesHandler(unitGraphInfoLoader, 10);
 
         ReclassificationOrders reclassificationOrders = buildReclassificationOrders();
         doReturn(reclassificationOrders)
             .when(handlerIO)
             .getInput(ReclassificationPreparationCheckHoldRulesHandler.RECLASSIFICATION_ORDERS_PARAMETER_RANK);
+        doReturn(metaDataClient).when(handlerIO).getMetaDataClient();
     }
 
     @Test

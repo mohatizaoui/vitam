@@ -31,6 +31,7 @@ import fr.gouv.vitam.common.SystemPropertyUtil;
 import fr.gouv.vitam.common.model.IngestWorkflowConstants;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -78,7 +79,9 @@ public class UpdateObjectGroupPluginTest {
 
     private HandlerIOImpl handlerIO;
     private static final Integer TENANT_ID = 0;
-    private final WorkerParameters params_guid1 = WorkerParametersFactory.newWorkerParameters()
+    private final WorkerParameters params_guid1 = WorkerParametersFactory.newWorkerParameters(
+        WorkFlowExecutionContext.VITAM
+    )
         .setUrlWorkspace("http://localhost:8083")
         .setUrlMetadata("http://localhost:8083")
         .setObjectNameList(Lists.newArrayList("guid1.json"))
@@ -87,7 +90,9 @@ public class UpdateObjectGroupPluginTest {
         .setLogbookTypeProcess(LogbookTypeProcess.INGEST)
         .setContainerName("UpdateObjectGroupPluginTest");
 
-    private final WorkerParameters params_guid2 = WorkerParametersFactory.newWorkerParameters()
+    private final WorkerParameters params_guid2 = WorkerParametersFactory.newWorkerParameters(
+        WorkFlowExecutionContext.VITAM
+    )
         .setUrlWorkspace("http://localhost:8083")
         .setUrlMetadata("http://localhost:8083")
         .setObjectNameList(Lists.newArrayList("guid2.json"))
@@ -134,6 +139,7 @@ public class UpdateObjectGroupPluginTest {
         handler = new UpdateObjectGroupPlugin();
 
         handlerIO = new HandlerIOImpl(
+            WorkFlowExecutionContext.VITAM,
             workspaceClientFactory,
             logbookLifeCyclesClientFactory,
             "UpdateObjectGroupPluginTest",

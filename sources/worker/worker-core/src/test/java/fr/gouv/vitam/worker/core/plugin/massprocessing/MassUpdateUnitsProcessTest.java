@@ -41,6 +41,7 @@ import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.logbook.LogbookEvent;
 import fr.gouv.vitam.common.model.logbook.LogbookLifecycle;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -87,6 +88,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -155,17 +157,18 @@ public class MassUpdateUnitsProcessTest {
         LogbookLifeCyclesClientFactory.changeMode(null);
 
         batchReportClient = mock(BatchReportClient.class);
-        given(batchReportClientFactory.getClient()).willReturn(batchReportClient);
+        doReturn(batchReportClient).when(handlerIO).getBatchReportClient();
         workspaceClient = mock(WorkspaceClient.class);
-        given(workspaceClientFactory.getClient()).willReturn(workspaceClient);
+        doReturn(workspaceClient).when(handlerIO).getWorkspaceClient();
         metadataClient = mock(MetaDataClient.class);
-        given(metaDataClientFactory.getClient()).willReturn(metadataClient);
+        doReturn(metadataClient).when(handlerIO).getMetaDataClient();
         storageClient = mock(StorageClient.class);
-        given(storageClientFactory.getClient()).willReturn(storageClient);
+        doReturn(storageClient).when(handlerIO).getStorageClient();
         lfcClient = mock(LogbookLifeCyclesClient.class);
-        given(lfcClientFactory.getClient()).willReturn(lfcClient);
+        doReturn(lfcClient).when(handlerIO).getLifeCyclesClient();
         adminManagementClient = mock(AdminManagementClient.class);
-        given(adminManagementClientFactory.getClient()).willReturn(adminManagementClient);
+        doReturn(adminManagementClient).when(handlerIO).getAdminManagementClient();
+
         unit = PropertiesUtils.getResourceAsStream(UNIT);
         File mdFile = PropertiesUtils.getResourceFile(METADATA_UNIT_RESPONSE_JSON);
         unitResponse = JsonHandler.getFromFile(mdFile, RequestResponseOK.class);
@@ -178,7 +181,7 @@ public class MassUpdateUnitsProcessTest {
     public void givingUnitListWhenMassUpdateThenReturnOK() throws Exception {
         // Given
         String operationId = GUIDFactory.newRequestIdGUID(TENANT_ID).toString();
-        final WorkerParameters params = newWorkerParameters()
+        final WorkerParameters params = newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setWorkerGUID(GUIDFactory.newGUID().getId())
             .setContainerName(CONTAINER_NAME)
             .setUrlMetadata("http://localhost:8083")
@@ -246,7 +249,7 @@ public class MassUpdateUnitsProcessTest {
     public void should_a_storage_error_produce_a_fatal_item_status() throws Exception {
         // Given
         String operationId = GUIDFactory.newRequestIdGUID(TENANT_ID).toString();
-        final WorkerParameters params = newWorkerParameters()
+        final WorkerParameters params = newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setWorkerGUID(GUIDFactory.newGUID().getId())
             .setContainerName(CONTAINER_NAME)
             .setUrlMetadata("http://localhost:8083")
@@ -314,7 +317,7 @@ public class MassUpdateUnitsProcessTest {
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
         String processId = GUIDFactory.newRequestIdGUID(TENANT_ID).toString();
 
-        WorkerParameters params = newWorkerParameters()
+        WorkerParameters params = newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setWorkerGUID(GUIDFactory.newGUID().getId())
             .setContainerName(processId)
             .setUrlMetadata("http://localhost:8083")

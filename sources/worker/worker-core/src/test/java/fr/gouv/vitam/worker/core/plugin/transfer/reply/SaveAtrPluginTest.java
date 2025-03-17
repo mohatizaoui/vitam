@@ -83,7 +83,7 @@ public class SaveAtrPluginTest {
 
     @Before
     public void setup() {
-        when(storageClientFactory.getClient()).thenReturn(storageClient);
+        when(handler.getStorageClient()).thenReturn(storageClient);
 
         doAnswer(args -> {
             String filename = args.getArgument(0);

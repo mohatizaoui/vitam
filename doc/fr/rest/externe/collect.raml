@@ -370,6 +370,34 @@ documentation:
               type: object
               example: !include libraries/examples/CollectUnitWithInheritedRulesResponse.json
 
+  /{id}/reclassification:
+    displayName: Reclassement d'unités archivistiques d'une transaction
+    is: [ StandardTraits.StandardOptionalHeader,
+          StandardTraits.StandardHeader401, StandardTraits.StandardHeader404,
+          StandardTraits.StandardHeader409, StandardTraits.StandardHeader412 ]
+    uriParameters:
+      id:
+        required: true
+        description: |
+          Identifiant de la transaction
+    post:
+      description: |
+        Reclasse une ou plusieurs unités archivistiques d'une transaction
+        
+        Permissions requises:
+          - transaction:reclassification
+      headers:
+        X-Tenant-Id:
+          required: true
+      body:
+        application/json:
+          example: !include libraries/examples/reclassification.json
+      responses:
+        200:
+          body:
+            application/json:
+              type: object
+
   /{id}/close:
     displayName: Fermer une transaction -> statut Close
     is: [ StandardTraits.StandardOptionalHeader,
@@ -464,6 +492,30 @@ documentation:
         X-Encoding:
           required: false
           description: "Encodage du zip, par default VITAM utilise UTF-8"
+      responses:
+        200:
+          body:
+            application/json:
+              type: object
+  /{id}/deletion/action:
+    displayName: Suppression d'unités archivistiques d'une transaction
+    id:
+      required: true
+      description: |
+        Identifiant de la transaction
+    is: [ StandardTraits.StandardOptionalHeader,
+          StandardTraits.StandardHeader401, StandardTraits.StandardHeader404,
+          StandardTraits.StandardHeader409, StandardTraits.StandardHeader412 ]
+    post:
+      description: |
+        Supprime une ou plusieurs unités archivistiques d'une transaction
+      headers:
+        X-Tenant-Id:
+          required: true
+      body:
+        application/json:
+          type: object
+          example: !include libraries/examples/deletionCollectRequest.json
       responses:
         200:
           body:

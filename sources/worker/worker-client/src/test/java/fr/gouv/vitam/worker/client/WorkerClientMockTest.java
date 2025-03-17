@@ -30,6 +30,7 @@ import fr.gouv.vitam.common.exception.VitamApplicationServerException;
 import fr.gouv.vitam.common.exception.VitamClientException;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.processing.Step;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.processing.common.async.ProcessingRetryAsyncException;
 import fr.gouv.vitam.processing.common.parameter.DefaultWorkerParameters;
 import fr.gouv.vitam.processing.common.parameter.WorkerParametersFactory;
@@ -63,7 +64,9 @@ public class WorkerClientMockTest {
         final WorkerClient client = WorkerClientFactory.getInstance(null).getClient();
 
         final Step step = new Step();
-        final DefaultWorkerParameters workParams = WorkerParametersFactory.newWorkerParameters();
+        final DefaultWorkerParameters workParams = WorkerParametersFactory.newWorkerParameters(
+            WorkFlowExecutionContext.VITAM
+        );
         final DescriptionStep descriptionStep = new DescriptionStep(step, workParams);
         final String requestId = "requestId";
         final ItemStatus result = client.submitStep(descriptionStep);

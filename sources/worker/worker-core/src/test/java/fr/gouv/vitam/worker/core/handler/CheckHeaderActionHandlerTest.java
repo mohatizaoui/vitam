@@ -41,6 +41,7 @@ import fr.gouv.vitam.common.model.administration.IngestContractModel;
 import fr.gouv.vitam.common.model.administration.ManagementContractModel;
 import fr.gouv.vitam.common.model.processing.ProcessingUri;
 import fr.gouv.vitam.common.model.processing.UriPrefix;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -86,6 +87,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 public class CheckHeaderActionHandlerTest {
@@ -169,6 +171,7 @@ public class CheckHeaderActionHandlerTest {
     public void testHandlerWorking() throws ProcessingException {
         handler = new CheckHeaderActionHandler(adminManagementClientFactory, storageClientFactory, sedaUtilsFactory);
         HandlerIOImpl action = new HandlerIOImpl(
+            WorkFlowExecutionContext.VITAM,
             workspaceClientFactory,
             logbookLifeCyclesClientFactory,
             guid.getId(),
@@ -183,7 +186,7 @@ public class CheckHeaderActionHandlerTest {
         when(sedaUtilsFactory.createSedaUtilsWithSedaIngestParams(any())).thenReturn(sedaUtils);
         doReturn(sedaMap).when(sedaUtils).getMandatoryValues(any());
         assertNotNull(CheckHeaderActionHandler.getId());
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace("http://localhost:8083")
             .setUrlMetadata("http://localhost:8083")
             .setObjectNameList(Lists.newArrayList("objectName.json"))
@@ -232,6 +235,7 @@ public class CheckHeaderActionHandlerTest {
         );
 
         HandlerIOImpl action = new HandlerIOImpl(
+            WorkFlowExecutionContext.VITAM,
             workspaceClientFactory,
             logbookLifeCyclesClientFactory,
             guid.getId(),
@@ -254,7 +258,7 @@ public class CheckHeaderActionHandlerTest {
             Response.status(Status.OK).entity(sedaParams).build()
         );
 
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace("http://localhost:8083")
             .setUrlMetadata("http://localhost:8083")
             .setObjectNameList(Lists.newArrayList("objectName.json"))
@@ -299,6 +303,7 @@ public class CheckHeaderActionHandlerTest {
         );
 
         HandlerIOImpl action = new HandlerIOImpl(
+            WorkFlowExecutionContext.VITAM,
             workspaceClientFactory,
             logbookLifeCyclesClientFactory,
             guid.getId(),
@@ -321,7 +326,7 @@ public class CheckHeaderActionHandlerTest {
             Response.status(Status.OK).entity(sedaParams).build()
         );
 
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace("http://localhost:8083")
             .setUrlMetadata("http://localhost:8083")
             .setObjectNameList(Lists.newArrayList("objectName.json"))
@@ -371,7 +376,7 @@ public class CheckHeaderActionHandlerTest {
         when(handlerIO.getOutput(anyInt())).thenReturn(new ProcessingUri().setPath("ANY_PATH"));
 
         assertNotNull(CheckHeaderActionHandler.getId());
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace("http://localhost:8083")
             .setUrlMetadata("http://localhost:8083")
             .setObjectNameList(Lists.newArrayList("objectName.json"))
@@ -379,13 +384,17 @@ public class CheckHeaderActionHandlerTest {
             .setCurrentStep("currentStep")
             .setContainerName(guid.getId());
 
-        HandlerIOImpl action = new HandlerIOImpl(
-            workspaceClientFactory,
-            logbookLifeCyclesClientFactory,
-            guid.getId(),
-            "workerId",
-            com.google.common.collect.Lists.newArrayList()
+        HandlerIOImpl action = spy(
+            new HandlerIOImpl(
+                WorkFlowExecutionContext.VITAM,
+                workspaceClientFactory,
+                logbookLifeCyclesClientFactory,
+                guid.getId(),
+                "workerId",
+                com.google.common.collect.Lists.newArrayList()
+            )
         );
+        doReturn(adminManagementClient).when(action).getAdminManagementClient();
 
         action.getInput().add("true");
         action.getInput().add("true");

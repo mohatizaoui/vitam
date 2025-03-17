@@ -28,6 +28,7 @@ package fr.gouv.vitam.workspace.client;
 
 import com.google.common.collect.Sets;
 import fr.gouv.vitam.common.guid.GUIDFactory;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.server.application.junit.ResteasyTestApplication;
 import fr.gouv.vitam.common.serverv2.VitamServerTestRunner;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageNotFoundException;
@@ -61,7 +62,7 @@ public class WorkspaceClientContainerTest extends ResteasyTestApplication {
     protected static WorkspaceClient client;
 
     private static final String CONTAINER_NAME = "myContainer" + GUIDFactory.newGUID().toString();
-    static WorkspaceClientFactory factory = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM);
+    static WorkspaceClientFactory factory = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM);
 
     private static final ExpectedResults mock = mock(ExpectedResults.class);
     public static VitamServerTestRunner vitamServerTestRunner = new VitamServerTestRunner(

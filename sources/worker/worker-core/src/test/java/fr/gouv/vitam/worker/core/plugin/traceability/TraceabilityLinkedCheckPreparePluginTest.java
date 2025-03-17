@@ -59,7 +59,6 @@ import static fr.gouv.vitam.worker.core.plugin.traceability.TraceabilityLinkedCh
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class TraceabilityLinkedCheckPreparePluginTest {
@@ -76,6 +75,9 @@ public class TraceabilityLinkedCheckPreparePluginTest {
     @Mock
     private LogbookOperationsClient logbookOperationsClient;
 
+    @Mock
+    private HandlerIO handlerIO;
+
     private TraceabilityLinkedCheckPreparePlugin traceabilityLinkedCheckPreparePlugin;
 
     private static final String LINKED_CHECK_TRACEABILITY_QUERY_JSON = "linkedCheckTraceability/query.json";
@@ -86,8 +88,8 @@ public class TraceabilityLinkedCheckPreparePluginTest {
 
     @Before
     public void setUp() {
-        when(logbookOperationsClientFactory.getClient()).thenReturn(logbookOperationsClient);
-        traceabilityLinkedCheckPreparePlugin = new TraceabilityLinkedCheckPreparePlugin(logbookOperationsClientFactory);
+        when(handlerIO.getLogbookOperationsClient()).thenReturn(logbookOperationsClient);
+        traceabilityLinkedCheckPreparePlugin = new TraceabilityLinkedCheckPreparePlugin();
     }
 
     @Test
@@ -95,7 +97,7 @@ public class TraceabilityLinkedCheckPreparePluginTest {
         // Given
         InputStream query = PropertiesUtils.getResourceAsStream(LINKED_CHECK_TRACEABILITY_QUERY_JSON);
         File distributionFile = temporaryFolder.newFile();
-        HandlerIO handlerIO = mock(HandlerIO.class);
+
         when(handlerIO.getJsonFromWorkspace(WorkspaceConstants.QUERY)).thenReturn(
             JsonHandler.getFromInputStream(query)
         );
@@ -146,7 +148,6 @@ public class TraceabilityLinkedCheckPreparePluginTest {
         // Given
         InputStream query = PropertiesUtils.getResourceAsStream(LINKED_CHECK_TRACEABILITY_QUERY_JSON);
         File distributionFile = temporaryFolder.newFile();
-        HandlerIO handlerIO = mock(HandlerIO.class);
         when(handlerIO.getJsonFromWorkspace(WorkspaceConstants.QUERY)).thenReturn(
             JsonHandler.getFromInputStream(query)
         );

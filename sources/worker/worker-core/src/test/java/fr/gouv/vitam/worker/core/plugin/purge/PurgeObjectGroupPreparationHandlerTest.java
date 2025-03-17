@@ -37,6 +37,7 @@ import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -114,8 +115,9 @@ public class PurgeObjectGroupPreparationHandlerTest {
         doAnswer(args -> tempFolder.newFile(args.getArgument(0))).when(handler).getNewLocalFile(any());
 
         doReturn(metaDataClient).when(metaDataClientFactory).getClient();
+        doReturn(metaDataClient).when(handler).getMetaDataClient();
 
-        params = WorkerParametersFactory.newWorkerParameters()
+        params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setWorkerGUID(GUIDFactory.newGUID().getId())
             .setContainerName(VitamThreadUtils.getVitamSession().getRequestId())
             .setRequestId(VitamThreadUtils.getVitamSession().getRequestId())
@@ -140,13 +142,16 @@ public class PurgeObjectGroupPreparationHandlerTest {
             )
         )
             .when(purgeReportService)
-            .exportDistinctObjectGroups(any(), any());
+            .exportDistinctObjectGroups(any(), any(), any());
 
         JsonNode objectGroups = JsonHandler.getFromInputStream(
             PropertiesUtils.getResourceAsStream(
                 "EliminationAction/EliminationActionObjectGroupPreparationHandler/objectGroups.json"
             )
         );
+
+        doReturn(metaDataClient).when(handler).getMetaDataClient();
+        doReturn(metaDataClient).when(metaDataClientFactory).getClient();
         doReturn(objectGroups).when(metaDataClient).selectObjectGroups(any());
 
         JsonNode existingUnits = JsonHandler.getFromInputStream(
@@ -158,7 +163,6 @@ public class PurgeObjectGroupPreparationHandlerTest {
 
         PurgeObjectGroupPreparationHandler instance = new PurgeObjectGroupPreparationHandler(
             "PLUGIN_NAME",
-            metaDataClientFactory,
             purgeReportService,
             10
         );
@@ -235,8 +239,9 @@ public class PurgeObjectGroupPreparationHandlerTest {
 
         assertThat(objectGroupsToDelete).hasSize(2);
 
-        checkObjectGroupToDelete(objectGroupsToDelete, "id_got_1", "id_got_1_object_1", "id_got_1_object_2");
-        checkObjectGroupToDelete(objectGroupsToDelete, "id_got_3", "id_got_3_object_1");
+        checkObjectGroupToDelete(objectGroupsToDelete, "id_got_1", "id_got_1_object_1", "opi1", "Content/ID3343.txt");
+        checkObjectGroupToDelete(objectGroupsToDelete, "id_got_1", "id_got_1_object_2", "opi1", "Content/ID3343.txt");
+        checkObjectGroupToDelete(objectGroupsToDelete, "id_got_3", "id_got_3_object_1", "opi3", "Content/ID3587.txt");
 
         List<JsonLineModel> objectGroupsToDetach = FileUtils.readLines(
             objectGroupsToDetachFileArgCaptor.getValue(),
@@ -293,8 +298,13 @@ public class PurgeObjectGroupPreparationHandlerTest {
         );
     }
 
-    private void checkObjectGroupToDelete(List<JsonLineModel> objectGroupsToDelete, String id, String... objectIds)
-        throws InvalidParseOperationException {
+    private void checkObjectGroupToDelete(
+        List<JsonLineModel> objectGroupsToDelete,
+        String id,
+        String objectId,
+        String opi,
+        String uri
+    ) throws InvalidParseOperationException {
         JsonLineModel objectGroupToDelete = objectGroupsToDelete
             .stream()
             .filter(o -> o.getId().equals(id))
@@ -304,18 +314,21 @@ public class PurgeObjectGroupPreparationHandlerTest {
         assertThat(objectGroupToDelete.getDistribGroup()).isNull();
         ObjectNode expectedResponse = JsonHandler.createObjectNode();
         ArrayNode objects = JsonHandler.createArrayNode();
-        for (String objectId : objectIds) {
-            objects.add(JsonHandler.createObjectNode().put("id", objectId).put("strategyId", "default"));
-        }
+
+        objects.add(JsonHandler.createObjectNode().put("id", objectId).put("strategyId", "default"));
+
         expectedResponse.set("objects", objects);
         expectedResponse.put("strategyId", "default");
         assertThat(objectGroupToDelete.getParams().get("strategyId").asText()).isEqualTo("default");
         assertThat(objectGroupToDelete.getParams().get("objects").isArray()).isTrue();
-        for (String objectId : objectIds) {
-            assertThat(((ArrayNode) objectGroupToDelete.getParams().get("objects"))).contains(
-                JsonHandler.createObjectNode().put("id", objectId).put("strategyId", "default")
-            );
-        }
+
+        assertThat(((ArrayNode) objectGroupToDelete.getParams().get("objects"))).contains(
+            JsonHandler.createObjectNode()
+                .put("id", objectId)
+                .put("strategyId", "default")
+                .put("opi", opi)
+                .put("uri", uri)
+        );
     }
 
     private static JsonLineModel parse(String line) {

@@ -35,6 +35,7 @@ import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.processing.PauseOrCancelAction;
 import fr.gouv.vitam.common.model.processing.ProcessBehavior;
 import fr.gouv.vitam.common.model.processing.Step;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -98,7 +99,7 @@ public class StateMachineTest {
     @Before
     public void setup() {
         when(workspaceClientFactory.getClient()).thenReturn(mock(WorkspaceClient.class));
-        workParams = WorkerParametersFactory.newWorkerParameters();
+        workParams = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM);
         workParams
             .setWorkerGUID(GUIDFactory.newGUID().getId())
             .setUrlMetadata("http://localhost:8083")

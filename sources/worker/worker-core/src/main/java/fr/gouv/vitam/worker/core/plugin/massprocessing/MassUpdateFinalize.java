@@ -26,13 +26,9 @@
  */
 package fr.gouv.vitam.worker.core.plugin.massprocessing;
 
-import com.google.common.annotations.VisibleForTesting;
-import fr.gouv.vitam.batch.report.client.BatchReportClientFactory;
 import fr.gouv.vitam.batch.report.model.ReportType;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
-import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClientFactory;
-import fr.gouv.vitam.storage.engine.client.StorageClientFactory;
 import fr.gouv.vitam.worker.core.plugin.UpdateUnitFinalize;
 
 import static fr.gouv.vitam.batch.report.model.ReportType.UPDATE_UNIT;
@@ -43,23 +39,6 @@ public class MassUpdateFinalize extends UpdateUnitFinalize {
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(MassUpdateFinalize.class);
 
     private static final String MASS_UPDATE_FINALIZE = "MASS_UPDATE_FINALIZE";
-
-    public MassUpdateFinalize() {
-        this(
-            BatchReportClientFactory.getInstance(),
-            LogbookOperationsClientFactory.getInstance(),
-            StorageClientFactory.getInstance()
-        );
-    }
-
-    @VisibleForTesting
-    private MassUpdateFinalize(
-        BatchReportClientFactory batchReportClientFactory,
-        LogbookOperationsClientFactory logbookOperationsClientFactory,
-        StorageClientFactory storageClientFactory
-    ) {
-        super(batchReportClientFactory, logbookOperationsClientFactory, storageClientFactory);
-    }
 
     @Override
     protected String getPluginId() {

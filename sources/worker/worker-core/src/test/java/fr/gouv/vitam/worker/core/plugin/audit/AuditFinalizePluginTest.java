@@ -31,6 +31,7 @@ import fr.gouv.vitam.batch.report.model.ReportType;
 import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -94,14 +95,17 @@ public class AuditFinalizePluginTest {
     private static final String PROCESS_ID_WARNING = "aeeaaaaaachgzebuab35oalj5r7ng7aaaaaq";
 
     private AuditFinalizePlugin auditFinalizePlugin;
+    private HandlerIO handler;
 
     @Captor
     private ArgumentCaptor<Report> reportInfosCaptor;
 
     @Before
     public void setUp() throws Exception {
-        auditFinalizePlugin = new AuditFinalizePlugin(auditReportService, logbookOperationsClientFactory);
-
+        handler = mock(HandlerIO.class);
+        auditFinalizePlugin = new AuditFinalizePlugin(auditReportService);
+        when(handler.getLogbookOperationsClient()).thenReturn(logbookClient);
+        when(handler.getLogbookOperationsClientFactory()).thenReturn(logbookOperationsClientFactory);
         when(logbookOperationsClientFactory.getClient()).thenReturn(logbookClient);
     }
 
@@ -109,10 +113,10 @@ public class AuditFinalizePluginTest {
     @Test
     public void should_ok_report_when_ok_logbook() throws Exception {
         // Given
-        HandlerIO handler = mock(HandlerIO.class);
+
         VitamThreadUtils.getVitamSession().setTenantId(0);
         VitamThreadUtils.getVitamSession().setRequestId(PROCESS_ID_OK);
-        WorkerParameters workerParameters = WorkerParametersFactory.newWorkerParameters()
+        WorkerParameters workerParameters = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setWorkerGUID(GUIDFactory.newGUID().getId())
             .setContainerName(VitamThreadUtils.getVitamSession().getRequestId())
             .setRequestId(VitamThreadUtils.getVitamSession().getRequestId())
@@ -121,7 +125,7 @@ public class AuditFinalizePluginTest {
             .setCurrentStep("StepName");
         workerParameters.putParameterValue(WorkerParameterName.auditActions, "AUDIT_FILE_EXISTING");
         workerParameters.putParameterValue(WorkerParameterName.auditType, "tenant");
-        Mockito.doNothing().when(auditReportService).storeReportToWorkspace(reportInfosCaptor.capture());
+        Mockito.doNothing().when(auditReportService).storeReportToWorkspace(reportInfosCaptor.capture(), any());
         when(logbookClient.selectOperationById(any())).thenReturn(
             getFromInputStream(getClass().getResourceAsStream(JOP_RESULTS_OK))
         );
@@ -133,7 +137,7 @@ public class AuditFinalizePluginTest {
         assertEquals(StatusCode.OK, response.getGlobalStatus());
 
         verify(auditReportService).isReportWrittenInWorkspace(VitamThreadUtils.getVitamSession().getRequestId());
-        verify(auditReportService).storeReportToWorkspace(any());
+        verify(auditReportService).storeReportToWorkspace(any(), any());
         verify(auditReportService).storeReportToOffers(VitamThreadUtils.getVitamSession().getRequestId());
         verify(auditReportService).cleanupReport(VitamThreadUtils.getVitamSession().getRequestId());
 
@@ -174,10 +178,9 @@ public class AuditFinalizePluginTest {
     @Test
     public void should_ok_report_when_report_already_writted_to_workspace() throws Exception {
         // Given
-        HandlerIO handler = mock(HandlerIO.class);
         VitamThreadUtils.getVitamSession().setTenantId(0);
         VitamThreadUtils.getVitamSession().setRequestId(PROCESS_ID_OK);
-        WorkerParameters workerParameters = WorkerParametersFactory.newWorkerParameters()
+        WorkerParameters workerParameters = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setWorkerGUID(GUIDFactory.newGUID().getId())
             .setContainerName(VitamThreadUtils.getVitamSession().getRequestId())
             .setRequestId(VitamThreadUtils.getVitamSession().getRequestId())
@@ -197,7 +200,7 @@ public class AuditFinalizePluginTest {
         assertEquals(StatusCode.OK, response.getGlobalStatus());
 
         verify(auditReportService).isReportWrittenInWorkspace(VitamThreadUtils.getVitamSession().getRequestId());
-        verify(auditReportService, never()).storeReportToWorkspace(any());
+        verify(auditReportService, never()).storeReportToWorkspace(any(), any());
         verify(auditReportService).storeReportToOffers(VitamThreadUtils.getVitamSession().getRequestId());
         verify(auditReportService).cleanupReport(VitamThreadUtils.getVitamSession().getRequestId());
     }
@@ -206,10 +209,9 @@ public class AuditFinalizePluginTest {
     @Test
     public void should_ko_report_when_ko_logbook() throws Exception {
         // Given
-        HandlerIO handler = mock(HandlerIO.class);
         VitamThreadUtils.getVitamSession().setTenantId(0);
         VitamThreadUtils.getVitamSession().setRequestId(PROCESS_ID_KO);
-        WorkerParameters workerParameters = WorkerParametersFactory.newWorkerParameters()
+        WorkerParameters workerParameters = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setWorkerGUID(GUIDFactory.newGUID().getId())
             .setContainerName(VitamThreadUtils.getVitamSession().getRequestId())
             .setRequestId(VitamThreadUtils.getVitamSession().getRequestId())
@@ -218,7 +220,7 @@ public class AuditFinalizePluginTest {
             .setCurrentStep("StepName");
         workerParameters.putParameterValue(WorkerParameterName.auditActions, "AUDIT_FILE_EXISTING");
         workerParameters.putParameterValue(WorkerParameterName.auditType, "tenant");
-        Mockito.doNothing().when(auditReportService).storeReportToWorkspace(reportInfosCaptor.capture());
+        Mockito.doNothing().when(auditReportService).storeReportToWorkspace(reportInfosCaptor.capture(), any());
         when(logbookClient.selectOperationById(any())).thenReturn(
             getFromInputStream(getClass().getResourceAsStream(JOP_RESULTS_KO))
         );
@@ -266,10 +268,9 @@ public class AuditFinalizePluginTest {
     @Test
     public void should_warning_report_when_warning_logbook() throws Exception {
         // Given
-        HandlerIO handler = mock(HandlerIO.class);
         VitamThreadUtils.getVitamSession().setTenantId(0);
         VitamThreadUtils.getVitamSession().setRequestId(PROCESS_ID_WARNING);
-        WorkerParameters workerParameters = WorkerParametersFactory.newWorkerParameters()
+        WorkerParameters workerParameters = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setWorkerGUID(GUIDFactory.newGUID().getId())
             .setContainerName(VitamThreadUtils.getVitamSession().getRequestId())
             .setRequestId(VitamThreadUtils.getVitamSession().getRequestId())
@@ -278,7 +279,7 @@ public class AuditFinalizePluginTest {
             .setCurrentStep("StepName");
         workerParameters.putParameterValue(WorkerParameterName.auditActions, "AUDIT_FILE_EXISTING");
         workerParameters.putParameterValue(WorkerParameterName.auditType, "tenant");
-        Mockito.doNothing().when(auditReportService).storeReportToWorkspace(reportInfosCaptor.capture());
+        Mockito.doNothing().when(auditReportService).storeReportToWorkspace(reportInfosCaptor.capture(), any());
         when(logbookClient.selectOperationById(any())).thenReturn(
             getFromInputStream(getClass().getResourceAsStream(JOP_RESULTS_WARNING))
         );
@@ -326,10 +327,9 @@ public class AuditFinalizePluginTest {
     @Test
     public void should_fatal_when_logbook_exception() throws Exception {
         // Given
-        HandlerIO handler = mock(HandlerIO.class);
         VitamThreadUtils.getVitamSession().setTenantId(0);
         VitamThreadUtils.getVitamSession().setRequestId(PROCESS_ID_OK);
-        WorkerParameters workerParameters = WorkerParametersFactory.newWorkerParameters()
+        WorkerParameters workerParameters = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setWorkerGUID(GUIDFactory.newGUID().getId())
             .setContainerName(VitamThreadUtils.getVitamSession().getRequestId())
             .setRequestId(VitamThreadUtils.getVitamSession().getRequestId())
@@ -338,7 +338,7 @@ public class AuditFinalizePluginTest {
             .setCurrentStep("StepName");
         workerParameters.putParameterValue(WorkerParameterName.auditActions, "AUDIT_FILE_EXISTING");
         workerParameters.putParameterValue(WorkerParameterName.auditType, "tenant");
-        Mockito.doNothing().when(auditReportService).storeReportToWorkspace(reportInfosCaptor.capture());
+        Mockito.doNothing().when(auditReportService).storeReportToWorkspace(reportInfosCaptor.capture(), any());
         when(logbookClient.selectOperationById(any())).thenThrow(new LogbookClientException("Logbook exception"));
         when(auditReportService.isReportWrittenInWorkspace(anyString())).thenReturn(false);
 
@@ -353,10 +353,9 @@ public class AuditFinalizePluginTest {
     @Test
     public void should_fatal_when_report_exception() throws Exception {
         // Given
-        HandlerIO handler = mock(HandlerIO.class);
         VitamThreadUtils.getVitamSession().setTenantId(0);
         VitamThreadUtils.getVitamSession().setRequestId(PROCESS_ID_OK);
-        WorkerParameters workerParameters = WorkerParametersFactory.newWorkerParameters()
+        WorkerParameters workerParameters = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setWorkerGUID(GUIDFactory.newGUID().getId())
             .setContainerName(VitamThreadUtils.getVitamSession().getRequestId())
             .setRequestId(VitamThreadUtils.getVitamSession().getRequestId())
@@ -367,7 +366,7 @@ public class AuditFinalizePluginTest {
         workerParameters.putParameterValue(WorkerParameterName.auditType, "tenant");
         Mockito.doThrow(new ProcessingStatusException(StatusCode.FATAL, "audit report exception"))
             .when(auditReportService)
-            .storeReportToWorkspace(reportInfosCaptor.capture());
+            .storeReportToWorkspace(reportInfosCaptor.capture(), any());
         when(logbookClient.selectOperationById(any())).thenReturn(
             getFromInputStream(getClass().getResourceAsStream(JOP_RESULTS_OK))
         );

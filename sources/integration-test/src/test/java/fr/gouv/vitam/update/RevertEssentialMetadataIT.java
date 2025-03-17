@@ -50,6 +50,7 @@ import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.ProcessAction;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.mongo.MongoRule;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
@@ -82,7 +83,6 @@ import fr.gouv.vitam.storage.offers.rest.DefaultOfferMain;
 import fr.gouv.vitam.worker.server.rest.WorkerMain;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 import fr.gouv.vitam.workspace.rest.WorkspaceMain;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -149,7 +149,7 @@ public class RevertEssentialMetadataIT extends VitamRuleRunner {
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
         handleBeforeClass(Collections.singletonList(TENANT_0), Collections.emptyMap());
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         processingClient = ProcessingManagementClientFactory.getInstance().getClient();
         new DataLoader("integration-processing").prepareData();
     }
@@ -203,7 +203,7 @@ public class RevertEssentialMetadataIT extends VitamRuleRunner {
         );
 
         OperationContextMonitor.compressInWorkspace(
-            WorkspaceClientFactory.getInstance(WorkspaceType.VITAM),
+            WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM),
             containerName,
             Contexts.REVERT_ESSENTIAL_METADATA.getLogbookTypeProcess(),
             OperationContextMonitor.OperationContextFileName
@@ -286,7 +286,7 @@ public class RevertEssentialMetadataIT extends VitamRuleRunner {
         );
 
         OperationContextMonitor.compressInWorkspace(
-            WorkspaceClientFactory.getInstance(WorkspaceType.VITAM),
+            WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM),
             containerName,
             Contexts.REVERT_ESSENTIAL_METADATA.getLogbookTypeProcess(),
             OperationContextMonitor.OperationContextFileName
@@ -370,7 +370,7 @@ public class RevertEssentialMetadataIT extends VitamRuleRunner {
         );
 
         OperationContextMonitor.compressInWorkspace(
-            WorkspaceClientFactory.getInstance(WorkspaceType.VITAM),
+            WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM),
             containerName,
             Contexts.REVERT_ESSENTIAL_METADATA.getLogbookTypeProcess(),
             OperationContextMonitor.OperationContextFileName

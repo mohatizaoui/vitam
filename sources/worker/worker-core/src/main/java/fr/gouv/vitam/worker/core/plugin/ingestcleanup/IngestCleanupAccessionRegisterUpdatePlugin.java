@@ -26,8 +26,6 @@
  */
 package fr.gouv.vitam.worker.core.plugin.ingestcleanup;
 
-import com.google.common.annotations.VisibleForTesting;
-import fr.gouv.vitam.functional.administration.client.AdminManagementClientFactory;
 import fr.gouv.vitam.logbook.common.parameters.LogbookTypeProcess;
 import fr.gouv.vitam.worker.core.plugin.purge.PurgeAccessionRegisterUpdatePlugin;
 
@@ -37,14 +35,5 @@ public class IngestCleanupAccessionRegisterUpdatePlugin extends PurgeAccessionRe
 
     public IngestCleanupAccessionRegisterUpdatePlugin() {
         super(INGEST_CLEANUP_ACCESSION_REGISTER_UPDATE, LogbookTypeProcess.INGEST_CLEANUP);
-    }
-
-    @VisibleForTesting
-    IngestCleanupAccessionRegisterUpdatePlugin(AdminManagementClientFactory adminManagementClientFactory) {
-        super(
-            INGEST_CLEANUP_ACCESSION_REGISTER_UPDATE,
-            LogbookTypeProcess.INGEST_CLEANUP,
-            adminManagementClientFactory
-        );
     }
 }

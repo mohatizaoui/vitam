@@ -99,13 +99,14 @@ public class ChecksSecureTraceabilityDataHashesPluginTest {
     public void setUp() throws Exception {
         when(storageClientFactory.getClient()).thenReturn(storageClient);
 
-        checksSecureTraceabilityDataHashesPlugin = new ChecksSecureTraceabilityDataHashesPlugin(storageClientFactory);
+        checksSecureTraceabilityDataHashesPlugin = new ChecksSecureTraceabilityDataHashesPlugin();
 
         when(param.getObjectName()).thenReturn(OBJECT_NAME);
         when(
             handler.getJsonFromWorkspace(eq(param.getObjectName() + separator + WorkspaceConstants.REPORT))
         ).thenReturn(createObjectNode());
 
+        when(handler.getStorageClient()).thenReturn(storageClient);
         final File traceabilityFile = temporaryFolder.newFile();
         final TraceabilityEvent traceabilityEvent = new TraceabilityEvent(
             TraceabilityType.OPERATION,

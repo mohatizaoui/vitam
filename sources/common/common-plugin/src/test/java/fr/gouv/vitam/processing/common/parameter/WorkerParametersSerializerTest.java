@@ -32,6 +32,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -40,8 +41,8 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 public class WorkerParametersSerializerTest {
 
@@ -49,7 +50,9 @@ public class WorkerParametersSerializerTest {
     public void shouldSerializeWorkerParameters() throws IOException {
         final WorkerParametersSerializer workerParametersSerializer = new WorkerParametersSerializer();
         final WorkerParametersDeserializer workerParametersdeSerializer = new WorkerParametersDeserializer();
-        final DefaultWorkerParameters parameters = WorkerParametersFactory.newWorkerParameters();
+        final DefaultWorkerParameters parameters = WorkerParametersFactory.newWorkerParameters(
+            WorkFlowExecutionContext.COLLECT
+        );
         final ObjectMapper mapper = new ObjectMapper();
         for (final WorkerParameterName value : WorkerParameterName.values()) {
             parameters.putParameterValue(value, value.name());
@@ -69,14 +72,15 @@ public class WorkerParametersSerializerTest {
         final DeserializationContext ctxt = mapper.getDeserializationContext();
         final DefaultWorkerParameters parametersDeser =
             (DefaultWorkerParameters) workerParametersdeSerializer.deserialize(parser, ctxt);
-        assertTrue(parametersDeser.getContainerName().equals(parameters.getContainerName()));
-        assertTrue(parametersDeser.getCurrentStep().equals(parameters.getCurrentStep()));
-        assertTrue(parametersDeser.getMetadataRequest().equals(parameters.getMetadataRequest()));
-        assertTrue(parametersDeser.getUrlMetadata().equals(parameters.getUrlMetadata()));
-        assertTrue(parametersDeser.getUrlWorkspace().equals(parameters.getUrlWorkspace()));
-        assertTrue(parametersDeser.getObjectId().equals(parameters.getObjectId()));
-        assertTrue(parametersDeser.getObjectName().equals(parameters.getObjectName()));
-        assertTrue(parametersDeser.getWorkerGUID().equals(parameters.getWorkerGUID()));
-        assertTrue(parametersDeser.getProcessId().equals(parameters.getProcessId()));
+        assertEquals(parametersDeser.getExecutionContext(), parameters.getExecutionContext());
+        assertEquals(parametersDeser.getContainerName(), parameters.getContainerName());
+        assertEquals(parametersDeser.getCurrentStep(), parameters.getCurrentStep());
+        assertEquals(parametersDeser.getMetadataRequest(), parameters.getMetadataRequest());
+        assertEquals(parametersDeser.getUrlMetadata(), parameters.getUrlMetadata());
+        assertEquals(parametersDeser.getUrlWorkspace(), parameters.getUrlWorkspace());
+        assertEquals(parametersDeser.getObjectId(), parameters.getObjectId());
+        assertEquals(parametersDeser.getObjectName(), parameters.getObjectName());
+        assertEquals(parametersDeser.getWorkerGUID(), parameters.getWorkerGUID());
+        assertEquals(parametersDeser.getProcessId(), parameters.getProcessId());
     }
 }

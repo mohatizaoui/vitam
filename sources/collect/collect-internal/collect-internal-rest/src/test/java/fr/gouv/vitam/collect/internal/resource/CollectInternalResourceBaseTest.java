@@ -34,7 +34,7 @@ import fr.gouv.vitam.collect.internal.core.service.MetadataService;
 import fr.gouv.vitam.collect.internal.core.service.ProjectService;
 import fr.gouv.vitam.collect.internal.core.service.SipService;
 import fr.gouv.vitam.collect.internal.core.service.TransactionService;
-import fr.gouv.vitam.collect.internal.rest.CollectMetadataInternalResource;
+import fr.gouv.vitam.collect.internal.rest.CollectInternalResource;
 import fr.gouv.vitam.collect.internal.rest.ProjectInternalResource;
 import fr.gouv.vitam.collect.internal.rest.TransactionInternalResource;
 import fr.gouv.vitam.common.client.VitamClientFactory;
@@ -164,11 +164,14 @@ public class CollectInternalResourceBaseTest {
                     projectService,
                     bulkAtomicUpdateMetadataService
                 );
-                final CollectMetadataInternalResource collectMetadataInternalResource =
-                    new CollectMetadataInternalResource(metadataService, collectService, transactionService);
+                final CollectInternalResource collectInternalResource = new CollectInternalResource(
+                    metadataService,
+                    collectService,
+                    transactionService
+                );
                 singletons.add(projectInternalResource);
                 singletons.add(transactionInternalResource);
-                singletons.add(collectMetadataInternalResource);
+                singletons.add(collectInternalResource);
             }
             return singletons;
         }

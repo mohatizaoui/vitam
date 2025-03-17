@@ -33,6 +33,7 @@ import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -116,7 +117,7 @@ public class AuditCheckObjectPluginTest {
         JsonNode jsonl = JsonHandler.getFromInputStream(
             getClass().getResourceAsStream("/AuditObjectWorkflow/objectGroup_1.json")
         );
-        WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setWorkerGUID(GUIDFactory.newGUID().getId())
             .setContainerName(VitamThreadUtils.getVitamSession().getRequestId())
             .setRequestId(VitamThreadUtils.getVitamSession().getRequestId())
@@ -152,7 +153,7 @@ public class AuditCheckObjectPluginTest {
         JsonNode jsonl = JsonHandler.getFromInputStream(
             getClass().getResourceAsStream("/AuditObjectWorkflow/objectGroup_1.json")
         );
-        WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setWorkerGUID(GUIDFactory.newGUID().getId())
             .setContainerName(VitamThreadUtils.getVitamSession().getRequestId())
             .setRequestId(VitamThreadUtils.getVitamSession().getRequestId())
@@ -188,7 +189,7 @@ public class AuditCheckObjectPluginTest {
         JsonNode jsonl = JsonHandler.getFromInputStream(
             getClass().getResourceAsStream("/AuditObjectWorkflow/objectGroup_1.json")
         );
-        WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setWorkerGUID(GUIDFactory.newGUID().getId())
             .setContainerName(VitamThreadUtils.getVitamSession().getRequestId())
             .setRequestId(VitamThreadUtils.getVitamSession().getRequestId())
@@ -220,7 +221,7 @@ public class AuditCheckObjectPluginTest {
         JsonNode jsonl = JsonHandler.getFromInputStream(
             getClass().getResourceAsStream("/AuditObjectWorkflow/objectGroup_1.json")
         );
-        WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setWorkerGUID(GUIDFactory.newGUID().getId())
             .setContainerName(VitamThreadUtils.getVitamSession().getRequestId())
             .setRequestId(VitamThreadUtils.getVitamSession().getRequestId())

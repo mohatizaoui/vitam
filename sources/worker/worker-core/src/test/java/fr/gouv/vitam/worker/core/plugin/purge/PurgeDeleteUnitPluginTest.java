@@ -30,6 +30,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableMap;
 import fr.gouv.vitam.batch.report.model.entry.PurgeUnitReportEntry;
+import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper;
 import fr.gouv.vitam.common.guid.GUIDFactory;
@@ -37,6 +38,7 @@ import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -92,6 +94,9 @@ public class PurgeDeleteUnitPluginTest {
     private PurgeReportService purgeReportService;
 
     @Mock
+    private PurgeDeleteCollectService purgeDeleteCollectService;
+
+    @Mock
     private LogbookLifeCyclesClientFactory lfcClientFactory;
 
     private ArrayList<PurgeUnitReportEntry> reportEntries;
@@ -110,7 +115,7 @@ public class PurgeDeleteUnitPluginTest {
 
         doReturn(metaDataClient).when(metaDataClientFactory).getClient();
 
-        params = WorkerParametersFactory.newWorkerParameters()
+        params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setWorkerGUID(GUIDFactory.newGUID().getId())
             .setContainerName(VitamThreadUtils.getVitamSession().getRequestId())
             .setRequestId(VitamThreadUtils.getVitamSession().getRequestId())
@@ -124,13 +129,7 @@ public class PurgeDeleteUnitPluginTest {
             .when(purgeReportService)
             .appendUnitEntries(any(), any());
 
-        instance = new PurgeUnitPlugin(
-            "PLUGIN_ACTION",
-            purgeDeleteService,
-            metaDataClientFactory,
-            purgeReportService,
-            lfcClientFactory
-        );
+        instance = new PurgeUnitVitamPlugin("PLUGIN_ACTION", purgeDeleteService, purgeReportService, lfcClientFactory);
     }
 
     @Test
@@ -149,8 +148,11 @@ public class PurgeDeleteUnitPluginTest {
         JsonNode childUnitsForUnit1 = buildChildUnitsResponse("id_unit_1", VitamConfiguration.getBatchSize());
         /* id_unit_4 has a single child. Other units do not have any children */
         JsonNode childUnitsForUnit4 = buildChildUnitsResponse("id_unit_4", 1);
-        when(metaDataClient.selectUnits(any())).thenReturn(childUnitsForUnit1, childUnitsForUnit4);
 
+        when(handler.getMetaDataClient()).thenReturn(metaDataClient);
+        when(handler.getWorkFlowExecutionContext()).thenReturn(WorkFlowExecutionContext.VITAM);
+        when(metaDataClientFactory.getClient()).thenReturn(metaDataClient);
+        when(metaDataClient.selectUnits(any())).thenReturn(childUnitsForUnit1, childUnitsForUnit4);
         List<ItemStatus> itemStatus = instance.executeList(params, handler);
 
         assertThat(itemStatus).hasSize(5);
@@ -180,8 +182,20 @@ public class PurgeDeleteUnitPluginTest {
 
         assertThat(reports.get("id_unit_5").getStatus()).isEqualTo(PurgeUnitStatus.DELETED.name());
         assertThat(reports.get("id_unit_5").getExtraInfo()).isNotNull();
-
-        verify(purgeDeleteService).deleteUnits(eq(unitIdsWithStrategies));
+        List<JsonNode> unitList = JsonHandler.getFromInputStream(
+            PropertiesUtils.getResourceAsStream("EliminationAnalysis/PreparationUnits.json"),
+            List.class,
+            JsonNode.class
+        );
+        Map<String, String> unitWithIds = ImmutableMap.of(
+            "id_unit_2",
+            "default-fake",
+            "id_unit_3",
+            "default-fake",
+            "id_unit_5",
+            "default-fake"
+        );
+        verify(purgeDeleteService).deleteUnits(eq(unitWithIds), eq(handler));
     }
 
     private JsonNode buildUnit(Integer index) {

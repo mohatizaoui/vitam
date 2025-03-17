@@ -34,6 +34,7 @@ import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.processing.IOParameter;
 import fr.gouv.vitam.common.model.processing.ProcessingUri;
 import fr.gouv.vitam.common.model.processing.UriPrefix;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClientFactory;
 import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClientFactory;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameterName;
@@ -72,12 +73,13 @@ public class CommitRollBackLifeCycleActionHandlerTest {
         String unit = "unit_1.xml";
         String object = "object_group_1.json";
         commitAction = new HandlerIOImpl(
+            WorkFlowExecutionContext.VITAM,
             containerName.getId(),
             "workerId",
             com.google.common.collect.Lists.newArrayList()
         );
 
-        WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace(WORKSPACE_URL)
             .setUrlMetadata(METADATA_URL)
             .setObjectNameList(Lists.newArrayList(unit))
@@ -100,12 +102,13 @@ public class CommitRollBackLifeCycleActionHandlerTest {
         GUID containerName = GUIDFactory.newGUID();
         String unit = "unit_1.xml";
         commitAction = new HandlerIOImpl(
+            WorkFlowExecutionContext.VITAM,
             containerName.getId(),
             "workerId",
             com.google.common.collect.Lists.newArrayList()
         );
 
-        WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace(WORKSPACE_URL)
             .setUrlMetadata(METADATA_URL)
             .setObjectNameList(Lists.newArrayList(unit))
@@ -124,6 +127,7 @@ public class CommitRollBackLifeCycleActionHandlerTest {
         // RollBack with a successful workFlow
         params.putParameterValue(WorkerParameterName.workflowStatusKo, StatusCode.OK.toString());
         rollBackAction = new HandlerIOImpl(
+            WorkFlowExecutionContext.VITAM,
             containerName.getId(),
             "workerId",
             com.google.common.collect.Lists.newArrayList()
@@ -135,6 +139,7 @@ public class CommitRollBackLifeCycleActionHandlerTest {
         // RollBack with a failed workFlow
         params.putParameterValue(WorkerParameterName.workflowStatusKo, StatusCode.FATAL.toString());
         rollBackAction = new HandlerIOImpl(
+            WorkFlowExecutionContext.VITAM,
             containerName.getId(),
             "workerId",
             com.google.common.collect.Lists.newArrayList()

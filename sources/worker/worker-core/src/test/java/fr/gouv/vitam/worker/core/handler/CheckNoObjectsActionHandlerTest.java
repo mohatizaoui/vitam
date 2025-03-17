@@ -32,6 +32,7 @@ import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.utils.SupportedSedaVersions;
 import fr.gouv.vitam.logbook.common.parameters.LogbookTypeProcess;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
@@ -75,7 +76,7 @@ public class CheckNoObjectsActionHandlerTest {
     @Before
     public void setUp() throws URISyntaxException, FileNotFoundException, ProcessingException {
         final GUID guid = GUIDFactory.newGUID();
-        params = WorkerParametersFactory.newWorkerParameters()
+        params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace(HTTP_LOCALHOST)
             .setUrlMetadata(HTTP_LOCALHOST)
             .setObjectName(OBJECT_NAME)

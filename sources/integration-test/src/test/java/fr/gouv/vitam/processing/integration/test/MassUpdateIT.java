@@ -62,6 +62,7 @@ import fr.gouv.vitam.common.model.logbook.LogbookEvent;
 import fr.gouv.vitam.common.model.logbook.LogbookEventOperation;
 import fr.gouv.vitam.common.model.logbook.LogbookLifecycle;
 import fr.gouv.vitam.common.model.logbook.LogbookOperation;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.functional.administration.client.AdminManagementClient;
@@ -99,7 +100,6 @@ import fr.gouv.vitam.worker.server.rest.WorkerConfiguration;
 import fr.gouv.vitam.worker.server.rest.WorkerMain;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 import fr.gouv.vitam.workspace.rest.WorkspaceMain;
 import net.javacrumbs.jsonunit.JsonAssert;
 import org.bson.Document;
@@ -320,7 +320,7 @@ public class MassUpdateIT extends VitamRuleRunner {
         final String containerName = operationGuid.getId();
         VitamThreadUtils.getVitamSession().setRequestId(operationGuid);
         createLogbookOperation(operationGuid, operationGuid, null, LogbookTypeProcess.MASS_UPDATE);
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(containerName);
 
         // insert units
@@ -377,7 +377,7 @@ public class MassUpdateIT extends VitamRuleRunner {
         final String containerName = operationGuid.getId();
         VitamThreadUtils.getVitamSession().setRequestId(operationGuid);
         createLogbookOperation(operationGuid, operationGuid, null, LogbookTypeProcess.MASS_UPDATE);
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(containerName);
 
         // insert 2 units and LFC
@@ -451,7 +451,7 @@ public class MassUpdateIT extends VitamRuleRunner {
         final String containerName = operationGuid.getId();
         VitamThreadUtils.getVitamSession().setRequestId(operationGuid);
         createLogbookOperation(operationGuid, operationGuid, null, LogbookTypeProcess.MASS_UPDATE);
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(containerName);
 
         // insert units and LFC
@@ -526,7 +526,7 @@ public class MassUpdateIT extends VitamRuleRunner {
         final String containerName = operationGuid.getId();
         VitamThreadUtils.getVitamSession().setRequestId(operationGuid);
         createLogbookOperation(operationGuid, operationGuid, null, LogbookTypeProcess.MASS_UPDATE);
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(containerName);
 
         VitamThreadUtils.getVitamSession().setRequestId(GUIDFactory.newOperationLogbookGUID(TENANT_0));
@@ -580,7 +580,7 @@ public class MassUpdateIT extends VitamRuleRunner {
         final String containerName = operationGuid.getId();
         VitamThreadUtils.getVitamSession().setRequestId(operationGuid);
         createLogbookOperation(operationGuid, operationGuid, null, LogbookTypeProcess.MASS_UPDATE);
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(containerName);
 
         // insert units and LFC
@@ -684,7 +684,7 @@ public class MassUpdateIT extends VitamRuleRunner {
         final String containerName = operationGuid.getId();
         VitamThreadUtils.getVitamSession().setRequestId(operationGuid);
         createLogbookOperation(operationGuid, operationGuid, null, LogbookTypeProcess.MASS_UPDATE);
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(containerName);
 
         // insert units and LFC
@@ -768,7 +768,7 @@ public class MassUpdateIT extends VitamRuleRunner {
         final String containerName = operationGuid.getId();
         VitamThreadUtils.getVitamSession().setRequestId(operationGuid);
         createLogbookOperation(operationGuid, operationGuid, null, LogbookTypeProcess.MASS_UPDATE);
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(containerName);
 
         // insert units and LFC
@@ -834,7 +834,7 @@ public class MassUpdateIT extends VitamRuleRunner {
         VitamThreadUtils.getVitamSession().setRequestId(operationGuid);
         createLogbookOperation(operationGuid, operationGuid, null, LogbookTypeProcess.MASS_UPDATE);
 
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(containerName);
 
         // insert units and LFC
@@ -1004,7 +1004,7 @@ public class MassUpdateIT extends VitamRuleRunner {
             final String containerName = operationGuid.getId();
             VitamThreadUtils.getVitamSession().setRequestId(operationGuid);
             createLogbookOperation(operationGuid, operationGuid, null, LogbookTypeProcess.MASS_UPDATE);
-            workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+            workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
             workspaceClient.createContainer(containerName);
 
             // insert units and LFC
@@ -1081,7 +1081,7 @@ public class MassUpdateIT extends VitamRuleRunner {
             final String containerName = operationGuid.getId();
             VitamThreadUtils.getVitamSession().setRequestId(operationGuid);
             createLogbookOperation(operationGuid, operationGuid, null, LogbookTypeProcess.MASS_UPDATE);
-            workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+            workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
             workspaceClient.createContainer(containerName);
 
             // insert units and LFC
@@ -1158,7 +1158,7 @@ public class MassUpdateIT extends VitamRuleRunner {
             final String containerName = operationGuid.getId();
             VitamThreadUtils.getVitamSession().setRequestId(operationGuid);
             createLogbookOperation(operationGuid, operationGuid, null, LogbookTypeProcess.MASS_UPDATE);
-            workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+            workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
             workspaceClient.createContainer(containerName);
 
             // insert units and LFC
@@ -1229,7 +1229,7 @@ public class MassUpdateIT extends VitamRuleRunner {
             final String containerName = operationGuid.getId();
             VitamThreadUtils.getVitamSession().setRequestId(operationGuid);
             createLogbookOperation(operationGuid, operationGuid, null, LogbookTypeProcess.MASS_UPDATE);
-            workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+            workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
             workspaceClient.createContainer(containerName);
 
             // insert units and LFC
@@ -1304,7 +1304,7 @@ public class MassUpdateIT extends VitamRuleRunner {
             final String containerName = operationGuid.getId();
             VitamThreadUtils.getVitamSession().setRequestId(operationGuid);
             createLogbookOperation(operationGuid, operationGuid, null, LogbookTypeProcess.MASS_UPDATE);
-            workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+            workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
             workspaceClient.createContainer(containerName);
 
             // insert units and LFC
@@ -1379,7 +1379,7 @@ public class MassUpdateIT extends VitamRuleRunner {
             final String containerName = operationGuid.getId();
             VitamThreadUtils.getVitamSession().setRequestId(operationGuid);
             createLogbookOperation(operationGuid, operationGuid, null, LogbookTypeProcess.MASS_UPDATE);
-            workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+            workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
             workspaceClient.createContainer(containerName);
 
             // insert units and LFC
@@ -1454,7 +1454,7 @@ public class MassUpdateIT extends VitamRuleRunner {
             final String containerName = operationGuid.getId();
             VitamThreadUtils.getVitamSession().setRequestId(operationGuid);
             createLogbookOperation(operationGuid, operationGuid, null, LogbookTypeProcess.MASS_UPDATE);
-            workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+            workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
             workspaceClient.createContainer(containerName);
 
             // insert units and LFC
@@ -1529,7 +1529,7 @@ public class MassUpdateIT extends VitamRuleRunner {
             final String containerName = operationGuid.getId();
             VitamThreadUtils.getVitamSession().setRequestId(operationGuid);
             createLogbookOperation(operationGuid, operationGuid, null, LogbookTypeProcess.MASS_UPDATE);
-            workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+            workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
             workspaceClient.createContainer(containerName);
 
             // insert units and LFC

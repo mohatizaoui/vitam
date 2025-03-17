@@ -45,6 +45,7 @@ import fr.gouv.vitam.common.exception.VitamException;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.common.model.logbook.LogbookEvent;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.security.SanityChecker;
 import fr.gouv.vitam.functionaltest.configuration.TnrClientConfiguration;
 import fr.gouv.vitam.functionaltest.cucumber.service.AccessService;
@@ -57,7 +58,6 @@ import fr.gouv.vitam.storage.engine.client.StorageClient;
 import fr.gouv.vitam.storage.engine.client.StorageClientFactory;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import io.cucumber.java.Scenario;
@@ -192,10 +192,10 @@ public class World {
         collectExternalClient = CollectExternalClientFactory.getInstance().getClient();
 
         storageClient = StorageClientFactory.getInstance().getClient();
-        WorkspaceClientFactory.changeMode(tnrClientConfiguration.getUrlWorkspace(), WorkspaceType.VITAM);
+        WorkspaceClientFactory.changeMode(tnrClientConfiguration.getUrlWorkspace(), WorkFlowExecutionContext.VITAM);
         configureLogbookClient();
         logbookOperationsClient = LogbookOperationsClientFactory.getInstance().getClient();
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         logbookService = new LogbookService();
         accessService = new AccessService();
     }

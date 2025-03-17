@@ -5,7 +5,9 @@ registerServerPort: {{ vitam_struct.port_service }}
 # Configuration handler
 processingUrl: {{vitam.processing | client_url}}
 urlMetadata: {{vitam.metadata | client_url}}
+urlMetadataCollect: {{vitam.metadata_collect | client_url}}
 urlWorkspace: {{vitam.workspace | client_url}}
+urlWorkspaceCollect: {{vitam.workspace_collect | client_url}}
 # Configuration jetty
 jettyConfig: jetty-config.xml
 #Configuration parallele

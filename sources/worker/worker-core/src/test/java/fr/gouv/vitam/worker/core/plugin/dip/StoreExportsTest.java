@@ -88,6 +88,7 @@ public class StoreExportsTest {
         WorkspaceClient workspaceClient = mock(WorkspaceClient.class);
         doReturn(workspaceClientFactory).when(handlerIO).getWorkspaceClientFactory();
         doReturn(workspaceClient).when(workspaceClientFactory).getClient();
+        doReturn(workspaceClient).when(handlerIO).getWorkspaceClient();
 
         WorkerParameters params = mock(WorkerParameters.class);
         doReturn(requestId).when(params).getContainerName();
@@ -131,7 +132,7 @@ public class StoreExportsTest {
         HandlerIO handlerIO = mock(HandlerIO.class);
         WorkspaceClientFactory workspaceClientFactory = mock(WorkspaceClientFactory.class);
         WorkspaceClient workspaceClient = mock(WorkspaceClient.class);
-        doReturn(workspaceClientFactory).when(handlerIO).getWorkspaceClientFactory();
+        doReturn(workspaceClient).when(handlerIO).getWorkspaceClient();
         doReturn(workspaceClient).when(workspaceClientFactory).getClient();
 
         WorkerParameters params = mock(WorkerParameters.class);
@@ -203,6 +204,8 @@ public class StoreExportsTest {
         StorageClientFactory storageClientFactory = mock(StorageClientFactory.class);
         StorageClient storageClient = mock(StorageClient.class);
         doReturn(storageClient).when(storageClientFactory).getClient();
+        doReturn(workspaceClient).when(handlerIO).getWorkspaceClient();
+        doReturn(storageClient).when(handlerIO).getStorageClient();
 
         doReturn(true).when(handlerIO).isExistingFileInWorkspace(requestId + JSONL_EXTENSION);
         doReturn(true).when(workspaceClient).isExistingObject(Mockito.any(), Mockito.any());

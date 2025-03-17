@@ -24,12 +24,41 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.workspace.client;
+package fr.gouv.vitam.batch.report.model;
 
-/**
- * Workspace Enum for choosing which type to call by the factory client
- */
-public enum WorkspaceType {
-    VITAM,
-    COLLECT,
+import com.fasterxml.jackson.annotation.JsonProperty;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
+
+public class ReportRequestWrapper<T> {
+
+    @JsonProperty("request")
+    private T request;
+
+    @JsonProperty("executionContext")
+    private WorkFlowExecutionContext executionContext;
+
+    public ReportRequestWrapper() {
+        // Empty constructor for deserialization
+    }
+
+    public ReportRequestWrapper(T request, WorkFlowExecutionContext executionContext) {
+        this.request = request;
+        this.executionContext = executionContext;
+    }
+
+    public T getRequest() {
+        return request;
+    }
+
+    public void setRequest(T request) {
+        this.request = request;
+    }
+
+    public WorkFlowExecutionContext getExecutionContext() {
+        return executionContext;
+    }
+
+    public void setExecutionContext(WorkFlowExecutionContext executionContext) {
+        this.executionContext = executionContext;
+    }
 }

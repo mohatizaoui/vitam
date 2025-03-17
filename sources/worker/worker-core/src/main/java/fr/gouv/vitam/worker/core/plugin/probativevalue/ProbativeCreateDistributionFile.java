@@ -29,7 +29,6 @@ package fr.gouv.vitam.worker.core.plugin.probativevalue;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.annotations.Beta;
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Iterators;
 import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.database.builder.query.Query;
@@ -48,7 +47,6 @@ import fr.gouv.vitam.common.model.ProbativeValueRequest;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.unit.SigningRoleType;
 import fr.gouv.vitam.metadata.client.MetaDataClient;
-import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.worker.common.HandlerIO;
@@ -89,25 +87,17 @@ public class ProbativeCreateDistributionFile extends ActionHandler {
 
     private static final String HANDLER_ID = "PROBATIVE_VALUE_CREATE_DISTRIBUTION_FILE";
 
-    private final MetaDataClientFactory metaDataClientFactory;
-
-    @VisibleForTesting
-    public ProbativeCreateDistributionFile(MetaDataClientFactory metaDataClientFactory) {
-        this.metaDataClientFactory = metaDataClientFactory;
-    }
-
-    public ProbativeCreateDistributionFile() {
-        this(MetaDataClientFactory.getInstance());
-    }
+    public ProbativeCreateDistributionFile() {}
 
     @Override
     public ItemStatus execute(WorkerParameters param, HandlerIO handler) throws ProcessingException {
         try {
             ProbativeValueRequest probativeValueRequest = loadRequest(handler);
 
-            List<SelectedUnit> selectedUnitsWithInitialQuery = selectInitialQueryUnits(probativeValueRequest);
+            List<SelectedUnit> selectedUnitsWithInitialQuery = selectInitialQueryUnits(handler, probativeValueRequest);
 
             Collection<SelectedUnit> extendedResultSet = extendResultSetWithDetachedSigningInformation(
+                handler,
                 selectedUnitsWithInitialQuery,
                 probativeValueRequest
             );
@@ -142,10 +132,12 @@ public class ProbativeCreateDistributionFile extends ActionHandler {
         }
     }
 
-    private List<SelectedUnit> selectInitialQueryUnits(ProbativeValueRequest probativeValueRequest)
-        throws ProcessingStatusException {
+    private List<SelectedUnit> selectInitialQueryUnits(
+        HandlerIO handlerIO,
+        ProbativeValueRequest probativeValueRequest
+    ) throws ProcessingStatusException {
         SelectMultiQuery initialSelectQuery = buildInitialSelectQuery(probativeValueRequest);
-        return executeQuery(initialSelectQuery);
+        return executeQuery(handlerIO, initialSelectQuery);
     }
 
     private SelectMultiQuery buildInitialSelectQuery(ProbativeValueRequest probativeValueRequest)
@@ -186,8 +178,9 @@ public class ProbativeCreateDistributionFile extends ActionHandler {
         }
     }
 
-    private List<SelectedUnit> executeQuery(SelectMultiQuery selectQuery) throws ProcessingStatusException {
-        try (MetaDataClient metadataClient = metaDataClientFactory.getClient()) {
+    private List<SelectedUnit> executeQuery(HandlerIO handlerIO, SelectMultiQuery selectQuery)
+        throws ProcessingStatusException {
+        try (MetaDataClient metadataClient = handlerIO.getMetaDataClient()) {
             ScrollSpliterator<JsonNode> scrollRequest = ScrollSpliteratorHelper.createUnitScrollSplitIterator(
                 metadataClient,
                 selectQuery
@@ -204,6 +197,7 @@ public class ProbativeCreateDistributionFile extends ActionHandler {
     }
 
     private Collection<SelectedUnit> extendResultSetWithDetachedSigningInformation(
+        HandlerIO handlerIO,
         List<SelectedUnit> initialResultSet,
         ProbativeValueRequest probativeValueRequest
     ) throws ProcessingStatusException {
@@ -231,7 +225,7 @@ public class ProbativeCreateDistributionFile extends ActionHandler {
             List<String> unitIds = partitionedUnitIdsWithDetachedSigningRoles.next();
 
             SelectMultiQuery select = buildSelectQueryForDetachedSigningInformationChildUnits(unitIds);
-            List<SelectedUnit> detachedSigningInformationUnits = executeQuery(select);
+            List<SelectedUnit> detachedSigningInformationUnits = executeQuery(handlerIO, select);
 
             for (SelectedUnit unit : detachedSigningInformationUnits) {
                 totalSelectedUnitsByUnitId.put(unit.getUnitId(), unit);

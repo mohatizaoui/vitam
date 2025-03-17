@@ -41,6 +41,7 @@ import fr.gouv.vitam.common.model.AuthenticationLevel;
 import fr.gouv.vitam.common.model.ProcessAction;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.security.rest.VitamAuthentication;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.logbook.common.exception.LogbookClientAlreadyExistsException;
@@ -61,7 +62,6 @@ import fr.gouv.vitam.processing.management.client.ProcessingManagementClient;
 import fr.gouv.vitam.processing.management.client.ProcessingManagementClientFactory;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang3.StringUtils;
 
@@ -86,7 +86,10 @@ public class AdminOperationResource {
     private final WorkspaceClientFactory workspaceClientFactory;
 
     public AdminOperationResource() {
-        this(WorkspaceClientFactory.getInstance(WorkspaceType.VITAM), ProcessingManagementClientFactory.getInstance());
+        this(
+            WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM),
+            ProcessingManagementClientFactory.getInstance()
+        );
     }
 
     @VisibleForTesting

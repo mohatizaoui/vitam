@@ -24,6 +24,7 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
+
 package fr.gouv.vitam.worker.core.plugin;
 
 import com.fasterxml.jackson.core.JsonPointer;
@@ -39,20 +40,17 @@ import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.processing.IOParameter;
 import fr.gouv.vitam.common.model.processing.ProcessingUri;
 import fr.gouv.vitam.common.model.processing.UriPrefix;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClient;
-import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClientFactory;
 import fr.gouv.vitam.metadata.client.MetaDataClient;
-import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.processing.common.parameter.WorkerParametersFactory;
 import fr.gouv.vitam.storage.engine.client.StorageClient;
-import fr.gouv.vitam.storage.engine.client.StorageClientFactory;
 import fr.gouv.vitam.storage.engine.client.exception.StorageServerClientException;
 import fr.gouv.vitam.storage.engine.common.model.response.BulkObjectStoreResponse;
 import fr.gouv.vitam.worker.core.impl.HandlerIOImpl;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
-import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
 import org.assertj.core.util.Lists;
 import org.junit.After;
 import org.junit.Before;
@@ -87,6 +85,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -97,13 +96,9 @@ public class StoreObjectGroupActionPluginTest {
     private static final String OBJECT_GROUP_GUID_2 = "aebaaaaaaaakwtamaaxakak32oqku2qaaaaq";
     StoreObjectGroupActionPlugin plugin;
     private WorkspaceClient workspaceClient;
-    private WorkspaceClientFactory workspaceClientFactory;
     private MetaDataClient metaDataClient;
-    private MetaDataClientFactory metaDataClientFactory;
     private LogbookLifeCyclesClient logbookLifeCyclesClient;
-    private LogbookLifeCyclesClientFactory logbookLifeCyclesClientFactory;
     private StorageClient storageClient;
-    private StorageClientFactory storageClientFactory;
 
     private HandlerIOImpl action;
     private static final String OBJECT_GROUP = "storeObjectGroupHandler/aeaaaaaaaaaam7myaaaamakxfgivuryaaaaq.json";
@@ -128,28 +123,25 @@ public class StoreObjectGroupActionPluginTest {
         storageClient = mock(StorageClient.class);
         logbookLifeCyclesClient = mock(LogbookLifeCyclesClient.class);
 
-        // workspace client
-        workspaceClientFactory = mock(WorkspaceClientFactory.class);
-        storageClientFactory = mock(StorageClientFactory.class);
-        metaDataClientFactory = mock(MetaDataClientFactory.class);
-        logbookLifeCyclesClientFactory = mock(LogbookLifeCyclesClientFactory.class);
-
-        when(workspaceClientFactory.getClient()).thenReturn(workspaceClient);
-        when(logbookLifeCyclesClientFactory.getClient()).thenReturn(logbookLifeCyclesClient);
-        when(metaDataClientFactory.getClient()).thenReturn(metaDataClient);
-        when(storageClientFactory.getClient()).thenReturn(storageClient);
-
         File tempFolder = folder.newFolder();
         System.setProperty("vitam.tmp.folder", tempFolder.getAbsolutePath());
         SystemPropertyUtil.refresh();
 
-        action = new HandlerIOImpl(
-            workspaceClientFactory,
-            logbookLifeCyclesClientFactory,
-            CONTAINER_NAME,
-            "workerId",
-            com.google.common.collect.Lists.newArrayList()
+        action = spy(
+            new HandlerIOImpl(
+                WorkFlowExecutionContext.VITAM,
+                null,
+                null,
+                CONTAINER_NAME,
+                "workerId",
+                com.google.common.collect.Lists.newArrayList()
+            )
         );
+
+        doReturn(workspaceClient).when(action).getWorkspaceClient();
+        doReturn(metaDataClient).when(action).getMetaDataClient();
+        doReturn(storageClient).when(action).getStorageClient();
+        doReturn(logbookLifeCyclesClient).when(action).getLifeCyclesClient();
 
         out = new ArrayList<>();
         out.add(new IOParameter().setUri(new ProcessingUri(UriPrefix.MEMORY, "objectGroupId.json")));
@@ -163,7 +155,9 @@ public class StoreObjectGroupActionPluginTest {
 
     @Test
     public void givenWorkspaceErrorWhenExecuteThenReturnResponseFATAL() throws Exception {
-        final WorkerParameters paramsObjectGroups = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters paramsObjectGroups = WorkerParametersFactory.newWorkerParameters(
+            WorkFlowExecutionContext.VITAM
+        )
             .setWorkerGUID(GUIDFactory.newGUID().getId())
             .setContainerName(CONTAINER_NAME)
             .setUrlMetadata("http://localhost:8083")
@@ -180,7 +174,7 @@ public class StoreObjectGroupActionPluginTest {
             .when(storageClient)
             .bulkStoreFilesFromWorkspace(any(), any());
 
-        plugin = new StoreObjectGroupActionPlugin(storageClientFactory);
+        plugin = new StoreObjectGroupActionPlugin();
 
         final List<ItemStatus> response = plugin.executeList(paramsObjectGroups, action);
         assertEquals(StatusCode.FATAL, response.get(0).getGlobalStatus());
@@ -189,7 +183,9 @@ public class StoreObjectGroupActionPluginTest {
 
     @Test
     public void givenWorkspaceExistWhenExecuteThenReturnResponseOK() throws Exception {
-        final WorkerParameters paramsObjectGroups = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters paramsObjectGroups = WorkerParametersFactory.newWorkerParameters(
+            WorkFlowExecutionContext.VITAM
+        )
             .setWorkerGUID(GUIDFactory.newGUID().getId())
             .setContainerName(CONTAINER_NAME)
             .setUrlMetadata("http://localhost:8083")
@@ -211,7 +207,7 @@ public class StoreObjectGroupActionPluginTest {
             .when(storageClient)
             .bulkStoreFilesFromWorkspace(any(), any());
 
-        plugin = new StoreObjectGroupActionPlugin(storageClientFactory);
+        plugin = new StoreObjectGroupActionPlugin();
 
         final List<ItemStatus> response = plugin.executeList(paramsObjectGroups, action);
         assertEquals(StatusCode.OK, response.get(0).getGlobalStatus());
@@ -224,7 +220,9 @@ public class StoreObjectGroupActionPluginTest {
 
     @Test
     public void givenWorkspaceExistAndPdoWhenExecuteThenReturnResponseOK() throws Exception {
-        final WorkerParameters paramsObjectGroups = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters paramsObjectGroups = WorkerParametersFactory.newWorkerParameters(
+            WorkFlowExecutionContext.VITAM
+        )
             .setWorkerGUID(GUIDFactory.newGUID().getId())
             .setContainerName(CONTAINER_NAME)
             .setUrlMetadata("http://localhost:8083")
@@ -246,7 +244,7 @@ public class StoreObjectGroupActionPluginTest {
             .when(storageClient)
             .bulkStoreFilesFromWorkspace(any(), any());
 
-        plugin = new StoreObjectGroupActionPlugin(storageClientFactory);
+        plugin = new StoreObjectGroupActionPlugin();
         saveWorkspacePutObject();
 
         final List<ItemStatus> response = plugin.executeList(paramsObjectGroups, action);

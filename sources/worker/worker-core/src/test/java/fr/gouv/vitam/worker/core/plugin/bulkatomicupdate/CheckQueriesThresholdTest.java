@@ -31,6 +31,7 @@ import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -81,7 +82,7 @@ public class CheckQueriesThresholdTest {
 
         // When
         ItemStatus itemStatus = checkDistributionThreshold.execute(
-            WorkerParametersFactory.newWorkerParameters(),
+            WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM),
             handlerIO
         );
 
@@ -104,7 +105,7 @@ public class CheckQueriesThresholdTest {
 
         // When
         ItemStatus itemStatus = checkDistributionThreshold.execute(
-            WorkerParametersFactory.newWorkerParameters(),
+            WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM),
             handlerIO
         );
 
@@ -130,7 +131,7 @@ public class CheckQueriesThresholdTest {
 
         // When
         ItemStatus itemStatus = checkDistributionThreshold.execute(
-            WorkerParametersFactory.newWorkerParameters(),
+            WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM),
             handlerIO
         );
 
@@ -153,7 +154,7 @@ public class CheckQueriesThresholdTest {
 
         // When
         ItemStatus itemStatus = checkDistributionThreshold.execute(
-            WorkerParametersFactory.newWorkerParameters(),
+            WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM),
             handlerIO
         );
 
@@ -176,7 +177,7 @@ public class CheckQueriesThresholdTest {
 
         // When
         ItemStatus itemStatus = checkDistributionThreshold.execute(
-            WorkerParametersFactory.newWorkerParameters(),
+            WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM),
             handlerIO
         );
 
@@ -199,7 +200,7 @@ public class CheckQueriesThresholdTest {
 
         // When
         ItemStatus itemStatus = checkDistributionThreshold.execute(
-            WorkerParametersFactory.newWorkerParameters(),
+            WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM),
             handlerIO
         );
 

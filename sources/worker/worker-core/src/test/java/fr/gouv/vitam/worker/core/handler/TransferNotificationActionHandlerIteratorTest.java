@@ -42,6 +42,7 @@ import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.processing.IOParameter;
 import fr.gouv.vitam.common.model.processing.ProcessingUri;
 import fr.gouv.vitam.common.model.processing.UriPrefix;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.stream.StreamUtils;
 import fr.gouv.vitam.common.xml.SecureXMLFactoryUtils;
 import fr.gouv.vitam.common.xml.XsdValidator;
@@ -155,7 +156,7 @@ public class TransferNotificationActionHandlerIteratorTest {
         XsdValidator xsdValidator = mock(XsdValidator.class);
         doNothing().when(xsdValidator).validate(any());
         doReturn(xsdValidator).when(sedaXsdValidatorProvider).getValidator(any());
-        params = WorkerParametersFactory.newWorkerParameters()
+        params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace("http://localhost:8080")
             .setUrlMetadata("http://localhost:8080")
             .setObjectNameList(Lists.newArrayList("objectName.json"))
@@ -178,6 +179,7 @@ public class TransferNotificationActionHandlerIteratorTest {
 
         String objectId = "objectId";
         handlerIO = new HandlerIOImpl(
+            WorkFlowExecutionContext.VITAM,
             workspaceClientFactory,
             logbookLifeCyclesClientFactory,
             guid.getId(),

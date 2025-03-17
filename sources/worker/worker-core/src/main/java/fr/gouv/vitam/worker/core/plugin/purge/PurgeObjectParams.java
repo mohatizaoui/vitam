@@ -36,6 +36,12 @@ public class PurgeObjectParams {
     @JsonProperty("strategyId")
     private String strategyId;
 
+    @JsonProperty("opi")
+    private String opi;
+
+    @JsonProperty("uri")
+    private String uri;
+
     public String getId() {
         return id;
     }
@@ -51,6 +57,24 @@ public class PurgeObjectParams {
 
     public PurgeObjectParams setStrategyId(String strategyId) {
         this.strategyId = strategyId;
+        return this;
+    }
+
+    public String getOpi() {
+        return opi;
+    }
+
+    public PurgeObjectParams setOpi(String opi) {
+        this.opi = opi;
+        return this;
+    }
+
+    public String getUri() {
+        return uri;
+    }
+
+    public PurgeObjectParams setUri(String uri) {
+        this.uri = uri;
         return this;
     }
 }

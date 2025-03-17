@@ -1,0 +1,26 @@
+[
+  {
+    "#id": "id_unit_2",
+    "#object": "id_got_2",
+    "#originating_agency": "sp_2",
+    "#opi": "opi_2",
+    "#unitType": "INGEST",
+    "#storage": { "strategyId": "default-fake" }
+  },
+  {
+    "#id": "id_unit_3",
+    "#object": "id_got_3",
+    "#originating_agency": "sp_3",
+    "#opi": "opi_3",
+    "#unitType": "INGEST",
+    "#storage": { "strategyId": "default-fake" }
+  },
+  {
+    "#id": "id_unit_5",
+    "#object": "id_got_5",
+    "#originating_agency": "sp_5",
+    "#opi": "opi_5",
+    "#unitType": "INGEST",
+    "#storage": { "strategyId": "default-fake" }
+  }
+]

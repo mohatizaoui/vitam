@@ -42,16 +42,15 @@ import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.administration.AccessContractModel;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.functional.administration.client.AdminManagementClient;
-import fr.gouv.vitam.functional.administration.client.AdminManagementClientFactory;
 import fr.gouv.vitam.functional.administration.common.AccessContract;
 import fr.gouv.vitam.functional.administration.common.exception.AdminManagementClientServerException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataClientServerException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataDocumentSizeException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataExecutionException;
 import fr.gouv.vitam.metadata.client.MetaDataClient;
-import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.worker.common.HandlerIO;
@@ -98,8 +97,6 @@ public class ReclassificationPreparationLoadRequestHandler extends ActionHandler
     private final int maxBulkThreshold;
     private final int maxUnitsThreshold;
     private final int maxGuildListSizeInLogbookOperation;
-    private final AdminManagementClientFactory adminManagementClientFactory;
-    private final MetaDataClientFactory metaDataClientFactory;
     private final UnitGraphInfoLoader unitGraphInfoLoader;
     private final ReclassificationRequestDslParser reclassificationRequestDslParser;
 
@@ -108,8 +105,6 @@ public class ReclassificationPreparationLoadRequestHandler extends ActionHandler
      */
     public ReclassificationPreparationLoadRequestHandler() {
         this(
-            AdminManagementClientFactory.getInstance(),
-            MetaDataClientFactory.getInstance(),
             new UnitGraphInfoLoader(),
             new ReclassificationRequestDslParser(),
             VitamConfiguration.getReclassificationMaxBulkThreshold(),
@@ -123,16 +118,12 @@ public class ReclassificationPreparationLoadRequestHandler extends ActionHandler
      */
     @VisibleForTesting
     ReclassificationPreparationLoadRequestHandler(
-        AdminManagementClientFactory adminManagementClientFactory,
-        MetaDataClientFactory metaDataClientFactory,
         UnitGraphInfoLoader unitGraphInfoLoader,
         ReclassificationRequestDslParser reclassificationRequestDslParser,
         int maxBulkThreshold,
         int maxUnitsThreshold,
         int maxGuildListSizeInLogbookOperation
     ) {
-        this.adminManagementClientFactory = adminManagementClientFactory;
-        this.metaDataClientFactory = metaDataClientFactory;
         this.unitGraphInfoLoader = unitGraphInfoLoader;
         this.reclassificationRequestDslParser = reclassificationRequestDslParser;
         this.maxBulkThreshold = maxBulkThreshold;
@@ -146,6 +137,13 @@ public class ReclassificationPreparationLoadRequestHandler extends ActionHandler
             // Load request from workspace
             JsonNode reclassificationDslJson = loadReclassificationRequestJsonFromWorkspace(handler);
 
+            // Load transaction info from workspace, when in COLLECT context
+            String transactionId = null;
+            if (param.getExecutionContext() == WorkFlowExecutionContext.COLLECT) {
+                JsonNode transactionJson = loadTransactionInformationJsonFromWorkspace(handler);
+                transactionId = transactionJson.get("transactionId").asText();
+            }
+
             // Parse DSL
             ParsedReclassificationDslRequest parsedReclassificationDslRequest = parseReclassificationDslRequest(
                 reclassificationDslJson
@@ -154,15 +152,32 @@ public class ReclassificationPreparationLoadRequestHandler extends ActionHandler
             // Sanity checks for DSL query
             checkMaxRequestCount(parsedReclassificationDslRequest);
 
-            // Check parent unit existence & accessibility through access contract
-            AccessContractModel accessContractModel = getAccessContract();
-            checkParentAccessContract(parsedReclassificationDslRequest, accessContractModel);
+            ReclassificationOrders reclassificationOrders;
 
-            // Select units to update
-            ReclassificationOrders reclassificationOrders = selectReclassificationOrders(
-                parsedReclassificationDslRequest,
-                accessContractModel
-            );
+            if (param.getExecutionContext() == WorkFlowExecutionContext.VITAM) {
+                // Check parent unit existence & accessibility through access contract
+                AccessContractModel accessContractModel = getAccessContract(handler);
+                checkParentAccessContract(handler, parsedReclassificationDslRequest, accessContractModel);
+
+                // Select units to update
+                reclassificationOrders = selectReclassificationOrdersForAccessContract(
+                    handler,
+                    parsedReclassificationDslRequest,
+                    accessContractModel
+                );
+            } else if (param.getExecutionContext() == WorkFlowExecutionContext.COLLECT) {
+                // Check that the parent is within the same transaction
+                checkParentTransaction(handler, parsedReclassificationDslRequest, transactionId);
+
+                // Select units to update
+                reclassificationOrders = selectReclassificationOrdersForTransaction(
+                    handler,
+                    parsedReclassificationDslRequest,
+                    transactionId
+                );
+            } else {
+                throw new IllegalStateException("Unknown WorkFlowExecutionContext: " + param.getExecutionContext());
+            }
 
             // Sanity checks for reclassification orders
             checkMinUnitsToUpdate(reclassificationOrders);
@@ -184,6 +199,14 @@ public class ReclassificationPreparationLoadRequestHandler extends ActionHandler
     private JsonNode loadReclassificationRequestJsonFromWorkspace(HandlerIO handler) throws ProcessingStatusException {
         try {
             return handler.getJsonFromWorkspace("request.json");
+        } catch (ProcessingException e) {
+            throw new ProcessingStatusException(StatusCode.FATAL, COULD_NOT_LOAD_REQUEST_FROM_WORKSPACE, e);
+        }
+    }
+
+    private JsonNode loadTransactionInformationJsonFromWorkspace(HandlerIO handler) throws ProcessingStatusException {
+        try {
+            return handler.getJsonFromWorkspace("transaction.json");
         } catch (ProcessingException e) {
             throw new ProcessingStatusException(StatusCode.FATAL, COULD_NOT_LOAD_REQUEST_FROM_WORKSPACE, e);
         }
@@ -225,7 +248,7 @@ public class ReclassificationPreparationLoadRequestHandler extends ActionHandler
         }
     }
 
-    private AccessContractModel getAccessContract() throws ProcessingStatusException {
+    private AccessContractModel getAccessContract(HandlerIO handler) throws ProcessingStatusException {
         String accessContractId = VitamThreadUtils.getVitamSession().getContractId();
         if (accessContractId == null) {
             throw new ProcessingStatusException(
@@ -235,7 +258,7 @@ public class ReclassificationPreparationLoadRequestHandler extends ActionHandler
             );
         }
 
-        try (AdminManagementClient client = adminManagementClientFactory.getClient()) {
+        try (AdminManagementClient client = handler.getAdminManagementClient()) {
             Select select = new Select();
             Query query = QueryHelper.and()
                 .add(
@@ -269,10 +292,35 @@ public class ReclassificationPreparationLoadRequestHandler extends ActionHandler
     }
 
     private void checkParentAccessContract(
+        HandlerIO handler,
         ParsedReclassificationDslRequest parsedReclassificationDslRequest,
         AccessContractModel accessContractModel
     ) throws ProcessingStatusException {
-        try (MetaDataClient metaDataClient = metaDataClientFactory.getClient()) {
+        checkParentAccessContractOrTransaction(handler, parsedReclassificationDslRequest, accessContractModel, null);
+    }
+
+    private void checkParentTransaction(
+        HandlerIO handler,
+        ParsedReclassificationDslRequest parsedReclassificationDslRequest,
+        String transactionId
+    ) throws ProcessingStatusException {
+        checkParentAccessContractOrTransaction(handler, parsedReclassificationDslRequest, null, transactionId);
+    }
+
+    private void checkParentAccessContractOrTransaction(
+        HandlerIO handler,
+        ParsedReclassificationDslRequest parsedReclassificationDslRequest,
+        AccessContractModel accessContractModel,
+        String transactionId
+    ) throws ProcessingStatusException {
+        if (
+            (accessContractModel != null && transactionId != null) ||
+            (accessContractModel == null && transactionId == null)
+        ) {
+            throw new ProcessingStatusException(StatusCode.FATAL, "Must have either access contract or transaction");
+        }
+
+        try (MetaDataClient metaDataClient = handler.getMetaDataClient()) {
             // Collect all parent unit ids
             Set<String> unitsToCheckIds = new HashSet<>();
             for (ParsedReclassificationDslRequestEntry entry : parsedReclassificationDslRequest.getEntries()) {
@@ -281,11 +329,21 @@ public class ReclassificationPreparationLoadRequestHandler extends ActionHandler
             }
 
             // Check unit existence & permissions (via access contract)
-            Set<String> foundUnitIds = unitGraphInfoLoader.selectUnitsByIdsAndAccessContract(
-                metaDataClient,
-                unitsToCheckIds,
-                accessContractModel
-            );
+            Set<String> foundUnitIds = null;
+
+            if (accessContractModel != null) {
+                foundUnitIds = unitGraphInfoLoader.selectUnitsByIdsAndAccessContract(
+                    metaDataClient,
+                    unitsToCheckIds,
+                    accessContractModel
+                );
+            } else if (transactionId != null) {
+                foundUnitIds = unitGraphInfoLoader.selectUnitsByIdsAndTransaction(
+                    metaDataClient,
+                    unitsToCheckIds,
+                    transactionId
+                );
+            } // no need for else
 
             if (foundUnitIds.size() == unitsToCheckIds.size()) {
                 // all right, all unit ids found
@@ -318,20 +376,65 @@ public class ReclassificationPreparationLoadRequestHandler extends ActionHandler
         }
     }
 
-    private ReclassificationOrders selectReclassificationOrders(
+    private ReclassificationOrders selectReclassificationOrdersForTransaction(
+        HandlerIO handler,
+        ParsedReclassificationDslRequest parsedReclassificationDslRequest,
+        String transactionId
+    ) throws ProcessingStatusException {
+        return selectReclassificationOrdersForAccessContractOrTransaction(
+            handler,
+            parsedReclassificationDslRequest,
+            null,
+            transactionId
+        );
+    }
+
+    private ReclassificationOrders selectReclassificationOrdersForAccessContract(
+        HandlerIO handler,
         ParsedReclassificationDslRequest parsedReclassificationDslRequest,
         AccessContractModel accessContractModel
     ) throws ProcessingStatusException {
-        try (MetaDataClient metaDataClient = metaDataClientFactory.getClient()) {
+        return selectReclassificationOrdersForAccessContractOrTransaction(
+            handler,
+            parsedReclassificationDslRequest,
+            accessContractModel,
+            null
+        );
+    }
+
+    private ReclassificationOrders selectReclassificationOrdersForAccessContractOrTransaction(
+        HandlerIO handler,
+        ParsedReclassificationDslRequest parsedReclassificationDslRequest,
+        AccessContractModel accessContractModel,
+        String transactionId
+    ) throws ProcessingStatusException {
+        if (
+            (accessContractModel != null && transactionId != null) ||
+            (accessContractModel == null && transactionId == null)
+        ) {
+            throw new ProcessingStatusException(StatusCode.FATAL, "Must have either access contract or transaction");
+        }
+
+        try (MetaDataClient metaDataClient = handler.getMetaDataClient()) {
             HashSetValuedHashMap<String, String> childToParentAttachments = new HashSetValuedHashMap<>();
             HashSetValuedHashMap<String, String> childToParentDetachments = new HashSetValuedHashMap<>();
 
             for (ParsedReclassificationDslRequestEntry entry : parsedReclassificationDslRequest.getEntries()) {
-                Set<String> childIds = unitGraphInfoLoader.selectUnitsByQueryDslAndAccessContract(
-                    metaDataClient,
-                    entry.getSelectMultiQuery(),
-                    accessContractModel
-                );
+                Set<String> childIds = null;
+
+                if (accessContractModel != null) {
+                    childIds = unitGraphInfoLoader.selectUnitsByQueryDslAndAccessContract(
+                        metaDataClient,
+                        entry.getSelectMultiQuery(),
+                        accessContractModel
+                    );
+                } else if (transactionId != null) {
+                    childIds = unitGraphInfoLoader.selectUnitsByQueryDslAndTransaction(
+                        metaDataClient,
+                        entry.getSelectMultiQuery(),
+                        transactionId
+                    );
+                } // no else needed here
 
                 for (String childId : childIds) {
                     childToParentAttachments.putAll(childId, entry.getAttachments());

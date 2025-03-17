@@ -36,6 +36,7 @@ import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.logging.VitamLogLevel;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.ExecutorUtils;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.common.timestamp.TimestampGenerator;
@@ -48,7 +49,6 @@ import fr.gouv.vitam.storage.driver.model.StorageLogTraceabilityResult;
 import fr.gouv.vitam.storage.engine.server.distribution.StorageDistribution;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -86,7 +86,7 @@ public class StorageTraceabilityAdministration {
         this.traceabilityLogbookService = traceabilityLogbookService;
         this.distribution = distribution;
         this.timestampGenerator = timestampGenerator;
-        this.workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        this.workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         this.logbookOperations = LogbookOperationsClientFactory.getInstance().getClient();
         this.operationTraceabilityOverlapDelayInSeconds = validateAndGetTraceabilityOverlapDelay(
             operationTraceabilityOverlapDelay

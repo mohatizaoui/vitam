@@ -32,6 +32,7 @@ import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.stream.StreamUtils;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -103,7 +104,7 @@ public class IndexUnitActionPluginTest {
     private HandlerIO handlerIO = mock(HandlerIO.class);
     private File globalSEDAParameter;
 
-    private final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+    private final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
         .setUrlWorkspace("http://localhost:8083")
         .setUrlMetadata("http://localhost:8083")
         .setObjectNameList(Lists.newArrayList("objectName.json"))
@@ -122,7 +123,8 @@ public class IndexUnitActionPluginTest {
         archiveUnitParent = PropertiesUtils.getResourceAsStream(ARCHIVE_UNIT_UPDATE_GUID_PARENT);
         archiveUnitWithMgtRules = PropertiesUtils.getResourceAsStream(ARCHIVE_UNIT_WITh_MGT_RULES);
         when(metaDataClientFactory.getClient()).thenReturn(metadataClient);
-        plugin = new IndexUnitActionPlugin(metaDataClientFactory);
+        when(handlerIO.getMetaDataClient()).thenReturn(metadataClient);
+        plugin = new IndexUnitActionPlugin();
         globalSEDAParameter = PropertiesUtils.getResourceFile(ATR_GLOBAL_SEDA_PARAMETERS);
         when(handlerIO.getInput(0)).thenReturn(globalSEDAParameter);
     }

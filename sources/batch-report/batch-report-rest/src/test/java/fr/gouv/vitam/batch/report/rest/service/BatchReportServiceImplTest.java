@@ -72,6 +72,7 @@ import fr.gouv.vitam.common.database.server.mongodb.EmptyMongoCursor;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.ExtractedMetadata;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.mongo.FakeMongoCursor;
 import fr.gouv.vitam.worker.core.distribution.JsonLineGenericIterator;
 import fr.gouv.vitam.worker.core.distribution.JsonLineModel;
@@ -205,7 +206,6 @@ public class BatchReportServiceImplTest {
     @Before
     public void setUp() throws Exception {
         batchReportServiceImpl = new BatchReportServiceImpl(
-            workspaceClientFactory,
             eliminationActionUnitRepository,
             purgeUnitRepository,
             purgeObjectGroupRepository,
@@ -218,7 +218,8 @@ public class BatchReportServiceImplTest {
             evidenceAuditReportRepository,
             traceabilityReportRepository,
             extractedMetadataRepository,
-            deleteGotVersionsReportRepository
+            deleteGotVersionsReportRepository,
+            workspaceClientFactory
         );
     }
 
@@ -760,7 +761,12 @@ public class BatchReportServiceImplTest {
             .findCollectionByProcessIdTenant("procId", 1);
 
         // When
-        batchReportServiceImpl.exportUnitsToInvalidate("procId", 1, new ReportExportRequest(filename));
+        batchReportServiceImpl.exportUnitsToInvalidate(
+            "procId",
+            1,
+            new ReportExportRequest(filename),
+            WorkFlowExecutionContext.VITAM
+        );
 
         // Then
         try (
@@ -808,7 +814,11 @@ public class BatchReportServiceImplTest {
         );
 
         // When
-        batchReportServiceImpl.createExtractedMetadataDistributionFileForAu(PROCESS_ID, TENANT_ID);
+        batchReportServiceImpl.createExtractedMetadataDistributionFileForAu(
+            PROCESS_ID,
+            TENANT_ID,
+            WorkFlowExecutionContext.VITAM
+        );
 
         // Then
         try (
@@ -855,7 +865,11 @@ public class BatchReportServiceImplTest {
         );
 
         // When
-        batchReportServiceImpl.createExtractedMetadataDistributionFileForAu(PROCESS_ID, TENANT_ID);
+        batchReportServiceImpl.createExtractedMetadataDistributionFileForAu(
+            PROCESS_ID,
+            TENANT_ID,
+            WorkFlowExecutionContext.VITAM
+        );
         // Then
         verify(extractedMetadataRepository, times(1)).deleteExtractedMetadataByProcessId(PROCESS_ID, TENANT_ID);
     }

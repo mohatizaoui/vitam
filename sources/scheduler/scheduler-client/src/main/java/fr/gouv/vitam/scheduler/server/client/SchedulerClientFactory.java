@@ -24,6 +24,7 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
+
 package fr.gouv.vitam.scheduler.server.client;
 
 import fr.gouv.vitam.common.PropertiesUtils;
@@ -32,6 +33,7 @@ import fr.gouv.vitam.common.client.configuration.ClientConfiguration;
 import fr.gouv.vitam.common.client.configuration.ClientConfigurationImpl;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 
 import java.io.IOException;
 
@@ -41,12 +43,41 @@ public class SchedulerClientFactory extends VitamClientFactory<SchedulerClient> 
     private static final String CONFIGURATION_FILENAME = "scheduler-client.conf";
     private static final String RESOURCE_PATH = "/scheduler/v1";
 
-    private static final SchedulerClientFactory META_DATA_CLIENT_FACTORY = new SchedulerClientFactory();
+    private static final SchedulerClientFactory SCHEDULER_CLIENT_FACTORY = new SchedulerClientFactory();
 
     private SchedulerClientFactory() {
         // All requests from client are SMALL, but responses from server could be Huge
         // So Chunked mode inactive on client side
         super(changeConfigurationFile(), RESOURCE_PATH, false);
+    }
+
+    /**
+     * Get the SchedulerClientFactory instance
+     *
+     * @return the instance
+     */
+    public static SchedulerClientFactory getInstance() {
+        return getInstance(WorkFlowExecutionContext.VITAM);
+    }
+
+    /**
+     * Get the SchedulerClientFactory instance for the given workflow execution context
+     *
+     * @param executionContext the workflow execution context
+     * @return the instance
+     */
+    public static SchedulerClientFactory getInstance(WorkFlowExecutionContext executionContext) {
+        return switch (executionContext) {
+            case VITAM, COLLECT -> SCHEDULER_CLIENT_FACTORY;
+        };
+    }
+
+    @Override
+    public SchedulerClient getClient() {
+        return switch (getVitamClientType()) {
+            case MOCK -> throw new IllegalArgumentException("Not implemented");
+            case PRODUCTION -> new SchedulerClientRest(this);
+        };
     }
 
     /**
@@ -82,32 +113,5 @@ public class SchedulerClientFactory extends VitamClientFactory<SchedulerClient> 
      */
     public static void changeMode(ClientConfiguration configuration) {
         getInstance().initialisation(configuration, getInstance().getResourcePath());
-    }
-
-    /**
-     * Get factory instance
-     *
-     * @return the factory instance
-     */
-    public static SchedulerClientFactory getInstance() {
-        return META_DATA_CLIENT_FACTORY;
-    }
-
-    @Override
-    public SchedulerClient getClient() {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Actually only one client implementation exists, so ignore client type value");
-        }
-        SchedulerClient client;
-        switch (getVitamClientType()) {
-            case MOCK:
-                throw new IllegalArgumentException("Not implemented");
-            case PRODUCTION:
-                client = new SchedulerClientRest(this);
-                break;
-            default:
-                throw new IllegalArgumentException("Scheduler type unknown");
-        }
-        return client;
     }
 }

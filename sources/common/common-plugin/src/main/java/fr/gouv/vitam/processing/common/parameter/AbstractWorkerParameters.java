@@ -36,6 +36,7 @@ import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.logbook.common.parameters.LogbookTypeProcess;
 
 import java.util.Collections;
@@ -56,20 +57,38 @@ abstract class AbstractWorkerParameters implements WorkerParameters {
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(AbstractWorkerParameters.class);
     private static final String ERROR_MESSAGE = "%s cannot be null";
 
+    protected WorkFlowExecutionContext executionContext;
+
     @JsonIgnore
     protected final Map<WorkerParameterName, String> mapParameters = new TreeMap<>();
 
     @JsonIgnore
     protected final Set<WorkerParameterName> mandatoryParameters;
 
-    AbstractWorkerParameters(final Set<WorkerParameterName> mandatory) {
-        mandatoryParameters = mandatory;
+    AbstractWorkerParameters(
+        final WorkFlowExecutionContext executionContext,
+        final Set<WorkerParameterName> mandatory
+    ) {
+        this.executionContext = executionContext;
+        this.mandatoryParameters = mandatory;
     }
 
     @JsonCreator
-    protected AbstractWorkerParameters(Map<String, String> map) {
-        mandatoryParameters = WorkerParametersFactory.getDefaultMandatory();
+    protected AbstractWorkerParameters(WorkFlowExecutionContext executionContext, Map<String, String> map) {
+        this.executionContext = executionContext;
+        this.mandatoryParameters = WorkerParametersFactory.getDefaultMandatory();
         setMap(map);
+    }
+
+    @Override
+    public WorkFlowExecutionContext getExecutionContext() {
+        return executionContext;
+    }
+
+    @Override
+    public WorkerParameters setExecutionContext(WorkFlowExecutionContext executionContext) {
+        this.executionContext = executionContext;
+        return this;
     }
 
     @JsonIgnore

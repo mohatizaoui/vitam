@@ -31,6 +31,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -49,21 +50,40 @@ class WorkerParametersDeserializer extends JsonDeserializer<AbstractWorkerParame
     }
 
     @Override
-    public AbstractWorkerParameters deserialize(JsonParser p, DeserializationContext ctxt)
+    public AbstractWorkerParameters deserialize(JsonParser parser, DeserializationContext ctxt)
         throws IOException, JsonProcessingException {
-        final DefaultWorkerParameters result = WorkerParametersFactory.newWorkerParameters();
-        final Map<String, String> parameters = new HashMap<>();
-        JsonToken currentToken = null;
-        while ((currentToken = p.nextValue()) != null) {
-            switch (currentToken) {
+        WorkFlowExecutionContext executionContext = null;
+        Map<String, String> parameters = null;
+        while (!parser.isClosed()) {
+            JsonToken token = parser.nextToken();
+            if (token == JsonToken.FIELD_NAME) {
+                String fieldName = parser.currentName();
+                switch (fieldName) {
+                    case "executionContext":
+                        parser.nextToken();
+                        executionContext = WorkFlowExecutionContext.valueOf(parser.getValueAsString());
+                        break;
+                    case "parameters":
+                        parameters = deserializeParameters(parser);
+                        break;
+                }
+            }
+        }
+        AbstractWorkerParameters result = WorkerParametersFactory.newWorkerParameters(executionContext);
+        result.setMap(parameters);
+        return result;
+    }
+
+    protected Map<String, String> deserializeParameters(JsonParser parser) throws IOException, JsonProcessingException {
+        final Map<String, String> result = new HashMap<>();
+        JsonToken token;
+        while ((token = parser.nextToken()) != JsonToken.END_OBJECT) {
+            switch (token) {
                 case VALUE_STRING:
-                    parameters.put(p.getCurrentName(), p.getText());
-                    break;
-                default:
+                    result.put(parser.getCurrentName(), parser.getText());
                     break;
             }
         }
-        result.setMap(parameters);
         return result;
     }
 }

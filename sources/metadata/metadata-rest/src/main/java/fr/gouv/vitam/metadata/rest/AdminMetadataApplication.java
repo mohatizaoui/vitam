@@ -30,6 +30,7 @@ import com.google.common.base.Throwables;
 import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.database.api.VitamRepositoryFactory;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.serverv2.application.AdminApplication;
 import fr.gouv.vitam.metadata.core.MetaDataImpl;
 import fr.gouv.vitam.metadata.core.MongoDbAccessMetadataFactory;
@@ -41,7 +42,6 @@ import fr.gouv.vitam.metadata.core.migration.UnitsWithTransferRequestsMigrationS
 import fr.gouv.vitam.security.internal.filter.AdminRequestIdFilter;
 import fr.gouv.vitam.security.internal.filter.BasicAuthenticationFilter;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 
 import javax.servlet.ServletConfig;
 import javax.ws.rs.core.Application;
@@ -92,10 +92,7 @@ public class AdminMetadataApplication extends Application {
                 indexManager
             );
 
-            WorkspaceClientFactory.changeMode(
-                metaDataConfiguration.getWorkspaceUrl(),
-                metaDataConfiguration.getCollectModule() ? WorkspaceType.COLLECT : WorkspaceType.VITAM
-            );
+            WorkspaceClientFactory.changeMode(metaDataConfiguration.getWorkspaceUrl(), WorkFlowExecutionContext.VITAM);
 
             VitamRepositoryFactory vitamRepositoryProvider = VitamRepositoryFactory.get();
 

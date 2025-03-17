@@ -86,6 +86,7 @@ public class ProcessDataAccessImpl implements ProcessDataAccess {
         pwkf.setTenantId(tenantId);
         pwkf.setContextId(contextId);
         pwkf.setApplicationId(applicationId);
+        pwkf.setExecutionContext(workflow.getExecutionContext());
 
         int cpt = 0;
         for (final Step step : workflow.getSteps()) {

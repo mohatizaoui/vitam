@@ -192,6 +192,8 @@ public enum SecurityProfilePermissions {
     PROJECT_ID_ZIP_CREATE("project:id:zip:create"),
     TRANSACTION_ID_DELETE("transaction:id:delete"),
     TRANSACTION_ID_READ("transaction:id:read"),
+    TRANSACTION_DELETION("transaction:deletion:action"),
+    TRANSACTION_RECLASSIFICATION("transaction:reclassification"),
     JOB_READ("job:read"),
     UNIT_SCHEMA_READ("schema:unit:read"),
     ARCHIVE_UNIT_PROFILE_SCHEMA_READ("schema:archiveunitprofile:read"),

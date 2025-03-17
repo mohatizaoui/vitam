@@ -51,7 +51,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.when;
 
-public class CollectMetadataInternalResourceImplTest extends CollectInternalResourceBaseTest {
+public class CollectInternalResourceImplTest extends CollectInternalResourceBaseTest {
 
     private static final int TENANT = 0;
     public static final String UNITS = "units";

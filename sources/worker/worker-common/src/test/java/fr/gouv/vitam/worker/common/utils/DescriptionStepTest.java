@@ -31,6 +31,7 @@ import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.processing.ProcessBehavior;
 import fr.gouv.vitam.common.model.processing.Step;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.processing.common.parameter.WorkerParametersFactory;
 import fr.gouv.vitam.worker.common.DescriptionStep;
 import org.junit.Test;
@@ -48,15 +49,18 @@ public class DescriptionStepTest {
         final Step step = new Step();
         step.setStepName("StepName");
         step.setBehavior(ProcessBehavior.NOBLOCKING);
-        DescriptionStep ds = new DescriptionStep(new Step(), WorkerParametersFactory.newWorkerParameters());
+        DescriptionStep ds = new DescriptionStep(
+            new Step(),
+            WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
+        );
         ds.setStep(step);
-        ds.setWorkParams(WorkerParametersFactory.newWorkerParameters());
+        ds.setWorkParams(WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM));
         assertNotNull(ds.getWorkParams());
         assertNotNull(ds.getStep());
         assertEquals(ProcessBehavior.NOBLOCKING, ds.getStep().getBehavior());
         assertEquals("StepName", ds.getStep().getStepName());
         try {
-            ds = new DescriptionStep(null, WorkerParametersFactory.newWorkerParameters());
+            ds = new DescriptionStep(null, WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM));
             fail("Should have raized an exception");
         } catch (final Exception e) {
             // nothing to do

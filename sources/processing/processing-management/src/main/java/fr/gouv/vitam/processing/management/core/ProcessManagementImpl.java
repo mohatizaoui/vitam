@@ -43,6 +43,7 @@ import fr.gouv.vitam.common.model.ProcessState;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.processing.ProcessDetail;
 import fr.gouv.vitam.common.model.processing.WorkFlow;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.logbook.common.parameters.LogbookTypeProcess;
@@ -164,7 +165,9 @@ public class ProcessManagementImpl implements ProcessManagement {
                 VitamThreadUtils.getVitamSession().setRequestId(operationId);
                 VitamThreadUtils.getVitamSession().setContextId(stateMachine.getContextId());
 
-                final WorkerParameters workerParameters = WorkerParametersFactory.newWorkerParameters()
+                final WorkerParameters workerParameters = WorkerParametersFactory.newWorkerParameters(
+                    WorkFlowExecutionContext.VITAM
+                )
                     .setMap(stateMachine.getWorkflowParameters())
                     .setUrlMetadata(config.getUrlMetadata())
                     .setUrlWorkspace(config.getUrlWorkspace())
@@ -246,6 +249,7 @@ public class ProcessManagementImpl implements ProcessManagement {
                 .getParameters()
                 .put(workerParameterName.name(), workerParameters.getParameterValue(workerParameterName));
         }
+        workerParameters.setExecutionContext(workFlow.get().getExecutionContext());
 
         try {
             workspaceProcessDataManagement.persistProcessWorkflow(
@@ -274,6 +278,9 @@ public class ProcessManagementImpl implements ProcessManagement {
                 case INGEST_TEST:
                 case AUDIT:
                 case DATA_MIGRATION:
+                case COLLECT_RECLASSIFICATION:
+                case COLLECT_ELIMINATION_ACTION:
+                case COLLECT_DELETION_ACTION:
                     LOGGER.debug(
                         "Backup operation context. No operation context for the process type " +
                         processWorkflow.getLogbookTypeProcess()
@@ -580,7 +587,9 @@ public class ProcessManagementImpl implements ProcessManagement {
             ProcessWorkflow processWorkflow = map.get(operationId);
             if (processWorkflow.getState().equals(ProcessState.PAUSE)) {
                 // Create StateMachine & ProcessEngine
-                WorkerParameters workerParameters = WorkerParametersFactory.newWorkerParameters()
+                WorkerParameters workerParameters = WorkerParametersFactory.newWorkerParameters(
+                    WorkFlowExecutionContext.VITAM
+                )
                     .setMap(processWorkflow.getParameters()) // Start with inject original process workflow parameters
                     .setUrlMetadata(urlMetadata)
                     .setUrlWorkspace(urlWorkspace)

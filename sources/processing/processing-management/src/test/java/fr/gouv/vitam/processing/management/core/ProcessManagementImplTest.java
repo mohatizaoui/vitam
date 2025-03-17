@@ -44,6 +44,7 @@ import fr.gouv.vitam.common.model.processing.ProcessingUri;
 import fr.gouv.vitam.common.model.processing.Step;
 import fr.gouv.vitam.common.model.processing.UriPrefix;
 import fr.gouv.vitam.common.model.processing.WorkFlow;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -177,6 +178,7 @@ public class ProcessManagementImplTest {
         );
         processManagementImpl.resume(
             WorkerParametersFactory.newWorkerParameters(
+                WorkFlowExecutionContext.VITAM,
                 ID,
                 ID,
                 "NotExistsContainer",
@@ -231,6 +233,7 @@ public class ProcessManagementImplTest {
         Assert.assertNotNull(processManagementImpl);
         ProcessWorkflow wf = processManagementImpl.init(
             WorkerParametersFactory.newWorkerParameters(
+                WorkFlowExecutionContext.VITAM,
                 ID,
                 ID,
                 CONTAINER_NAME,

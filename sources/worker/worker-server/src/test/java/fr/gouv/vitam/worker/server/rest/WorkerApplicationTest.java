@@ -70,7 +70,9 @@ public class WorkerApplicationTest {
             .setRegisterRetry(1)
             .setProcessingUrl("http://localhost:8888")
             .setUrlMetadata("http://localhost:8888")
-            .setUrlWorkspace("http://localhost:8888");
+            .setUrlMetadataCollect("http://localhost:8888")
+            .setUrlWorkspace("http://localhost:8888")
+            .setUrlWorkspaceCollect("http://localhost:8888");
 
         final File newWorkerConf = File.createTempFile("test", WORKER_CONF, worker.getParentFile());
         PropertiesUtils.writeYaml(newWorkerConf, realWorker);

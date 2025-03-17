@@ -47,7 +47,6 @@ import fr.gouv.vitam.common.model.logbook.LogbookOperation;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.logbook.common.exception.LogbookClientException;
 import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClient;
-import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClientFactory;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.worker.common.HandlerIO;
@@ -75,19 +74,14 @@ public class EvidenceAuditPrepareReport extends ActionHandler {
     private static final String EVIDENCE_AUDIT_PREPARE_REPORT = "EVIDENCE_AUDIT_PREPARE_REPORT";
 
     private final EvidenceAuditReportService evidenceAuditReportService;
-    private final LogbookOperationsClientFactory logbookOperationsClientFactory;
 
     @VisibleForTesting
-    EvidenceAuditPrepareReport(
-        EvidenceAuditReportService evidenceAuditReportService,
-        LogbookOperationsClientFactory logbookOperationsClientFactory
-    ) {
+    EvidenceAuditPrepareReport(EvidenceAuditReportService evidenceAuditReportService) {
         this.evidenceAuditReportService = evidenceAuditReportService;
-        this.logbookOperationsClientFactory = logbookOperationsClientFactory;
     }
 
     public EvidenceAuditPrepareReport() {
-        this(new EvidenceAuditReportService(), LogbookOperationsClientFactory.getInstance());
+        this(new EvidenceAuditReportService());
     }
 
     @Override
@@ -142,7 +136,7 @@ public class EvidenceAuditPrepareReport extends ActionHandler {
 
         try {
             evidenceAuditReportService.deleteReportFromWorkspaceIfExists(handlerIO.getContainerName());
-            evidenceAuditReportService.storeReportToWorkspace(evidenceReport);
+            evidenceAuditReportService.storeReportToWorkspace(evidenceReport, param.getExecutionContext());
         } catch (ProcessingStatusException e) {
             throw new ProcessingException(e);
         }
@@ -169,7 +163,7 @@ public class EvidenceAuditPrepareReport extends ActionHandler {
         JsonNode initialQuery = handler.getJsonFromWorkspace("query.json");
         LogbookOperation logbookOperationClass;
         try {
-            logbookOperationClass = getLogbookInformation(param.getContainerName());
+            logbookOperationClass = getLogbookInformation(handler, param.getContainerName());
         } catch (InvalidParseOperationException | LogbookClientException e) {
             throw new EvidenceAuditException(EvidenceStatus.FATAL, "Error while retrieving logbook operation", e);
         }
@@ -235,9 +229,9 @@ public class EvidenceAuditPrepareReport extends ActionHandler {
         return new ReportSummary(startDate, endDate, reportType, vitamResults, extendedInfo);
     }
 
-    private LogbookOperation getLogbookInformation(String operationId)
+    private LogbookOperation getLogbookInformation(HandlerIO handlerIO, String operationId)
         throws InvalidParseOperationException, LogbookClientException {
-        try (LogbookOperationsClient client = logbookOperationsClientFactory.getClient()) {
+        try (LogbookOperationsClient client = handlerIO.getLogbookOperationsClient()) {
             JsonNode response = client.selectOperationById(operationId);
             RequestResponseOK<JsonNode> logbookResponse = RequestResponseOK.getFromJsonNode(response);
             return JsonHandler.getFromJsonNode(logbookResponse.getFirstResult(), LogbookOperation.class);

@@ -39,6 +39,7 @@ import fr.gouv.vitam.common.model.export.ExportRequest;
 import fr.gouv.vitam.common.model.export.ExportRequestParameters;
 import fr.gouv.vitam.common.model.processing.ProcessingUri;
 import fr.gouv.vitam.common.model.processing.UriPrefix;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -185,7 +186,7 @@ public class CreateManifestTest {
         exportRequest.setDslRequest(queryUnit);
         given(handlerIO.getJsonFromWorkspace(EXPORT_QUERY_FILE_NAME)).willReturn(JsonHandler.toJsonNode(exportRequest));
 
-        WorkerParameters wp = WorkerParametersFactory.newWorkerParameters();
+        WorkerParameters wp = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM);
 
         // When
         ItemStatus itemStatus = createManifest.execute(wp, handlerIO);
@@ -349,7 +350,10 @@ public class CreateManifestTest {
         given(handlerIO.getJsonFromWorkspace(EXPORT_QUERY_FILE_NAME)).willReturn(JsonHandler.toJsonNode(exportRequest));
 
         // When
-        ItemStatus itemStatus = createManifest.execute(WorkerParametersFactory.newWorkerParameters(), handlerIO);
+        ItemStatus itemStatus = createManifest.execute(
+            WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM),
+            handlerIO
+        );
 
         // Then
         assertThat(itemStatus.getGlobalStatus()).isEqualTo(StatusCode.OK);
@@ -455,7 +459,10 @@ public class CreateManifestTest {
         given(handlerIO.getJsonFromWorkspace("export_query.json")).willReturn(JsonHandler.toJsonNode(exportRequest));
 
         // When
-        ItemStatus itemStatus = createManifest.execute(WorkerParametersFactory.newWorkerParameters(), handlerIO);
+        ItemStatus itemStatus = createManifest.execute(
+            WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM),
+            handlerIO
+        );
 
         // Then
         assertThat(itemStatus.getGlobalStatus()).isEqualTo(StatusCode.OK);
@@ -532,7 +539,7 @@ public class CreateManifestTest {
         ExportRequest exportRequest = getExportRequest(queryUnit);
         given(handlerIO.getJsonFromWorkspace(EXPORT_QUERY_FILE_NAME)).willReturn(JsonHandler.toJsonNode(exportRequest));
 
-        WorkerParameters wp = WorkerParametersFactory.newWorkerParameters();
+        WorkerParameters wp = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM);
 
         // When
         ItemStatus itemStatus = createManifest.execute(wp, handlerIO);
@@ -618,7 +625,7 @@ public class CreateManifestTest {
         ExportRequest exportRequest = getExportRequest(queryUnit);
         given(handlerIO.getJsonFromWorkspace(EXPORT_QUERY_FILE_NAME)).willReturn(JsonHandler.toJsonNode(exportRequest));
 
-        WorkerParameters wp = WorkerParametersFactory.newWorkerParameters();
+        WorkerParameters wp = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM);
 
         // When
         ItemStatus itemStatus = createManifest.execute(wp, handlerIO);
@@ -687,7 +694,7 @@ public class CreateManifestTest {
         exportRequest.setMaxSizeThreshold(500000L);
         given(handlerIO.getJsonFromWorkspace(EXPORT_QUERY_FILE_NAME)).willReturn(JsonHandler.toJsonNode(exportRequest));
 
-        WorkerParameters wp = WorkerParametersFactory.newWorkerParameters();
+        WorkerParameters wp = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM);
 
         // When
         ItemStatus itemStatus = createManifest.execute(wp, handlerIO);
@@ -751,7 +758,7 @@ public class CreateManifestTest {
         exportRequest.setMaxSizeThreshold(10L);
         given(handlerIO.getJsonFromWorkspace(EXPORT_QUERY_FILE_NAME)).willReturn(JsonHandler.toJsonNode(exportRequest));
 
-        WorkerParameters wp = WorkerParametersFactory.newWorkerParameters();
+        WorkerParameters wp = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM);
 
         // When
         ItemStatus itemStatus = createManifest.execute(wp, handlerIO);

@@ -60,6 +60,7 @@ import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.administration.DataObjectVersionType;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -71,7 +72,6 @@ import fr.gouv.vitam.metadata.core.database.collections.Unit;
 import fr.gouv.vitam.workspace.api.model.FileParams;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 import fr.gouv.vitam.workspace.rest.WorkspaceMain;
 import net.javacrumbs.jsonunit.JsonAssert;
 import net.javacrumbs.jsonunit.core.Option;
@@ -168,6 +168,7 @@ public class FluxIT extends VitamRuleRunner {
     public static void setUpBeforeClass() throws Exception {
         runner.startMetadataCollectServer();
         runner.startWorkspaceCollectServer();
+        runner.startWorkspaceServer();
         handleBeforeClass(Arrays.asList(0, 1), Collections.emptyMap());
         new DataLoader("integration-ingest-internal").prepareData();
     }
@@ -176,6 +177,7 @@ public class FluxIT extends VitamRuleRunner {
     public static void tearDownAfterClass() throws Exception {
         runner.stopMetadataCollectServer(false);
         runner.stopWorkspaceCollectServer();
+        runner.stopWorkspaceServer();
         runner.stopMetadataServer(true);
         handleAfterClass();
         runAfter();
@@ -639,7 +641,9 @@ public class FluxIT extends VitamRuleRunner {
 
             RequestResponse<Map<String, FileParams>> filesBeforeUpdate;
             try (
-                WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.COLLECT).getClient()
+                WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance(
+                    WorkFlowExecutionContext.COLLECT
+                ).getClient()
             ) {
                 filesBeforeUpdate = workspaceClient.getFilesWithParamsFromFolder(
                     transactionDtoResult.getId(),
@@ -662,7 +666,9 @@ public class FluxIT extends VitamRuleRunner {
 
             RequestResponse<Map<String, FileParams>> filesAfterUpdate;
             try (
-                WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.COLLECT).getClient()
+                WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance(
+                    WorkFlowExecutionContext.COLLECT
+                ).getClient()
             ) {
                 filesAfterUpdate = workspaceClient.getFilesWithParamsFromFolder(
                     transactionDtoResult.getId(),

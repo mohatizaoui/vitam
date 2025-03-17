@@ -1,0 +1,8 @@
+{
+  "dslRequest": {
+    "$roots": [],
+    "$query": [
+      { "$match": { "Title": "image.png" } }
+    ]
+  }
+}

@@ -39,19 +39,15 @@ import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.logbook.common.parameters.LogbookTypeProcess;
 import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClient;
-import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClientFactory;
 import fr.gouv.vitam.metadata.api.model.UpdateUnit;
 import fr.gouv.vitam.metadata.api.model.UpdateUnitKey;
 import fr.gouv.vitam.metadata.client.MetaDataClient;
-import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.storage.engine.client.StorageClient;
-import fr.gouv.vitam.storage.engine.client.StorageClientFactory;
 import fr.gouv.vitam.storage.engine.common.model.DataCategory;
 import fr.gouv.vitam.storage.engine.common.model.request.ObjectDescription;
 import fr.gouv.vitam.worker.common.HandlerIO;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
-import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -73,7 +69,7 @@ import static org.mockito.Mockito.when;
 
 public class MigrationUnitsTest {
 
-    private static final int TENAN_ID = 0;
+    private static final int TENANT_ID = 0;
 
     @Rule
     public MockitoRule mockitoRule = MockitoJUnit.rule();
@@ -84,25 +80,13 @@ public class MigrationUnitsTest {
     );
 
     @Mock
-    private MetaDataClientFactory metaDataClientFactory;
-
-    @Mock
     private MetaDataClient metaDataClient;
-
-    @Mock
-    private LogbookLifeCyclesClientFactory logbookLifeCyclesClientFactory;
 
     @Mock
     private LogbookLifeCyclesClient logbookLifeCyclesClient;
 
     @Mock
-    private StorageClientFactory storageClientFactory;
-
-    @Mock
     private StorageClient storageClient;
-
-    @Mock
-    private WorkspaceClientFactory workspaceClientFactory;
 
     @Mock
     private WorkspaceClient workspaceClient;
@@ -122,19 +106,18 @@ public class MigrationUnitsTest {
 
     @Before
     public void setUp() throws Exception {
-        when(metaDataClientFactory.getClient()).thenReturn(metaDataClient);
-        when(logbookLifeCyclesClientFactory.getClient()).thenReturn(logbookLifeCyclesClient);
-        when(storageClientFactory.getClient()).thenReturn(storageClient);
-        when(workspaceClientFactory.getClient()).thenReturn(workspaceClient);
-        doReturn(workspaceClientFactory).when(handlerIO).getWorkspaceClientFactory();
+        doReturn(metaDataClient).when(handlerIO).getMetaDataClient();
+        doReturn(logbookLifeCyclesClient).when(handlerIO).getLifeCyclesClient();
+        doReturn(storageClient).when(handlerIO).getStorageClient();
+        doReturn(workspaceClient).when(handlerIO).getWorkspaceClient();
     }
 
     @Test
     @RunWithCustomExecutor
     public void should_migrate_and_save_units() throws Exception {
         //GIVEN
-        VitamThreadUtils.getVitamSession().setTenantId(TENAN_ID);
-        String containerName = GUIDFactory.newRequestIdGUID(TENAN_ID).getId();
+        VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
+        String containerName = GUIDFactory.newRequestIdGUID(TENANT_ID).getId();
         VitamThreadUtils.getVitamSession().setRequestId(containerName);
         doReturn(containerName).when(handlerIO).getContainerName();
         when(defaultWorkerParameters.getLogbookTypeProcess()).thenReturn(LogbookTypeProcess.DATA_MIGRATION);
@@ -149,11 +132,7 @@ public class MigrationUnitsTest {
         );
         when(metaDataClient.updateUnitBulk(any())).thenReturn(updateUnitRequestResponseOK);
 
-        MigrationUnits migrationUnits = new MigrationUnits(
-            metaDataClientFactory,
-            logbookLifeCyclesClientFactory,
-            storageClientFactory
-        );
+        MigrationUnits migrationUnits = new MigrationUnits();
         when(defaultWorkerParameters.getContainerName()).thenReturn(containerName);
         when(defaultWorkerParameters.getObjectName()).thenReturn(guid.getId());
 

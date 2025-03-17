@@ -1,5 +1,7 @@
 #jinja2: lstrip_blocks: True
-workspaceUrl: {{vitam.workspace_collect | client_url}}
+workspaceCollectUrl: {{vitam.workspace_collect | client_url}}
+workspaceUrl: {{vitam.workspace | client_url}}
+
 urlProcessing: {{vitam.processing | client_url}}
 contextPath: {{ vitam_struct.context_path }}
 collectModule: true

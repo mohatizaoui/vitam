@@ -37,7 +37,6 @@ import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.logbook.LogbookOperation;
 import fr.gouv.vitam.logbook.common.exception.LogbookClientException;
 import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClient;
-import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClientFactory;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.worker.common.HandlerIO;
@@ -52,30 +51,25 @@ public class TransferReplyReportGenerationHandler extends GenericReportGeneratio
     private static final String TRANSFER_REPLY_REPORT_GENERATION = "TRANSFER_REPLY_REPORT_GENERATION";
     private static final String LOGBOOK_ACTION_KEY = "TRANSFER_REPLY_DELETE_UNIT";
 
-    private final LogbookOperationsClientFactory logbookOperationsClientFactory;
-
     /**
      * Default constructor
      */
     public TransferReplyReportGenerationHandler() {
-        this(new TransferReplyReportService(), LogbookOperationsClientFactory.getInstance());
+        this(new TransferReplyReportService());
     }
 
     /***
      * Test only constructor
      */
     @VisibleForTesting
-    TransferReplyReportGenerationHandler(
-        TransferReplyReportService transferReplyReportService,
-        LogbookOperationsClientFactory logbookOperationsClientFactory
-    ) {
+    TransferReplyReportGenerationHandler(TransferReplyReportService transferReplyReportService) {
         super(transferReplyReportService);
-        this.logbookOperationsClientFactory = logbookOperationsClientFactory;
     }
 
     @Override
-    protected LogbookOperation getLogbookInformation(WorkerParameters param) throws ProcessingException {
-        try (LogbookOperationsClient logbookClient = logbookOperationsClientFactory.getClient()) {
+    protected LogbookOperation getLogbookInformation(HandlerIO handlerIO, WorkerParameters param)
+        throws ProcessingException {
+        try (LogbookOperationsClient logbookClient = handlerIO.getLogbookOperationsClient()) {
             JsonNode response = logbookClient.selectOperationById(param.getContainerName());
             RequestResponseOK<JsonNode> logbookResponse = RequestResponseOK.getFromJsonNode(response);
             return JsonHandler.getFromJsonNode(logbookResponse.getFirstResult(), LogbookOperation.class);

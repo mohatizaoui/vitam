@@ -35,6 +35,7 @@ import fr.gouv.vitam.common.model.processing.Action;
 import fr.gouv.vitam.common.model.processing.ActionDefinition;
 import fr.gouv.vitam.common.model.processing.ProcessBehavior;
 import fr.gouv.vitam.common.model.processing.Step;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -239,7 +240,7 @@ public class WorkerTaskTest {
     }
 
     private DescriptionStep getDescriptionStep() {
-        DefaultWorkerParameters params = WorkerParametersFactory.newWorkerParameters();
+        DefaultWorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM);
         params.setWorkerGUID(GUIDFactory.newGUID().getId());
         params.setLogbookTypeProcess(LogbookTypeProcess.INGEST);
         final Step step = new Step().setStepName("TEST").setWorkerGroupId("familyId");

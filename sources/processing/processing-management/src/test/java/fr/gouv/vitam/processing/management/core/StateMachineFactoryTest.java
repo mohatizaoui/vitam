@@ -29,6 +29,7 @@ package fr.gouv.vitam.processing.management.core;
 import fr.gouv.vitam.common.exception.WorkflowNotFoundException;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.processing.PauseOrCancelAction;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClientFactory;
 import fr.gouv.vitam.processing.common.model.ProcessStep;
 import fr.gouv.vitam.processing.common.model.ProcessWorkflow;
@@ -55,7 +56,7 @@ public class StateMachineFactoryTest {
             .create(
                 processWorkflow,
                 new ProcessEngineImpl(
-                    WorkerParametersFactory.newWorkerParameters(),
+                    WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM),
                     mock(ProcessDistributor.class),
                     mock(LogbookOperationsClientFactory.class),
                     mock(WorkspaceClientFactory.class)
@@ -69,7 +70,7 @@ public class StateMachineFactoryTest {
             .create(
                 null,
                 new ProcessEngineImpl(
-                    WorkerParametersFactory.newWorkerParameters(),
+                    WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM),
                     mock(ProcessDistributor.class),
                     mock(LogbookOperationsClientFactory.class),
                     mock(WorkspaceClientFactory.class)

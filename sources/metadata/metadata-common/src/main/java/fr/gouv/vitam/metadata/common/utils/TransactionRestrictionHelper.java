@@ -24,12 +24,47 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
-package fr.gouv.vitam.metadata.client;
 
-/**
- * Metadata Enum for choosing which type to call by the factory client
- */
-public enum MetadataType {
-    VITAM,
-    COLLECT,
+package fr.gouv.vitam.metadata.common.utils;
+
+import fr.gouv.vitam.common.database.builder.query.InQuery;
+import fr.gouv.vitam.common.database.builder.query.Query;
+import fr.gouv.vitam.common.database.builder.query.QueryHelper;
+import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
+import fr.gouv.vitam.common.database.builder.request.multiple.RequestMultiple;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static fr.gouv.vitam.common.database.builder.query.QueryHelper.and;
+import static fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper.initialOperation;
+
+public final class TransactionRestrictionHelper {
+
+    private static final Logger log = LoggerFactory.getLogger(TransactionRestrictionHelper.class);
+
+    private TransactionRestrictionHelper() {
+        // Non instantiable helper class
+    }
+
+    /**
+     * Apply transaction id filter on DSL Query
+     */
+    public static void applyTransactionToQuery(String transactionId, RequestMultiple select)
+        throws InvalidCreateOperationException {
+        InQuery inQuery = QueryHelper.in(initialOperation(), transactionId);
+        final List<Query> queries = select.getQueries();
+        if (queries.isEmpty()) {
+            queries.add(inQuery);
+        } else {
+            List<Query> queryList = new ArrayList<>(queries);
+            for (int i = 0; i < queryList.size(); i++) {
+                Query lastQuery = queryList.get(i);
+                Query mergedQuery = and().add(lastQuery, inQuery);
+                queries.set(i, mergedQuery);
+            }
+        }
+    }
 }

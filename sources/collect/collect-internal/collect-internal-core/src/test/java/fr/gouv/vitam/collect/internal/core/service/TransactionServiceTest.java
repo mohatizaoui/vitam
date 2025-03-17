@@ -53,7 +53,7 @@ import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.ingest.internal.client.IngestInternalClient;
 import fr.gouv.vitam.ingest.internal.client.IngestInternalClientFactory;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
-import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceCollectClientFactory;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Rule;
@@ -105,10 +105,10 @@ public class TransactionServiceTest {
     private ProjectService projectService;
 
     @Mock
-    private WorkspaceClientFactory workspaceCollectClientFactory;
+    private WorkspaceCollectClientFactory workspaceCollectClientFactory;
 
     @Mock
-    private WorkspaceClient workspaceClient;
+    private WorkspaceClient workspaceCollectClient;
 
     @Mock
     private AccessInternalClient accessInternalClient;
@@ -127,7 +127,7 @@ public class TransactionServiceTest {
 
     @Before
     public void setup() {
-        given(workspaceCollectClientFactory.getClient()).willReturn(workspaceClient);
+        given(workspaceCollectClientFactory.getClient()).willReturn(workspaceCollectClient);
     }
 
     @Test
@@ -309,8 +309,8 @@ public class TransactionServiceTest {
     @Test
     public void deleteTransaction() throws Exception {
         // Given
-        when(workspaceCollectClientFactory.getClient()).thenReturn(workspaceClient);
-        when(workspaceClient.isExistingContainer(any())).thenReturn(true);
+        when(workspaceCollectClientFactory.getClient()).thenReturn(workspaceCollectClient);
+        when(workspaceCollectClient.isExistingContainer(any())).thenReturn(true);
         final List<JsonNode> unitsJson = JsonHandler.getFromFileAsTypeReference(
             PropertiesUtils.getResourceFile(UNITS_WITH_GRAPH_PATH),
             new TypeReference<>() {}
@@ -323,7 +323,7 @@ public class TransactionServiceTest {
                 0
             )
         );
-        doNothing().when(workspaceClient).deleteContainer(any(), eq(true));
+        doNothing().when(workspaceCollectClient).deleteContainer(any(), eq(true));
         // When
         transactionService.deleteTransaction("1");
         // Then
@@ -344,7 +344,7 @@ public class TransactionServiceTest {
     public void isTransactionContentNotEmptyTest() throws Exception {
         final String idTransaction = "XXXX000002222222";
         // Given
-        when(workspaceClient.isExistingContainer(any())).thenReturn(true);
+        when(workspaceCollectClient.isExistingContainer(any())).thenReturn(true);
         // When - Then
         assertThatCode(() -> transactionService.isTransactionContentEmpty(idTransaction)).doesNotThrowAnyException();
     }
@@ -353,7 +353,7 @@ public class TransactionServiceTest {
     public void isTransactionContentEmptyTest() throws Exception {
         final String idTransaction = "XXXX000002222222";
         // Given
-        when(workspaceClient.isExistingContainer(any())).thenReturn(false);
+        when(workspaceCollectClient.isExistingContainer(any())).thenReturn(false);
         // When _ Then
         assertThatCode(() -> transactionService.isTransactionContentEmpty(idTransaction)).isInstanceOf(
             CollectInternalException.class

@@ -37,6 +37,7 @@ import fr.gouv.vitam.common.client.VitamContext;
 import fr.gouv.vitam.common.exception.VitamClientException;
 import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
+import fr.gouv.vitam.common.model.elimination.DeletionRequestBody;
 
 import javax.annotation.Nullable;
 import javax.ws.rs.core.Response;
@@ -418,5 +419,34 @@ public interface CollectExternalClient extends MockOrRestClient {
         VitamContext vitamContext,
         String transactionId,
         JsonNode updateQueriesJson
+    ) throws VitamClientException;
+
+    /**
+     * Performs a deletion action workflow  on transaction.
+     *
+     * @param deletionRequestBody Object Body DSL request for deletion and Date
+     * @param transactionId transaction ID
+     * @return Json representation
+     * @throws VitamClientException VitamClientException
+     */
+    RequestResponse<JsonNode> performDeletionActionOnTransaction(
+        VitamContext vitamContext,
+        String transactionId,
+        DeletionRequestBody deletionRequestBody
+    ) throws VitamClientException;
+
+    /**
+     * Performs a reclassification workflow on transaction.
+     *
+     * @param vitamContext the vitam context
+     * @param transactionId transaction ID
+     * @param reclassificationRequest List of attachment and detachment operations in unit graph.
+     * @return Response
+     * @throws VitamClientException VitamClientException
+     */
+    RequestResponse<JsonNode> performReclassificationOnTransaction(
+        VitamContext vitamContext,
+        String transactionId,
+        JsonNode reclassificationRequest
     ) throws VitamClientException;
 }

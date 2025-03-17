@@ -35,6 +35,7 @@ import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.processing.IOParameter;
 import fr.gouv.vitam.common.model.processing.ProcessingUri;
 import fr.gouv.vitam.common.model.processing.UriPrefix;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.logbook.common.parameters.LogbookTypeProcess;
 import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClient;
 import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClientFactory;
@@ -75,7 +76,7 @@ public class CheckObjectUnitConsistencyActionHandlerTest {
     private LogbookLifeCyclesClient logbookLifeCyclesClient;
     private static final String OBJ = "obj";
 
-    private final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+    private final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
         .setWorkerGUID(GUIDFactory.newGUID().getId())
         .setContainerName(OBJ)
         .setUrlWorkspace("http://localhost:8083")
@@ -102,6 +103,7 @@ public class CheckObjectUnitConsistencyActionHandlerTest {
         final List<IOParameter> in;
         String objectId = "objectId";
         action = new HandlerIOImpl(
+            WorkFlowExecutionContext.VITAM,
             workspaceClientFactory,
             logbookLifeCyclesClientFactory,
             OBJ,
@@ -145,6 +147,7 @@ public class CheckObjectUnitConsistencyActionHandlerTest {
         final List<IOParameter> in;
         String objectId = "objectId";
         action = new HandlerIOImpl(
+            WorkFlowExecutionContext.VITAM,
             workspaceClientFactory,
             logbookLifeCyclesClientFactory,
             OBJ,
@@ -182,6 +185,7 @@ public class CheckObjectUnitConsistencyActionHandlerTest {
     @Test(expected = ProcessingException.class)
     public void givenObjectUnitConsistencyWithEmptyHandlerIOThrowsException() throws ProcessingException {
         final HandlerIO action = new HandlerIOImpl(
+            WorkFlowExecutionContext.VITAM,
             workspaceClientFactory,
             logbookLifeCyclesClientFactory,
             "",

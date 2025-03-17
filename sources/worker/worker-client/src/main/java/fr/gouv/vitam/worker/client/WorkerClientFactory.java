@@ -69,6 +69,7 @@ public class WorkerClientFactory extends VitamClientFactory<WorkerClient> {
     private static final Map<WorkerClientConfiguration, WorkerClientFactory> workersSetFactory =
         new ConcurrentHashMap<>();
     private static final WorkerClientFactory defaultWorkerClientFactory = new WorkerClientFactory(null);
+
     /**
      * RESOURCE PATH
      */
@@ -104,18 +105,10 @@ public class WorkerClientFactory extends VitamClientFactory<WorkerClient> {
      */
     @Override
     public WorkerClient getClient() {
-        WorkerClient client;
-        switch (getVitamClientType()) {
-            case MOCK:
-                client = new WorkerClientMock();
-                break;
-            case PRODUCTION:
-                client = new WorkerClientRest(this);
-                break;
-            default:
-                throw new IllegalArgumentException("Worker client type unknown");
-        }
-        return client;
+        return switch (getVitamClientType()) {
+            case MOCK -> new WorkerClientMock();
+            case PRODUCTION -> new WorkerClientRest(this);
+        };
     }
 
     /**

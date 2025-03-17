@@ -28,7 +28,6 @@ package fr.gouv.vitam.worker.core.plugin.evidence;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.annotations.VisibleForTesting;
 import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.accesslog.AccessLogUtils;
 import fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper;
@@ -45,11 +44,9 @@ import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.stream.StreamUtils;
 import fr.gouv.vitam.metadata.client.MetaDataClient;
-import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.storage.engine.client.StorageClient;
-import fr.gouv.vitam.storage.engine.client.StorageClientFactory;
 import fr.gouv.vitam.storage.engine.client.exception.StorageServerClientException;
 import fr.gouv.vitam.storage.engine.client.exception.StorageUnavailableDataFromAsyncOfferClientException;
 import fr.gouv.vitam.storage.engine.common.exception.StorageNotFoundException;
@@ -81,19 +78,7 @@ public class EvidenceAuditPrepare extends ActionHandler {
     private static final String OBJECT = "#object";
     private static final String ID = "id";
 
-    private final MetaDataClientFactory metaDataClientFactory;
-    private final StorageClientFactory storageClientFactory;
-
-    public EvidenceAuditPrepare() {
-        this.metaDataClientFactory = MetaDataClientFactory.getInstance();
-        this.storageClientFactory = StorageClientFactory.getInstance();
-    }
-
-    @VisibleForTesting
-    EvidenceAuditPrepare(MetaDataClientFactory metaDataClientFactory, StorageClientFactory storageClientFactory) {
-        this.metaDataClientFactory = metaDataClientFactory;
-        this.storageClientFactory = storageClientFactory;
-    }
+    public EvidenceAuditPrepare() {}
 
     @Override
     public ItemStatus execute(WorkerParameters param, HandlerIO handlerIO) throws ProcessingException {
@@ -114,7 +99,7 @@ public class EvidenceAuditPrepare extends ActionHandler {
         throws ProcessingException {
         InputStream inputStream = null;
         Response response = null;
-        try (StorageClient client = storageClientFactory.getClient()) {
+        try (StorageClient client = handlerIO.getStorageClient()) {
             String name = operationId + ".jsonl";
             response = client.getContainerAsync(
                 VitamConfiguration.getDefaultStrategy(),
@@ -160,7 +145,7 @@ public class EvidenceAuditPrepare extends ActionHandler {
     }
 
     private ItemStatus handleEvidenceAudit(HandlerIO handlerIO, ItemStatus itemStatus) throws ProcessingException {
-        try (MetaDataClient client = metaDataClientFactory.getClient()) {
+        try (MetaDataClient client = handlerIO.getMetaDataClient()) {
             JsonNode queryNode = handlerIO.getJsonFromWorkspace("query.json");
 
             SelectParserMultiple parser = new SelectParserMultiple();

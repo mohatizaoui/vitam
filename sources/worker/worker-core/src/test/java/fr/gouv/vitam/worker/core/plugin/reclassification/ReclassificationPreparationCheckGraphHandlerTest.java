@@ -31,12 +31,12 @@ import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.UnitType;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.metadata.client.MetaDataClient;
-import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.processing.common.parameter.WorkerParametersFactory;
 import fr.gouv.vitam.worker.common.HandlerIO;
@@ -83,9 +83,6 @@ public class ReclassificationPreparationCheckGraphHandlerTest {
     public TemporaryFolder tempFolder = new TemporaryFolder();
 
     @Mock
-    private MetaDataClientFactory metaDataClientFactory;
-
-    @Mock
     private MetaDataClient metaDataClient;
 
     @Mock
@@ -100,15 +97,13 @@ public class ReclassificationPreparationCheckGraphHandlerTest {
 
     @Before
     public void init() throws Exception {
-        doReturn(metaDataClient).when(metaDataClientFactory).getClient();
-
         int tenant = 0;
         VitamThreadUtils.getVitamSession().setTenantId(tenant);
         String operationId = GUIDFactory.newRequestIdGUID(tenant).toString();
         VitamThreadUtils.getVitamSession().setRequestId(operationId);
 
         String objectId = GUIDFactory.newGUID().toString();
-        parameters = WorkerParametersFactory.newWorkerParameters()
+        parameters = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setWorkerGUID(GUIDFactory.newGUID().getId())
             .setContainerName(operationId)
             .setObjectNameList(Lists.newArrayList(objectId))
@@ -116,10 +111,11 @@ public class ReclassificationPreparationCheckGraphHandlerTest {
             .setCurrentStep("StepName");
 
         reclassificationPreparationCheckGraphHandler = new ReclassificationPreparationCheckGraphHandler(
-            metaDataClientFactory,
             unitGraphInfoLoader,
             1000
         );
+
+        doReturn(metaDataClient).when(handlerIO).getMetaDataClient();
     }
 
     @Test

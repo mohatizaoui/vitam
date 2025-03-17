@@ -65,15 +65,15 @@ import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
 import static javax.ws.rs.core.Response.Status.OK;
 
 @Path("/collect-internal/v1")
-public class CollectMetadataInternalResource extends ApplicationStatusResource {
+public class CollectInternalResource extends ApplicationStatusResource {
 
-    private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(CollectMetadataInternalResource.class);
+    private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(CollectInternalResource.class);
 
     private final MetadataService metadataService;
     private final CollectService collectService;
     private final TransactionService transactionService;
 
-    public CollectMetadataInternalResource(
+    public CollectInternalResource(
         MetadataService metadataService,
         CollectService collectService,
         TransactionService transactionService

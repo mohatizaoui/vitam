@@ -36,7 +36,6 @@ import fr.gouv.vitam.common.database.builder.query.QueryHelper;
 import fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper;
 import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
 import fr.gouv.vitam.common.database.builder.request.multiple.SelectMultiQuery;
-import fr.gouv.vitam.common.database.utils.MetadataDocumentHelper;
 import fr.gouv.vitam.common.exception.InvalidGuidOperationException;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.guid.GUIDFactory;
@@ -62,10 +61,8 @@ import fr.gouv.vitam.metadata.api.exception.MetaDataClientServerException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataDocumentSizeException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataExecutionException;
 import fr.gouv.vitam.metadata.client.MetaDataClient;
-import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
-import fr.gouv.vitam.storage.engine.client.exception.StorageServerClientException;
 import fr.gouv.vitam.worker.common.HandlerIO;
 import fr.gouv.vitam.worker.core.exception.ProcessingStatusException;
 import fr.gouv.vitam.worker.core.handler.ActionHandler;
@@ -77,7 +74,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -90,7 +86,7 @@ import static java.util.Collections.singletonList;
 /**
  * Purge unit plugin.
  */
-public class PurgeUnitPlugin extends ActionHandler {
+public abstract class PurgeUnitPlugin extends ActionHandler {
 
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(PurgeUnitPlugin.class);
 
@@ -99,8 +95,6 @@ public class PurgeUnitPlugin extends ActionHandler {
     public static final String ARCHIVAL_AGENCY_IDENTIFIER = "#archivalAgencyIdentifier";
 
     private final String actionId;
-    private final PurgeDeleteService purgeDeleteService;
-    private final MetaDataClientFactory metaDataClientFactory;
     private final PurgeReportService purgeReportService;
     private final LogbookLifeCyclesClientFactory lfcClientFactory;
 
@@ -110,13 +104,7 @@ public class PurgeUnitPlugin extends ActionHandler {
      * @param actionId
      */
     public PurgeUnitPlugin(String actionId) {
-        this(
-            actionId,
-            new PurgeDeleteService(),
-            MetaDataClientFactory.getInstance(),
-            new PurgeReportService(),
-            LogbookLifeCyclesClientFactory.getInstance()
-        );
+        this(actionId, new PurgeReportService(), LogbookLifeCyclesClientFactory.getInstance());
     }
 
     /***
@@ -125,14 +113,10 @@ public class PurgeUnitPlugin extends ActionHandler {
     @VisibleForTesting
     protected PurgeUnitPlugin(
         String actionId,
-        PurgeDeleteService purgeDeleteService,
-        MetaDataClientFactory metaDataClientFactory,
         PurgeReportService purgeReportService,
         LogbookLifeCyclesClientFactory llfcClientFactory
     ) {
         this.actionId = actionId;
-        this.purgeDeleteService = purgeDeleteService;
-        this.metaDataClientFactory = metaDataClientFactory;
         this.purgeReportService = purgeReportService;
         this.lfcClientFactory = llfcClientFactory;
     }
@@ -145,14 +129,18 @@ public class PurgeUnitPlugin extends ActionHandler {
     @Override
     public List<ItemStatus> executeList(WorkerParameters param, HandlerIO handler) {
         try {
-            return processUnits(param.getContainerName(), param);
+            return processUnits(param.getContainerName(), param, handler);
         } catch (ProcessingStatusException e) {
             LOGGER.error("Unit purge failed with status " + e.getStatusCode(), e);
             return singletonList(buildItemStatus(actionId, e.getStatusCode(), e.getEventDetails()));
         }
     }
 
-    private List<ItemStatus> processUnits(String processId, WorkerParameters param) throws ProcessingStatusException {
+    protected abstract void deleteUnit(Map<String, JsonNode> unitsById, Set<String> unitsToDelete, HandlerIO handler)
+        throws ProcessingStatusException;
+
+    private List<ItemStatus> processUnits(String processId, WorkerParameters param, HandlerIO handler)
+        throws ProcessingStatusException {
         List<JsonNode> units = param.getObjectMetadataList();
         List<String> unitIds = units
             .stream()
@@ -167,15 +155,7 @@ public class PurgeUnitPlugin extends ActionHandler {
 
         List<PurgeUnitReportEntry> purgeUnitReportEntries = new ArrayList<>();
 
-        Set<String> unitsToDelete = getUnitsToDelete(unitsById.keySet());
-
-        Map<String, String> unitIdsWithStrategiesToDelete = unitsById
-            .entrySet()
-            .stream()
-            .filter(e -> unitsToDelete.contains(e.getKey()))
-            .collect(
-                Collectors.toMap(Entry::getKey, entry -> MetadataDocumentHelper.getStrategyIdFromUnit(entry.getValue()))
-            );
+        Set<String> unitsToDelete = getUnitsToDelete(unitsById.keySet(), handler);
 
         for (String unitId : unitIds) {
             PurgeUnitStatus purgeUnitStatus;
@@ -208,21 +188,7 @@ public class PurgeUnitPlugin extends ActionHandler {
 
         purgeReportService.appendUnitEntries(processId, purgeUnitReportEntries);
 
-        try {
-            purgeDeleteService.deleteUnits(unitIdsWithStrategiesToDelete);
-        } catch (
-            MetaDataExecutionException
-            | MetaDataClientServerException
-            | LogbookClientBadRequestException
-            | StorageServerClientException
-            | LogbookClientServerException e
-        ) {
-            throw new ProcessingStatusException(
-                StatusCode.FATAL,
-                "Could not delete units [" + String.join(", ", unitsToDelete) + "]",
-                e
-            );
-        }
+        deleteUnit(unitsById, unitsToDelete, handler);
 
         return itemStatuses;
     }
@@ -313,13 +279,13 @@ public class PurgeUnitPlugin extends ActionHandler {
         return extraInfo;
     }
 
-    private Set<String> getUnitsToDelete(Set<String> unitIds) throws ProcessingStatusException {
-        Set<String> unitsWithChildren = getUnitsWithChildren(unitIds);
+    private Set<String> getUnitsToDelete(Set<String> unitIds, HandlerIO handler) throws ProcessingStatusException {
+        Set<String> unitsWithChildren = getUnitsWithChildren(unitIds, handler);
         return SetUtils.difference(unitIds, unitsWithChildren);
     }
 
-    private Set<String> getUnitsWithChildren(Set<String> unitIds) throws ProcessingStatusException {
-        try (MetaDataClient metaDataClient = metaDataClientFactory.getClient()) {
+    private Set<String> getUnitsWithChildren(Set<String> unitIds, HandlerIO handler) throws ProcessingStatusException {
+        try (MetaDataClient metaDataClient = handler.getMetaDataClient()) {
             Set<String> unitsToFetch = new HashSet<>(unitIds);
             Set<String> result = new HashSet<>();
 

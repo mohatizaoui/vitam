@@ -78,10 +78,15 @@ public class AuditPreparePluginTest {
     private MetaDataClient metaDataClient;
 
     private AuditPreparePlugin auditPreparePlugin;
+    private HandlerIO handler;
 
     @Before
     public void setUp() throws Exception {
-        auditPreparePlugin = new AuditPreparePlugin(metaDataClientFactory);
+        handler = mock(HandlerIO.class);
+        auditPreparePlugin = new AuditPreparePlugin();
+
+        when(handler.getMetaDataClientFactory()).thenReturn(metaDataClientFactory);
+        when(handler.getMetaDataClient()).thenReturn(metaDataClient);
 
         when(metaDataClientFactory.getClient()).thenReturn(metaDataClient);
 
@@ -98,7 +103,7 @@ public class AuditPreparePluginTest {
     public void shouldCreateValidJsonLFileOutput()
         throws ProcessingException, IOException, InvalidParseOperationException {
         // Given
-        HandlerIO handler = mock(HandlerIO.class);
+
         WorkerParameters workerParameters = mock(WorkerParameters.class);
 
         JsonNode auditQuery = JsonHandler.getFromInputStream(

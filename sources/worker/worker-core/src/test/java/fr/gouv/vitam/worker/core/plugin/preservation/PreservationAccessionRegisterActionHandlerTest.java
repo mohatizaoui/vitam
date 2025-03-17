@@ -33,6 +33,7 @@ import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.administration.AccessionRegisterDetailModel;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -88,7 +89,7 @@ public class PreservationAccessionRegisterActionHandlerTest {
     public void setUp() throws Exception {
         AdminManagementClientFactory.changeMode(null);
         guid = GUIDFactory.newGUID();
-        params = WorkerParametersFactory.newWorkerParameters()
+        params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace(FAKE_URL)
             .setUrlMetadata(FAKE_URL)
             .setObjectNameList(Lists.newArrayList("objectName.json"))
@@ -96,7 +97,7 @@ public class PreservationAccessionRegisterActionHandlerTest {
             .setCurrentStep("currentStep")
             .setContainerName(guid.getId());
         String objectId = "manifest";
-        handlerIO = new HandlerIOImpl(guid.getId(), "workerId", newArrayList(objectId));
+        handlerIO = new HandlerIOImpl(WorkFlowExecutionContext.VITAM, guid.getId(), "workerId", newArrayList(objectId));
         handlerIO.setCurrentObjectId(objectId);
 
         when(metaDataClientFactory.getClient()).thenReturn(metaDataClient);

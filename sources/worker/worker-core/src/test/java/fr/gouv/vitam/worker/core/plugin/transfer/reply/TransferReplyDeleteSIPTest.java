@@ -83,7 +83,7 @@ public class TransferReplyDeleteSIPTest {
     public void should_remove_sip_when_atr_is_ok() throws Exception {
         //Given
         HandlerIO handlerIO = mock(HandlerIO.class);
-        when(handlerIO.getWorkspaceClientFactory()).thenReturn(workspaceClientFactory);
+        when(handlerIO.getWorkspaceClient()).thenReturn(workspaceClient);
         when(workspaceClientFactory.getClient()).thenReturn(workspaceClient);
         File transferReplyContext = PropertiesUtils.getResourceFile("transfer/transfer_reply_context.json");
         when(handlerIO.getInput(0)).thenReturn(transferReplyContext);

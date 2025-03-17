@@ -28,6 +28,7 @@ package fr.gouv.vitam.collect.internal.rest;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.gouv.vitam.collect.common.dto.BulkAtomicUpdateResult;
 import fr.gouv.vitam.collect.common.dto.ProjectDto;
 import fr.gouv.vitam.collect.common.dto.TransactionDto;
@@ -47,19 +48,49 @@ import fr.gouv.vitam.common.CommonMediaType;
 import fr.gouv.vitam.common.GlobalDataRest;
 import fr.gouv.vitam.common.ParametersChecker;
 import fr.gouv.vitam.common.PropertiesUtils;
+import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
 import fr.gouv.vitam.common.database.parser.request.multiple.SelectParserMultiple;
 import fr.gouv.vitam.common.error.VitamCode;
 import fr.gouv.vitam.common.error.VitamError;
 import fr.gouv.vitam.common.exception.BadRequestException;
+import fr.gouv.vitam.common.exception.InternalServerException;
+import fr.gouv.vitam.common.exception.InvalidGuidOperationException;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
+import fr.gouv.vitam.common.exception.VitamClientException;
+import fr.gouv.vitam.common.guid.GUID;
+import fr.gouv.vitam.common.guid.GUIDReader;
+import fr.gouv.vitam.common.i18n.VitamLogbookMessages;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
+import fr.gouv.vitam.common.model.ItemStatus;
+import fr.gouv.vitam.common.model.ProcessAction;
+import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
+import fr.gouv.vitam.common.model.elimination.DeletionRequestBody;
+import fr.gouv.vitam.common.model.elimination.EliminationRequestBody;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.security.SanityChecker;
 import fr.gouv.vitam.common.stream.StreamUtils;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
+import fr.gouv.vitam.logbook.common.exception.LogbookClientAlreadyExistsException;
+import fr.gouv.vitam.logbook.common.exception.LogbookClientBadRequestException;
+import fr.gouv.vitam.logbook.common.exception.LogbookClientServerException;
+import fr.gouv.vitam.logbook.common.parameters.Contexts;
+import fr.gouv.vitam.logbook.common.parameters.LogbookOperationParameters;
+import fr.gouv.vitam.logbook.common.parameters.LogbookParameterHelper;
+import fr.gouv.vitam.logbook.common.parameters.LogbookTypeProcess;
+import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClient;
+import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClientFactory;
 import fr.gouv.vitam.metadata.api.utils.BulkAtomicUpdateModelUtils;
+import fr.gouv.vitam.processing.engine.core.operation.OperationContextException;
+import fr.gouv.vitam.processing.engine.core.operation.OperationContextModel;
+import fr.gouv.vitam.processing.engine.core.operation.OperationContextMonitor;
+import fr.gouv.vitam.processing.management.client.ProcessingManagementClient;
+import fr.gouv.vitam.processing.management.client.ProcessingManagementClientFactory;
+import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
+import fr.gouv.vitam.workspace.client.WorkspaceClient;
+import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
 import org.apache.commons.io.FileUtils;
 
 import javax.annotation.Nullable;
@@ -84,6 +115,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static fr.gouv.vitam.common.CommonMediaType.TEXT_CSV;
+import static fr.gouv.vitam.common.json.JsonHandler.writeToInpustream;
+import static fr.gouv.vitam.common.model.StatusCode.STARTED;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
 import static javax.ws.rs.core.Response.Status.ACCEPTED;
@@ -626,5 +659,199 @@ public class TransactionInternalResource {
             throw new CollectInternalInvalidRequestException(PROJECT_NOT_FOUND);
         }
         return transaction;
+    }
+
+    /**
+     * Start a reclassification workflow on collect
+     *
+     * @param transactionId as transaction Id
+     * @param reclassificationRequestJson as JsonNode
+     * @return an archive unit result list with inherited rules
+     */
+    @POST
+    @Path("/{transactionId}/reclassification")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response reclassification(
+        @PathParam("transactionId") String transactionId,
+        JsonNode reclassificationRequestJson
+    ) {
+        try {
+            SanityChecker.checkParameter(transactionId);
+            SanityChecker.checkJsonAll(reclassificationRequestJson);
+
+            // Start workflow
+            String operationId = VitamThreadUtils.getVitamSession().getRequestId();
+            WorkFlowExecutionContext executionContext = WorkFlowExecutionContext.COLLECT;
+
+            WorkspaceClientFactory workspaceClientFactory = WorkspaceClientFactory.getInstance(
+                WorkFlowExecutionContext.VITAM
+            );
+            try (
+                ProcessingManagementClient processingClient = ProcessingManagementClientFactory.getInstance(
+                    executionContext
+                ).getClient();
+                LogbookOperationsClient logbookOperationsClient = LogbookOperationsClientFactory.getInstance(
+                    executionContext
+                ).getClient();
+                WorkspaceClient workspaceClient = workspaceClientFactory.getClient()
+            ) {
+                GUID operationGUID = GUIDReader.getGUID(operationId);
+                final LogbookOperationParameters initParameters = LogbookParameterHelper.newLogbookOperationParameters(
+                    operationGUID,
+                    Contexts.COLLECT_RECLASSIFICATION.getEventType(),
+                    operationGUID,
+                    LogbookTypeProcess.COLLECT_RECLASSIFICATION,
+                    STARTED,
+                    VitamLogbookMessages.getLabelOp("COLLECT_RECLASSIFICATION.STARTED") + " : " + operationGUID,
+                    operationGUID
+                );
+
+                // Enhancement to do : add transaction to logbook parameters?
+
+                logbookOperationsClient.create(initParameters);
+
+                workspaceClient.createContainer(operationId);
+
+                // Add request as input parameter
+                String objectName = "request.json";
+                workspaceClient.putObject(operationId, objectName, writeToInpustream(reclassificationRequestJson));
+
+                objectName = "transaction.json";
+                ObjectNode transactionParameterJson = JsonHandler.createObjectNode();
+                transactionParameterJson.put("transactionId", transactionId);
+                workspaceClient.putObject(operationId, objectName, writeToInpustream(transactionParameterJson));
+
+                // store original query in workspace
+                workspaceClient.putObject(
+                    operationId,
+                    OperationContextMonitor.OperationContextFileName,
+                    writeToInpustream(OperationContextModel.get(reclassificationRequestJson))
+                );
+
+                // compress file to backup
+                OperationContextMonitor.compressInWorkspace(
+                    workspaceClientFactory,
+                    operationId,
+                    LogbookTypeProcess.COLLECT_RECLASSIFICATION,
+                    OperationContextMonitor.OperationContextFileName
+                );
+
+                processingClient.initVitamProcess(operationId, Contexts.COLLECT_RECLASSIFICATION.name());
+
+                RequestResponse<ItemStatus> jsonNodeRequestResponse = processingClient.executeOperationProcess(
+                    operationId,
+                    Contexts.COLLECT_RECLASSIFICATION.name(),
+                    ProcessAction.RESUME.getValue()
+                );
+                return jsonNodeRequestResponse.toResponse();
+            }
+        } catch (
+            ContentAddressableStorageServerException
+            | InvalidGuidOperationException
+            | LogbookClientServerException
+            | LogbookClientBadRequestException
+            | LogbookClientAlreadyExistsException
+            | VitamClientException
+            | InternalServerException
+            | OperationContextException e
+        ) {
+            LOGGER.error("Error while starting unit reclassification workflow", e);
+            return CollectRequestResponse.toVitamError(INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
+        } catch (final InvalidParseOperationException e) {
+            LOGGER.error("Error when trying to parse :", e);
+            return CollectRequestResponse.toVitamError(BAD_REQUEST, e.getLocalizedMessage());
+        } catch (BadRequestException e) {
+            LOGGER.error(EMPTY_QUERY_IS_IMPOSSIBLE, e);
+            return CollectRequestResponse.toVitamError(
+                VitamCode.GLOBAL_EMPTY_QUERY.getStatus(),
+                EMPTY_QUERY_IS_IMPOSSIBLE
+            );
+        } catch (Exception e) {
+            return CollectRequestResponse.toVitamError(INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
+        }
+    }
+
+    /**
+     * Starts an elimination action workflow on Collect.
+     */
+
+    @POST
+    @Path("/{transactionId}/elimination/action")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response startEliminationActionWorkflow(
+        @PathParam("transactionId") String transactionId,
+        EliminationRequestBody eliminationRequestBody
+    ) {
+        try {
+            return transactionService.startEliminationActionWorkflow(
+                transactionId,
+                eliminationRequestBody,
+                Contexts.COLLECT_ELIMINATION_ACTION
+            );
+        } catch (
+            VitamClientException
+            | CollectInternalException
+            | InternalServerException
+            | OperationContextException
+            | ContentAddressableStorageServerException
+            | LogbookClientServerException e
+        ) {
+            return CollectRequestResponse.toVitamError(INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
+        } catch (
+            BadRequestException
+            | InvalidGuidOperationException
+            | LogbookClientAlreadyExistsException
+            | LogbookClientBadRequestException
+            | InvalidParseOperationException
+            | InvalidCreateOperationException e
+        ) {
+            LOGGER.error("Error when fetching object in metadata :", e);
+            return CollectRequestResponse.toVitamError(BAD_REQUEST, e.getLocalizedMessage());
+        } catch (Exception e) {
+            return CollectRequestResponse.toVitamError(INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
+        }
+    }
+
+    /**
+     * Starts a deletion workflow on Collect.
+     */
+
+    @POST
+    @Path("/{transactionId}/deletion/action")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response startDeletionWorkflow(
+        @PathParam("transactionId") String transactionId,
+        DeletionRequestBody deletionRequestBody
+    ) {
+        try {
+            return transactionService.startDeletionWorkflow(
+                transactionId,
+                deletionRequestBody,
+                Contexts.COLLECT_DELETION_ACTION
+            );
+        } catch (
+            VitamClientException
+            | InternalServerException
+            | OperationContextException
+            | ContentAddressableStorageServerException
+            | LogbookClientServerException e
+        ) {
+            return CollectRequestResponse.toVitamError(INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
+        } catch (
+            InvalidCreateOperationException
+            | BadRequestException
+            | InvalidGuidOperationException
+            | LogbookClientAlreadyExistsException
+            | LogbookClientBadRequestException
+            | InvalidParseOperationException e
+        ) {
+            LOGGER.error("Error when fetching object in metadata :", e);
+            return CollectRequestResponse.toVitamError(BAD_REQUEST, e.getLocalizedMessage());
+        } catch (Exception e) {
+            return CollectRequestResponse.toVitamError(INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
+        }
     }
 }

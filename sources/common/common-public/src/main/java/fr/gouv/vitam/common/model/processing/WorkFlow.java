@@ -57,7 +57,11 @@ public class WorkFlow {
     @JsonProperty("comment")
     private String comment;
 
+    @JsonProperty("lifecycleLog")
     private LifecycleState lifecycleLog;
+
+    @JsonProperty("executionContext")
+    private WorkFlowExecutionContext executionContext;
 
     /**
      * steps properties, must be defined in JSON file(required)
@@ -75,6 +79,7 @@ public class WorkFlow {
         @JsonProperty("typeProc") String typeProc,
         @JsonProperty("comment") String comment,
         @JsonProperty("lifecycleLog") LifecycleState lifecycleLog,
+        @JsonProperty("executionContext") WorkFlowExecutionContext executionContext,
         @JsonProperty("steps") List<Step> steps
     ) {
         this.id = id;
@@ -83,6 +88,7 @@ public class WorkFlow {
         this.typeProc = typeProc;
         this.comment = comment;
         this.lifecycleLog = firstNonNull(lifecycleLog, LifecycleState.TEMPORARY);
+        this.executionContext = firstNonNull(executionContext, WorkFlowExecutionContext.VITAM);
         this.steps = steps;
         if (steps == null) {
             this.steps = new ArrayList<>();
@@ -221,6 +227,35 @@ public class WorkFlow {
     }
 
     /**
+     * setComment, set the comment for workflow
+     *
+     * @param comments of the workflow
+     * @return the updated Workflow object
+     */
+    public WorkFlow setComment(String comments) {
+        comment = comments;
+        return this;
+    }
+
+    public LifecycleState getLifecycleLog() {
+        return lifecycleLog;
+    }
+
+    public WorkFlow setLifecycleLog(LifecycleState lifecycleLog) {
+        this.lifecycleLog = lifecycleLog;
+        return this;
+    }
+
+    public WorkFlowExecutionContext getExecutionContext() {
+        return executionContext;
+    }
+
+    public WorkFlow setExecutionContext(WorkFlowExecutionContext executionContext) {
+        this.executionContext = executionContext;
+        return this;
+    }
+
+    /**
      * getSteps(), get all step of workflow
      *
      * @return the list of type Step
@@ -245,17 +280,6 @@ public class WorkFlow {
     }
 
     /**
-     * setComment, set the comment for workflow
-     *
-     * @param comments of the workflow
-     * @return the updated Workflow object
-     */
-    public WorkFlow setComment(String comments) {
-        comment = comments;
-        return this;
-    }
-
-    /**
      * toString : get the workflowId and comments on workflow as String
      */
     @Override
@@ -269,14 +293,5 @@ public class WorkFlow {
             getComment(),
             getLifecycleLog()
         );
-    }
-
-    public LifecycleState getLifecycleLog() {
-        return lifecycleLog;
-    }
-
-    public WorkFlow setLifecycleLog(LifecycleState lifecycleLog) {
-        this.lifecycleLog = lifecycleLog;
-        return this;
     }
 }

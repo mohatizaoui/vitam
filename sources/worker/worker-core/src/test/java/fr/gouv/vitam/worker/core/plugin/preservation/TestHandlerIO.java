@@ -27,18 +27,32 @@
 package fr.gouv.vitam.worker.core.plugin.preservation;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import fr.gouv.vitam.batch.report.client.BatchReportClient;
+import fr.gouv.vitam.batch.report.client.BatchReportClientFactory;
 import fr.gouv.vitam.common.exception.VitamRuntimeException;
 import fr.gouv.vitam.common.model.processing.IOParameter;
 import fr.gouv.vitam.common.model.processing.ProcessingUri;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
+import fr.gouv.vitam.functional.administration.client.AdminManagementClient;
+import fr.gouv.vitam.functional.administration.client.AdminManagementClientFactory;
 import fr.gouv.vitam.logbook.common.parameters.LogbookLifeCyclesClientHelper;
 import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClient;
+import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClientFactory;
+import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClient;
+import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClientFactory;
+import fr.gouv.vitam.metadata.client.MetaDataClient;
+import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
+import fr.gouv.vitam.storage.engine.client.StorageClient;
+import fr.gouv.vitam.storage.engine.client.StorageClientFactory;
 import fr.gouv.vitam.worker.common.HandlerIO;
 import fr.gouv.vitam.worker.core.exception.WorkerspaceQueueException;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageException;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageNotFoundException;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
+import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import org.mockito.Mockito;
 
 import javax.ws.rs.core.Response;
 import java.io.File;
@@ -53,8 +67,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import static org.mockito.Mockito.mock;
-
 public class TestHandlerIO implements HandlerIO {
 
     private List<Object> inputs = new ArrayList<>();
@@ -66,6 +78,68 @@ public class TestHandlerIO implements HandlerIO {
     private Map<String, JsonNode> jsonFromWorkspace = new HashMap<>();
     private ProcessingUri output;
     private String containerName = "DEFAULT_CONTAINER_NAME";
+
+    private final WorkspaceClient workspaceClient;
+    private final AdminManagementClientFactory adminManagementClientFactory;
+    private final AdminManagementClient adminManagementClient;
+    private final MetaDataClient metaDataClient;
+    private final MetaDataClientFactory metaDataClientFactory;
+    private final WorkspaceClientFactory workspaceClientFactory;
+    private final LogbookLifeCyclesClientFactory logbookLifeCyclesClientFactory;
+    private final BatchReportClientFactory batchReportClientFactory;
+    private final BatchReportClient batchReportClient;
+    private final LogbookOperationsClientFactory logbookOperationsClientFactory;
+    private final LogbookOperationsClient logbookOperationsClient;
+    private final StorageClient storageClient;
+    private final StorageClientFactory storageClientFactory;
+
+    public TestHandlerIO(
+        WorkspaceClient workspaceClient,
+        AdminManagementClientFactory adminManagementClientFactory,
+        AdminManagementClient adminManagementClient,
+        MetaDataClient metaDataClient,
+        MetaDataClientFactory metaDataClientFactory,
+        WorkspaceClientFactory workspaceClientFactory,
+        LogbookLifeCyclesClientFactory logbookLifeCyclesClientFactory,
+        BatchReportClientFactory batchReportClientFactory,
+        BatchReportClient batchReportClient,
+        LogbookOperationsClientFactory logbookOperationsClientFactory,
+        LogbookOperationsClient logbookOperationsClient,
+        StorageClient storageClient,
+        StorageClientFactory storageClientFactory
+    ) {
+        this.workspaceClient = workspaceClient;
+        this.adminManagementClientFactory = adminManagementClientFactory;
+        this.adminManagementClient = adminManagementClient;
+        this.metaDataClient = metaDataClient;
+        this.metaDataClientFactory = metaDataClientFactory;
+        this.workspaceClientFactory = workspaceClientFactory;
+        this.logbookLifeCyclesClientFactory = logbookLifeCyclesClientFactory;
+        this.batchReportClientFactory = batchReportClientFactory;
+        this.batchReportClient = batchReportClient;
+        this.logbookOperationsClientFactory = logbookOperationsClientFactory;
+        this.logbookOperationsClient = logbookOperationsClient;
+        this.storageClient = storageClient;
+        this.storageClientFactory = storageClientFactory;
+    }
+
+    public TestHandlerIO() {
+        this(
+            Mockito.mock(WorkspaceClient.class),
+            Mockito.mock(AdminManagementClientFactory.class),
+            Mockito.mock(AdminManagementClient.class),
+            Mockito.mock(MetaDataClient.class),
+            Mockito.mock(MetaDataClientFactory.class),
+            Mockito.mock(WorkspaceClientFactory.class),
+            Mockito.mock(LogbookLifeCyclesClientFactory.class),
+            Mockito.mock(BatchReportClientFactory.class),
+            Mockito.mock(BatchReportClient.class),
+            Mockito.mock(LogbookOperationsClientFactory.class),
+            Mockito.mock(LogbookOperationsClient.class),
+            Mockito.mock(StorageClient.class),
+            Mockito.mock(StorageClientFactory.class)
+        );
+    }
 
     @Override
     public void addInIOParameters(List<IOParameter> list) {
@@ -221,7 +295,7 @@ public class TestHandlerIO implements HandlerIO {
     }
 
     @Override
-    public LogbookLifeCyclesClient getLifecyclesClient() {
+    public LogbookLifeCyclesClient getLifeCyclesClient() {
         throw new RuntimeException("Not implemented");
     }
 
@@ -285,8 +359,73 @@ public class TestHandlerIO implements HandlerIO {
     }
 
     @Override
+    public LogbookLifeCyclesClientFactory getLifeCyclesClientFactory() {
+        return logbookLifeCyclesClientFactory;
+    }
+
+    @Override
     public WorkspaceClientFactory getWorkspaceClientFactory() {
-        return mock(WorkspaceClientFactory.class);
+        return workspaceClientFactory;
+    }
+
+    @Override
+    public WorkspaceClient getWorkspaceClient() {
+        return workspaceClient;
+    }
+
+    @Override
+    public MetaDataClientFactory getMetaDataClientFactory() {
+        return metaDataClientFactory;
+    }
+
+    @Override
+    public MetaDataClient getMetaDataClient() {
+        return metaDataClient;
+    }
+
+    @Override
+    public AdminManagementClientFactory getAdminManagementClientFactory() {
+        return adminManagementClientFactory;
+    }
+
+    @Override
+    public AdminManagementClient getAdminManagementClient() {
+        return adminManagementClient;
+    }
+
+    @Override
+    public BatchReportClientFactory getBatchReportClientFactory() {
+        return batchReportClientFactory;
+    }
+
+    @Override
+    public BatchReportClient getBatchReportClient() {
+        return batchReportClient;
+    }
+
+    @Override
+    public LogbookOperationsClientFactory getLogbookOperationsClientFactory() {
+        return logbookOperationsClientFactory;
+    }
+
+    @Override
+    public LogbookOperationsClient getLogbookOperationsClient() {
+        return logbookOperationsClient;
+    }
+
+    @Override
+    public StorageClientFactory getStorageClientFactory() {
+        return storageClientFactory;
+    }
+
+    @Override
+    public StorageClient getStorageClient() {
+        return storageClient;
+    }
+
+    @Override
+    public WorkFlowExecutionContext getWorkFlowExecutionContext() {
+        throw new RuntimeException("Not implemented");
     }
 
     public void setInputStreamFromWorkspace(InputStream inputStreamFromWorkspace) {

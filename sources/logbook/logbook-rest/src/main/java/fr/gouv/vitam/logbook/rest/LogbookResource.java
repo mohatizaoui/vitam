@@ -62,6 +62,7 @@ import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.common.model.LifeCycleStatusCode;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.VitamConstants;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.security.IllegalPathException;
 import fr.gouv.vitam.common.security.SafeFileChecker;
 import fr.gouv.vitam.common.server.application.VitamHttpHeader;
@@ -112,7 +113,6 @@ import fr.gouv.vitam.logbook.operations.core.LogbookOperationsImpl;
 import fr.gouv.vitam.processing.management.client.ProcessingManagementClientFactory;
 import fr.gouv.vitam.worker.core.distribution.JsonLineWriter;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.SetUtils;
@@ -226,8 +226,8 @@ public class LogbookResource extends ApplicationStatusResource {
             throw new RuntimeException(e);
         }
         final TimestampGenerator timestampGenerator = new TimestampGenerator(timeStampSignature);
-        final WorkspaceClientFactory clientFactory = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM);
-        WorkspaceClientFactory.changeMode(configuration.getWorkspaceUrl(), WorkspaceType.VITAM);
+        final WorkspaceClientFactory clientFactory = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM);
+        WorkspaceClientFactory.changeMode(configuration.getWorkspaceUrl(), WorkFlowExecutionContext.VITAM);
 
         logbookAdministration = new LogbookAdministration(
             logbookOperation,

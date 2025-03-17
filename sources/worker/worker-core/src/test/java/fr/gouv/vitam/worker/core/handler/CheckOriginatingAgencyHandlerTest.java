@@ -35,6 +35,7 @@ import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -116,7 +117,7 @@ public class CheckOriginatingAgencyHandlerTest {
         // When
         when(handlerIO.getInput(0)).thenReturn(serviceAgent);
         when(adminClient.getAgencies(any())).thenReturn(ClientMockResultHelper.getAgency().toJsonNode());
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace(FAKE_URL)
             .setUrlMetadata(FAKE_URL)
             .setObjectNameList(Lists.newArrayList("objectName.json"))
@@ -139,7 +140,7 @@ public class CheckOriginatingAgencyHandlerTest {
         // When
         when(handlerIO.getInput(0)).thenReturn(serviceAgent);
         when(adminClient.getAgencies(any())).thenReturn(createReponse(AGENCY).toJsonNode());
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace(FAKE_URL)
             .setUrlMetadata(FAKE_URL)
             .setObjectNameList(Lists.newArrayList("objectName.json"))
@@ -168,7 +169,7 @@ public class CheckOriginatingAgencyHandlerTest {
         when(handlerIO.getInput(0)).thenReturn(serviceAgent);
         when(adminClient.getAgencies(any())).thenReturn(createReponse(AGENCY).toJsonNode());
         // When
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace(FAKE_URL)
             .setUrlMetadata(FAKE_URL)
             .setObjectNameList(Lists.newArrayList("objectName.json"))

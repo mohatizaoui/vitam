@@ -70,6 +70,7 @@ public final class BackgroundLogbookTypeProcessHelper {
             case ARCHIVE_TRANSFER:
             case DATA_MIGRATION:
             case RECLASSIFICATION:
+            case COLLECT_RECLASSIFICATION:
             case MASS_UPDATE:
             case BULK_UPDATE:
             case ELIMINATION:
@@ -79,6 +80,8 @@ public final class BackgroundLogbookTypeProcessHelper {
             case COMPUTE_INHERITED_RULES_DELETE:
             case INTERNAL_OPERATING_OP:
             case DELETE_GOT_VERSIONS:
+            case COLLECT_ELIMINATION_ACTION:
+            case COLLECT_DELETION_ACTION:
                 return false;
             default:
                 // /:\ Please ensure that any new LogbookTypeProcess is identified properly configured

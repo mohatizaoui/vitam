@@ -178,6 +178,7 @@ public class CollectIngestIT extends VitamRuleRunner {
         prefix = MetadataCollections.UNIT.getPrefix();
         runner.startMetadataCollectServer();
         runner.startWorkspaceCollectServer();
+        runner.startWorkspaceServer();
         handleBeforeClass(Arrays.asList(0, 1), Collections.emptyMap());
         new DataLoader("integration-ingest-internal").prepareData();
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);

@@ -33,11 +33,11 @@ import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.processing.common.async.AccessRequestContext;
 import fr.gouv.vitam.processing.common.async.ProcessingRetryAsyncException;
 import fr.gouv.vitam.storage.engine.client.StorageClient;
-import fr.gouv.vitam.storage.engine.client.StorageClientFactory;
 import fr.gouv.vitam.storage.engine.client.exception.StorageServerClientException;
 import fr.gouv.vitam.storage.engine.common.model.DataCategory;
 import fr.gouv.vitam.storage.engine.common.model.request.BulkObjectAvailabilityRequest;
 import fr.gouv.vitam.storage.engine.common.model.response.BulkObjectAvailabilityResponse;
+import fr.gouv.vitam.worker.common.HandlerIO;
 import fr.gouv.vitam.worker.core.handler.ActionHandler;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
@@ -57,11 +57,7 @@ public abstract class CheckResourceAvailability extends ActionHandler {
 
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(CheckResourceAvailability.class);
 
-    private final StorageClientFactory storageClientFactory;
-
-    protected CheckResourceAvailability(StorageClientFactory storage) {
-        this.storageClientFactory = storage;
-    }
+    protected CheckResourceAvailability() {}
 
     /**
      * Check for multiple types resource synchronous availability in storage and create access requests for unavailable objects
@@ -71,18 +67,21 @@ public abstract class CheckResourceAvailability extends ActionHandler {
      * @throws ProcessingRetryAsyncException exception thrown when some resources are unavailable
      */
     protected void checkResourcesAvailabilityByTypes(
+        HandlerIO handlerIO,
         Map<DataCategory, Map<AccessRequestContext, List<String>>> objectIdsByContextbyType
     ) throws StorageServerClientException, ProcessingRetryAsyncException {
         LOGGER.info("Check if resources are available for multiple categories.");
         Map<AccessRequestContext, List<String>> accessRequestsCreated = new HashMap<>();
         for (DataCategory type : objectIdsByContextbyType.keySet()) {
             MultiValuedMap<AccessRequestContext, String> unavailableResources = extractUnavailableResources(
+                handlerIO,
                 objectIdsByContextbyType.get(type),
                 type
             );
             if (!unavailableResources.isEmpty()) {
                 LOGGER.info("Some resources are unavailable, creation of accessRequests.");
                 Map<AccessRequestContext, List<String>> createAccessRequestsForType = createAccessRequests(
+                    handlerIO,
                     unavailableResources,
                     type
                 );
@@ -107,17 +106,20 @@ public abstract class CheckResourceAvailability extends ActionHandler {
      * @throws ProcessingRetryAsyncException exception thrown when some resources are unavailable
      */
     protected void checkResourcesAvailability(
+        HandlerIO handlerIO,
         Map<AccessRequestContext, List<String>> objectIdsByContext,
         DataCategory type
     ) throws StorageServerClientException, ProcessingRetryAsyncException {
         LOGGER.info("Check if resources are available.");
         MultiValuedMap<AccessRequestContext, String> unavailableResources = extractUnavailableResources(
+            handlerIO,
             objectIdsByContext,
             type
         );
         if (!unavailableResources.isEmpty()) {
             LOGGER.info("Some resources are unavailable, creation of accessRequests.");
             Map<AccessRequestContext, List<String>> accessRequestsCreated = createAccessRequests(
+                handlerIO,
                 unavailableResources,
                 type
             );
@@ -134,11 +136,12 @@ public abstract class CheckResourceAvailability extends ActionHandler {
      * @throws StorageServerClientException exception from storage
      */
     private MultiValuedMap<AccessRequestContext, String> extractUnavailableResources(
+        HandlerIO handlerIO,
         Map<AccessRequestContext, List<String>> objectIdsByContext,
         DataCategory type
     ) throws StorageServerClientException {
         LOGGER.debug("Extract the resources that are unavailable");
-        try (StorageClient storageClient = storageClientFactory.getClient()) {
+        try (StorageClient storageClient = handlerIO.getStorageClient()) {
             MultiValuedMap<AccessRequestContext, String> unavailableObjects = new ArrayListValuedHashMap<>();
             for (AccessRequestContext context : objectIdsByContext.keySet()) {
                 Collection<String> objectIds = objectIdsByContext.get(context);
@@ -174,11 +177,12 @@ public abstract class CheckResourceAvailability extends ActionHandler {
      * @throws StorageServerClientException exception from storage
      */
     private Map<AccessRequestContext, List<String>> createAccessRequests(
+        HandlerIO handlerIO,
         MultiValuedMap<AccessRequestContext, String> objectIdsByContext,
         DataCategory type
     ) throws StorageServerClientException {
         LOGGER.debug("Create access requests if required");
-        try (StorageClient storageClient = storageClientFactory.getClient()) {
+        try (StorageClient storageClient = handlerIO.getStorageClient()) {
             Map<AccessRequestContext, List<String>> accessRequests = new HashMap<>();
             for (AccessRequestContext context : objectIdsByContext.keySet()) {
                 Collection<String> objectIds = objectIdsByContext.get(context);

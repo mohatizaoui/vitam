@@ -45,6 +45,7 @@ import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.processing.LifecycleState;
 import fr.gouv.vitam.common.model.processing.Step;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.functional.administration.client.AdminManagementClientFactory;
@@ -66,7 +67,6 @@ import fr.gouv.vitam.worker.server.registration.WorkerRegister;
 import fr.gouv.vitam.worker.server.rest.WorkerMain;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 import fr.gouv.vitam.workspace.rest.WorkspaceMain;
 import io.restassured.RestAssured;
 import org.apache.commons.io.IOUtils;
@@ -185,7 +185,7 @@ public class WorkerIT extends VitamRuleRunner {
 
         // workspace client dezip SIP in workspace
         final InputStream zipInputStreamSipObject = PropertiesUtils.getResourceAsStream(SIP_FILE_OK_NAME);
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(CONTAINER_NAME);
         workspaceClient.uncompressObject(CONTAINER_NAME, SIP_FOLDER, CommonMediaType.ZIP, zipInputStreamSipObject);
 
@@ -236,7 +236,7 @@ public class WorkerIT extends VitamRuleRunner {
 
         // workspace client dezip SIP in workspace
         final InputStream zipInputStreamSipObject = PropertiesUtils.getResourceAsStream(SIP_ARBO_COMPLEXE_FILE_OK);
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(CONTAINER_NAME);
         workspaceClient.uncompressObject(CONTAINER_NAME, SIP_FOLDER, CommonMediaType.ZIP, zipInputStreamSipObject);
 
@@ -287,7 +287,7 @@ public class WorkerIT extends VitamRuleRunner {
         VitamThreadUtils.getVitamSession().setContextId("Context_IT");
         // workspace client dezip SIP in workspace
         final InputStream zipInputStreamSipObject = PropertiesUtils.getResourceAsStream(SIP_WITHOUT_MANIFEST);
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(CONTAINER_NAME);
         workspaceClient.uncompressObject(CONTAINER_NAME, SIP_FOLDER, CommonMediaType.ZIP, zipInputStreamSipObject);
 
@@ -317,7 +317,7 @@ public class WorkerIT extends VitamRuleRunner {
         VitamThreadUtils.getVitamSession().setContextId("Context_IT");
         // workspace client dezip SIP in workspace
         final InputStream zipInputStreamSipObject = PropertiesUtils.getResourceAsStream(SIP_CONFORMITY_KO);
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(CONTAINER_NAME);
         workspaceClient.uncompressObject(CONTAINER_NAME, SIP_FOLDER, CommonMediaType.ZIP, zipInputStreamSipObject);
 
@@ -361,7 +361,9 @@ public class WorkerIT extends VitamRuleRunner {
     }
 
     private DefaultWorkerParameters getWorkParams() {
-        final DefaultWorkerParameters workparams = WorkerParametersFactory.newWorkerParameters();
+        final DefaultWorkerParameters workparams = WorkerParametersFactory.newWorkerParameters(
+            WorkFlowExecutionContext.VITAM
+        );
         workparams.setContainerName(CONTAINER_NAME);
         return workparams;
     }

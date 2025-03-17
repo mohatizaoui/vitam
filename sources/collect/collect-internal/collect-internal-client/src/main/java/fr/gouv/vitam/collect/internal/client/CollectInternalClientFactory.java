@@ -32,6 +32,7 @@ import fr.gouv.vitam.common.client.configuration.ClientConfiguration;
 import fr.gouv.vitam.common.client.configuration.ClientConfigurationImpl;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 
 import java.io.IOException;
 
@@ -50,12 +51,32 @@ public class CollectInternalClientFactory extends VitamClientFactory<CollectInte
     }
 
     /**
-     * Get the AccessClientFactory instance
+     * Get the CollectInternalClientFactory instance
      *
      * @return the instance
      */
     public static CollectInternalClientFactory getInstance() {
-        return COLLECT_CLIENT_FACTORY;
+        return getInstance(WorkFlowExecutionContext.VITAM);
+    }
+
+    /**
+     * Get the CollectInternalClientFactory instance for the given workflow execution context
+     *
+     * @param executionContext the workflow execution context
+     * @return the instance
+     */
+    public static CollectInternalClientFactory getInstance(WorkFlowExecutionContext executionContext) {
+        return switch (executionContext) {
+            case VITAM, COLLECT -> COLLECT_CLIENT_FACTORY;
+        };
+    }
+
+    @Override
+    public CollectInternalClient getClient() {
+        return switch (getVitamClientType()) {
+            case MOCK -> throw new IllegalStateException("Unsupported MOCK mode");
+            case PRODUCTION -> new CollectInternalClientRest(this);
+        };
     }
 
     /**
@@ -92,20 +113,5 @@ public class CollectInternalClientFactory extends VitamClientFactory<CollectInte
      */
     static void changeMode(ClientConfiguration configuration) {
         getInstance().initialisation(configuration, getInstance().getResourcePath());
-    }
-
-    @Override
-    public CollectInternalClient getClient() {
-        CollectInternalClient client;
-        switch (getVitamClientType()) {
-            case PRODUCTION:
-                client = new CollectInternalClientRest(this);
-                break;
-            case MOCK:
-                throw new IllegalStateException("Unsupported MOCK mode");
-            default:
-                throw new IllegalArgumentException("Collect client type unknown");
-        }
-        return client;
     }
 }

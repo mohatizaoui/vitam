@@ -78,7 +78,8 @@ public class EliminationActionReportGenerationHandler extends GenericReportGener
     }
 
     @Override
-    protected LogbookOperation getLogbookInformation(WorkerParameters param) throws ProcessingException {
+    protected LogbookOperation getLogbookInformation(HandlerIO handlerIO, WorkerParameters param)
+        throws ProcessingException {
         try (LogbookOperationsClient logbookClient = logbookOperationsClientFactory.getClient()) {
             JsonNode response = logbookClient.selectOperationById(param.getContainerName());
             RequestResponseOK<JsonNode> logbookResponse = RequestResponseOK.getFromJsonNode(response);

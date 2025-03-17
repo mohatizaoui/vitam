@@ -33,6 +33,7 @@ import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.processing.ProcessingUri;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.utils.SupportedSedaVersions;
 import fr.gouv.vitam.common.xml.SecureXMLFactoryUtils;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
@@ -96,7 +97,7 @@ public class SedaUtilsTest {
 
     private final HandlerIO handlerIO = mock(HandlerIO.class);
     private SedaUtils utils;
-    private final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+    private final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
         .setWorkerGUID(GUIDFactory.newGUID().getId())
         .setContainerName(OBJ)
         .setUrlWorkspace("http://localhost:8083")

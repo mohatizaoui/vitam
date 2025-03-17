@@ -28,12 +28,11 @@ package fr.gouv.vitam.worker.core.plugin.transfer.reply;
 
 import com.google.common.annotations.VisibleForTesting;
 import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClientFactory;
-import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.worker.core.plugin.purge.PurgeDeleteService;
 import fr.gouv.vitam.worker.core.plugin.purge.PurgeReportService;
-import fr.gouv.vitam.worker.core.plugin.purge.PurgeUnitPlugin;
+import fr.gouv.vitam.worker.core.plugin.purge.PurgeUnitVitamPlugin;
 
-public class TransferReplyDeleteUnitPlugin extends PurgeUnitPlugin {
+public class TransferReplyDeleteUnitPlugin extends PurgeUnitVitamPlugin {
 
     public static final String TRANSFER_REPLY_DELETE_UNIT = "TRANSFER_REPLY_DELETE_UNIT";
 
@@ -50,17 +49,10 @@ public class TransferReplyDeleteUnitPlugin extends PurgeUnitPlugin {
     @VisibleForTesting
     TransferReplyDeleteUnitPlugin(
         PurgeDeleteService purgeDeleteService,
-        MetaDataClientFactory metaDataClientFactory,
         PurgeReportService purgeReportService,
         LogbookLifeCyclesClientFactory logbookLifeCyclesClientFactory
     ) {
-        super(
-            TRANSFER_REPLY_DELETE_UNIT,
-            purgeDeleteService,
-            metaDataClientFactory,
-            purgeReportService,
-            logbookLifeCyclesClientFactory
-        );
+        super(TRANSFER_REPLY_DELETE_UNIT, purgeDeleteService, purgeReportService, logbookLifeCyclesClientFactory);
     }
 
     public static String getId() {

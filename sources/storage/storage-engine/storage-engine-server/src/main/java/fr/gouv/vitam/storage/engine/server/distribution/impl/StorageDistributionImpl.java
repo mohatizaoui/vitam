@@ -50,6 +50,7 @@ import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.common.model.RequestResponse;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.model.storage.AccessRequestStatus;
 import fr.gouv.vitam.common.model.storage.ObjectEntry;
 import fr.gouv.vitam.common.parameter.ParameterHelper;
@@ -124,7 +125,6 @@ import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageNotFoundEx
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.ws.rs.core.Response;
@@ -232,8 +232,8 @@ public class StorageDistributionImpl implements StorageDistribution {
         throws StorageTechnicalException {
         ParametersChecker.checkParameter(STORAGE_SERVICE_CONFIGURATION_IS_MANDATORY, configuration);
         urlWorkspace = configuration.getUrlWorkspace();
-        WorkspaceClientFactory.changeMode(urlWorkspace, WorkspaceType.VITAM);
-        this.workspaceClientFactory = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM);
+        WorkspaceClientFactory.changeMode(urlWorkspace, WorkFlowExecutionContext.VITAM);
+        this.workspaceClientFactory = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM);
         this.storageLogService = storageLogService;
         digestType = VitamConfiguration.getDefaultDigestType();
         this.transfertTimeoutHelper = new TransfertTimeoutHelper(

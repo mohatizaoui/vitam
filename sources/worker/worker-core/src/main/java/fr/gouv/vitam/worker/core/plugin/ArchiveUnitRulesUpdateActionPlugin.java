@@ -161,12 +161,12 @@ public class ArchiveUnitRulesUpdateActionPlugin extends ActionHandler implements
                     archiveUnitId,
                     StatusCode.OK,
                     diffMessage,
-                    handler.getLifecyclesClient()
+                    handler.getLifeCyclesClient()
                 );
                 archiveUnitLifecycleUpdateUtils.commitLifecycle(
                     params.getContainerName(),
                     archiveUnitId,
-                    handler.getLifecyclesClient()
+                    handler.getLifeCyclesClient()
                 );
             }
             itemStatus.increment(StatusCode.OK);

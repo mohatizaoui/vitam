@@ -53,6 +53,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -86,14 +87,16 @@ public class PreservationPreparationInsertionAuMetadataTest {
         .withRequestId("REQUEST_ID_TEST")
         .build();
 
-    private HandlerIO handler = new TestHandlerIO();
+    private HandlerIO handler = mock(HandlerIO.class);
 
     @Before
     public void setUp() throws Exception {
         given(batchReportFactory.getClient()).willReturn(batchReportClient);
         given(workspaceClientFactory.getClient()).willReturn(workspaceClient);
+        given(handler.getBatchReportClient()).willReturn(batchReportClient);
+        given(handler.getWorkspaceClient()).willReturn(workspaceClient);
 
-        plugin = new PreservationPreparationInsertionAuMetadata(batchReportFactory, workspaceClientFactory);
+        plugin = new PreservationPreparationInsertionAuMetadata();
     }
 
     @Test
@@ -106,7 +109,7 @@ public class PreservationPreparationInsertionAuMetadataTest {
         ItemStatus itemStatuses = plugin.execute(parameter, handler);
 
         // Then
-        verify(batchReportClient, times(1)).createExtractedMetadataDistributionFileForAu(anyString());
+        verify(batchReportClient, times(1)).createExtractedMetadataDistributionFileForAu(anyString(), any());
         assertThat(itemStatuses).extracting(ItemStatus::getGlobalStatus).isEqualTo(OK);
     }
 
@@ -120,7 +123,7 @@ public class PreservationPreparationInsertionAuMetadataTest {
         ItemStatus itemStatuses = plugin.execute(parameter, handler);
 
         // Then
-        verify(batchReportClient, never()).createExtractedMetadataDistributionFileForAu(anyString());
+        verify(batchReportClient, never()).createExtractedMetadataDistributionFileForAu(anyString(), any());
         assertThat(itemStatuses).extracting(ItemStatus::getGlobalStatus).isEqualTo(OK);
     }
 
@@ -130,7 +133,7 @@ public class PreservationPreparationInsertionAuMetadataTest {
         // Given
         doThrow(new VitamClientInternalException("Exception when creating diStribution file for AU"))
             .when(batchReportClient)
-            .createExtractedMetadataDistributionFileForAu(any());
+            .createExtractedMetadataDistributionFileForAu(any(), any());
 
         // When
         ThrowableAssert.ThrowingCallable shouldThrow = () -> plugin.execute(parameter, handler);

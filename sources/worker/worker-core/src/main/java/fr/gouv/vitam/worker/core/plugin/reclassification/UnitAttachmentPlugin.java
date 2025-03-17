@@ -27,7 +27,6 @@
 package fr.gouv.vitam.worker.core.plugin.reclassification;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.common.annotations.VisibleForTesting;
 import fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper;
 import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
 import fr.gouv.vitam.common.database.builder.request.multiple.UpdateMultiQuery;
@@ -40,17 +39,16 @@ import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.LifeCycleStatusCode;
 import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.logbook.common.parameters.LogbookLifeCycleUnitParameters;
 import fr.gouv.vitam.logbook.common.parameters.LogbookTypeProcess;
 import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClient;
-import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClientFactory;
 import fr.gouv.vitam.metadata.api.exception.MetaDataClientServerException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataDocumentSizeException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataExecutionException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataNotFoundException;
 import fr.gouv.vitam.metadata.client.MetaDataClient;
-import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.worker.common.HandlerIO;
@@ -75,37 +73,17 @@ public class UnitAttachmentPlugin extends ActionHandler {
     private static final String UNIT_ATTACHMENT = "UNIT_ATTACHMENT";
     private static final String UNITS_TO_ATTACH_DIR = "UnitsToAttach";
 
-    private final LogbookLifeCyclesClientFactory logbookLifeCyclesClientFactory;
-    private final MetaDataClientFactory metaDataClientFactory;
-
-    /**
-     * Default constructor
-     */
-    public UnitAttachmentPlugin() {
-        this(LogbookLifeCyclesClientFactory.getInstance(), MetaDataClientFactory.getInstance());
-    }
-
-    /**
-     * Constructor for testing only
-     */
-    @VisibleForTesting
-    UnitAttachmentPlugin(
-        LogbookLifeCyclesClientFactory logbookLifeCyclesClientFactory,
-        MetaDataClientFactory metaDataClientFactory
-    ) {
-        this.logbookLifeCyclesClientFactory = logbookLifeCyclesClientFactory;
-        this.metaDataClientFactory = metaDataClientFactory;
-    }
-
     @Override
     public ItemStatus execute(WorkerParameters param, HandlerIO handler) throws ProcessingException {
         String unitId = param.getObjectName();
         try {
             Set<String> parentUnitsToAdd = getParentsToAdd(handler, unitId);
 
-            updateUnit(unitId, parentUnitsToAdd);
+            updateUnit(handler, unitId, parentUnitsToAdd);
 
-            updateUnitLifeCycle(param, unitId, parentUnitsToAdd);
+            if (param.getExecutionContext() != WorkFlowExecutionContext.COLLECT) {
+                updateUnitLifeCycle(handler, param, unitId, parentUnitsToAdd);
+            }
         } catch (ProcessingStatusException e) {
             LOGGER.error("Unit attachment failed with status [" + e.getStatusCode() + "]", e);
             return buildItemStatus(UNIT_ATTACHMENT, e.getStatusCode(), e.getEventDetails());
@@ -126,8 +104,9 @@ public class UnitAttachmentPlugin extends ActionHandler {
         }
     }
 
-    private void updateUnit(String unitId, Set<String> parentUnitsToAdd) throws ProcessingStatusException {
-        try (MetaDataClient metaDataClient = metaDataClientFactory.getClient()) {
+    private void updateUnit(HandlerIO handler, String unitId, Set<String> parentUnitsToAdd)
+        throws ProcessingStatusException {
+        try (MetaDataClient metaDataClient = handler.getMetaDataClient()) {
             UpdateMultiQuery updateMultiQuery = new UpdateMultiQuery();
             updateMultiQuery.addActions(
                 add(VitamFieldsHelper.unitups(), parentUnitsToAdd.toArray(new String[0])),
@@ -147,9 +126,13 @@ public class UnitAttachmentPlugin extends ActionHandler {
         }
     }
 
-    private void updateUnitLifeCycle(WorkerParameters param, String unitId, Set<String> parentUnitsToAdd)
-        throws ProcessingStatusException {
-        try (LogbookLifeCyclesClient logbookLifeCyclesClient = logbookLifeCyclesClientFactory.getClient()) {
+    private void updateUnitLifeCycle(
+        HandlerIO handler,
+        WorkerParameters param,
+        String unitId,
+        Set<String> parentUnitsToAdd
+    ) throws ProcessingStatusException {
+        try (LogbookLifeCyclesClient logbookLifeCyclesClient = handler.getLifeCyclesClient()) {
             ReclassificationEventDetails eventDetails = new ReclassificationEventDetails()
                 .setAddedParents(parentUnitsToAdd);
             LogbookLifeCycleUnitParameters logbookLCParam = createParameters(

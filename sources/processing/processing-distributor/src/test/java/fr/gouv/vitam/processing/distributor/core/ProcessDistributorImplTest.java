@@ -41,6 +41,7 @@ import fr.gouv.vitam.common.model.processing.DistributionType;
 import fr.gouv.vitam.common.model.processing.PauseOrCancelAction;
 import fr.gouv.vitam.common.model.processing.ProcessBehavior;
 import fr.gouv.vitam.common.model.processing.Step;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadFactory;
@@ -187,7 +188,7 @@ public class ProcessDistributorImplTest {
         workerManager.registerWorker(workerBean);
 
         when(workerClientFactory.getClient()).thenReturn(workerClient);
-        workerParameters = WorkerParametersFactory.newWorkerParameters();
+        workerParameters = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM);
         workerParameters.setWorkerGUID(GUIDFactory.newGUID().getId());
         workerParameters.setContainerName(operationId);
         workerParameters.setLogbookTypeProcess(LogbookTypeProcess.INGEST);
@@ -343,38 +344,6 @@ public class ProcessDistributorImplTest {
                 null,
                 workspaceClientFactory,
                 metaDataClientFactory,
-                workerClientFactory
-            );
-            fail("Should throw an exception");
-        } catch (Exception e) {
-            SysErrLogger.FAKE_LOGGER.ignoreLog(e);
-        }
-
-        try {
-            new ProcessDistributorImpl(
-                workerManager,
-                asyncResourcesMonitor,
-                asyncResourceCleaner,
-                configuration,
-                processDataManagement,
-                null,
-                metaDataClientFactory,
-                workerClientFactory
-            );
-            fail("Should throw an exception");
-        } catch (Exception e) {
-            SysErrLogger.FAKE_LOGGER.ignoreLog(e);
-        }
-
-        try {
-            new ProcessDistributorImpl(
-                workerManager,
-                asyncResourcesMonitor,
-                asyncResourceCleaner,
-                configuration,
-                processDataManagement,
-                workspaceClientFactory,
-                null,
                 workerClientFactory
             );
             fail("Should throw an exception");

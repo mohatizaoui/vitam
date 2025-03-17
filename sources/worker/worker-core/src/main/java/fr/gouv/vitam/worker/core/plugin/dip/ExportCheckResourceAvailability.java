@@ -26,7 +26,6 @@
  */
 package fr.gouv.vitam.worker.core.plugin.dip;
 
-import com.google.common.annotations.VisibleForTesting;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.logging.VitamLogger;
@@ -37,7 +36,6 @@ import fr.gouv.vitam.processing.common.async.AccessRequestContext;
 import fr.gouv.vitam.processing.common.async.ProcessingRetryAsyncException;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
-import fr.gouv.vitam.storage.engine.client.StorageClientFactory;
 import fr.gouv.vitam.storage.engine.common.model.DataCategory;
 import fr.gouv.vitam.worker.common.HandlerIO;
 import fr.gouv.vitam.worker.core.plugin.common.CheckResourceAvailability;
@@ -64,12 +62,7 @@ public class ExportCheckResourceAvailability extends CheckResourceAvailability {
     static final int GUID_TO_INFO_RANK = 0;
 
     public ExportCheckResourceAvailability() {
-        this(StorageClientFactory.getInstance());
-    }
-
-    @VisibleForTesting
-    public ExportCheckResourceAvailability(StorageClientFactory storage) {
-        super(storage);
+        super();
     }
 
     @Override
@@ -78,7 +71,7 @@ public class ExportCheckResourceAvailability extends CheckResourceAvailability {
         try {
             Map<AccessRequestContext, List<String>> entries = extractResources(workerParameters, handler);
 
-            checkResourcesAvailability(entries, DataCategory.OBJECT);
+            checkResourcesAvailability(handler, entries, DataCategory.OBJECT);
 
             return IntStream.range(0, workerParameters.getObjectNameList().size())
                 .mapToObj(
