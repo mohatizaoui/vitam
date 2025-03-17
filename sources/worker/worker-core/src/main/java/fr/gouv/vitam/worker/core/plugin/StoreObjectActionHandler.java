@@ -35,7 +35,6 @@ import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.storage.engine.client.StorageClient;
-import fr.gouv.vitam.storage.engine.client.StorageClientFactory;
 import fr.gouv.vitam.storage.engine.client.exception.StorageAlreadyExistsClientException;
 import fr.gouv.vitam.storage.engine.client.exception.StorageNotFoundClientException;
 import fr.gouv.vitam.storage.engine.client.exception.StorageServerClientException;
@@ -43,6 +42,7 @@ import fr.gouv.vitam.storage.engine.common.model.request.BulkObjectStoreRequest;
 import fr.gouv.vitam.storage.engine.common.model.request.ObjectDescription;
 import fr.gouv.vitam.storage.engine.common.model.response.BulkObjectStoreResponse;
 import fr.gouv.vitam.storage.engine.common.model.response.StoredInfoResult;
+import fr.gouv.vitam.worker.common.HandlerIO;
 import fr.gouv.vitam.worker.core.handler.ActionHandler;
 
 import java.util.List;
@@ -60,22 +60,22 @@ public abstract class StoreObjectActionHandler extends ActionHandler {
     private static final String ALGORITHM = "Algorithm";
     private static final String DIGEST = "MessageDigest";
 
-    private final StorageClientFactory storageClientFactory;
-
-    public StoreObjectActionHandler(StorageClientFactory storageClientFactory) {
-        this.storageClientFactory = storageClientFactory;
-    }
-
     /**
      * The function is used for retrieving ObjectGroup in workspace and storing metaData in storage offer
      *
+     * @param handler
      * @param strategyId the object's storage strategy
      * @param description the object description
      * @param itemStatus item status
      * @return StoredInfoResult
      */
-    protected StoredInfoResult storeObject(String strategyId, ObjectDescription description, ItemStatus itemStatus) {
-        try (final StorageClient storageClient = storageClientFactory.getClient()) {
+    protected StoredInfoResult storeObject(
+        HandlerIO handler,
+        String strategyId,
+        ObjectDescription description,
+        ItemStatus itemStatus
+    ) {
+        try (final StorageClient storageClient = handler.getStorageClient()) {
             // store binary data object
             return storageClient.storeFileFromWorkspace(
                 strategyId,
@@ -96,11 +96,14 @@ public abstract class StoreObjectActionHandler extends ActionHandler {
         return null;
     }
 
-    protected BulkObjectStoreResponse storeObjects(String startegy, BulkObjectStoreRequest bulkObjectStoreRequest)
-        throws StorageNotFoundClientException, StorageServerClientException, StorageAlreadyExistsClientException {
-        try (final StorageClient storageClient = storageClientFactory.getClient()) {
+    protected BulkObjectStoreResponse storeObjects(
+        HandlerIO handler,
+        String strategy,
+        BulkObjectStoreRequest bulkObjectStoreRequest
+    ) throws StorageNotFoundClientException, StorageServerClientException, StorageAlreadyExistsClientException {
+        try (final StorageClient storageClient = handler.getStorageClient()) {
             // store binary data objects
-            return storageClient.bulkStoreFilesFromWorkspace(startegy, bulkObjectStoreRequest);
+            return storageClient.bulkStoreFilesFromWorkspace(strategy, bulkObjectStoreRequest);
         }
     }
 

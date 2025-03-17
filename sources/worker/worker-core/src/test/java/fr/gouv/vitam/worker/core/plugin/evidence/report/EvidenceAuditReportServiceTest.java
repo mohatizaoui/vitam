@@ -31,6 +31,7 @@ import fr.gouv.vitam.batch.report.client.BatchReportClientFactory;
 import fr.gouv.vitam.batch.report.model.Report;
 import fr.gouv.vitam.batch.report.model.ReportType;
 import fr.gouv.vitam.common.VitamConfiguration;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -116,10 +117,10 @@ public class EvidenceAuditReportServiceTest {
     public void storeReportToWorkspace() throws Exception {
         // Given / When
         Report report = mock(Report.class);
-        instance.storeReportToWorkspace(report);
+        instance.storeReportToWorkspace(report, WorkFlowExecutionContext.VITAM);
 
         // Then
-        verify(batchReportClient).storeReportToWorkspace(report);
+        verify(batchReportClient).storeReportToWorkspace(report, WorkFlowExecutionContext.VITAM);
     }
 
     @Test

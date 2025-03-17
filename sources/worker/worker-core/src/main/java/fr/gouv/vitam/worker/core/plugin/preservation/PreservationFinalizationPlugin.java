@@ -189,7 +189,7 @@ public class PreservationFinalizationPlugin extends ActionHandler {
             JsonNode context = JsonHandler.toJsonNode(contextPreservationReport);
             Report reportInfo = new Report(operationSummary, reportSummary, context);
 
-            preservationReportService.storeReportToWorkspace(reportInfo);
+            preservationReportService.storeReportToWorkspace(reportInfo, param.getExecutionContext());
         }
     }
 

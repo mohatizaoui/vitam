@@ -45,6 +45,7 @@ import fr.gouv.vitam.common.model.processing.DistributionKind;
 import fr.gouv.vitam.common.model.processing.DistributionType;
 import fr.gouv.vitam.common.model.processing.PauseOrCancelAction;
 import fr.gouv.vitam.common.model.processing.Step;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.stream.StreamUtils;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.logbook.common.parameters.LogbookTypeProcess;
@@ -74,7 +75,6 @@ import fr.gouv.vitam.worker.core.distribution.JsonLineModel;
 import fr.gouv.vitam.workspace.client.WorkspaceBufferingInputStream;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 import org.apache.commons.collections4.iterators.PeekingIterator;
 
 import javax.ws.rs.core.Response;
@@ -128,8 +128,8 @@ public class ProcessDistributorImpl implements ProcessDistributor {
     private final AsyncResourcesMonitor asyncResourcesMonitor;
     private final AsyncResourceCleaner asyncResourceCleaner;
     private final IWorkerManager workerManager;
-    private final WorkspaceClientFactory workspaceClientFactory;
     private final MetaDataClientFactory metaDataClientFactory;
+    private final WorkspaceClientFactory workspaceClientFactory;
     private final WorkerClientFactory workerClientFactory;
     private final ServerConfiguration serverConfiguration;
 
@@ -151,8 +151,8 @@ public class ProcessDistributorImpl implements ProcessDistributor {
             asyncResourceCleaner,
             serverConfiguration,
             WorkspaceProcessDataManagement.getInstance(),
-            WorkspaceClientFactory.getInstance(WorkspaceType.VITAM),
-            MetaDataClientFactory.getInstance(),
+            null,
+            null,
             null
         );
     }
@@ -182,9 +182,7 @@ public class ProcessDistributorImpl implements ProcessDistributor {
             asyncResourcesMonitor,
             asyncResourceCleaner,
             serverConfiguration,
-            processDataManagement,
-            metaDataClientFactory,
-            workspaceClientFactory
+            processDataManagement
         );
     }
 
@@ -209,6 +207,11 @@ public class ProcessDistributorImpl implements ProcessDistributor {
 
         final int tenantId = VitamThreadUtils.getVitamSession().getTenantId();
         step.setStepResponses(new ItemStatus(step.getStepName()));
+
+        // Get MetaDataClientFactory and WorkspaceClientFactory using the correct execution context
+        WorkFlowExecutionContext executionContext = workParams.getExecutionContext();
+        MetaDataClientFactory metaDataClientFactory = getMetaDataClientFactory(executionContext);
+        WorkspaceClientFactory workspaceClientFactory = getWorkspaceClientFactory();
 
         // Explicitly refreshes ElasticSearch indexes for the current tenant
         // (Everything written is now searchable)
@@ -369,6 +372,18 @@ public class ProcessDistributorImpl implements ProcessDistributor {
         } else {
             return step.setPauseOrCancelAction(PauseOrCancelAction.ACTION_COMPLETE).getStepResponses();
         }
+    }
+
+    private MetaDataClientFactory getMetaDataClientFactory(WorkFlowExecutionContext executionContext) {
+        return Optional.ofNullable(this.metaDataClientFactory).orElse(
+            MetaDataClientFactory.getInstance(executionContext)
+        );
+    }
+
+    private WorkspaceClientFactory getWorkspaceClientFactory() {
+        return Optional.ofNullable(this.workspaceClientFactory).orElse(
+            WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM)
+        );
     }
 
     /**
@@ -848,7 +863,8 @@ public class ProcessDistributorImpl implements ProcessDistributor {
         // Create a worker task for each bulk
         List<WorkerTask> workerTaskList = new ArrayList<>();
         distributionSubListBulkIterator.forEachRemaining(objectNames -> {
-            WorkerParameters taskWorkerParams = ((DefaultWorkerParameters) workerParameters).newInstance();
+            WorkerParameters taskWorkerParams =
+                ((DefaultWorkerParameters) workerParameters).newInstance(workerParameters.getExecutionContext());
             taskWorkerParams.setObjectNameList(objectNames);
             workerTaskList.add(
                 new WorkerTask(
@@ -882,7 +898,8 @@ public class ProcessDistributorImpl implements ProcessDistributor {
         // Create a worker task for each bulk
         List<WorkerTask> workerTaskList = new ArrayList<>();
         batchIterator.forEachRemaining(entryList -> {
-            WorkerParameters taskWorkerParams = ((DefaultWorkerParameters) workerParameters).newInstance();
+            WorkerParameters taskWorkerParams =
+                ((DefaultWorkerParameters) workerParameters).newInstance(workerParameters.getExecutionContext());
             taskWorkerParams.setObjectNameList(
                 entryList.stream().map(JsonLineModel::getId).collect(Collectors.toList())
             );

@@ -29,7 +29,6 @@ package fr.gouv.vitam.worker.core.plugin.transfer.reply;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.annotations.VisibleForTesting;
 import fr.gouv.vitam.common.model.StatusCode;
-import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.worker.common.HandlerIO;
 import fr.gouv.vitam.worker.core.exception.ProcessingStatusException;
@@ -52,12 +51,8 @@ public class TransferReplyObjectGroupPreparationHandler extends PurgeObjectGroup
      * Test only constructor
      */
     @VisibleForTesting
-    TransferReplyObjectGroupPreparationHandler(
-        MetaDataClientFactory metaDataClientFactory,
-        PurgeReportService purgeReportService,
-        int objectGroupBulkSize
-    ) {
-        super(TRANSFER_REPLY_OBJECT_GROUP_PREPARATION, metaDataClientFactory, purgeReportService, objectGroupBulkSize);
+    TransferReplyObjectGroupPreparationHandler(PurgeReportService purgeReportService, int objectGroupBulkSize) {
+        super(TRANSFER_REPLY_OBJECT_GROUP_PREPARATION, purgeReportService, objectGroupBulkSize);
     }
 
     @Override

@@ -44,6 +44,7 @@ import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.processing.IOParameter;
 import fr.gouv.vitam.common.model.processing.ProcessingUri;
 import fr.gouv.vitam.common.model.processing.UriPrefix;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.stream.StreamUtils;
 import fr.gouv.vitam.common.xml.XsdValidator;
 import fr.gouv.vitam.logbook.common.parameters.LogbookTypeProcess;
@@ -132,7 +133,7 @@ public class TransferNotificationActionHandlerIteratorTestSpecific {
     @Before
     public void setUp() throws Exception {
         guid = GUIDFactory.newGUID();
-        params = WorkerParametersFactory.newWorkerParameters()
+        params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace("http://localhost:8080")
             .setUrlMetadata("http://localhost:8080")
             .setObjectNameList(Lists.newArrayList("objectName.json"))
@@ -154,6 +155,7 @@ public class TransferNotificationActionHandlerIteratorTestSpecific {
 
         String objectId = "objectId";
         action = new HandlerIOImpl(
+            WorkFlowExecutionContext.VITAM,
             workspaceClientFactory,
             logbookLifeCyclesClientFactory,
             guid.getId(),

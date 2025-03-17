@@ -53,6 +53,7 @@ import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.metadata.client.MetaDataClient;
 import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
@@ -66,7 +67,6 @@ import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageNotFoundEx
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -100,7 +100,7 @@ public class ComputeInheritedRuleProgenyIdentifierPlugin extends ActionHandler {
         this(
             MetaDataClientFactory.getInstance(),
             BatchReportClientFactory.getInstance(),
-            WorkspaceClientFactory.getInstance(WorkspaceType.VITAM),
+            WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM),
             GlobalDatas.LIMIT_LOAD
         );
         // Default constructor for workflow initialization by Worker
@@ -150,7 +150,11 @@ public class ComputeInheritedRuleProgenyIdentifierPlugin extends ActionHandler {
                 unitsToBatch -> findAndSaveUnitsProgeny(metaDataClient, batchReportClient, unitsToBatch, processId)
             );
 
-            batchReportClient.exportUnitsToInvalidate(processId, new ReportExportRequest(UNITS_JSONL_FILE_NAME));
+            batchReportClient.exportUnitsToInvalidate(
+                processId,
+                new ReportExportRequest(UNITS_JSONL_FILE_NAME),
+                workerParameters.getExecutionContext()
+            );
         } catch (IOException | VitamClientInternalException e) {
             throw new ProcessingException(e);
         }

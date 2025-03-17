@@ -14,9 +14,12 @@
 	        		{"action":{"actionKey": "CheckConformity", "actionType": "BLOCK"}}]
 	},
 	"workParams":{
-		"containerName":"obj",
-		"objectName":"obj",
-		"urlWorkspace":"http://localhost:8888",
-		"processId":"processId"
+		"executionContext": "VITAM",
+		"parameters": {
+			"containerName":"obj",
+			"objectName":"obj",
+			"urlWorkspace":"http://localhost:8888",
+			"processId":"processId"
+		}
 	}
 }

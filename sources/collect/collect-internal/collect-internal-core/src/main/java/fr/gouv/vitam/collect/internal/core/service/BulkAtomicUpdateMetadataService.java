@@ -53,14 +53,13 @@ import fr.gouv.vitam.metadata.common.bulkatomicupdate.BulkSelectQueryParallelPro
 import fr.gouv.vitam.metadata.common.bulkatomicupdate.BulkSelectQueryResultFailure;
 import fr.gouv.vitam.metadata.common.bulkatomicupdate.BulkSelectQueryResultOK;
 import fr.gouv.vitam.metadata.common.bulkatomicupdate.QueryRestrictionConverter;
+import fr.gouv.vitam.metadata.common.utils.TransactionRestrictionHelper;
 import org.apache.commons.collections4.ListUtils;
 
 import javax.annotation.concurrent.ThreadSafe;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-
-import static fr.gouv.vitam.collect.internal.core.helpers.MetadataHelper.applyTransactionToQuery;
 
 @ThreadSafe
 public class BulkAtomicUpdateMetadataService {
@@ -166,7 +165,7 @@ public class BulkAtomicUpdateMetadataService {
         return (JsonNode userQuery) -> {
             SelectParserMultiple parser = new SelectParserMultiple();
             parser.parse(userQuery);
-            applyTransactionToQuery(transactionId, parser.getRequest());
+            TransactionRestrictionHelper.applyTransactionToQuery(transactionId, parser.getRequest());
             return parser.getRequest().getFinalSelect();
         };
     }

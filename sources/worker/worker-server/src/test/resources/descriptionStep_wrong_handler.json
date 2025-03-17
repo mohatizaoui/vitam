@@ -14,11 +14,14 @@
 	        		{"action":{"actionKey": "CheckConformity", "behavior": "BLOCKING"}}]
 	},
 	"workParams":{
-		"containerName":"obj",
-		"objectName":"obj",
-		"urlWorkspace":"http://localhost:8888",
-		"urlMetadata":"http://localhost:8889",
-		"processId":"processId",
-		"currentStep":"Contrôle global entrée (SIP)"
+		"executionContext": "VITAM",
+		"parameters": {
+			"containerName":"obj",
+			"objectName":"obj",
+			"urlWorkspace":"http://localhost:8888",
+			"urlMetadata":"http://localhost:8889",
+			"processId":"processId",
+			"currentStep":"Contrôle global entrée (SIP)"
+		}
 	}
 }

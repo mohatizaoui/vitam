@@ -36,6 +36,7 @@ import fr.gouv.vitam.common.database.parser.request.multiple.UpdateParserMultipl
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -58,6 +59,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class CheckDistributionThresholdTest {
 
@@ -72,6 +74,11 @@ public class CheckDistributionThresholdTest {
     @Mock
     private MetaDataClientFactory metaDataClientFactory;
 
+    @Mock
+    private MetaDataClient metaDataClient;
+
+    private HandlerIO handlerIO;
+
     private static final int TENANT_ID = 0;
 
     private CheckDistributionThresholdBase checkDistributionThreshold;
@@ -79,8 +86,10 @@ public class CheckDistributionThresholdTest {
     @Before
     public void setUp() throws Exception {
         VitamConfiguration.setDistributionThreshold(15L);
-
-        checkDistributionThreshold = new CheckDistributionThreshold(metaDataClientFactory);
+        handlerIO = mock(HandlerIO.class);
+        when(handlerIO.getMetaDataClientFactory()).thenReturn(metaDataClientFactory);
+        when(handlerIO.getMetaDataClient()).thenReturn(metaDataClient);
+        checkDistributionThreshold = new CheckDistributionThreshold();
     }
 
     @Test
@@ -114,8 +123,7 @@ public class CheckDistributionThresholdTest {
     @RunWithCustomExecutor
     public void whenCheckDistributionDefaultThresholdThenReturnOK() throws Exception {
         // Given
-        HandlerIO handlerIO = mock(HandlerIO.class);
-        MetaDataClient metaDataClient = mock(MetaDataClient.class);
+
         given(metaDataClientFactory.getClient()).willReturn(metaDataClient);
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
 
@@ -134,7 +142,7 @@ public class CheckDistributionThresholdTest {
 
         // When
         ItemStatus itemStatus = checkDistributionThreshold.execute(
-            WorkerParametersFactory.newWorkerParameters(),
+            WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM),
             handlerIO
         );
 
@@ -147,9 +155,6 @@ public class CheckDistributionThresholdTest {
     @RunWithCustomExecutor
     public void whenCheckDistributionDefaultThresholdOnSelectQueryThenReturnOK() throws Exception {
         // Given
-        HandlerIO handlerIO = mock(HandlerIO.class);
-        MetaDataClient metaDataClient = mock(MetaDataClient.class);
-        given(metaDataClientFactory.getClient()).willReturn(metaDataClient);
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
 
         given(handlerIO.getInput(0)).willReturn("SELECT");
@@ -167,7 +172,7 @@ public class CheckDistributionThresholdTest {
 
         // When
         ItemStatus itemStatus = checkDistributionThreshold.execute(
-            WorkerParametersFactory.newWorkerParameters(),
+            WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM),
             handlerIO
         );
 
@@ -180,9 +185,6 @@ public class CheckDistributionThresholdTest {
     @RunWithCustomExecutor
     public void whenCheckDistributionOvercomeThresholdThenReturnOK() throws Exception {
         // Given
-        HandlerIO handlerIO = mock(HandlerIO.class);
-        MetaDataClient metaDataClient = mock(MetaDataClient.class);
-        given(metaDataClientFactory.getClient()).willReturn(metaDataClient);
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
 
         given(handlerIO.getInput(0)).willReturn("UPDATE");
@@ -201,7 +203,7 @@ public class CheckDistributionThresholdTest {
 
         // When
         ItemStatus itemStatus = checkDistributionThreshold.execute(
-            WorkerParametersFactory.newWorkerParameters(),
+            WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM),
             handlerIO
         );
 
@@ -214,9 +216,6 @@ public class CheckDistributionThresholdTest {
     @RunWithCustomExecutor
     public void whenCheckDistributionThresholdThenReturnWarning() throws Exception {
         // Given
-        HandlerIO handlerIO = mock(HandlerIO.class);
-        MetaDataClient metaDataClient = mock(MetaDataClient.class);
-        given(metaDataClientFactory.getClient()).willReturn(metaDataClient);
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
 
         given(handlerIO.getInput(0)).willReturn("UPDATE");
@@ -234,7 +233,7 @@ public class CheckDistributionThresholdTest {
 
         // When
         ItemStatus itemStatus = checkDistributionThreshold.execute(
-            WorkerParametersFactory.newWorkerParameters(),
+            WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM),
             handlerIO
         );
 
@@ -247,10 +246,6 @@ public class CheckDistributionThresholdTest {
     @RunWithCustomExecutor
     public void whenCheckDistributionThresholdThenReturnKO() throws Exception {
         // Given
-        HandlerIO handlerIO = mock(HandlerIO.class);
-        MetaDataClient metaDataClient = mock(MetaDataClient.class);
-
-        given(metaDataClientFactory.getClient()).willReturn(metaDataClient);
 
         given(handlerIO.getInput(0)).willReturn("UPDATE");
         given(handlerIO.getInput(1)).willReturn("query.json");
@@ -270,7 +265,7 @@ public class CheckDistributionThresholdTest {
 
         // When
         ItemStatus itemStatus = checkDistributionThreshold.execute(
-            WorkerParametersFactory.newWorkerParameters(),
+            WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM),
             handlerIO
         );
 
@@ -283,9 +278,6 @@ public class CheckDistributionThresholdTest {
     @RunWithCustomExecutor
     public void whenCheckDistributionThresholdThenReturnOvercomeKO() throws Exception {
         // Given
-        HandlerIO handlerIO = mock(HandlerIO.class);
-        MetaDataClient metaDataClient = mock(MetaDataClient.class);
-        given(metaDataClientFactory.getClient()).willReturn(metaDataClient);
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
 
         given(handlerIO.getInput(0)).willReturn("UPDATE");
@@ -303,7 +295,7 @@ public class CheckDistributionThresholdTest {
 
         // When
         ItemStatus itemStatus = checkDistributionThreshold.execute(
-            WorkerParametersFactory.newWorkerParameters(),
+            WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM),
             handlerIO
         );
 
@@ -316,9 +308,6 @@ public class CheckDistributionThresholdTest {
     @RunWithCustomExecutor
     public void whenMetadataExceptionThenReturnFatal() throws Exception {
         // Given
-        HandlerIO handlerIO = mock(HandlerIO.class);
-        MetaDataClient metaDataClient = mock(MetaDataClient.class);
-        given(metaDataClientFactory.getClient()).willReturn(metaDataClient);
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
 
         given(handlerIO.getInput(0)).willReturn("UPDATE");
@@ -332,7 +321,7 @@ public class CheckDistributionThresholdTest {
         given(metaDataClient.selectUnits(any())).willThrow(MetaDataClientServerException.class);
         // When
         ItemStatus itemStatus = checkDistributionThreshold.execute(
-            WorkerParametersFactory.newWorkerParameters(),
+            WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM),
             handlerIO
         );
 

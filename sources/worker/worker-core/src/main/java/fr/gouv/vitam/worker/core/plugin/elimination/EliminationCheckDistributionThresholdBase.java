@@ -41,7 +41,6 @@ import fr.gouv.vitam.metadata.api.exception.MetaDataClientServerException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataDocumentSizeException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataExecutionException;
 import fr.gouv.vitam.metadata.client.MetaDataClient;
-import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.worker.common.HandlerIO;
 import fr.gouv.vitam.worker.core.exception.ProcessingStatusException;
 import fr.gouv.vitam.worker.core.handler.ActionHandler;
@@ -57,14 +56,10 @@ public abstract class EliminationCheckDistributionThresholdBase extends ActionHa
 
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(ActionHandler.class);
 
-    private final MetaDataClientFactory metaDataClientFactory;
-
-    EliminationCheckDistributionThresholdBase(MetaDataClientFactory metaDataClientFactory) {
-        this.metaDataClientFactory = metaDataClientFactory;
-    }
+    EliminationCheckDistributionThresholdBase() {}
 
     protected ItemStatus checkThreshold(HandlerIO handler, long defaultThreshold, String action) {
-        try (MetaDataClient client = metaDataClientFactory.getClient()) {
+        try (MetaDataClient client = handler.getMetaDataClient()) {
             // get initial query string
             EliminationRequestBody eliminationRequestBody = loadRequestJsonFromWorkspace(handler);
             JsonNode dslRequest = eliminationRequestBody.getDslRequest();

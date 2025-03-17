@@ -28,6 +28,7 @@ package fr.gouv.vitam.worker.core.handler;
 
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.processing.common.parameter.WorkerParametersFactory;
@@ -57,7 +58,7 @@ public class CheckVersionActionHandlerTest {
     private CheckVersionActionHandler handlerVersion = new CheckVersionActionHandler(sedaUtilsFactory);
     private static final String HANDLER_ID = "CHECK_MANIFEST_DATAOBJECT_VERSION";
     private SedaUtils sedaUtils;
-    private final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+    private final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
         .setUrlWorkspace("http://localhost:8083")
         .setUrlMetadata("http://localhost:8083")
         .setObjectNameList(Lists.newArrayList("objectName.json"))
@@ -65,6 +66,7 @@ public class CheckVersionActionHandlerTest {
         .setCurrentStep("currentStep")
         .setContainerName("CheckVersionActionHandlerTest");
     private final HandlerIOImpl handlerIO = new HandlerIOImpl(
+        WorkFlowExecutionContext.VITAM,
         "CheckVersionActionHandlerTest",
         "workerId",
         com.google.common.collect.Lists.newArrayList()

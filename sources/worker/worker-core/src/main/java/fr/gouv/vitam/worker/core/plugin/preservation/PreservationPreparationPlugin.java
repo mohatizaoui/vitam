@@ -30,7 +30,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Iterators;
 import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.database.builder.query.Query;
@@ -60,11 +59,9 @@ import fr.gouv.vitam.common.model.objectgroup.FormatIdentificationModel;
 import fr.gouv.vitam.common.model.objectgroup.ObjectGroupResponse;
 import fr.gouv.vitam.common.model.objectgroup.VersionsModel;
 import fr.gouv.vitam.functional.administration.client.AdminManagementClient;
-import fr.gouv.vitam.functional.administration.client.AdminManagementClientFactory;
 import fr.gouv.vitam.functional.administration.common.exception.AdminManagementClientServerException;
 import fr.gouv.vitam.functional.administration.common.exception.ReferentialNotFoundException;
 import fr.gouv.vitam.metadata.client.MetaDataClient;
-import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.worker.common.HandlerIO;
@@ -75,8 +72,6 @@ import fr.gouv.vitam.worker.core.handler.ActionHandler;
 import fr.gouv.vitam.worker.core.plugin.preservation.model.PreservationDistributionLine;
 import fr.gouv.vitam.worker.core.utils.GroupByObjectIterator;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
-import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
@@ -123,34 +118,11 @@ public class PreservationPreparationPlugin extends ActionHandler {
     private static final String PRESERVATION_PREPARATION = "PRESERVATION_PREPARATION";
     private static final TypeReference<JsonLineModel> JSON_LINE_MODEL_TYPE_REFERENCE = new TypeReference<>() {};
 
-    private final AdminManagementClientFactory adminManagementClientFactory;
-
-    private final WorkspaceClientFactory workspaceClientFactory;
-
-    private final MetaDataClientFactory metaDataClientFactory;
-
-    public PreservationPreparationPlugin() {
-        this(
-            AdminManagementClientFactory.getInstance(),
-            MetaDataClientFactory.getInstance(),
-            WorkspaceClientFactory.getInstance(WorkspaceType.VITAM)
-        );
-    }
-
-    @VisibleForTesting
-    PreservationPreparationPlugin(
-        AdminManagementClientFactory adminManagementClientFactory,
-        MetaDataClientFactory metaDataClientFactory,
-        WorkspaceClientFactory workspaceClientFactory
-    ) {
-        this.adminManagementClientFactory = adminManagementClientFactory;
-        this.metaDataClientFactory = metaDataClientFactory;
-        this.workspaceClientFactory = workspaceClientFactory;
-    }
+    public PreservationPreparationPlugin() {}
 
     @Override
     public ItemStatus execute(WorkerParameters param, HandlerIO handler) {
-        try (MetaDataClient metaDataClient = metaDataClientFactory.getClient()) {
+        try (MetaDataClient metaDataClient = handler.getMetaDataClient()) {
             PreservationRequest preservationRequest = loadPreservationRequest(handler);
             computePreparation(handler, metaDataClient, preservationRequest, param.getRequestId());
             return buildItemStatus(
@@ -182,8 +154,8 @@ public class PreservationPreparationPlugin extends ActionHandler {
         Map<String, GriffinModel> griffinModelListForScenario;
 
         try (
-            AdminManagementClient adminManagementClient = adminManagementClientFactory.getClient();
-            WorkspaceClient workspaceClient = workspaceClientFactory.getClient()
+            AdminManagementClient adminManagementClient = handler.getAdminManagementClient();
+            WorkspaceClient workspaceClient = handler.getWorkspaceClient()
         ) {
             scenarioModel = getScenarioModel(adminManagementClient, preservationRequest.getScenarioIdentifier());
             griffinModelListForScenario = getListOfGriffinGivenScenario(adminManagementClient, scenarioModel);
@@ -242,6 +214,7 @@ public class PreservationPreparationPlugin extends ActionHandler {
         }
 
         List<ObjectGroupResponse> objectModelsForUnitResults = getObjectModelsForUnitResults(
+            handler,
             unitsByObjectGroup.keySet()
         );
 
@@ -423,14 +396,17 @@ public class PreservationPreparationPlugin extends ActionHandler {
         return line;
     }
 
-    private List<ObjectGroupResponse> getObjectModelsForUnitResults(Collection<String> objectGroupIds) {
+    private List<ObjectGroupResponse> getObjectModelsForUnitResults(
+        HandlerIO handlerIO,
+        Collection<String> objectGroupIds
+    ) {
         try {
             Select select = new Select();
             String[] ids = objectGroupIds.toArray(new String[0]);
             select.setQuery(in("#id", ids));
 
             ObjectNode finalSelect = select.getFinalSelect();
-            JsonNode response = metaDataClientFactory.getClient().selectObjectGroups(finalSelect);
+            JsonNode response = handlerIO.getMetaDataClient().selectObjectGroups(finalSelect);
 
             JsonNode results = response.get("$results");
             return getFromStringAsTypeReference(results.toString(), new TypeReference<List<ObjectGroupResponse>>() {});

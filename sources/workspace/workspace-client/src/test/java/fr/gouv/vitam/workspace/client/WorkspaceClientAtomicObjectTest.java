@@ -28,6 +28,7 @@ package fr.gouv.vitam.workspace.client;
 
 import com.google.common.collect.Sets;
 import fr.gouv.vitam.common.PropertiesUtils;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.server.application.junit.ResteasyTestApplication;
 import fr.gouv.vitam.common.serverv2.VitamServerTestRunner;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
@@ -58,7 +59,7 @@ public class WorkspaceClientAtomicObjectTest extends ResteasyTestApplication {
     private static final String CONTAINER_NAME = "myContainer";
     private static final String OBJECT_NAME = "myObject";
 
-    static WorkspaceClientFactory factory = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM);
+    static WorkspaceClientFactory factory = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM);
 
     public static VitamServerTestRunner vitamServerTestRunner = new VitamServerTestRunner(
         WorkspaceClientAtomicObjectTest.class,

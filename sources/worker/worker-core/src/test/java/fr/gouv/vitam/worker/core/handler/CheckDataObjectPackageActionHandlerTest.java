@@ -36,6 +36,7 @@ import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.processing.IOParameter;
 import fr.gouv.vitam.common.model.processing.ProcessingUri;
 import fr.gouv.vitam.common.model.processing.UriPrefix;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -112,7 +113,7 @@ public class CheckDataObjectPackageActionHandlerTest {
     private List<IOParameter> in;
     private static final Integer TENANT_ID = 0;
     private final Set<URI> uriSetWorkspaceOK = new HashSet<>();
-    private final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+    private final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
         .setUrlWorkspace("http://localhost:8083")
         .setUrlMetadata("http://localhost:8083")
         .setObjectNameList(Lists.newArrayList("objectName.json"))
@@ -194,6 +195,7 @@ public class CheckDataObjectPackageActionHandlerTest {
 
         String objectId = "objectId";
         action = new HandlerIOImpl(
+            WorkFlowExecutionContext.VITAM,
             workspaceClientFactory,
             logbookLifeCyclesClientFactory,
             "ExtractSedaActionHandlerTest",

@@ -81,7 +81,7 @@ public abstract class FinalizeLifecycleTraceabilityActionPlugin extends ActionHa
 
         try (
             StorageClient storageClient = storageClientFactory.getClient();
-            WorkspaceClient workspaceClient = handler.getWorkspaceClientFactory().getClient()
+            WorkspaceClient workspaceClient = handler.getWorkspaceClient()
         ) {
             if (!workspaceClient.isExistingObject(handler.getContainerName(), TRACEABILITY_EVENT_FILE_NAME)) {
                 LOGGER.warn("No traceability event file found. Empty traceability zip.");

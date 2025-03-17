@@ -30,6 +30,7 @@ import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -81,7 +82,7 @@ public class PurgeDetachObjectGroupPluginTest {
         VitamThreadUtils.getVitamSession().setTenantId(0);
         VitamThreadUtils.getVitamSession().setRequestId("opId");
 
-        params = WorkerParametersFactory.newWorkerParameters()
+        params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setWorkerGUID(GUIDFactory.newGUID().getId())
             .setContainerName(VitamThreadUtils.getVitamSession().getRequestId())
             .setRequestId(VitamThreadUtils.getVitamSession().getRequestId())
@@ -105,7 +106,8 @@ public class PurgeDetachObjectGroupPluginTest {
 
         verify(purgeDeleteService).detachObjectGroupFromDeleteParentUnits(
             eq("id_got_1"),
-            eq(new HashSet<>(singletonList("id_unit_1")))
+            eq(new HashSet<>(singletonList("id_unit_1"))),
+            eq(handler)
         );
     }
 
@@ -114,7 +116,7 @@ public class PurgeDetachObjectGroupPluginTest {
     public void testExecute_WhenExceptionExpectFatal() throws Exception {
         doThrow(new ProcessingStatusException(StatusCode.FATAL, null))
             .when(purgeDeleteService)
-            .detachObjectGroupFromDeleteParentUnits(any(), any());
+            .detachObjectGroupFromDeleteParentUnits(any(), any(), any());
 
         ItemStatus itemStatus = instance.execute(params, handler);
 

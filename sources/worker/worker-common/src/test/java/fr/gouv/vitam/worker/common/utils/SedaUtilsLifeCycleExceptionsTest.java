@@ -31,6 +31,7 @@ import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.model.IngestWorkflowConstants;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.logbook.common.exception.LogbookClientAlreadyExistsException;
 import fr.gouv.vitam.logbook.common.exception.LogbookClientBadRequestException;
 import fr.gouv.vitam.logbook.common.exception.LogbookClientNotFoundException;
@@ -75,7 +76,7 @@ public class SedaUtilsLifeCycleExceptionsTest {
 
     private static final String OBJ = "obj";
     private final HandlerIO handlerIO = mock(HandlerIO.class);
-    private final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+    private final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
         .setWorkerGUID(GUIDFactory.newGUID().getId())
         .setUrlWorkspace("http://localhost:8083")
         .setUrlMetadata("http://localhost:8083")
@@ -100,10 +101,9 @@ public class SedaUtilsLifeCycleExceptionsTest {
         throws LogbookClientBadRequestException, LogbookClientAlreadyExistsException, LogbookClientServerException, LogbookClientNotFoundException, IOException {
         doNothing().when(logbookLifeCycleClient).create(any());
         doNothing().when(logbookLifeCycleClient).update(any());
-        when(handlerIO.getLifecyclesClient()).thenReturn(logbookLifeCycleClient);
+        when(handlerIO.getLifeCyclesClient()).thenReturn(logbookLifeCycleClient);
 
         helper = mock(LogbookLifeCyclesClientHelper.class);
-        when(handlerIO.getHelper()).thenReturn(helper);
         when(handlerIO.getHelper()).thenReturn(helper);
 
         final Map<String, String> binaryDataObjectIdToObjectGroupId = new HashMap<>();
@@ -147,7 +147,7 @@ public class SedaUtilsLifeCycleExceptionsTest {
             LogbookTypeProcess.INGEST,
             StatusCode.OK
         );
-        handlerIO.getLifecyclesClient().bulkUpdateUnit(OBJ, handlerIO.getHelper().removeUpdateDelegate(OBJ));
+        handlerIO.getLifeCyclesClient().bulkUpdateUnit(OBJ, handlerIO.getHelper().removeUpdateDelegate(OBJ));
     }
 
     @Test(expected = ProcessingException.class)
@@ -166,7 +166,7 @@ public class SedaUtilsLifeCycleExceptionsTest {
             params,
             LogbookTypeProcess.INGEST
         );
-        handlerIO.getLifecyclesClient().bulkUpdateUnit(OBJ, handlerIO.getHelper().removeUpdateDelegate(OBJ));
+        handlerIO.getLifeCyclesClient().bulkUpdateUnit(OBJ, handlerIO.getHelper().removeUpdateDelegate(OBJ));
     }
 
     private LogbookLifeCycleParameters createLogbookParametersInstance() {

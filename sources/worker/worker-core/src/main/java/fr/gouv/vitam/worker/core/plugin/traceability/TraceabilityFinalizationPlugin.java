@@ -51,7 +51,6 @@ import fr.gouv.vitam.common.model.WorkspaceConstants;
 import fr.gouv.vitam.common.model.logbook.LogbookEvent;
 import fr.gouv.vitam.logbook.common.exception.LogbookClientException;
 import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClient;
-import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClientFactory;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameterName;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
@@ -83,20 +82,15 @@ public class TraceabilityFinalizationPlugin extends ActionHandler {
     private static final String OBJECT_ID = "objectId";
 
     private final TraceabilityReportService traceabilityReportService;
-    private final LogbookOperationsClientFactory logbookOperationsClientFactory;
 
     @SuppressWarnings("unused")
     public TraceabilityFinalizationPlugin() {
-        this(new TraceabilityReportService(), LogbookOperationsClientFactory.getInstance());
+        this(new TraceabilityReportService());
     }
 
     @VisibleForTesting
-    TraceabilityFinalizationPlugin(
-        TraceabilityReportService traceabilityReportService,
-        LogbookOperationsClientFactory logbookOperationsClientFactory
-    ) {
+    TraceabilityFinalizationPlugin(TraceabilityReportService traceabilityReportService) {
         this.traceabilityReportService = traceabilityReportService;
-        this.logbookOperationsClientFactory = logbookOperationsClientFactory;
     }
 
     @Override
@@ -173,7 +167,7 @@ public class TraceabilityFinalizationPlugin extends ActionHandler {
 
         Map<WorkerParameterName, String> mapParameters = param.getMapParameters();
         JsonNode initialQuery = handler.getJsonFromWorkspace(WorkspaceConstants.QUERY);
-        JsonNode logbookOperation = getLogbookOperation(param.getContainerName());
+        JsonNode logbookOperation = getLogbookOperation(handler, param.getContainerName());
 
         OperationSummary operationSummary = computeLogbookInformation(param.getContainerName(), logbookOperation);
         ReportSummary reportSummary = computeReportSummary(logbookOperation);
@@ -186,7 +180,7 @@ public class TraceabilityFinalizationPlugin extends ActionHandler {
         context.set(QUERY, initialQuery);
 
         Report reportInfo = new Report(operationSummary, reportSummary, context);
-        traceabilityReportService.storeReportToWorkspace(reportInfo);
+        traceabilityReportService.storeReportToWorkspace(reportInfo, param.getExecutionContext());
     }
 
     private OperationSummary computeLogbookInformation(String processId, JsonNode logbookOperation)
@@ -228,8 +222,8 @@ public class TraceabilityFinalizationPlugin extends ActionHandler {
         return new ReportSummary(startDate, endDate, reportType, vitamResults, extendedInfo);
     }
 
-    private JsonNode getLogbookOperation(String operationId) throws ProcessingStatusException {
-        try (LogbookOperationsClient client = logbookOperationsClientFactory.getClient()) {
+    private JsonNode getLogbookOperation(HandlerIO handlerIO, String operationId) throws ProcessingStatusException {
+        try (LogbookOperationsClient client = handlerIO.getLogbookOperationsClient()) {
             JsonNode logbookResponse = client.selectOperationById(operationId);
             if (
                 logbookResponse.has(RequestResponseOK.TAG_RESULTS) &&

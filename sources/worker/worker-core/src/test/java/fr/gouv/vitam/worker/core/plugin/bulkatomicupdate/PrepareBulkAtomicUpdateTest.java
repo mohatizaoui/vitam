@@ -48,6 +48,7 @@ import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.processing.ProcessingUri;
 import fr.gouv.vitam.common.model.processing.UriPrefix;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -101,6 +102,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class PrepareBulkAtomicUpdateTest {
 
@@ -129,16 +131,27 @@ public class PrepareBulkAtomicUpdateTest {
 
     private PrepareBulkAtomicUpdate prepareBulkAtomicUpdate;
 
+    private HandlerIO handlerIO;
+
+    private MetaDataClient metaDataClient;
+    private BatchReportClient batchReportClient;
+
     @Before
     public void setUp() throws Exception {
         prepareBulkAtomicUpdate = new PrepareBulkAtomicUpdate(
-            metaDataClientFactory,
-            batchReportClientFactory,
             new InternalActionKeysRetriever(),
             BATCH_SIZE,
             THREAD_POOL_SIZE,
             THREAD_POOL_QUEUE_SIZE
         );
+        handlerIO = mock(HandlerIO.class);
+        metaDataClient = mock(MetaDataClient.class);
+        batchReportClient = mock(BatchReportClient.class);
+        when(handlerIO.getMetaDataClient()).thenReturn(metaDataClient);
+        when(handlerIO.getBatchReportClient()).thenReturn(batchReportClient);
+        when(handlerIO.getBatchReportClientFactory()).thenReturn(batchReportClientFactory);
+        given(metaDataClientFactory.getClient()).willReturn(metaDataClient);
+        given(batchReportClientFactory.getClient()).willReturn(batchReportClient);
     }
 
     @After
@@ -151,11 +164,6 @@ public class PrepareBulkAtomicUpdateTest {
     @RunWithCustomExecutor
     public void givingRequestWithValidQueriesThenGenerateUnitsListInFileOK() throws Exception {
         // given
-        HandlerIO handlerIO = mock(HandlerIO.class);
-        MetaDataClient metaDataClient = mock(MetaDataClient.class);
-        given(metaDataClientFactory.getClient()).willReturn(metaDataClient);
-        BatchReportClient batchReportClient = mock(BatchReportClient.class);
-        given(batchReportClientFactory.getClient()).willReturn(batchReportClient);
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
 
         JsonNode queryNode = JsonHandler.getFromInputStream(
@@ -194,7 +202,7 @@ public class PrepareBulkAtomicUpdateTest {
 
         // when
         ItemStatus itemStatus = prepareBulkAtomicUpdate.execute(
-            WorkerParametersFactory.newWorkerParameters(),
+            WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM),
             handlerIO
         );
 
@@ -210,11 +218,7 @@ public class PrepareBulkAtomicUpdateTest {
     @RunWithCustomExecutor
     public void givingRequestWithOneEmptyResultInQueriesThenGenerateUnitsListInFileWARNING() throws Exception {
         // given
-        HandlerIO handlerIO = mock(HandlerIO.class);
-        MetaDataClient metaDataClient = mock(MetaDataClient.class);
-        given(metaDataClientFactory.getClient()).willReturn(metaDataClient);
-        BatchReportClient batchReportClient = mock(BatchReportClient.class);
-        given(batchReportClientFactory.getClient()).willReturn(batchReportClient);
+
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
 
         JsonNode queryNode = JsonHandler.getFromInputStream(
@@ -255,7 +259,7 @@ public class PrepareBulkAtomicUpdateTest {
 
         // when
         ItemStatus itemStatus = prepareBulkAtomicUpdate.execute(
-            WorkerParametersFactory.newWorkerParameters(),
+            WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM),
             handlerIO
         );
 
@@ -286,11 +290,6 @@ public class PrepareBulkAtomicUpdateTest {
     @RunWithCustomExecutor
     public void givingRequestWithTooManyResultsInQueriesThenGenerateUnitsListInFileWARNING() throws Exception {
         // given
-        HandlerIO handlerIO = mock(HandlerIO.class);
-        MetaDataClient metaDataClient = mock(MetaDataClient.class);
-        given(metaDataClientFactory.getClient()).willReturn(metaDataClient);
-        BatchReportClient batchReportClient = mock(BatchReportClient.class);
-        given(batchReportClientFactory.getClient()).willReturn(batchReportClient);
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
 
         JsonNode queryNode = JsonHandler.getFromInputStream(
@@ -331,7 +330,7 @@ public class PrepareBulkAtomicUpdateTest {
 
         // when
         ItemStatus itemStatus = prepareBulkAtomicUpdate.execute(
-            WorkerParametersFactory.newWorkerParameters(),
+            WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM),
             handlerIO
         );
 
@@ -392,11 +391,6 @@ public class PrepareBulkAtomicUpdateTest {
     @RunWithCustomExecutor
     public void givingRequestWithValidQueriesAndVitamErrorSelectThenGenerateUnitsListInFileWARNING() throws Exception {
         // given
-        HandlerIO handlerIO = mock(HandlerIO.class);
-        MetaDataClient metaDataClient = mock(MetaDataClient.class);
-        given(metaDataClientFactory.getClient()).willReturn(metaDataClient);
-        BatchReportClient batchReportClient = mock(BatchReportClient.class);
-        given(batchReportClientFactory.getClient()).willReturn(batchReportClient);
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
 
         JsonNode queryNode = JsonHandler.getFromInputStream(
@@ -439,7 +433,7 @@ public class PrepareBulkAtomicUpdateTest {
 
         // when
         ItemStatus itemStatus = prepareBulkAtomicUpdate.execute(
-            WorkerParametersFactory.newWorkerParameters(),
+            WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM),
             handlerIO
         );
 
@@ -462,11 +456,6 @@ public class PrepareBulkAtomicUpdateTest {
     @RunWithCustomExecutor
     public void givingMetadataExceptionThenFATAL() throws Exception {
         // given
-        HandlerIO handlerIO = mock(HandlerIO.class);
-        MetaDataClient metaDataClient = mock(MetaDataClient.class);
-        given(metaDataClientFactory.getClient()).willReturn(metaDataClient);
-        BatchReportClient batchReportClient = mock(BatchReportClient.class);
-        given(batchReportClientFactory.getClient()).willReturn(batchReportClient);
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
 
         JsonNode queryNode = JsonHandler.getFromInputStream(
@@ -488,7 +477,7 @@ public class PrepareBulkAtomicUpdateTest {
 
         // when
         ItemStatus itemStatus = prepareBulkAtomicUpdate.execute(
-            WorkerParametersFactory.newWorkerParameters(),
+            WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM),
             handlerIO
         );
 
@@ -501,11 +490,6 @@ public class PrepareBulkAtomicUpdateTest {
     @RunWithCustomExecutor
     public void givingBatchReportExceptionThenFATAL() throws Exception {
         // given
-        HandlerIO handlerIO = mock(HandlerIO.class);
-        MetaDataClient metaDataClient = mock(MetaDataClient.class);
-        given(metaDataClientFactory.getClient()).willReturn(metaDataClient);
-        BatchReportClient batchReportClient = mock(BatchReportClient.class);
-        given(batchReportClientFactory.getClient()).willReturn(batchReportClient);
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
 
         JsonNode queryNode = JsonHandler.getFromInputStream(
@@ -546,7 +530,7 @@ public class PrepareBulkAtomicUpdateTest {
 
         // when
         ItemStatus itemStatus = prepareBulkAtomicUpdate.execute(
-            WorkerParametersFactory.newWorkerParameters(),
+            WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM),
             handlerIO
         );
 
@@ -563,17 +547,11 @@ public class PrepareBulkAtomicUpdateTest {
         int batchReportBatchSize = 43;
         VitamConfiguration.setBatchSize(batchReportBatchSize);
 
-        DefaultWorkerParameters params = WorkerParametersFactory.newWorkerParameters();
+        DefaultWorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM);
         String processId = GUIDFactory.newGUID().getId();
         params.setProcessId(processId);
         VitamThreadUtils.getVitamSession().setRequestId(processId);
 
-        HandlerIO handlerIO = mock(HandlerIO.class);
-
-        MetaDataClient metaDataClient = mock(MetaDataClient.class);
-        given(metaDataClientFactory.getClient()).willReturn(metaDataClient);
-        BatchReportClient batchReportClient = mock(BatchReportClient.class);
-        given(batchReportClientFactory.getClient()).willReturn(batchReportClient);
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
 
         ArrayNode queries = JsonHandler.createArrayNode();

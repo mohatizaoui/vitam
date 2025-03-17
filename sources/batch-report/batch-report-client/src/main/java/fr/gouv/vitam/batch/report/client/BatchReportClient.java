@@ -34,6 +34,7 @@ import fr.gouv.vitam.batch.report.model.ReportType;
 import fr.gouv.vitam.common.exception.VitamClientInternalException;
 import fr.gouv.vitam.common.external.client.BasicClient;
 import fr.gouv.vitam.common.model.ExtractedMetadata;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 
 import java.util.List;
 
@@ -47,10 +48,14 @@ public interface BatchReportClient extends BasicClient {
      *
      * @param processId
      * @param reportExportRequest report export request
+     * @param executionContext
      * @throws VitamClientInternalException
      */
-    void generatePurgeDistinctObjectGroupInUnitReport(String processId, ReportExportRequest reportExportRequest)
-        throws VitamClientInternalException;
+    void generatePurgeDistinctObjectGroupInUnitReport(
+        String processId,
+        ReportExportRequest reportExportRequest,
+        WorkFlowExecutionContext executionContext
+    ) throws VitamClientInternalException;
 
     /**
      * Append report entries
@@ -59,14 +64,18 @@ public interface BatchReportClient extends BasicClient {
      */
     void appendReportEntries(ReportBody reportBody) throws VitamClientInternalException;
 
-    void storeReportToWorkspace(Report reportInfo) throws VitamClientInternalException;
+    void storeReportToWorkspace(Report reportInfo, WorkFlowExecutionContext executionContext)
+        throws VitamClientInternalException;
 
     /**
      * Generate units to invalidate by process Id.
      * Report is stored in JSONL format without duplicates.
      */
-    void exportUnitsToInvalidate(String processId, ReportExportRequest reportExportRequest)
-        throws VitamClientInternalException;
+    void exportUnitsToInvalidate(
+        String processId,
+        ReportExportRequest reportExportRequest,
+        WorkFlowExecutionContext executionContext
+    ) throws VitamClientInternalException;
 
     /**
      * Generate elimination action accession register for deleted units by status and process Id.
@@ -74,10 +83,14 @@ public interface BatchReportClient extends BasicClient {
      *
      * @param processId
      * @param reportExportRequest report export request
+     * @param executionContext
      * @throws VitamClientInternalException
      */
-    void generatePurgeAccessionRegisterReport(String processId, ReportExportRequest reportExportRequest)
-        throws VitamClientInternalException;
+    void generatePurgeAccessionRegisterReport(
+        String processId,
+        ReportExportRequest reportExportRequest,
+        WorkFlowExecutionContext executionContext
+    ) throws VitamClientInternalException;
 
     /**
      * Clean all entries with the given process Id tenant and reportType
@@ -89,7 +102,8 @@ public interface BatchReportClient extends BasicClient {
 
     void storeExtractedMetadataForAu(List<ExtractedMetadata> extractedMetadata) throws VitamClientInternalException;
 
-    void createExtractedMetadataDistributionFileForAu(String processId) throws Exception;
+    void createExtractedMetadataDistributionFileForAu(String processId, WorkFlowExecutionContext executionContext)
+        throws Exception;
 
     JsonNode readComputedDetailsFromReport(ReportType deleteGotVersions, String processId);
 }

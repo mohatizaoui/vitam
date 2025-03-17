@@ -26,11 +26,10 @@
  */
 package fr.gouv.vitam.worker.core.plugin.reclassification;
 
-import fr.gouv.vitam.common.client.VitamClientFactoryInterface;
 import fr.gouv.vitam.common.model.GraphComputeResponse;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.StatusCode;
-import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.processing.common.parameter.WorkerParametersFactory;
@@ -58,9 +57,7 @@ public class UnitGraphComputePluginTest {
 
     @Before
     public void setUp() throws Exception {
-        MetaDataClientFactory metaDataClientFactory = MetaDataClientFactory.getInstance();
-        metaDataClientFactory.setVitamClientType(VitamClientFactoryInterface.VitamClientType.MOCK);
-        unitGraphComputePlugin = spy(new UnitGraphComputePlugin(metaDataClientFactory));
+        unitGraphComputePlugin = spy(new UnitGraphComputePlugin());
     }
 
     @Test
@@ -83,8 +80,8 @@ public class UnitGraphComputePluginTest {
 
     @Test
     public void whenExecuteListThenOK() {
-        HandlerIO handlerIO = mock(HandlerIO.class);
-        WorkerParameters workerParameters = WorkerParametersFactory.newWorkerParameters();
+        HandlerIO handlerIO = AbstractGraphComputePluginTest.getMockHandlerIO();
+        WorkerParameters workerParameters = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM);
         workerParameters.setObjectNameList(Lists.newArrayList("a", "b", "c"));
         List<ItemStatus> itemStatuses = unitGraphComputePlugin.executeList(workerParameters, handlerIO);
         assertThat(itemStatuses).hasSize(1);
@@ -96,8 +93,8 @@ public class UnitGraphComputePluginTest {
 
     @Test
     public void whenExecuteListThenFATAL() {
-        HandlerIO handlerIO = mock(HandlerIO.class);
-        WorkerParameters workerParameters = WorkerParametersFactory.newWorkerParameters();
+        HandlerIO handlerIO = AbstractGraphComputePluginTest.getMockHandlerIO();
+        WorkerParameters workerParameters = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM);
         workerParameters.setObjectNameList(Lists.newArrayList("a", "b", "c", "d"));
         List<ItemStatus> itemStatuses = unitGraphComputePlugin.executeList(workerParameters, handlerIO);
         assertThat(itemStatuses).hasSize(1);

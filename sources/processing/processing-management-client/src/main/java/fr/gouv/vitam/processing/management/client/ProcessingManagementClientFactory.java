@@ -31,6 +31,7 @@ import fr.gouv.vitam.common.client.VitamClientFactory;
 import fr.gouv.vitam.common.client.configuration.ClientConfigurationImpl;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 
 import java.io.IOException;
 import java.net.URI;
@@ -57,28 +58,27 @@ public class ProcessingManagementClientFactory extends VitamClientFactory<Proces
      * @return the instance
      */
     public static final ProcessingManagementClientFactory getInstance() {
-        return PROCESSING_MANAGEMENT_CLIENT_FACTORY;
+        return getInstance(WorkFlowExecutionContext.VITAM);
     }
 
     /**
-     * Get the default worker client
+     * Get the ProcessingManagementClientFactory instance for the given workflow execution context
      *
-     * @return the default worker client
+     * @param executionContext the workflow execution context
+     * @return the instance
      */
+    public static ProcessingManagementClientFactory getInstance(WorkFlowExecutionContext executionContext) {
+        return switch (executionContext) {
+            case VITAM, COLLECT -> PROCESSING_MANAGEMENT_CLIENT_FACTORY;
+        };
+    }
+
     @Override
     public ProcessingManagementClient getClient() {
-        ProcessingManagementClient client;
-        switch (getVitamClientType()) {
-            case MOCK:
-                client = new ProcessingManagementClientMock();
-                break;
-            case PRODUCTION:
-                client = new ProcessingManagementClientRest(this);
-                break;
-            default:
-                throw new IllegalArgumentException("Worker client type unknown");
-        }
-        return client;
+        return switch (getVitamClientType()) {
+            case MOCK -> new ProcessingManagementClientMock();
+            case PRODUCTION -> new ProcessingManagementClientRest(this);
+        };
     }
 
     /**

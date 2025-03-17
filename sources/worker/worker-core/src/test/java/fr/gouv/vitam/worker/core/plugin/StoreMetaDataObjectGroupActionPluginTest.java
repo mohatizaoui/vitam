@@ -40,6 +40,7 @@ import fr.gouv.vitam.common.model.IngestWorkflowConstants;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.logbook.common.exception.LogbookClientException;
 import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClient;
 import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClientFactory;
@@ -158,6 +159,7 @@ public class StoreMetaDataObjectGroupActionPluginTest {
             .putObject(any(), any(), any());
 
         action = new HandlerIOImpl(
+            WorkFlowExecutionContext.VITAM,
             workspaceClientFactory,
             logbookLifeCyclesClientFactory,
             CONTAINER_NAME,
@@ -174,7 +176,7 @@ public class StoreMetaDataObjectGroupActionPluginTest {
     @Test
     public void givenMetadataClientWhenSearchOGThenReturnNotFound() throws Exception {
         // Given
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setWorkerGUID(GUIDFactory.newGUID().getId())
             .setContainerName(CONTAINER_NAME)
             .setUrlMetadata("http://localhost:8083")
@@ -201,7 +203,7 @@ public class StoreMetaDataObjectGroupActionPluginTest {
     public void givenMetadataClientAndLogbookLifeCycleClientAndWorkspaceResponsesWhenSearchOGThenReturnOK()
         throws Exception {
         // Given
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setWorkerGUID(GUIDFactory.newGUID().getId())
             .setContainerName(CONTAINER_NAME)
             .setUrlMetadata("http://localhost:8083")
@@ -254,7 +256,7 @@ public class StoreMetaDataObjectGroupActionPluginTest {
 
     @Test
     public void givenMetadataClientWhensearchOGThenThrowsException() throws Exception {
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setWorkerGUID(GUIDFactory.newGUID().getId())
             .setContainerName(CONTAINER_NAME)
             .setUrlMetadata("http://localhost:8083")
@@ -284,7 +286,7 @@ public class StoreMetaDataObjectGroupActionPluginTest {
 
     @Test
     public void givenLogbookLifeCycleClientWhenSearchLfcThenThrowsException() throws Exception {
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setWorkerGUID(GUIDFactory.newGUID().getId())
             .setContainerName(CONTAINER_NAME)
             .setUrlMetadata("http://localhost:8083")
@@ -316,7 +318,7 @@ public class StoreMetaDataObjectGroupActionPluginTest {
     public void givenStorageClientWhenStoreFromWorkspaceThenThrowStorageNotFoundClientExceptionThenFATAL()
         throws Exception {
         // Given
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setWorkerGUID(GUIDFactory.newGUID().getId())
             .setContainerName(CONTAINER_NAME)
             .setUrlMetadata("http://localhost:8083")

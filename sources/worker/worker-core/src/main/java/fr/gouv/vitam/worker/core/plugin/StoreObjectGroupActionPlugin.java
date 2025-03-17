@@ -37,7 +37,6 @@ import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
-import fr.gouv.vitam.storage.engine.client.StorageClientFactory;
 import fr.gouv.vitam.storage.engine.client.exception.StorageClientException;
 import fr.gouv.vitam.storage.engine.common.model.DataCategory;
 import fr.gouv.vitam.storage.engine.common.model.request.BulkObjectStoreRequest;
@@ -66,14 +65,6 @@ public class StoreObjectGroupActionPlugin extends StoreObjectActionHandler {
 
     private static final String SIP = "SIP/";
     private static final int OG_OUT_RANK = 0;
-
-    public StoreObjectGroupActionPlugin() {
-        this(StorageClientFactory.getInstance());
-    }
-
-    public StoreObjectGroupActionPlugin(StorageClientFactory storageClientFactory) {
-        super(storageClientFactory);
-    }
 
     @Override
     public List<ItemStatus> executeList(WorkerParameters params, HandlerIO handlerIO) {
@@ -140,7 +131,7 @@ public class StoreObjectGroupActionPlugin extends StoreObjectActionHandler {
                     DataCategory.OBJECT,
                     objectNames
                 );
-                BulkObjectStoreResponse result = storeObjects(strategy, bulkObjectStoreRequest);
+                BulkObjectStoreResponse result = storeObjects(handlerIO, strategy, bulkObjectStoreRequest);
                 resultByStrategy.put(strategy, result);
             }
 

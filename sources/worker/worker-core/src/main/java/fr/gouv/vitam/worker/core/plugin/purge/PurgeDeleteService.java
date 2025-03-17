@@ -26,30 +26,31 @@
  */
 package fr.gouv.vitam.worker.core.plugin.purge;
 
-import com.google.common.annotations.VisibleForTesting;
 import fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper;
 import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
 import fr.gouv.vitam.common.database.builder.request.multiple.UpdateMultiQuery;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
+import fr.gouv.vitam.common.logging.VitamLogger;
+import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.logbook.common.exception.LogbookClientBadRequestException;
 import fr.gouv.vitam.logbook.common.exception.LogbookClientServerException;
 import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClient;
-import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClientFactory;
 import fr.gouv.vitam.metadata.api.exception.MetaDataClientServerException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataExecutionException;
 import fr.gouv.vitam.metadata.client.MetaDataClient;
-import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.storage.engine.client.StorageClient;
-import fr.gouv.vitam.storage.engine.client.StorageClientFactory;
 import fr.gouv.vitam.storage.engine.client.exception.StorageServerClientException;
 import fr.gouv.vitam.storage.engine.common.model.DataCategory;
+import fr.gouv.vitam.worker.common.HandlerIO;
 import fr.gouv.vitam.worker.core.exception.ProcessingStatusException;
 import joptsimple.internal.Strings;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static fr.gouv.vitam.common.database.builder.query.action.UpdateActionHelper.add;
 import static fr.gouv.vitam.common.database.builder.query.action.UpdateActionHelper.pull;
@@ -57,73 +58,100 @@ import static fr.gouv.vitam.common.database.builder.query.action.UpdateActionHel
 /**
  * PurgeDeleteService class
  */
-public class PurgeDeleteService {
+public class PurgeDeleteService extends CommonPurgeDeleteService {
 
-    private final StorageClientFactory storageClientFactory;
-    private final MetaDataClientFactory metaDataClientFactory;
-    private final LogbookLifeCyclesClientFactory logbookLifeCyclesClientFactory;
+    private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(PurgeDeleteService.class);
 
-    @VisibleForTesting
-    PurgeDeleteService(
-        StorageClientFactory storageClientFactory,
-        MetaDataClientFactory metaDataClientFactory,
-        LogbookLifeCyclesClientFactory logbookLifeCyclesClientFactory
-    ) {
-        this.storageClientFactory = storageClientFactory;
-        this.metaDataClientFactory = metaDataClientFactory;
-        this.logbookLifeCyclesClientFactory = logbookLifeCyclesClientFactory;
+    public PurgeDeleteService() {}
+
+    public void deleteObjects(List<PurgeObjectGroupParams> objectGroupParams, HandlerIO handler)
+        throws ProcessingStatusException {
+        try {
+            Map<String, String> objectIdsWithStrategies = objectGroupParams
+                .stream()
+                .flatMap(objectGroup -> objectGroup.getObjects().stream())
+                .collect(Collectors.toMap(PurgeObjectParams::getId, PurgeObjectParams::getStrategyId));
+
+            storageDelete(objectIdsWithStrategies, DataCategory.OBJECT, Strings.EMPTY, handler);
+        } catch (StorageServerClientException e) {
+            throw new ProcessingStatusException(
+                StatusCode.FATAL,
+                "Could not delete object groups [" +
+                String.join(
+                    ", ",
+                    objectGroupParams.stream().map(PurgeObjectGroupParams::getId).collect(Collectors.joining(", "))
+                ) +
+                "]",
+                e
+            );
+        }
     }
 
-    public PurgeDeleteService() {
-        this(
-            StorageClientFactory.getInstance(),
-            MetaDataClientFactory.getInstance(),
-            LogbookLifeCyclesClientFactory.getInstance()
-        );
-    }
-
-    public void deleteObjects(Map<String, String> objectsGuidsWithStrategies) throws StorageServerClientException {
-        storageDelete(objectsGuidsWithStrategies, DataCategory.OBJECT, Strings.EMPTY);
-    }
-
-    public void deleteObjectGroups(Map<String, String> objectGroupsGuidsWithStrategies)
+    @Override
+    public void deleteObjectGroups(List<PurgeObjectGroupParams> objectGroupParams, HandlerIO handler)
         throws InvalidParseOperationException, MetaDataExecutionException, MetaDataClientServerException, StorageServerClientException, LogbookClientBadRequestException, LogbookClientServerException {
-        try (LogbookLifeCyclesClient logbookLifeCyclesClient = logbookLifeCyclesClientFactory.getClient()) {
-            logbookLifeCyclesClient.deleteLifecycleObjectGroupBulk(objectGroupsGuidsWithStrategies.keySet());
+        List<String> objectGroupIds = objectGroupParams
+            .stream()
+            .map(ogpurge -> ogpurge.getId())
+            .collect(Collectors.toList());
+        try (LogbookLifeCyclesClient logbookLifeCyclesClient = handler.getLifeCyclesClient()) {
+            logbookLifeCyclesClient.deleteLifecycleObjectGroupBulk(objectGroupIds);
         }
 
-        try (MetaDataClient metaDataClient = metaDataClientFactory.getClient()) {
-            metaDataClient.deleteObjectGroupBulk(objectGroupsGuidsWithStrategies.keySet());
+        try (MetaDataClient metaDataClient = handler.getMetaDataClient()) {
+            metaDataClient.deleteObjectGroupBulk(objectGroupIds);
         }
-
-        storageDelete(objectGroupsGuidsWithStrategies, DataCategory.OBJECTGROUP, ".json");
+        storageDeleteBinaries(objectGroupParams, DataCategory.OBJECTGROUP, ".json", handler);
     }
 
-    public void deleteUnits(Map<String, String> unitsGuidsWithStrategies)
+    public void deleteUnits(Map<String, String> unitsGuidsWithStrategies, HandlerIO handler)
         throws MetaDataExecutionException, MetaDataClientServerException, StorageServerClientException, LogbookClientBadRequestException, LogbookClientServerException {
-        try (LogbookLifeCyclesClient logbookLifeCyclesClient = logbookLifeCyclesClientFactory.getClient()) {
+        try (LogbookLifeCyclesClient logbookLifeCyclesClient = handler.getLifeCyclesClient()) {
             logbookLifeCyclesClient.deleteLifecycleUnitsBulk(unitsGuidsWithStrategies.keySet());
         }
 
-        try (MetaDataClient metaDataClient = metaDataClientFactory.getClient()) {
-            metaDataClient.deleteUnitsBulk(unitsGuidsWithStrategies.keySet());
-        }
+        super.deleteUnits(unitsGuidsWithStrategies.keySet(), handler);
 
-        storageDelete(unitsGuidsWithStrategies, DataCategory.UNIT, ".json");
+        storageDelete(unitsGuidsWithStrategies, DataCategory.UNIT, ".json", handler);
     }
 
-    private void storageDelete(Map<String, String> idsWithStrategies, DataCategory dataCategory, String fileExtension)
-        throws StorageServerClientException {
-        try (StorageClient storageClient = storageClientFactory.getClient()) {
+    private void storageDelete(
+        Map<String, String> idsWithStrategies,
+        DataCategory dataCategory,
+        String fileExtension,
+        HandlerIO handler
+    ) throws StorageServerClientException {
+        try (StorageClient storageClient = handler.getStorageClient()) {
             for (Map.Entry<String, String> idWithStrategy : idsWithStrategies.entrySet()) {
                 storageClient.delete(idWithStrategy.getValue(), dataCategory, idWithStrategy.getKey() + fileExtension);
             }
         }
     }
 
-    public void detachObjectGroupFromDeleteParentUnits(String objectGroupId, Set<String> parentUnitsToRemove)
-        throws ProcessingStatusException {
-        try (MetaDataClient metaDataClient = metaDataClientFactory.getClient()) {
+    @Override
+    public void storageDeleteBinaries(
+        List<PurgeObjectGroupParams> objectGroupParams,
+        DataCategory dataCategory,
+        String fileExtension,
+        HandlerIO handler
+    ) throws StorageServerClientException {
+        try (StorageClient storageClient = handler.getStorageClient()) {
+            for (PurgeObjectGroupParams objectGroupPurge : objectGroupParams) {
+                storageClient.delete(
+                    objectGroupPurge.getStrategyId(),
+                    dataCategory,
+                    objectGroupPurge.getId() + fileExtension
+                );
+            }
+        }
+    }
+
+    public void detachObjectGroupFromDeleteParentUnits(
+        String objectGroupId,
+        Set<String> parentUnitsToRemove,
+        HandlerIO handler
+    ) throws ProcessingStatusException {
+        try (MetaDataClient metaDataClient = handler.getMetaDataClient()) {
             UpdateMultiQuery updateMultiQuery = new UpdateMultiQuery();
             updateMultiQuery.addActions(
                 pull(VitamFieldsHelper.unitups(), parentUnitsToRemove.toArray(new String[0])),

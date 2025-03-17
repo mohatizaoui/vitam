@@ -41,6 +41,7 @@ import fr.gouv.vitam.common.exception.VitamClientInternalException;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.stream.VitamAsyncInputStream;
 import fr.gouv.vitam.worker.common.HandlerIO;
 import fr.gouv.vitam.worker.core.distribution.JsonLineGenericIterator;
@@ -49,8 +50,6 @@ import fr.gouv.vitam.worker.core.exception.ProcessingStatusException;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageNotFoundException;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
-import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 import org.apache.commons.io.IOUtils;
 
 import javax.ws.rs.core.Response;
@@ -70,19 +69,14 @@ public class PurgeReportService {
     static final String ACCESSION_REGISTER_REPORT_JSONL = "accession_register.jsonl";
     private static final TypeReference<JsonLineModel> JSON_LINE_MODEL_TYPE_REFERENCE = new TypeReference<>() {};
     private final BatchReportClientFactory batchReportClientFactory;
-    private final WorkspaceClientFactory workspaceClientFactory;
 
     public PurgeReportService() {
-        this(BatchReportClientFactory.getInstance(), WorkspaceClientFactory.getInstance(WorkspaceType.VITAM));
+        this(BatchReportClientFactory.getInstance());
     }
 
     @VisibleForTesting
-    PurgeReportService(
-        BatchReportClientFactory batchReportClientFactory,
-        WorkspaceClientFactory workspaceClientFactory
-    ) {
+    PurgeReportService(BatchReportClientFactory batchReportClientFactory) {
         this.batchReportClientFactory = batchReportClientFactory;
-        this.workspaceClientFactory = workspaceClientFactory;
     }
 
     public void appendUnitEntries(String processId, List<PurgeUnitReportEntry> entries)
@@ -108,15 +102,18 @@ public class PurgeReportService {
         }
     }
 
-    public CloseableIterator<String> exportDistinctObjectGroups(HandlerIO handler, String processId)
-        throws ProcessingStatusException {
-        generateDistinctObjectGroupsToWorkspace(processId);
+    public CloseableIterator<String> exportDistinctObjectGroups(
+        HandlerIO handler,
+        WorkFlowExecutionContext executionContext,
+        String processId
+    ) throws ProcessingStatusException {
+        generateDistinctObjectGroupsToWorkspace(handler, processId, executionContext);
 
         // Write report to local file
         File distinctObjectGroupsReportFile = handler.getNewLocalFile(DISTINCT_REPORT_JSONL);
 
         try (
-            WorkspaceClient workspaceClient = workspaceClientFactory.getClient();
+            WorkspaceClient workspaceClient = handler.getWorkspaceClient();
             OutputStream os = new FileOutputStream(distinctObjectGroupsReportFile)
         ) {
             Response reportResponse = workspaceClient.getObject(processId, DISTINCT_REPORT_JSONL);
@@ -140,8 +137,12 @@ public class PurgeReportService {
         }
     }
 
-    private void generateDistinctObjectGroupsToWorkspace(String processId) throws ProcessingStatusException {
-        if (isReportAlreadyExisting(processId, DISTINCT_REPORT_JSONL)) {
+    private void generateDistinctObjectGroupsToWorkspace(
+        HandlerIO handler,
+        String processId,
+        WorkFlowExecutionContext executionContext
+    ) throws ProcessingStatusException {
+        if (isReportAlreadyExisting(handler, processId, DISTINCT_REPORT_JSONL)) {
             LOGGER.info(DISTINCT_REPORT_JSONL + " report already exists. No need for regeneration (idempotency)");
             return;
         }
@@ -150,7 +151,8 @@ public class PurgeReportService {
         try (BatchReportClient batchReportClient = batchReportClientFactory.getClient()) {
             batchReportClient.generatePurgeDistinctObjectGroupInUnitReport(
                 processId,
-                new ReportExportRequest(DISTINCT_REPORT_JSONL)
+                new ReportExportRequest(DISTINCT_REPORT_JSONL),
+                executionContext
             );
         } catch (VitamClientInternalException e) {
             throw new ProcessingStatusException(
@@ -161,8 +163,12 @@ public class PurgeReportService {
         }
     }
 
-    public void exportAccessionRegisters(String processId) throws ProcessingStatusException {
-        if (isReportAlreadyExisting(processId, ACCESSION_REGISTER_REPORT_JSONL)) {
+    public void exportAccessionRegisters(
+        HandlerIO handler,
+        String processId,
+        WorkFlowExecutionContext executionContext
+    ) throws ProcessingStatusException {
+        if (isReportAlreadyExisting(handler, processId, ACCESSION_REGISTER_REPORT_JSONL)) {
             LOGGER.info(
                 ACCESSION_REGISTER_REPORT_JSONL + " report already exists. No need for regeneration (idempotency)"
             );
@@ -172,7 +178,8 @@ public class PurgeReportService {
         try (BatchReportClient batchReportClient = batchReportClientFactory.getClient()) {
             batchReportClient.generatePurgeAccessionRegisterReport(
                 processId,
-                new ReportExportRequest(ACCESSION_REGISTER_REPORT_JSONL)
+                new ReportExportRequest(ACCESSION_REGISTER_REPORT_JSONL),
+                executionContext
             );
         } catch (VitamClientInternalException e) {
             throw new ProcessingStatusException(
@@ -196,8 +203,9 @@ public class PurgeReportService {
         }
     }
 
-    private boolean isReportAlreadyExisting(String processId, String reportFileName) throws ProcessingStatusException {
-        try (WorkspaceClient workspaceClient = workspaceClientFactory.getClient()) {
+    private boolean isReportAlreadyExisting(HandlerIO handler, String processId, String reportFileName)
+        throws ProcessingStatusException {
+        try (WorkspaceClient workspaceClient = handler.getWorkspaceClient()) {
             if (workspaceClient.isExistingObject(processId, reportFileName)) {
                 return true;
             }

@@ -88,6 +88,7 @@ import fr.gouv.vitam.common.model.UpdateWorkflowConstants;
 import fr.gouv.vitam.common.model.administration.AccessionRegisterSummaryModel;
 import fr.gouv.vitam.common.model.administration.IngestContractCheckState;
 import fr.gouv.vitam.common.model.administration.IngestContractModel;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.parameter.ParameterHelper;
 import fr.gouv.vitam.common.stream.StreamUtils;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
@@ -139,7 +140,6 @@ import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageException;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 import fr.gouv.vitam.workspace.rest.WorkspaceMain;
 import io.restassured.RestAssured;
 import net.javacrumbs.jsonunit.JsonAssert;
@@ -473,7 +473,7 @@ public class ProcessingIT extends VitamRuleRunner {
 
             // workspace client unzip SIP in workspace
             final InputStream zipInputStreamSipObject = PropertiesUtils.getResourceAsStream(SIP_BUG_2721);
-            workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+            workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
             workspaceClient.createContainer(containerName);
             workspaceClient.uncompressObject(containerName, SIP_FOLDER, CommonMediaType.ZIP, zipInputStreamSipObject);
             // Insert sanityCheck file & StpUpload
@@ -629,7 +629,7 @@ public class ProcessingIT extends VitamRuleRunner {
 
             // workspace client unzip SIP in workspace
             final InputStream zipInputStreamSipObject = PropertiesUtils.getResourceAsStream(SIP_BUG_2721);
-            workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+            workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
             workspaceClient.createContainer(containerName);
             workspaceClient.uncompressObject(containerName, SIP_FOLDER, CommonMediaType.ZIP, zipInputStreamSipObject);
             // Insert sanityCheck file & StpUpload
@@ -764,7 +764,7 @@ public class ProcessingIT extends VitamRuleRunner {
 
         // workspace client dezip SIP in workspace
         final InputStream zipInputStreamSipObject = PropertiesUtils.getResourceAsStream(SIP_INGEST_CONTRACT_UNKNOWN);
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(containerName);
         workspaceClient.uncompressObject(containerName, SIP_FOLDER, CommonMediaType.ZIP, zipInputStreamSipObject);
         // Insert sanityCheck file & StpUpload
@@ -814,7 +814,7 @@ public class ProcessingIT extends VitamRuleRunner {
         final InputStream zipInputStreamSipObject = PropertiesUtils.getResourceAsStream(
             SIP_INGEST_CONTRACT_NOT_IN_CONTEXT
         );
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(containerName);
         workspaceClient.uncompressObject(containerName, SIP_FOLDER, CommonMediaType.ZIP, zipInputStreamSipObject);
         // Insert sanityCheck file & StpUpload
@@ -886,7 +886,7 @@ public class ProcessingIT extends VitamRuleRunner {
 
         // workspace client dezip SIP in workspace
         final InputStream zipInputStreamSipObject = PropertiesUtils.getResourceAsStream(SIP_FILE_OK_WITH_SYSTEMID);
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(containerName);
         workspaceClient.uncompressObject(containerName, SIP_FOLDER, CommonMediaType.ZIP, zipInputStreamSipObject);
         // Insert sanityCheck file & StpUpload
@@ -922,7 +922,7 @@ public class ProcessingIT extends VitamRuleRunner {
         final InputStream zipInputStreamSipObject = Thread.currentThread()
             .getContextClassLoader()
             .getResourceAsStream(SIP_FILE_TAR_OK_NAME);
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(containerName);
         workspaceClient.uncompressObject(containerName, SIP_FOLDER, CommonMediaType.TAR, zipInputStreamSipObject);
         // Insert sanityCheck file & StpUpload
@@ -996,7 +996,7 @@ public class ProcessingIT extends VitamRuleRunner {
 
         // workspace client dezip SIP in workspace
         final InputStream zipInputStreamSipObject = PropertiesUtils.getResourceAsStream(SIP_WITHOUT_OBJ);
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(containerName);
         workspaceClient.uncompressObject(containerName, SIP_FOLDER, CommonMediaType.ZIP, zipInputStreamSipObject);
         // Insert sanityCheck file & StpUpload
@@ -1061,7 +1061,7 @@ public class ProcessingIT extends VitamRuleRunner {
 
         processingClient = ProcessingManagementClientFactory.getInstance().getClient();
 
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(containerName);
         ObjectNode options = JsonHandler.createObjectNode().put("correctiveOption", false);
         workspaceClient.putObject(containerName, "evidenceOptions", JsonHandler.writeToInpustream(options));
@@ -1395,7 +1395,9 @@ public class ProcessingIT extends VitamRuleRunner {
         String operationId = createOperationContainer();
         // use link sip
         final InputStream zipStream = new FileInputStream(new File(sipFilePath));
-        WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance(
+            WorkFlowExecutionContext.VITAM
+        ).getClient();
         workspaceClient.createContainer(operationId);
         workspaceClient.uncompressObject(operationId, SIP_FOLDER, CommonMediaType.ZIP, zipStream);
         // Insert sanityCheck file & StpUpload
@@ -1496,7 +1498,7 @@ public class ProcessingIT extends VitamRuleRunner {
             )
         );
 
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(containerName2);
         workspaceClient.uncompressObject(containerName2, SIP_FOLDER, CommonMediaType.ZIP, zipStream);
         // Insert sanityCheck file & StpUpload
@@ -1568,7 +1570,7 @@ public class ProcessingIT extends VitamRuleRunner {
             )
         );
 
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(containerName2);
         workspaceClient.uncompressObject(containerName2, SIP_FOLDER, CommonMediaType.ZIP, zipStream);
         // Insert sanityCheck file & StpUpload
@@ -1627,7 +1629,7 @@ public class ProcessingIT extends VitamRuleRunner {
             )
         );
 
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(containerName3);
         workspaceClient.uncompressObject(containerName3, SIP_FOLDER, CommonMediaType.ZIP, zipStream);
         // Insert sanityCheck file & StpUpload
@@ -1687,7 +1689,7 @@ public class ProcessingIT extends VitamRuleRunner {
             )
         );
 
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(containerName);
         workspaceClient.uncompressObject(containerName, SIP_FOLDER, CommonMediaType.ZIP, zipStream);
         // Insert sanityCheck file & StpUpload
@@ -1763,7 +1765,7 @@ public class ProcessingIT extends VitamRuleRunner {
             )
         );
 
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(containerName2);
         workspaceClient.uncompressObject(containerName2, SIP_FOLDER, CommonMediaType.ZIP, zipStream);
         // Insert sanityCheck file & StpUpload
@@ -1871,7 +1873,7 @@ public class ProcessingIT extends VitamRuleRunner {
             )
         );
 
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(containerName);
         workspaceClient.uncompressObject(containerName, SIP_FOLDER, CommonMediaType.ZIP, zipStream);
         // Insert sanityCheck file & StpUpload
@@ -1980,7 +1982,7 @@ public class ProcessingIT extends VitamRuleRunner {
         final InputStream zipInputStreamSipObject = PropertiesUtils.getResourceAsStream(
             SIP_MANIFEST_INCORRECT_REFERENCE
         );
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(containerName);
         workspaceClient.uncompressObject(containerName, SIP_FOLDER, CommonMediaType.ZIP, zipInputStreamSipObject);
         // Insert sanityCheck file & StpUpload
@@ -2053,7 +2055,7 @@ public class ProcessingIT extends VitamRuleRunner {
         final String containerName = createOperationContainer();
 
         final InputStream zipInputStreamSipObject = PropertiesUtils.getResourceAsStream(SIP_FILE_OK_NAME);
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(containerName);
         workspaceClient.uncompressObject(containerName, SIP_FOLDER, CommonMediaType.ZIP, zipInputStreamSipObject);
         // Insert sanityCheck file & StpUpload
@@ -2130,7 +2132,7 @@ public class ProcessingIT extends VitamRuleRunner {
 
         // workspace client dezip SIP in workspace
         final InputStream zipInputStreamSipObject = PropertiesUtils.getResourceAsStream(SIP_FILE_1791_CA1);
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(containerName);
         workspaceClient.uncompressObject(containerName, SIP_FOLDER, CommonMediaType.ZIP, zipInputStreamSipObject);
         // Insert sanityCheck file & StpUpload
@@ -2163,7 +2165,7 @@ public class ProcessingIT extends VitamRuleRunner {
 
         // workspace client dezip SIP in workspace
         final InputStream zipInputStreamSipObject = PropertiesUtils.getResourceAsStream(SIP_FILE_1791_CA2);
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(containerName);
         workspaceClient.uncompressObject(containerName, SIP_FOLDER, CommonMediaType.ZIP, zipInputStreamSipObject);
         // Insert sanityCheck file & StpUpload
@@ -2204,7 +2206,7 @@ public class ProcessingIT extends VitamRuleRunner {
 
         // workspace client dezip SIP in workspace
         final InputStream zipInputStreamSipObject = PropertiesUtils.getResourceAsStream(SIP_FILE_OK_NAME);
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(containerName);
         workspaceClient.uncompressObject(containerName, SIP_FOLDER, CommonMediaType.ZIP, zipInputStreamSipObject);
         // Insert sanityCheck file & StpUpload
@@ -2251,7 +2253,7 @@ public class ProcessingIT extends VitamRuleRunner {
 
         // workspace client dezip SIP in workspace
         final InputStream zipInputStreamSipObject = PropertiesUtils.getResourceAsStream(SIP_ARBRE_3062);
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(containerName);
         workspaceClient.uncompressObject(containerName, SIP_FOLDER, CommonMediaType.ZIP, zipInputStreamSipObject);
         // Insert sanityCheck file & StpUpload
@@ -2439,7 +2441,7 @@ public class ProcessingIT extends VitamRuleRunner {
 
         // put rules into workspace
         final InputStream rulesStream = PropertiesUtils.getResourceAsStream("integration-processing/RULES.json");
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(containerName);
         workspaceClient.putObject(
             containerName,
@@ -2586,7 +2588,7 @@ public class ProcessingIT extends VitamRuleRunner {
 
         // put rules into workspace
         final InputStream rulesStream = PropertiesUtils.getResourceAsStream("integration-processing/RULES.json");
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(containerName);
         workspaceClient.putObject(
             containerName,
@@ -2730,7 +2732,7 @@ public class ProcessingIT extends VitamRuleRunner {
         throws LogbookClientBadRequestException, LogbookClientAlreadyExistsException, LogbookClientServerException, FileNotFoundException, ContentAddressableStorageException, BadRequestException, InternalServerException, VitamClientException {
         final String ingestContainerName = createOperationContainer();
         final InputStream zipInputStreamSipObject = PropertiesUtils.getResourceAsStream(sipFileName);
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(ingestContainerName);
         workspaceClient.uncompressObject(ingestContainerName, SIP_FOLDER, CommonMediaType.ZIP, zipInputStreamSipObject);
         // Insert sanityCheck file & StpUpload
@@ -2763,7 +2765,7 @@ public class ProcessingIT extends VitamRuleRunner {
         String containerName = createOperationContainer();
 
         InputStream zipStream = PropertiesUtils.getResourceAsStream(SIP_MDD_SEDA_GOT);
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(containerName);
         workspaceClient.uncompressObject(containerName, SIP_FOLDER, CommonMediaType.ZIP, zipStream);
         // Insert sanityCheck file & StpUpload
@@ -2816,7 +2818,7 @@ public class ProcessingIT extends VitamRuleRunner {
             )
         );
 
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(containerName);
         workspaceClient.uncompressObject(containerName, SIP_FOLDER, CommonMediaType.ZIP, zipStream);
         // Insert sanityCheck file & StpUpload
@@ -2863,7 +2865,7 @@ public class ProcessingIT extends VitamRuleRunner {
         String containerName = createOperationContainer();
 
         InputStream zipStream = PropertiesUtils.getResourceAsStream(SIP_UNKNOWN_FIELD_SEDA_GOT);
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(containerName);
         workspaceClient.uncompressObject(containerName, SIP_FOLDER, CommonMediaType.ZIP, zipStream);
         // Insert sanityCheck file & StpUpload
@@ -2902,7 +2904,7 @@ public class ProcessingIT extends VitamRuleRunner {
         String containerName = createOperationContainer();
 
         InputStream zipStream = PropertiesUtils.getResourceAsStream(SIP_PROD_SERV_A);
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(containerName);
         workspaceClient.uncompressObject(containerName, SIP_FOLDER, CommonMediaType.ZIP, zipStream);
         // Insert sanityCheck file & StpUpload
@@ -2955,7 +2957,7 @@ public class ProcessingIT extends VitamRuleRunner {
             )
         );
 
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(containerName);
         workspaceClient.uncompressObject(containerName, SIP_FOLDER, CommonMediaType.ZIP, zipStream);
         // Insert sanityCheck file & StpUpload
@@ -3048,7 +3050,7 @@ public class ProcessingIT extends VitamRuleRunner {
             )
         );
 
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(containerName);
         workspaceClient.uncompressObject(containerName, SIP_FOLDER, CommonMediaType.ZIP, zipStream);
         // Insert sanityCheck file & StpUpload
@@ -3138,7 +3140,7 @@ public class ProcessingIT extends VitamRuleRunner {
 
             // workspace client dezip SIP in workspace
             final InputStream zipInputStreamSipObject = PropertiesUtils.getResourceAsStream(SIP_BUG_2721);
-            workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+            workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
             workspaceClient.createContainer(containerName);
             workspaceClient.uncompressObject(containerName, SIP_FOLDER, CommonMediaType.ZIP, zipInputStreamSipObject);
             // Insert sanityCheck file & StpUpload
@@ -3204,7 +3206,7 @@ public class ProcessingIT extends VitamRuleRunner {
 
         // workspace client dezip SIP in workspace
         final InputStream zipInputStreamSipObject = PropertiesUtils.getResourceAsStream(SIP_FILE_OK_BIRTH_PLACE);
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(containerName);
         workspaceClient.uncompressObject(containerName, SIP_FOLDER, CommonMediaType.ZIP, zipInputStreamSipObject);
         // Insert sanityCheck file & StpUpload
@@ -3394,7 +3396,7 @@ public class ProcessingIT extends VitamRuleRunner {
 
         // workspace client unzip SIP in workspace
         final InputStream zipInputStreamSipObject = PropertiesUtils.getResourceAsStream(SIP_FUND_REGISTER_OK);
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(containerName);
         workspaceClient.uncompressObject(containerName, SIP_FOLDER, CommonMediaType.ZIP, zipInputStreamSipObject);
         // Insert sanityCheck file & StpUpload
@@ -3453,7 +3455,7 @@ public class ProcessingIT extends VitamRuleRunner {
         VitamThreadUtils.getVitamSession().setRequestId(containerName);
         // workspace client unzip SIP in workspace
         InputStream zipInputStreamSipObject = PropertiesUtils.getResourceAsStream(sip_ok_1);
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(containerName);
         workspaceClient.uncompressObject(containerName, SIP_FOLDER, CommonMediaType.ZIP, zipInputStreamSipObject);
         // Insert sanityCheck file & StpUpload
@@ -3490,7 +3492,7 @@ public class ProcessingIT extends VitamRuleRunner {
 
         InputStream zipInputStreamSipObject2 = PropertiesUtils.getResourceAsStream(sip_ok_2);
 
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(containerName2);
         workspaceClient.uncompressObject(containerName2, SIP_FOLDER, CommonMediaType.ZIP, zipInputStreamSipObject2);
         // Insert sanityCheck file & StpUpload
@@ -4023,7 +4025,7 @@ public class ProcessingIT extends VitamRuleRunner {
 
         // workspace client dezip SIP in workspace
         final InputStream zipInputStreamSipObject = PropertiesUtils.getResourceAsStream(SIP_FILE_OK_NAME);
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(containerName);
         workspaceClient.uncompressObject(containerName, SIP_FOLDER, CommonMediaType.ZIP, zipInputStreamSipObject);
         // Insert sanityCheck file & StpUpload
@@ -4056,7 +4058,7 @@ public class ProcessingIT extends VitamRuleRunner {
 
         // workspace client dezip SIP in workspace
         final InputStream zipInputStreamSipObject = PropertiesUtils.getResourceAsStream(SIP_FILE_OK_NAME);
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         workspaceClient.createContainer(containerName);
         workspaceClient.uncompressObject(containerName, SIP_FOLDER, CommonMediaType.ZIP, zipInputStreamSipObject);
         // Insert sanityCheck file & StpUpload

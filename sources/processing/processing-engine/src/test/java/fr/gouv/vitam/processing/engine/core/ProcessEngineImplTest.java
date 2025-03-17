@@ -35,6 +35,7 @@ import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.processing.PauseOrCancelAction;
 import fr.gouv.vitam.common.model.processing.WorkFlow;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -125,7 +126,7 @@ public class ProcessEngineImplTest {
         reset(workspaceClientFactory);
 
         LogbookOperationsClientFactory.changeMode(null);
-        workParams = WorkerParametersFactory.newWorkerParameters();
+        workParams = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM);
         workParams
             .setWorkerGUID(GUIDFactory.newGUID().getId())
             .setUrlMetadata("http://localhost:8083")

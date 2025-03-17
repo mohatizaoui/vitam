@@ -1,0 +1,94 @@
+### Configuration
+@tenant = 1
+@project-id = aeaaaaaaaaeexglbaai7wamtxi2hg6yaaaaq
+@transaction-id = aeeaaaaaageexglbaai7wamtxi2jmvyaaaaq
+@operation-id = aeeaaaaaageexglbaai66amtxi234jiaaaaq
+
+### Création d'un nouveau projet
+POST {{url-collect}}/collect-external/v1/projects
+accept: application/json
+content-type: application/json
+X-Tenant-Id: {{tenant}}
+
+{
+  "MessageIdentifier": "Project de versement Collect",
+  "Comment": "Projet de versement pour tester le reclassement",
+  "SubmissionAgencyIdentifier": "Vitam"
+}
+
+### Création d'une nouvelle transaction
+POST  {{url-collect}}/collect-external/v1/projects/{{project-id}}/transactions
+Accept: application/json
+Content-Type: application/json
+X-Tenant-Id: {{tenant}}
+
+{
+  "Name": "Transaction",
+  "Comment": "Transaction pour tests de reclassement"
+}
+
+### Upload d'un ZIP sur la transaction
+POST {{url-collect}}/collect-external/v1/transactions/{{transaction-id}}/upload
+Accept: application/json
+Content-Type: application/zip
+X-Tenant-Id: {{tenant}}
+
+< collect.zip
+
+### Récupération des units de la transaction
+GET {{url-collect}}/collect-external/v1/transactions/{{transaction-id}}/units
+accept: application/json
+content-type: application/json
+X-Tenant-Id: {{tenant}}
+
+{
+  "$roots": [],
+  "$query": [],
+  "$filter": {
+    "$offset": 0,
+    "$limit": 100
+  },
+  "$projection": {}
+}
+
+### Reclassement
+POST {{url-collect}}/collect-external/v1/transactions/{{transaction-id}}/reclassification
+Accept: application/json
+Content-Type: application/json
+X-Tenant-Id: {{tenant}}
+
+[
+  {
+    "$roots": [],
+    "$query": [{ "$match": { "Title": "image.png" } }],
+    "$action": [
+      {
+        "$pull": {
+          "#unitups": [ "aeaqaaaaaeeexglbaai7wamtxi2mmpyaaaaq" ]
+        },
+        "$add": {
+          "#unitups": [ "aeaqaaaaaeeexglbaai7wamtxi2mopiaaaaq" ]
+        }
+      }
+    ]
+  }
+]
+
+### Vérification logbook
+GET {{url-access}}/access-external/v1/logbookoperations
+Accept: application/json
+Content-Type: application/json
+X-Tenant-Id: {{tenant}}
+
+{
+  "$query": {
+    "$eq": {
+      "#id": "{{operation-id}}"
+    }
+  },
+  "$filter": {
+    "$offset": 0,
+    "$limit": 100
+  },
+  "$projection": {}
+}

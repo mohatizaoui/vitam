@@ -30,7 +30,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Iterators;
 import fr.gouv.vitam.batch.report.client.BatchReportClient;
-import fr.gouv.vitam.batch.report.client.BatchReportClientFactory;
 import fr.gouv.vitam.batch.report.model.ReportBody;
 import fr.gouv.vitam.batch.report.model.ReportType;
 import fr.gouv.vitam.batch.report.model.entry.BulkUpdateUnitMetadataReportEntry;
@@ -72,18 +71,15 @@ import fr.gouv.vitam.logbook.common.parameters.LogbookLifeCycleParameters;
 import fr.gouv.vitam.logbook.common.parameters.LogbookParameterHelper;
 import fr.gouv.vitam.logbook.common.parameters.LogbookParameterName;
 import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClient;
-import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClientFactory;
 import fr.gouv.vitam.metadata.api.exception.MetaDataClientServerException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataDocumentSizeException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataExecutionException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataNotFoundException;
 import fr.gouv.vitam.metadata.api.model.UpdateUnit;
 import fr.gouv.vitam.metadata.client.MetaDataClient;
-import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.storage.engine.client.StorageClient;
-import fr.gouv.vitam.storage.engine.client.StorageClientFactory;
 import fr.gouv.vitam.storage.engine.common.model.request.ObjectDescription;
 import fr.gouv.vitam.worker.common.HandlerIO;
 import fr.gouv.vitam.worker.core.handler.ActionHandler;
@@ -131,34 +127,6 @@ public class BulkAtomicUpdateProcess extends StoreMetadataObjectActionHandler {
      */
     private static final int METADATA_UPDATE_BATCH_SIZE = 8;
 
-    private final MetaDataClientFactory metaDataClientFactory;
-    private final LogbookLifeCyclesClientFactory lfcClientFactory;
-    private final StorageClientFactory storageClientFactory;
-    private final BatchReportClientFactory batchReportClientFactory;
-
-    @SuppressWarnings("unused")
-    public BulkAtomicUpdateProcess() {
-        this(
-            MetaDataClientFactory.getInstance(),
-            LogbookLifeCyclesClientFactory.getInstance(),
-            StorageClientFactory.getInstance(),
-            BatchReportClientFactory.getInstance()
-        );
-    }
-
-    public BulkAtomicUpdateProcess(
-        MetaDataClientFactory metaDataClientFactory,
-        LogbookLifeCyclesClientFactory lfcClientFactory,
-        StorageClientFactory storageClientFactory,
-        BatchReportClientFactory batchReportClientFactory
-    ) {
-        super(storageClientFactory);
-        this.metaDataClientFactory = metaDataClientFactory;
-        this.lfcClientFactory = lfcClientFactory;
-        this.storageClientFactory = storageClientFactory;
-        this.batchReportClientFactory = batchReportClientFactory;
-    }
-
     @Override
     public ItemStatus execute(WorkerParameters param, HandlerIO handler) throws ProcessingException {
         throw new IllegalStateException("UnsupportedOperation");
@@ -195,10 +163,10 @@ public class BulkAtomicUpdateProcess extends StoreMetadataObjectActionHandler {
         int batchOffset
     ) throws BadRequestException, ProcessingException {
         try (
-            MetaDataClient mdClient = metaDataClientFactory.getClient();
-            LogbookLifeCyclesClient lfcClient = lfcClientFactory.getClient();
-            StorageClient storageClient = storageClientFactory.getClient();
-            BatchReportClient batchReportClient = batchReportClientFactory.getClient()
+            MetaDataClient mdClient = handler.getMetaDataClient();
+            LogbookLifeCyclesClient lfcClient = handler.getLifeCyclesClient();
+            StorageClient storageClient = handler.getStorageClient();
+            BatchReportClient batchReportClient = handler.getBatchReportClient()
         ) {
             // Retrieve each unitId, and each query, from params
             BulkAtomicUpdateQueryProcessBulk processBulk = new BulkAtomicUpdateQueryProcessBulk();

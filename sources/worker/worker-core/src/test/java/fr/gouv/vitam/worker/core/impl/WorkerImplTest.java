@@ -36,6 +36,7 @@ import fr.gouv.vitam.common.model.processing.Distribution;
 import fr.gouv.vitam.common.model.processing.DistributionKind;
 import fr.gouv.vitam.common.model.processing.ProcessBehavior;
 import fr.gouv.vitam.common.model.processing.Step;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.processing.common.exception.HandlerNotFoundException;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParametersFactory;
@@ -97,7 +98,7 @@ public class WorkerImplTest {
         throws IllegalArgumentException, ProcessingException, ContentAddressableStorageServerException {
         workerImpl = WorkerFactory.getInstance(pluginLoader).create();
         workerImpl.run(
-            WorkerParametersFactory.newWorkerParameters()
+            WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
                 .setUrlWorkspace("http://localhost:8083")
                 .setUrlMetadata("http://localhost:8083")
                 .setObjectNameList(Lists.newArrayList("objectName.json"))
@@ -112,7 +113,7 @@ public class WorkerImplTest {
         throws IllegalArgumentException, HandlerNotFoundException, ProcessingException, ContentAddressableStorageServerException {
         workerImpl = WorkerFactory.getInstance(pluginLoader).create();
         workerImpl.run(
-            WorkerParametersFactory.newWorkerParameters()
+            WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
                 .setUrlWorkspace("http://localhost:8083")
                 .setUrlMetadata("http://localhost:8083")
                 .setObjectNameList(Lists.newArrayList("objectName.json"))
@@ -133,7 +134,7 @@ public class WorkerImplTest {
         actions.add(action);
         step.setActions(actions);
         workerImpl.run(
-            WorkerParametersFactory.newWorkerParameters()
+            WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
                 .setUrlWorkspace(workspaceURL)
                 .setUrlMetadata("http://localhost:8083")
                 .setObjectNameList(Lists.newArrayList("objectName.json"))
@@ -171,7 +172,7 @@ public class WorkerImplTest {
             .create()
             .addActionHandler(ExtractSedaActionHandler.getId(), actionHandler);
         workerImpl.run(
-            WorkerParametersFactory.newWorkerParameters()
+            WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
                 .setUrlWorkspace(workspaceURL)
                 .setUrlMetadata("http://localhost:8083")
                 .setObjectNameList(Lists.newArrayList("objectName.json"))
@@ -208,7 +209,7 @@ public class WorkerImplTest {
             .create()
             .addActionHandler(ExtractSedaActionHandler.getId(), actionHandler);
         workerImpl.run(
-            WorkerParametersFactory.newWorkerParameters()
+            WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
                 .setUrlWorkspace("http://localhost:8011/")
                 .setUrlMetadata("http://localhost:8083")
                 .setObjectNameList(Lists.newArrayList("objectName.json"))
@@ -246,7 +247,7 @@ public class WorkerImplTest {
             .create()
             .addActionHandler(ExtractSedaActionHandler.getId(), actionHandler);
         workerImpl.run(
-            WorkerParametersFactory.newWorkerParameters()
+            WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
                 .setUrlWorkspace(workspaceURL)
                 .setUrlMetadata("http://localhost:8083")
                 .setObjectNameList(Lists.newArrayList(GUIDFactory.newGUID().getId() + ".json"))

@@ -55,12 +55,10 @@ import fr.gouv.vitam.common.model.logbook.LogbookOperation;
 import fr.gouv.vitam.common.model.revertupdate.RevertUpdateOptions;
 import fr.gouv.vitam.logbook.common.exception.LogbookClientException;
 import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClient;
-import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClientFactory;
 import fr.gouv.vitam.metadata.api.exception.MetaDataClientServerException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataDocumentSizeException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataExecutionException;
 import fr.gouv.vitam.metadata.client.MetaDataClient;
-import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.worker.common.HandlerIO;
@@ -118,21 +116,7 @@ public class RevertUpdateUnitCheckPlugin extends ActionHandler {
         )
     );
 
-    private final MetaDataClientFactory metaDataClientFactory;
-    private final LogbookLifeCyclesClientFactory logbookLifeCyclesClientFactory;
-
-    public RevertUpdateUnitCheckPlugin() {
-        this(MetaDataClientFactory.getInstance(), LogbookLifeCyclesClientFactory.getInstance());
-    }
-
-    @VisibleForTesting
-    public RevertUpdateUnitCheckPlugin(
-        MetaDataClientFactory metaDataClientFactory,
-        LogbookLifeCyclesClientFactory logbookLifeCyclesClientFactory
-    ) {
-        this.metaDataClientFactory = metaDataClientFactory;
-        this.logbookLifeCyclesClientFactory = logbookLifeCyclesClientFactory;
-    }
+    public RevertUpdateUnitCheckPlugin() {}
 
     @Override
     public ItemStatus execute(WorkerParameters param, HandlerIO handler) throws ProcessingException {
@@ -146,7 +130,7 @@ public class RevertUpdateUnitCheckPlugin extends ActionHandler {
                 );
                 final String operationId = options.getOperationId();
 
-                JsonNode unitsResult = retriveUnits(options, operationId);
+                JsonNode unitsResult = retriveUnits(handler, options, operationId);
                 JsonNode results = unitsResult.get(RequestResponseOK.TAG_RESULTS);
                 if (results.isEmpty()) {
                     return new ItemStatus(PLUGIN_ID).setItemsStatus(
@@ -178,7 +162,7 @@ public class RevertUpdateUnitCheckPlugin extends ActionHandler {
                         );
                     }
 
-                    Map<String, Document> unitsLFC = getUnitsLFC(operationId, units);
+                    Map<String, Document> unitsLFC = getUnitsLFC(handler, operationId, units);
 
                     for (String unitId : unitsLFC.keySet()) {
                         String diff = unitsLFC.get(unitId).getString("diff");
@@ -298,9 +282,9 @@ public class RevertUpdateUnitCheckPlugin extends ActionHandler {
     }
 
     @Nonnull
-    private Map<String, Document> getUnitsLFC(String operationId, List<JsonNode> units)
+    private Map<String, Document> getUnitsLFC(HandlerIO handlerIO, String operationId, List<JsonNode> units)
         throws LogbookClientException, InvalidParseOperationException {
-        try (LogbookLifeCyclesClient logbookLifeCyclesClient = logbookLifeCyclesClientFactory.getClient()) {
+        try (LogbookLifeCyclesClient logbookLifeCyclesClient = handlerIO.getLifeCyclesClient()) {
             List<String> unitsId = units
                 .stream()
                 .map(e -> e.get(VitamFieldsHelper.id()))
@@ -331,9 +315,9 @@ public class RevertUpdateUnitCheckPlugin extends ActionHandler {
             .reduce(true, Boolean::logicalAnd);
     }
 
-    private JsonNode retriveUnits(RevertUpdateOptions options, String operationId)
+    private JsonNode retriveUnits(HandlerIO handlerIO, RevertUpdateOptions options, String operationId)
         throws InvalidParseOperationException, InvalidCreateOperationException, MetaDataExecutionException, MetaDataDocumentSizeException, MetaDataClientServerException {
-        try (MetaDataClient metaDataClient = metaDataClientFactory.getClient()) {
+        try (MetaDataClient metaDataClient = handlerIO.getMetaDataClient()) {
             final SelectParserMultiple parser = new SelectParserMultiple();
             parser.parse(options.getDslRequest());
             parser

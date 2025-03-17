@@ -54,10 +54,10 @@ public class CommitLifeCycleObjectGroupActionHandler extends CommitLifeCycleActi
         if (handlerIO.getInput() != null && handlerIO.getInput().size() > 0) {
             boolean shouldWriteLFC = (boolean) handlerIO.getInput(SHOULD_WRITE_RANK);
             if (shouldWriteLFC) {
-                handlerIO.getLifecyclesClient().commitObjectGroup(operationId, objectID);
+                handlerIO.getLifeCyclesClient().commitObjectGroup(operationId, objectID);
             }
         } else {
-            handlerIO.getLifecyclesClient().commitObjectGroup(operationId, objectID);
+            handlerIO.getLifeCyclesClient().commitObjectGroup(operationId, objectID);
         }
     }
 

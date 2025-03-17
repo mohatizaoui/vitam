@@ -43,6 +43,7 @@ import fr.gouv.vitam.common.model.processing.IOParameter;
 import fr.gouv.vitam.common.model.processing.ProcessDetail;
 import fr.gouv.vitam.common.model.processing.ProcessingUri;
 import fr.gouv.vitam.common.model.processing.UriPrefix;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.logbook.common.parameters.LogbookTypeProcess;
 import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClientFactory;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
@@ -93,7 +94,7 @@ public class ListRunningIngestsActionHandlerTest {
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
 
-    private final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+    private final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
         .setUrlWorkspace("http://localhost:8083")
         .setUrlMetadata("http://localhost:8083")
         .setObjectName("archiveUnit.json")
@@ -116,6 +117,7 @@ public class ListRunningIngestsActionHandlerTest {
         when(workspaceClientFactory.getClient()).thenReturn(workspaceClient);
 
         action = new HandlerIOImpl(
+            WorkFlowExecutionContext.VITAM,
             workspaceClientFactory,
             mock(LogbookLifeCyclesClientFactory.class),
             guid.getId(),

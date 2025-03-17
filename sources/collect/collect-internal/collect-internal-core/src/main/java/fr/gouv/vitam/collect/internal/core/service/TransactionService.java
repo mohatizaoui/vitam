@@ -46,6 +46,7 @@ import fr.gouv.vitam.collect.internal.core.helpers.CollectHelper;
 import fr.gouv.vitam.collect.internal.core.repository.MetadataRepository;
 import fr.gouv.vitam.collect.internal.core.repository.TransactionRepository;
 import fr.gouv.vitam.common.LocalDateUtil;
+import fr.gouv.vitam.common.ParametersChecker;
 import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.database.builder.query.InQuery;
 import fr.gouv.vitam.common.database.builder.query.QueryHelper;
@@ -53,30 +54,55 @@ import fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper;
 import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
 import fr.gouv.vitam.common.database.builder.request.multiple.SelectMultiQuery;
 import fr.gouv.vitam.common.database.builder.request.single.Select;
+import fr.gouv.vitam.common.database.parser.request.multiple.SelectParserMultiple;
 import fr.gouv.vitam.common.database.utils.ScrollSpliterator;
+import fr.gouv.vitam.common.exception.BadRequestException;
+import fr.gouv.vitam.common.exception.InternalServerException;
+import fr.gouv.vitam.common.exception.InvalidGuidOperationException;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.exception.VitamClientException;
+import fr.gouv.vitam.common.guid.GUIDReader;
+import fr.gouv.vitam.common.i18n.VitamLogbookMessages;
 import fr.gouv.vitam.common.iterables.SpliteratorIterator;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
+import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.ProcessQuery;
 import fr.gouv.vitam.common.model.QueryProjection;
 import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.administration.DataObjectVersionType;
+import fr.gouv.vitam.common.model.elimination.DeletionRequestBody;
+import fr.gouv.vitam.common.model.elimination.EliminationRequestBody;
 import fr.gouv.vitam.common.model.logbook.LogbookOperation;
 import fr.gouv.vitam.common.model.processing.ProcessDetail;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.ingest.internal.client.IngestInternalClient;
 import fr.gouv.vitam.ingest.internal.client.IngestInternalClientFactory;
+import fr.gouv.vitam.logbook.common.exception.LogbookClientAlreadyExistsException;
+import fr.gouv.vitam.logbook.common.exception.LogbookClientBadRequestException;
 import fr.gouv.vitam.logbook.common.exception.LogbookClientException;
+import fr.gouv.vitam.logbook.common.exception.LogbookClientServerException;
+import fr.gouv.vitam.logbook.common.parameters.Contexts;
+import fr.gouv.vitam.logbook.common.parameters.LogbookOperationParameters;
+import fr.gouv.vitam.logbook.common.parameters.LogbookParameterHelper;
 import fr.gouv.vitam.logbook.common.parameters.LogbookTypeProcess;
+import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClient;
+import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClientFactory;
+import fr.gouv.vitam.metadata.common.utils.TransactionRestrictionHelper;
+import fr.gouv.vitam.processing.common.ProcessingEntry;
+import fr.gouv.vitam.processing.engine.core.operation.OperationContextException;
+import fr.gouv.vitam.processing.engine.core.operation.OperationContextModel;
+import fr.gouv.vitam.processing.engine.core.operation.OperationContextMonitor;
+import fr.gouv.vitam.processing.management.client.ProcessingManagementClient;
+import fr.gouv.vitam.processing.management.client.ProcessingManagementClientFactory;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageException;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceCollectClientFactory;
 import org.apache.commons.collections.CollectionUtils;
 
 import javax.annotation.Nullable;
@@ -98,6 +124,10 @@ import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
 import static fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper.id;
 import static fr.gouv.vitam.common.json.JsonHandler.getFromJsonNodeList;
+import static fr.gouv.vitam.common.json.JsonHandler.writeToInpustream;
+import static fr.gouv.vitam.common.model.ProcessAction.RESUME;
+import static fr.gouv.vitam.common.model.StatusCode.STARTED;
+import static fr.gouv.vitam.common.thread.VitamThreadUtils.getVitamSession;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 
 public class TransactionService {
@@ -124,27 +154,38 @@ public class TransactionService {
     private final MetadataRepository metadataRepository;
     private final ProjectService projectService;
     private final FluxService fluxService;
-    private final WorkspaceClientFactory workspaceCollectClientFactory;
+    private final WorkspaceCollectClientFactory workspaceCollectClientFactory;
+    private final WorkspaceClientFactory workspaceClientFactory;
     private final AccessInternalClientFactory accessInternalClientFactory;
 
     private final IngestInternalClientFactory ingestInternalClientFactory;
+
+    private final ProcessingManagementClientFactory processingManagementClientFactory;
+
+    private final LogbookOperationsClientFactory logbookOperationsClientFactory;
 
     public TransactionService(
         TransactionRepository transactionRepository,
         ProjectService projectService,
         MetadataRepository metadataRepository,
         FluxService fluxService,
-        WorkspaceClientFactory workspaceCollectClientFactory,
+        WorkspaceCollectClientFactory workspaceCollectClientFactory,
+        WorkspaceClientFactory workspaceClientFactory,
         AccessInternalClientFactory accessInternalClientFactory,
-        IngestInternalClientFactory ingestInternalClientFactory
+        IngestInternalClientFactory ingestInternalClientFactory,
+        ProcessingManagementClientFactory processingManagementClientFactory,
+        LogbookOperationsClientFactory logbookOperationsClientFactory
     ) {
         this.transactionRepository = transactionRepository;
         this.projectService = projectService;
         this.metadataRepository = metadataRepository;
         this.fluxService = fluxService;
         this.workspaceCollectClientFactory = workspaceCollectClientFactory;
+        this.workspaceClientFactory = workspaceClientFactory;
         this.accessInternalClientFactory = accessInternalClientFactory;
         this.ingestInternalClientFactory = ingestInternalClientFactory;
+        this.processingManagementClientFactory = processingManagementClientFactory;
+        this.logbookOperationsClientFactory = logbookOperationsClientFactory;
     }
 
     /**
@@ -775,5 +816,137 @@ public class TransactionService {
 
         transaction.setLastUpdate(LocalDateUtil.nowFormatted());
         return findOneAndReplace(TransactionStatus.READY, transaction);
+    }
+
+    public Response startEliminationActionWorkflow(
+        String transactionId,
+        EliminationRequestBody eliminationRequestBody,
+        Contexts eliminationWorkflowContext
+    )
+        throws CollectInternalException, InternalServerException, BadRequestException, OperationContextException, InvalidParseOperationException, ContentAddressableStorageServerException, LogbookClientAlreadyExistsException, LogbookClientBadRequestException, LogbookClientServerException, InvalidGuidOperationException, VitamClientException, InvalidCreateOperationException {
+        ParametersChecker.checkParameter("Missing elimination request", eliminationRequestBody);
+
+        //Enhancement to do : to apply AccessContract Restriction
+        final SelectParserMultiple parser = new SelectParserMultiple();
+        SelectMultiQuery selectMultiQuery = parser.getRequest();
+        parser.parse(eliminationRequestBody.getDslRequest());
+        TransactionRestrictionHelper.applyTransactionToQuery(transactionId, selectMultiQuery);
+        eliminationRequestBody.setDslRequest(selectMultiQuery.getFinalSelect());
+
+        // Start workflow
+        String operationId = getVitamSession().getRequestId();
+
+        try (
+            ProcessingManagementClient processingClient = processingManagementClientFactory.getClient();
+            LogbookOperationsClient logbookOperationsClient = logbookOperationsClientFactory.getClient();
+            WorkspaceClient workspaceClient = workspaceClientFactory.getClient()
+        ) {
+            final LogbookOperationParameters initParameters = LogbookParameterHelper.newLogbookOperationParameters(
+                GUIDReader.getGUID(operationId),
+                eliminationWorkflowContext.getEventType(),
+                GUIDReader.getGUID(operationId),
+                LogbookTypeProcess.COLLECT_ELIMINATION_ACTION,
+                STARTED,
+                VitamLogbookMessages.getLabelOp("COLLECT_ELIMINATION_ACTION.STARTED") +
+                " : " +
+                GUIDReader.getGUID(operationId),
+                GUIDReader.getGUID(operationId)
+            );
+
+            logbookOperationsClient.create(initParameters);
+            workspaceClient.createContainer(operationId);
+            workspaceClient.putObject(operationId, "request.json", writeToInpustream(eliminationRequestBody));
+
+            // store original query in workspace
+            workspaceClient.putObject(
+                operationId,
+                OperationContextMonitor.OperationContextFileName,
+                writeToInpustream(OperationContextModel.get(eliminationRequestBody))
+            );
+
+            // compress file to backup
+            OperationContextMonitor.compressInWorkspace(
+                workspaceClientFactory,
+                operationId,
+                LogbookTypeProcess.COLLECT_ELIMINATION_ACTION,
+                OperationContextMonitor.OperationContextFileName
+            );
+
+            processingClient.initVitamProcess(
+                new ProcessingEntry(operationId, Contexts.COLLECT_ELIMINATION_ACTION.name())
+            );
+
+            RequestResponse<ItemStatus> jsonNodeRequestResponse = processingClient.executeOperationProcess(
+                operationId,
+                Contexts.COLLECT_ELIMINATION_ACTION.name(),
+                RESUME.getValue()
+            );
+            return jsonNodeRequestResponse.toResponse();
+        }
+    }
+
+    public Response startDeletionWorkflow(
+        String transactionId,
+        DeletionRequestBody deletionRequestBody,
+        Contexts deletionWorkflowContext
+    )
+        throws InvalidGuidOperationException, LogbookClientAlreadyExistsException, LogbookClientBadRequestException, LogbookClientServerException, ContentAddressableStorageServerException, InvalidParseOperationException, OperationContextException, InternalServerException, BadRequestException, VitamClientException, InvalidCreateOperationException {
+        ParametersChecker.checkParameter("Missing deletion request", deletionRequestBody);
+
+        final SelectParserMultiple parser = new SelectParserMultiple();
+        SelectMultiQuery selectMultiQuery = parser.getRequest();
+        parser.parse(deletionRequestBody.getDslRequest());
+        TransactionRestrictionHelper.applyTransactionToQuery(transactionId, selectMultiQuery);
+        deletionRequestBody.setDslRequest(selectMultiQuery.getFinalSelect());
+        // Start workflow
+        String operationId = getVitamSession().getRequestId();
+
+        try (
+            ProcessingManagementClient processingClient = processingManagementClientFactory.getClient();
+            LogbookOperationsClient logbookOperationsClient = logbookOperationsClientFactory.getClient();
+            WorkspaceClient workspaceClient = workspaceClientFactory.getClient()
+        ) {
+            final LogbookOperationParameters initParameters = LogbookParameterHelper.newLogbookOperationParameters(
+                GUIDReader.getGUID(operationId),
+                deletionWorkflowContext.getEventType(),
+                GUIDReader.getGUID(operationId),
+                LogbookTypeProcess.COLLECT_DELETION_ACTION,
+                STARTED,
+                VitamLogbookMessages.getLabelOp("COLLECT_DELETION_ACTION.STARTED") +
+                " : " +
+                GUIDReader.getGUID(operationId),
+                GUIDReader.getGUID(operationId)
+            );
+
+            logbookOperationsClient.create(initParameters);
+            workspaceClient.createContainer(operationId);
+
+            workspaceClient.putObject(operationId, "request.json", writeToInpustream(deletionRequestBody));
+
+            // store original query in workspace
+            workspaceClient.putObject(
+                operationId,
+                OperationContextMonitor.OperationContextFileName,
+                writeToInpustream(OperationContextModel.get(deletionRequestBody))
+            );
+
+            // compress file to backup
+            OperationContextMonitor.compressInWorkspace(
+                workspaceClientFactory,
+                operationId,
+                LogbookTypeProcess.COLLECT_DELETION_ACTION,
+                OperationContextMonitor.OperationContextFileName
+            );
+
+            processingClient.initVitamProcess(
+                new ProcessingEntry(operationId, Contexts.COLLECT_DELETION_ACTION.name())
+            );
+            RequestResponse<ItemStatus> jsonNodeRequestResponse = processingClient.executeOperationProcess(
+                operationId,
+                Contexts.COLLECT_DELETION_ACTION.name(),
+                RESUME.getValue()
+            );
+            return jsonNodeRequestResponse.toResponse();
+        }
     }
 }

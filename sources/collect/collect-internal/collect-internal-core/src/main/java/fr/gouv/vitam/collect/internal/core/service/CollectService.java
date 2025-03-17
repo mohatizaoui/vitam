@@ -63,6 +63,8 @@ import fr.gouv.vitam.common.model.objectgroup.DbQualifiersModel;
 import fr.gouv.vitam.common.model.objectgroup.DbVersionsModel;
 import fr.gouv.vitam.common.stream.VitamAsyncInputStreamResponse;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
+import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClientFactory;
+import fr.gouv.vitam.processing.management.client.ProcessingManagementClientFactory;
 import fr.gouv.vitam.storage.engine.common.exception.StorageNotFoundException;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageException;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageNotFoundException;
@@ -95,20 +97,32 @@ public class CollectService {
 
     public static final String UNABLE_TO_FIND_ARCHIVE_UNIT_ID = "Unable to find archiveUnit Id";
     private static final String FORMAT_IDENTIFIER_ID = "siegfried-local";
+
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(CollectService.class);
 
     private final MetadataRepository metadataRepository;
     private final WorkspaceClientFactory workspaceCollectClientFactory;
+    private final WorkspaceClientFactory workspaceClientFactory;
     private final FormatIdentifierFactory formatIdentifierFactory;
+
+    private final ProcessingManagementClientFactory processingManagementClientFactory;
+
+    private final LogbookOperationsClientFactory logbookOperationsClientFactory;
 
     public CollectService(
         MetadataRepository metadataRepository,
         WorkspaceClientFactory workspaceCollectClientFactory,
-        FormatIdentifierFactory formatIdentifierFactory
+        WorkspaceClientFactory workspaceClientFactory,
+        FormatIdentifierFactory formatIdentifierFactory,
+        ProcessingManagementClientFactory processingManagementClientFactory,
+        LogbookOperationsClientFactory logbookOperationsClientFactory
     ) {
         this.metadataRepository = metadataRepository;
         this.workspaceCollectClientFactory = workspaceCollectClientFactory;
+        this.workspaceClientFactory = workspaceClientFactory;
         this.formatIdentifierFactory = formatIdentifierFactory;
+        this.processingManagementClientFactory = processingManagementClientFactory;
+        this.logbookOperationsClientFactory = logbookOperationsClientFactory;
     }
 
     public CollectUnitModel getArchiveUnitModel(String unitId) throws CollectInternalException {
@@ -374,14 +388,14 @@ public class CollectService {
     public String pushStreamToWorkspace(String containerName, InputStream uploadedInputStream, String fileName)
         throws CollectInternalException {
         LOGGER.debug("Try to push stream to workspace...");
-        try (WorkspaceClient workspaceClient = workspaceCollectClientFactory.getClient()) {
-            if (!workspaceClient.isExistingContainer(containerName)) {
-                workspaceClient.createContainer(containerName);
-                workspaceClient.createFolder(containerName, CONTENT_FOLDER);
+        try (WorkspaceClient workspaceCollectClient = workspaceCollectClientFactory.getClient()) {
+            if (!workspaceCollectClient.isExistingContainer(containerName)) {
+                workspaceCollectClient.createContainer(containerName);
+                workspaceCollectClient.createFolder(containerName, CONTENT_FOLDER);
             }
             Digest digest = new Digest(VitamConfiguration.getDefaultDigestType());
             InputStream digestInputStream = digest.getDigestInputStream(uploadedInputStream);
-            workspaceClient.putObject(containerName, fileName, digestInputStream);
+            workspaceCollectClient.putObject(containerName, fileName, digestInputStream);
             LOGGER.debug("Push stream to workspace finished");
             return digest.digestHex();
         } catch (ContentAddressableStorageException e) {
@@ -391,7 +405,7 @@ public class CollectService {
 
     public InputStream getInputStreamFromWorkspace(String containerName, String fileName)
         throws CollectInternalException {
-        try (WorkspaceClient workspaceClient = workspaceCollectClientFactory.getClient()) {
+        try (WorkspaceClient workspaceClient = workspaceClientFactory.getClient()) {
             final Response response = workspaceClient.getObject(containerName, fileName);
             if (response.getStatus() != Response.Status.OK.getStatusCode()) {
                 throw new CollectInternalException("Cannot find stream");
@@ -445,7 +459,6 @@ public class CollectService {
                 MediaType.APPLICATION_OCTET_STREAM_TYPE
             );
         } catch (ContentAddressableStorageServerException | ContentAddressableStorageNotFoundException e) {
-            LOGGER.error("Cannot found got with id ");
             throw new CollectInternalException("Cannot found got with id");
         }
     }

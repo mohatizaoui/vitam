@@ -37,6 +37,7 @@ import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.common.model.ProcessState;
 import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.processing.common.exception.ProcessingStorageWorkspaceException;
 import fr.gouv.vitam.processing.common.model.DistributorIndex;
 import fr.gouv.vitam.processing.common.model.PauseRecover;
@@ -46,7 +47,6 @@ import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageNotFoundEx
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 
 import javax.ws.rs.core.Response;
 import java.io.InputStream;
@@ -68,7 +68,7 @@ public class WorkspaceProcessDataManagement implements ProcessDataManagement {
     private final WorkspaceClientFactory workspaceClientFactory;
 
     private WorkspaceProcessDataManagement() {
-        this.workspaceClientFactory = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM);
+        this.workspaceClientFactory = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM);
     }
 
     @VisibleForTesting

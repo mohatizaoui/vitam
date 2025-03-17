@@ -27,16 +27,29 @@
 package fr.gouv.vitam.worker.common;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import fr.gouv.vitam.batch.report.client.BatchReportClient;
+import fr.gouv.vitam.batch.report.client.BatchReportClientFactory;
 import fr.gouv.vitam.common.model.VitamAutoCloseable;
 import fr.gouv.vitam.common.model.processing.IOParameter;
 import fr.gouv.vitam.common.model.processing.ProcessingUri;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
+import fr.gouv.vitam.functional.administration.client.AdminManagementClient;
+import fr.gouv.vitam.functional.administration.client.AdminManagementClientFactory;
 import fr.gouv.vitam.logbook.common.parameters.LogbookLifeCyclesClientHelper;
 import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClient;
+import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClientFactory;
+import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClient;
+import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClientFactory;
+import fr.gouv.vitam.metadata.client.MetaDataClient;
+import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
+import fr.gouv.vitam.storage.engine.client.StorageClient;
+import fr.gouv.vitam.storage.engine.client.StorageClientFactory;
 import fr.gouv.vitam.worker.core.exception.WorkerspaceQueueException;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageException;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageNotFoundException;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
+import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
 
 import javax.ws.rs.core.Response;
@@ -258,11 +271,6 @@ public interface HandlerIO extends VitamAutoCloseable {
     JsonNode getJsonFromWorkspace(String jsonFilePath) throws ProcessingException;
 
     /**
-     * @return the HandlerIO LifecycleClient
-     */
-    LogbookLifeCyclesClient getLifecyclesClient();
-
-    /**
      * @return the helper for bulk lifecycle for LifecyclesClient
      */
     LogbookLifeCyclesClientHelper getHelper();
@@ -320,5 +328,75 @@ public interface HandlerIO extends VitamAutoCloseable {
 
     void setCurrentObjectId(String currentObjectId);
 
+    /**
+     * @return the LogbookLifeCyclesClientFactory for the current execution context
+     */
+    LogbookLifeCyclesClientFactory getLifeCyclesClientFactory();
+
+    /**
+     * @return the HandlerIO LifecycleClient
+     */
+    LogbookLifeCyclesClient getLifeCyclesClient();
+
+    /**
+     * @return the WorkspaceClientFactory for the current execution context
+     */
     WorkspaceClientFactory getWorkspaceClientFactory();
+
+    /**
+     * @return the WorkspaceClient for the current execution context
+     */
+    WorkspaceClient getWorkspaceClient();
+
+    /**
+     * @return the metadata client for the current execution context
+     */
+    MetaDataClientFactory getMetaDataClientFactory();
+
+    /**
+     * @return the metadata client for the current execution context
+     */
+    MetaDataClient getMetaDataClient();
+
+    /**
+     * @return the metadata client for the current execution context
+     */
+    AdminManagementClientFactory getAdminManagementClientFactory();
+
+    /**
+     * @return the metadata client for the current execution context
+     */
+    AdminManagementClient getAdminManagementClient();
+
+    /**
+     * @return the batch report client factory for the current execution context
+     */
+    BatchReportClientFactory getBatchReportClientFactory();
+
+    /**
+     * @return the batch report client for the current execution context
+     */
+    BatchReportClient getBatchReportClient();
+
+    /**
+     * @return the logbook operations client factory for the current execution context
+     */
+    LogbookOperationsClientFactory getLogbookOperationsClientFactory();
+
+    /**
+     * @return the logbook operations client for the current execution context
+     */
+    LogbookOperationsClient getLogbookOperationsClient();
+
+    /**
+     * @return the storage client factory for the current execution context
+     */
+    StorageClientFactory getStorageClientFactory();
+
+    /**
+     * @return the storage client for the current execution context
+     */
+    StorageClient getStorageClient();
+
+    WorkFlowExecutionContext getWorkFlowExecutionContext();
 }

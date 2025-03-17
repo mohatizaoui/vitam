@@ -143,7 +143,7 @@ public class ComputeInheritedRuleProgenyIdentifierPluginTest {
         assertThat(reportBody.getProcessId()).isEqualTo("processId");
         assertThat(reportBody.getReportType()).isEqualTo(ReportType.UNIT_COMPUTED_INHERITED_RULES_INVALIDATION);
         assertThat(reportBody.getEntries()).extracting("unitId").containsAll(allUnitsToInvalidate);
-        verify(batchReportClient).exportUnitsToInvalidate(anyString(), any());
+        verify(batchReportClient).exportUnitsToInvalidate(anyString(), any(), any());
         verify(workspaceClient, never()).deleteObject("processId", UNITS_JSONL_FILE_NAME);
     }
 
@@ -175,7 +175,7 @@ public class ComputeInheritedRuleProgenyIdentifierPluginTest {
         assertThat(reportBody.getProcessId()).isEqualTo("processId");
         assertThat(reportBody.getReportType()).isEqualTo(ReportType.UNIT_COMPUTED_INHERITED_RULES_INVALIDATION);
         assertThat(reportBody.getEntries()).extracting("unitId").containsAll(allUnitsToInvalidate);
-        verify(batchReportClient).exportUnitsToInvalidate(anyString(), any());
+        verify(batchReportClient).exportUnitsToInvalidate(anyString(), any(), any());
         verify(workspaceClient).deleteObject("processId", UNITS_JSONL_FILE_NAME);
     }
 
@@ -193,7 +193,7 @@ public class ComputeInheritedRuleProgenyIdentifierPluginTest {
 
         // Then
         verify(batchReportClient, never()).appendReportEntries(any());
-        verify(batchReportClient).exportUnitsToInvalidate(anyString(), any());
+        verify(batchReportClient).exportUnitsToInvalidate(anyString(), any(), any());
     }
 
     private WorkerParameters givenWorkerParameters() {

@@ -37,6 +37,7 @@ import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.administration.AccessionRegisterDetailModel;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -98,8 +99,9 @@ public class PurgeAccessionRegisterUpdatePluginTest {
         VitamThreadUtils.getVitamSession().setRequestId("opId");
 
         doReturn(adminManagementClient).when(adminManagementClientFactory).getClient();
+        when(handler.getAdminManagementClient()).thenReturn(adminManagementClient);
 
-        params = WorkerParametersFactory.newWorkerParameters()
+        params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setWorkerGUID(GUIDFactory.newGUID().getId())
             .setContainerName(VitamThreadUtils.getVitamSession().getRequestId())
             .setRequestId(VitamThreadUtils.getVitamSession().getRequestId())
@@ -108,11 +110,7 @@ public class PurgeAccessionRegisterUpdatePluginTest {
             .setCurrentStep("StepName")
             .setObjectMetadata(JsonHandler.createObjectNode());
 
-        instance = new PurgeAccessionRegisterUpdatePlugin(
-            "PLUGIN_ACTION",
-            LogbookTypeProcess.ELIMINATION,
-            adminManagementClientFactory
-        );
+        instance = new PurgeAccessionRegisterUpdatePlugin("PLUGIN_ACTION", LogbookTypeProcess.ELIMINATION);
     }
 
     @Test

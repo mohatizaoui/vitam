@@ -31,6 +31,7 @@ import com.google.common.collect.ImmutableMap;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -88,8 +89,12 @@ public class IngestCleanupDeleteUnitPluginTest {
     @RunWithCustomExecutor
     public void testExecuteList_OK() throws Exception {
         // Given
-        WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
-            .setObjectMetadataList(Arrays.asList(buildUnitParams(1), buildUnitParams(2), buildUnitParams(3)));
+
+        List<JsonNode> units = Arrays.asList(buildUnitParams(1), buildUnitParams(2), buildUnitParams(3));
+
+        WorkerParameters params = WorkerParametersFactory.newWorkerParameters(
+            WorkFlowExecutionContext.VITAM
+        ).setObjectMetadataList(units);
 
         // When
         List<ItemStatus> itemStatus = instance.executeList(params, handler);
@@ -106,7 +111,7 @@ public class IngestCleanupDeleteUnitPluginTest {
             "id_unit_3",
             "default-fake"
         );
-        verify(purgeDeleteService).deleteUnits(eq(unitIdsWithStrategies));
+        verify(purgeDeleteService).deleteUnits(eq(unitIdsWithStrategies), eq(handler));
     }
 
     private JsonNode buildUnitParams(Integer index) {

@@ -83,18 +83,20 @@ public class PrepareStorageStrategiesPluginTest {
     private StorageClient storageClient;
 
     private PrepareStorageStrategiesPlugin prepareStorageStrategiesPlugin;
+    private HandlerIO handler;
 
     @Before
     public void setUp() throws Exception {
-        prepareStorageStrategiesPlugin = new PrepareStorageStrategiesPlugin(storageClientFactory);
-        when(storageClientFactory.getClient()).thenReturn(storageClient);
+        handler = mock(HandlerIO.class);
+        prepareStorageStrategiesPlugin = new PrepareStorageStrategiesPlugin();
+        when(handler.getStorageClient()).thenReturn(storageClient);
         when(storageClient.getStorageStrategies()).thenReturn(loadStorageStrategiesMock());
     }
 
     @Test
     public void shouldCreateStrategiesOutput() throws ProcessingException, IOException, InvalidParseOperationException {
         // Given
-        HandlerIO handler = mock(HandlerIO.class);
+
         WorkerParameters workerParameters = mock(WorkerParameters.class);
 
         when(handler.getOutput(0)).thenReturn(new ProcessingUri(UriPrefix.WORKSPACE, "StorageInfo/strategies.json"));
@@ -129,7 +131,6 @@ public class PrepareStorageStrategiesPluginTest {
     @Test
     public void shouldFailFromStrategyRetrievalException() throws ProcessingException, StorageServerClientException {
         // Given
-        HandlerIO handler = mock(HandlerIO.class);
         WorkerParameters workerParameters = mock(WorkerParameters.class);
 
         when(storageClient.getStorageStrategies()).thenThrow(new StorageServerClientException("Exception"));
@@ -145,7 +146,6 @@ public class PrepareStorageStrategiesPluginTest {
     @Test
     public void shouldFailFromStrategyRetrievalKO() throws ProcessingException, StorageServerClientException {
         // Given
-        HandlerIO handler = mock(HandlerIO.class);
         WorkerParameters workerParameters = mock(WorkerParameters.class);
 
         when(storageClient.getStorageStrategies()).thenReturn(

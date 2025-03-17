@@ -40,6 +40,7 @@ import fr.gouv.vitam.common.model.UpdateWorkflowConstants;
 import fr.gouv.vitam.common.model.processing.IOParameter;
 import fr.gouv.vitam.common.model.processing.ProcessingUri;
 import fr.gouv.vitam.common.model.processing.UriPrefix;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -108,7 +109,7 @@ public class ArchiveUnitRulesUpdateActionPluginTest {
         VitamThreadPoolExecutor.getDefaultExecutor()
     );
 
-    private final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+    private final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
         .setUrlWorkspace("http://localhost:8083")
         .setUrlMetadata("http://localhost:8083")
         .setObjectNameList(Lists.newArrayList(guidAu + ".json"))
@@ -137,6 +138,7 @@ public class ArchiveUnitRulesUpdateActionPluginTest {
 
         plugin = new ArchiveUnitRulesUpdateActionPlugin(metadataClientFactory);
         action = new HandlerIOImpl(
+            WorkFlowExecutionContext.VITAM,
             workspaceClientFactory,
             logbookLifeCyclesClientFactory,
             guid.getId(),

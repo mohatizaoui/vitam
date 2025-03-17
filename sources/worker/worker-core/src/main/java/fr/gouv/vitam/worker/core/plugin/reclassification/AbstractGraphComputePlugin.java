@@ -27,7 +27,6 @@
 package fr.gouv.vitam.worker.core.plugin.reclassification;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import fr.gouv.vitam.common.SedaConstants;
 import fr.gouv.vitam.common.exception.VitamClientException;
@@ -38,7 +37,6 @@ import fr.gouv.vitam.common.model.GraphComputeResponse;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.metadata.client.MetaDataClient;
-import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.worker.common.HandlerIO;
@@ -55,17 +53,6 @@ import java.util.Set;
 public abstract class AbstractGraphComputePlugin extends ActionHandler {
 
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(AbstractGraphComputePlugin.class);
-
-    private final MetaDataClientFactory metaDataClientFactory;
-
-    public AbstractGraphComputePlugin() {
-        this.metaDataClientFactory = MetaDataClientFactory.getInstance();
-    }
-
-    @VisibleForTesting
-    public AbstractGraphComputePlugin(MetaDataClientFactory metaDataClientFactory) {
-        this.metaDataClientFactory = metaDataClientFactory;
-    }
 
     @Override
     public ItemStatus execute(WorkerParameters param, HandlerIO handler) throws ProcessingException {
@@ -84,7 +71,7 @@ public abstract class AbstractGraphComputePlugin extends ActionHandler {
         int initialSize = ids.size();
         int finalSize = 0;
         GraphComputeResponse graphComputeResponse = null;
-        try (MetaDataClient metaDataClient = metaDataClientFactory.getClient()) {
+        try (MetaDataClient metaDataClient = handler.getMetaDataClient()) {
             graphComputeResponse = metaDataClient.computeGraph(getGraphComputeAction(), ids);
 
             switch (getGraphComputeAction()) {

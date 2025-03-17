@@ -26,7 +26,6 @@
  */
 package fr.gouv.vitam.worker.core.plugin.transfer.reply;
 
-import com.google.common.annotations.VisibleForTesting;
 import fr.gouv.culture.archivesdefrance.seda.v2.ArchiveTransferReplyType;
 import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.logging.VitamLogger;
@@ -35,7 +34,6 @@ import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.storage.engine.client.StorageClient;
-import fr.gouv.vitam.storage.engine.client.StorageClientFactory;
 import fr.gouv.vitam.storage.engine.client.exception.StorageAlreadyExistsClientException;
 import fr.gouv.vitam.storage.engine.client.exception.StorageNotFoundClientException;
 import fr.gouv.vitam.storage.engine.client.exception.StorageServerClientException;
@@ -59,21 +57,12 @@ public class SaveAtrPlugin extends ActionHandler {
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(SaveAtrPlugin.class);
     public static final String PLUGIN_NAME = "SAVE_ARCHIVAL_TRANSFER_REPLY";
 
-    private final StorageClientFactory storageClientFactory;
-
-    public SaveAtrPlugin() {
-        this(StorageClientFactory.getInstance());
-    }
-
-    @VisibleForTesting
-    public SaveAtrPlugin(StorageClientFactory storageClientFactory) {
-        this.storageClientFactory = storageClientFactory;
-    }
+    public SaveAtrPlugin() {}
 
     @Override
     public ItemStatus execute(WorkerParameters param, HandlerIO handler) throws ProcessingException {
         ArchiveTransferReplyType atr = (ArchiveTransferReplyType) handler.getInput(0);
-        try (StorageClient storageClient = storageClientFactory.getClient()) {
+        try (StorageClient storageClient = handler.getStorageClient()) {
             String messageIdentifier = atr.getMessageIdentifier();
 
             ObjectDescription description = getDescription(messageIdentifier, handler.getContainerName());

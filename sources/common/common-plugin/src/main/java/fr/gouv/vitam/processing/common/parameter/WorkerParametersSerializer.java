@@ -50,9 +50,13 @@ class WorkerParametersSerializer extends JsonSerializer<AbstractWorkerParameters
     public void serialize(AbstractWorkerParameters value, JsonGenerator gen, SerializerProvider serializers)
         throws IOException, JsonProcessingException {
         gen.writeStartObject();
+        gen.writeStringField("executionContext", value.getExecutionContext().name());
+        gen.writeFieldName("parameters");
+        gen.writeStartObject();
         for (final Entry<WorkerParameterName, String> item : value.getMapParameters().entrySet()) {
             gen.writeStringField(item.getKey().name(), item.getValue());
         }
+        gen.writeEndObject();
         gen.writeEndObject();
     }
 }

@@ -60,7 +60,7 @@ public class TransferReplyDeleteSIP extends ActionHandler {
 
     @Override
     public ItemStatus execute(WorkerParameters param, HandlerIO handler) {
-        try (WorkspaceClient workspaceClient = handler.getWorkspaceClientFactory().getClient()) {
+        try (WorkspaceClient workspaceClient = handler.getWorkspaceClient()) {
             TransferReplyContext transferReplyContext = JsonHandler.getFromFile(
                 (File) handler.getInput(TRANSFER_REPLY_CONTEXT_IN_RANK),
                 TransferReplyContext.class

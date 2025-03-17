@@ -150,7 +150,7 @@ public class DeleteGotVersionsFinalizationPlugin extends ActionHandler {
             JsonNode context = JsonHandler.toJsonNode(deleteGotVersionsRequest);
 
             Report reportInfo = new Report(operationSummary, reportSummary, context);
-            deleteGotVersionsReportService.storeReportToWorkspace(reportInfo);
+            deleteGotVersionsReportService.storeReportToWorkspace(reportInfo, param.getExecutionContext());
         }
     }
 

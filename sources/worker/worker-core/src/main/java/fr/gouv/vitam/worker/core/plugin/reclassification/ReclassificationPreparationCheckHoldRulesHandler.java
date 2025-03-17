@@ -24,6 +24,7 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
+
 package fr.gouv.vitam.worker.core.plugin.reclassification;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -41,7 +42,6 @@ import fr.gouv.vitam.metadata.api.exception.MetaDataClientServerException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataDocumentSizeException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataExecutionException;
 import fr.gouv.vitam.metadata.client.MetaDataClient;
-import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.worker.common.HandlerIO;
@@ -78,30 +78,20 @@ public class ReclassificationPreparationCheckHoldRulesHandler extends ActionHand
         "Cannot apply reclassification request. Hold rules with PreventRearrangement found";
 
     private final int maxGuidListSizeInLogbookOperation;
-    private final MetaDataClientFactory metaDataClientFactory;
     private final UnitGraphInfoLoader unitGraphInfoLoader;
 
-    /**
-     * Default constructor
-     */
     public ReclassificationPreparationCheckHoldRulesHandler() {
-        this(
-            MetaDataClientFactory.getInstance(),
-            new UnitGraphInfoLoader(),
-            VitamConfiguration.getReclassificationMaxGuildListSizeInLogbookOperation()
-        );
+        this(new UnitGraphInfoLoader(), VitamConfiguration.getReclassificationMaxGuildListSizeInLogbookOperation());
     }
 
-    /***
+    /**
      * Test only constructor
      */
     @VisibleForTesting
     ReclassificationPreparationCheckHoldRulesHandler(
-        MetaDataClientFactory metaDataClientFactory,
         UnitGraphInfoLoader unitGraphInfoLoader,
         int maxGuidListSizeInLogbookOperation
     ) {
-        this.metaDataClientFactory = metaDataClientFactory;
         this.unitGraphInfoLoader = unitGraphInfoLoader;
         this.maxGuidListSizeInLogbookOperation = maxGuidListSizeInLogbookOperation;
     }
@@ -125,7 +115,7 @@ public class ReclassificationPreparationCheckHoldRulesHandler extends ActionHand
             ReclassificationOrders reclassificationOrders = loadReclassificationOrders(handler);
 
             // Check hold rules
-            checkHoldRules(reclassificationOrders);
+            checkHoldRules(handler, reclassificationOrders);
         } catch (ProcessingStatusException e) {
             LOGGER.error("Reclassification hold rule check failed with status [" + e.getStatusCode() + "]", e);
             return buildItemStatus(
@@ -144,13 +134,14 @@ public class ReclassificationPreparationCheckHoldRulesHandler extends ActionHand
         return (ReclassificationOrders) handler.getInput(RECLASSIFICATION_ORDERS_PARAMETER_RANK);
     }
 
-    private void checkHoldRules(ReclassificationOrders reclassificationOrders) throws ProcessingStatusException {
+    private void checkHoldRules(HandlerIO handler, ReclassificationOrders reclassificationOrders)
+        throws ProcessingStatusException {
         Set<String> unitsIdToRearrange = SetUtils.union(
             reclassificationOrders.getChildToParentAttachments().keySet(),
             reclassificationOrders.getChildToParentDetachments().keySet()
         );
 
-        try (MetaDataClient metaDataClient = metaDataClientFactory.getClient()) {
+        try (MetaDataClient metaDataClient = handler.getMetaDataClient()) {
             Map<String, InheritedRuleCategoryResponseModel> unitInheritedHoldRules =
                 unitGraphInfoLoader.loadInheritedHoldRules(metaDataClient, unitsIdToRearrange);
 

@@ -32,6 +32,7 @@ import fr.gouv.vitam.common.LocalDateUtil;
 import fr.gouv.vitam.common.ParametersChecker;
 import fr.gouv.vitam.common.model.ProcessState;
 import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.logbook.common.parameters.LogbookTypeProcess;
 
 import java.time.LocalDateTime;
@@ -58,6 +59,8 @@ public class ProcessWorkflow {
     private String messageIdentifier;
 
     private String prodService;
+
+    private WorkFlowExecutionContext executionContext;
 
     private List<ProcessStep> steps = new ArrayList<>();
 
@@ -367,5 +370,13 @@ public class ProcessWorkflow {
     public ProcessWorkflow setParameters(Map<String, String> parameters) {
         this.parameters = parameters;
         return this;
+    }
+
+    public WorkFlowExecutionContext getExecutionContext() {
+        return executionContext;
+    }
+
+    public void setExecutionContext(WorkFlowExecutionContext executionContext) {
+        this.executionContext = executionContext;
     }
 }

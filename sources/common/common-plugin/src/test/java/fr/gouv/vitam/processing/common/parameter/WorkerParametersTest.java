@@ -29,6 +29,7 @@ package fr.gouv.vitam.processing.common.parameter;
 import com.google.common.collect.Lists;
 import fr.gouv.vitam.common.guid.GUID;
 import fr.gouv.vitam.common.guid.GUIDFactory;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -43,7 +44,7 @@ public class WorkerParametersTest {
 
     @Test
     public void getMapParameters() {
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters();
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM);
         assertNotNull(params);
         for (final WorkerParameterName value : WorkerParameterName.values()) {
             params.putParameterValue(value, value.name());
@@ -54,7 +55,7 @@ public class WorkerParametersTest {
             params.getMapParameters().get(WorkerParameterName.currentStep),
             WorkerParameterName.currentStep.name()
         );
-        final WorkerParameters params2 = WorkerParametersFactory.newWorkerParameters();
+        final WorkerParameters params2 = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM);
         params2.setFromParameters(params);
         for (final WorkerParameterName value : WorkerParameterName.values()) {
             assertEquals(params.getParameterValue(value), params2.getParameterValue(value));
@@ -63,7 +64,7 @@ public class WorkerParametersTest {
         for (final WorkerParameterName value : WorkerParameterName.values()) {
             map.put(value.name(), params.getParameterValue(value));
         }
-        final WorkerParameters params3 = WorkerParametersFactory.newWorkerParameters();
+        final WorkerParameters params3 = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM);
         params3.setMap(map);
         for (final WorkerParameterName value : WorkerParameterName.values()) {
             assertEquals(params.getParameterValue(value), params3.getParameterValue(value));
@@ -72,7 +73,7 @@ public class WorkerParametersTest {
 
     @Test
     public void getMandatoriesParameters() {
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters();
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM);
         assertNotNull(params);
 
         final Set<WorkerParameterName> mandatories = params.getMandatoriesParameters();
@@ -84,7 +85,7 @@ public class WorkerParametersTest {
 
         final Set<WorkerParameterName> mandatoryToAdd = new TreeSet<>();
         mandatoryToAdd.add(WorkerParameterName.currentStep);
-        final WorkerParameters params2 = new DefaultWorkerParameters(mandatoryToAdd);
+        final WorkerParameters params2 = new DefaultWorkerParameters(WorkFlowExecutionContext.VITAM, mandatoryToAdd);
         assertNotNull(params2);
         assertEquals(1, params2.getMandatoriesParameters().size());
         assertEquals(null, params.getContainerName());
@@ -94,14 +95,14 @@ public class WorkerParametersTest {
     public void defaultWorkerParametersConstructorTest() {
         final Map<String, String> map = new HashMap<>();
         map.put(WorkerParameterName.currentStep.name(), WorkerParameterName.currentStep.name());
-        final WorkerParameters parameters = new DefaultWorkerParameters(map);
+        final WorkerParameters parameters = new DefaultWorkerParameters(WorkFlowExecutionContext.VITAM, map);
         assertNotNull(parameters);
         assertEquals(1, parameters.getMapParameters().size());
     }
 
     @Test
     public void getterSetterTest() {
-        final WorkerParameters parameters = WorkerParametersFactory.newWorkerParameters();
+        final WorkerParameters parameters = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM);
         assertNotNull(parameters);
         assertEquals(0, parameters.getMapParameters().size());
         parameters.setContainerName("containerName");
@@ -156,6 +157,7 @@ public class WorkerParametersTest {
             "  \"currentStep\" : \"currentStep\"\n" +
             "}";
         final WorkerParameters parameters = WorkerParametersFactory.newWorkerParameters(
+            WorkFlowExecutionContext.VITAM,
             "processId",
             "stepUniqId",
             "containerName",

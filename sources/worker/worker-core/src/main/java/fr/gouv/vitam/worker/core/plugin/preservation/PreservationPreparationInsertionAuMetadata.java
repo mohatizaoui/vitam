@@ -26,20 +26,17 @@
  */
 package fr.gouv.vitam.worker.core.plugin.preservation;
 
-import com.google.common.annotations.VisibleForTesting;
 import fr.gouv.vitam.batch.report.client.BatchReportClient;
-import fr.gouv.vitam.batch.report.client.BatchReportClientFactory;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.worker.common.HandlerIO;
 import fr.gouv.vitam.worker.core.handler.ActionHandler;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
-import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 
 import static fr.gouv.vitam.worker.core.utils.PluginHelper.EventDetails.of;
 import static fr.gouv.vitam.worker.core.utils.PluginHelper.buildItemStatus;
@@ -51,35 +48,24 @@ public class PreservationPreparationInsertionAuMetadata extends ActionHandler {
     );
     private static final String ITEM_ID = "PREPARATION_PRESERVATION_INSERTION_AU_METADATA";
 
-    private final BatchReportClientFactory batchReportClientFactory;
-    private final WorkspaceClientFactory workspaceClientFactory;
-
-    public PreservationPreparationInsertionAuMetadata() {
-        this(BatchReportClientFactory.getInstance(), WorkspaceClientFactory.getInstance(WorkspaceType.VITAM));
-    }
-
-    @VisibleForTesting
-    public PreservationPreparationInsertionAuMetadata(
-        BatchReportClientFactory batchReportClientFactory,
-        WorkspaceClientFactory workspaceClientFactory
-    ) {
-        this.batchReportClientFactory = batchReportClientFactory;
-        this.workspaceClientFactory = workspaceClientFactory;
-    }
+    public PreservationPreparationInsertionAuMetadata() {}
 
     @Override
     public ItemStatus execute(WorkerParameters workerParameters, HandlerIO handler) throws ProcessingException {
         LOGGER.info("starting {}", ITEM_ID);
         try (
-            BatchReportClient client = batchReportClientFactory.getClient();
-            WorkspaceClient workspaceClient = workspaceClientFactory.getClient()
+            BatchReportClient client = handler.getBatchReportClient();
+            WorkspaceClient workspaceClient = handler.getWorkspaceClient()
         ) {
             boolean distributionFileAlreadyCreated = workspaceClient.isExistingObject(
                 workerParameters.getContainerName(),
                 "distributionFileAU.jsonl"
             );
             if (!distributionFileAlreadyCreated) {
-                client.createExtractedMetadataDistributionFileForAu(workerParameters.getContainerName());
+                client.createExtractedMetadataDistributionFileForAu(
+                    workerParameters.getContainerName(),
+                    WorkFlowExecutionContext.VITAM
+                );
             }
             return buildItemStatus(ITEM_ID, StatusCode.OK, of("Preparation insertion AU OK."));
         } catch (Exception e) {

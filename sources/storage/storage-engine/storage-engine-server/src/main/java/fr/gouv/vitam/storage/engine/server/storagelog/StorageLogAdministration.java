@@ -36,6 +36,7 @@ import fr.gouv.vitam.common.logging.VitamLogLevel;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.ExecutorUtils;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.logbook.common.exception.LogbookClientAlreadyExistsException;
@@ -58,7 +59,6 @@ import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageNotFoundEx
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
@@ -101,7 +101,7 @@ public class StorageLogAdministration {
             storageLogService,
             distribution,
             configuration,
-            WorkspaceClientFactory.getInstance(WorkspaceType.VITAM),
+            WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM),
             LogbookOperationsClientFactory.getInstance()
         );
     }

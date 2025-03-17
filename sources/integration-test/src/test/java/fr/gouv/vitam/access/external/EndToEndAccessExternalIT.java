@@ -207,7 +207,7 @@ public class EndToEndAccessExternalIT extends VitamRuleRunner {
     }
 
     @AfterClass
-    public static void tearDownAfterClass() {
+    public static void tearDownAfterClass() throws Exception {
         handleAfterClass();
         runAfter();
         VitamClientFactory.resetConnections();

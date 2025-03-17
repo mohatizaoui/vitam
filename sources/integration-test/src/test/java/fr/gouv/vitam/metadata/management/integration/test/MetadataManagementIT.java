@@ -67,6 +67,7 @@ import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.administration.AccessContractModel;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.functional.administration.rest.AdminManagementMain;
@@ -110,7 +111,6 @@ import fr.gouv.vitam.worker.server.rest.WorkerMain;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 import fr.gouv.vitam.workspace.rest.WorkspaceMain;
 import net.javacrumbs.jsonunit.JsonAssert;
 import net.javacrumbs.jsonunit.core.Option;
@@ -248,7 +248,7 @@ public class MetadataManagementIT extends VitamRuleRunner {
             .addConverterFactory(JacksonConverterFactory.create())
             .build();
         metadataManagementResource = retrofit.create(MetadataManagementResource.class);
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
         storageClient = StorageClientFactory.getInstance().getClient();
 
         MongoDbAccess mongoDbAccess = new SimpleMongoDBAccess(

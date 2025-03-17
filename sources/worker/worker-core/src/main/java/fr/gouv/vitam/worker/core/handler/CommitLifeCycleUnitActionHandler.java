@@ -50,7 +50,7 @@ public class CommitLifeCycleUnitActionHandler extends CommitLifeCycleActionHandl
     @Override
     public void commitLifeCycle(HandlerIO handlerIO, String objectID, String operationId)
         throws ProcessingException, LogbookClientBadRequestException, LogbookClientNotFoundException, LogbookClientServerException {
-        handlerIO.getLifecyclesClient().commitUnit(operationId, objectID);
+        handlerIO.getLifeCyclesClient().commitUnit(operationId, objectID);
     }
 
     @Override

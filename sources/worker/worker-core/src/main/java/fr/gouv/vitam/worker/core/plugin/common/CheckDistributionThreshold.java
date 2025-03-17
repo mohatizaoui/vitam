@@ -26,10 +26,8 @@
  */
 package fr.gouv.vitam.worker.core.plugin.common;
 
-import com.google.common.annotations.VisibleForTesting;
 import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.model.ItemStatus;
-import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.worker.common.HandlerIO;
@@ -39,12 +37,7 @@ public class CheckDistributionThreshold extends CheckDistributionThresholdBase {
     private static final String CHECK_DISTRIBUTION_THRESHOLD = "CHECK_DISTRIBUTION_THRESHOLD";
 
     public CheckDistributionThreshold() {
-        super(MetaDataClientFactory.getInstance());
-    }
-
-    @VisibleForTesting
-    public CheckDistributionThreshold(MetaDataClientFactory metaDataClientFactory) {
-        super(metaDataClientFactory);
+        super();
     }
 
     @Override

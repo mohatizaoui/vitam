@@ -113,7 +113,8 @@ public class DataRectificationCheckResourceAvailabilityTest {
         reset(storageClientFactory);
         reset(storageClient);
         given(storageClientFactory.getClient()).willReturn(storageClient);
-        plugin = new DataRectificationCheckResourceAvailability(storageClientFactory);
+        given(handler.getStorageClient()).willReturn(storageClient);
+        plugin = new DataRectificationCheckResourceAvailability();
     }
 
     @After

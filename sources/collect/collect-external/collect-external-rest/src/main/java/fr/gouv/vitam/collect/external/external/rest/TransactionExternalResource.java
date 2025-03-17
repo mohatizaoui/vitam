@@ -42,6 +42,7 @@ import fr.gouv.vitam.common.client.VitamContext;
 import fr.gouv.vitam.common.dsl.schema.Dsl;
 import fr.gouv.vitam.common.dsl.schema.DslSchema;
 import fr.gouv.vitam.common.dsl.schema.ValidationException;
+import fr.gouv.vitam.common.dsl.schema.validator.BatchProcessingQuerySchemaValidator;
 import fr.gouv.vitam.common.dsl.schema.validator.SelectMultipleSchemaValidator;
 import fr.gouv.vitam.common.error.VitamCode;
 import fr.gouv.vitam.common.error.VitamCodeHelper;
@@ -51,6 +52,7 @@ import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
+import fr.gouv.vitam.common.model.elimination.DeletionRequestBody;
 import fr.gouv.vitam.common.parameter.ParameterHelper;
 import fr.gouv.vitam.common.security.SanityChecker;
 import fr.gouv.vitam.common.security.rest.Secured;
@@ -80,12 +82,14 @@ import static fr.gouv.vitam.common.model.ProcessAction.RESUME;
 import static fr.gouv.vitam.logbook.common.parameters.Contexts.DEFAULT_WORKFLOW;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.TRANSACTION_ABORT;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.TRANSACTION_CLOSE;
+import static fr.gouv.vitam.utils.SecurityProfilePermissions.TRANSACTION_DELETION;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.TRANSACTION_ID_DELETE;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.TRANSACTION_ID_READ;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.TRANSACTION_ID_UNITS_BULK_UPDATE;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.TRANSACTION_ID_UNITS_METADATA_CSV_UPDATE;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.TRANSACTION_ID_UNITS_METADATA_JSONL_UPDATE;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.TRANSACTION_ID_UNITS_UPDATE;
+import static fr.gouv.vitam.utils.SecurityProfilePermissions.TRANSACTION_RECLASSIFICATION;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.TRANSACTION_REOPEN;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.TRANSACTION_SEND;
 import static fr.gouv.vitam.utils.SecurityProfilePermissions.TRANSACTION_UNIT_CREATE;
@@ -110,6 +114,8 @@ public class TransactionExternalResource extends ApplicationStatusResource {
     public static final String ERROR_WHEN_UPDATE_TRANSACTION__ = "Error when update transaction  ";
 
     private static final String UNAUTHORIZED_DSL_PARAMETER = "DSL parameter is unauthorized";
+
+    private static final String COULD_NOT_VALIDATE_REQUEST = "Could not validate request";
     private final CollectInternalClientFactory collectInternalClientFactory;
     private final IngestExternalClientFactory ingestExternalClientFactory;
 
@@ -514,6 +520,67 @@ public class TransactionExternalResource extends ApplicationStatusResource {
             return Response.status(PRECONDITION_FAILED).build();
         } catch (VitamClientException e) {
             LOGGER.error("Error when selecting Units With Inherited Rules ", e);
+            return Response.status(BAD_REQUEST).build();
+        }
+    }
+
+    @POST
+    @Path("/{transactionId}/reclassification")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Secured(
+        permission = TRANSACTION_RECLASSIFICATION,
+        description = "Reclassification d'unités archivistiques d'une transaction"
+    )
+    public Response reclassification(
+        @PathParam("transactionId") String transactionId,
+        @Dsl(DslSchema.RECLASSIFICATION_QUERY) JsonNode queryJson
+    ) {
+        try (CollectInternalClient client = collectInternalClientFactory.getClient()) {
+            SanityChecker.checkParameter(transactionId);
+            ParametersChecker.checkParameter("Missing reclassification request", queryJson);
+            RequestResponse<JsonNode> result = client.reclassification(transactionId, queryJson);
+            int status = result.isOk() ? OK.getStatusCode() : result.getHttpCode();
+            return Response.status(status).entity(result).build();
+        } catch (InvalidParseOperationException e) {
+            LOGGER.error(PREDICATES_FAILED_EXCEPTION, e);
+            return Response.status(PRECONDITION_FAILED).build();
+        } catch (VitamClientException e) {
+            LOGGER.error("Error when launching reclassification", e);
+            return Response.status(BAD_REQUEST).build();
+        }
+    }
+
+    /**
+     * Performs a deletion workflow on transaction in collect.
+     *
+     * @param deletionRequestBody object that contain dsl request and a given date.
+     * @param transactionId transaction id
+     * @return Response
+     */
+    @POST
+    @Path("/{transactionId}/deletion/action")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Secured(permission = TRANSACTION_DELETION, description = "Suppression d'unités archivistiques d'une transaction")
+    public Response startDeletionAction(
+        @PathParam("transactionId") String transactionId,
+        DeletionRequestBody deletionRequestBody
+    ) {
+        try (CollectInternalClient client = collectInternalClientFactory.getClient()) {
+            SanityChecker.checkParameter(transactionId);
+            ParametersChecker.checkParameter("Missing dslRequest request", deletionRequestBody.getDslRequest());
+            BatchProcessingQuerySchemaValidator validator = new BatchProcessingQuerySchemaValidator();
+            validator.validate(deletionRequestBody.getDslRequest());
+
+            RequestResponse<JsonNode> response = client.startDeletion(transactionId, deletionRequestBody);
+            int status = response.isOk() ? OK.getStatusCode() : response.getHttpCode();
+            return Response.status(status).entity(response).build();
+        } catch (InvalidParseOperationException e) {
+            LOGGER.error(PREDICATES_FAILED_EXCEPTION, e);
+            return Response.status(PRECONDITION_FAILED).build();
+        } catch (Exception e) {
+            LOGGER.error("Error when launching deletion", e);
             return Response.status(BAD_REQUEST).build();
         }
     }

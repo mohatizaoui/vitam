@@ -26,11 +26,10 @@
  */
 package fr.gouv.vitam.worker.core.plugin.reclassification;
 
-import fr.gouv.vitam.common.client.VitamClientFactoryInterface;
 import fr.gouv.vitam.common.model.GraphComputeResponse.GraphComputeAction;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.StatusCode;
-import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.processing.common.parameter.WorkerParametersFactory;
@@ -46,7 +45,6 @@ import org.mockito.junit.MockitoRule;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 
 public class ObjectGroupGraphComputePluginTest {
@@ -58,9 +56,7 @@ public class ObjectGroupGraphComputePluginTest {
 
     @Before
     public void setUp() throws Exception {
-        MetaDataClientFactory metaDataClientFactory = MetaDataClientFactory.getInstance();
-        metaDataClientFactory.setVitamClientType(VitamClientFactoryInterface.VitamClientType.MOCK);
-        objectGroupGraphComputePlugin = spy(new ObjectGroupGraphComputePlugin(metaDataClientFactory));
+        objectGroupGraphComputePlugin = spy(new ObjectGroupGraphComputePlugin());
     }
 
     @Test
@@ -77,14 +73,14 @@ public class ObjectGroupGraphComputePluginTest {
 
     @Test(expected = ProcessingException.class)
     public void executeShouldThrowException() throws ProcessingException {
-        HandlerIO handlerIO = mock(HandlerIO.class);
+        HandlerIO handlerIO = AbstractGraphComputePluginTest.getMockHandlerIO();
         objectGroupGraphComputePlugin.execute(null, handlerIO);
     }
 
     @Test
     public void whenExecuteListThenOK() {
-        HandlerIO handlerIO = mock(HandlerIO.class);
-        WorkerParameters workerParameters = WorkerParametersFactory.newWorkerParameters();
+        HandlerIO handlerIO = AbstractGraphComputePluginTest.getMockHandlerIO();
+        WorkerParameters workerParameters = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM);
         workerParameters.setObjectNameList(Lists.newArrayList("a", "b", "c"));
         List<ItemStatus> itemStatuses = objectGroupGraphComputePlugin.executeList(workerParameters, handlerIO);
         assertThat(itemStatuses).hasSize(1);
@@ -96,8 +92,8 @@ public class ObjectGroupGraphComputePluginTest {
 
     @Test
     public void whenExecuteListThenFATAL() {
-        HandlerIO handlerIO = mock(HandlerIO.class);
-        WorkerParameters workerParameters = WorkerParametersFactory.newWorkerParameters();
+        HandlerIO handlerIO = AbstractGraphComputePluginTest.getMockHandlerIO();
+        WorkerParameters workerParameters = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM);
         workerParameters.setObjectNameList(Lists.newArrayList("a", "b", "c", "d"));
         List<ItemStatus> itemStatuses = objectGroupGraphComputePlugin.executeList(workerParameters, handlerIO);
         assertThat(itemStatuses).hasSize(1);

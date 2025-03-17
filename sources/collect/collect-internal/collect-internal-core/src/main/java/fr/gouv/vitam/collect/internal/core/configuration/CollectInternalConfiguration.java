@@ -35,6 +35,7 @@ import java.util.Map;
 public class CollectInternalConfiguration extends DbConfigurationImpl {
 
     private String workspaceUrl;
+    private String workspaceCollectUrl;
 
     private int statusTransactionThreadFrequency = 5;
 
@@ -133,6 +134,16 @@ public class CollectInternalConfiguration extends DbConfigurationImpl {
     @Beta
     public CollectInternalConfiguration setApplyJsltPostDynamicAttachement(boolean applyJsltPostDynamicAttachement) {
         this.applyJsltPostDynamicAttachement = applyJsltPostDynamicAttachement;
+        return this;
+    }
+
+    public String getWorkspaceCollectUrl() {
+        return workspaceCollectUrl;
+    }
+
+    public CollectInternalConfiguration setWorkspaceCollectUrl(String workspaceCollectUrl) {
+        ParametersChecker.checkParameter("workspaceCollectUrl" + IS_A_MANDATORY_PARAMETER, workspaceCollectUrl);
+        this.workspaceCollectUrl = workspaceCollectUrl;
         return this;
     }
 }

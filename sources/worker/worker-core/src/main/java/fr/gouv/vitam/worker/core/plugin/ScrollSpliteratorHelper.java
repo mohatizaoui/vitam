@@ -170,6 +170,30 @@ public class ScrollSpliteratorHelper {
         );
     }
 
+    public static ScrollSpliterator<JsonNode> getUnitsScrollSpliterator(
+        SelectMultiQuery request,
+        MetaDataClient client
+    ) {
+        return new ScrollSpliterator<>(
+            request,
+            query -> {
+                try {
+                    JsonNode jsonNode = client.selectUnits(query.getFinalSelect());
+                    return RequestResponseOK.getFromJsonNode(jsonNode);
+                } catch (
+                    InvalidParseOperationException
+                    | MetaDataExecutionException
+                    | MetaDataDocumentSizeException
+                    | MetaDataClientServerException e
+                ) {
+                    throw new IllegalStateException(e);
+                }
+            },
+            VitamConfiguration.getElasticSearchScrollTimeoutInMilliseconds(),
+            VitamConfiguration.getElasticSearchScrollLimit()
+        );
+    }
+
     /**
      * Check number of result
      *

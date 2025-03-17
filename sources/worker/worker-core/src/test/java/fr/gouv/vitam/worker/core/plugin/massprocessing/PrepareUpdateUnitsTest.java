@@ -32,6 +32,7 @@ import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.processing.ProcessingUri;
 import fr.gouv.vitam.common.model.processing.UriPrefix;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -110,7 +111,10 @@ public class PrepareUpdateUnitsTest {
         given(handlerIO.getNewLocalFile(distributionFile.getPath())).willReturn(distributionFile);
 
         // when
-        ItemStatus itemStatus = prepareUpdateUnits.execute(WorkerParametersFactory.newWorkerParameters(), handlerIO);
+        ItemStatus itemStatus = prepareUpdateUnits.execute(
+            WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM),
+            handlerIO
+        );
 
         // then
         assertThat(itemStatus).isNotNull();
@@ -146,7 +150,10 @@ public class PrepareUpdateUnitsTest {
         given(handlerIO.getNewLocalFile(distributionFile.getPath())).willReturn(distributionFile);
 
         // when
-        ItemStatus itemStatus = prepareUpdateUnits.execute(WorkerParametersFactory.newWorkerParameters(), handlerIO);
+        ItemStatus itemStatus = prepareUpdateUnits.execute(
+            WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM),
+            handlerIO
+        );
 
         // then
         assertThat(itemStatus).isNotNull();

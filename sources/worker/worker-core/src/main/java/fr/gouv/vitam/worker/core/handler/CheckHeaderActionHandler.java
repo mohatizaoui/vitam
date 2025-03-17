@@ -277,7 +277,7 @@ public class CheckHeaderActionHandler extends ActionHandler {
                 handlerIO.getInput().add(contractIdentifier);
 
                 CheckArchiveProfileRelationActionHandler checkProfileRelation =
-                    new CheckArchiveProfileRelationActionHandler(adminManagementClientFactory);
+                    new CheckArchiveProfileRelationActionHandler();
                 final ItemStatus checkProfilRelationItemStatus = checkProfileRelation.execute(params, handlerIO);
                 itemStatus.setItemsStatus(
                     CheckArchiveProfileRelationActionHandler.getId(),

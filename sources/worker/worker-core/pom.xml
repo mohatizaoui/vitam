@@ -30,6 +30,7 @@
             <artifactId>workspace-client</artifactId>
             <version>${project.version}</version>
         </dependency>
+
         <dependency>
             <groupId>fr.gouv.vitam</groupId>
             <artifactId>common-private</artifactId>

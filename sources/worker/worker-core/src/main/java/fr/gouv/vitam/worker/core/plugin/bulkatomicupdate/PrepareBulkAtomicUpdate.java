@@ -30,7 +30,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.annotations.VisibleForTesting;
 import fr.gouv.vitam.batch.report.client.BatchReportClient;
-import fr.gouv.vitam.batch.report.client.BatchReportClientFactory;
 import fr.gouv.vitam.batch.report.model.ReportBody;
 import fr.gouv.vitam.batch.report.model.ReportType;
 import fr.gouv.vitam.batch.report.model.entry.BulkUpdateUnitMetadataReportEntry;
@@ -50,7 +49,6 @@ import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.common.utils.BufferedConsumer;
 import fr.gouv.vitam.metadata.api.utils.BulkAtomicUpdateModelUtils;
 import fr.gouv.vitam.metadata.client.MetaDataClient;
-import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.metadata.common.bulkatomicupdate.BulkSelectQueryParallelProcessor;
 import fr.gouv.vitam.metadata.common.bulkatomicupdate.BulkSelectQueryResultFailure;
 import fr.gouv.vitam.metadata.common.bulkatomicupdate.BulkSelectQueryResultOK;
@@ -100,8 +98,6 @@ public class PrepareBulkAtomicUpdate extends ActionHandler {
     // OUTPUTS
     private static final int DISTRIBUTION_FILE_RANK = 0;
 
-    private final MetaDataClientFactory metaDataClientFactory;
-    private final BatchReportClientFactory batchReportClientFactory;
     private final InternalActionKeysRetriever internalActionKeysRetriever;
     private final int batchSize;
     private final int threadPoolSize;
@@ -112,8 +108,6 @@ public class PrepareBulkAtomicUpdate extends ActionHandler {
      */
     public PrepareBulkAtomicUpdate() {
         this(
-            MetaDataClientFactory.getInstance(),
-            BatchReportClientFactory.getInstance(),
             new InternalActionKeysRetriever(),
             VitamConfiguration.getBulkAtomicUpdateBatchSize(),
             VitamConfiguration.getBulkAtomicUpdateThreadPoolSize(),
@@ -124,8 +118,6 @@ public class PrepareBulkAtomicUpdate extends ActionHandler {
     /**
      * Constructor.
      *
-     * @param metaDataClientFactory metadata client factory
-     * @param batchReportClientFactory batch report client factory
      * @param internalActionKeysRetriever DSL query field name validator
      * @param batchSize batch size for processing
      * @param threadPoolSize max threads that can be run in concurrently is thread pool
@@ -133,15 +125,11 @@ public class PrepareBulkAtomicUpdate extends ActionHandler {
      */
     @VisibleForTesting
     PrepareBulkAtomicUpdate(
-        MetaDataClientFactory metaDataClientFactory,
-        BatchReportClientFactory batchReportClientFactory,
         InternalActionKeysRetriever internalActionKeysRetriever,
         int batchSize,
         int threadPoolSize,
         int threadPoolQueueSize
     ) {
-        this.metaDataClientFactory = metaDataClientFactory;
-        this.batchReportClientFactory = batchReportClientFactory;
         this.internalActionKeysRetriever = internalActionKeysRetriever;
         this.batchSize = batchSize;
         this.threadPoolSize = threadPoolSize;
@@ -162,8 +150,8 @@ public class PrepareBulkAtomicUpdate extends ActionHandler {
             ItemStatus itemStatus;
             try (
                 JsonLineWriter jsonLineWriter = new JsonLineWriter(new FileOutputStream(distributionFile));
-                MetaDataClient metadataClient = metaDataClientFactory.getClient();
-                BatchReportClient batchReportClient = batchReportClientFactory.getClient()
+                MetaDataClient metadataClient = handler.getMetaDataClient();
+                BatchReportClient batchReportClient = handler.getBatchReportClient()
             ) {
                 itemStatus = processQueries(
                     metadataClient,

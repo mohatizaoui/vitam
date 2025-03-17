@@ -32,6 +32,7 @@ import fr.gouv.vitam.common.client.configuration.ClientConfiguration;
 import fr.gouv.vitam.common.client.configuration.SecureClientConfigurationImpl;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 
 import java.io.IOException;
 
@@ -55,8 +56,28 @@ public class BatchReportClientFactory extends VitamClientFactory<BatchReportClie
      *
      * @return the instance
      */
-    public static final BatchReportClientFactory getInstance() {
-        return BATCH_REPORT_CLIENT_FACTORY;
+    public static BatchReportClientFactory getInstance() {
+        return getInstance(WorkFlowExecutionContext.VITAM);
+    }
+
+    /**
+     * Get the BatchReportClientFactory instance for the given workflow execution context
+     *
+     * @param executionContext the workflow execution context
+     * @return the instance
+     */
+    public static BatchReportClientFactory getInstance(WorkFlowExecutionContext executionContext) {
+        return switch (executionContext) {
+            case VITAM, COLLECT -> BATCH_REPORT_CLIENT_FACTORY;
+        };
+    }
+
+    @Override
+    public BatchReportClient getClient() {
+        return switch (getVitamClientType()) {
+            case MOCK -> throw new IllegalArgumentException("Not implemented");
+            case PRODUCTION -> new BatchReportClientRest(this);
+        };
     }
 
     /**
@@ -86,20 +107,5 @@ public class BatchReportClientFactory extends VitamClientFactory<BatchReportClie
      */
     public static final void changeMode(ClientConfiguration configuration) {
         getInstance().initialisation(configuration, getInstance().getResourcePath());
-    }
-
-    @Override
-    public BatchReportClient getClient() {
-        BatchReportClient client;
-        switch (getVitamClientType()) {
-            case PRODUCTION:
-                client = new BatchReportClientRest(this);
-                break;
-            case MOCK:
-                throw new IllegalArgumentException("Not implemented");
-            default:
-                throw new IllegalArgumentException("Log type unknown");
-        }
-        return client;
     }
 }

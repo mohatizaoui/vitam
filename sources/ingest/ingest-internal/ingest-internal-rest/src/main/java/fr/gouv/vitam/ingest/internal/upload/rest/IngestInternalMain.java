@@ -33,6 +33,7 @@ import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.exception.VitamApplicationServerException;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.server.VitamServer;
 import fr.gouv.vitam.common.server.application.resources.VitamServiceRegistry;
 import fr.gouv.vitam.common.serverv2.VitamStarter;
@@ -41,7 +42,6 @@ import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClientFactory;
 import fr.gouv.vitam.processing.management.client.ProcessingManagementClientFactory;
 import fr.gouv.vitam.storage.engine.client.StorageClientFactory;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -93,13 +93,13 @@ public class IngestInternalMain {
                     yamlIS,
                     IngestInternalConfiguration.class
                 );
-                WorkspaceClientFactory.changeMode(configuration.getWorkspaceUrl(), WorkspaceType.VITAM);
+                WorkspaceClientFactory.changeMode(configuration.getWorkspaceUrl(), WorkFlowExecutionContext.VITAM);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
             // Register Workspace
             serviceRegistry
-                .register(WorkspaceClientFactory.getInstance(WorkspaceType.VITAM))
+                .register(WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM))
                 // Register Logbook for Operation
                 .register(LogbookOperationsClientFactory.getInstance())
                 // Register Storage (ATR access)

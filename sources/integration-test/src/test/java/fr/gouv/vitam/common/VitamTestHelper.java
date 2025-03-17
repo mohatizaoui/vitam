@@ -57,6 +57,7 @@ import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.logbook.LogbookOperation;
 import fr.gouv.vitam.common.model.processing.ProcessDetail;
 import fr.gouv.vitam.common.model.processing.WorkFlow;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.ingest.internal.client.IngestInternalClient;
 import fr.gouv.vitam.ingest.internal.client.IngestInternalClientFactory;
@@ -90,7 +91,6 @@ import fr.gouv.vitam.worker.core.distribution.JsonLineGenericIterator;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 import org.apache.commons.collections4.IteratorUtils;
 import org.bson.Document;
 
@@ -313,7 +313,9 @@ public class VitamTestHelper {
         client.initWorkflow(workflow);
 
         try (
-            final WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient()
+            final WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance(
+                WorkFlowExecutionContext.VITAM
+            ).getClient()
         ) {
             InputStream sanityCheckStream = PropertiesUtils.getResourceAsStream(SANITY_CHECK_RESULT_FILE);
             workspaceClient.putObject(ingestOperationGuid.getId(), SANITY_CHECK_RESULT_FILE, sanityCheckStream);
@@ -440,7 +442,9 @@ public class VitamTestHelper {
 
     public static void insertWaitForStepEssentialFiles(String containerName) {
         try (
-            final WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient()
+            final WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance(
+                WorkFlowExecutionContext.VITAM
+            ).getClient()
         ) {
             InputStream sanityCheckStream = PropertiesUtils.getResourceAsStream(SANITY_CHECK_RESULT_FILE);
             workspaceClient.putObject(containerName, SANITY_CHECK_RESULT_FILE, sanityCheckStream);
@@ -582,7 +586,9 @@ public class VitamTestHelper {
     public static void computeInheritedRules(SelectMultiQuery select)
         throws ContentAddressableStorageServerException, InvalidParseOperationException, InternalServerException, BadRequestException, VitamClientException, LogbookClientAlreadyExistsException, LogbookClientBadRequestException, LogbookClientServerException {
         try (
-            WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+            WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance(
+                WorkFlowExecutionContext.VITAM
+            ).getClient();
             ProcessingManagementClient processingClient = ProcessingManagementClientFactory.getInstance().getClient();
             LogbookOperationsClient logbookOperationsClient = LogbookOperationsClientFactory.getInstance().getClient();
         ) {

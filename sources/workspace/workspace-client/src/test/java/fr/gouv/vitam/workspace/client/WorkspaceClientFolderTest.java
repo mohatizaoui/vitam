@@ -31,6 +31,7 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.google.common.collect.Sets;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.json.JsonHandler;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.server.application.junit.ResteasyTestApplication;
 import fr.gouv.vitam.common.serverv2.VitamServerTestRunner;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageNotFoundException;
@@ -71,7 +72,7 @@ public class WorkspaceClientFolderTest extends ResteasyTestApplication {
 
     private static final String CONTAINER_NAME = "myContainer";
     private static final String FOLDER_NAME = "myFolder";
-    static WorkspaceClientFactory factory = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM);
+    static WorkspaceClientFactory factory = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM);
     private static final ExpectedResults mock = mock(ExpectedResults.class);
 
     public static VitamServerTestRunner vitamServerTestRunner = new VitamServerTestRunner(

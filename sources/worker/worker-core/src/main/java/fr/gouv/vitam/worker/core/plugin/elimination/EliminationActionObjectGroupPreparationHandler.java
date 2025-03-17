@@ -27,7 +27,6 @@
 package fr.gouv.vitam.worker.core.plugin.elimination;
 
 import com.google.common.annotations.VisibleForTesting;
-import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.worker.core.plugin.purge.PurgeObjectGroupPreparationHandler;
 import fr.gouv.vitam.worker.core.plugin.purge.PurgeReportService;
 
@@ -50,17 +49,8 @@ public class EliminationActionObjectGroupPreparationHandler extends PurgeObjectG
      * Test only constructor
      */
     @VisibleForTesting
-    EliminationActionObjectGroupPreparationHandler(
-        MetaDataClientFactory metaDataClientFactory,
-        PurgeReportService purgeReportService,
-        int objectGroupBulkSize
-    ) {
-        super(
-            ELIMINATION_ACTION_OBJECT_GROUP_PREPARATION,
-            metaDataClientFactory,
-            purgeReportService,
-            objectGroupBulkSize
-        );
+    EliminationActionObjectGroupPreparationHandler(PurgeReportService purgeReportService, int objectGroupBulkSize) {
+        super(ELIMINATION_ACTION_OBJECT_GROUP_PREPARATION, purgeReportService, objectGroupBulkSize);
     }
 
     public static String getId() {

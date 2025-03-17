@@ -84,6 +84,7 @@ import fr.gouv.vitam.common.model.identifier.PurgedPersistentIdentifier;
 import fr.gouv.vitam.common.model.massupdate.MassUpdateUnitRuleRequest;
 import fr.gouv.vitam.common.model.massupdate.RuleActions;
 import fr.gouv.vitam.common.model.objectgroup.ObjectGroupResponse;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.model.revertupdate.RevertUpdateOptions;
 import fr.gouv.vitam.common.model.storage.AccessRequestReference;
 import fr.gouv.vitam.common.model.storage.StatusByAccessRequest;
@@ -121,7 +122,6 @@ import fr.gouv.vitam.storage.engine.common.exception.StorageNotFoundException;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import javax.ws.rs.Consumes;
@@ -218,10 +218,10 @@ public class AccessInternalResourceImpl extends ApplicationStatusResource implem
         this(
             new AccessInternalModuleImpl(),
             LogbookOperationsClientFactory.getInstance(),
-            WorkspaceClientFactory.getInstance(WorkspaceType.VITAM),
+            WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM),
             ProcessingManagementClientFactory.getInstance()
         );
-        WorkspaceClientFactory.changeMode(configuration.getUrlWorkspace(), WorkspaceType.VITAM);
+        WorkspaceClientFactory.changeMode(configuration.getUrlWorkspace(), WorkFlowExecutionContext.VITAM);
         ProcessingManagementClientFactory.changeConfigurationUrl(configuration.getUrlProcessing());
     }
 

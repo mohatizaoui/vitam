@@ -24,6 +24,7 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
+
 package fr.gouv.vitam.report;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -53,6 +54,7 @@ import fr.gouv.vitam.common.client.VitamClientFactory;
 import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.ExtractedMetadata;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.stream.VitamAsyncInputStream;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
@@ -64,7 +66,6 @@ import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageNotFoundEx
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 import fr.gouv.vitam.workspace.rest.WorkspaceMain;
 import net.javacrumbs.jsonunit.JsonAssert;
 import net.javacrumbs.jsonunit.core.Option;
@@ -131,7 +132,7 @@ public class ReportManagementIT extends VitamRuleRunner {
         handleBeforeClass(Arrays.asList(0, 1), Collections.emptyMap());
         BatchReportClientFactory batchReportClientFactory = BatchReportClientFactory.getInstance();
         batchReportClient = batchReportClientFactory.getClient();
-        workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+        workspaceClient = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient();
     }
 
     @Before
@@ -232,7 +233,8 @@ public class ReportManagementIT extends VitamRuleRunner {
             () ->
                 batchReportClient.generatePurgeDistinctObjectGroupInUnitReport(
                     reportBody.getProcessId(),
-                    reportExportRequest
+                    reportExportRequest,
+                    WorkFlowExecutionContext.VITAM
                 )
         ).doesNotThrowAnyException();
 
@@ -279,7 +281,9 @@ public class ReportManagementIT extends VitamRuleRunner {
         Report report = new Report(operationSummary, reportSummary, context);
 
         // When / Then
-        assertThatCode(() -> batchReportClient.storeReportToWorkspace(report)).doesNotThrowAnyException();
+        assertThatCode(
+            () -> batchReportClient.storeReportToWorkspace(report, WorkFlowExecutionContext.VITAM)
+        ).doesNotThrowAnyException();
     }
 
     @Test
@@ -335,7 +339,9 @@ public class ReportManagementIT extends VitamRuleRunner {
         Report report = new Report(operationSummary, reportSummary, context);
 
         // When / Then
-        assertThatCode(() -> batchReportClient.storeReportToWorkspace(report)).doesNotThrowAnyException();
+        assertThatCode(
+            () -> batchReportClient.storeReportToWorkspace(report, WorkFlowExecutionContext.VITAM)
+        ).doesNotThrowAnyException();
     }
 
     @Test
@@ -375,7 +381,9 @@ public class ReportManagementIT extends VitamRuleRunner {
         Report report = new Report(operationSummary, reportSummary, context);
 
         // When / Then
-        assertThatCode(() -> batchReportClient.storeReportToWorkspace(report)).doesNotThrowAnyException();
+        assertThatCode(
+            () -> batchReportClient.storeReportToWorkspace(report, WorkFlowExecutionContext.VITAM)
+        ).doesNotThrowAnyException();
     }
 
     private void checkGeneratedReportEqualsExpectedJsonl(String workspaceReportFile, String expectedJsonlResources)
@@ -439,7 +447,11 @@ public class ReportManagementIT extends VitamRuleRunner {
         batchReportClient.appendReportEntries(getReportBody(processId, ids2));
         batchReportClient.appendReportEntries(getReportBody(processId, ids3));
         batchReportClient.appendReportEntries(getReportBody(processId, ids4));
-        batchReportClient.exportUnitsToInvalidate(processId, new ReportExportRequest(unitsJsonlFileName));
+        batchReportClient.exportUnitsToInvalidate(
+            processId,
+            new ReportExportRequest(unitsJsonlFileName),
+            WorkFlowExecutionContext.VITAM
+        );
 
         // Then
         try (

@@ -31,6 +31,7 @@ import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.SystemPropertyUtil;
 import fr.gouv.vitam.common.client.VitamClientFactoryInterface;
 import fr.gouv.vitam.common.exception.VitamApplicationServerException;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.mongo.MongoRule;
 import fr.gouv.vitam.common.server.application.configuration.MongoDbNode;
 import fr.gouv.vitam.common.storage.cas.container.api.ContentAddressableStorageAbstract;
@@ -41,7 +42,6 @@ import fr.gouv.vitam.storage.engine.server.rest.StorageMain;
 import fr.gouv.vitam.storage.offers.rest.DefaultOfferMain;
 import fr.gouv.vitam.storage.offers.rest.OfferConfiguration;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 import fr.gouv.vitam.workspace.rest.WorkspaceMain;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -106,7 +106,7 @@ class SetupStorageAndOffers {
         workspaceMain = new WorkspaceMain(workspaceConfigFile.getAbsolutePath());
         workspaceMain.start();
         SystemPropertyUtil.clear(WorkspaceMain.PARAMETER_JETTY_SERVER_PORT);
-        WorkspaceClientFactory.changeMode(WORKSPACE_URL, WorkspaceType.VITAM);
+        WorkspaceClientFactory.changeMode(WORKSPACE_URL, WorkFlowExecutionContext.VITAM);
 
         // First  offer
         // Sorry Hack

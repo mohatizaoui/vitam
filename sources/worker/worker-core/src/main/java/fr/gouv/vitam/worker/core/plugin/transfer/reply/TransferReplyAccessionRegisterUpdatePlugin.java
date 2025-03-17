@@ -26,8 +26,6 @@
  */
 package fr.gouv.vitam.worker.core.plugin.transfer.reply;
 
-import com.google.common.annotations.VisibleForTesting;
-import fr.gouv.vitam.functional.administration.client.AdminManagementClientFactory;
 import fr.gouv.vitam.logbook.common.parameters.LogbookTypeProcess;
 import fr.gouv.vitam.worker.core.plugin.purge.PurgeAccessionRegisterUpdatePlugin;
 
@@ -40,18 +38,6 @@ public class TransferReplyAccessionRegisterUpdatePlugin extends PurgeAccessionRe
      */
     public TransferReplyAccessionRegisterUpdatePlugin() {
         super(TRANSFER_REPLY_ACCESSION_REGISTER_UPDATE, LogbookTypeProcess.TRANSFER_REPLY);
-    }
-
-    /***
-     * Test only constructor
-     */
-    @VisibleForTesting
-    TransferReplyAccessionRegisterUpdatePlugin(AdminManagementClientFactory adminManagementClientFactory) {
-        super(
-            TRANSFER_REPLY_ACCESSION_REGISTER_UPDATE,
-            LogbookTypeProcess.TRANSFER_REPLY,
-            adminManagementClientFactory
-        );
     }
 
     public static String getId() {

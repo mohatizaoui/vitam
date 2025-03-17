@@ -170,14 +170,14 @@ public class PreservationFinalizationPluginTest {
             );
             given(logbookOperationsClient.selectOperationById(anyString())).willReturn(logbookOperationJson);
             ArgumentCaptor<Report> reportArgumentCaptor = ArgumentCaptor.forClass(Report.class);
-            doNothing().when(preservationReportService).storeReportToWorkspace(reportArgumentCaptor.capture());
+            doNothing().when(preservationReportService).storeReportToWorkspace(reportArgumentCaptor.capture(), any());
             when(preservationReportService.isReportWrittenInWorkspace(anyString())).thenReturn(false);
             // When
             ItemStatus itemStatus = plugin.execute(parameter, handlerIO);
             // Then
 
             verify(preservationReportService).isReportWrittenInWorkspace(CONTAINER_NAME);
-            verify(preservationReportService).storeReportToWorkspace(any());
+            verify(preservationReportService).storeReportToWorkspace(any(), any());
             verify(preservationReportService).storeReportToOffers(CONTAINER_NAME);
             verify(preservationReportService).cleanupReport(CONTAINER_NAME);
 
@@ -227,7 +227,7 @@ public class PreservationFinalizationPluginTest {
             // Then
 
             verify(preservationReportService).isReportWrittenInWorkspace(CONTAINER_NAME);
-            verify(preservationReportService, never()).storeReportToWorkspace(any());
+            verify(preservationReportService, never()).storeReportToWorkspace(any(), any());
             verify(preservationReportService).storeReportToOffers(CONTAINER_NAME);
             verify(preservationReportService).cleanupReport(CONTAINER_NAME);
         }
@@ -249,7 +249,7 @@ public class PreservationFinalizationPluginTest {
                 getClass().getResourceAsStream("/preservation/logbookOperationKo.json")
             );
             given(logbookOperationsClient.selectOperationById(anyString())).willReturn(logbookOperationJson);
-            doNothing().when(preservationReportService).storeReportToWorkspace(any());
+            doNothing().when(preservationReportService).storeReportToWorkspace(any(), any());
             when(preservationReportService.isReportWrittenInWorkspace(anyString())).thenReturn(false);
             // When
             ItemStatus itemStatus = plugin.execute(parameter, handlerIO);

@@ -68,8 +68,6 @@ public class CheckObjectGroupSchemaActionPlugin extends ActionHandler {
 
     private static final String CHECK_OG_SCHEMA_TASK_ID = "CHECK_OBJECT_GROUP_SCHEMA";
 
-    private static final int OG_OUT_RANK = 0;
-
     private static final String OBJECT_GROUP_SANITIZE = "OBJECT_GROUP_SANITIZE";
 
     private static final String ONTOLOGY_VALIDATION = "ONTOLOGY_VALIDATION";
@@ -79,13 +77,8 @@ public class CheckObjectGroupSchemaActionPlugin extends ActionHandler {
      */
     static final String INVALID_OG = "INVALID_OBJECT_GROUP";
     /**
-     * Rule's date in bad format
-     */
-    private static final String DATE_FORMAT = "DATE_FORMAT";
-    /**
      * StartDate is after EndDate
      */
-    static final String CONSISTENCY = "CONSISTENCY";
 
     private final MetadataValidationProvider metadataValidationProvider;
 

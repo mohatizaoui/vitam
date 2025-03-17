@@ -28,11 +28,11 @@ package fr.gouv.vitam.processing.engine.core;
 
 import com.google.common.annotations.VisibleForTesting;
 import fr.gouv.vitam.common.ParametersChecker;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClientFactory;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.processing.distributor.api.ProcessDistributor;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 
 /**
  * Class ProcessEngineFactory Goal : create an instance of ProcessEngineImpl
@@ -58,7 +58,7 @@ public final class ProcessEngineFactory {
             workParams,
             processDistributor,
             LogbookOperationsClientFactory.getInstance(),
-            WorkspaceClientFactory.getInstance(WorkspaceType.VITAM)
+            WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM)
         );
     }
 

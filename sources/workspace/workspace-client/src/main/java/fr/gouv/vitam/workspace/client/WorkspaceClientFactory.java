@@ -30,6 +30,7 @@ import fr.gouv.vitam.common.ParametersChecker;
 import fr.gouv.vitam.common.client.VitamClientFactory;
 import fr.gouv.vitam.common.client.configuration.ClientConfiguration;
 import fr.gouv.vitam.common.client.configuration.ClientConfigurationImpl;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 
 import java.net.URI;
 
@@ -39,25 +40,20 @@ import java.net.URI;
 public class WorkspaceClientFactory extends VitamClientFactory<WorkspaceClient> {
 
     private static final WorkspaceClientFactory WORKSPACE_CLIENT_FACTORY = new WorkspaceClientFactory("/workspace/v1");
-    private static final WorkspaceClientFactory WORKSPACE_COLLECT_CLIENT_FACTORY = new WorkspaceClientFactory(
-        "/workspace-collect/v1"
-    );
 
-    private WorkspaceClientFactory(String resourcePath) {
+    protected WorkspaceClientFactory(String resourcePath) {
         super(null, resourcePath);
     }
 
     /**
-     * @param workspaceType type of workspace VITAM | COLLECT
-     * @return an instance of WorkspaceClientFactory based on the type of workspace
+     * Get the WorkspaceClientFactory instance
+     *
+     * @return the instance
      */
-    public static WorkspaceClientFactory getInstance(WorkspaceType workspaceType) {
-        if (workspaceType == WorkspaceType.VITAM) {
-            return WORKSPACE_CLIENT_FACTORY;
-        } else if (workspaceType == WorkspaceType.COLLECT) {
-            return WORKSPACE_COLLECT_CLIENT_FACTORY;
-        }
-        throw new IllegalArgumentException("Unknown " + workspaceType);
+    public static WorkspaceClientFactory getInstance(WorkFlowExecutionContext executionContext) {
+        return switch (executionContext) {
+            case VITAM, COLLECT -> WORKSPACE_CLIENT_FACTORY;
+        };
     }
 
     @Override
@@ -70,17 +66,18 @@ public class WorkspaceClientFactory extends VitamClientFactory<WorkspaceClient> 
      *
      * @param serviceUrl as String
      */
-    public static void changeMode(String serviceUrl, WorkspaceType workspaceType) {
+    public static void changeMode(String serviceUrl, WorkFlowExecutionContext executionContext) {
         ParametersChecker.checkParameter("Server Url can not be null", serviceUrl);
         final URI uri = URI.create(serviceUrl);
         final ClientConfiguration configuration = new ClientConfigurationImpl(uri.getHost(), uri.getPort());
-        changeMode(configuration, workspaceType);
+        changeMode(configuration, executionContext);
     }
 
     /**
      * @param configuration null for MOCK
      */
-    private static void changeMode(ClientConfiguration configuration, WorkspaceType workspaceType) {
-        getInstance(workspaceType).initialisation(configuration, getInstance(workspaceType).getResourcePath());
+    static void changeMode(ClientConfiguration configuration, WorkFlowExecutionContext executionContext) {
+        WorkspaceClientFactory instance = getInstance(executionContext); //TODO fix me
+        instance.initialisation(configuration, instance.getResourcePath());
     }
 }

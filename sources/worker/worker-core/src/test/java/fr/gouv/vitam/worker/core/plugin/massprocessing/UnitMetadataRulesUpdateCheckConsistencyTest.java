@@ -35,6 +35,7 @@ import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.administration.FileRulesModel;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.functional.administration.client.AdminManagementClient;
 import fr.gouv.vitam.functional.administration.client.AdminManagementClientFactory;
 import fr.gouv.vitam.functional.administration.common.exception.AdminManagementClientServerException;
@@ -98,6 +99,7 @@ public class UnitMetadataRulesUpdateCheckConsistencyTest {
             adminManagementClientFactory
         );
         workerParameters = WorkerParametersFactory.newWorkerParameters(
+            WorkFlowExecutionContext.VITAM,
             "procId",
             "stepId",
             "container",

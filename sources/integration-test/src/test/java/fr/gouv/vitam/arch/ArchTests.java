@@ -162,4 +162,18 @@ public class ArchTests {
             )
             .check(importedClasses);
     }
+    //
+    //    @Test
+    //    public void testNoClientFactoryInActionHandlers() {
+    //        JavaClasses importedClasses = new ClassFileImporter().importPackages("fr.gouv.vitam");
+    //
+    //        ArchRule rule = fields()
+    //            .that().areDeclaredInClassesThat().areAssignableFrom(ActionHandler.class)
+    //            .should()
+    //
+    //
+    //            .notHaveRawType(VitamClientFactory.class);
+    //
+    //        rule.check(importedClasses);
+    //    }
 }

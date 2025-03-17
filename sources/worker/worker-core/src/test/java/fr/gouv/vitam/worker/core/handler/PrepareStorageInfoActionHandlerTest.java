@@ -91,6 +91,9 @@ public class PrepareStorageInfoActionHandlerTest {
         File defaultStorageInformation = PropertiesUtils.getResourceFile(
             "PrepareStorageInfoActionHandler/defaultStorageInformation.json"
         );
+
+        when(handlerIO.getStorageClient()).thenReturn(storageClient);
+
         when(storageClient.getStorageInformation(eq(VitamConfiguration.getDefaultStrategy()))).thenReturn(
             JsonHandler.getFromFile(defaultStorageInformation)
         );
@@ -108,7 +111,7 @@ public class PrepareStorageInfoActionHandlerTest {
         when(handlerIO.getNewLocalFile(filePath)).thenReturn(output);
         when(handlerIO.getInput(0)).thenReturn(input);
 
-        try (PrepareStorageInfoActionHandler instance = new PrepareStorageInfoActionHandler(storageClientFactory)) {
+        try (PrepareStorageInfoActionHandler instance = new PrepareStorageInfoActionHandler()) {
             ItemStatus response = instance.execute(params, handlerIO);
 
             assertEquals(StatusCode.OK, response.getGlobalStatus());

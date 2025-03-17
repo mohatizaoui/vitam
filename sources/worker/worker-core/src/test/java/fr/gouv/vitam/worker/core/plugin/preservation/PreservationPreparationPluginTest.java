@@ -110,17 +110,20 @@ public class PreservationPreparationPluginTest {
 
     private PreservationPreparationPlugin preservationPreparationPlugin;
 
+    private HandlerIO handler;
+
     @Before
     public void setUp() throws Exception {
+        handler = mock(HandlerIO.class);
         when(metaDataClientFactory.getClient()).thenReturn(metaDataClient);
         when(adminManagementClientFactory.getClient()).thenReturn(adminManagementClient);
         when(workspaceClientFactory.getClient()).thenReturn(workspaceClient);
 
-        preservationPreparationPlugin = new PreservationPreparationPlugin(
-            adminManagementClientFactory,
-            metaDataClientFactory,
-            workspaceClientFactory
-        );
+        when(handler.getMetaDataClient()).thenReturn(metaDataClient);
+        when(handler.getAdminManagementClient()).thenReturn(adminManagementClient);
+        when(handler.getWorkspaceClient()).thenReturn(workspaceClient);
+
+        preservationPreparationPlugin = new PreservationPreparationPlugin();
 
         List<GriffinModel> list = getFromStringAsTypeReference(griffinIds, new TypeReference<List<GriffinModel>>() {});
         RequestResponseOK<GriffinModel> griffinRequestResponseOK = new RequestResponseOK<>();
@@ -145,7 +148,7 @@ public class PreservationPreparationPluginTest {
     @Test
     public void shouldCreateJsonLFile() throws Exception {
         // Given
-        HandlerIO handler = mock(HandlerIO.class);
+
         WorkerParameters workerParameters = mock(WorkerParameters.class);
 
         PreservationRequest preservationRequest = new PreservationRequest(
@@ -186,7 +189,6 @@ public class PreservationPreparationPluginTest {
     @Test
     public void should_write_query_dsl_in_logbook() throws Exception {
         // Given
-        HandlerIO handler = mock(HandlerIO.class);
         WorkerParameters workerParameters = mock(WorkerParameters.class);
 
         ObjectNode finalSelect = new Select().getFinalSelect();
@@ -233,7 +235,6 @@ public class PreservationPreparationPluginTest {
         when(adminManagementClient.findGriffin(any())).thenThrow(
             new AdminManagementClientServerException("Internal Server Error")
         );
-        HandlerIO handler = mock(HandlerIO.class);
         WorkerParameters workerParameters = mock(WorkerParameters.class);
         PreservationRequest preservationRequest = new PreservationRequest(
             new Select().getFinalSelect(),
@@ -253,7 +254,6 @@ public class PreservationPreparationPluginTest {
     @Test
     public void should_add_in_preservation_line_the_unit_ids_related_to_this_OG() throws Exception {
         // Given
-        HandlerIO handler = mock(HandlerIO.class);
         WorkerParameters workerParameters = mock(WorkerParameters.class);
 
         when(handler.getJsonFromWorkspace("preservationRequest")).thenReturn(

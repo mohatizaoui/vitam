@@ -45,6 +45,7 @@ import fr.gouv.vitam.common.exception.VitamClientException;
 import fr.gouv.vitam.common.external.client.DefaultClient;
 import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
+import fr.gouv.vitam.common.model.elimination.DeletionRequestBody;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
@@ -79,6 +80,7 @@ public class CollectExternalClientRest extends DefaultClient implements CollectE
 
     private static final String BLANK_DSL = "select DSL is blank";
     public static final String UNITS_BULK = "/units/bulk";
+    private static final String MISSING_REQUEST = "Missing request";
 
     public CollectExternalClientRest(VitamClientFactoryInterface<?> factory) {
         super(factory);
@@ -656,6 +658,40 @@ public class CollectExternalClientRest extends DefaultClient implements CollectE
                 response,
                 BulkAtomicUpdateResult.class
             );
+        }
+    }
+
+    @Override
+    public RequestResponse<JsonNode> performDeletionActionOnTransaction(
+        VitamContext vitamContext,
+        String transactionId,
+        DeletionRequestBody deletionRequestBody
+    ) throws VitamClientException {
+        VitamRequestBuilder request = post()
+            .withPath(TRANSACTION_PATH + "/" + transactionId + "/deletion/action")
+            .withHeaders(vitamContext.getHeaders())
+            .withBody(deletionRequestBody, MISSING_REQUEST)
+            .withJson();
+        try (Response response = make(request)) {
+            check(response);
+            return RequestResponse.parseFromResponse(response, JsonNode.class);
+        }
+    }
+
+    @Override
+    public RequestResponse<JsonNode> performReclassificationOnTransaction(
+        VitamContext vitamContext,
+        String transactionId,
+        JsonNode reclassificationRequest
+    ) throws VitamClientException {
+        VitamRequestBuilder request = post()
+            .withPath(TRANSACTION_PATH + "/" + transactionId + "/reclassification")
+            .withHeaders(vitamContext.getHeaders())
+            .withBody(reclassificationRequest, MISSING_REQUEST)
+            .withJson();
+        try (Response response = make(request)) {
+            check(response);
+            return RequestResponse.parseFromResponse(response, JsonNode.class);
         }
     }
 }

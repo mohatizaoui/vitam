@@ -32,6 +32,7 @@ import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.model.processing.IOParameter;
 import fr.gouv.vitam.common.model.processing.ProcessingUri;
 import fr.gouv.vitam.common.model.processing.UriPrefix;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClient;
 import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClientFactory;
 import fr.gouv.vitam.worker.common.HandlerIO;
@@ -86,6 +87,7 @@ public class HandlerIOImplTest {
     @Before
     public void init() {
         handlerIO = new HandlerIOImpl(
+            WorkFlowExecutionContext.VITAM,
             workspaceClientFactory,
             logbookLifeCyclesClientFactory,
             GUIDFactory.newGUID().getId(),
@@ -185,6 +187,7 @@ public class HandlerIOImplTest {
         assertTrue(((File) object).exists());
 
         final HandlerIOImpl io2 = new HandlerIOImpl(
+            WorkFlowExecutionContext.VITAM,
             workspaceClientFactory,
             logbookLifeCyclesClientFactory,
             "containerName",

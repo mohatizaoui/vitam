@@ -27,6 +27,7 @@
 package fr.gouv.vitam.purge;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import fr.gouv.vitam.common.PropertiesUtils;
@@ -70,7 +71,9 @@ import fr.gouv.vitam.storage.engine.common.model.OfferLogAction;
 import fr.gouv.vitam.storage.engine.common.model.Order;
 import fr.gouv.vitam.storage.engine.server.rest.StorageMain;
 import fr.gouv.vitam.storage.offers.rest.DefaultOfferMain;
+import fr.gouv.vitam.worker.common.HandlerIO;
 import fr.gouv.vitam.worker.core.plugin.purge.PurgeDeleteService;
+import fr.gouv.vitam.worker.core.plugin.purge.PurgeObjectGroupParams;
 import fr.gouv.vitam.workspace.rest.WorkspaceMain;
 import org.bson.Document;
 import org.junit.AfterClass;
@@ -78,6 +81,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
@@ -95,6 +100,7 @@ import static fr.gouv.vitam.storage.engine.common.model.DataCategory.OBJECTGROUP
 import static fr.gouv.vitam.storage.engine.common.model.DataCategory.UNIT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.when;
 
 /**
  * PurgeIT integration test
@@ -105,6 +111,9 @@ public class PurgeIT extends VitamRuleRunner {
     private StorageClient storageClient;
     private LogbookLifeCyclesClient logbookLifeCyclesClient;
     private MetaDataClient metaDataClient;
+
+    @Mock
+    HandlerIO handlerIO;
 
     @ClassRule
     public static VitamServerRunner runner = new VitamServerRunner(
@@ -135,9 +144,13 @@ public class PurgeIT extends VitamRuleRunner {
 
     @Before
     public void setUp() {
+        MockitoAnnotations.initMocks(this);
         storageClient = StorageClientFactory.getInstance().getClient();
         logbookLifeCyclesClient = LogbookLifeCyclesClientFactory.getInstance().getClient();
         metaDataClient = MetaDataClientFactory.getInstance().getClient();
+        when(handlerIO.getMetaDataClient()).thenReturn(metaDataClient);
+        when(handlerIO.getStorageClient()).thenReturn(storageClient);
+        when(handlerIO.getLifeCyclesClient()).thenReturn(logbookLifeCyclesClient);
     }
 
     @RunWithCustomExecutor
@@ -194,7 +207,8 @@ public class PurgeIT extends VitamRuleRunner {
 
         //when delete units
         Map<String, String> unitIdsWithStrategies = ImmutableMap.of(id_1, "default", id_2, "default", id_3, "default");
-        purgeDeleteService.deleteUnits(unitIdsWithStrategies);
+
+        purgeDeleteService.deleteUnits(unitIdsWithStrategies, handlerIO);
 
         //then nothing in units mongo
         assertThatMongoRawUnitNotExists(id_1);
@@ -273,8 +287,28 @@ public class PurgeIT extends VitamRuleRunner {
         checkFileInStorage(OBJECTGROUP, id_3 + ".json", true);
 
         //when deletion
-        Map<String, String> gotIdsWithStrategies = ImmutableMap.of(id_1, "default", id_2, "default", id_3, "default");
-        purgeDeleteService.deleteObjectGroups(gotIdsWithStrategies);
+
+        PurgeObjectGroupParams purgeObjectGroupParams1 = new PurgeObjectGroupParams();
+        purgeObjectGroupParams1.setStrategyId(object_group_1.get("_storage").get("strategyId").textValue());
+        purgeObjectGroupParams1.setId(object_group_1.get("_id").textValue());
+        purgeObjectGroupParams1.setOpi(object_group_1.get("_opi").textValue());
+
+        PurgeObjectGroupParams purgeObjectGroupParams2 = new PurgeObjectGroupParams();
+        purgeObjectGroupParams2.setStrategyId(object_group_2.get("_storage").get("strategyId").textValue());
+        purgeObjectGroupParams2.setId(object_group_2.get("_id").textValue());
+        purgeObjectGroupParams2.setOpi(object_group_2.get("_opi").textValue());
+
+        PurgeObjectGroupParams purgeObjectGroupParams3 = new PurgeObjectGroupParams();
+        purgeObjectGroupParams3.setStrategyId(object_group_3.get("_storage").get("strategyId").textValue());
+        purgeObjectGroupParams3.setId(object_group_3.get("_id").textValue());
+        purgeObjectGroupParams3.setOpi(object_group_3.get("_opi").textValue());
+
+        List<PurgeObjectGroupParams> objectGroupParams = ImmutableList.of(
+            purgeObjectGroupParams1,
+            purgeObjectGroupParams2,
+            purgeObjectGroupParams3
+        );
+        purgeDeleteService.deleteObjectGroups(objectGroupParams, handlerIO);
 
         //then nothing in units mongo
         assertThatMongoRawObjectGroupNotExists(id_1);

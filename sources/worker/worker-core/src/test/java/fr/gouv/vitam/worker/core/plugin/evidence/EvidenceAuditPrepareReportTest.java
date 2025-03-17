@@ -88,10 +88,8 @@ public class EvidenceAuditPrepareReportTest {
     @Before
     public void setUp() throws Exception {
         when(logbookOperationsClientFactory.getClient()).thenReturn(logbookClient);
-        evidenceAuditPrepareReport = new EvidenceAuditPrepareReport(
-            evidenceAuditReportService,
-            logbookOperationsClientFactory
-        );
+        when(handlerIO.getLogbookOperationsClient()).thenReturn(logbookClient);
+        evidenceAuditPrepareReport = new EvidenceAuditPrepareReport(evidenceAuditReportService);
     }
 
     @RunWithCustomExecutor
@@ -109,7 +107,7 @@ public class EvidenceAuditPrepareReportTest {
         Assertions.assertThat(execute.getGlobalStatus()).isEqualTo(StatusCode.OK);
 
         verify(evidenceAuditReportService).deleteReportFromWorkspaceIfExists(any());
-        verify(evidenceAuditReportService).storeReportToWorkspace(any());
+        verify(evidenceAuditReportService).storeReportToWorkspace(any(), any());
     }
 
     @RunWithCustomExecutor
@@ -127,6 +125,6 @@ public class EvidenceAuditPrepareReportTest {
         Assertions.assertThat(execute.getGlobalStatus()).isEqualTo(StatusCode.OK);
 
         verify(evidenceAuditReportService).deleteReportFromWorkspaceIfExists(any());
-        verify(evidenceAuditReportService).storeReportToWorkspace(any());
+        verify(evidenceAuditReportService).storeReportToWorkspace(any(), any());
     }
 }

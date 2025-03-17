@@ -69,6 +69,7 @@ import fr.gouv.vitam.common.model.administration.AccessionRegisterSymbolicModel;
 import fr.gouv.vitam.common.model.administration.ActivationStatus;
 import fr.gouv.vitam.common.model.administration.FileRulesModel;
 import fr.gouv.vitam.common.model.audit.AuditReferentialOptions;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.security.SanityChecker;
 import fr.gouv.vitam.common.server.application.configuration.DbConfigurationImpl;
 import fr.gouv.vitam.common.server.application.resources.ApplicationStatusResource;
@@ -131,7 +132,6 @@ import fr.gouv.vitam.storage.engine.client.exception.StorageUnavailableDataFromA
 import fr.gouv.vitam.storage.engine.common.exception.StorageNotFoundException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.SetUtils;
@@ -231,14 +231,14 @@ public class AdminManagementResource extends ApplicationStatusResource {
         } else {
             adminConfiguration = new DbConfigurationImpl(configuration.getMongoDbNodes(), configuration.getDbName());
         }
-        workspaceClientFactory = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM);
+        workspaceClientFactory = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM);
         processingManagementClientFactory = ProcessingManagementClientFactory.getInstance();
         logbookOperationsClientFactory = LogbookOperationsClientFactory.getInstance();
         metaDataClientFactory = MetaDataClientFactory.getInstance();
         storageClientFactory = StorageClientFactory.getInstance();
         mongoAccess = MongoDbAccessAdminFactory.create(adminConfiguration, ontologyLoader, indexManager);
         vitamRuleService = new VitamRuleService(configuration.getListMinimumRuleDuration());
-        WorkspaceClientFactory.changeMode(configuration.getWorkspaceUrl(), WorkspaceType.VITAM);
+        WorkspaceClientFactory.changeMode(configuration.getWorkspaceUrl(), WorkFlowExecutionContext.VITAM);
         ProcessingManagementClientFactory.changeConfigurationUrl(configuration.getProcessingUrl());
         ElasticsearchAccessAdminFactory.create(configuration, indexManager);
         LOGGER.debug("init Admin Management Resource server");

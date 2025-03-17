@@ -26,7 +26,6 @@
  */
 package fr.gouv.vitam.worker.core.plugin.purge;
 
-import com.google.common.annotations.VisibleForTesting;
 import fr.gouv.vitam.batch.report.model.PurgeAccessionRegisterModel;
 import fr.gouv.vitam.common.LocalDateUtil;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
@@ -45,7 +44,6 @@ import fr.gouv.vitam.common.model.administration.RegisterValueEventModel;
 import fr.gouv.vitam.common.parameter.ParameterHelper;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.functional.administration.client.AdminManagementClient;
-import fr.gouv.vitam.functional.administration.client.AdminManagementClientFactory;
 import fr.gouv.vitam.functional.administration.common.exception.AdminManagementClientServerException;
 import fr.gouv.vitam.logbook.common.parameters.LogbookTypeProcess;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
@@ -65,7 +63,6 @@ public class PurgeAccessionRegisterUpdatePlugin extends ActionHandler {
 
     private final String actionId;
     private final LogbookTypeProcess logbookTypeProcess;
-    private final AdminManagementClientFactory adminManagementClientFactory;
 
     /**
      * Default constructor
@@ -74,27 +71,14 @@ public class PurgeAccessionRegisterUpdatePlugin extends ActionHandler {
      * @param logbookTypeProcess
      */
     public PurgeAccessionRegisterUpdatePlugin(String actionId, LogbookTypeProcess logbookTypeProcess) {
-        this(actionId, logbookTypeProcess, AdminManagementClientFactory.getInstance());
-    }
-
-    /***
-     * Test only constructor
-     */
-    @VisibleForTesting
-    protected PurgeAccessionRegisterUpdatePlugin(
-        String actionId,
-        LogbookTypeProcess logbookTypeProcess,
-        AdminManagementClientFactory adminManagementClientFactory
-    ) {
         this.actionId = actionId;
         this.logbookTypeProcess = logbookTypeProcess;
-        this.adminManagementClientFactory = adminManagementClientFactory;
     }
 
     @Override
     public ItemStatus execute(WorkerParameters param, HandlerIO handler) throws ProcessingException {
         try {
-            updateAccessionRegister(param);
+            updateAccessionRegister(handler, param);
 
             LOGGER.info("Purge accession register update succeeded");
             return buildItemStatus(actionId, StatusCode.OK, null);
@@ -107,10 +91,10 @@ public class PurgeAccessionRegisterUpdatePlugin extends ActionHandler {
         }
     }
 
-    private void updateAccessionRegister(WorkerParameters param) throws ProcessingStatusException {
+    private void updateAccessionRegister(HandlerIO handlerIO, WorkerParameters param) throws ProcessingStatusException {
         PurgeAccessionRegisterModel purgeAccessionRegisterModel = loadPurgeAccessionRegisterModel(param);
 
-        try (AdminManagementClient adminManagementClient = adminManagementClientFactory.getClient()) {
+        try (AdminManagementClient adminManagementClient = handlerIO.getAdminManagementClient()) {
             RegisterValueEventModel registerValueEvent = new RegisterValueEventModel()
                 .setOperation(param.getContainerName())
                 .setOperationType(logbookTypeProcess.name())

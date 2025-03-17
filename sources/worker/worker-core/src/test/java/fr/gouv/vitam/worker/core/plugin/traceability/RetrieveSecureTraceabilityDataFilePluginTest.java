@@ -107,8 +107,8 @@ public class RetrieveSecureTraceabilityDataFilePluginTest {
 
     @Before
     public void setUp() throws Exception {
-        when(storageClientFactory.getClient()).thenReturn(storageClient);
-        retrieveSecureTraceabilityDataFilePlugin = new RetrieveSecureTraceabilityDataFilePlugin(storageClientFactory);
+        when(handler.getStorageClient()).thenReturn(storageClient);
+        retrieveSecureTraceabilityDataFilePlugin = new RetrieveSecureTraceabilityDataFilePlugin();
 
         TraceabilityEvent traceabilityEvent = new TraceabilityEvent(
             TraceabilityType.OPERATION,

@@ -46,6 +46,7 @@ import fr.gouv.vitam.common.i18n.VitamLogbookMessages;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.common.model.ItemStatus;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.logbook.common.exception.LogbookClientAlreadyExistsException;
 import fr.gouv.vitam.logbook.common.exception.LogbookClientBadRequestException;
 import fr.gouv.vitam.logbook.common.exception.LogbookClientServerException;
@@ -68,7 +69,6 @@ import fr.gouv.vitam.processing.management.client.ProcessingManagementClientFact
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 
 import static fr.gouv.vitam.common.json.JsonHandler.writeToInpustream;
 import static fr.gouv.vitam.common.model.ProcessAction.RESUME;
@@ -93,7 +93,7 @@ public class UnitsWithTransferRequestsMigrationService {
         this.metadataImpl = metadataImpl;
         this.processingManagementClientFactory = ProcessingManagementClientFactory.getInstance();
         this.logbookOperationsClientFactory = LogbookOperationsClientFactory.getInstance();
-        this.workspaceClientFactory = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM);
+        this.workspaceClientFactory = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM);
     }
 
     public boolean migrateUnits(int threshold)

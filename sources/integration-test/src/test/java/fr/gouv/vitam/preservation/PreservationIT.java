@@ -89,6 +89,7 @@ import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClient;
 import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClientFactory;
 import fr.gouv.vitam.logbook.rest.LogbookMain;
 import fr.gouv.vitam.metadata.client.MetaDataClient;
+import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.metadata.core.database.collections.MetadataCollections;
 import fr.gouv.vitam.metadata.core.database.collections.ObjectGroup;
 import fr.gouv.vitam.metadata.rest.MetadataMain;
@@ -158,7 +159,6 @@ import static fr.gouv.vitam.common.model.administration.ActionTypePreservation.E
 import static fr.gouv.vitam.common.model.administration.ActionTypePreservation.GENERATE;
 import static fr.gouv.vitam.common.stream.StreamUtils.consumeAnyEntityAndClose;
 import static fr.gouv.vitam.common.thread.VitamThreadUtils.getVitamSession;
-import static fr.gouv.vitam.metadata.client.MetaDataClientFactory.getInstance;
 import static fr.gouv.vitam.purge.EndToEndEliminationAndTransferReplyIT.prepareVitamSession;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -885,7 +885,7 @@ public class PreservationIT extends VitamRuleRunner {
     }
 
     private List<ObjectGroupResponse> getAllObjectModels() {
-        try (MetaDataClient client = getInstance().getClient()) {
+        try (MetaDataClient client = MetaDataClientFactory.getInstance().getClient()) {
             Select select = new Select();
             select.setQuery(exists("#id"));
 

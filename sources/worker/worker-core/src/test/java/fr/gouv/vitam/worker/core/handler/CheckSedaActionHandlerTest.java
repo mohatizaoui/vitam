@@ -31,6 +31,7 @@ import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.processing.IOParameter;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.processing.common.parameter.WorkerParametersFactory;
@@ -67,7 +68,12 @@ public class CheckSedaActionHandlerTest {
     public void setUp() {
         sedaUtils = mock(SedaUtils.class);
         guid = GUIDFactory.newGUID();
-        action = new HandlerIOImpl(guid.getId(), "workerId", com.google.common.collect.Lists.newArrayList());
+        action = new HandlerIOImpl(
+            WorkFlowExecutionContext.VITAM,
+            guid.getId(),
+            "workerId",
+            com.google.common.collect.Lists.newArrayList()
+        );
         in = new ArrayList<>();
         when(sedaUtilsFactory.createSedaUtils(action)).thenReturn(sedaUtils);
     }
@@ -83,7 +89,7 @@ public class CheckSedaActionHandlerTest {
         when(sedaUtils.getMandatoryValues(any())).thenThrow(new ProcessingException(""));
         assertNotNull(CheckSedaActionHandler.getId());
         assertEquals(CheckSedaActionHandler.getId(), HANDLER_ID);
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace("http://localhost:8083")
             .setUrlMetadata("http://localhost:8083")
             .setObjectNameList(Lists.newArrayList("objectName.json"))
@@ -101,7 +107,7 @@ public class CheckSedaActionHandlerTest {
     @Test
     public void givenWorkspaceWhenXmlExistThenReturnResponseOK() {
         Mockito.doReturn(CheckSedaValidationStatus.VALID).when(sedaUtils).checkSedaValidation(any());
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace("http://localhost:8083")
             .setUrlMetadata("http://localhost:8083")
             .setObjectNameList(Lists.newArrayList("objectName.json"))
@@ -115,7 +121,7 @@ public class CheckSedaActionHandlerTest {
     @Test
     public void givenWorkspaceWhenXmlIsEmptyThenReturnResponseKO() {
         Mockito.doReturn(CheckSedaValidationStatus.NOT_XSD_VALID).when(sedaUtils).checkSedaValidation(any());
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace("http://localhost:8083")
             .setUrlMetadata("http://localhost:8083")
             .setObjectNameList(Lists.newArrayList("objectName.json"))
@@ -133,7 +139,7 @@ public class CheckSedaActionHandlerTest {
     @Test
     public void givenWorkspaceWhenFileNotXmlThenReturnResponseKO() {
         Mockito.doReturn(CheckSedaValidationStatus.NOT_XML_FILE).when(sedaUtils).checkSedaValidation(any());
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace("http://localhost:8083")
             .setUrlMetadata("http://localhost:8083")
             .setObjectNameList(Lists.newArrayList("objectName.json"))
@@ -151,7 +157,7 @@ public class CheckSedaActionHandlerTest {
     @Test
     public void givenWorkspaceWhenXmlNotThereThenReturnResponseKO() {
         Mockito.doReturn(CheckSedaValidationStatus.NO_FILE).when(sedaUtils).checkSedaValidation(any());
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace("http://localhost:8083")
             .setUrlMetadata("http://localhost:8083")
             .setObjectNameList(Lists.newArrayList("objectName.json"))
@@ -169,7 +175,7 @@ public class CheckSedaActionHandlerTest {
     @Test
     public void givenWorkspaceWhenThereAreManyManifestThenReturnResponseKO() {
         Mockito.doReturn(CheckSedaValidationStatus.MORE_THAN_ONE_MANIFEST).when(sedaUtils).checkSedaValidation(any());
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace("http://localhost:8083")
             .setUrlMetadata("http://localhost:8083")
             .setObjectNameList(Lists.newArrayList("objectName.json"))
@@ -189,7 +195,7 @@ public class CheckSedaActionHandlerTest {
         Mockito.doReturn(CheckSedaValidationStatus.MORE_THAN_ONE_FOLDER_CONTENT)
             .when(sedaUtils)
             .checkSedaValidation(any());
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace("http://localhost:8083")
             .setUrlMetadata("http://localhost:8083")
             .setObjectNameList(Lists.newArrayList("objectName.json"))

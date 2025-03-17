@@ -30,6 +30,7 @@ import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.LifeCycleStatusCode;
 import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -37,15 +38,12 @@ import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.logbook.common.parameters.LogbookLifeCycleUnitParameters;
 import fr.gouv.vitam.logbook.common.parameters.LogbookParameterName;
 import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClient;
-import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClientFactory;
 import fr.gouv.vitam.metadata.client.MetaDataClient;
-import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.processing.common.parameter.WorkerParametersFactory;
 import fr.gouv.vitam.worker.common.HandlerIO;
 import fr.gouv.vitam.worker.core.plugin.reclassification.model.ReclassificationEventDetails;
 import org.assertj.core.util.Lists;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -72,13 +70,7 @@ public class UnitDetachmentPluginTest {
     public MockitoRule rule = MockitoJUnit.rule();
 
     @Mock
-    private LogbookLifeCyclesClientFactory logbookLifeCyclesClientFactory;
-
-    @Mock
     private LogbookLifeCyclesClient logbookLifeCyclesClient;
-
-    @Mock
-    private MetaDataClientFactory metaDataClientFactory;
 
     @Mock
     private MetaDataClient metaDataClient;
@@ -91,12 +83,6 @@ public class UnitDetachmentPluginTest {
         VitamThreadPoolExecutor.getDefaultExecutor()
     );
 
-    @Before
-    public void init() {
-        doReturn(logbookLifeCyclesClient).when(logbookLifeCyclesClientFactory).getClient();
-        doReturn(metaDataClient).when(metaDataClientFactory).getClient();
-    }
-
     @Test
     @RunWithCustomExecutor
     public void testDetachment() throws Exception {
@@ -105,7 +91,7 @@ public class UnitDetachmentPluginTest {
         // Given
         String containedId = GUIDFactory.newGUID().toString();
         String unitId = GUIDFactory.newGUID().toString();
-        final WorkerParameters parameters = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters parameters = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setWorkerGUID(GUIDFactory.newGUID().getId())
             .setContainerName(containedId)
             .setObjectNameList(Lists.newArrayList(unitId))
@@ -113,6 +99,8 @@ public class UnitDetachmentPluginTest {
             .setCurrentStep("StepName");
 
         HandlerIO handlerIO = mock(HandlerIO.class);
+        doReturn(logbookLifeCyclesClient).when(handlerIO).getLifeCyclesClient();
+        doReturn(metaDataClient).when(handlerIO).getMetaDataClient();
         doReturn(JsonHandler.toJsonNode(new HashSet<>(Arrays.asList("parentId1", "parentId2"))))
             .when(handlerIO)
             .getJsonFromWorkspace(eq(UNITS_TO_DETACH_DIR + "/" + unitId));

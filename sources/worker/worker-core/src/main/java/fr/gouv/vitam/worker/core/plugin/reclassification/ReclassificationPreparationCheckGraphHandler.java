@@ -39,7 +39,6 @@ import fr.gouv.vitam.metadata.api.exception.MetaDataClientServerException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataDocumentSizeException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataExecutionException;
 import fr.gouv.vitam.metadata.client.MetaDataClient;
-import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.worker.common.HandlerIO;
@@ -79,18 +78,13 @@ public class ReclassificationPreparationCheckGraphHandler extends ActionHandler 
     static final String INVALID_UNIT_TYPE_ATTACHMENTS = "Invalid unit type attachment(s)";
 
     private final int maxGuildListSizeInLogbookOperation;
-    private final MetaDataClientFactory metaDataClientFactory;
     private final UnitGraphInfoLoader unitGraphInfoLoader;
 
     /**
      * Default constructor
      */
     public ReclassificationPreparationCheckGraphHandler() {
-        this(
-            MetaDataClientFactory.getInstance(),
-            new UnitGraphInfoLoader(),
-            VitamConfiguration.getReclassificationMaxGuildListSizeInLogbookOperation()
-        );
+        this(new UnitGraphInfoLoader(), VitamConfiguration.getReclassificationMaxGuildListSizeInLogbookOperation());
     }
 
     /***
@@ -98,11 +92,9 @@ public class ReclassificationPreparationCheckGraphHandler extends ActionHandler 
      */
     @VisibleForTesting
     ReclassificationPreparationCheckGraphHandler(
-        MetaDataClientFactory metaDataClientFactory,
         UnitGraphInfoLoader unitGraphInfoLoader,
         int maxGuildListSizeInLogbookOperation
     ) {
-        this.metaDataClientFactory = metaDataClientFactory;
         this.unitGraphInfoLoader = unitGraphInfoLoader;
         this.maxGuildListSizeInLogbookOperation = maxGuildListSizeInLogbookOperation;
     }
@@ -114,7 +106,7 @@ public class ReclassificationPreparationCheckGraphHandler extends ActionHandler 
             ReclassificationOrders reclassificationOrders = loadReclassificationOrders(handler);
 
             // Check graph (check unit types & graph cycles)
-            checkGraphCoherence(reclassificationOrders);
+            checkGraphCoherence(handler, reclassificationOrders);
         } catch (ProcessingStatusException e) {
             LOGGER.error("Reclassification graph check failed with status [" + e.getStatusCode() + "]", e);
             return buildItemStatus(RECLASSIFICATION_PREPARATION_CHECK_GRAPH, e.getStatusCode(), e.getEventDetails());
@@ -129,9 +121,10 @@ public class ReclassificationPreparationCheckGraphHandler extends ActionHandler 
         return (ReclassificationOrders) handler.getInput(RECLASSIFICATION_ORDERS_PARAMETER_RANK);
     }
 
-    private void checkGraphCoherence(ReclassificationOrders reclassificationUpdates) throws ProcessingStatusException {
+    private void checkGraphCoherence(HandlerIO handler, ReclassificationOrders reclassificationUpdates)
+        throws ProcessingStatusException {
         // Load all units & their parents recursively
-        Map<String, UnitGraphInfo> unitGraphByIds = loadAllUnitGraphByIds(reclassificationUpdates);
+        Map<String, UnitGraphInfo> unitGraphByIds = loadAllUnitGraphByIds(handler, reclassificationUpdates);
 
         // Check unit type coherence
         checkAttachmentUnitTypeCoherence(reclassificationUpdates, unitGraphByIds);
@@ -140,9 +133,11 @@ public class ReclassificationPreparationCheckGraphHandler extends ActionHandler 
         checkCycles(reclassificationUpdates, unitGraphByIds);
     }
 
-    private Map<String, UnitGraphInfo> loadAllUnitGraphByIds(ReclassificationOrders reclassificationOrders)
-        throws ProcessingStatusException {
-        try (MetaDataClient metaDataClient = metaDataClientFactory.getClient()) {
+    private Map<String, UnitGraphInfo> loadAllUnitGraphByIds(
+        HandlerIO handler,
+        ReclassificationOrders reclassificationOrders
+    ) throws ProcessingStatusException {
+        try (MetaDataClient metaDataClient = handler.getMetaDataClient()) {
             Set<String> allUnitIds = getAllUnitIds(reclassificationOrders);
 
             Map<String, UnitGraphInfo> result = unitGraphInfoLoader.selectAllUnitGraphByIds(metaDataClient, allUnitIds);

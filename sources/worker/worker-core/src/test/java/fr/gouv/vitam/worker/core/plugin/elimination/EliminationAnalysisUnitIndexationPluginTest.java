@@ -31,6 +31,7 @@ import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -101,7 +102,7 @@ public class EliminationAnalysisUnitIndexationPluginTest {
             Collections.emptyList()
         );
 
-        this.parameters = WorkerParametersFactory.newWorkerParameters()
+        this.parameters = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setWorkerGUID(GUIDFactory.newGUID().getId())
             .setContainerName(VitamThreadUtils.getVitamSession().getRequestId())
             .setRequestId(VitamThreadUtils.getVitamSession().getRequestId())

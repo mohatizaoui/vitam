@@ -144,7 +144,7 @@ public class DeleteGotVersionsFinalizationPluginTest {
         ItemStatus itemStatus = deleteGotVersionsFinalizationPlugin.execute(params, handlerIO);
 
         assertEquals(OK, itemStatus.getGlobalStatus());
-        verify(deleteGotVersionsReportService, times(1)).storeReportToWorkspace(any());
+        verify(deleteGotVersionsReportService, times(1)).storeReportToWorkspace(any(), any());
     }
 
     @Test
@@ -168,7 +168,7 @@ public class DeleteGotVersionsFinalizationPluginTest {
         ItemStatus itemStatus = deleteGotVersionsFinalizationPlugin.execute(params, handlerIO);
 
         assertEquals(OK, itemStatus.getGlobalStatus());
-        verify(deleteGotVersionsReportService, times(1)).storeReportToWorkspace(any());
+        verify(deleteGotVersionsReportService, times(1)).storeReportToWorkspace(any(), any());
     }
 
     @Test
@@ -184,7 +184,7 @@ public class DeleteGotVersionsFinalizationPluginTest {
         ItemStatus itemStatus = deleteGotVersionsFinalizationPlugin.execute(params, handlerIO);
 
         assertEquals(FATAL, itemStatus.getGlobalStatus());
-        verify(deleteGotVersionsReportService, times(0)).storeReportToWorkspace(any());
+        verify(deleteGotVersionsReportService, times(0)).storeReportToWorkspace(any(), any());
     }
 
     @Test
@@ -201,6 +201,6 @@ public class DeleteGotVersionsFinalizationPluginTest {
         ItemStatus itemStatus = deleteGotVersionsFinalizationPlugin.execute(params, handlerIO);
 
         assertEquals(OK, itemStatus.getGlobalStatus());
-        verify(deleteGotVersionsReportService, times(0)).storeReportToWorkspace(any());
+        verify(deleteGotVersionsReportService, times(0)).storeReportToWorkspace(any(), any());
     }
 }

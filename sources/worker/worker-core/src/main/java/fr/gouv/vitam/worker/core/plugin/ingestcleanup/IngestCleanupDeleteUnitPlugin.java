@@ -76,14 +76,14 @@ public class IngestCleanupDeleteUnitPlugin extends ActionHandler {
     @Override
     public List<ItemStatus> executeList(WorkerParameters param, HandlerIO handler) {
         try {
-            return processUnits(param.getObjectMetadataList());
+            return processUnits(param.getObjectMetadataList(), handler);
         } catch (ProcessingStatusException e) {
             LOGGER.error("Unit purge failed with status " + e.getStatusCode(), e);
             return singletonList(buildItemStatus(INGEST_CLEANUP_DELETE_UNIT, e.getStatusCode(), e.getEventDetails()));
         }
     }
 
-    private List<ItemStatus> processUnits(List<JsonNode> units) throws ProcessingStatusException {
+    private List<ItemStatus> processUnits(List<JsonNode> units, HandlerIO handler) throws ProcessingStatusException {
         Map<String, String> unitIdsWithStrategiesToDelete = units
             .stream()
             .collect(Collectors.toMap(entry -> entry.get("id").asText(), entry -> entry.get("strategyId").asText()));
@@ -96,7 +96,7 @@ public class IngestCleanupDeleteUnitPlugin extends ActionHandler {
         }
 
         try {
-            purgeDeleteService.deleteUnits(unitIdsWithStrategiesToDelete);
+            purgeDeleteService.deleteUnits(unitIdsWithStrategiesToDelete, handler);
         } catch (
             MetaDataExecutionException
             | MetaDataClientServerException

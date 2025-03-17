@@ -49,6 +49,7 @@ import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.logbook.LogbookOperation;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.functional.administration.rest.AdminManagementMain;
@@ -61,7 +62,6 @@ import fr.gouv.vitam.metadata.core.database.collections.Unit;
 import fr.gouv.vitam.metadata.rest.MetadataMain;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 import fr.gouv.vitam.workspace.rest.WorkspaceMain;
 import okhttp3.OkHttpClient;
 import org.bson.BsonTimestamp;
@@ -173,7 +173,9 @@ public class DataConsistencyAuditIT extends VitamRuleRunner {
             .deleteIndexByAliasForTesting(MetadataCollections.OBJECTGROUP, TENANT_ID);
 
         // create workspace file
-        WorkspaceClientFactory workspaceClientFactory = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM);
+        WorkspaceClientFactory workspaceClientFactory = WorkspaceClientFactory.getInstance(
+            WorkFlowExecutionContext.VITAM
+        );
         try (WorkspaceClient workspaceClient = workspaceClientFactory.getClient()) {
             if (!workspaceClient.isExistingContainer(AUDIT_CONTAINER_NAME)) {
                 workspaceClient.createContainer(AUDIT_CONTAINER_NAME);

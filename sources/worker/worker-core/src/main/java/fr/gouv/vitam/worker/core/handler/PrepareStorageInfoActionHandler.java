@@ -29,7 +29,6 @@ package fr.gouv.vitam.worker.core.handler;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.annotations.VisibleForTesting;
 import fr.gouv.vitam.common.SedaConstants;
 import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
@@ -44,7 +43,6 @@ import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.model.StorageInformation;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.storage.engine.client.StorageClient;
-import fr.gouv.vitam.storage.engine.client.StorageClientFactory;
 import fr.gouv.vitam.storage.engine.client.exception.StorageNotFoundClientException;
 import fr.gouv.vitam.storage.engine.client.exception.StorageServerClientException;
 import fr.gouv.vitam.worker.common.HandlerIO;
@@ -66,24 +64,11 @@ public class PrepareStorageInfoActionHandler extends ActionHandler {
     private static final int STORAGE_INFO_OUT_RANK = 0;
     private static final int REFERENTIAL_INGEST_CONTRACT_IN_RANK = 0;
 
-    private final StorageClientFactory storageClientFactory;
-
     /**
      * Constructor with parameter SedaUtilsFactory
      */
-    public PrepareStorageInfoActionHandler() {
-        this(StorageClientFactory.getInstance());
-    }
 
-    /**
-     * Useful for inject mock in test class
-     *
-     * @param storageClientFactory instance of storageClientFactory or mock
-     */
-    @VisibleForTesting
-    public PrepareStorageInfoActionHandler(StorageClientFactory storageClientFactory) {
-        this.storageClientFactory = storageClientFactory;
-    }
+    public PrepareStorageInfoActionHandler() {}
 
     /**
      * @return HANDLER_ID
@@ -101,7 +86,7 @@ public class PrepareStorageInfoActionHandler extends ActionHandler {
             ManagementContractModel managementContract = loadManagementContractFromWorkspace(handlerIO);
 
             Map<String, JsonNode> storageCapacityNodeByStrategyId = new HashMap<>();
-            try (final StorageClient storageClient = storageClientFactory.getClient()) {
+            try (final StorageClient storageClient = handlerIO.getStorageClient()) {
                 storageCapacityNodeByStrategyId.put(
                     VitamConfiguration.getDefaultStrategy(),
                     storageClient.getStorageInformation(VitamConfiguration.getDefaultStrategy())

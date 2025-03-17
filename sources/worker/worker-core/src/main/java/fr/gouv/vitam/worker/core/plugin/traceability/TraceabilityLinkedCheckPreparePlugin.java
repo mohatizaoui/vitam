@@ -29,7 +29,6 @@ package fr.gouv.vitam.worker.core.plugin.traceability;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.NullNode;
-import com.google.common.annotations.VisibleForTesting;
 import fr.gouv.vitam.common.database.builder.query.QueryHelper;
 import fr.gouv.vitam.common.database.builder.request.exception.InvalidCreateOperationException;
 import fr.gouv.vitam.common.database.parser.request.single.SelectParserSingle;
@@ -42,7 +41,6 @@ import fr.gouv.vitam.common.model.logbook.LogbookEvent;
 import fr.gouv.vitam.logbook.common.exception.LogbookClientException;
 import fr.gouv.vitam.logbook.common.server.database.collections.LogbookMongoDbName;
 import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClient;
-import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClientFactory;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.worker.common.HandlerIO;
@@ -78,16 +76,7 @@ public class TraceabilityLinkedCheckPreparePlugin extends ActionHandler {
 
     static final String LOGBOOK_OPERATIONS_JSONL_FILE = "logbookOperations.jsonl";
 
-    private final LogbookOperationsClientFactory logbookOperationsClientFactory;
-
-    public TraceabilityLinkedCheckPreparePlugin() {
-        this(LogbookOperationsClientFactory.getInstance());
-    }
-
-    @VisibleForTesting
-    TraceabilityLinkedCheckPreparePlugin(LogbookOperationsClientFactory logbookOperationsClientFactory) {
-        this.logbookOperationsClientFactory = logbookOperationsClientFactory;
-    }
+    public TraceabilityLinkedCheckPreparePlugin() {}
 
     @Override
     public ItemStatus execute(WorkerParameters param, HandlerIO handler) throws ProcessingException {
@@ -97,7 +86,7 @@ public class TraceabilityLinkedCheckPreparePlugin extends ActionHandler {
 
         List<String> skippedOperations = new ArrayList<>();
 
-        try (LogbookOperationsClient logbookOperationsClient = logbookOperationsClientFactory.getClient()) {
+        try (LogbookOperationsClient logbookOperationsClient = handler.getLogbookOperationsClient()) {
             JsonNode logbookOperations = logbookOperationsClient.selectOperation(dslQuery);
             JsonNode results = logbookOperations.get(TAG_RESULTS);
 

@@ -46,7 +46,6 @@ import fr.gouv.vitam.metadata.api.exception.MetaDataClientServerException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataDocumentSizeException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataExecutionException;
 import fr.gouv.vitam.metadata.client.MetaDataClient;
-import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.worker.common.HandlerIO;
 import fr.gouv.vitam.worker.core.handler.ActionHandler;
@@ -62,15 +61,12 @@ public abstract class CheckDistributionThresholdBase extends ActionHandler {
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(ActionHandler.class);
     private static final int QUERY_TYPE_IN_RANK = 0;
     private static final int QUERY_URI_IN_RANK = 1;
-    private final MetaDataClientFactory metaDataClientFactory;
 
-    protected CheckDistributionThresholdBase(MetaDataClientFactory metaDataClientFactory) {
-        this.metaDataClientFactory = metaDataClientFactory;
-    }
+    protected CheckDistributionThresholdBase() {}
 
     protected ItemStatus checkThreshold(HandlerIO handler, long defaultThreshold, String action)
         throws ProcessingException {
-        try (MetaDataClient client = metaDataClientFactory.getClient()) {
+        try (MetaDataClient client = handler.getMetaDataClient()) {
             String queryType = (String) handler.getInput(QUERY_TYPE_IN_RANK);
             String queryUri = (String) handler.getInput(QUERY_URI_IN_RANK);
 

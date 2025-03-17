@@ -28,8 +28,10 @@ package fr.gouv.vitam.processing.management.rest;
 
 import com.google.common.annotations.VisibleForTesting;
 import fr.gouv.vitam.common.PropertiesUtils;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.server.VitamServerLifeCycle;
 import fr.gouv.vitam.common.serverv2.application.CommonBusinessApplication;
+import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.processing.common.config.ServerConfiguration;
 import fr.gouv.vitam.processing.distributor.api.IWorkerManager;
 import fr.gouv.vitam.processing.distributor.api.ProcessDistributor;
@@ -41,7 +43,7 @@ import fr.gouv.vitam.processing.distributor.rest.ProcessDistributorResource;
 import fr.gouv.vitam.processing.management.api.ProcessManagement;
 import fr.gouv.vitam.worker.client.WorkerClientFactory;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
+import fr.gouv.vitam.workspace.client.WorkspaceCollectClientFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -78,7 +80,14 @@ public class VitamApplicationInitializr {
             final ServerConfiguration configuration = PropertiesUtils.readYaml(yamlIS, ServerConfiguration.class);
             commonBusinessApplication = new CommonBusinessApplication();
 
-            WorkspaceClientFactory.changeMode(configuration.getUrlWorkspace(), WorkspaceType.VITAM);
+            WorkspaceClientFactory.changeMode(configuration.getUrlWorkspace(), WorkFlowExecutionContext.VITAM);
+            WorkspaceCollectClientFactory.changeMode(
+                configuration.getUrlWorkspaceCollect(),
+                WorkFlowExecutionContext.COLLECT
+            );
+
+            MetaDataClientFactory.changeMode(configuration.getUrlMetadata(), WorkFlowExecutionContext.VITAM);
+            MetaDataClientFactory.changeMode(configuration.getUrlMetadataCollect(), WorkFlowExecutionContext.COLLECT);
 
             IWorkerManager workerManager = new WorkerManager();
             workerManager.initialize();

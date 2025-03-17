@@ -26,6 +26,7 @@
  */
 package fr.gouv.vitam.worker.core.handler;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.gouv.vitam.common.ParametersChecker;
 import fr.gouv.vitam.common.SedaConstants;
@@ -37,8 +38,12 @@ import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.VitamAutoCloseable;
 import fr.gouv.vitam.logbook.common.parameters.LogbookParameterName;
+import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
-import fr.gouv.vitam.worker.core.api.WorkerAction;
+import fr.gouv.vitam.worker.common.HandlerIO;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * ActionHandler abstract class of interface Action<br/>
@@ -52,7 +57,7 @@ import fr.gouv.vitam.worker.core.api.WorkerAction;
  * // Later on (not available now), some other methods for Input/Output arguments
  * </code></code>
  */
-public abstract class ActionHandler implements WorkerAction, VitamAutoCloseable {
+public abstract class ActionHandler implements VitamAutoCloseable {
 
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(ActionHandler.class);
 
@@ -66,9 +71,65 @@ public abstract class ActionHandler implements WorkerAction, VitamAutoCloseable 
         ParametersChecker.checkNullOrEmptyParameters(parameters);
     }
 
+    /**
+     * Check mandatory parameter
+     *
+     * @param handler input output list
+     * @throws ProcessingException when handler io is not complete
+     */
+    public void checkMandatoryIOParameter(HandlerIO handler) throws ProcessingException {
+        throw new IllegalStateException("Not implemented.");
+    }
+
     @Override
     public void close() {
         // nothing;
+    }
+
+    /**
+     * Execute an action
+     *
+     * @param param {@link WorkerParameters}
+     * @param handler the handlerIo
+     * @return CompositeItemStatus:response contains a list of functional message and status code
+     * @throws ProcessingException if an error is encountered when executing the action
+     */
+    public ItemStatus execute(WorkerParameters param, HandlerIO handler) throws ProcessingException {
+        throw new IllegalStateException("Not implemented.");
+    }
+
+    /**
+     * @param workerParameters
+     * @param handler
+     * @return
+     * @throws ProcessingException
+     */
+    public List<ItemStatus> executeList(WorkerParameters workerParameters, HandlerIO handler)
+        throws ProcessingException {
+        try {
+            List<ItemStatus> aggregateItemStatus = new ArrayList<>();
+
+            List<String> objectNameList = workerParameters.getObjectNameList();
+            List<JsonNode> objectMetadataList = workerParameters.getObjectMetadataList();
+
+            for (int i = 0; i < objectNameList.size(); i++) {
+                String objectId = objectNameList.get(i);
+                JsonNode metadata = objectMetadataList != null && !objectMetadataList.isEmpty()
+                    ? objectMetadataList.get(i)
+                    : null;
+
+                workerParameters.setObjectName(objectId);
+                workerParameters.setObjectMetadata(metadata);
+                handler.setCurrentObjectId(objectId);
+
+                ItemStatus itemStatus = execute(workerParameters, handler);
+
+                aggregateItemStatus.add(itemStatus);
+            }
+            return aggregateItemStatus;
+        } finally {
+            handler.setCurrentObjectId(null);
+        }
     }
 
     /**
@@ -78,7 +139,8 @@ public abstract class ActionHandler implements WorkerAction, VitamAutoCloseable 
      * @param value
      * @param globalOutcomeDetailSubCode
      */
-    public void updateDetailItemStatus(
+    // TODO: extract to utilities class?
+    public static void updateDetailItemStatus(
         final ItemStatus globalCompositeItemStatus,
         final String value,
         final String globalOutcomeDetailSubCode

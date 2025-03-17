@@ -211,7 +211,7 @@ public class TransferNotificationActionHandler extends ActionHandler {
 
             String atrObjectName = handlerIO.getOutput(ATR_RESULT_OUT_RANK).getPath();
             // Generate ATR only if not already generated (idempotency)
-            try (WorkspaceClient workspaceClient = handlerIO.getWorkspaceClientFactory().getClient()) {
+            try (WorkspaceClient workspaceClient = handlerIO.getWorkspaceClient()) {
                 boolean atrAlreadyGenerated = workspaceClient.isExistingObject(
                     params.getContainerName(),
                     atrObjectName
@@ -656,7 +656,7 @@ public class TransferNotificationActionHandler extends ActionHandler {
         List<String> statusToBeChecked,
         StatusCode workflowStatus
     ) throws ProcessingException, FileNotFoundException, InvalidParseOperationException {
-        try (LogbookLifeCyclesClient client = handlerIO.getLifecyclesClient()) {
+        try (LogbookLifeCyclesClient client = handlerIO.getLifeCyclesClient()) {
             ////Build DescriptiveMetadata/List(ArchiveUnit)
             try {
                 Map<String, ArchiveUnitAtrExtra> unitGuidUnitAtrExtraMap = new HashMap<>();

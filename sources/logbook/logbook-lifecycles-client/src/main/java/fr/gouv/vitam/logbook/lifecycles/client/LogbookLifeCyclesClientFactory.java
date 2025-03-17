@@ -24,6 +24,7 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
+
 package fr.gouv.vitam.logbook.lifecycles.client;
 
 import fr.gouv.vitam.common.PropertiesUtils;
@@ -32,6 +33,7 @@ import fr.gouv.vitam.common.client.configuration.ClientConfiguration;
 import fr.gouv.vitam.common.client.configuration.ClientConfigurationImpl;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.logbook.common.parameters.LogbookParameterHelper;
 
 import java.io.IOException;
@@ -102,33 +104,32 @@ public class LogbookLifeCyclesClientFactory extends VitamClientFactory<LogbookLi
     }
 
     /**
-     * Get the LogbookClientFactory instance
+     * Get the LogbookLifeCyclesClientFactory instance
      *
      * @return the instance
      */
     public static final LogbookLifeCyclesClientFactory getInstance() {
-        return LOGBOOK_LIFECYCLES_CLIENT_FACTORY;
+        return getInstance(WorkFlowExecutionContext.VITAM);
     }
 
     /**
-     * Get the default type logbook client
+     * Get the LogbookLifeCyclesClientFactory instance for the given workflow execution context
      *
-     * @return the default logbook client
+     * @param executionContext the workflow execution context
+     * @return the instance
      */
+    public static LogbookLifeCyclesClientFactory getInstance(WorkFlowExecutionContext executionContext) {
+        return switch (executionContext) {
+            case VITAM, COLLECT -> LOGBOOK_LIFECYCLES_CLIENT_FACTORY;
+        };
+    }
+
     @Override
     public LogbookLifeCyclesClient getClient() {
-        LogbookLifeCyclesClient client;
-        switch (getVitamClientType()) {
-            case MOCK:
-                client = new LogbookLifeCyclesClientMock();
-                break;
-            case PRODUCTION:
-                client = new LogbookLifeCyclesClientRest(this);
-                break;
-            default:
-                throw new IllegalArgumentException("Log type unknown");
-        }
-        return client;
+        return switch (getVitamClientType()) {
+            case MOCK -> new LogbookLifeCyclesClientMock();
+            case PRODUCTION -> new LogbookLifeCyclesClientRest(this);
+        };
     }
 
     /**

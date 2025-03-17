@@ -31,6 +31,7 @@ import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.worker.common.HandlerIO;
@@ -72,7 +73,7 @@ public class PurgeAccessionRegisterPreparationHandler extends ActionHandler {
     @Override
     public ItemStatus execute(WorkerParameters param, HandlerIO handler) throws ProcessingException {
         try {
-            exportAccessionRegister(param.getContainerName());
+            exportAccessionRegister(handler, param.getContainerName(), param.getExecutionContext());
 
             LOGGER.info("Purge accession register preparation succeeded");
             return buildItemStatus(actionId, StatusCode.OK, null);
@@ -85,8 +86,12 @@ public class PurgeAccessionRegisterPreparationHandler extends ActionHandler {
         }
     }
 
-    private void exportAccessionRegister(String processId) throws ProcessingStatusException {
-        purgeReportService.exportAccessionRegisters(processId);
+    private void exportAccessionRegister(
+        HandlerIO handler,
+        String processId,
+        WorkFlowExecutionContext executionContext
+    ) throws ProcessingStatusException {
+        purgeReportService.exportAccessionRegisters(handler, processId, executionContext);
     }
 
     @Override

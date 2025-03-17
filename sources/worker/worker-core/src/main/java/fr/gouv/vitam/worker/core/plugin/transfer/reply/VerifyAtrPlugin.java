@@ -44,7 +44,6 @@ import fr.gouv.vitam.common.xml.XmlNamespaceUtils;
 import fr.gouv.vitam.logbook.common.exception.LogbookClientException;
 import fr.gouv.vitam.logbook.common.exception.LogbookClientNotFoundException;
 import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClient;
-import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClientFactory;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.worker.common.HandlerIO;
@@ -84,17 +83,14 @@ public class VerifyAtrPlugin extends ActionHandler {
     public static final String PLUGIN_NAME = "VERIFY_ARCHIVAL_TRANSFER_REPLY";
     public static final String ATR_FOR_TRANSFER_REPLY = "ATR-for-transfer-reply-in-workspace.xml";
 
-    private final LogbookOperationsClientFactory logbookOperationsClientFactory;
-
     private final AtrParser atrParser;
 
     public VerifyAtrPlugin() {
-        this(LogbookOperationsClientFactory.getInstance(), new AtrParser());
+        this(new AtrParser());
     }
 
     @VisibleForTesting
-    public VerifyAtrPlugin(LogbookOperationsClientFactory logbookOperationsClientFactory, AtrParser atrParser) {
-        this.logbookOperationsClientFactory = logbookOperationsClientFactory;
+    public VerifyAtrPlugin(AtrParser atrParser) {
         this.atrParser = atrParser;
     }
 
@@ -108,7 +104,7 @@ public class VerifyAtrPlugin extends ActionHandler {
             handler.addOutputResult(0, transferReply);
 
             if (
-                hasExistingTransferOperation(transferReply.getMessageRequestIdentifier()) &&
+                hasExistingTransferOperation(handler, transferReply.getMessageRequestIdentifier()) &&
                 hasReplyCode(transferReply.getReplyCode())
             ) {
                 return buildItemStatus(PLUGIN_NAME, OK, EventDetails.of("ATR file is valid and serialized."));
@@ -183,13 +179,13 @@ public class VerifyAtrPlugin extends ActionHandler {
         return replyCode.equals("OK") || replyCode.equals("WARNING");
     }
 
-    private boolean hasExistingTransferOperation(IdentifierType messageRequestIdentifier)
+    private boolean hasExistingTransferOperation(HandlerIO handlerIO, IdentifierType messageRequestIdentifier)
         throws InvalidParseOperationException, LogbookClientException {
         if (messageRequestIdentifier == null || StringUtils.isBlank(messageRequestIdentifier.getValue())) {
             return false;
         }
 
-        try (LogbookOperationsClient client = logbookOperationsClientFactory.getClient()) {
+        try (LogbookOperationsClient client = handlerIO.getLogbookOperationsClient()) {
             JsonNode result = client.selectOperationById(messageRequestIdentifier.getValue());
             RequestResponseOK<JsonNode> resultResponseOk = RequestResponseOK.getFromJsonNode(result);
             if (resultResponseOk.isEmpty() || !resultResponseOk.isOk()) {

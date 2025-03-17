@@ -56,6 +56,7 @@ import fr.gouv.vitam.common.model.GraphComputeResponse.GraphComputeAction;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseError;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.security.rest.VitamAuthentication;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.logbook.common.exception.LogbookClientAlreadyExistsException;
@@ -85,7 +86,6 @@ import fr.gouv.vitam.processing.management.client.ProcessingManagementClientFact
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import javax.ws.rs.Consumes;
@@ -158,12 +158,10 @@ public class MetadataManagementResource {
     ) {
         this(
             GraphComputeServiceImpl.initialize(vitamRepositoryProvider, metadata, indexManager),
-            new ReclassificationDistributionService(metadata, configuration),
+            new ReclassificationDistributionService(metadata),
             ProcessingManagementClientFactory.getInstance(),
             LogbookOperationsClientFactory.getInstance(),
-            WorkspaceClientFactory.getInstance(
-                configuration.getCollectModule() ? WorkspaceType.COLLECT : WorkspaceType.VITAM
-            ),
+            WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM),
             configuration,
             new ExportsPurgeService(configuration.getTimeToLiveConfiguration())
         );

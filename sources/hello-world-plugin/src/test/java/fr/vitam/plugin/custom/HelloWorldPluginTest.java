@@ -28,6 +28,7 @@ package fr.vitam.plugin.custom;
 
 import com.google.common.collect.Lists;
 import fr.gouv.vitam.common.model.ItemStatus;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.processing.common.parameter.WorkerParametersFactory;
@@ -46,7 +47,7 @@ public class HelloWorldPluginTest {
     @Test
     public void testExecuteThenOK() {
         HelloWorldPlugin helloWorldPlugin = new HelloWorldPlugin();
-        WorkerParameters parameters = WorkerParametersFactory.newWorkerParameters();
+        WorkerParameters parameters = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM);
         HandlerIO handlerIO = mock(HandlerIO.class);
         doReturn("HelloWorldPluginTest").when(handlerIO).getInput(0);
         ItemStatus itemStatus = helloWorldPlugin.execute(parameters, handlerIO);
@@ -58,7 +59,7 @@ public class HelloWorldPluginTest {
     @Test
     public void testExecuteListThenOK() throws ContentAddressableStorageServerException, ProcessingException {
         HelloWorldPlugin helloWorldPlugin = new HelloWorldPlugin();
-        WorkerParameters parameters = WorkerParametersFactory.newWorkerParameters();
+        WorkerParameters parameters = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM);
         parameters.setObjectNameList(Lists.newArrayList("objectId"));
         HandlerIO handlerIO = mock(HandlerIO.class);
         doReturn("HelloWorldPluginTest").when(handlerIO).getInput(0);

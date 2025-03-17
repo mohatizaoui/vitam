@@ -31,13 +31,13 @@ import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.metadata.api.exception.MetaDataExecutionException;
 import fr.gouv.vitam.metadata.client.MetaDataClient;
-import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.processing.common.parameter.WorkerParametersFactory;
 import fr.gouv.vitam.worker.common.HandlerIO;
@@ -84,9 +84,6 @@ public class ReclassificationPreparationUpdateDistributionHandlerTest {
     public TemporaryFolder tempFolder = new TemporaryFolder();
 
     @Mock
-    private MetaDataClientFactory metaDataClientFactory;
-
-    @Mock
     private MetaDataClient metaDataClient;
 
     @Mock
@@ -100,15 +97,13 @@ public class ReclassificationPreparationUpdateDistributionHandlerTest {
 
     @Before
     public void init() throws Exception {
-        doReturn(metaDataClient).when(metaDataClientFactory).getClient();
-
         int tenant = 0;
         VitamThreadUtils.getVitamSession().setTenantId(tenant);
         String operationId = GUIDFactory.newRequestIdGUID(tenant).toString();
         VitamThreadUtils.getVitamSession().setRequestId(operationId);
 
         String objectId = GUIDFactory.newGUID().toString();
-        parameters = WorkerParametersFactory.newWorkerParameters()
+        parameters = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setWorkerGUID(GUIDFactory.newGUID().getId())
             .setContainerName(operationId)
             .setObjectNameList(Lists.newArrayList(objectId))
@@ -126,9 +121,9 @@ public class ReclassificationPreparationUpdateDistributionHandlerTest {
             .when(handlerIO)
             .transferInputStreamToWorkspace(any(), any(), any(), eq(false));
 
-        reclassificationPreparationLoadHandlerPlugin = new ReclassificationPreparationUpdateDistributionHandler(
-            metaDataClientFactory
-        );
+        reclassificationPreparationLoadHandlerPlugin = new ReclassificationPreparationUpdateDistributionHandler();
+
+        doReturn(metaDataClient).when(handlerIO).getMetaDataClient();
     }
 
     @Test

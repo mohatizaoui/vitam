@@ -29,7 +29,6 @@ package fr.gouv.vitam.worker.core.plugin;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.annotations.VisibleForTesting;
 import fr.gouv.vitam.common.ParametersChecker;
 import fr.gouv.vitam.common.SedaConstants;
 import fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper;
@@ -50,7 +49,6 @@ import fr.gouv.vitam.metadata.api.exception.MetaDataNotFoundException;
 import fr.gouv.vitam.metadata.api.model.BulkUnitInsertEntry;
 import fr.gouv.vitam.metadata.api.model.BulkUnitInsertRequest;
 import fr.gouv.vitam.metadata.client.MetaDataClient;
-import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.metadata.core.database.collections.Unit;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
@@ -79,24 +77,10 @@ public class IndexUnitActionPlugin extends ActionHandler {
     private static final String TAG_WORK = "_work";
     private static final int SEDA_PARAMETERS_RANK = 0;
 
-    private final MetaDataClientFactory metaDataClientFactory;
-
     /**
      * Constructor with parameter SedaUtilsFactory
      */
-    public IndexUnitActionPlugin() {
-        this(MetaDataClientFactory.getInstance());
-    }
-
-    /**
-     * Useful for inject mock in test class
-     *
-     * @param metaDataClientFactory instance of metaDataClientFactory or mock
-     */
-    @VisibleForTesting
-    IndexUnitActionPlugin(MetaDataClientFactory metaDataClientFactory) {
-        this.metaDataClientFactory = metaDataClientFactory;
-    }
+    public IndexUnitActionPlugin() {}
 
     /**
      * Retrieve id of this plugin INDEXATION
@@ -108,13 +92,13 @@ public class IndexUnitActionPlugin extends ActionHandler {
     }
 
     @Override
-    public ItemStatus execute(WorkerParameters params, HandlerIO param) {
+    public ItemStatus execute(WorkerParameters params, HandlerIO handlerIO) {
         throw new RuntimeException();
     }
 
     @Override
     public List<ItemStatus> executeList(WorkerParameters workerParameters, HandlerIO handlerIO) {
-        try (MetaDataClient metadataClient = metaDataClientFactory.getClient()) {
+        try (MetaDataClient metadataClient = handlerIO.getMetaDataClient()) {
             List<ItemStatus> itemStatuses = new ArrayList<>();
 
             List<QueryCache> queryCaches = new ArrayList<>();

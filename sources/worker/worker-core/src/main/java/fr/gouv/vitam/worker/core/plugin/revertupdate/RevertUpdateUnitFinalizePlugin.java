@@ -26,13 +26,9 @@
  */
 package fr.gouv.vitam.worker.core.plugin.revertupdate;
 
-import com.google.common.annotations.VisibleForTesting;
-import fr.gouv.vitam.batch.report.client.BatchReportClientFactory;
 import fr.gouv.vitam.batch.report.model.ReportType;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
-import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClientFactory;
-import fr.gouv.vitam.storage.engine.client.StorageClientFactory;
 import fr.gouv.vitam.worker.core.plugin.UpdateUnitFinalize;
 
 import static fr.gouv.vitam.batch.report.model.ReportType.BULK_UPDATE_UNIT;
@@ -43,23 +39,6 @@ public class RevertUpdateUnitFinalizePlugin extends UpdateUnitFinalize {
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(RevertUpdateUnitFinalizePlugin.class);
 
     private static final String PLUGIN_ID = "REVERT_UPDATE_FINALIZE";
-
-    public RevertUpdateUnitFinalizePlugin() {
-        this(
-            BatchReportClientFactory.getInstance(),
-            LogbookOperationsClientFactory.getInstance(),
-            StorageClientFactory.getInstance()
-        );
-    }
-
-    @VisibleForTesting
-    private RevertUpdateUnitFinalizePlugin(
-        BatchReportClientFactory batchReportClientFactory,
-        LogbookOperationsClientFactory logbookOperationsClientFactory,
-        StorageClientFactory storageClientFactory
-    ) {
-        super(batchReportClientFactory, logbookOperationsClientFactory, storageClientFactory);
-    }
 
     @Override
     protected String getPluginId() {

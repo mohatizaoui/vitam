@@ -71,7 +71,7 @@ public class RollBackActionHandler extends ActionHandler {
             try {
                 try {
                     // 1- Units
-                    handlerIO.getLifecyclesClient().rollBackUnitsByOperation(params.getContainerName());
+                    handlerIO.getLifeCyclesClient().rollBackUnitsByOperation(params.getContainerName());
                 } catch (LogbookClientNotFoundException e) {
                     // No lifeCycles created
                     // Just add this to log
@@ -80,7 +80,7 @@ public class RollBackActionHandler extends ActionHandler {
 
                 try {
                     // 2- Object Groups
-                    handlerIO.getLifecyclesClient().rollBackObjectGroupsByOperation(params.getContainerName());
+                    handlerIO.getLifeCyclesClient().rollBackObjectGroupsByOperation(params.getContainerName());
                 } catch (LogbookClientNotFoundException e) {
                     // No lifeCycles created
                     // Just add this to log

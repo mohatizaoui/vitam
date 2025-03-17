@@ -43,6 +43,7 @@ import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.logbook.LogbookEvent;
 import fr.gouv.vitam.common.model.logbook.LogbookEventOperation;
 import fr.gouv.vitam.common.model.logbook.LogbookOperation;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
@@ -108,8 +109,8 @@ public abstract class GenericReportGenerationHandler extends ActionHandler {
                 return JsonHandler.getFromJsonNode(report, Report.class).getReportSummary().getVitamResults();
             }
 
-            Report reportInfo = generateReport(param, getLogbookInformation(param));
-            reportService.storeReportToWorkspace(reportInfo);
+            Report reportInfo = generateReport(param, getLogbookInformation(handler, param));
+            reportService.storeReportToWorkspace(reportInfo, WorkFlowExecutionContext.VITAM);
             return reportInfo.getReportSummary().getVitamResults();
         } catch (InvalidParseOperationException e) {
             throw new ProcessingException(e);
@@ -222,5 +223,6 @@ public abstract class GenericReportGenerationHandler extends ActionHandler {
 
     protected abstract String getLogbookActionKey();
 
-    protected abstract LogbookOperation getLogbookInformation(WorkerParameters param) throws ProcessingException;
+    protected abstract LogbookOperation getLogbookInformation(HandlerIO handlerIO, WorkerParameters param)
+        throws ProcessingException;
 }

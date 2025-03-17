@@ -37,18 +37,17 @@ import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.administration.AccessContractModel;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.functional.administration.client.AdminManagementClient;
-import fr.gouv.vitam.functional.administration.client.AdminManagementClientFactory;
 import fr.gouv.vitam.functional.administration.common.exception.AdminManagementClientServerException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataClientServerException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataDocumentSizeException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataExecutionException;
 import fr.gouv.vitam.metadata.client.MetaDataClient;
-import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.processing.common.parameter.WorkerParametersFactory;
@@ -103,13 +102,7 @@ public class ReclassificationPreparationLoadRequestHandlerTest {
     public MockitoRule rule = MockitoJUnit.rule();
 
     @Mock
-    private AdminManagementClientFactory adminManagementClientFactory;
-
-    @Mock
     private AdminManagementClient adminManagementClient;
-
-    @Mock
-    private MetaDataClientFactory metaDataClientFactory;
 
     @Mock
     private MetaDataClient metaDataClient;
@@ -129,16 +122,13 @@ public class ReclassificationPreparationLoadRequestHandlerTest {
 
     @Before
     public void init() throws Exception {
-        doReturn(adminManagementClient).when(adminManagementClientFactory).getClient();
-        doReturn(metaDataClient).when(metaDataClientFactory).getClient();
-
         int tenant = 0;
         VitamThreadUtils.getVitamSession().setTenantId(tenant);
         String operationId = GUIDFactory.newRequestIdGUID(tenant).toString();
         VitamThreadUtils.getVitamSession().setRequestId(operationId);
 
         String objectId = GUIDFactory.newGUID().toString();
-        parameters = WorkerParametersFactory.newWorkerParameters()
+        parameters = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setWorkerGUID(GUIDFactory.newGUID().getId())
             .setContainerName(operationId)
             .setObjectNameList(Lists.newArrayList(objectId))
@@ -146,14 +136,15 @@ public class ReclassificationPreparationLoadRequestHandlerTest {
             .setCurrentStep("StepName");
 
         reclassificationPreparationLoadRequestHandler = new ReclassificationPreparationLoadRequestHandler(
-            adminManagementClientFactory,
-            metaDataClientFactory,
             unitGraphInfoLoader,
             reclassificationRequestDslParser,
             MAX_BULK_THRESHOLD,
             1000,
             1000
         );
+
+        doReturn(adminManagementClient).when(handlerIO).getAdminManagementClient();
+        doReturn(metaDataClient).when(handlerIO).getMetaDataClient();
     }
 
     @Test

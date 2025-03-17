@@ -63,6 +63,9 @@ public class ExtractSecureTraceabilityDataFilePluginTest {
     @Mock
     private WorkspaceClient workspaceClient;
 
+    @Mock
+    private HandlerIO handler;
+
     private ExtractSecureTraceabilityDataFilePlugin extractSecureTraceabilityDataFilePlugin;
 
     private static final String CONTAINER_NAME = "CONTAINER_NAME";
@@ -74,13 +77,14 @@ public class ExtractSecureTraceabilityDataFilePluginTest {
     @Before
     public void setUp() {
         when(workspaceClientFactory.getClient()).thenReturn(workspaceClient);
-        extractSecureTraceabilityDataFilePlugin = new ExtractSecureTraceabilityDataFilePlugin(workspaceClientFactory);
+        when(handler.getWorkspaceClient()).thenReturn(workspaceClient);
+        extractSecureTraceabilityDataFilePlugin = new ExtractSecureTraceabilityDataFilePlugin();
     }
 
     @Test
     public void should_extract_zip_file_without_error() throws Exception {
         WorkerParameters param = mock(WorkerParameters.class);
-        HandlerIO handler = mock(HandlerIO.class);
+
         File file = File.createTempFile(RANDOM_STRING, RANDOM_STRING);
         when(param.getContainerName()).thenReturn(CONTAINER_NAME);
         when(param.getObjectName()).thenReturn(OBJECT_NAME);
@@ -100,7 +104,6 @@ public class ExtractSecureTraceabilityDataFilePluginTest {
     @Test
     public void should_delete_zip_folder_if_exists() throws Exception {
         WorkerParameters param = mock(WorkerParameters.class);
-        HandlerIO handler = mock(HandlerIO.class);
 
         File file = File.createTempFile(RANDOM_STRING, RANDOM_STRING);
 

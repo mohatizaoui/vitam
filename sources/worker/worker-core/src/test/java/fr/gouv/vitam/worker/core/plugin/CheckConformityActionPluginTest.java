@@ -36,6 +36,7 @@ import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.processing.IOParameter;
 import fr.gouv.vitam.common.model.processing.ProcessingUri;
 import fr.gouv.vitam.common.model.processing.UriPrefix;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClient;
 import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClientFactory;
 import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClient;
@@ -215,6 +216,7 @@ public class CheckConformityActionPluginTest {
         params.setObjectName("objName2");
         String objectId = "objectId";
         final HandlerIOImpl handlerIO = new HandlerIOImpl(
+            WorkFlowExecutionContext.VITAM,
             workspaceClientFactory,
             logbookLifeCyclesClientFactory,
             "CheckConformityActionHandlerTest",
@@ -267,6 +269,7 @@ public class CheckConformityActionPluginTest {
         params.setObjectName("objName1");
         String objectId = "objectId";
         final HandlerIOImpl handlerIO = new HandlerIOImpl(
+            WorkFlowExecutionContext.VITAM,
             workspaceClientFactory,
             logbookLifeCyclesClientFactory,
             "CheckConformityActionHandlerTest",
@@ -313,6 +316,7 @@ public class CheckConformityActionPluginTest {
 
         String objectId = "objectId";
         final HandlerIOImpl handlerIO = new HandlerIOImpl(
+            WorkFlowExecutionContext.VITAM,
             workspaceClientFactory,
             logbookLifeCyclesClientFactory,
             "CheckConformityActionHandlerTest",
@@ -358,6 +362,7 @@ public class CheckConformityActionPluginTest {
 
         String objectId = "objectId";
         final HandlerIOImpl handlerIO = new HandlerIOImpl(
+            WorkFlowExecutionContext.VITAM,
             workspaceClientFactory,
             logbookLifeCyclesClientFactory,
             "CheckConformityActionHandlerTest",
@@ -383,6 +388,7 @@ public class CheckConformityActionPluginTest {
 
     private DefaultWorkerParameters getDefaultWorkerParameters() {
         DefaultWorkerParameters workerParam = WorkerParametersFactory.newWorkerParameters(
+            WorkFlowExecutionContext.VITAM,
             "pId",
             "stepId",
             "CheckConformityActionHandlerTest",

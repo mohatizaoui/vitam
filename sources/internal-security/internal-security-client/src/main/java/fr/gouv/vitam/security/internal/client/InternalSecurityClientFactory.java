@@ -24,6 +24,7 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
+
 package fr.gouv.vitam.security.internal.client;
 
 import fr.gouv.vitam.common.PropertiesUtils;
@@ -32,6 +33,7 @@ import fr.gouv.vitam.common.client.configuration.ClientConfiguration;
 import fr.gouv.vitam.common.client.configuration.SecureClientConfigurationImpl;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 
 import java.io.IOException;
 
@@ -52,12 +54,32 @@ public class InternalSecurityClientFactory extends VitamClientFactory<InternalSe
     }
 
     /**
-     * Get the AccessClientFactory instance
+     * Get the InternalSecurityClientFactory instance
      *
      * @return the instance
      */
-    public static InternalSecurityClientFactory getInstance() {
-        return ACCESS_CLIENT_FACTORY;
+    public static final InternalSecurityClientFactory getInstance() {
+        return getInstance(WorkFlowExecutionContext.VITAM);
+    }
+
+    /**
+     * Get the InternalSecurityClientFactory instance for the given workflow execution context
+     *
+     * @param executionContext the workflow execution context
+     * @return the instance
+     */
+    public static InternalSecurityClientFactory getInstance(WorkFlowExecutionContext executionContext) {
+        return switch (executionContext) {
+            case VITAM, COLLECT -> ACCESS_CLIENT_FACTORY;
+        };
+    }
+
+    @Override
+    public InternalSecurityClient getClient() {
+        return switch (getVitamClientType()) {
+            case MOCK -> new InternalSecurityClientMock();
+            case PRODUCTION -> new InternalSecurityClientRest(this);
+        };
     }
 
     /**
@@ -93,21 +115,5 @@ public class InternalSecurityClientFactory extends VitamClientFactory<InternalSe
      */
     public static void changeMode(ClientConfiguration configuration) {
         getInstance().initialisation(configuration, getInstance().getResourcePath());
-    }
-
-    @Override
-    public InternalSecurityClient getClient() {
-        InternalSecurityClient client;
-        switch (getVitamClientType()) {
-            case MOCK:
-                client = new InternalSecurityClientMock();
-                break;
-            case PRODUCTION:
-                client = new InternalSecurityClientRest(this);
-                break;
-            default:
-                throw new IllegalArgumentException("Log type unknown");
-        }
-        return client;
     }
 }

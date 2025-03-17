@@ -46,6 +46,7 @@ import fr.gouv.vitam.common.model.processing.ProcessDetail;
 import fr.gouv.vitam.common.model.processing.ProcessingUri;
 import fr.gouv.vitam.common.model.processing.Step;
 import fr.gouv.vitam.common.model.processing.WorkFlow;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.processing.common.ProcessingEntry;
 import fr.gouv.vitam.processing.common.model.WorkerBean;
 
@@ -186,6 +187,7 @@ public class ProcessingManagementClientMock extends AbstractMockClient implement
                 .setActions(actions)
         );
 
+        workflow.setExecutionContext(WorkFlowExecutionContext.VITAM);
         workflow.setId("DefaultIngestWorkflow");
         workflow.setIdentifier("PROCESS_SIP_UNITARY");
         workflow.setName("Default Ingest Workflow");

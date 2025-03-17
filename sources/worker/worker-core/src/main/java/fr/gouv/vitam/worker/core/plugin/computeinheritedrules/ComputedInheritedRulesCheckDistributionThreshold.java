@@ -28,7 +28,6 @@ package fr.gouv.vitam.worker.core.plugin.computeinheritedrules;
 
 import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.model.ItemStatus;
-import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.worker.common.HandlerIO;
@@ -40,11 +39,7 @@ public class ComputedInheritedRulesCheckDistributionThreshold extends CheckDistr
         "COMPUTED_INHERITED_RULES_CHECK_DISTRIBUTION_THRESHOLD";
 
     public ComputedInheritedRulesCheckDistributionThreshold() {
-        super(MetaDataClientFactory.getInstance());
-    }
-
-    public ComputedInheritedRulesCheckDistributionThreshold(MetaDataClientFactory metaDataClientFactory) {
-        super(metaDataClientFactory);
+        super();
     }
 
     @Override

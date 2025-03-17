@@ -36,6 +36,7 @@ import fr.gouv.vitam.common.model.processing.Action;
 import fr.gouv.vitam.common.model.processing.ActionDefinition;
 import fr.gouv.vitam.common.model.processing.ProcessBehavior;
 import fr.gouv.vitam.common.model.processing.Step;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.tmp.TempFolderRule;
 import fr.gouv.vitam.logbook.common.parameters.LogbookTypeProcess;
 import fr.gouv.vitam.processing.common.exception.ProcessingBadRequestException;
@@ -160,7 +161,7 @@ public class WorkerManagerTest {
     }
 
     private DescriptionStep getDescriptionStep() {
-        DefaultWorkerParameters params = WorkerParametersFactory.newWorkerParameters();
+        DefaultWorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM);
         params.setWorkerGUID(GUIDFactory.newGUID().getId());
         params.setLogbookTypeProcess(LogbookTypeProcess.INGEST);
 
@@ -178,7 +179,7 @@ public class WorkerManagerTest {
 
     @Test
     public void givenCorrectQueueAndCorrectAsyncWhenSubmitJobThenOK() throws Exception {
-        DefaultWorkerParameters params = WorkerParametersFactory.newWorkerParameters();
+        DefaultWorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM);
         params.setWorkerGUID(GUIDFactory.newGUID().getId());
         params.setLogbookTypeProcess(LogbookTypeProcess.INGEST);
         final Step step = new Step().setStepName("TEST");

@@ -40,6 +40,7 @@ import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import fr.gouv.vitam.common.metrics.VitamCommonMetrics;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.parameter.ParameterHelper;
 import fr.gouv.vitam.common.stream.StreamUtils;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -62,7 +63,6 @@ import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageNotFoundEx
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 import fr.gouv.vitam.workspace.common.CompressInformation;
 import io.prometheus.client.Histogram;
 import org.bson.Document;
@@ -138,7 +138,7 @@ public class StoreGraphService {
     public StoreGraphService(VitamRepositoryProvider vitamRepositoryProvider) {
         this.vitamRepositoryProvider = vitamRepositoryProvider;
         this.restoreBackupService = new RestoreBackupService();
-        this.workspaceClientFactory = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM);
+        this.workspaceClientFactory = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM);
         this.storageClientFactory = StorageClientFactory.getInstance();
     }
 

@@ -50,6 +50,7 @@ import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.ProcessState;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.UpdateWorkflowConstants;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.functional.administration.common.utils.ArchiveUnitUpdateUtils;
 import fr.gouv.vitam.logbook.common.exception.LogbookClientBadRequestException;
 import fr.gouv.vitam.logbook.common.exception.LogbookClientNotFoundException;
@@ -59,7 +60,6 @@ import fr.gouv.vitam.metadata.api.exception.MetaDataDocumentSizeException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataExecutionException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataNotFoundException;
 import fr.gouv.vitam.metadata.client.MetaDataClient;
-import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.processing.common.parameter.WorkerParametersFactory;
@@ -96,7 +96,6 @@ public class RunningIngestsUpdateActionPlugin extends ActionHandler {
     private final Map<String, List<JsonNode>> updatedRulesByType = new HashMap<>();
     private final ProcessingManagementClientFactory processingManagementClientFactory;
     private final StoreMetaDataUnitActionPlugin storeMetaDataUnitActionPlugin;
-    private final MetaDataClientFactory metaDataClientFactory;
     private final ArchiveUnitLifecycleUpdateUtils archiveUnitLifecycleUpdateUtils =
         new ArchiveUnitLifecycleUpdateUtils();
 
@@ -118,17 +117,14 @@ public class RunningIngestsUpdateActionPlugin extends ActionHandler {
     public RunningIngestsUpdateActionPlugin() {
         this.storeMetaDataUnitActionPlugin = new StoreMetaDataUnitActionPlugin();
         this.processingManagementClientFactory = ProcessingManagementClientFactory.getInstance();
-        this.metaDataClientFactory = MetaDataClientFactory.getInstance();
     }
 
     @VisibleForTesting
     public RunningIngestsUpdateActionPlugin(
         ProcessingManagementClientFactory processingManagementClientFactory,
-        MetaDataClientFactory metaDataClientFactory,
         StoreMetaDataUnitActionPlugin storeMetaDataUnitActionPlugin
     ) {
         this.processingManagementClientFactory = processingManagementClientFactory;
-        this.metaDataClientFactory = metaDataClientFactory;
         this.storeMetaDataUnitActionPlugin = storeMetaDataUnitActionPlugin;
     }
 
@@ -221,14 +217,14 @@ public class RunningIngestsUpdateActionPlugin extends ActionHandler {
     ) throws ProcessingException, VitamDBException {
         String operationId = currentIngest.get(PROCESS_ID_FIELD).asText();
 
-        final WorkerParameters paramsCopy = WorkerParametersFactory.newWorkerParameters();
+        final WorkerParameters paramsCopy = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM);
         paramsCopy.setContainerName(params.getContainerName());
         paramsCopy.setCurrentStep(params.getCurrentStep());
         paramsCopy.setUrlWorkspace(params.getUrlWorkspace());
         paramsCopy.setUrlMetadata(params.getUrlMetadata());
         paramsCopy.setObjectNameList(new ArrayList<>());
         try (
-            MetaDataClient metaDataClient = metaDataClientFactory.getClient();
+            MetaDataClient metaDataClient = handlerIO.getMetaDataClient();
             ProcessingManagementClient processingManagementClient = processingManagementClientFactory.getClient()
         ) {
             ItemStatus status = processingManagementClient.getOperationProcessStatus(operationId);
@@ -293,12 +289,12 @@ public class RunningIngestsUpdateActionPlugin extends ActionHandler {
                                         auGuid,
                                         StatusCode.OK,
                                         ArchiveUnitUpdateUtils.getDiffMessageFor(updateResultJson, auGuid),
-                                        handlerIO.getLifecyclesClient()
+                                        handlerIO.getLifeCyclesClient()
                                     );
                                     archiveUnitLifecycleUpdateUtils.commitLifecycle(
                                         params.getContainerName(),
                                         auGuid,
-                                        handlerIO.getLifecyclesClient()
+                                        handlerIO.getLifeCyclesClient()
                                     );
 
                                     // Save updated archive unit in the storage offer
@@ -314,7 +310,7 @@ public class RunningIngestsUpdateActionPlugin extends ActionHandler {
                                 ) {
                                     try {
                                         handlerIO
-                                            .getLifecyclesClient()
+                                            .getLifeCyclesClient()
                                             .rollBackUnitsByOperation(params.getContainerName());
                                     } catch (
                                         LogbookClientBadRequestException

@@ -32,6 +32,7 @@ import fr.gouv.vitam.common.collection.CloseableIterator;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.guid.GUIDFactory;
 import fr.gouv.vitam.common.model.RequestResponseOK;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.model.storage.ObjectEntry;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.storage.driver.model.StorageLogBackupResult;
@@ -50,7 +51,6 @@ import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageNotFoundEx
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -266,7 +266,9 @@ public class StorageStep extends CommonStep {
     public boolean store(Path sip, String uri, String strategy, String guid)
         throws StorageServerClientException, StorageNotFoundClientException, StorageAlreadyExistsClientException, ContentAddressableStorageServerException, ContentAddressableStorageAlreadyExistException, ContentAddressableStorageNotFoundException, IOException {
         try (InputStream inputStream = Files.newInputStream(sip, StandardOpenOption.READ)) {
-            WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient();
+            WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance(
+                WorkFlowExecutionContext.VITAM
+            ).getClient();
             workspaceClient.createContainer(guid);
             workspaceClient.putObject(guid, uri, inputStream);
             final ObjectDescription description = new ObjectDescription();

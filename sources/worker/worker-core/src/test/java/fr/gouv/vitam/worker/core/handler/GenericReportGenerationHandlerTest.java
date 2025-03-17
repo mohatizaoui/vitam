@@ -99,7 +99,7 @@ public class GenericReportGenerationHandlerTest {
         genericReportGenerationHandler = getGenericReportGenerationHandler(3, 0, 0);
 
         ArgumentCaptor<Report> reportCaptor = ArgumentCaptor.forClass(Report.class);
-        doNothing().when(reportService).storeReportToWorkspace(reportCaptor.capture());
+        doNothing().when(reportService).storeReportToWorkspace(reportCaptor.capture(), any());
 
         ItemStatus itemStatus = genericReportGenerationHandler.execute(workerParameters, handler);
 
@@ -126,7 +126,7 @@ public class GenericReportGenerationHandlerTest {
         genericReportGenerationHandler = getGenericReportGenerationHandler(1, 2, 1);
 
         ArgumentCaptor<Report> reportCaptor = ArgumentCaptor.forClass(Report.class);
-        doNothing().when(reportService).storeReportToWorkspace(reportCaptor.capture());
+        doNothing().when(reportService).storeReportToWorkspace(reportCaptor.capture(), any());
 
         ItemStatus itemStatus = genericReportGenerationHandler.execute(workerParameters, handler);
 
@@ -167,7 +167,7 @@ public class GenericReportGenerationHandlerTest {
         genericReportGenerationHandler.execute(workerParameters, handler);
 
         // Then
-        verify(reportService, never()).storeReportToWorkspace(any());
+        verify(reportService, never()).storeReportToWorkspace(any(), any());
     }
 
     @Test
@@ -178,7 +178,7 @@ public class GenericReportGenerationHandlerTest {
 
         doThrow(new ProcessingStatusException(StatusCode.FATAL, "Client error cause FATAL."))
             .when(reportService)
-            .storeReportToWorkspace(any());
+            .storeReportToWorkspace(any(), any());
         // When
         ItemStatus itemStatus = genericReportGenerationHandler.execute(workerParameters, handler);
 
@@ -209,7 +209,7 @@ public class GenericReportGenerationHandlerTest {
             }
 
             @Override
-            protected LogbookOperation getLogbookInformation(WorkerParameters param) {
+            protected LogbookOperation getLogbookInformation(HandlerIO handlerIO, WorkerParameters param) {
                 return getLogbookOperation(numberOfOK, numberOfWarning, numberOfKO);
             }
         };

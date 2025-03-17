@@ -148,7 +148,7 @@ public class CheckObjectUnitConsistencyActionHandler extends ActionHandler {
                             LogbookParameterName.objectIdentifier
                         );
                         handlerIO
-                            .getLifecyclesClient()
+                            .getLifeCyclesClient()
                             .bulkUpdateObjectGroup(
                                 params.getContainerName(),
                                 handlerIO.getHelper().removeUpdateDelegate(objectID)
@@ -183,7 +183,7 @@ public class CheckObjectUnitConsistencyActionHandler extends ActionHandler {
                             LogbookParameterName.objectIdentifier
                         );
                         handlerIO
-                            .getLifecyclesClient()
+                            .getLifeCyclesClient()
                             .bulkUpdateObjectGroup(
                                 params.getContainerName(),
                                 handlerIO.getHelper().removeUpdateDelegate(objectID)

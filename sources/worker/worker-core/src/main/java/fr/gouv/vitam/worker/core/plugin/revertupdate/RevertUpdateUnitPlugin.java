@@ -27,39 +27,14 @@
 
 package fr.gouv.vitam.worker.core.plugin.revertupdate;
 
-import com.google.common.annotations.VisibleForTesting;
-import fr.gouv.vitam.batch.report.client.BatchReportClientFactory;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
-import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClientFactory;
-import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
-import fr.gouv.vitam.storage.engine.client.StorageClientFactory;
 import fr.gouv.vitam.worker.core.plugin.bulkatomicupdate.BulkAtomicUpdateProcess;
 
 public class RevertUpdateUnitPlugin extends BulkAtomicUpdateProcess {
 
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(RevertUpdateUnitPlugin.class);
     public static final String REVERT_UPDATE_UNITS = "REVERT_UPDATE_UNITS";
-
-    @SuppressWarnings("unused")
-    public RevertUpdateUnitPlugin() {
-        this(
-            StorageClientFactory.getInstance(),
-            MetaDataClientFactory.getInstance(),
-            LogbookLifeCyclesClientFactory.getInstance(),
-            BatchReportClientFactory.getInstance()
-        );
-    }
-
-    @VisibleForTesting
-    public RevertUpdateUnitPlugin(
-        StorageClientFactory storageClientFactory,
-        MetaDataClientFactory metadataClientFactory,
-        LogbookLifeCyclesClientFactory logbookLifeCyclesClientFactory,
-        BatchReportClientFactory batchReportClientFactory
-    ) {
-        super(metadataClientFactory, logbookLifeCyclesClientFactory, storageClientFactory, batchReportClientFactory);
-    }
 
     /**
      * @return HANDLER_ID

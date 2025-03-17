@@ -28,15 +28,14 @@ package fr.gouv.vitam.worker.core.plugin.elimination;
 
 import com.google.common.annotations.VisibleForTesting;
 import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClientFactory;
-import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.worker.core.plugin.purge.PurgeDeleteService;
 import fr.gouv.vitam.worker.core.plugin.purge.PurgeReportService;
-import fr.gouv.vitam.worker.core.plugin.purge.PurgeUnitPlugin;
+import fr.gouv.vitam.worker.core.plugin.purge.PurgeUnitVitamPlugin;
 
 /**
  * Elimination action delete unit plugin.
  */
-public class EliminationActionDeleteUnitPlugin extends PurgeUnitPlugin {
+public class EliminationActionDeleteUnitPlugin extends PurgeUnitVitamPlugin {
 
     private static final String ELIMINATION_ACTION_DELETE_UNIT = "ELIMINATION_ACTION_DELETE_UNIT";
 
@@ -53,17 +52,10 @@ public class EliminationActionDeleteUnitPlugin extends PurgeUnitPlugin {
     @VisibleForTesting
     EliminationActionDeleteUnitPlugin(
         PurgeDeleteService purgeDeleteService,
-        MetaDataClientFactory metaDataClientFactory,
         PurgeReportService purgeReportService,
         LogbookLifeCyclesClientFactory lfcClientFactory
     ) {
-        super(
-            ELIMINATION_ACTION_DELETE_UNIT,
-            purgeDeleteService,
-            metaDataClientFactory,
-            purgeReportService,
-            lfcClientFactory
-        );
+        super(ELIMINATION_ACTION_DELETE_UNIT, purgeDeleteService, purgeReportService, lfcClientFactory);
     }
 
     public static String getId() {

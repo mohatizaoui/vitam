@@ -32,6 +32,8 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
+import fr.gouv.vitam.batch.report.client.BatchReportClient;
+import fr.gouv.vitam.batch.report.client.BatchReportClientFactory;
 import fr.gouv.vitam.common.FileUtil;
 import fr.gouv.vitam.common.ParametersChecker;
 import fr.gouv.vitam.common.PropertiesUtils;
@@ -46,13 +48,22 @@ import fr.gouv.vitam.common.model.VitamAutoCloseable;
 import fr.gouv.vitam.common.model.processing.IOParameter;
 import fr.gouv.vitam.common.model.processing.LazyFile;
 import fr.gouv.vitam.common.model.processing.ProcessingUri;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.stream.StreamUtils;
+import fr.gouv.vitam.functional.administration.client.AdminManagementClient;
+import fr.gouv.vitam.functional.administration.client.AdminManagementClientFactory;
 import fr.gouv.vitam.logbook.common.parameters.LogbookLifeCyclesClientHelper;
 import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClient;
 import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClientFactory;
+import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClient;
+import fr.gouv.vitam.logbook.operations.client.LogbookOperationsClientFactory;
+import fr.gouv.vitam.metadata.client.MetaDataClient;
+import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.model.WorkspaceAction;
 import fr.gouv.vitam.processing.common.model.WorkspaceQueue;
+import fr.gouv.vitam.storage.engine.client.StorageClient;
+import fr.gouv.vitam.storage.engine.client.StorageClientFactory;
 import fr.gouv.vitam.worker.common.HandlerIO;
 import fr.gouv.vitam.worker.core.exception.WorkerspaceQueueException;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageAlreadyExistException;
@@ -62,7 +73,6 @@ import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerExce
 import fr.gouv.vitam.workspace.api.model.FileParams;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import javax.ws.rs.core.Response;
@@ -97,6 +107,7 @@ public class HandlerIOImpl implements HandlerIO, VitamAutoCloseable {
 
     private final ListMultimap<String, Object> input = ArrayListMultimap.create();
     private final List<ProcessingUri> output = new ArrayList<>();
+    private final WorkFlowExecutionContext workFlowExecutionContext;
     private final String containerName;
     private final String workerId;
     private final File localDirectory;
@@ -114,14 +125,21 @@ public class HandlerIOImpl implements HandlerIO, VitamAutoCloseable {
     /**
      * Constructor with local root path
      *
+     * @param workFlowExecutionContext
      * @param containerName the container name
      * @param workerId the worker id
      * @param objectIds
      */
-    public HandlerIOImpl(String containerName, String workerId, List<String> objectIds) {
+    public HandlerIOImpl(
+        WorkFlowExecutionContext workFlowExecutionContext,
+        String containerName,
+        String workerId,
+        List<String> objectIds
+    ) {
         this(
-            WorkspaceClientFactory.getInstance(WorkspaceType.VITAM),
-            LogbookLifeCyclesClientFactory.getInstance(),
+            workFlowExecutionContext,
+            WorkspaceClientFactory.getInstance(workFlowExecutionContext),
+            LogbookLifeCyclesClientFactory.getInstance(workFlowExecutionContext),
             containerName,
             workerId,
             objectIds
@@ -131,20 +149,21 @@ public class HandlerIOImpl implements HandlerIO, VitamAutoCloseable {
     /**
      * Constructor with workspaceClient, local root path he is used for test purpose
      *
-     * @param workspaceClientFactory
-     * @param logbookLifeCyclesClientFactory
+     * @param workFlowExecutionContext
      * @param containerName the container name
      * @param workerId the worker id
      * @param objectIds
      */
     @VisibleForTesting
     public HandlerIOImpl(
+        WorkFlowExecutionContext workFlowExecutionContext,
         WorkspaceClientFactory workspaceClientFactory,
         LogbookLifeCyclesClientFactory logbookLifeCyclesClientFactory,
         String containerName,
         String workerId,
         List<String> objectIds
     ) {
+        this.workFlowExecutionContext = workFlowExecutionContext;
         this.containerName = containerName;
         this.workerId = workerId;
         localDirectory = PropertiesUtils.fileFromTmpFolder(containerName + "_" + workerId);
@@ -155,11 +174,6 @@ public class HandlerIOImpl implements HandlerIO, VitamAutoCloseable {
         this.objectIds = objectIds;
 
         this.asyncWorkspaceTransfer = new AsyncWorkspaceTransfer(this);
-    }
-
-    @Override
-    public LogbookLifeCyclesClient getLifecyclesClient() {
-        return logbookLifeCyclesClientFactory.getClient();
     }
 
     @Override
@@ -393,7 +407,7 @@ public class HandlerIOImpl implements HandlerIO, VitamAutoCloseable {
 
     @Override
     public boolean isExistingFileInWorkspace(String workspacePath) throws ProcessingException {
-        try (WorkspaceClient workspaceClient = workspaceClientFactory.getClient()) {
+        try (WorkspaceClient workspaceClient = getWorkspaceClient()) {
             return workspaceClient.isExistingObject(containerName, workspacePath);
         } catch (final ContentAddressableStorageServerException e) {
             throw new ProcessingException(
@@ -432,7 +446,7 @@ public class HandlerIOImpl implements HandlerIO, VitamAutoCloseable {
     @Override
     public void transferAtomicFileToWorkspace(String workspacePath, File sourceFile) throws ProcessingException {
         try (
-            WorkspaceClient workspaceClient = workspaceClientFactory.getClient();
+            WorkspaceClient workspaceClient = getWorkspaceClient();
             InputStream inputStream = new FileInputStream(sourceFile)
         ) {
             workspaceClient.putAtomicObject(containerName, workspacePath, inputStream, sourceFile.length());
@@ -449,7 +463,7 @@ public class HandlerIOImpl implements HandlerIO, VitamAutoCloseable {
         boolean asyncIO
     ) throws ProcessingException {
         if (!asyncIO) {
-            try (WorkspaceClient workspaceClient = workspaceClientFactory.getClient()) {
+            try (WorkspaceClient workspaceClient = getWorkspaceClient()) {
                 workspaceClient.putObject(containerName, workspacePath, inputStream);
             } catch (final ContentAddressableStorageServerException e) {
                 throw new ProcessingException("Cannot write to workspace: " + containerName + "/" + workspacePath, e);
@@ -520,7 +534,7 @@ public class HandlerIOImpl implements HandlerIO, VitamAutoCloseable {
         final File file = getNewLocalFile(objectName);
         if (!file.exists()) {
             Response response = null;
-            try (WorkspaceClient workspaceClient = workspaceClientFactory.getClient()) {
+            try (WorkspaceClient workspaceClient = getWorkspaceClient()) {
                 response = workspaceClient.getObject(containerName, objectName);
                 if (response != null) {
                     try (FileOutputStream fileOutputStream = new FileOutputStream(file)) {
@@ -549,7 +563,7 @@ public class HandlerIOImpl implements HandlerIO, VitamAutoCloseable {
     public JsonNode getJsonFromWorkspace(String jsonFilePath) throws ProcessingException {
         Response response = null;
         InputStream is = null;
-        try (WorkspaceClient workspaceClient = workspaceClientFactory.getClient()) {
+        try (WorkspaceClient workspaceClient = getWorkspaceClient()) {
             final File file = getNewLocalFile(jsonFilePath);
             if (!file.exists()) {
                 response = workspaceClient.getObject(containerName, jsonFilePath);
@@ -580,7 +594,7 @@ public class HandlerIOImpl implements HandlerIO, VitamAutoCloseable {
 
     @Override
     public List<URI> getUriList(String containerName, String folderName) throws ProcessingException {
-        try (WorkspaceClient workspaceClient = workspaceClientFactory.getClient()) {
+        try (WorkspaceClient workspaceClient = getWorkspaceClient()) {
             return JsonHandler.getFromStringAsTypeReference(
                 workspaceClient
                     .getListUriDigitalObjectFromFolder(containerName, folderName)
@@ -633,7 +647,7 @@ public class HandlerIOImpl implements HandlerIO, VitamAutoCloseable {
         LOGGER.debug("Try to push stream to workspace...");
 
         if (!asyncIO) {
-            try (WorkspaceClient workspaceClient = workspaceClientFactory.getClient()) {
+            try (WorkspaceClient workspaceClient = getWorkspaceClient()) {
                 // call workspace
                 if (!workspaceClient.isExistingContainer(container)) {
                     workspaceClient.createContainer(container);
@@ -671,7 +685,7 @@ public class HandlerIOImpl implements HandlerIO, VitamAutoCloseable {
         if (!isFolderExist(folderName)) {
             return false;
         }
-        try (WorkspaceClient workspaceClient = workspaceClientFactory.getClient()) {
+        try (WorkspaceClient workspaceClient = getWorkspaceClient()) {
             workspaceClient.deleteFolder(this.containerName, folderName);
             return true;
         } catch (ContentAddressableStorageServerException | ContentAddressableStorageNotFoundException exc) {
@@ -685,7 +699,7 @@ public class HandlerIOImpl implements HandlerIO, VitamAutoCloseable {
     }
 
     private boolean isFolderExist(String folderName) throws ContentAddressableStorageException {
-        try (WorkspaceClient workspaceClient = workspaceClientFactory.getClient()) {
+        try (WorkspaceClient workspaceClient = getWorkspaceClient()) {
             return workspaceClient.isExistingFolder(this.containerName, folderName);
         } catch (ContentAddressableStorageServerException exc) {
             throw new ContentAddressableStorageException(exc);
@@ -693,15 +707,10 @@ public class HandlerIOImpl implements HandlerIO, VitamAutoCloseable {
     }
 
     @Override
-    public WorkspaceClientFactory getWorkspaceClientFactory() {
-        return workspaceClientFactory;
-    }
-
-    @Override
     public Map<String, Long> getFilesWithParamsFromWorkspace(String containerName, String folderName)
         throws ProcessingException {
         Map<String, Long> mapResults = new HashMap<>();
-        try (WorkspaceClient workspaceClient = workspaceClientFactory.getClient()) {
+        try (WorkspaceClient workspaceClient = getWorkspaceClient()) {
             RequestResponse<Map<String, FileParams>> filesWithParamsFromFolderRequest =
                 workspaceClient.getFilesWithParamsFromFolder(containerName, folderName);
             if (filesWithParamsFromFolderRequest != null && filesWithParamsFromFolderRequest.isOk()) {
@@ -719,5 +728,84 @@ public class HandlerIOImpl implements HandlerIO, VitamAutoCloseable {
             throw new ProcessingException(e);
         }
         return mapResults;
+    }
+
+    @Override
+    public LogbookLifeCyclesClientFactory getLifeCyclesClientFactory() {
+        // No logbook lifecycles in COLLECT mode
+        if (workFlowExecutionContext == WorkFlowExecutionContext.COLLECT) {
+            throw new IllegalArgumentException("No lifecycle in COLLECT execution context! Change your workflow.");
+        }
+        return logbookLifeCyclesClientFactory;
+    }
+
+    @Override
+    public LogbookLifeCyclesClient getLifeCyclesClient() {
+        return getLifeCyclesClientFactory().getClient();
+    }
+
+    @Override
+    public WorkspaceClientFactory getWorkspaceClientFactory() {
+        return workspaceClientFactory;
+    }
+
+    @Override
+    public WorkspaceClient getWorkspaceClient() {
+        return getWorkspaceClientFactory().getClient();
+    }
+
+    @Override
+    public MetaDataClientFactory getMetaDataClientFactory() {
+        return MetaDataClientFactory.getInstance(workFlowExecutionContext);
+    }
+
+    @Override
+    public MetaDataClient getMetaDataClient() {
+        return getMetaDataClientFactory().getClient();
+    }
+
+    @Override
+    public AdminManagementClientFactory getAdminManagementClientFactory() {
+        return AdminManagementClientFactory.getInstance(workFlowExecutionContext);
+    }
+
+    @Override
+    public AdminManagementClient getAdminManagementClient() {
+        return getAdminManagementClientFactory().getClient();
+    }
+
+    @Override
+    public BatchReportClientFactory getBatchReportClientFactory() {
+        return BatchReportClientFactory.getInstance(workFlowExecutionContext);
+    }
+
+    @Override
+    public BatchReportClient getBatchReportClient() {
+        return getBatchReportClientFactory().getClient();
+    }
+
+    @Override
+    public LogbookOperationsClientFactory getLogbookOperationsClientFactory() {
+        return LogbookOperationsClientFactory.getInstance(workFlowExecutionContext);
+    }
+
+    @Override
+    public LogbookOperationsClient getLogbookOperationsClient() {
+        return getLogbookOperationsClientFactory().getClient();
+    }
+
+    @Override
+    public StorageClientFactory getStorageClientFactory() {
+        return StorageClientFactory.getInstance(workFlowExecutionContext);
+    }
+
+    @Override
+    public StorageClient getStorageClient() {
+        return getStorageClientFactory().getClient();
+    }
+
+    @Override
+    public WorkFlowExecutionContext getWorkFlowExecutionContext() {
+        return workFlowExecutionContext;
     }
 }

@@ -26,14 +26,17 @@
  */
 package fr.gouv.vitam.metadata.client;
 
+import fr.gouv.vitam.common.ParametersChecker;
 import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.client.VitamClientFactory;
 import fr.gouv.vitam.common.client.configuration.ClientConfiguration;
 import fr.gouv.vitam.common.client.configuration.ClientConfigurationImpl;
 import fr.gouv.vitam.common.logging.VitamLogger;
 import fr.gouv.vitam.common.logging.VitamLoggerFactory;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 
 import java.io.IOException;
+import java.net.URI;
 
 /**
  * Metadata client factory
@@ -52,6 +55,47 @@ public class MetaDataClientFactory extends VitamClientFactory<MetaDataClient> {
         // All requests from client are SMALL, but responses from server could be Huge
         // So Chunked mode inactive on client side
         super(changeConfigurationFile(CONFIGURATION_FILENAME), resourcePath, false);
+    }
+
+    /**
+     * Get MetaDataClientFactory instance
+     *
+     * @return the instance
+     */
+    public static MetaDataClientFactory getInstance() {
+        return getInstance(WorkFlowExecutionContext.VITAM);
+    }
+
+    /**
+     * Get the MetaDataClientFactory instance for the given workflow execution context
+     *
+     * @param executionContext the workflow execution context
+     * @return the instance
+     */
+    public static MetaDataClientFactory getInstance(WorkFlowExecutionContext executionContext) {
+        return switch (executionContext) {
+            case VITAM -> META_DATA_CLIENT_FACTORY;
+            case COLLECT -> META_DATA_COLLECT_CLIENT_FACTORY;
+        };
+    }
+
+    @Override
+    public MetaDataClient getClient() {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Actually only one client implementation exists, so ignore client type value");
+        }
+        MetaDataClient client;
+        switch (getVitamClientType()) {
+            case MOCK:
+                client = new MetaDataClientMock();
+                break;
+            case PRODUCTION:
+                client = new MetaDataClientRest(this);
+                break;
+            default:
+                throw new IllegalArgumentException("metadata type unknown");
+        }
+        return client;
     }
 
     /**
@@ -80,45 +124,31 @@ public class MetaDataClientFactory extends VitamClientFactory<MetaDataClient> {
      * @param configuration null for MOCK
      */
     public static void changeMode(ClientConfiguration configuration) {
-        for (MetadataType type : MetadataType.values()) {
-            getInstance(type).initialisation(configuration, getInstance(type).getResourcePath());
+        for (WorkFlowExecutionContext executionContext : WorkFlowExecutionContext.values()) {
+            getInstance(executionContext).initialisation(
+                configuration,
+                getInstance(executionContext).getResourcePath()
+            );
         }
     }
 
     /**
-     * Get factory instance
+     * change mode client by server url
      *
-     * @return the factory instance
+     * @param serviceUrl as String
      */
-    public static MetaDataClientFactory getInstance() {
-        return getInstance(MetadataType.VITAM);
+    public static void changeMode(String serviceUrl, WorkFlowExecutionContext executionContext) {
+        ParametersChecker.checkParameter("Server Url can not be null", serviceUrl);
+        final URI uri = URI.create(serviceUrl);
+        final ClientConfiguration configuration = new ClientConfigurationImpl(uri.getHost(), uri.getPort());
+        changeMode(configuration, executionContext);
     }
 
-    public static MetaDataClientFactory getInstance(MetadataType metadataType) {
-        if (metadataType == MetadataType.VITAM) {
-            return META_DATA_CLIENT_FACTORY;
-        } else if (metadataType == MetadataType.COLLECT) {
-            return META_DATA_COLLECT_CLIENT_FACTORY;
-        }
-        return null;
-    }
-
-    @Override
-    public MetaDataClient getClient() {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Actually only one client implementation exists, so ignore client type value");
-        }
-        MetaDataClient client;
-        switch (getVitamClientType()) {
-            case MOCK:
-                client = new MetaDataClientMock();
-                break;
-            case PRODUCTION:
-                client = new MetaDataClientRest(this);
-                break;
-            default:
-                throw new IllegalArgumentException("metadata type unknown");
-        }
-        return client;
+    /**
+     * @param configuration null for MOCK
+     */
+    public static void changeMode(ClientConfiguration configuration, WorkFlowExecutionContext executionContext) {
+        MetaDataClientFactory instance = getInstance(executionContext);
+        instance.initialisation(configuration, instance.getResourcePath());
     }
 }

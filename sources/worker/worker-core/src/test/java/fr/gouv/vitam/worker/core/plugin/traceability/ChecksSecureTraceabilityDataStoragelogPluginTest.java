@@ -126,9 +126,7 @@ public class ChecksSecureTraceabilityDataStoragelogPluginTest extends ActionHand
     public void setUp() throws Exception {
         when(storageClientFactory.getClient()).thenReturn(storageClient);
 
-        checksSecureTraceabilityDataStoragelogPlugin = new ChecksSecureTraceabilityDataStoragelogPlugin(
-            storageClientFactory
-        );
+        checksSecureTraceabilityDataStoragelogPlugin = new ChecksSecureTraceabilityDataStoragelogPlugin();
 
         lenient().when(param.getObjectName()).thenReturn(OBJECT_NAME);
         lenient()
@@ -140,6 +138,7 @@ public class ChecksSecureTraceabilityDataStoragelogPluginTest extends ActionHand
 
         reportTempFile = temporaryFolder.newFile(REPORT_FILENAME);
         lenient().when(handler.getNewLocalFile(endsWith(WorkspaceConstants.REPORT))).thenReturn(reportTempFile);
+        when(handler.getStorageClient()).thenReturn(storageClient);
     }
 
     private void preapre() throws Exception {

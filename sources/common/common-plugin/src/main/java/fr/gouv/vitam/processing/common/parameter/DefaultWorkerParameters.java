@@ -24,10 +24,12 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
+
 package fr.gouv.vitam.processing.common.parameter;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 
 import java.util.Map;
 import java.util.Set;
@@ -42,30 +44,39 @@ public class DefaultWorkerParameters extends AbstractWorkerParameters {
     /**
      * Constructor use by the factory to initialize the set mandatory
      *
+     * @param workFlowExecutionContext the execution context
      * @param mandatory the mandatory fields set
      */
-    DefaultWorkerParameters(final Set<WorkerParameterName> mandatory) {
-        super(mandatory);
+    DefaultWorkerParameters(
+        final WorkFlowExecutionContext workFlowExecutionContext,
+        final Set<WorkerParameterName> mandatory
+    ) {
+        super(workFlowExecutionContext, mandatory);
     }
 
     /**
      * Builder for REST
      *
+     * @param workFlowExecutionContext the execution context
      * @param map the wanted parameters
      * @throws IllegalArgumentException if one key is not allowed
      */
-    protected DefaultWorkerParameters(Map<String, String> map) {
-        super(WorkerParametersFactory.getDefaultMandatory());
+    protected DefaultWorkerParameters(
+        final WorkFlowExecutionContext workFlowExecutionContext,
+        Map<String, String> map
+    ) {
+        super(workFlowExecutionContext, WorkerParametersFactory.getDefaultMandatory());
         setMap(map);
     }
 
     /**
      * Shallow copy of DefaultWorkerParameter
      *
+     * @param workFlowExecutionContext the execution context
      * @return the shallow copy
      */
-    public DefaultWorkerParameters newInstance() {
-        DefaultWorkerParameters awp = new DefaultWorkerParameters(getMandatoriesParameters());
+    public DefaultWorkerParameters newInstance(final WorkFlowExecutionContext workFlowExecutionContext) {
+        DefaultWorkerParameters awp = new DefaultWorkerParameters(workFlowExecutionContext, getMandatoriesParameters());
         awp.mapParameters.putAll(mapParameters);
         return awp;
     }

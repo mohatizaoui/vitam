@@ -26,9 +26,18 @@
  */
 package fr.gouv.vitam.worker.core.plugin.purge;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableMap;
 import fr.gouv.vitam.common.VitamConfiguration;
+import fr.gouv.vitam.common.database.builder.query.VitamFieldsHelper;
 import fr.gouv.vitam.common.guid.GUIDFactory;
+import fr.gouv.vitam.common.model.objectgroup.ObjectGroupResponse;
+import fr.gouv.vitam.common.model.objectgroup.QualifiersModel;
+import fr.gouv.vitam.common.model.objectgroup.StorageJson;
+import fr.gouv.vitam.common.model.objectgroup.StorageRacineModel;
+import fr.gouv.vitam.common.model.objectgroup.VersionsModel;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -40,6 +49,7 @@ import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.storage.engine.client.StorageClient;
 import fr.gouv.vitam.storage.engine.client.StorageClientFactory;
 import fr.gouv.vitam.storage.engine.common.model.DataCategory;
+import fr.gouv.vitam.worker.common.HandlerIO;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -48,14 +58,17 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class PurgeDeleteServiceTest {
 
@@ -88,71 +101,97 @@ public class PurgeDeleteServiceTest {
     @InjectMocks
     private PurgeDeleteService instance;
 
+    @Mock
+    HandlerIO handlerIO;
+
+    private ObjectMapper mapper;
+
     @Before
     public void setUp() throws Exception {
         VitamThreadUtils.getVitamSession().setTenantId(0);
         VitamThreadUtils.getVitamSession().setRequestId(GUIDFactory.newRequestIdGUID(0));
-
+        doReturn(storageClient).when(handlerIO).getStorageClient();
+        doReturn(metaDataClient).when(handlerIO).getMetaDataClient();
         doReturn(metaDataClient).when(metaDataClientFactory).getClient();
         doReturn(storageClient).when(storageClientFactory).getClient();
         doReturn(logbookLifeCyclesClient).when(logbookLifeCyclesClientFactory).getClient();
+        when(handlerIO.getLifeCyclesClient()).thenReturn(logbookLifeCyclesClient);
+        when(handlerIO.getMetaDataClient()).thenReturn(metaDataClient);
+        mapper = new ObjectMapper();
     }
 
     @Test
     @RunWithCustomExecutor
     public void deleteObjects() throws Exception {
-        instance.deleteObjects(
-            ImmutableMap.of(
-                "id1",
-                VitamConfiguration.getDefaultStrategy(),
-                "id2",
-                VitamConfiguration.getDefaultStrategy(),
-                "id3",
-                VitamConfiguration.getDefaultStrategy()
-            )
-        );
+        List<PurgeObjectGroupParams> purgeObjectGroupParams = createPurgeObjGroupParams();
 
-        verify(storageClient).delete(VitamConfiguration.getDefaultStrategy(), DataCategory.OBJECT, "id1");
-        verify(storageClient).delete(VitamConfiguration.getDefaultStrategy(), DataCategory.OBJECT, "id2");
-        verify(storageClient).delete(VitamConfiguration.getDefaultStrategy(), DataCategory.OBJECT, "id3");
+        instance.deleteObjects(purgeObjectGroupParams, handlerIO);
+
+        verify(storageClient).delete(VitamConfiguration.getDefaultStrategy(), DataCategory.OBJECT, "id11");
+        verify(storageClient).delete(VitamConfiguration.getDefaultStrategy(), DataCategory.OBJECT, "id21");
+        verify(storageClient).delete(VitamConfiguration.getDefaultStrategy(), DataCategory.OBJECT, "id31");
+
+        verify(storageClient).delete(VitamConfiguration.getDefaultStrategy(), DataCategory.OBJECT, "id12");
+        verify(storageClient).delete(VitamConfiguration.getDefaultStrategy(), DataCategory.OBJECT, "id22");
+        verify(storageClient).delete(VitamConfiguration.getDefaultStrategy(), DataCategory.OBJECT, "id32");
+
+        verify(storageClient).delete(VitamConfiguration.getDefaultStrategy(), DataCategory.OBJECT, "id13");
+        verify(storageClient).delete(VitamConfiguration.getDefaultStrategy(), DataCategory.OBJECT, "id23");
+        verify(storageClient).delete(VitamConfiguration.getDefaultStrategy(), DataCategory.OBJECT, "id33");
     }
 
     @Test
     @RunWithCustomExecutor
     public void deleteObjectGroups() throws Exception {
-        Map<String, String> gotIdsWithStrategies = ImmutableMap.of(
-            "got1",
-            VitamConfiguration.getDefaultStrategy(),
-            "got2",
-            VitamConfiguration.getDefaultStrategy(),
-            "got3",
-            VitamConfiguration.getDefaultStrategy()
-        );
-        instance.deleteObjectGroups(gotIdsWithStrategies);
+        List<PurgeObjectGroupParams> purgeObjectGroupParams = createPurgeObjGroupParams();
 
-        verify(logbookLifeCyclesClient).deleteLifecycleObjectGroupBulk(eq(gotIdsWithStrategies.keySet()));
-        verify(metaDataClient).deleteObjectGroupBulk(eq(gotIdsWithStrategies.keySet()));
+        instance.deleteObjectGroups(purgeObjectGroupParams, handlerIO);
 
-        verify(storageClient).delete(VitamConfiguration.getDefaultStrategy(), DataCategory.OBJECTGROUP, "got1.json");
-        verify(storageClient).delete(VitamConfiguration.getDefaultStrategy(), DataCategory.OBJECTGROUP, "got2.json");
-        verify(storageClient).delete(VitamConfiguration.getDefaultStrategy(), DataCategory.OBJECTGROUP, "got3.json");
+        verify(logbookLifeCyclesClient).deleteLifecycleObjectGroupBulk(eq(List.of("id1", "id2", "id3")));
+        verify(metaDataClient).deleteObjectGroupBulk(eq(List.of("id1", "id2", "id3")));
+
+        verify(storageClient).delete(VitamConfiguration.getDefaultStrategy(), DataCategory.OBJECTGROUP, "id1.json");
+        verify(storageClient).delete(VitamConfiguration.getDefaultStrategy(), DataCategory.OBJECTGROUP, "id2.json");
+        verify(storageClient).delete(VitamConfiguration.getDefaultStrategy(), DataCategory.OBJECTGROUP, "id3.json");
+    }
+
+    private List<PurgeObjectGroupParams> createPurgeObjGroupParams() {
+        List<PurgeObjectGroupParams> results = new ArrayList<>();
+        for (int ogId = 1; ogId <= 3; ogId++) {
+            ObjectGroupResponse objectGroupResponse = new ObjectGroupResponse();
+            objectGroupResponse.setId("id" + ogId);
+            List<QualifiersModel> qualifiers = new ArrayList<>();
+            for (int i = 1; i <= 3; i++) {
+                QualifiersModel qualifier = new QualifiersModel();
+                qualifier.setQualifier("id" + i + ogId);
+                VersionsModel versionsModel1 = new VersionsModel();
+                versionsModel1.setId("id" + i + ogId);
+                StorageJson storageJson = new StorageJson();
+                storageJson.setStrategyId(VitamConfiguration.getDefaultStrategy());
+                versionsModel1.setStorage(storageJson);
+                qualifier.setVersions(List.of(versionsModel1));
+                qualifiers.add(qualifier);
+            }
+
+            objectGroupResponse.setQualifiers(qualifiers);
+
+            StorageRacineModel storageJsonOg = new StorageRacineModel();
+            storageJsonOg.setStrategyId(VitamConfiguration.getDefaultStrategy());
+            objectGroupResponse.setStorage(storageJsonOg);
+
+            results.add(PurgeObjectGroupParams.fromObjectGroup(objectGroupResponse));
+        }
+        return results;
     }
 
     @Test
     @RunWithCustomExecutor
     public void deleteUnits() throws Exception {
-        Map<String, String> unitIdsWithStrategies = ImmutableMap.of(
-            "unit1",
-            VitamConfiguration.getDefaultStrategy(),
-            "unit2",
-            VitamConfiguration.getDefaultStrategy(),
-            "unit3",
-            VitamConfiguration.getDefaultStrategy()
-        );
-        instance.deleteUnits(unitIdsWithStrategies);
+        Map<String, String> unitIdsMap = ImmutableMap.of("unit1", "default", "unit2", "default", "unit3", "default");
+        instance.deleteUnits(unitIdsMap, handlerIO);
 
-        verify(logbookLifeCyclesClient).deleteLifecycleUnitsBulk(eq(unitIdsWithStrategies.keySet()));
-        verify(metaDataClient).deleteUnitsBulk(eq(unitIdsWithStrategies.keySet()));
+        verify(logbookLifeCyclesClient).deleteLifecycleUnitsBulk(eq(unitIdsMap.keySet()));
+        verify(metaDataClient).deleteUnitsBulk(eq(unitIdsMap.keySet()));
 
         verify(storageClient).delete(VitamConfiguration.getDefaultStrategy(), DataCategory.UNIT, "unit1.json");
         verify(storageClient).delete(VitamConfiguration.getDefaultStrategy(), DataCategory.UNIT, "unit2.json");
@@ -162,10 +201,28 @@ public class PurgeDeleteServiceTest {
     @Test
     @RunWithCustomExecutor
     public void detachObjectGroupFromDeleteParentUnits() throws Exception {
-        String opId = GUIDFactory.newGUID().toString();
         String gotId = GUIDFactory.newGUID().toString();
-        instance.detachObjectGroupFromDeleteParentUnits(gotId, new HashSet<>(Arrays.asList("unit1", "unit2")));
+        instance.detachObjectGroupFromDeleteParentUnits(
+            gotId,
+            new HashSet<>(Arrays.asList("unit1", "unit2")),
+            handlerIO
+        );
 
         verify(metaDataClient).updateObjectGroupById(any(), eq(gotId));
+    }
+
+    private JsonNode buildUnitParams(Integer index) {
+        ObjectNode rootNode = mapper.createObjectNode();
+        rootNode.put("_id", "aeaqaaaaaaecyk5aabsfwamuihjv6gyaaab" + index);
+        rootNode.put("_opi", "aeeaaaaaacec226xado2aamuihjvawqaaaa" + index);
+
+        // Create the nested _storage object
+        ObjectNode storageNode = mapper.createObjectNode();
+        storageNode.put("strategyId", "default");
+        rootNode.set(VitamFieldsHelper.storage(), storageNode);
+
+        rootNode.put("_sp", "agency" + index);
+
+        return rootNode;
     }
 }

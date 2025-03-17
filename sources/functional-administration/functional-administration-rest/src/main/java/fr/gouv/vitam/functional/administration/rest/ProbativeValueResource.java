@@ -56,6 +56,7 @@ import fr.gouv.vitam.common.model.RequestResponseError;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.administration.AccessContractModel;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.functional.administration.client.AdminManagementClient;
 import fr.gouv.vitam.functional.administration.client.AdminManagementClientFactory;
@@ -79,7 +80,6 @@ import fr.gouv.vitam.processing.management.client.ProcessingManagementClientFact
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import javax.ws.rs.ApplicationPath;
@@ -110,7 +110,9 @@ public class ProbativeValueResource {
     private LogbookOperationsClientFactory logbookOperationsClientFactory =
         LogbookOperationsClientFactory.getInstance();
 
-    private WorkspaceClientFactory workspaceClientFactory = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM);
+    private WorkspaceClientFactory workspaceClientFactory = WorkspaceClientFactory.getInstance(
+        WorkFlowExecutionContext.VITAM
+    );
 
     @VisibleForTesting
     public ProbativeValueResource(

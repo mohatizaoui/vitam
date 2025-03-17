@@ -30,6 +30,7 @@ import com.google.common.collect.Sets;
 import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.GraphComputeResponse;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -43,7 +44,6 @@ import fr.gouv.vitam.metadata.core.graph.api.GraphComputeService;
 import fr.gouv.vitam.processing.management.client.ProcessingManagementClientFactory;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -94,7 +94,7 @@ public class MetadataManagementResourceTest {
             reclassificationDistributionService,
             ProcessingManagementClientFactory.getInstance(),
             LogbookOperationsClientFactory.getInstance(),
-            WorkspaceClientFactory.getInstance(WorkspaceType.VITAM),
+            WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM),
             configuration,
             exportsPurgeService
         );

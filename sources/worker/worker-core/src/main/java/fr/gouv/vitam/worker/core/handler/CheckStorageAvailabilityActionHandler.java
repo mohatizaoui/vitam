@@ -42,7 +42,6 @@ import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.model.StorageInformation;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.storage.engine.client.StorageClient;
-import fr.gouv.vitam.storage.engine.client.StorageClientFactory;
 import fr.gouv.vitam.storage.engine.client.exception.StorageNotFoundClientException;
 import fr.gouv.vitam.storage.engine.client.exception.StorageServerClientException;
 import fr.gouv.vitam.worker.common.HandlerIO;
@@ -64,22 +63,17 @@ public class CheckStorageAvailabilityActionHandler extends ActionHandler {
     private static final String HANDLER_ID = "STORAGE_AVAILABILITY_CHECK";
     private static final int REFERENTIAL_INGEST_CONTRACT_IN_RANK = 0;
 
-    private final StorageClientFactory storageClientFactory;
     private final SedaUtilsFactory sedaUtilsFactory;
 
     /**
      * Constructor with parameter SedaUtilsFactory
      */
     public CheckStorageAvailabilityActionHandler() {
-        this(StorageClientFactory.getInstance(), SedaUtilsFactory.getInstance());
+        this(SedaUtilsFactory.getInstance());
     }
 
     @VisibleForTesting
-    public CheckStorageAvailabilityActionHandler(
-        StorageClientFactory storageClientFactory,
-        SedaUtilsFactory sedaUtilsFactory
-    ) {
-        this.storageClientFactory = storageClientFactory;
+    public CheckStorageAvailabilityActionHandler(SedaUtilsFactory sedaUtilsFactory) {
         this.sedaUtilsFactory = sedaUtilsFactory;
     }
 
@@ -112,7 +106,7 @@ public class CheckStorageAvailabilityActionHandler extends ActionHandler {
             }
 
             final JsonNode storageCapacityNode;
-            try (final StorageClient storageClient = storageClientFactory.getClient()) {
+            try (final StorageClient storageClient = handlerIO.getStorageClient()) {
                 storageCapacityNode = storageClient.getStorageInformation(strategyId);
             }
 

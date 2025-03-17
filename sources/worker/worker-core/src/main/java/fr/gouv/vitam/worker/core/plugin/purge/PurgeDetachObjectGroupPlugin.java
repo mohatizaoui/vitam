@@ -86,7 +86,7 @@ public class PurgeDetachObjectGroupPlugin extends ActionHandler {
                 );
             }
 
-            purgeDeleteService.detachObjectGroupFromDeleteParentUnits(objectGroupId, parentUnitsToRemove);
+            purgeDeleteService.detachObjectGroupFromDeleteParentUnits(objectGroupId, parentUnitsToRemove, handler);
 
             LOGGER.info("Object group " + objectGroupId + " detachment from parents succeeded");
 

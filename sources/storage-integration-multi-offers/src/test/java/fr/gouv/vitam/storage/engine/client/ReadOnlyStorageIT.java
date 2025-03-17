@@ -40,6 +40,7 @@ import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.administration.AccessContractModel;
 import fr.gouv.vitam.common.model.administration.ActivationStatus;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.model.storage.ObjectEntry;
 import fr.gouv.vitam.common.mongo.MongoRule;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
@@ -67,7 +68,6 @@ import fr.gouv.vitam.storage.engine.server.spi.DriverManager;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageNotFoundException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -174,7 +174,11 @@ public class ReadOnlyStorageIT {
         setupStorageAndOffers.cleanOffers();
         mongoRuleOffer1.handleAfter();
         mongoRuleOffer2.handleAfter();
-        try (WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient()) {
+        try (
+            WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance(
+                WorkFlowExecutionContext.VITAM
+            ).getClient()
+        ) {
             workspaceClient.deleteContainer(CONTAINER_NAME, true);
         } catch (ContentAddressableStorageNotFoundException e) {
             // NOP
@@ -350,7 +354,11 @@ public class ReadOnlyStorageIT {
     @Test
     public void testStoreFileFromWorkspace() throws Exception {
         // Given
-        try (WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient()) {
+        try (
+            WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance(
+                WorkFlowExecutionContext.VITAM
+            ).getClient()
+        ) {
             workspaceClient.createContainer(CONTAINER_NAME);
             workspaceClient.putObject(
                 CONTAINER_NAME,
@@ -383,7 +391,11 @@ public class ReadOnlyStorageIT {
     @Test
     public void testCreate() throws Exception {
         // Given
-        try (WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient()) {
+        try (
+            WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance(
+                WorkFlowExecutionContext.VITAM
+            ).getClient()
+        ) {
             workspaceClient.createContainer(CONTAINER_NAME);
             workspaceClient.putObject(
                 CONTAINER_NAME,
@@ -420,7 +432,11 @@ public class ReadOnlyStorageIT {
     @Test
     public void testBulkStoreFilesFromWorkspace() throws Exception {
         // Given
-        try (WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient()) {
+        try (
+            WorkspaceClient workspaceClient = WorkspaceClientFactory.getInstance(
+                WorkFlowExecutionContext.VITAM
+            ).getClient()
+        ) {
             workspaceClient.createContainer(CONTAINER_NAME);
             workspaceClient.putObject(
                 CONTAINER_NAME,

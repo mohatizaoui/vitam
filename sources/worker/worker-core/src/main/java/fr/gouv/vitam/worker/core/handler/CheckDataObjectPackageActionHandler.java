@@ -162,11 +162,7 @@ public class CheckDataObjectPackageActionHandler extends ActionHandler {
                     );
                     CheckObjectsNumberActionHandler checkObjectsNumberActionHandler =
                         new CheckObjectsNumberActionHandler(sedaUtilsFactory);
-                    ExtractSedaActionHandler extractSedaActionHandler = new ExtractSedaActionHandler(
-                        metaDataClientFactory,
-                        adminManagementClientFactory,
-                        logbookLifeCyclesClientFactory
-                    );
+                    ExtractSedaActionHandler extractSedaActionHandler = new ExtractSedaActionHandler();
                     CheckObjectUnitConsistencyActionHandler checkObjectUnitConsistencyActionHandler =
                         new CheckObjectUnitConsistencyActionHandler()
                 ) {

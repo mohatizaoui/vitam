@@ -26,8 +26,6 @@
  */
 package fr.gouv.vitam.worker.core.plugin.elimination;
 
-import com.google.common.annotations.VisibleForTesting;
-import fr.gouv.vitam.functional.administration.client.AdminManagementClientFactory;
 import fr.gouv.vitam.logbook.common.parameters.LogbookTypeProcess;
 import fr.gouv.vitam.worker.core.plugin.purge.PurgeAccessionRegisterUpdatePlugin;
 
@@ -44,18 +42,6 @@ public class EliminationActionAccessionRegisterUpdatePlugin extends PurgeAccessi
      */
     public EliminationActionAccessionRegisterUpdatePlugin() {
         super(ELIMINATION_ACTION_ACCESSION_REGISTER_UPDATE, LogbookTypeProcess.ELIMINATION);
-    }
-
-    /***
-     * Test only constructor
-     */
-    @VisibleForTesting
-    EliminationActionAccessionRegisterUpdatePlugin(AdminManagementClientFactory adminManagementClientFactory) {
-        super(
-            ELIMINATION_ACTION_ACCESSION_REGISTER_UPDATE,
-            LogbookTypeProcess.ELIMINATION,
-            adminManagementClientFactory
-        );
     }
 
     public static String getId() {

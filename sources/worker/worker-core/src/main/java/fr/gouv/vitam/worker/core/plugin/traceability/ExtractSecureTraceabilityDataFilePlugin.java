@@ -39,8 +39,6 @@ import fr.gouv.vitam.worker.common.HandlerIO;
 import fr.gouv.vitam.worker.core.handler.ActionHandler;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
-import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -58,23 +56,15 @@ public class ExtractSecureTraceabilityDataFilePlugin extends ActionHandler {
     private static final String PLUGIN_NAME = "EXTRACT_SECURE_TRACEABILITY_DATA_FILE";
     private static final int TRACEABILITY_FILE_IN_RANK = 0;
 
-    private final WorkspaceClientFactory workspaceClientFactory;
-
     @SuppressWarnings("unused")
-    public ExtractSecureTraceabilityDataFilePlugin() {
-        this(WorkspaceClientFactory.getInstance(WorkspaceType.VITAM));
-    }
-
-    public ExtractSecureTraceabilityDataFilePlugin(WorkspaceClientFactory workspaceClientFactory) {
-        this.workspaceClientFactory = workspaceClientFactory;
-    }
+    public ExtractSecureTraceabilityDataFilePlugin() {}
 
     @Override
     public ItemStatus execute(WorkerParameters param, HandlerIO handler) throws ProcessingException {
         if (handler.isExistingFileInWorkspace(param.getObjectName() + File.separator + ERROR_FLAG)) {
             return buildItemStatus(PLUGIN_NAME, KO);
         }
-        try (WorkspaceClient workspaceClient = workspaceClientFactory.getClient()) {
+        try (WorkspaceClient workspaceClient = handler.getWorkspaceClient()) {
             File traceabilityFile = (File) handler.getInput(TRACEABILITY_FILE_IN_RANK);
             String zipContainer =
                 WorkspaceConstants.TRACEABILITY_OPERATION_DIRECTORY + File.separator + param.getObjectName();

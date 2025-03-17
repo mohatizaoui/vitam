@@ -54,6 +54,7 @@ import fr.gouv.vitam.common.model.ProcessState;
 import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.administration.AccessionRegisterDetailModel;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.security.rest.VitamAuthentication;
 import fr.gouv.vitam.common.server.application.configuration.DbConfigurationImpl;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
@@ -81,7 +82,6 @@ import fr.gouv.vitam.processing.management.client.ProcessingManagementClientFact
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.apache.commons.lang.StringUtils;
 
@@ -133,7 +133,7 @@ public class AdminMigrationResource {
         this(
             LogbookOperationsClientFactory.getInstance(),
             ProcessingManagementClientFactory.getInstance(),
-            WorkspaceClientFactory.getInstance(WorkspaceType.VITAM),
+            WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM),
             configuration,
             ontologyLoader,
             indexManager

@@ -27,7 +27,6 @@
 package fr.gouv.vitam.worker.core.plugin;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.annotations.VisibleForTesting;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.logging.VitamLogger;
@@ -39,7 +38,6 @@ import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.storage.engine.client.StorageClient;
-import fr.gouv.vitam.storage.engine.client.StorageClientFactory;
 import fr.gouv.vitam.storage.engine.client.exception.StorageServerClientException;
 import fr.gouv.vitam.storage.engine.common.referential.model.StorageStrategy;
 import fr.gouv.vitam.worker.common.HandlerIO;
@@ -58,16 +56,7 @@ public class PrepareStorageStrategiesPlugin extends ActionHandler {
     private static final String PLUGIN_NAME = "PREPARE_STORAGE_STRATEGIES";
     private static final int STRATEGIES_OUT_RANK = 0;
 
-    private final StorageClientFactory storageClientFactory;
-
-    public PrepareStorageStrategiesPlugin() {
-        this(StorageClientFactory.getInstance());
-    }
-
-    @VisibleForTesting
-    PrepareStorageStrategiesPlugin(StorageClientFactory storageClientFactory) {
-        this.storageClientFactory = storageClientFactory;
-    }
+    public PrepareStorageStrategiesPlugin() {}
 
     @Override
     public ItemStatus execute(WorkerParameters params, HandlerIO handlerIO) throws ProcessingException {
@@ -82,7 +71,7 @@ public class PrepareStorageStrategiesPlugin extends ActionHandler {
     }
 
     private void storeStrategies(HandlerIO handlerIO) throws ProcessingException {
-        try (final StorageClient storageClient = storageClientFactory.getClient()) {
+        try (final StorageClient storageClient = handlerIO.getStorageClient()) {
             RequestResponse<StorageStrategy> storageStrategies = storageClient.getStorageStrategies();
             if (storageStrategies.isOk()) {
                 File tempFile = handlerIO.getNewLocalFile(handlerIO.getOutput(STRATEGIES_OUT_RANK).getPath());

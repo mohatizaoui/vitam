@@ -32,6 +32,7 @@ import fr.gouv.vitam.common.client.CustomVitamHttpStatusCode;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.processing.Step;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.server.application.junit.ResteasyTestApplication;
 import fr.gouv.vitam.common.serverv2.VitamServerTestRunner;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
@@ -144,7 +145,7 @@ public class WorkerClientRestTest extends ResteasyTestApplication {
 
         when(mock.post()).thenReturn(Response.status(Response.Status.OK).entity(result).build());
         final ItemStatus responses = client.submitStep(
-            new DescriptionStep(new Step(), WorkerParametersFactory.newWorkerParameters())
+            new DescriptionStep(new Step(), WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM))
         );
         assertNotNull(responses);
         assertEquals(StatusCode.OK, responses.getItemsStatus().get("checkSeda").getGlobalStatus());
@@ -157,7 +158,9 @@ public class WorkerClientRestTest extends ResteasyTestApplication {
     public void submitNotFound() throws Exception {
         VitamThreadUtils.getVitamSession().setRequestId(DUMMY_REQUEST_ID);
         when(mock.post()).thenReturn(Response.status(Response.Status.NOT_FOUND).build());
-        client.submitStep(new DescriptionStep(new Step(), WorkerParametersFactory.newWorkerParameters()));
+        client.submitStep(
+            new DescriptionStep(new Step(), WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM))
+        );
     }
 
     @RunWithCustomExecutor
@@ -165,7 +168,9 @@ public class WorkerClientRestTest extends ResteasyTestApplication {
     public void submitException() throws Exception {
         VitamThreadUtils.getVitamSession().setRequestId(DUMMY_REQUEST_ID);
         when(mock.post()).thenReturn(Response.status(Response.Status.INTERNAL_SERVER_ERROR).build());
-        client.submitStep(new DescriptionStep(new Step(), WorkerParametersFactory.newWorkerParameters()));
+        client.submitStep(
+            new DescriptionStep(new Step(), WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM))
+        );
     }
 
     @RunWithCustomExecutor
@@ -184,7 +189,13 @@ public class WorkerClientRestTest extends ResteasyTestApplication {
                 .build()
         );
         Throwable thrown = catchThrowable(
-            () -> client.submitStep(new DescriptionStep(new Step(), WorkerParametersFactory.newWorkerParameters()))
+            () ->
+                client.submitStep(
+                    new DescriptionStep(
+                        new Step(),
+                        WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
+                    )
+                )
         );
         assertThat(thrown)
             .isInstanceOf(ProcessingRetryAsyncException.class)
@@ -213,7 +224,13 @@ public class WorkerClientRestTest extends ResteasyTestApplication {
                 .build()
         );
         Throwable thrown = catchThrowable(
-            () -> client.submitStep(new DescriptionStep(new Step(), WorkerParametersFactory.newWorkerParameters()))
+            () ->
+                client.submitStep(
+                    new DescriptionStep(
+                        new Step(),
+                        WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
+                    )
+                )
         );
         assertThat(thrown).isInstanceOf(ProcessingException.class);
     }
@@ -227,7 +244,13 @@ public class WorkerClientRestTest extends ResteasyTestApplication {
             Response.status(CustomVitamHttpStatusCode.UNAVAILABLE_ASYNC_DATA_RETRY_LATER.getStatusCode()).build()
         );
         Throwable thrown = catchThrowable(
-            () -> client.submitStep(new DescriptionStep(new Step(), WorkerParametersFactory.newWorkerParameters()))
+            () ->
+                client.submitStep(
+                    new DescriptionStep(
+                        new Step(),
+                        WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
+                    )
+                )
         );
         assertThat(thrown).isInstanceOf(ProcessingException.class);
     }

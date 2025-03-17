@@ -71,6 +71,7 @@ import fr.gouv.vitam.worker.core.handler.TransferNotificationActionHandler;
 import fr.gouv.vitam.worker.core.handler.UploadSIPActionHandler;
 import fr.gouv.vitam.worker.core.plugin.PluginLoader;
 import fr.gouv.vitam.worker.core.plugin.computeinheritedrules.ComputedInheritedRulesCheckDistributionThreshold;
+import fr.gouv.vitam.worker.core.plugin.deletion.CollectDeletionUnitPreparationHandler;
 import fr.gouv.vitam.worker.core.plugin.elimination.EliminationActionAccessionRegisterPreparationHandler;
 import fr.gouv.vitam.worker.core.plugin.elimination.EliminationActionCheckDistributionThresholdHandler;
 import fr.gouv.vitam.worker.core.plugin.elimination.EliminationActionFinalizationHandler;
@@ -232,6 +233,7 @@ public class WorkerImpl implements Worker {
             EliminationActionCheckDistributionThresholdHandler::new
         );
         actions.put(EliminationActionUnitPreparationHandler.getId(), EliminationActionUnitPreparationHandler::new);
+        actions.put(CollectDeletionUnitPreparationHandler.getId(), CollectDeletionUnitPreparationHandler::new);
         actions.put(
             EliminationActionObjectGroupPreparationHandler.getId(),
             EliminationActionObjectGroupPreparationHandler::new
@@ -258,6 +260,7 @@ public class WorkerImpl implements Worker {
             ComputedInheritedRulesCheckDistributionThreshold.getId(),
             ComputedInheritedRulesCheckDistributionThreshold::new
         );
+        actions.put(CollectDeletionUnitPreparationHandler.getId(), CollectDeletionUnitPreparationHandler::new);
     }
 
     @Override
@@ -280,6 +283,7 @@ public class WorkerImpl implements Worker {
         workerId = GUIDFactory.newGUID().toString();
         try (
             final HandlerIO handlerIO = new HandlerIOImpl(
+                workParams.getExecutionContext(),
                 workParams.getContainerName(),
                 workerId,
                 workParams.getObjectNameList()

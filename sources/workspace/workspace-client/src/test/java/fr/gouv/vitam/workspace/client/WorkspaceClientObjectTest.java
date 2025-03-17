@@ -31,6 +31,7 @@ import com.google.common.collect.Sets;
 import fr.gouv.vitam.common.CommonMediaType;
 import fr.gouv.vitam.common.PropertiesUtils;
 import fr.gouv.vitam.common.digest.DigestType;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.server.application.junit.ResteasyTestApplication;
 import fr.gouv.vitam.common.serverv2.VitamServerTestRunner;
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageAlreadyExistException;
@@ -82,7 +83,7 @@ public class WorkspaceClientObjectTest extends ResteasyTestApplication {
     private static final DigestType ALGO = DigestType.MD5;
     private static final String MESSAGE_DIGEST = "DigestHex";
 
-    static WorkspaceClientFactory factory = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM);
+    static WorkspaceClientFactory factory = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM);
 
     public static VitamServerTestRunner vitamServerTestRunner = new VitamServerTestRunner(
         WorkspaceClientObjectTest.class,

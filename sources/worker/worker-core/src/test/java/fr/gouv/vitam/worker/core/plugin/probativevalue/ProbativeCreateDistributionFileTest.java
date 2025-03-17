@@ -90,6 +90,7 @@ public class ProbativeCreateDistributionFileTest {
     @Before
     public void setUp() {
         given(metaDataClientFactory.getClient()).willReturn(metaDataClient);
+        when(handlerIO.getMetaDataClient()).thenReturn(metaDataClient);
     }
 
     @Test

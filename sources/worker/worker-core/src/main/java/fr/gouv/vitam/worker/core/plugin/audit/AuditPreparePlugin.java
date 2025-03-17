@@ -30,7 +30,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Iterators;
 import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.database.builder.query.Query;
@@ -57,7 +56,6 @@ import fr.gouv.vitam.metadata.api.exception.MetaDataClientServerException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataDocumentSizeException;
 import fr.gouv.vitam.metadata.api.exception.MetaDataExecutionException;
 import fr.gouv.vitam.metadata.client.MetaDataClient;
-import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.worker.common.HandlerIO;
@@ -102,25 +100,18 @@ public class AuditPreparePlugin extends ActionHandler {
     private static final String AUDIT_PREPARATION = "LIST_OBJECTGROUP_ID";
     protected static final String OBJECT_GROUPS_TO_AUDIT_JSONL = "AUDIT_OG";
 
-    private final MetaDataClientFactory metaDataClientFactory;
-
-    public AuditPreparePlugin() {
-        this(MetaDataClientFactory.getInstance());
-    }
-
-    @VisibleForTesting
-    AuditPreparePlugin(MetaDataClientFactory metaDataClientFactory) {
-        this.metaDataClientFactory = metaDataClientFactory;
-    }
+    public AuditPreparePlugin() {}
 
     @Override
     public ItemStatus execute(WorkerParameters param, HandlerIO handler) {
-        try (MetaDataClient metaDataClient = metaDataClientFactory.getClient()) {
+        try (MetaDataClient metaDataClient = handler.getMetaDataClient()) {
             boolean isInternalAudit = handler.isExistingFileInWorkspace("scheduler_audit");
             JsonNode initialQuery = handler.getJsonFromWorkspace("query.json");
             SelectMultiQuery query = generateAuditQuery(initialQuery);
             computePreparation(query, handler, metaDataClient);
-            JsonNode evDetData = (isInternalAudit) ? computeEventData(initialQuery) : JsonHandler.createObjectNode();
+            JsonNode evDetData = (isInternalAudit)
+                ? computeEventData(handler, initialQuery)
+                : JsonHandler.createObjectNode();
             return buildItemStatus(AUDIT_PREPARATION, StatusCode.OK, evDetData);
         } catch (InvalidParseOperationException | IOException | ProcessingException e) {
             LOGGER.error(String.format("Audit action failed with status [%s]", FATAL), e);
@@ -129,8 +120,8 @@ public class AuditPreparePlugin extends ActionHandler {
         }
     }
 
-    private JsonNode computeEventData(JsonNode initialQuery) {
-        try (MetaDataClient client = metaDataClientFactory.getClient()) {
+    private JsonNode computeEventData(HandlerIO handlerIO, JsonNode initialQuery) {
+        try (MetaDataClient client = handlerIO.getMetaDataClient()) {
             SelectParserMultiple parser = new SelectParserMultiple();
             parser.parse(initialQuery);
             SelectMultiQuery request = parser.getRequest();
@@ -182,18 +173,22 @@ public class AuditPreparePlugin extends ActionHandler {
         ) {
             while (unitsByObjectGroupBulkIterator.hasNext()) {
                 List<Pair<String, List<String>>> bulkToProcess = unitsByObjectGroupBulkIterator.next();
-                processBulk(bulkToProcess, writer);
+                processBulk(handler, bulkToProcess, writer);
             }
         }
         handler.transferFileToWorkspace(OBJECT_GROUPS_TO_AUDIT_JSONL, objectGroupsToAudit, true, false);
     }
 
-    private void processBulk(List<Pair<String, List<String>>> unitsByObjectGroupBulkIterator, JsonLineWriter writer)
-        throws InvalidParseOperationException, IOException {
+    private void processBulk(
+        HandlerIO handlerIO,
+        List<Pair<String, List<String>>> unitsByObjectGroupBulkIterator,
+        JsonLineWriter writer
+    ) throws InvalidParseOperationException, IOException {
         Map<String, List<String>> tempUnitsByObjectGroupMap = new HashMap<>();
         unitsByObjectGroupBulkIterator.forEach(item -> tempUnitsByObjectGroupMap.put(item.getKey(), item.getValue()));
 
         List<ObjectGroupResponse> objectModelsForUnitResults = getObjectModelsForUnitResults(
+            handlerIO,
             tempUnitsByObjectGroupMap.keySet()
         );
 
@@ -257,14 +252,17 @@ public class AuditPreparePlugin extends ActionHandler {
         return projectionNode;
     }
 
-    private List<ObjectGroupResponse> getObjectModelsForUnitResults(Collection<String> objectGroupIds) {
+    private List<ObjectGroupResponse> getObjectModelsForUnitResults(
+        HandlerIO handlerIO,
+        Collection<String> objectGroupIds
+    ) {
         try {
             Select select = new Select();
             String[] ids = objectGroupIds.toArray(new String[0]);
             select.setQuery(in("#id", ids));
 
             ObjectNode finalSelect = select.getFinalSelect();
-            JsonNode response = metaDataClientFactory.getClient().selectObjectGroups(finalSelect);
+            JsonNode response = handlerIO.getMetaDataClient().selectObjectGroups(finalSelect);
 
             JsonNode results = response.get("$results");
             return getFromStringAsTypeReference(results.toString(), new TypeReference<List<ObjectGroupResponse>>() {});

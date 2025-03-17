@@ -27,6 +27,7 @@
 package fr.gouv.vitam.processing.common.parameter;
 
 import fr.gouv.vitam.common.ParametersChecker;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -77,25 +78,31 @@ public class WorkerParametersFactory {
     /**
      * Get a new empty WorkerParameters object with specific mandatory
      *
+     * @param workFlowExecutionContext the execution context
      * @param mandatoryFieldsToAdd set of WorkerParameterName to add to the default mandatory fields, can be null
      * @return the new instance of WorkerParameters
      */
-    static DefaultWorkerParameters newWorkerParameters(Set<WorkerParameterName> mandatoryFieldsToAdd) {
-        return new DefaultWorkerParameters(initMandatoriesParameters(mandatoryFieldsToAdd));
+    static DefaultWorkerParameters newWorkerParameters(
+        WorkFlowExecutionContext workFlowExecutionContext,
+        Set<WorkerParameterName> mandatoryFieldsToAdd
+    ) {
+        return new DefaultWorkerParameters(workFlowExecutionContext, initMandatoriesParameters(mandatoryFieldsToAdd));
     }
 
     /**
      * Get a new empty WorkerParameters object
      *
+     * @param workFlowExecutionContext the execution context
      * @return the new instance of WorkerParameters
      */
-    public static DefaultWorkerParameters newWorkerParameters() {
-        return new DefaultWorkerParameters(initMandatoriesParameters(null));
+    public static DefaultWorkerParameters newWorkerParameters(WorkFlowExecutionContext workFlowExecutionContext) {
+        return new DefaultWorkerParameters(workFlowExecutionContext, initMandatoriesParameters(null));
     }
 
     /**
      * Get a new WorkerParameters object
      *
+     * @param workFlowExecutionContext the execution context
      * @param processId unique id (GUID) of the workflow to be executed (can be null)
      * @param stepUniqId unique id of a step. The pattern of the id is :
      * {CONTAINER_NAME}_{WORKFLOW_ID}_{STEP_RANK_IN_THE_WORKFLOW}_{STEP_NAME}
@@ -108,6 +115,7 @@ public class WorkerParametersFactory {
      * @throws IllegalArgumentException if any parameter is null or empty
      */
     public static DefaultWorkerParameters newWorkerParameters(
+        WorkFlowExecutionContext workFlowExecutionContext,
         String processId,
         String stepUniqId,
         String containerName,
@@ -118,6 +126,7 @@ public class WorkerParametersFactory {
     ) {
         ParametersChecker.checkParameter(
             "Parameters cannot be null or empty",
+            workFlowExecutionContext,
             processId,
             stepUniqId,
             containerName,
@@ -126,7 +135,10 @@ public class WorkerParametersFactory {
             urlMetadata,
             urlWorkspace
         );
-        final DefaultWorkerParameters parameters = new DefaultWorkerParameters(initMandatoriesParameters(null));
+        final DefaultWorkerParameters parameters = new DefaultWorkerParameters(
+            workFlowExecutionContext,
+            initMandatoriesParameters(null)
+        );
         parameters.putParameterValue(WorkerParameterName.processId, processId);
         parameters.putParameterValue(WorkerParameterName.stepUniqId, stepUniqId);
         parameters.putParameterValue(WorkerParameterName.containerName, containerName);

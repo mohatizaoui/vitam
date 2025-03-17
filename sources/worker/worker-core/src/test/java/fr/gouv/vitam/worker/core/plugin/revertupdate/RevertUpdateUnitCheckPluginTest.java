@@ -129,6 +129,8 @@ public class RevertUpdateUnitCheckPluginTest {
 
     private LogbookLifeCyclesClient logbookLifeCyclesClient;
 
+    private HandlerIO handlerIO;
+
     @Before
     public void setUp() throws Exception {
         LogbookLifeCyclesClientFactory.changeMode(null);
@@ -138,12 +140,15 @@ public class RevertUpdateUnitCheckPluginTest {
 
         logbookLifeCyclesClient = mock(LogbookLifeCyclesClient.class);
         given(logbookLifeCyclesClientFactory.getClient()).willReturn(logbookLifeCyclesClient);
+
+        handlerIO = mock(HandlerIO.class);
+        when(handlerIO.getMetaDataClient()).thenReturn(metadataClient);
+        when(handlerIO.getLifeCyclesClient()).thenReturn(logbookLifeCyclesClient);
     }
 
     @Test
     public void should_distribute_when_diff_version0() throws Exception {
         WorkerParameters params = mock(WorkerParameters.class);
-        HandlerIO handlerIO = mock(HandlerIO.class);
 
         RevertUpdateOptions options = new RevertUpdateOptions(
             false,
@@ -206,7 +211,6 @@ public class RevertUpdateUnitCheckPluginTest {
     @Test
     public void should_distribute_when_diff_version1() throws Exception {
         WorkerParameters params = mock(WorkerParameters.class);
-        HandlerIO handlerIO = mock(HandlerIO.class);
 
         RevertUpdateOptions options = new RevertUpdateOptions(
             false,
@@ -269,7 +273,6 @@ public class RevertUpdateUnitCheckPluginTest {
     @Test
     public void should_not_distribute_when_no_field_match() throws Exception {
         WorkerParameters params = mock(WorkerParameters.class);
-        HandlerIO handlerIO = mock(HandlerIO.class);
 
         RevertUpdateOptions options = new RevertUpdateOptions(
             false,
@@ -324,7 +327,6 @@ public class RevertUpdateUnitCheckPluginTest {
     @Test
     public void should_not_distribute_when_operation_is_not_last_and_force_is_false() throws Exception {
         WorkerParameters params = mock(WorkerParameters.class);
-        HandlerIO handlerIO = mock(HandlerIO.class);
 
         File jsonlFile = tempFolder.newFile();
         when(handlerIO.getNewLocalFile(eq(REVERT_UPDATE_UNITS_JSONL_FILE))).thenReturn(jsonlFile);
@@ -366,7 +368,6 @@ public class RevertUpdateUnitCheckPluginTest {
     @Test
     public void should_distribute_when_operation_is_not_last_and_force_is_true() throws Exception {
         WorkerParameters params = mock(WorkerParameters.class);
-        HandlerIO handlerIO = mock(HandlerIO.class);
 
         RevertUpdateOptions options = new RevertUpdateOptions(
             true,
@@ -432,7 +433,6 @@ public class RevertUpdateUnitCheckPluginTest {
     @Test
     public void should_not_distribute_when_no_unit_found() throws Exception {
         WorkerParameters params = mock(WorkerParameters.class);
-        HandlerIO handlerIO = mock(HandlerIO.class);
 
         RevertUpdateOptions options = new RevertUpdateOptions(
             false,
@@ -469,7 +469,6 @@ public class RevertUpdateUnitCheckPluginTest {
     @Test
     public void should_not_include_unit_with_no_diff() throws Exception {
         WorkerParameters params = mock(WorkerParameters.class);
-        HandlerIO handlerIO = mock(HandlerIO.class);
 
         RevertUpdateOptions options = new RevertUpdateOptions(
             false,

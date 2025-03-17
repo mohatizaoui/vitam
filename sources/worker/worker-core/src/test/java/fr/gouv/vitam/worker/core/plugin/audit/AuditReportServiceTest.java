@@ -41,6 +41,7 @@ import fr.gouv.vitam.batch.report.model.entry.AuditObjectGroupReportEntry;
 import fr.gouv.vitam.batch.report.model.entry.AuditObjectVersion;
 import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.json.JsonHandler;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.storage.engine.client.StorageClient;
 import fr.gouv.vitam.storage.engine.client.StorageClientFactory;
 import fr.gouv.vitam.storage.engine.common.model.DataCategory;
@@ -190,11 +191,12 @@ public class AuditReportServiceTest {
         Report reportInfo = new Report(operationSummary, reportSummary, context);
 
         // Given / When
-        ThrowingCallable exportReport = () -> auditReportService.storeReportToWorkspace(reportInfo);
+        ThrowingCallable exportReport = () ->
+            auditReportService.storeReportToWorkspace(reportInfo, WorkFlowExecutionContext.VITAM);
 
         // Then
         assertThatCode(exportReport).doesNotThrowAnyException();
-        verify(batchReportClient).storeReportToWorkspace(reportInfo);
+        verify(batchReportClient).storeReportToWorkspace(reportInfo, WorkFlowExecutionContext.VITAM);
     }
 
     @Test

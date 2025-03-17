@@ -34,6 +34,7 @@ import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.RequestResponseOK;
 import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClient;
 import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClientFactory;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
@@ -100,7 +101,7 @@ public class CheckObjectsNumberActionHandlerTest {
 
     @Before
     public void setUp() throws Exception {
-        workParams = WorkerParametersFactory.newWorkerParameters();
+        workParams = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM);
         workParams
             .setWorkerGUID(GUIDFactory.newGUID().getId())
             .setUrlWorkspace("http://localhost:8083")
@@ -123,6 +124,7 @@ public class CheckObjectsNumberActionHandlerTest {
         when(sedaUtilsFactory.createSedaUtilsWithSedaIngestParams(any())).thenReturn(sedaUtils);
 
         handlerIO = new HandlerIOImpl(
+            WorkFlowExecutionContext.VITAM,
             workspaceClientFactory,
             logbookLifeCyclesClientFactory,
             "CheckObjectsNumberActionHandlerTest",

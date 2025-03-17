@@ -26,6 +26,7 @@
  */
 package fr.gouv.vitam.workspace.client;
 
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
@@ -34,7 +35,9 @@ public class WorkspaceClientFactoryTest {
 
     @Test
     public void givenWorkspaceClientFactoryWhenCallingCreateThenReturnClient() {
-        WorkspaceClientFactory.changeMode("http://localhost:8080", WorkspaceType.VITAM);
-        assertTrue(WorkspaceClientFactory.getInstance(WorkspaceType.VITAM).getClient() instanceof WorkspaceClient);
+        WorkspaceClientFactory.changeMode("http://localhost:8080", WorkFlowExecutionContext.VITAM);
+        assertTrue(
+            WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM).getClient() instanceof WorkspaceClient
+        );
     }
 }

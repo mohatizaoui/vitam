@@ -24,6 +24,7 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
+
 package fr.gouv.vitam.worker.core.handler;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -40,6 +41,7 @@ import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.processing.IOParameter;
 import fr.gouv.vitam.common.model.processing.ProcessingUri;
 import fr.gouv.vitam.common.model.processing.UriPrefix;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
@@ -183,7 +185,7 @@ public class ExtractSedaActionHandlerTest {
     private List<IOParameter> out;
     private List<IOParameter> in;
     private static final Integer TENANT_ID = 0;
-    private final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+    private final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
         .setUrlWorkspace("http://localhost:8083")
         .setUrlMetadata("http://localhost:8083")
         .setObjectNameList(Lists.newArrayList("objectName.json"))
@@ -1473,6 +1475,7 @@ public class ExtractSedaActionHandlerTest {
 
         String objectId = "SIP/manifest.xml";
         HandlerIOImpl handlerIO = new HandlerIOImpl(
+            WorkFlowExecutionContext.VITAM,
             workspaceClientFactory,
             logbookLifeCyclesClientFactory,
             "ExtractSedaActionHandlerTest",
@@ -1675,6 +1678,7 @@ public class ExtractSedaActionHandlerTest {
             LogbookLifeCyclesClientFactory logbookLifeCyclesClientFactory
         ) {
             super(
+                WorkFlowExecutionContext.VITAM,
                 workspaceClientFactory,
                 logbookLifeCyclesClientFactory,
                 "ExtractSedaActionHandlerTest",

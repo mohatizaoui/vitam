@@ -56,6 +56,7 @@ import fr.gouv.vitam.common.model.ProcessState;
 import fr.gouv.vitam.common.model.RequestResponse;
 import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.processing.WorkFlow;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.security.SanityChecker;
 import fr.gouv.vitam.common.server.application.resources.ApplicationStatusResource;
 import fr.gouv.vitam.common.stream.StreamUtils;
@@ -87,7 +88,6 @@ import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerExce
 import fr.gouv.vitam.workspace.api.exception.ZipFilesNameNotAllowedException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
-import fr.gouv.vitam.workspace.client.WorkspaceType;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import javax.ws.rs.ApplicationPath;
@@ -146,9 +146,9 @@ public class IngestInternalResource extends ApplicationStatusResource {
      */
     public IngestInternalResource(IngestInternalConfiguration configuration) {
         this.logbookOperationsClientFactory = LogbookOperationsClientFactory.getInstance();
-        WorkspaceClientFactory.changeMode(configuration.getWorkspaceUrl(), WorkspaceType.VITAM);
+        WorkspaceClientFactory.changeMode(configuration.getWorkspaceUrl(), WorkFlowExecutionContext.VITAM);
         ProcessingManagementClientFactory.changeConfigurationUrl(configuration.getProcessingUrl());
-        this.workspaceClientFactory = WorkspaceClientFactory.getInstance(WorkspaceType.VITAM);
+        this.workspaceClientFactory = WorkspaceClientFactory.getInstance(WorkFlowExecutionContext.VITAM);
         this.processingManagementClientFactory = ProcessingManagementClientFactory.getInstance();
     }
 

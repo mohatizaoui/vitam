@@ -26,7 +26,6 @@
  */
 package fr.gouv.vitam.worker.core.plugin.evidence;
 
-import com.google.common.annotations.VisibleForTesting;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.logging.VitamLogger;
@@ -38,7 +37,6 @@ import fr.gouv.vitam.processing.common.async.AccessRequestContext;
 import fr.gouv.vitam.processing.common.async.ProcessingRetryAsyncException;
 import fr.gouv.vitam.processing.common.exception.ProcessingException;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
-import fr.gouv.vitam.storage.engine.client.StorageClientFactory;
 import fr.gouv.vitam.storage.engine.common.model.DataCategory;
 import fr.gouv.vitam.worker.common.HandlerIO;
 import fr.gouv.vitam.worker.core.plugin.common.CheckResourceAvailability;
@@ -72,12 +70,7 @@ public class DataRectificationCheckResourceAvailability extends CheckResourceAva
     private static final String ALTER = "alter";
 
     public DataRectificationCheckResourceAvailability() {
-        this(StorageClientFactory.getInstance());
-    }
-
-    @VisibleForTesting
-    public DataRectificationCheckResourceAvailability(StorageClientFactory storage) {
-        super(storage);
+        super();
     }
 
     @Override
@@ -89,7 +82,7 @@ public class DataRectificationCheckResourceAvailability extends CheckResourceAva
                 handler
             );
 
-            checkResourcesAvailabilityByTypes(entriesByCategories);
+            checkResourcesAvailabilityByTypes(handler, entriesByCategories);
 
             return IntStream.range(0, workerParameters.getObjectNameList().size())
                 .mapToObj(

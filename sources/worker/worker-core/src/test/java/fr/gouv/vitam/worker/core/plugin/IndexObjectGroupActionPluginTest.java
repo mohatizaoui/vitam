@@ -36,6 +36,7 @@ import fr.gouv.vitam.common.model.StatusCode;
 import fr.gouv.vitam.common.model.processing.IOParameter;
 import fr.gouv.vitam.common.model.processing.ProcessingUri;
 import fr.gouv.vitam.common.model.processing.UriPrefix;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClient;
 import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClientFactory;
 import fr.gouv.vitam.metadata.api.exception.MetaDataExecutionException;
@@ -103,6 +104,7 @@ public class IndexObjectGroupActionPluginTest {
         when(logbookLifeCyclesClientFactory.getClient()).thenReturn(logbookLifeCyclesClient);
 
         handlerIO = new HandlerIOImpl(
+            WorkFlowExecutionContext.VITAM,
             workspaceClientFactory,
             logbookLifeCyclesClientFactory,
             "IndexObjectGroupActionPluginTest",
@@ -127,7 +129,7 @@ public class IndexObjectGroupActionPluginTest {
         handlerIO.getInput().clear();
         handlerIO.getInput().add(JsonHandler.getFromInputStream(PropertiesUtils.getResourceAsStream(OBJECT_GROUP)));
         plugin = new IndexObjectGroupActionPlugin(metaDataClientFactory);
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace("http://localhost:8083")
             .setUrlMetadata("http://localhost:8083")
             .setObjectNameList(Lists.newArrayList("objectName.json"))
@@ -158,7 +160,7 @@ public class IndexObjectGroupActionPluginTest {
             .getInput()
             .add(JsonHandler.getFromInputStream(PropertiesUtils.getResourceAsStream(EXISTING_OBJECT_GROUP)));
         plugin = new IndexObjectGroupActionPlugin(metaDataClientFactory);
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace("http://localhost:8083")
             .setUrlMetadata("http://localhost:8083")
             .setObjectNameList(Lists.newArrayList("objectName.json"))
@@ -194,7 +196,7 @@ public class IndexObjectGroupActionPluginTest {
             .getInput()
             .add(JsonHandler.getFromInputStream(PropertiesUtils.getResourceAsStream(EXISTING_OBJECT_GROUP)));
         plugin = new IndexObjectGroupActionPlugin(metaDataClientFactory);
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace("http://localhost:8083")
             .setUrlMetadata("http://localhost:8083")
             .setObjectNameList(Lists.newArrayList("objectName.json"))
@@ -213,7 +215,7 @@ public class IndexObjectGroupActionPluginTest {
         handlerIO.getInput().clear();
         handlerIO.getInput().add(JsonHandler.getFromInputStream(PropertiesUtils.getResourceAsStream(OBJECT_GROUP)));
         plugin = new IndexObjectGroupActionPlugin(metaDataClientFactory);
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace("http://localhost:8083")
             .setUrlMetadata("http://localhost:8083")
             .setObjectNameList(Lists.newArrayList("objectName.json"))
@@ -231,7 +233,7 @@ public class IndexObjectGroupActionPluginTest {
         handlerIO.getInput().clear();
         handlerIO.getInput().add(JsonHandler.getFromInputStream(PropertiesUtils.getResourceAsStream(OBJECT_GROUP)));
         plugin = new IndexObjectGroupActionPlugin(metaDataClientFactory);
-        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters()
+        final WorkerParameters params = WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM)
             .setUrlWorkspace("http://localhost:8083")
             .setUrlMetadata("http://localhost:8083")
             .setObjectNameList(Lists.newArrayList("objectName.json"))

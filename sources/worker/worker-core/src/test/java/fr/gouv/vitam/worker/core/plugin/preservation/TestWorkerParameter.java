@@ -24,11 +24,13 @@
  * The fact that you are presently reading this means that you have had knowledge of the CeCILL 2.1 license and that you
  * accept its terms.
  */
+
 package fr.gouv.vitam.worker.core.plugin.preservation;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.json.JsonHandler;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.logbook.common.parameters.LogbookTypeProcess;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameterName;
 import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
@@ -45,10 +47,23 @@ import static fr.gouv.vitam.processing.common.parameter.WorkerParameterName.work
 
 public class TestWorkerParameter implements WorkerParameters {
 
+    public WorkFlowExecutionContext workFlowExecutionContext;
     public final Map<String, Object> params;
 
-    public TestWorkerParameter(Map<String, Object> params) {
+    public TestWorkerParameter(WorkFlowExecutionContext workFlowExecutionContext, Map<String, Object> params) {
+        this.workFlowExecutionContext = workFlowExecutionContext;
         this.params = params;
+    }
+
+    @Override
+    public WorkFlowExecutionContext getExecutionContext() {
+        return workFlowExecutionContext;
+    }
+
+    @Override
+    public WorkerParameters setExecutionContext(WorkFlowExecutionContext workFlowExecutionContext) {
+        this.workFlowExecutionContext = workFlowExecutionContext;
+        return this;
     }
 
     @Override
@@ -311,7 +326,7 @@ public class TestWorkerParameter implements WorkerParameters {
         }
 
         public TestWorkerParameter build() {
-            return new TestWorkerParameter(this.params);
+            return new TestWorkerParameter(WorkFlowExecutionContext.VITAM, this.params);
         }
     }
 }

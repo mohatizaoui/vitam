@@ -31,19 +31,18 @@ import fr.gouv.vitam.common.VitamConfiguration;
 import fr.gouv.vitam.common.json.JsonHandler;
 import fr.gouv.vitam.common.model.ItemStatus;
 import fr.gouv.vitam.common.model.StatusCode;
+import fr.gouv.vitam.common.model.processing.WorkFlowExecutionContext;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutor;
 import fr.gouv.vitam.common.thread.RunWithCustomExecutorRule;
 import fr.gouv.vitam.common.thread.VitamThreadPoolExecutor;
 import fr.gouv.vitam.common.thread.VitamThreadUtils;
 import fr.gouv.vitam.metadata.client.MetaDataClient;
-import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.processing.common.parameter.WorkerParametersFactory;
 import fr.gouv.vitam.worker.common.HandlerIO;
 import fr.gouv.vitam.worker.core.plugin.common.CheckDistributionThresholdBase;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
@@ -51,6 +50,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ComputedInheritedRulesCheckDistributionThresholdTest {
 
@@ -62,18 +62,22 @@ public class ComputedInheritedRulesCheckDistributionThresholdTest {
         VitamThreadPoolExecutor.getDefaultExecutor()
     );
 
-    @Mock
-    private MetaDataClientFactory metaDataClientFactory;
-
     private static final int TENANT_ID = 0;
 
     private CheckDistributionThresholdBase checkDistributionThresholdBase;
+
+    private MetaDataClient metaDataClient;
+
+    private HandlerIO handlerIO;
 
     @Before
     public void setUp() throws Exception {
         VitamConfiguration.setDistributionThreshold(15L);
 
-        checkDistributionThresholdBase = new ComputedInheritedRulesCheckDistributionThreshold(metaDataClientFactory);
+        handlerIO = mock(HandlerIO.class);
+        metaDataClient = mock(MetaDataClient.class);
+        when(handlerIO.getMetaDataClient()).thenReturn(metaDataClient);
+        checkDistributionThresholdBase = new ComputedInheritedRulesCheckDistributionThreshold();
     }
 
     @Test
@@ -81,9 +85,7 @@ public class ComputedInheritedRulesCheckDistributionThresholdTest {
     public void whenCheckDistributionComputedInheritedRulesDefaultThresholdOnSelectQueryThenReturnKO()
         throws Exception {
         // Given
-        HandlerIO handlerIO = mock(HandlerIO.class);
-        MetaDataClient metaDataClient = mock(MetaDataClient.class);
-        given(metaDataClientFactory.getClient()).willReturn(metaDataClient);
+
         VitamThreadUtils.getVitamSession().setTenantId(TENANT_ID);
 
         given(handlerIO.getInput(0)).willReturn("SELECT");
@@ -101,7 +103,7 @@ public class ComputedInheritedRulesCheckDistributionThresholdTest {
 
         // When
         ItemStatus itemStatus = checkDistributionThresholdBase.execute(
-            WorkerParametersFactory.newWorkerParameters(),
+            WorkerParametersFactory.newWorkerParameters(WorkFlowExecutionContext.VITAM),
             handlerIO
         );
 
