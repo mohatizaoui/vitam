@@ -55,7 +55,7 @@
         {
           "action": {
             "behavior": "BLOCKING",
-            "actionKey": "ELIMINATION_ACTION_COLLECT_DELETE_UNIT",
+            "actionKey": "DELETION_ACTION_DELETE_UNIT",
             "lifecycleLog": "DISABLED"
           }
         }
@@ -91,7 +91,7 @@
         {
           "action": {
             "behavior": "BLOCKING",
-            "actionKey": "ELIMINATION_ACTION_COLLECT_DELETE_OBJECT_GROUP",
+            "actionKey": "DELETION_ACTION_DELETE_OBJECT_GROUP",
             "lifecycleLog": "DISABLED"
           }
         }

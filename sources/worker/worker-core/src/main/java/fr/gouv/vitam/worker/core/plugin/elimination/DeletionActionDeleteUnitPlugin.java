@@ -27,33 +27,38 @@
 package fr.gouv.vitam.worker.core.plugin.elimination;
 
 import com.google.common.annotations.VisibleForTesting;
+import fr.gouv.vitam.logbook.lifecycles.client.LogbookLifeCyclesClientFactory;
 import fr.gouv.vitam.worker.core.plugin.purge.PurgeDeleteCollectService;
-import fr.gouv.vitam.worker.core.plugin.purge.PurgeDeleteObjectGroupPlugin;
+import fr.gouv.vitam.worker.core.plugin.purge.PurgeReportService;
+import fr.gouv.vitam.worker.core.plugin.purge.PurgeUnitCollectPlugin;
 
 /**
- * Elimination action delete object group plugin.
+ * Deletion action delete unit plugin.
  */
-public class EliminationActionCollectDeleteObjectGroupPlugin extends PurgeDeleteObjectGroupPlugin {
+public class DeletionActionDeleteUnitPlugin extends PurgeUnitCollectPlugin {
 
-    private static final String ELIMINATION_ACTION_DELETE_OBJECT_GROUP =
-        "ELIMINATION_ACTION_COLLECT_DELETE_OBJECT_GROUP";
+    private static final String DELETION_ACTION_DELETE_UNIT = "DELETION_ACTION_DELETE_UNIT";
 
     /**
      * Default constructor
      */
-    public EliminationActionCollectDeleteObjectGroupPlugin() {
-        this(new PurgeDeleteCollectService());
+    public DeletionActionDeleteUnitPlugin() {
+        super(DELETION_ACTION_DELETE_UNIT);
     }
 
     /***
      * Test only constructor
      */
     @VisibleForTesting
-    EliminationActionCollectDeleteObjectGroupPlugin(PurgeDeleteCollectService purgeDeleteService) {
-        super(ELIMINATION_ACTION_DELETE_OBJECT_GROUP, purgeDeleteService);
+    DeletionActionDeleteUnitPlugin(
+        PurgeDeleteCollectService purgeDeleteCollectService,
+        PurgeReportService purgeReportService,
+        LogbookLifeCyclesClientFactory lfcClientFactory
+    ) {
+        super(DELETION_ACTION_DELETE_UNIT, purgeDeleteCollectService, purgeReportService, lfcClientFactory);
     }
 
     public static String getId() {
-        return ELIMINATION_ACTION_DELETE_OBJECT_GROUP;
+        return DELETION_ACTION_DELETE_UNIT;
     }
 }
