@@ -44,6 +44,7 @@ import fr.gouv.vitam.processing.management.api.ProcessManagement;
 import fr.gouv.vitam.worker.client.WorkerClientFactory;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
 import fr.gouv.vitam.workspace.client.WorkspaceCollectClientFactory;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -81,13 +82,20 @@ public class VitamApplicationInitializr {
             commonBusinessApplication = new CommonBusinessApplication();
 
             WorkspaceClientFactory.changeMode(configuration.getUrlWorkspace(), WorkFlowExecutionContext.VITAM);
-            WorkspaceCollectClientFactory.changeMode(
-                configuration.getUrlWorkspaceCollect(),
-                WorkFlowExecutionContext.COLLECT
-            );
+            if (StringUtils.isNotEmpty(configuration.getUrlWorkspaceCollect())) {
+                WorkspaceCollectClientFactory.changeMode(
+                    configuration.getUrlWorkspaceCollect(),
+                    WorkFlowExecutionContext.COLLECT
+                );
+            }
 
             MetaDataClientFactory.changeMode(configuration.getUrlMetadata(), WorkFlowExecutionContext.VITAM);
-            MetaDataClientFactory.changeMode(configuration.getUrlMetadataCollect(), WorkFlowExecutionContext.COLLECT);
+            if (StringUtils.isNotEmpty(configuration.getUrlMetadataCollect())) {
+                MetaDataClientFactory.changeMode(
+                    configuration.getUrlMetadataCollect(),
+                    WorkFlowExecutionContext.COLLECT
+                );
+            }
 
             IWorkerManager workerManager = new WorkerManager();
             workerManager.initialize();

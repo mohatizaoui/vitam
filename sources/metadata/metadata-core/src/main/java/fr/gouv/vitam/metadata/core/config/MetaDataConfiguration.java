@@ -42,7 +42,6 @@ import java.util.List;
 public class MetaDataConfiguration extends DbConfigurationImpl {
 
     private String workspaceUrl;
-    private String workspaceCollectUrl;
     private String urlProcessing;
     private String clusterName;
     private List<ElasticsearchNode> elasticsearchNodes;
@@ -217,15 +216,6 @@ public class MetaDataConfiguration extends DbConfigurationImpl {
 
     public MetaDataConfiguration setWorkspaceUrl(String workspaceUrl) {
         this.workspaceUrl = workspaceUrl;
-        return this;
-    }
-
-    public String getWorkspaceCollectUrl() {
-        return workspaceCollectUrl;
-    }
-
-    public MetaDataConfiguration setWorkspaceCollectUrl(String workspaceCollectUrl) {
-        this.workspaceCollectUrl = workspaceCollectUrl;
         return this;
     }
 
