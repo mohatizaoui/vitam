@@ -43,6 +43,7 @@ import fr.gouv.vitam.metadata.client.MetaDataClientFactory;
 import fr.gouv.vitam.worker.server.registration.WorkerRegistrationListener;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
 import fr.gouv.vitam.workspace.client.WorkspaceCollectClientFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import javax.servlet.ServletContextListener;
@@ -112,12 +113,20 @@ public class WorkerMain {
             try (final InputStream yamlIS = PropertiesUtils.getConfigAsStream(args[0])) {
                 final WorkerConfiguration configuration = PropertiesUtils.readYaml(yamlIS, WorkerConfiguration.class);
                 MetaDataClientFactory.changeMode(configuration.getUrlMetadata(), WorkFlowExecutionContext.VITAM);
-                MetaDataClientFactory.changeMode(configuration.getUrlMetadata(), WorkFlowExecutionContext.COLLECT);
                 WorkspaceClientFactory.changeMode(configuration.getUrlWorkspace(), WorkFlowExecutionContext.VITAM);
-                WorkspaceCollectClientFactory.changeMode(
-                    configuration.getUrlWorkspaceCollect(),
-                    WorkFlowExecutionContext.COLLECT
-                );
+                if (StringUtils.isNotEmpty(configuration.getUrlMetadataCollect())) {
+                    MetaDataClientFactory.changeMode(
+                        configuration.getUrlMetadataCollect(),
+                        WorkFlowExecutionContext.COLLECT
+                    );
+                }
+
+                if (StringUtils.isNotEmpty(configuration.getUrlWorkspaceCollect())) {
+                    WorkspaceCollectClientFactory.changeMode(
+                        configuration.getUrlWorkspaceCollect(),
+                        WorkFlowExecutionContext.COLLECT
+                    );
+                }
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
