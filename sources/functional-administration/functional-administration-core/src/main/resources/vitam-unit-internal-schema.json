@@ -8815,7 +8815,7 @@
     "Collection": "Unit",
     "Category": "OTHER",
     "ApiPath": "#approximate_creation_date",
-    "ShortName": "_acd"
+    "ShortName": "Date de création"
   },
   {
     "FieldName": "_aud",
@@ -8828,7 +8828,7 @@
     "Collection": "Unit",
     "Category": "OTHER",
     "ApiPath": "#approximate_update_date",
-    "ShortName": "_aud"
+    "ShortName": "Dernière modification"
   },
   {
     "FieldName": "_av",
@@ -8854,7 +8854,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules",
-    "ShortName": "_computedInheritedRules"
+    "ShortName": "Catégorie(s) de règle indexées"
   },
   {
     "FieldName": "AccessRule",
@@ -8867,7 +8867,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.AccessRule",
-    "ShortName": "AccessRule"
+    "ShortName": "Communicabilité"
   },
   {
     "FieldName": "EndDates",
@@ -8880,7 +8880,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.AccessRule.EndDates",
-    "ShortName": "EndDates"
+    "ShortName": "Date(s) de fin par règle de gestion héritée"
   },
   {
     "FieldName": "InheritanceOrigin",
@@ -8893,7 +8893,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.AccessRule.InheritanceOrigin",
-    "ShortName": "InheritanceOrigin"
+    "ShortName": "Origine des règles calculées"
   },
   {
     "FieldName": "InheritedRuleIds",
@@ -8906,7 +8906,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.AccessRule.InheritedRuleIds",
-    "ShortName": "InheritedRuleIds"
+    "ShortName": "Identifiant(s) des règles héritées"
   },
   {
     "FieldName": "MaxEndDate",
@@ -8919,7 +8919,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.AccessRule.MaxEndDate",
-    "ShortName": "MaxEndDate"
+    "ShortName": "Date de fin maximale"
   },
   {
     "FieldName": "Rules",
@@ -8932,7 +8932,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.AccessRule.Rules",
-    "ShortName": "Rules"
+    "ShortName": "Règle(s)"
   },
   {
     "FieldName": "EndDate",
@@ -8973,7 +8973,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.AppraisalRule",
-    "ShortName": "AppraisalRule"
+    "ShortName": "Durée d’utilité administrative"
   },
   {
     "FieldName": "EndDates",
@@ -8986,7 +8986,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.AppraisalRule.EndDates",
-    "ShortName": "EndDates"
+    "ShortName": "Date(s) de fin par règle de gestion héritée"
   },
   {
     "FieldName": "FinalAction",
@@ -9013,7 +9013,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.AppraisalRule.InheritanceOrigin",
-    "ShortName": "InheritanceOrigin"
+    "ShortName": "Origine des règles calculées"
   },
   {
     "FieldName": "InheritedRuleIds",
@@ -9026,7 +9026,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.AppraisalRule.InheritedRuleIds",
-    "ShortName": "InheritedRuleIds"
+    "ShortName": "Identifiant(s) des règles héritées"
   },
   {
     "FieldName": "MaxEndDate",
@@ -9039,7 +9039,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.AppraisalRule.MaxEndDate",
-    "ShortName": "MaxEndDate"
+    "ShortName": "Date de fin maximale"
   },
   {
     "FieldName": "Rules",
@@ -9052,7 +9052,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.AppraisalRule.Rules",
-    "ShortName": "Rules"
+    "ShortName": "Règle(s)"
   },
   {
     "FieldName": "EndDate",
@@ -9093,7 +9093,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.ClassificationRule",
-    "ShortName": "ClassificationRule"
+    "ShortName": "Classification"
   },
   {
     "FieldName": "EndDates",
@@ -9106,7 +9106,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.ClassificationRule.EndDates",
-    "ShortName": "EndDates"
+    "ShortName": "Date(s) de fin par règle de gestion héritée"
   },
   {
     "FieldName": "InheritanceOrigin",
@@ -9119,7 +9119,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.ClassificationRule.InheritanceOrigin",
-    "ShortName": "InheritanceOrigin"
+    "ShortName": "Origine des règles calculées"
   },
   {
     "FieldName": "InheritedRuleIds",
@@ -9132,7 +9132,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.ClassificationRule.InheritedRuleIds",
-    "ShortName": "InheritedRuleIds"
+    "ShortName": "Identifiant(s) des règles héritées"
   },
   {
     "FieldName": "MaxEndDate",
@@ -9145,7 +9145,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.ClassificationRule.MaxEndDate",
-    "ShortName": "MaxEndDate"
+    "ShortName": "Date de fin maximale"
   },
   {
     "FieldName": "Rules",
@@ -9158,7 +9158,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.ClassificationRule.Rules",
-    "ShortName": "Rules"
+    "ShortName": "Règle(s)"
   },
   {
     "FieldName": "EndDate",
@@ -9199,7 +9199,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.DisseminationRule",
-    "ShortName": "DisseminationRule"
+    "ShortName": "Diffusion"
   },
   {
     "FieldName": "EndDates",
@@ -9212,7 +9212,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.DisseminationRule.EndDates",
-    "ShortName": "EndDates"
+    "ShortName": "Date(s) de fin par règle de gestion héritée"
   },
   {
     "FieldName": "InheritanceOrigin",
@@ -9225,7 +9225,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.DisseminationRule.InheritanceOrigin",
-    "ShortName": "InheritanceOrigin"
+    "ShortName": "Origine des règles calculées"
   },
   {
     "FieldName": "InheritedRuleIds",
@@ -9238,7 +9238,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.DisseminationRule.InheritedRuleIds",
-    "ShortName": "InheritedRuleIds"
+    "ShortName": "Identifiant(s) des règles héritées"
   },
   {
     "FieldName": "MaxEndDate",
@@ -9251,7 +9251,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.DisseminationRule.MaxEndDate",
-    "ShortName": "MaxEndDate"
+    "ShortName": "Date de fin maximale"
   },
   {
     "FieldName": "Rules",
@@ -9264,7 +9264,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.DisseminationRule.Rules",
-    "ShortName": "Rules"
+    "ShortName": "Règle(s)"
   },
   {
     "FieldName": "EndDate",
@@ -9305,7 +9305,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.HoldRule",
-    "ShortName": "HoldRule"
+    "ShortName": "Gel / Dégel"
   },
   {
     "FieldName": "EndDates",
@@ -9318,7 +9318,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.HoldRule.EndDates",
-    "ShortName": "EndDates"
+    "ShortName": "Date(s) de fin par règle de gestion héritée"
   },
   {
     "FieldName": "InheritanceOrigin",
@@ -9331,7 +9331,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.HoldRule.InheritanceOrigin",
-    "ShortName": "InheritanceOrigin"
+    "ShortName": "Origine des règles calculées"
   },
   {
     "FieldName": "InheritedRuleIds",
@@ -9344,7 +9344,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.HoldRule.InheritedRuleIds",
-    "ShortName": "InheritedRuleIds"
+    "ShortName": "Identifiant(s) des règles héritées"
   },
   {
     "FieldName": "MaxEndDate",
@@ -9357,7 +9357,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.HoldRule.MaxEndDate",
-    "ShortName": "MaxEndDate"
+    "ShortName": "Date de fin maximale"
   },
   {
     "FieldName": "Rules",
@@ -9370,7 +9370,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.HoldRule.Rules",
-    "ShortName": "Rules"
+    "ShortName": "Règle(s)"
   },
   {
     "FieldName": "EndDate",
@@ -9425,7 +9425,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.ReuseRule",
-    "ShortName": "ReuseRule"
+    "ShortName": "Réutilisation"
   },
   {
     "FieldName": "EndDates",
@@ -9438,7 +9438,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.ReuseRule.EndDates",
-    "ShortName": "EndDates"
+    "ShortName": "Date(s) de fin par règle de gestion héritée"
   },
   {
     "FieldName": "InheritanceOrigin",
@@ -9451,7 +9451,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.ReuseRule.InheritanceOrigin",
-    "ShortName": "InheritanceOrigin"
+    "ShortName": "Origine des règles calculées"
   },
   {
     "FieldName": "InheritedRuleIds",
@@ -9464,7 +9464,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.ReuseRule.InheritedRuleIds",
-    "ShortName": "InheritedRuleIds"
+    "ShortName": "Identifiant(s) des règles héritées"
   },
   {
     "FieldName": "MaxEndDate",
@@ -9477,7 +9477,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.ReuseRule.MaxEndDate",
-    "ShortName": "MaxEndDate"
+    "ShortName": "Date de fin maximale"
   },
   {
     "FieldName": "Rules",
@@ -9490,7 +9490,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.ReuseRule.Rules",
-    "ShortName": "Rules"
+    "ShortName": "Règle(s)"
   },
   {
     "FieldName": "EndDate",
@@ -9531,7 +9531,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.StorageRule",
-    "ShortName": "StorageRule"
+    "ShortName": "Durée d’utilité courante"
   },
   {
     "FieldName": "EndDates",
@@ -9544,7 +9544,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.StorageRule.EndDates",
-    "ShortName": "EndDates"
+    "ShortName": "Date(s) de fin par règle de gestion héritée"
   },
   {
     "FieldName": "FinalAction",
@@ -9571,7 +9571,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.StorageRule.InheritanceOrigin",
-    "ShortName": "InheritanceOrigin"
+    "ShortName": "Origine des règles calculées"
   },
   {
     "FieldName": "InheritedRuleIds",
@@ -9584,7 +9584,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.StorageRule.InheritedRuleIds",
-    "ShortName": "InheritedRuleIds"
+    "ShortName": "Identifiant(s) des règles héritées"
   },
   {
     "FieldName": "MaxEndDate",
@@ -9597,7 +9597,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.StorageRule.MaxEndDate",
-    "ShortName": "MaxEndDate"
+    "ShortName": "Date de fin maximale"
   },
   {
     "FieldName": "Rules",
@@ -9610,7 +9610,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.StorageRule.Rules",
-    "ShortName": "Rules"
+    "ShortName": "Règle(s)"
   },
   {
     "FieldName": "EndDate",
@@ -9651,7 +9651,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.indexationDate",
-    "ShortName": "indexationDate"
+    "ShortName": "Date d’indexation"
   },
   {
     "FieldName": "inheritedRulesAPIOutput",
@@ -9664,7 +9664,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#computedInheritedRules.inheritedRulesAPIOutput",
-    "ShortName": "inheritedRulesAPIOutput"
+    "ShortName": "Catégorie(s) de règle indexée(s)"
   },
   {
     "FieldName": "_elimination",
@@ -9677,7 +9677,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#elimination",
-    "ShortName": "_elimination"
+    "ShortName": "Analyse d’élimination"
   },
   {
     "FieldName": "DestroyableOriginatingAgencies",
@@ -9690,7 +9690,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#elimination.DestroyableOriginatingAgencies",
-    "ShortName": "DestroyableOriginatingAgencies"
+    "ShortName": "Service(s) producteur(s) concerné(s)"
   },
   {
     "FieldName": "ExtendedInfo",
@@ -9703,7 +9703,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#elimination.ExtendedInfo",
-    "ShortName": "ExtendedInfo"
+    "ShortName": "Informations complémentaires"
   },
   {
     "FieldName": "ExtendedInfoDetails",
@@ -9716,7 +9716,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#elimination.ExtendedInfo.ExtendedInfoDetails",
-    "ShortName": "ExtendedInfoDetails"
+    "ShortName": "Détails"
   },
   {
     "FieldName": "DestroyableOriginatingAgencies",
@@ -9729,7 +9729,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#elimination.ExtendedInfo.ExtendedInfoDetails.DestroyableOriginatingAgencies",
-    "ShortName": "DestroyableOriginatingAgencies"
+    "ShortName": "Service(s) producteur(s) concerné(s)"
   },
   {
     "FieldName": "HoldRuleIds",
@@ -9742,7 +9742,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#elimination.ExtendedInfo.ExtendedInfoDetails.HoldRuleIds",
-    "ShortName": "HoldRuleIds"
+    "ShortName": "Règle(s) de gel bloquant l’élimination"
   },
   {
     "FieldName": "NonDestroyableOriginatingAgencies",
@@ -9755,7 +9755,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#elimination.ExtendedInfo.ExtendedInfoDetails.NonDestroyableOriginatingAgencies",
-    "ShortName": "NonDestroyableOriginatingAgencies"
+    "ShortName": "Service(s) producteur(s) non concerné(s) par l’élimination"
   },
   {
     "FieldName": "OriginatingAgenciesInConflict",
@@ -9768,7 +9768,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#elimination.ExtendedInfo.ExtendedInfoDetails.OriginatingAgenciesInConflict",
-    "ShortName": "OriginatingAgenciesInConflict"
+    "ShortName": "Service(s) producteur(s) ayant des conflits"
   },
   {
     "FieldName": "ParentUnitId",
@@ -9781,7 +9781,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#elimination.ExtendedInfo.ExtendedInfoDetails.ParentUnitId",
-    "ShortName": "ParentUnitId"
+    "ShortName": "Identifiant de l’unité archivistique parente"
   },
   {
     "FieldName": "ExtendedInfoType",
@@ -9794,7 +9794,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#elimination.ExtendedInfo.ExtendedInfoType",
-    "ShortName": "ExtendedInfoType"
+    "ShortName": "Type de conflit"
   },
   {
     "FieldName": "GlobalStatus",
@@ -9807,7 +9807,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#elimination.GlobalStatus",
-    "ShortName": "GlobalStatus"
+    "ShortName": "Statut"
   },
   {
     "FieldName": "NonDestroyableOriginatingAgencies",
@@ -9820,7 +9820,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#elimination.NonDestroyableOriginatingAgencies",
-    "ShortName": "NonDestroyableOriginatingAgencies"
+    "ShortName": "Service(s) producteur(s) non concerné(s) par l’élimination"
   },
   {
     "FieldName": "OperationId",
@@ -9833,7 +9833,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#elimination.OperationId",
-    "ShortName": "OperationId"
+    "ShortName": "Identifiant de l’opération"
   },
   {
     "FieldName": "_glpd",
@@ -9846,7 +9846,7 @@
     "Collection": "Unit",
     "Category": "OTHER",
     "ApiPath": "#graph_last_persisted_date",
-    "ShortName": "_glpd"
+    "ShortName": "Dernière modification du graphe"
   },
   {
     "FieldName": "_graph",
@@ -9859,7 +9859,7 @@
     "Collection": "Unit",
     "Category": "OTHER",
     "ApiPath": "#graph",
-    "ShortName": "_graph"
+    "ShortName": "Chemin(s) de l'unité archivistique"
   },
   {
     "FieldName": "_history",
@@ -9872,7 +9872,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#history",
-    "ShortName": "_history"
+    "ShortName": "Données historiques"
   },
   {
     "FieldName": "data",
@@ -9885,7 +9885,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#history.data",
-    "ShortName": "data"
+    "ShortName": "Données historisées"
   },
   {
     "FieldName": "_mgt",
@@ -9898,7 +9898,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#history.data.#management",
-    "ShortName": "_mgt"
+    "ShortName": "Règle(s) de gestion"
   },
   {
     "FieldName": "ClassificationRule",
@@ -9911,7 +9911,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#history.data.#management.ClassificationRule",
-    "ShortName": "ClassificationRule"
+    "ShortName": "Classification"
   },
   {
     "FieldName": "ClassificationAudience",
@@ -9980,7 +9980,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#history.data.#management.ClassificationRule.Inheritance",
-    "ShortName": "Inheritance"
+    "ShortName": "Héritage(s)"
   },
   {
     "FieldName": "PreventInheritance",
@@ -10035,7 +10035,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#history.data.#management.ClassificationRule.Rules",
-    "ShortName": "Rules"
+    "ShortName": "Règle(s)"
   },
   {
     "FieldName": "EndDate",
@@ -10129,7 +10129,7 @@
     "Collection": "Unit",
     "Category": "OTHER",
     "ApiPath": "#implementationVersion",
-    "ShortName": "_implementationVersion"
+    "ShortName": "Version du modèle de données"
   },
   {
     "FieldName": "_max",
@@ -10178,7 +10178,7 @@
     ],
     "Category": "MANAGEMENT",
     "ApiPath": "#management.AccessRule",
-    "ShortName": "AccessRule"
+    "ShortName": "Communicabilité"
   },
   {
     "FieldName": "Inheritance",
@@ -10196,7 +10196,7 @@
     ],
     "Category": "MANAGEMENT",
     "ApiPath": "#management.AccessRule.Inheritance",
-    "ShortName": "Inheritance"
+    "ShortName": "Héritage(s)"
   },
   {
     "FieldName": "PreventInheritance",
@@ -10252,7 +10252,7 @@
     ],
     "Category": "MANAGEMENT",
     "ApiPath": "#management.AccessRule.Rules",
-    "ShortName": "Rules"
+    "ShortName": "Règle(s)"
   },
   {
     "FieldName": "EndDate",
@@ -10327,7 +10327,7 @@
     ],
     "Category": "MANAGEMENT",
     "ApiPath": "#management.AppraisalRule",
-    "ShortName": "AppraisalRule"
+    "ShortName": "Durée d’utilité administrative"
   },
   {
     "FieldName": "FinalAction",
@@ -10364,7 +10364,7 @@
     ],
     "Category": "MANAGEMENT",
     "ApiPath": "#management.AppraisalRule.Inheritance",
-    "ShortName": "Inheritance"
+    "ShortName": "Héritage(s)"
   },
   {
     "FieldName": "PreventInheritance",
@@ -10420,7 +10420,7 @@
     ],
     "Category": "MANAGEMENT",
     "ApiPath": "#management.AppraisalRule.Rules",
-    "ShortName": "Rules"
+    "ShortName": "Règle(s)"
   },
   {
     "FieldName": "EndDate",
@@ -10495,7 +10495,7 @@
     ],
     "Category": "MANAGEMENT",
     "ApiPath": "#management.ClassificationRule",
-    "ShortName": "ClassificationRule"
+    "ShortName": "Classification"
   },
   {
     "FieldName": "ClassificationAudience",
@@ -10589,7 +10589,7 @@
     ],
     "Category": "MANAGEMENT",
     "ApiPath": "#management.ClassificationRule.Inheritance",
-    "ShortName": "Inheritance"
+    "ShortName": "Héritage(s)"
   },
   {
     "FieldName": "PreventInheritance",
@@ -10664,7 +10664,7 @@
     ],
     "Category": "MANAGEMENT",
     "ApiPath": "#management.ClassificationRule.Rules",
-    "ShortName": "Rules"
+    "ShortName": "Règle(s)"
   },
   {
     "FieldName": "EndDate",
@@ -10739,7 +10739,7 @@
     ],
     "Category": "MANAGEMENT",
     "ApiPath": "#management.DisseminationRule",
-    "ShortName": "DisseminationRule"
+    "ShortName": "Diffusion"
   },
   {
     "FieldName": "Inheritance",
@@ -10757,7 +10757,7 @@
     ],
     "Category": "MANAGEMENT",
     "ApiPath": "#management.DisseminationRule.Inheritance",
-    "ShortName": "Inheritance"
+    "ShortName": "Héritage(s)"
   },
   {
     "FieldName": "PreventInheritance",
@@ -10813,7 +10813,7 @@
     ],
     "Category": "MANAGEMENT",
     "ApiPath": "#management.DisseminationRule.Rules",
-    "ShortName": "Rules"
+    "ShortName": "Règle(s)"
   },
   {
     "FieldName": "EndDate",
@@ -10888,7 +10888,7 @@
     ],
     "Category": "MANAGEMENT",
     "ApiPath": "#management.HoldRule",
-    "ShortName": "HoldRule"
+    "ShortName": "Gel / Dégel"
   },
   {
     "FieldName": "Inheritance",
@@ -10906,7 +10906,7 @@
     ],
     "Category": "MANAGEMENT",
     "ApiPath": "#management.HoldRule.Inheritance",
-    "ShortName": "Inheritance"
+    "ShortName": "Héritage(s)"
   },
   {
     "FieldName": "PreventInheritance",
@@ -10962,7 +10962,7 @@
     ],
     "Category": "MANAGEMENT",
     "ApiPath": "#management.HoldRule.Rules",
-    "ShortName": "Rules"
+    "ShortName": "Règle(s)"
   },
   {
     "FieldName": "EndDate",
@@ -11151,7 +11151,7 @@
     ],
     "Category": "MANAGEMENT",
     "ApiPath": "#management.ReuseRule",
-    "ShortName": "ReuseRule"
+    "ShortName": "Réutilisation"
   },
   {
     "FieldName": "Inheritance",
@@ -11169,7 +11169,7 @@
     ],
     "Category": "MANAGEMENT",
     "ApiPath": "#management.ReuseRule.Inheritance",
-    "ShortName": "Inheritance"
+    "ShortName": "Héritage(s)"
   },
   {
     "FieldName": "PreventInheritance",
@@ -11225,7 +11225,7 @@
     ],
     "Category": "MANAGEMENT",
     "ApiPath": "#management.ReuseRule.Rules",
-    "ShortName": "Rules"
+    "ShortName": "Règle(s)"
   },
   {
     "FieldName": "EndDate",
@@ -11300,7 +11300,7 @@
     ],
     "Category": "MANAGEMENT",
     "ApiPath": "#management.StorageRule",
-    "ShortName": "StorageRule"
+    "ShortName": "Durée d’utilité courante"
   },
   {
     "FieldName": "FinalAction",
@@ -11337,7 +11337,7 @@
     ],
     "Category": "MANAGEMENT",
     "ApiPath": "#management.StorageRule.Inheritance",
-    "ShortName": "Inheritance"
+    "ShortName": "Héritage(s)"
   },
   {
     "FieldName": "PreventInheritance",
@@ -11393,7 +11393,7 @@
     ],
     "Category": "MANAGEMENT",
     "ApiPath": "#management.StorageRule.Rules",
-    "ShortName": "Rules"
+    "ShortName": "Règle(s)"
   },
   {
     "FieldName": "EndDate",
@@ -11528,7 +11528,7 @@
     "Collection": "Unit",
     "Category": "OTHER",
     "ApiPath": "#sedaVersion",
-    "ShortName": "_sedaVersion"
+    "ShortName": "Version du SEDA"
   },
   {
     "FieldName": "_sp",
@@ -11568,7 +11568,7 @@
     "Collection": "Unit",
     "Category": "OTHER",
     "ApiPath": "#storage",
-    "ShortName": "_storage"
+    "ShortName": "Offres de stockage"
   },
   {
     "FieldName": "_nbc",
@@ -11594,7 +11594,7 @@
     "Collection": "Unit",
     "Category": "OTHER",
     "ApiPath": "#storage.offerIds",
-    "ShortName": "offerIds"
+    "ShortName": "Identifiant(s) des offres de stockage"
   },
   {
     "FieldName": "strategyId",
@@ -11607,7 +11607,7 @@
     "Collection": "Unit",
     "Category": "OTHER",
     "ApiPath": "#storage.strategyId",
-    "ShortName": "strategyId"
+    "ShortName": "Identifiant de la stratégie de stockage"
   },
   {
     "FieldName": "_tenant",
@@ -11633,7 +11633,7 @@
     "Collection": "Unit",
     "Category": "OTHER",
     "ApiPath": "#uds",
-    "ShortName": "_uds"
+    "ShortName": "Unités archivistiques parentes et niveau de profondeur relative"
   },
   {
     "FieldName": "_unitType",
@@ -11685,7 +11685,7 @@
     "Collection": "Unit",
     "Category": "MANAGEMENT",
     "ApiPath": "#validComputedInheritedRules",
-    "ShortName": "validComputedInheritedRules"
+    "ShortName": "Validité des règles calculées"
   },
   {
     "FieldName": "_batchId",

@@ -9140,7 +9140,7 @@
     "Cardinality": "ONE",
     "Type": "DATE",
     "Origin": "INTERNAL",
-    "ShortName": "_acd",
+    "ShortName": "Date de création",
     "Path": "_acd",
     "EffectiveCardinality": "ZERO"
   },
@@ -9153,7 +9153,7 @@
     "Cardinality": "ONE",
     "Type": "DATE",
     "Origin": "INTERNAL",
-    "ShortName": "_aud",
+    "ShortName": "Dernière modification",
     "Path": "_aud",
     "EffectiveCardinality": "ZERO"
   },
@@ -9178,7 +9178,7 @@
     "Cardinality": "ONE",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "_computedInheritedRules",
+    "ShortName": "Catégorie(s) de règle indexées",
     "Path": "_computedInheritedRules",
     "EffectiveCardinality": "ZERO"
   },
@@ -9190,7 +9190,7 @@
     "Cardinality": "MANY",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "AccessRule",
+    "ShortName": "Communicabilité",
     "Path": "_computedInheritedRules.AccessRule",
     "EffectiveCardinality": "ZERO"
   },
@@ -9202,7 +9202,7 @@
     "Cardinality": "ONE",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "EndDates",
+    "ShortName": "Date(s) de fin par règle de gestion héritée",
     "Path": "_computedInheritedRules.AccessRule.EndDates",
     "EffectiveCardinality": "ZERO"
   },
@@ -9215,7 +9215,7 @@
     "Cardinality": "ONE",
     "Type": "KEYWORD",
     "Origin": "INTERNAL",
-    "ShortName": "InheritanceOrigin",
+    "ShortName": "Origine des règles calculées",
     "Path": "_computedInheritedRules.AccessRule.InheritanceOrigin",
     "StringSize": "MEDIUM",
     "EffectiveCardinality": "ZERO"
@@ -9229,7 +9229,7 @@
     "Cardinality": "MANY",
     "Type": "KEYWORD",
     "Origin": "INTERNAL",
-    "ShortName": "InheritedRuleIds",
+    "ShortName": "Identifiant(s) des règles héritées",
     "Path": "_computedInheritedRules.AccessRule.InheritedRuleIds",
     "StringSize": "MEDIUM",
     "EffectiveCardinality": "ZERO"
@@ -9243,7 +9243,7 @@
     "Cardinality": "ONE",
     "Type": "DATE",
     "Origin": "INTERNAL",
-    "ShortName": "MaxEndDate",
+    "ShortName": "Date de fin maximale",
     "Path": "_computedInheritedRules.AccessRule.MaxEndDate",
     "EffectiveCardinality": "ZERO"
   },
@@ -9255,7 +9255,7 @@
     "Cardinality": "MANY",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "Rules",
+    "ShortName": "Règle(s)",
     "Path": "_computedInheritedRules.AccessRule.Rules",
     "EffectiveCardinality": "ZERO"
   },
@@ -9296,7 +9296,7 @@
     "Cardinality": "MANY",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "AppraisalRule",
+    "ShortName": "Durée d’utilité administrative",
     "Path": "_computedInheritedRules.AppraisalRule",
     "EffectiveCardinality": "ZERO"
   },
@@ -9308,7 +9308,7 @@
     "Cardinality": "ONE",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "EndDates",
+    "ShortName": "Date(s) de fin par règle de gestion héritée",
     "Path": "_computedInheritedRules.AppraisalRule.EndDates",
     "EffectiveCardinality": "ZERO"
   },
@@ -9336,7 +9336,7 @@
     "Cardinality": "ONE",
     "Type": "KEYWORD",
     "Origin": "INTERNAL",
-    "ShortName": "InheritanceOrigin",
+    "ShortName": "Origine des règles calculées",
     "Path": "_computedInheritedRules.AppraisalRule.InheritanceOrigin",
     "StringSize": "MEDIUM",
     "EffectiveCardinality": "ZERO"
@@ -9350,7 +9350,7 @@
     "Cardinality": "MANY",
     "Type": "KEYWORD",
     "Origin": "INTERNAL",
-    "ShortName": "InheritedRuleIds",
+    "ShortName": "Identifiant(s) des règles héritées",
     "Path": "_computedInheritedRules.AppraisalRule.InheritedRuleIds",
     "StringSize": "MEDIUM",
     "EffectiveCardinality": "ZERO"
@@ -9364,7 +9364,7 @@
     "Cardinality": "ONE",
     "Type": "DATE",
     "Origin": "INTERNAL",
-    "ShortName": "MaxEndDate",
+    "ShortName": "Date de fin maximale",
     "Path": "_computedInheritedRules.AppraisalRule.MaxEndDate",
     "EffectiveCardinality": "ZERO"
   },
@@ -9376,7 +9376,7 @@
     "Cardinality": "MANY",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "Rules",
+    "ShortName": "Règle(s)",
     "Path": "_computedInheritedRules.AppraisalRule.Rules",
     "EffectiveCardinality": "ZERO"
   },
@@ -9417,7 +9417,7 @@
     "Cardinality": "MANY",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "ClassificationRule",
+    "ShortName": "Classification",
     "Path": "_computedInheritedRules.ClassificationRule",
     "EffectiveCardinality": "ZERO"
   },
@@ -9429,7 +9429,7 @@
     "Cardinality": "ONE",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "EndDates",
+    "ShortName": "Date(s) de fin par règle de gestion héritée",
     "Path": "_computedInheritedRules.ClassificationRule.EndDates",
     "EffectiveCardinality": "ZERO"
   },
@@ -9442,7 +9442,7 @@
     "Cardinality": "ONE",
     "Type": "KEYWORD",
     "Origin": "INTERNAL",
-    "ShortName": "InheritanceOrigin",
+    "ShortName": "Origine des règles calculées",
     "Path": "_computedInheritedRules.ClassificationRule.InheritanceOrigin",
     "StringSize": "MEDIUM",
     "EffectiveCardinality": "ZERO"
@@ -9456,7 +9456,7 @@
     "Cardinality": "MANY",
     "Type": "KEYWORD",
     "Origin": "INTERNAL",
-    "ShortName": "InheritedRuleIds",
+    "ShortName": "Identifiant(s) des règles héritées",
     "Path": "_computedInheritedRules.ClassificationRule.InheritedRuleIds",
     "StringSize": "MEDIUM",
     "EffectiveCardinality": "ZERO"
@@ -9470,7 +9470,7 @@
     "Cardinality": "ONE",
     "Type": "DATE",
     "Origin": "INTERNAL",
-    "ShortName": "MaxEndDate",
+    "ShortName": "Date de fin maximale",
     "Path": "_computedInheritedRules.ClassificationRule.MaxEndDate",
     "EffectiveCardinality": "ZERO"
   },
@@ -9482,7 +9482,7 @@
     "Cardinality": "MANY",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "Rules",
+    "ShortName": "Règle(s)",
     "Path": "_computedInheritedRules.ClassificationRule.Rules",
     "EffectiveCardinality": "ZERO"
   },
@@ -9523,7 +9523,7 @@
     "Cardinality": "MANY",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "DisseminationRule",
+    "ShortName": "Diffusion",
     "Path": "_computedInheritedRules.DisseminationRule",
     "EffectiveCardinality": "ZERO"
   },
@@ -9535,7 +9535,7 @@
     "Cardinality": "ONE",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "EndDates",
+    "ShortName": "Date(s) de fin par règle de gestion héritée",
     "Path": "_computedInheritedRules.DisseminationRule.EndDates",
     "EffectiveCardinality": "ZERO"
   },
@@ -9548,7 +9548,7 @@
     "Cardinality": "ONE",
     "Type": "KEYWORD",
     "Origin": "INTERNAL",
-    "ShortName": "InheritanceOrigin",
+    "ShortName": "Origine des règles calculées",
     "Path": "_computedInheritedRules.DisseminationRule.InheritanceOrigin",
     "StringSize": "MEDIUM",
     "EffectiveCardinality": "ZERO"
@@ -9562,7 +9562,7 @@
     "Cardinality": "MANY",
     "Type": "KEYWORD",
     "Origin": "INTERNAL",
-    "ShortName": "InheritedRuleIds",
+    "ShortName": "Identifiant(s) des règles héritées",
     "Path": "_computedInheritedRules.DisseminationRule.InheritedRuleIds",
     "StringSize": "MEDIUM",
     "EffectiveCardinality": "ZERO"
@@ -9576,7 +9576,7 @@
     "Cardinality": "ONE",
     "Type": "DATE",
     "Origin": "INTERNAL",
-    "ShortName": "MaxEndDate",
+    "ShortName": "Date de fin maximale",
     "Path": "_computedInheritedRules.DisseminationRule.MaxEndDate",
     "EffectiveCardinality": "ZERO"
   },
@@ -9588,7 +9588,7 @@
     "Cardinality": "MANY",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "Rules",
+    "ShortName": "Règle(s)",
     "Path": "_computedInheritedRules.DisseminationRule.Rules",
     "EffectiveCardinality": "ZERO"
   },
@@ -9629,7 +9629,7 @@
     "Cardinality": "MANY",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "HoldRule",
+    "ShortName": "Gel / Dégel",
     "Path": "_computedInheritedRules.HoldRule",
     "EffectiveCardinality": "ZERO"
   },
@@ -9641,7 +9641,7 @@
     "Cardinality": "ONE",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "EndDates",
+    "ShortName": "Date(s) de fin par règle de gestion héritée",
     "Path": "_computedInheritedRules.HoldRule.EndDates",
     "EffectiveCardinality": "ZERO"
   },
@@ -9654,7 +9654,7 @@
     "Cardinality": "ONE",
     "Type": "KEYWORD",
     "Origin": "INTERNAL",
-    "ShortName": "InheritanceOrigin",
+    "ShortName": "Origine des règles calculées",
     "Path": "_computedInheritedRules.HoldRule.InheritanceOrigin",
     "StringSize": "MEDIUM",
     "EffectiveCardinality": "ZERO"
@@ -9668,7 +9668,7 @@
     "Cardinality": "MANY",
     "Type": "KEYWORD",
     "Origin": "INTERNAL",
-    "ShortName": "InheritedRuleIds",
+    "ShortName": "Identifiant(s) des règles héritées",
     "Path": "_computedInheritedRules.HoldRule.InheritedRuleIds",
     "StringSize": "MEDIUM",
     "EffectiveCardinality": "ZERO"
@@ -9682,7 +9682,7 @@
     "Cardinality": "ONE",
     "Type": "DATE",
     "Origin": "INTERNAL",
-    "ShortName": "MaxEndDate",
+    "ShortName": "Date de fin maximale",
     "Path": "_computedInheritedRules.HoldRule.MaxEndDate",
     "EffectiveCardinality": "ZERO"
   },
@@ -9694,7 +9694,7 @@
     "Cardinality": "MANY",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "Rules",
+    "ShortName": "Règle(s)",
     "Path": "_computedInheritedRules.HoldRule.Rules",
     "EffectiveCardinality": "ZERO"
   },
@@ -9749,7 +9749,7 @@
     "Cardinality": "MANY",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "ReuseRule",
+    "ShortName": "Réutilisation",
     "Path": "_computedInheritedRules.ReuseRule",
     "EffectiveCardinality": "ZERO"
   },
@@ -9761,7 +9761,7 @@
     "Cardinality": "ONE",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "EndDates",
+    "ShortName": "Date(s) de fin par règle de gestion héritée",
     "Path": "_computedInheritedRules.ReuseRule.EndDates",
     "EffectiveCardinality": "ZERO"
   },
@@ -9774,7 +9774,7 @@
     "Cardinality": "ONE",
     "Type": "KEYWORD",
     "Origin": "INTERNAL",
-    "ShortName": "InheritanceOrigin",
+    "ShortName": "Origine des règles calculées",
     "Path": "_computedInheritedRules.ReuseRule.InheritanceOrigin",
     "StringSize": "MEDIUM",
     "EffectiveCardinality": "ZERO"
@@ -9788,7 +9788,7 @@
     "Cardinality": "MANY",
     "Type": "KEYWORD",
     "Origin": "INTERNAL",
-    "ShortName": "InheritedRuleIds",
+    "ShortName": "Identifiant(s) des règles héritées",
     "Path": "_computedInheritedRules.ReuseRule.InheritedRuleIds",
     "StringSize": "MEDIUM",
     "EffectiveCardinality": "ZERO"
@@ -9802,7 +9802,7 @@
     "Cardinality": "ONE",
     "Type": "DATE",
     "Origin": "INTERNAL",
-    "ShortName": "MaxEndDate",
+    "ShortName": "Date de fin maximale",
     "Path": "_computedInheritedRules.ReuseRule.MaxEndDate",
     "EffectiveCardinality": "ZERO"
   },
@@ -9814,7 +9814,7 @@
     "Cardinality": "MANY",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "Rules",
+    "ShortName": "Règle(s)",
     "Path": "_computedInheritedRules.ReuseRule.Rules",
     "EffectiveCardinality": "ZERO"
   },
@@ -9855,7 +9855,7 @@
     "Cardinality": "MANY",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "StorageRule",
+    "ShortName": "Durée d’utilité courante",
     "Path": "_computedInheritedRules.StorageRule",
     "EffectiveCardinality": "ZERO"
   },
@@ -9867,7 +9867,7 @@
     "Cardinality": "ONE",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "EndDates",
+    "ShortName": "Date(s) de fin par règle de gestion héritée",
     "Path": "_computedInheritedRules.StorageRule.EndDates",
     "EffectiveCardinality": "ZERO"
   },
@@ -9895,7 +9895,7 @@
     "Cardinality": "ONE",
     "Type": "KEYWORD",
     "Origin": "INTERNAL",
-    "ShortName": "InheritanceOrigin",
+    "ShortName": "Origine des règles calculées",
     "Path": "_computedInheritedRules.StorageRule.InheritanceOrigin",
     "StringSize": "MEDIUM",
     "EffectiveCardinality": "ZERO"
@@ -9909,7 +9909,7 @@
     "Cardinality": "MANY",
     "Type": "KEYWORD",
     "Origin": "INTERNAL",
-    "ShortName": "InheritedRuleIds",
+    "ShortName": "Identifiant(s) des règles héritées",
     "Path": "_computedInheritedRules.StorageRule.InheritedRuleIds",
     "StringSize": "MEDIUM",
     "EffectiveCardinality": "ZERO"
@@ -9923,7 +9923,7 @@
     "Cardinality": "ONE",
     "Type": "DATE",
     "Origin": "INTERNAL",
-    "ShortName": "MaxEndDate",
+    "ShortName": "Date de fin maximale",
     "Path": "_computedInheritedRules.StorageRule.MaxEndDate",
     "EffectiveCardinality": "ZERO"
   },
@@ -9935,7 +9935,7 @@
     "Cardinality": "MANY",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "Rules",
+    "ShortName": "Règle(s)",
     "Path": "_computedInheritedRules.StorageRule.Rules",
     "EffectiveCardinality": "ZERO"
   },
@@ -9977,7 +9977,7 @@
     "Cardinality": "MANY",
     "Type": "DATE",
     "Origin": "INTERNAL",
-    "ShortName": "indexationDate",
+    "ShortName": "Date d’indexation",
     "Path": "_computedInheritedRules.indexationDate",
     "EffectiveCardinality": "ZERO"
   },
@@ -9989,7 +9989,7 @@
     "Cardinality": "ONE",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "inheritedRulesAPIOutput",
+    "ShortName": "Catégorie(s) de règle indexée(s)",
     "Path": "_computedInheritedRules.inheritedRulesAPIOutput",
     "EffectiveCardinality": "ZERO"
   },
@@ -10001,7 +10001,7 @@
     "Cardinality": "ONE",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "_elimination",
+    "ShortName": "Analyse d’élimination",
     "Path": "_elimination",
     "EffectiveCardinality": "ZERO"
   },
@@ -10014,7 +10014,7 @@
     "Cardinality": "ONE",
     "Type": "KEYWORD",
     "Origin": "INTERNAL",
-    "ShortName": "DestroyableOriginatingAgencies",
+    "ShortName": "Service(s) producteur(s) concerné(s)",
     "Path": "_elimination.DestroyableOriginatingAgencies",
     "StringSize": "MEDIUM",
     "EffectiveCardinality": "ZERO"
@@ -10027,7 +10027,7 @@
     "Cardinality": "ONE",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "ExtendedInfo",
+    "ShortName": "Informations complémentaires",
     "Path": "_elimination.ExtendedInfo",
     "EffectiveCardinality": "ZERO"
   },
@@ -10039,7 +10039,7 @@
     "Cardinality": "MANY",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "ExtendedInfoDetails",
+    "ShortName": "Détails",
     "Path": "_elimination.ExtendedInfo.ExtendedInfoDetails",
     "EffectiveCardinality": "ZERO"
   },
@@ -10052,7 +10052,7 @@
     "Cardinality": "ONE",
     "Type": "KEYWORD",
     "Origin": "INTERNAL",
-    "ShortName": "DestroyableOriginatingAgencies",
+    "ShortName": "Service(s) producteur(s) concerné(s)",
     "Path": "_elimination.ExtendedInfo.ExtendedInfoDetails.DestroyableOriginatingAgencies",
     "StringSize": "MEDIUM",
     "EffectiveCardinality": "ZERO"
@@ -10066,7 +10066,7 @@
     "Cardinality": "MANY",
     "Type": "KEYWORD",
     "Origin": "INTERNAL",
-    "ShortName": "HoldRuleIds",
+    "ShortName": "Règle(s) de gel bloquant l’élimination",
     "Path": "_elimination.ExtendedInfo.ExtendedInfoDetails.HoldRuleIds",
     "StringSize": "MEDIUM",
     "EffectiveCardinality": "ZERO"
@@ -10080,7 +10080,7 @@
     "Cardinality": "ONE",
     "Type": "KEYWORD",
     "Origin": "INTERNAL",
-    "ShortName": "NonDestroyableOriginatingAgencies",
+    "ShortName": "Service(s) producteur(s) non concerné(s) par l’élimination",
     "Path": "_elimination.ExtendedInfo.ExtendedInfoDetails.NonDestroyableOriginatingAgencies",
     "StringSize": "MEDIUM",
     "EffectiveCardinality": "ZERO"
@@ -10094,7 +10094,7 @@
     "Cardinality": "ONE",
     "Type": "KEYWORD",
     "Origin": "INTERNAL",
-    "ShortName": "OriginatingAgenciesInConflict",
+    "ShortName": "Service(s) producteur(s) ayant des conflits",
     "Path": "_elimination.ExtendedInfo.ExtendedInfoDetails.OriginatingAgenciesInConflict",
     "StringSize": "MEDIUM",
     "EffectiveCardinality": "ZERO"
@@ -10108,7 +10108,7 @@
     "Cardinality": "ONE",
     "Type": "KEYWORD",
     "Origin": "INTERNAL",
-    "ShortName": "ParentUnitId",
+    "ShortName": "Identifiant de l’unité archivistique parente",
     "Path": "_elimination.ExtendedInfo.ExtendedInfoDetails.ParentUnitId",
     "StringSize": "MEDIUM",
     "EffectiveCardinality": "ZERO"
@@ -10122,7 +10122,7 @@
     "Cardinality": "ONE",
     "Type": "KEYWORD",
     "Origin": "INTERNAL",
-    "ShortName": "ExtendedInfoType",
+    "ShortName": "Type de conflit",
     "Path": "_elimination.ExtendedInfo.ExtendedInfoType",
     "StringSize": "MEDIUM",
     "EffectiveCardinality": "ZERO"
@@ -10136,7 +10136,7 @@
     "Cardinality": "ONE",
     "Type": "KEYWORD",
     "Origin": "INTERNAL",
-    "ShortName": "GlobalStatus",
+    "ShortName": "Statut",
     "Path": "_elimination.GlobalStatus",
     "StringSize": "MEDIUM",
     "EffectiveCardinality": "ZERO"
@@ -10150,7 +10150,7 @@
     "Cardinality": "ONE",
     "Type": "KEYWORD",
     "Origin": "INTERNAL",
-    "ShortName": "NonDestroyableOriginatingAgencies",
+    "ShortName": "Service(s) producteur(s) non concerné(s) par l’élimination",
     "Path": "_elimination.NonDestroyableOriginatingAgencies",
     "StringSize": "MEDIUM",
     "EffectiveCardinality": "ZERO"
@@ -10164,7 +10164,7 @@
     "Cardinality": "ONE",
     "Type": "KEYWORD",
     "Origin": "INTERNAL",
-    "ShortName": "OperationId",
+    "ShortName": "Identifiant de l’opération",
     "Path": "_elimination.OperationId",
     "StringSize": "MEDIUM",
     "EffectiveCardinality": "ZERO"
@@ -10178,7 +10178,7 @@
     "Cardinality": "ONE",
     "Type": "DATE",
     "Origin": "INTERNAL",
-    "ShortName": "_glpd",
+    "ShortName": "Dernière modification du graphe",
     "Path": "_glpd",
     "EffectiveCardinality": "ZERO"
   },
@@ -10191,7 +10191,7 @@
     "Cardinality": "MANY",
     "Type": "KEYWORD",
     "Origin": "INTERNAL",
-    "ShortName": "_graph",
+    "ShortName": "Chemin(s) de l'unité archivistique",
     "Path": "_graph",
     "StringSize": "MEDIUM",
     "EffectiveCardinality": "ZERO"
@@ -10204,7 +10204,7 @@
     "Cardinality": "MANY",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "_history",
+    "ShortName": "Données historiques",
     "Path": "_history",
     "EffectiveCardinality": "ZERO"
   },
@@ -10216,7 +10216,7 @@
     "Cardinality": "ONE",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "data",
+    "ShortName": "Données historisées",
     "Path": "_history.data",
     "EffectiveCardinality": "ZERO"
   },
@@ -10228,7 +10228,7 @@
     "Cardinality": "ONE",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "_mgt",
+    "ShortName": "Règle(s) de gestion",
     "Path": "_history.data._mgt",
     "EffectiveCardinality": "ZERO"
   },
@@ -10240,7 +10240,7 @@
     "Cardinality": "ONE",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "ClassificationRule",
+    "ShortName": "Classification",
     "Path": "_history.data._mgt.ClassificationRule",
     "EffectiveCardinality": "ZERO"
   },
@@ -10311,7 +10311,7 @@
     "Cardinality": "ONE",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "Inheritance",
+    "ShortName": "Héritage(s)",
     "Path": "_history.data._mgt.ClassificationRule.Inheritance",
     "EffectiveCardinality": "ZERO"
   },
@@ -10366,7 +10366,7 @@
     "Cardinality": "MANY",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "Rules",
+    "ShortName": "Règle(s)",
     "Path": "_history.data._mgt.ClassificationRule.Rules",
     "EffectiveCardinality": "ZERO"
   },
@@ -10462,7 +10462,7 @@
     "Cardinality": "ONE",
     "Type": "KEYWORD",
     "Origin": "INTERNAL",
-    "ShortName": "_implementationVersion",
+    "ShortName": "Version du modèle de données",
     "Path": "_implementationVersion",
     "StringSize": "MEDIUM",
     "EffectiveCardinality": "ZERO"
@@ -10505,7 +10505,7 @@
     "Cardinality": "ONE",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "AccessRule",
+    "ShortName": "Communicabilité",
     "Path": "_mgt.AccessRule",
     "SedaVersions": [
       "2.1",
@@ -10522,7 +10522,7 @@
     "Cardinality": "ONE",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "Inheritance",
+    "ShortName": "Héritage(s)",
     "Path": "_mgt.AccessRule.Inheritance",
     "SedaVersions": [
       "2.1",
@@ -10578,7 +10578,7 @@
     "Cardinality": "MANY",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "Rules",
+    "ShortName": "Règle(s)",
     "Path": "_mgt.AccessRule.Rules",
     "SedaVersions": [
       "2.1",
@@ -10653,7 +10653,7 @@
     "Cardinality": "ONE",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "AppraisalRule",
+    "ShortName": "Durée d’utilité administrative",
     "Path": "_mgt.AppraisalRule",
     "SedaVersions": [
       "2.1",
@@ -10690,7 +10690,7 @@
     "Cardinality": "ONE",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "Inheritance",
+    "ShortName": "Héritage(s)",
     "Path": "_mgt.AppraisalRule.Inheritance",
     "SedaVersions": [
       "2.1",
@@ -10746,7 +10746,7 @@
     "Cardinality": "MANY",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "Rules",
+    "ShortName": "Règle(s)",
     "Path": "_mgt.AppraisalRule.Rules",
     "SedaVersions": [
       "2.1",
@@ -10821,7 +10821,7 @@
     "Cardinality": "ONE",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "ClassificationRule",
+    "ShortName": "Classification",
     "Path": "_mgt.ClassificationRule",
     "SedaVersions": [
       "2.1",
@@ -10917,7 +10917,7 @@
     "Cardinality": "ONE",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "Inheritance",
+    "ShortName": "Héritage(s)",
     "Path": "_mgt.ClassificationRule.Inheritance",
     "SedaVersions": [
       "2.1",
@@ -10992,7 +10992,7 @@
     "Cardinality": "MANY",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "Rules",
+    "ShortName": "Règle(s)",
     "Path": "_mgt.ClassificationRule.Rules",
     "SedaVersions": [
       "2.1",
@@ -11067,7 +11067,7 @@
     "Cardinality": "ONE",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "DisseminationRule",
+    "ShortName": "Diffusion",
     "Path": "_mgt.DisseminationRule",
     "SedaVersions": [
       "2.1",
@@ -11084,7 +11084,7 @@
     "Cardinality": "ONE",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "Inheritance",
+    "ShortName": "Héritage(s)",
     "Path": "_mgt.DisseminationRule.Inheritance",
     "SedaVersions": [
       "2.1",
@@ -11140,7 +11140,7 @@
     "Cardinality": "MANY",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "Rules",
+    "ShortName": "Règle(s)",
     "Path": "_mgt.DisseminationRule.Rules",
     "SedaVersions": [
       "2.1",
@@ -11215,7 +11215,7 @@
     "Cardinality": "ONE",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "HoldRule",
+    "ShortName": "Gel / Dégel",
     "Path": "_mgt.HoldRule",
     "SedaVersions": [
       "2.1",
@@ -11232,7 +11232,7 @@
     "Cardinality": "ONE",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "Inheritance",
+    "ShortName": "Héritage(s)",
     "Path": "_mgt.HoldRule.Inheritance",
     "SedaVersions": [
       "2.1",
@@ -11288,7 +11288,7 @@
     "Cardinality": "MANY",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "Rules",
+    "ShortName": "Règle(s)",
     "Path": "_mgt.HoldRule.Rules",
     "SedaVersions": [
       "2.1",
@@ -11479,7 +11479,7 @@
     "Cardinality": "ONE",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "ReuseRule",
+    "ShortName": "Réutilisation",
     "Path": "_mgt.ReuseRule",
     "SedaVersions": [
       "2.1",
@@ -11496,7 +11496,7 @@
     "Cardinality": "ONE",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "Inheritance",
+    "ShortName": "Héritage(s)",
     "Path": "_mgt.ReuseRule.Inheritance",
     "SedaVersions": [
       "2.1",
@@ -11552,7 +11552,7 @@
     "Cardinality": "MANY",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "Rules",
+    "ShortName": "Règle(s)",
     "Path": "_mgt.ReuseRule.Rules",
     "SedaVersions": [
       "2.1",
@@ -11627,7 +11627,7 @@
     "Cardinality": "ONE",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "StorageRule",
+    "ShortName": "Durée d’utilité courante",
     "Path": "_mgt.StorageRule",
     "SedaVersions": [
       "2.1",
@@ -11664,7 +11664,7 @@
     "Cardinality": "ONE",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "Inheritance",
+    "ShortName": "Héritage(s)",
     "Path": "_mgt.StorageRule.Inheritance",
     "SedaVersions": [
       "2.1",
@@ -11720,7 +11720,7 @@
     "Cardinality": "MANY",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "Rules",
+    "ShortName": "Règle(s)",
     "Path": "_mgt.StorageRule.Rules",
     "SedaVersions": [
       "2.1",
@@ -11865,7 +11865,7 @@
     "Cardinality": "ONE",
     "Type": "KEYWORD",
     "Origin": "INTERNAL",
-    "ShortName": "_sedaVersion",
+    "ShortName": "Version du SEDA",
     "Path": "_sedaVersion",
     "StringSize": "MEDIUM",
     "EffectiveCardinality": "ZERO"
@@ -11907,7 +11907,7 @@
     "Cardinality": "ONE",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "_storage",
+    "ShortName": "Offres de stockage",
     "Path": "_storage",
     "EffectiveCardinality": "ZERO"
   },
@@ -11933,7 +11933,7 @@
     "Cardinality": "MANY",
     "Type": "KEYWORD",
     "Origin": "INTERNAL",
-    "ShortName": "offerIds",
+    "ShortName": "Identifiant(s) des offres de stockage",
     "Path": "_storage.offerIds",
     "StringSize": "MEDIUM",
     "EffectiveCardinality": "ZERO"
@@ -11947,7 +11947,7 @@
     "Cardinality": "ONE",
     "Type": "KEYWORD",
     "Origin": "INTERNAL",
-    "ShortName": "strategyId",
+    "ShortName": "Identifiant de la stratégie de stockage",
     "Path": "_storage.strategyId",
     "StringSize": "MEDIUM",
     "EffectiveCardinality": "ZERO"
@@ -11973,7 +11973,7 @@
     "Cardinality": "ONE",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "_uds",
+    "ShortName": "Unités archivistiques parentes et niveau de profondeur relative",
     "Path": "_uds",
     "EffectiveCardinality": "ZERO"
   },
@@ -12028,7 +12028,7 @@
     "Cardinality": "ONE",
     "Type": "BOOLEAN",
     "Origin": "INTERNAL",
-    "ShortName": "validComputedInheritedRules",
+    "ShortName": "Validité des règles calculées",
     "Path": "_validComputedInheritedRules",
     "EffectiveCardinality": "ZERO"
   },
