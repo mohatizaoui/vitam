@@ -10160,7 +10160,7 @@
     ],
     "Category": "MANAGEMENT",
     "ApiPath": "#management",
-    "ShortName": "_mgt"
+    "ShortName": "Règle(s) de gestion"
   },
   {
     "FieldName": "AccessRule",
