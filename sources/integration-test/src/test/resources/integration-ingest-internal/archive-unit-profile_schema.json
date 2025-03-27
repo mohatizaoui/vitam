@@ -10488,7 +10488,7 @@
     "Cardinality": "ONE",
     "Type": "OBJECT",
     "Origin": "INTERNAL",
-    "ShortName": "_mgt",
+    "ShortName": "Règle(s) de gestion",
     "Path": "_mgt",
     "SedaVersions": [
       "2.1",
