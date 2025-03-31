@@ -79,6 +79,7 @@ import static fr.gouv.vitam.worker.core.plugin.dip.CreateManifest.BINARIES_RANK;
 import static fr.gouv.vitam.worker.core.plugin.dip.CreateManifest.GUID_TO_INFO_RANK;
 import static fr.gouv.vitam.worker.core.plugin.dip.CreateManifest.MANIFEST_XML_RANK;
 import static fr.gouv.vitam.worker.core.plugin.dip.CreateManifest.REPORT;
+import static fr.gouv.vitam.worker.core.plugin.dip.CreateManifest.UNITS_JSONL_FILE;
 import static junit.framework.TestCase.assertEquals;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -139,20 +140,12 @@ public class CreateManifestTest {
             getClass().getResourceAsStream("/CreateManifest/query.json")
         );
 
-        JsonNode queryUnitWithTree = JsonHandler.getFromInputStream(
-            getClass().getResourceAsStream("/CreateManifest/queryWithTreeProjection.json")
-        );
-
         JsonNode queryObjectGroup = JsonHandler.getFromInputStream(
             getClass().getResourceAsStream("/CreateManifest/queryObjectGroup.json")
         );
 
         given(metaDataClient.selectUnits(queryUnit.deepCopy())).willReturn(
             JsonHandler.getFromInputStream(getClass().getResourceAsStream("/CreateManifest/resultMetadata.json"))
-        );
-
-        given(metaDataClient.selectUnits(queryUnitWithTree)).willReturn(
-            JsonHandler.getFromInputStream(getClass().getResourceAsStream("/CreateManifest/resultMetadataTree.json"))
         );
 
         given(metaDataClient.selectObjectGroups(queryObjectGroup)).willReturn(
@@ -180,6 +173,9 @@ public class CreateManifestTest {
             new ProcessingUri(UriPrefix.WORKSPACE, binaryFile.getPath())
         );
         given(handlerIO.getNewLocalFile(binaryFile.getPath())).willReturn(binaryFile);
+
+        File unitsJsonlFile = tempFolder.newFile();
+        given(handlerIO.getNewLocalFile(UNITS_JSONL_FILE)).willReturn(unitsJsonlFile);
 
         ExportRequest exportRequest = new ExportRequest();
         exportRequest.setExportWithLogBookLFC(true);
@@ -296,20 +292,12 @@ public class CreateManifestTest {
             getClass().getResourceAsStream("/CreateManifest/query.json")
         );
 
-        JsonNode queryUnitWithTree = JsonHandler.getFromInputStream(
-            getClass().getResourceAsStream("/CreateManifest/queryWithTreeProjection.json")
-        );
-
         JsonNode queryObjectGroup = JsonHandler.getFromInputStream(
             getClass().getResourceAsStream("/CreateManifest/queryObjectGroup.json")
         );
 
         given(metaDataClient.selectUnits(queryUnit.deepCopy())).willReturn(
             JsonHandler.getFromInputStream(getClass().getResourceAsStream("/CreateManifest/resultMetadata.json"))
-        );
-
-        given(metaDataClient.selectUnits(queryUnitWithTree)).willReturn(
-            JsonHandler.getFromInputStream(getClass().getResourceAsStream("/CreateManifest/resultMetadataTree.json"))
         );
 
         given(metaDataClient.selectObjectGroups(queryObjectGroup)).willReturn(
@@ -331,6 +319,9 @@ public class CreateManifestTest {
             new ProcessingUri(UriPrefix.WORKSPACE, guidToPathFile.getPath())
         );
         given(handlerIO.getNewLocalFile(guidToPathFile.getPath())).willReturn(guidToPathFile);
+
+        File unitsJsonlFile = tempFolder.newFile();
+        given(handlerIO.getNewLocalFile(UNITS_JSONL_FILE)).willReturn(unitsJsonlFile);
 
         File binaryFile = tempFolder.newFile();
         given(handlerIO.getOutput(BINARIES_RANK)).willReturn(
@@ -412,19 +403,11 @@ public class CreateManifestTest {
             getClass().getResourceAsStream("/CreateManifest/querybug5160.json")
         );
 
-        JsonNode queryUnitWithTree = JsonHandler.getFromInputStream(
-            getClass().getResourceAsStream("/CreateManifest/queryWithTreeProjectionbug5160.json")
-        );
-
         JsonNode queryObjectGroup = JsonHandler.getFromInputStream(
             getClass().getResourceAsStream("/CreateManifest/queryObjectGroupbug5160.json")
         );
 
         given(metaDataClient.selectUnits(queryUnit.deepCopy())).willReturn(
-            JsonHandler.getFromInputStream(getClass().getResourceAsStream("/CreateManifest/resultMetadatabug5160.json"))
-        );
-
-        given(metaDataClient.selectUnits(queryUnitWithTree)).willReturn(
             JsonHandler.getFromInputStream(getClass().getResourceAsStream("/CreateManifest/resultMetadatabug5160.json"))
         );
 
@@ -447,6 +430,9 @@ public class CreateManifestTest {
             new ProcessingUri(UriPrefix.WORKSPACE, guidToPathFile.getPath())
         );
         given(handlerIO.getNewLocalFile(guidToPathFile.getPath())).willReturn(guidToPathFile);
+
+        File unitsJsonlFile = tempFolder.newFile();
+        given(handlerIO.getNewLocalFile(UNITS_JSONL_FILE)).willReturn(unitsJsonlFile);
 
         File binaryFile = tempFolder.newFile();
         given(handlerIO.getOutput(BINARIES_RANK)).willReturn(
@@ -494,20 +480,12 @@ public class CreateManifestTest {
             getClass().getResourceAsStream("/CreateManifest/query.json")
         );
 
-        JsonNode queryUnitWithTree = JsonHandler.getFromInputStream(
-            getClass().getResourceAsStream("/CreateManifest/queryWithTreeProjection.json")
-        );
-
         JsonNode queryObjectGroup = JsonHandler.getFromInputStream(
             getClass().getResourceAsStream("/CreateManifest/queryObjectGroup.json")
         );
 
         given(metaDataClient.selectUnits(queryUnit.deepCopy())).willReturn(
             JsonHandler.getFromInputStream(getClass().getResourceAsStream("/CreateManifest/resultMetadata.json"))
-        );
-
-        given(metaDataClient.selectUnits(queryUnitWithTree)).willReturn(
-            JsonHandler.getFromInputStream(getClass().getResourceAsStream("/CreateManifest/resultMetadataTree.json"))
         );
 
         given(metaDataClient.selectObjectGroups(queryObjectGroup)).willReturn(
@@ -535,6 +513,9 @@ public class CreateManifestTest {
             new ProcessingUri(UriPrefix.WORKSPACE, binaryFile.getPath())
         );
         given(handlerIO.getNewLocalFile(binaryFile.getPath())).willReturn(binaryFile);
+
+        File unitsJsonlFile = tempFolder.newFile();
+        given(handlerIO.getNewLocalFile(UNITS_JSONL_FILE)).willReturn(unitsJsonlFile);
 
         ExportRequest exportRequest = getExportRequest(queryUnit);
         given(handlerIO.getJsonFromWorkspace(EXPORT_QUERY_FILE_NAME)).willReturn(JsonHandler.toJsonNode(exportRequest));
@@ -578,10 +559,6 @@ public class CreateManifestTest {
             getClass().getResourceAsStream("/CreateManifest/query.json")
         );
 
-        JsonNode queryUnitWithTree = JsonHandler.getFromInputStream(
-            getClass().getResourceAsStream("/CreateManifest/queryWithTreeProjection.json")
-        );
-
         JsonNode queryObjectGroup = JsonHandler.getFromInputStream(
             getClass().getResourceAsStream("/CreateManifest/queryObjectGroup.json")
         );
@@ -590,10 +567,6 @@ public class CreateManifestTest {
             JsonHandler.getFromInputStream(
                 getClass().getResourceAsStream("/CreateManifest/resultMetadataWithTransfer.json")
             )
-        );
-
-        given(metaDataClient.selectUnits(queryUnitWithTree)).willReturn(
-            JsonHandler.getFromInputStream(getClass().getResourceAsStream("/CreateManifest/resultMetadataTree.json"))
         );
 
         given(metaDataClient.selectObjectGroups(queryObjectGroup)).willReturn(
@@ -621,6 +594,9 @@ public class CreateManifestTest {
             new ProcessingUri(UriPrefix.WORKSPACE, binaryFile.getPath())
         );
         given(handlerIO.getNewLocalFile(binaryFile.getPath())).willReturn(binaryFile);
+
+        File unitsJsonlFile = tempFolder.newFile();
+        given(handlerIO.getNewLocalFile(UNITS_JSONL_FILE)).willReturn(unitsJsonlFile);
 
         ExportRequest exportRequest = getExportRequest(queryUnit);
         given(handlerIO.getJsonFromWorkspace(EXPORT_QUERY_FILE_NAME)).willReturn(JsonHandler.toJsonNode(exportRequest));
@@ -658,10 +634,6 @@ public class CreateManifestTest {
             getClass().getResourceAsStream("/CreateManifest/query.json")
         );
 
-        JsonNode queryUnitWithTree = JsonHandler.getFromInputStream(
-            getClass().getResourceAsStream("/CreateManifest/queryWithTreeProjection.json")
-        );
-
         JsonNode queryObjectGroup = JsonHandler.getFromInputStream(
             getClass().getResourceAsStream("/CreateManifest/queryObjectGroup.json")
         );
@@ -670,10 +642,6 @@ public class CreateManifestTest {
             JsonHandler.getFromInputStream(
                 getClass().getResourceAsStream("/CreateManifest/resultMetadataWithTransfer.json")
             )
-        );
-
-        given(metaDataClient.selectUnits(queryUnitWithTree)).willReturn(
-            JsonHandler.getFromInputStream(getClass().getResourceAsStream("/CreateManifest/resultMetadataTree.json"))
         );
 
         given(metaDataClient.selectObjectGroups(queryObjectGroup)).willReturn(
@@ -689,6 +657,9 @@ public class CreateManifestTest {
         File reportFile = tempFolder.newFile();
         given(handlerIO.getOutput(REPORT)).willReturn(new ProcessingUri(UriPrefix.WORKSPACE, reportFile.getPath()));
         given(handlerIO.getNewLocalFile(reportFile.getPath())).willReturn(reportFile);
+
+        File unitsJsonlFile = tempFolder.newFile();
+        given(handlerIO.getNewLocalFile(UNITS_JSONL_FILE)).willReturn(unitsJsonlFile);
 
         ExportRequest exportRequest = getExportRequest(queryUnit);
         exportRequest.setMaxSizeThreshold(500000L);
@@ -721,10 +692,6 @@ public class CreateManifestTest {
             getClass().getResourceAsStream("/CreateManifest/query.json")
         );
 
-        JsonNode queryUnitWithTree = JsonHandler.getFromInputStream(
-            getClass().getResourceAsStream("/CreateManifest/queryWithTreeProjection.json")
-        );
-
         JsonNode queryObjectGroup = JsonHandler.getFromInputStream(
             getClass().getResourceAsStream("/CreateManifest/queryObjectGroup.json")
         );
@@ -733,10 +700,6 @@ public class CreateManifestTest {
             JsonHandler.getFromInputStream(
                 getClass().getResourceAsStream("/CreateManifest/resultMetadataWithTransfer.json")
             )
-        );
-
-        given(metaDataClient.selectUnits(queryUnitWithTree)).willReturn(
-            JsonHandler.getFromInputStream(getClass().getResourceAsStream("/CreateManifest/resultMetadataTree.json"))
         );
 
         given(metaDataClient.selectObjectGroups(queryObjectGroup)).willReturn(
@@ -748,6 +711,9 @@ public class CreateManifestTest {
             new ProcessingUri(UriPrefix.WORKSPACE, manifestFile.getPath())
         );
         given(handlerIO.getNewLocalFile(manifestFile.getPath())).willReturn(manifestFile);
+
+        File unitsJsonlFile = tempFolder.newFile();
+        given(handlerIO.getNewLocalFile(UNITS_JSONL_FILE)).willReturn(unitsJsonlFile);
 
         File reportFile = tempFolder.newFile();
         given(handlerIO.getOutput(REPORT)).willReturn(new ProcessingUri(UriPrefix.WORKSPACE, reportFile.getPath()));
