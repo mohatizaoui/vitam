@@ -1,5 +1,5 @@
 Name:    vitam-mongodb-exporter
-Version: 0.43.1
+Version: 0.44.0
 Release: 1%{?dist}
 Summary: mongodb exporter for prometheus.
 License: Apache License 2.0

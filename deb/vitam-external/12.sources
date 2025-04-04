@@ -1,18 +1,18 @@
 https://repo.mongodb.org/apt/debian/dists/bookworm/mongodb-org/8.0/main/binary-amd64/mongodb-mongosh_2.4.2_amd64.deb
-https://repo.mongodb.org/apt/debian/dists/bookworm/mongodb-org/8.0/main/binary-amd64/mongodb-database-tools_100.11.0_amd64.deb
+https://repo.mongodb.org/apt/debian/dists/bookworm/mongodb-org/8.0/main/binary-amd64/mongodb-database-tools_100.12.0_amd64.deb
 
-https://repo.mongodb.org/apt/debian/dists/bookworm/mongodb-org/8.0/main/binary-amd64/mongodb-org-mongos_8.0.5_amd64.deb
-https://repo.mongodb.org/apt/debian/dists/bookworm/mongodb-org/8.0/main/binary-amd64/mongodb-org-server_8.0.5_amd64.deb
+https://repo.mongodb.org/apt/debian/dists/bookworm/mongodb-org/8.0/main/binary-amd64/mongodb-org-mongos_8.0.6_amd64.deb
+https://repo.mongodb.org/apt/debian/dists/bookworm/mongodb-org/8.0/main/binary-amd64/mongodb-org-server_8.0.6_amd64.deb
 
-https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.17.3-amd64.deb
-https://artifacts.elastic.co/downloads/logstash/logstash-8.17.3-amd64.deb
-https://artifacts.elastic.co/downloads/kibana/kibana-8.17.3-amd64.deb
+https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.17.4-amd64.deb
+https://artifacts.elastic.co/downloads/logstash/logstash-8.17.4-amd64.deb
+https://artifacts.elastic.co/downloads/kibana/kibana-8.17.4-amd64.deb
 https://packages.elastic.co/curator/5/debian9/pool/main/e/elasticsearch-curator/elasticsearch-curator_5.8.4_amd64.deb
 
-https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-8.17.3-amd64.deb
-https://artifacts.elastic.co/downloads/beats/metricbeat/metricbeat-8.17.3-amd64.deb
-https://artifacts.elastic.co/downloads/beats/packetbeat/packetbeat-8.17.3-amd64.deb
+https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-8.17.4-amd64.deb
+https://artifacts.elastic.co/downloads/beats/metricbeat/metricbeat-8.17.4-amd64.deb
+https://artifacts.elastic.co/downloads/beats/packetbeat/packetbeat-8.17.4-amd64.deb
 
-https://dl.grafana.com/oss/release/grafana_11.5.2_amd64.deb
+https://dl.grafana.com/oss/release/grafana_11.6.0_amd64.deb
 
-https://apt.releases.hashicorp.com/pool/amd64/main/consul_1.20.4-1_amd64.deb
+https://apt.releases.hashicorp.com/pool/amd64/main/consul_1.20.5-1_amd64.deb
