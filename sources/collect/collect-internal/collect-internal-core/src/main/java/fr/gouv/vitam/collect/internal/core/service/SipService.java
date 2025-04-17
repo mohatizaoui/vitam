@@ -29,6 +29,7 @@ package fr.gouv.vitam.collect.internal.core.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import fr.gouv.vitam.collect.common.exception.CollectInternalException;
@@ -42,7 +43,6 @@ import fr.gouv.vitam.common.database.builder.query.InQuery;
 import fr.gouv.vitam.common.database.builder.query.QueryHelper;
 import fr.gouv.vitam.common.database.builder.request.multiple.SelectMultiQuery;
 import fr.gouv.vitam.common.database.builder.request.single.Select;
-import fr.gouv.vitam.common.database.parser.query.ParserTokens;
 import fr.gouv.vitam.common.database.parser.request.multiple.SelectParserMultiple;
 import fr.gouv.vitam.common.database.utils.ScrollSpliterator;
 import fr.gouv.vitam.common.digest.Digest;
@@ -63,6 +63,7 @@ import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageNotFoundEx
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import fr.gouv.vitam.workspace.client.WorkspaceClientFactory;
+import fr.gouv.vitam.workspace.client.WorkspaceCollectClientFactory;
 import fr.gouv.vitam.workspace.common.CompressInformation;
 import org.apache.commons.io.FileUtils;
 
@@ -92,14 +93,28 @@ public class SipService {
 
     private static final VitamLogger LOGGER = VitamLoggerFactory.getInstance(SipService.class);
     private static final String SIP_EXTENSION = ".zip";
-    private static final int MAX_ELEMENT_IN_QUERY = 1000;
+    private static final int DEFAULT_MAX_ELEMENT_IN_QUERY = 1000;
 
+    private final int maxElementsInQuery;
     private final WorkspaceClientFactory workspaceClientFactory;
     private final MetadataRepository metadataRepository;
 
-    public SipService(WorkspaceClientFactory workspaceClientFactory, MetadataRepository metadataRepository) {
+    public SipService(
+        WorkspaceCollectClientFactory workspaceCollectClientFactory,
+        MetadataRepository metadataRepository
+    ) {
+        this(workspaceCollectClientFactory, metadataRepository, DEFAULT_MAX_ELEMENT_IN_QUERY);
+    }
+
+    @VisibleForTesting
+    public SipService(
+        WorkspaceClientFactory workspaceClientFactory,
+        MetadataRepository metadataRepository,
+        int maxElementsInQuery
+    ) {
         this.workspaceClientFactory = workspaceClientFactory;
         this.metadataRepository = metadataRepository;
+        this.maxElementsInQuery = maxElementsInQuery;
     }
 
     public String generateSip(TransactionModel transactionModel) throws CollectInternalException {
@@ -113,11 +128,13 @@ public class SipService {
         }
 
         try (
-            OutputStream outputStream = new FileOutputStream(manifestFile);
-            ManifestBuilder manifestBuilder = new ManifestBuilder(outputStream, null)
+            final OutputStream outputStream = new FileOutputStream(manifestFile);
+            final ManifestBuilder manifestBuilder = new ManifestBuilder(outputStream, null)
         ) {
-            ExportRequestParameters exportRequestParameters = SipHelper.buildExportRequestParameters(transactionModel);
-            ExportRequest exportRequest = SipHelper.buildExportRequest(transactionModel, exportRequestParameters);
+            final ExportRequestParameters exportRequestParameters = SipHelper.buildExportRequestParameters(
+                transactionModel
+            );
+            final ExportRequest exportRequest = SipHelper.buildExportRequest(transactionModel, exportRequestParameters);
 
             manifestBuilder.startDocument(
                 transactionModel.getManifestContext().getMessageIdentifier(),
@@ -125,14 +142,13 @@ public class SipService {
                 exportRequestParameters
             );
 
-            ListMultimap<String, String> multimap = ArrayListMultimap.create();
-            Set<String> originatingAgencies = new HashSet<>();
-            Map<String, String> ogs = new HashMap<>();
+            final ListMultimap<String, String> multimap = ArrayListMultimap.create();
+            final Set<String> originatingAgencies = new HashSet<>();
+            final Map<String, String> ogs = new HashMap<>();
 
-            SelectParserMultiple parser = new SelectParserMultiple();
-
+            final SelectParserMultiple parser = new SelectParserMultiple();
             parser.parse(exportRequest.getDslRequest());
-            SelectMultiQuery request = parser.getRequest();
+            final SelectMultiQuery request = parser.getRequest();
 
             ScrollSpliterator<JsonNode> scrollRequest = metadataRepository.selectUnits(
                 request,
@@ -144,8 +160,9 @@ public class SipService {
             );
 
             manifestBuilder.startDataObjectPackage();
-            Select select = new Select();
-            Iterable<List<Map.Entry<String, String>>> partitions = partition(ogs.entrySet(), MAX_ELEMENT_IN_QUERY);
+            final Select select = new Select();
+            final Iterable<List<Map.Entry<String, String>>> partitions = partition(ogs.entrySet(), maxElementsInQuery);
+            final Set<String> exportedObjectGroupIds = new HashSet<>();
             for (List<Map.Entry<String, String>> partition : partitions) {
                 ListMultimap<String, String> unitsForObjectGroupId = partition
                     .stream()
@@ -162,11 +179,11 @@ public class SipService {
                     select.getFinalSelect(),
                     transactionModel.getId()
                 );
-                ArrayNode objects = (ArrayNode) response.get(RequestResponseOK.TAG_RESULTS);
-                for (JsonNode object : objects) {
-                    List<String> linkedUnits = unitsForObjectGroupId.get(
-                        object.get(ParserTokens.PROJECTIONARGS.ID.exactToken()).textValue()
-                    );
+                ArrayNode objectGroups = (ArrayNode) response.get(RequestResponseOK.TAG_RESULTS);
+                for (JsonNode object : objectGroups) {
+                    final String objectGroupId = object.get(id()).textValue();
+                    if (exportedObjectGroupIds.contains(objectGroupId)) continue; // Do not add object group more than once
+                    final List<String> linkedUnits = unitsForObjectGroupId.get(objectGroupId);
                     manifestBuilder.writeGOT(
                         object,
                         linkedUnits.get(linkedUnits.size() - 1),
@@ -174,6 +191,7 @@ public class SipService {
                         FlatFolderResolver.INSTANCE,
                         CollectFilenameResolver.INSTANCE
                     );
+                    exportedObjectGroupIds.add(objectGroupId);
                 }
             }
             manifestBuilder.startDescriptiveMetadata();
