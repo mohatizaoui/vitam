@@ -2,7 +2,7 @@ version: "3.4"
 name: vitam-tests
 services:
   mongo:
-    image: library/mongo:8.0.6
+    image: library/mongo:8.0.8
     ports:
       - "27017:27017"
     volumes:
@@ -13,7 +13,7 @@ services:
       start_period: 30s
     command: [ "mongod", "--bind_ip_all", "--replSet", "rs0" ]
   elasticsearch:
-    image: elasticsearch:8.17.4
+    image: elasticsearch:8.18.0
     environment:
       - xpack.security.enabled=false
       - cluster.name=docker-cluster
