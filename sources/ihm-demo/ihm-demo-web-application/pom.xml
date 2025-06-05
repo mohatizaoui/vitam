@@ -81,10 +81,11 @@
 
 
 		<!-- Servlet API -->
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>javax.servlet-api</artifactId>
-		</dependency>
+                <dependency>
+                        <groupId>jakarta.servlet</groupId>
+                        <artifactId>jakarta.servlet-api</artifactId>
+                        <version>${jakarta.servlet.version}</version>
+                </dependency>
 
 		<dependency>
 			<groupId>junit</groupId>
