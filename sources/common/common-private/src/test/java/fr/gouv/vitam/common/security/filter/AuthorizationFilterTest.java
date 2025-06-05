@@ -36,7 +36,7 @@ import org.mockito.junit.MockitoRule;
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.Response.Status;
+import jakarta.ws.rs.core.Response.Status;
 
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;

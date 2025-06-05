@@ -43,8 +43,8 @@ import org.owasp.esapi.errors.ValidationException;
 import org.owasp.esapi.reference.DefaultValidator;
 import org.owasp.esapi.reference.validation.HTMLValidationRule;
 
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MultivaluedMap;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;

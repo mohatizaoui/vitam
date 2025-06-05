@@ -34,7 +34,7 @@ import fr.gouv.vitam.common.logging.VitamLoggerFactory;
 import io.prometheus.client.Summary;
 import org.apache.commons.io.output.CountingOutputStream;
 
-import javax.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.container.ContainerRequestContext;
 import java.io.IOException;
 import java.io.OutputStream;
 

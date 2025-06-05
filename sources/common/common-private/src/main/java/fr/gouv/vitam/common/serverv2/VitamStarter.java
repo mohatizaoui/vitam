@@ -59,7 +59,7 @@ import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.ServletContextListener;
-import javax.ws.rs.core.Application;
+import jakarta.ws.rs.core.Application;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -230,7 +230,7 @@ public class VitamStarter {
         throws VitamApplicationServerException {
         final ServletHolder servletHolder = new ServletHolder(new HttpServletDispatcher());
 
-        servletHolder.setInitParameter("javax.ws.rs.Application", businessApplication.getName());
+        servletHolder.setInitParameter("jakarta.ws.rs.Application", businessApplication.getName());
         servletHolder.setInitParameter(CONFIGURATION_FILE_APPLICATION, configurationFile);
 
         final ServletContextHandler context = new ServletContextHandler(
@@ -286,7 +286,7 @@ public class VitamStarter {
 
     protected Handler buildAdminHandler(String configurationFile) {
         final ServletHolder servletHolder = new ServletHolder(new HttpServletDispatcher());
-        servletHolder.setInitParameter("javax.ws.rs.Application", adminApplication.getName());
+        servletHolder.setInitParameter("jakarta.ws.rs.Application", adminApplication.getName());
         servletHolder.setInitParameter(CONFIGURATION_FILE_APPLICATION, configurationFile);
 
         final ServletContextHandler context = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);

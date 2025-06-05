@@ -73,7 +73,7 @@ import static fr.gouv.vitam.common.client.VitamRequestBuilder.head;
 import static fr.gouv.vitam.common.client.VitamRequestBuilder.post;
 import static fr.gouv.vitam.common.client.VitamRequestBuilder.put;
 import static fr.gouv.vitam.common.model.WorkspaceConstants.FREESPACE;
-import static javax.ws.rs.core.Response.Status.Family.SUCCESSFUL;
+import static jakarta.ws.rs.core.Response.Status.Family.SUCCESSFUL;
 
 public class WorkspaceClient extends DefaultClient {
 

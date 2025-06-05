@@ -29,10 +29,10 @@ package fr.gouv.vitam.common.security.waf;
 import com.fasterxml.jackson.databind.JsonNode;
 import fr.gouv.vitam.common.VitamConfiguration;
 
-import javax.ws.rs.container.DynamicFeature;
-import javax.ws.rs.container.ResourceInfo;
-import javax.ws.rs.core.FeatureContext;
-import javax.ws.rs.ext.Provider;
+import jakarta.ws.rs.container.DynamicFeature;
+import jakarta.ws.rs.container.ResourceInfo;
+import jakarta.ws.rs.core.FeatureContext;
+import jakarta.ws.rs.ext.Provider;
 import java.io.InputStream;
 
 /**

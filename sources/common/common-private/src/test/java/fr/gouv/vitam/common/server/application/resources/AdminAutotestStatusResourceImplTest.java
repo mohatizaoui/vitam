@@ -47,7 +47,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import javax.ws.rs.core.Response.Status;
+import jakarta.ws.rs.core.Response.Status;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;

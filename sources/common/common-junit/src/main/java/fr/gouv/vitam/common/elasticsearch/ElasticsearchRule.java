@@ -55,7 +55,7 @@ import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClient;
 import org.junit.rules.ExternalResource;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
