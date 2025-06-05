@@ -111,7 +111,7 @@ import fr.gouv.vitam.worker.core.utils.DataObjectVersionToPatternsConvertor;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.ListUtils;
 
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import java.io.BufferedOutputStream;

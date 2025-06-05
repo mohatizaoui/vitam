@@ -60,8 +60,8 @@ import fr.gouv.vitam.worker.core.mapping.ObjectGroupMapper;
 import fr.gouv.vitam.worker.core.utils.ConfigurationUtil;
 import fr.gouv.vitam.worker.core.utils.JsonLineDataBase;
 
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.Unmarshaller;
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.Unmarshaller;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;

@@ -54,10 +54,10 @@ import fr.gouv.vitam.workspace.api.model.FileParams;
 import fr.gouv.vitam.workspace.api.model.TimeToLive;
 import fr.gouv.vitam.workspace.common.CompressInformation;
 
-import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
+import jakarta.ws.rs.core.GenericType;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.Status;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.Collections;

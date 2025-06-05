@@ -44,7 +44,7 @@ import fr.gouv.vitam.processing.common.parameter.WorkerParameters;
 import fr.gouv.vitam.worker.common.HandlerIO;
 import fr.gouv.vitam.worker.core.handler.ActionHandler;
 
-import javax.ws.rs.ProcessingException;
+import jakarta.ws.rs.ProcessingException;
 import java.util.List;
 
 import static fr.gouv.vitam.common.database.builder.query.action.UpdateActionHelper.set;

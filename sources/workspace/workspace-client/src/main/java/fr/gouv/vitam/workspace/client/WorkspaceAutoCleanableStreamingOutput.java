@@ -32,8 +32,8 @@ import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageNotFoundEx
 import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerException;
 import org.apache.commons.io.IOUtils;
 
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.StreamingOutput;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

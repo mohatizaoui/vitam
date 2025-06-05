@@ -56,7 +56,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 import static fr.gouv.vitam.worker.core.plugin.lfc_traceability.FinalizeLifecycleTraceabilityActionPlugin.TRACEABILITY_EVENT_FILE_NAME;
 import static fr.gouv.vitam.worker.core.plugin.lfc_traceability.FinalizeLifecycleTraceabilityActionPlugin.TRACEABILITY_ZIP_FILE_NAME;

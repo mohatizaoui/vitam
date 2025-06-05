@@ -56,8 +56,8 @@ import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.xml.sax.SAXException;
 
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.UnmarshalException;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.UnmarshalException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.IOException;
 import java.util.Collections;
