@@ -52,7 +52,7 @@ import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerExce
 import fr.gouv.vitam.workspace.client.WorkspaceClient;
 import org.apache.commons.io.IOUtils;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

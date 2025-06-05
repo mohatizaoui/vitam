@@ -31,7 +31,7 @@ import fr.gouv.vitam.common.client.configuration.ClientConfiguration;
 import fr.gouv.vitam.common.client.configuration.ClientConfigurationImpl;
 import org.junit.Test;
 
-import javax.ws.rs.client.Client;
+import jakarta.ws.rs.client.Client;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

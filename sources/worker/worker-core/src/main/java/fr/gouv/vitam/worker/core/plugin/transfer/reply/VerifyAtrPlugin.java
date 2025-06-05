@@ -56,8 +56,8 @@ import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerExce
 import org.apache.commons.lang3.StringUtils;
 import org.xml.sax.SAXException;
 
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.UnmarshalException;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.UnmarshalException;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.TransformerException;

@@ -110,7 +110,7 @@ import org.bouncycastle.tsp.TimeStampToken;
 import org.bouncycastle.util.Selector;
 import org.bouncycastle.util.Store;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;

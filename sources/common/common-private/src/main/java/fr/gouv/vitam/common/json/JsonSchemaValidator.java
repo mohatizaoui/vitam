@@ -42,7 +42,7 @@ import com.github.fge.msgsimple.load.MessageBundles;
 import fr.gouv.vitam.common.exception.InvalidParseOperationException;
 import fr.gouv.vitam.common.exception.VitamRuntimeException;
 
-import javax.annotation.concurrent.Immutable;
+import jakarta.annotation.concurrent.Immutable;
 import java.io.IOException;
 import java.io.InputStream;
 

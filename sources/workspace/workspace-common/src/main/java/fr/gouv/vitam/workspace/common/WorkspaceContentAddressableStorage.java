@@ -37,7 +37,7 @@ import fr.gouv.vitam.workspace.api.exception.ContentAddressableStorageServerExce
 import fr.gouv.vitam.workspace.api.model.FileParams;
 import fr.gouv.vitam.workspace.api.model.TimeToLive;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.List;

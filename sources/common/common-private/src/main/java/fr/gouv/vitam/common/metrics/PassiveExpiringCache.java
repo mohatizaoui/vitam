@@ -30,7 +30,7 @@ import fr.gouv.vitam.common.LocalDateUtil;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
-import javax.annotation.concurrent.ThreadSafe;
+import jakarta.annotation.concurrent.ThreadSafe;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;

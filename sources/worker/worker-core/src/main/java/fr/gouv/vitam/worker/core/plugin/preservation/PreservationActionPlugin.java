@@ -62,7 +62,7 @@ import fr.gouv.vitam.worker.core.utils.PluginHelper.EventDetails;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.io.IOUtils;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;

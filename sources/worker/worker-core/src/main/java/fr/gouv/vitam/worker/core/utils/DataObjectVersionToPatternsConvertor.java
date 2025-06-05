@@ -30,7 +30,7 @@ import fr.gouv.vitam.common.model.administration.DataObjectVersionType;
 import fr.gouv.vitam.common.model.dip.DataObjectVersions;
 import fr.gouv.vitam.common.model.dip.QualifierVersion;
 
-import javax.annotation.Nullable;
+import jakarta.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;

@@ -61,8 +61,8 @@ import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
 
 import javax.net.ServerSocketFactory;
 import javax.servlet.DispatcherType;
-import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.Application;
+import jakarta.ws.rs.ApplicationPath;
+import jakarta.ws.rs.core.Application;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.DatagramSocket;
@@ -401,7 +401,7 @@ public class VitamServerTestRunner { // NOSONAR
         try {
             ContextHandlerCollection applicationHandlers = new ContextHandlerCollection();
             final ServletHolder servletHolder = new ServletHolder(new HttpServletDispatcher());
-            servletHolder.setInitParameter("javax.ws.rs.Application", application.getName());
+            servletHolder.setInitParameter("jakarta.ws.rs.Application", application.getName());
             final ServletContextHandler context = new ServletContextHandler(
                 hasSession ? ServletContextHandler.SESSIONS : ServletContextHandler.NO_SESSIONS
             );
@@ -460,7 +460,7 @@ public class VitamServerTestRunner { // NOSONAR
             server.getServer().addConnector(admin);
 
             final ServletHolder servletHolderAdmin = new ServletHolder(new HttpServletDispatcher());
-            servletHolderAdmin.setInitParameter("javax.ws.rs.Application", adminAapplication.getName());
+            servletHolderAdmin.setInitParameter("jakarta.ws.rs.Application", adminAapplication.getName());
 
             final ServletContextHandler contextAdmin = new ServletContextHandler(
                 hasSession ? ServletContextHandler.SESSIONS : ServletContextHandler.NO_SESSIONS

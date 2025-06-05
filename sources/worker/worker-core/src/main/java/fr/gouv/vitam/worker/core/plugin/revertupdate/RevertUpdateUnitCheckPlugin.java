@@ -70,7 +70,7 @@ import fr.gouv.vitam.worker.core.utils.PluginHelper;
 import org.apache.commons.text.StringEscapeUtils;
 import org.bson.Document;
 
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;

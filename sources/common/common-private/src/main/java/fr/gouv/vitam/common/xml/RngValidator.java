@@ -30,7 +30,7 @@ package fr.gouv.vitam.common.xml;
 import org.apache.xerces.util.XMLCatalogResolver;
 import org.xml.sax.SAXException;
 
-import javax.annotation.concurrent.ThreadSafe;
+import jakarta.annotation.concurrent.ThreadSafe;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;

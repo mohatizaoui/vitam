@@ -41,7 +41,7 @@ import org.mockito.junit.MockitoRule;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.HttpMethod;
+import jakarta.ws.rs.HttpMethod;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;

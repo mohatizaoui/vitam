@@ -88,8 +88,8 @@ import org.jboss.resteasy.util.DelegatingOutputStream;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
-import javax.ws.rs.ProcessingException;
-import javax.ws.rs.client.Invocation;
+import jakarta.ws.rs.ProcessingException;
+import jakarta.ws.rs.client.Invocation;
 import java.io.BufferedInputStream;
 import java.io.FilterInputStream;
 import java.io.IOException;

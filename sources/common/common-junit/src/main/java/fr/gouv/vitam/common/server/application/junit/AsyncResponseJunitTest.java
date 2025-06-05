@@ -26,8 +26,8 @@
  */
 package fr.gouv.vitam.common.server.application.junit;
 
-import javax.ws.rs.container.AsyncResponse;
-import javax.ws.rs.container.TimeoutHandler;
+import jakarta.ws.rs.container.AsyncResponse;
+import jakarta.ws.rs.container.TimeoutHandler;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
